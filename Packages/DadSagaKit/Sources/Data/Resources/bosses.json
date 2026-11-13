@@ -1,0 +1,52 @@
+[
+  {
+    "id": "b-w1-first-fever", "worldID": "w1-swamp", "skill": "care", "xp": 100, "minAgeMonths": 0,
+    "title": { "el": "Ο Πρώτος Πυρετός", "en": "The First Fever" },
+    "intro": { "el": "Θα έρθει, και θα σε τρομάξει περισσότερο από το μωρό. Δεν είσαι μόνος.", "en": "It will come, and it will scare you more than the baby. You're not alone." },
+    "guide": [
+      { "el": "Μέτρησε τη θερμοκρασία και σημείωσε την ώρα και την τιμή.", "en": "Take the temperature and note the time and reading." },
+      { "el": "Αν το μωρό είναι κάτω από 3 μηνών και έχει 38°C ή παραπάνω, επικοινώνησε αμέσως με τον παιδίατρο.", "en": "If the baby is under 3 months and has 38°C (100.4°F) or higher, call your paediatrician right away." },
+      { "el": "Μη δώσεις φάρμακο χωρίς οδηγία του παιδιάτρου για τη δόση.", "en": "Don't give any medicine without your paediatrician's dosing advice." },
+      { "el": "Δίνε συχνά γάλα ή υγρά και ντύσ' το ελαφριά.", "en": "Offer feeds often and dress them lightly." },
+      { "el": "Αν δυσκολεύεται να αναπνεύσει, είναι ασυνήθιστα νωθρό ή έχει σπασμούς, κάλεσε το 166 ή το 112.", "en": "If they struggle to breathe, are unusually drowsy or have a seizure, call emergency services." }
+    ],
+    "badge": { "el": "Θερμόμετρο της Γενναιότητας", "en": "Thermometer of Courage" }
+  },
+  {
+    "id": "b-w1-sleep-regression", "worldID": "w1-swamp", "skill": "patience", "xp": 100, "minAgeMonths": 3,
+    "title": { "el": "Η Παλινδρόμηση του Ύπνου", "en": "The Sleep Regression" },
+    "intro": { "el": "Εκεί που κοιμόταν, ξαφνικά δεν κοιμάται. Είναι φυσιολογική φάση, όχι δικό σου λάθος.", "en": "Just when they slept, suddenly they don't. It's a normal phase, not your fault." },
+    "guide": [
+      { "el": "Κράτα σταθερή ρουτίνα πριν τον ύπνο: μπάνιο, γάλα, τραγούδι.", "en": "Keep a steady bedtime routine: bath, feed, song." },
+      { "el": "Μοιραστείτε τις νύχτες σε βάρδιες με τον/την σύντροφό σου.", "en": "Split the nights into shifts with your partner." },
+      { "el": "Κατέβασε τις προσδοκίες για λίγες εβδομάδες. Κοιμήσου όποτε μπορείς.", "en": "Lower expectations for a few weeks. Sleep whenever you can." },
+      { "el": "Αν κάτι σε ανησυχεί, ρώτα τον παιδίατρο.", "en": "If anything worries you, ask your paediatrician." }
+    ],
+    "badge": { "el": "Φύλακας της Νύχτας", "en": "Night Warden" }
+  },
+  {
+    "id": "b-w2-teething", "worldID": "w2-plains", "skill": "care", "xp": 100, "minAgeMonths": 9,
+    "title": { "el": "Ο Δαίμονας των Δοντιών", "en": "The Teething Demon" },
+    "intro": { "el": "Σάλια, κλάματα και όλα στο στόμα. Ο δαίμονας ήρθε.", "en": "Drool, tears and everything in the mouth. The demon has arrived." },
+    "guide": [
+      { "el": "Δώσ' του κρύο (όχι παγωμένο) κρίκο οδοντοφυΐας.", "en": "Offer a cold (not frozen) teething ring." },
+      { "el": "Κάνε απαλό μασάζ στα ούλα με καθαρό δάχτυλο.", "en": "Gently massage the gums with a clean finger." },
+      { "el": "Σκούπιζε συχνά τα σάλια για να μη βγει εξάνθημα.", "en": "Wipe drool often to prevent a rash." },
+      { "el": "Ρώτα τον παιδίατρο πριν από οποιοδήποτε gel ή παυσίπονο.", "en": "Ask your paediatrician before any gel or painkiller." }
+    ],
+    "badge": { "el": "Δαμαστής Δοντιών", "en": "Tooth Tamer" }
+  },
+  {
+    "id": "b-w2-first-daycare", "worldID": "w2-plains", "skill": "resilience", "xp": 100, "minAgeMonths": 12,
+    "title": { "el": "Η Πρώτη Μέρα στον Παιδικό", "en": "The First Day at Daycare" },
+    "intro": { "el": "Το πιο δύσκολο αντίο, για εκείνο και για σένα.", "en": "The hardest goodbye, for them and for you." },
+    "guide": [
+      { "el": "Επισκεφτείτε τον χώρο μαζί πριν την πρώτη μέρα.", "en": "Visit the place together before day one." },
+      { "el": "Πάρτε μαζί ένα αγαπημένο αντικείμενο από το σπίτι.", "en": "Bring a favourite object from home." },
+      { "el": "Αποχαιρέτα το σύντομα και ζεστά. Μην εξαφανιστείς κρυφά.", "en": "Say a short, warm goodbye. Don't sneak out." },
+      { "el": "Το κλάμα στον αποχαιρετισμό είναι φυσιολογικό. Ρώτα αργότερα πώς πήγε η μέρα.", "en": "Crying at drop-off is normal. Ask later how the day went." },
+      { "el": "Επιτρέπεται να δυσκολευτείς κι εσύ.", "en": "You're allowed to find it hard too." }
+    ],
+    "badge": { "el": "Ήρωας του Αποχαιρετισμού", "en": "Hero of Goodbyes" }
+  }
+]

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "q-w1-skin-to-skin", "worldID": "w1-swamp", "skill": "care", "xp": 20, "minAgeMonths": 0,
+    "title": { "el": "Ώρα αγκαλιάς", "en": "Cuddle time" },
+    "description": { "el": "20 λεπτά αγκαλιά δέρμα με δέρμα. Κινητό μακριά.", "en": "20 minutes of skin-to-skin. Phone away." }
+  },
+  {
+    "id": "q-w1-night-shift", "worldID": "w1-swamp", "skill": "patience", "xp": 30, "minAgeMonths": 0,
+    "title": { "el": "Νυχτερινή βάρδια", "en": "Night shift" },
+    "description": { "el": "Ανάλαβε μια ολόκληρη νυχτερινή βάρδια για να κοιμηθεί ο/η σύντροφός σου.", "en": "Take a full night shift so your partner can sleep." }
+  },
+  {
+    "id": "q-w1-bath-master", "worldID": "w1-swamp", "skill": "care", "xp": 25, "minAgeMonths": 0,
+    "title": { "el": "Ο Μάστορας του Μπάνιου", "en": "Bath master" },
+    "description": { "el": "Κάνε μόνος σου το μπάνιο, από την προετοιμασία μέχρι το πιτζαμάκι.", "en": "Run bath time solo, from setup to pyjamas." }
+  },
+  {
+    "id": "q-w1-narrator", "worldID": "w1-swamp", "skill": "play", "xp": 20, "minAgeMonths": 0,
+    "title": { "el": "Ο Αφηγητής", "en": "The narrator" },
+    "description": { "el": "Περιέγραψε δυνατά τη μέρα σου στο μωρό για 10 λεπτά. Ναι, και τα emails.", "en": "Narrate your day out loud to the baby for 10 minutes. Yes, even the emails." }
+  },
+  {
+    "id": "q-w1-solo-walk", "worldID": "w1-swamp", "skill": "resilience", "xp": 25, "minAgeMonths": 0,
+    "title": { "el": "Βόλτα για σένα", "en": "A walk for you" },
+    "description": { "el": "30 λεπτά περπάτημα μόνος σου. Χωρίς ειδοποιήσεις.", "en": "30 minutes walking on your own. Notifications off." }
+  },
+  {
+    "id": "q-w1-lullaby", "worldID": "w1-swamp", "skill": "patience", "xp": 30, "minAgeMonths": 0,
+    "title": { "el": "Το δικό σου νανούρισμα", "en": "Your own lullaby" },
+    "description": { "el": "Τραγούδα (ή μουρμούρα) το ίδιο τραγούδι κάθε βράδυ για μια εβδομάδα.", "en": "Sing (or hum) the same song every night for a week." }
+  },
+  {
+    "id": "q-w1-call-a-friend", "worldID": "w1-swamp", "skill": "resilience", "xp": 25, "minAgeMonths": 0,
+    "title": { "el": "Κάλεσε έναν φίλο", "en": "Call a friend" },
+    "description": { "el": "Μίλα με έναν φίλο. Πες του και πώς είσαι εσύ, όχι μόνο το μωρό.", "en": "Talk to a friend. Tell them how you are, not just the baby." }
+  },
+  {
+    "id": "q-w1-tummy-time", "worldID": "w1-swamp", "skill": "play", "xp": 20, "minAgeMonths": 1,
+    "title": { "el": "Προπονητής tummy time", "en": "Tummy time coach" },
+    "description": { "el": "Ξάπλωσε στο πάτωμα απέναντί του και κάνε μαζί tummy time.", "en": "Lie on the floor facing them and do tummy time together." }
+  },
+  {
+    "id": "q-w1-first-outing", "worldID": "w1-swamp", "skill": "care", "xp": 30, "minAgeMonths": 2,
+    "title": { "el": "Αποστολή: Έξοδος", "en": "Mission: Outing" },
+    "description": { "el": "Βγες έξω μόνος με το μωρό. Την τσάντα την ετοιμάζεις εσύ.", "en": "Go out solo with the baby. You pack the bag." }
+  },
+  {
+    "id": "q-w1-mirror", "worldID": "w1-swamp", "skill": "play", "xp": 20, "minAgeMonths": 4,
+    "title": { "el": "Παιχνίδι καθρέφτη", "en": "Mirror game" },
+    "description": { "el": "Κάντε γκριμάτσες μαζί μπροστά στον καθρέφτη.", "en": "Pull faces together in front of a mirror." }
+  },
+  {
+    "id": "q-w2-floor-scout", "worldID": "w2-plains", "skill": "care", "xp": 30, "minAgeMonths": 9,
+    "title": { "el": "Ανιχνευτής πατώματος", "en": "Floor scout" },
+    "description": { "el": "Μπουσούλα σε ένα δωμάτιο στο ύψος του και ασφάλισε ό,τι βρεις.", "en": "Crawl a room at their height and baby-proof what you find." }
+  },
+  {
+    "id": "q-w2-book-hero", "worldID": "w2-plains", "skill": "play", "xp": 25, "minAgeMonths": 9,
+    "title": { "el": "Ήρωας του βιβλίου", "en": "Book hero" },
+    "description": { "el": "Διάβασε το ίδιο βιβλίο τρία βράδια στη σειρά, με φωνές.", "en": "Read the same book three nights in a row, with voices." }
+  },
+  {
+    "id": "q-w2-kitchen-band", "worldID": "w2-plains", "skill": "play", "xp": 20, "minAgeMonths": 9,
+    "title": { "el": "Η μπάντα της κουζίνας", "en": "Kitchen band" },
+    "description": { "el": "Κατσαρόλες, κουτάλες, συναυλία. Οι γείτονες θα καταλάβουν.", "en": "Pots, spoons, concert. The neighbours will understand." }
+  },
+  {
+    "id": "q-w2-me-time", "worldID": "w2-plains", "skill": "resilience", "xp": 30, "minAgeMonths": 9,
+    "title": { "el": "Ώρα για σένα", "en": "Time for you" },
+    "description": { "el": "Μία ώρα για το χόμπι σου. Χωρίς ενοχές.", "en": "One hour for your hobby. Guilt-free." }
+  },
+  {
+    "id": "q-w2-park-scout", "worldID": "w2-plains", "skill": "play", "xp": 25, "minAgeMonths": 10,
+    "title": { "el": "Εξερεύνηση στο πάρκο", "en": "Park expedition" },
+    "description": { "el": "Πάτε στο πάρκο και άφησέ το να διαλέξει πού θα πάτε.", "en": "Go to the park and let them choose where to go." }
+  },
+  {
+    "id": "q-w2-chef", "worldID": "w2-plains", "skill": "care", "xp": 30, "minAgeMonths": 10,
+    "title": { "el": "Ο Σεφ", "en": "The chef" },
+    "description": { "el": "Μαγείρεψε ένα φαγητό που θα φάτε και οι δύο.", "en": "Cook a meal you both eat." }
+  },
+  {
+    "id": "q-w2-calm-rock", "worldID": "w2-plains", "skill": "patience", "xp": 35, "minAgeMonths": 12,
+    "title": { "el": "Ο ήρεμος βράχος", "en": "The calm rock" },
+    "description": { "el": "Σε μια κρίση κλάματος, μείνε ήρεμος και ονόμασε το συναίσθημα: «Θύμωσες».", "en": "During a meltdown, stay calm and name the feeling: \"You're angry.\"" }
+  },
+  {
+    "id": "q-w2-date-night", "worldID": "w2-plains", "skill": "resilience", "xp": 35, "minAgeMonths": 12,
+    "title": { "el": "Ραντεβού για δύο", "en": "Date night" },
+    "description": { "el": "Οργάνωσε μια βραδιά με τον/την σύντροφό σου.", "en": "Plan an evening with your partner." }
+  },
+  {
+    "id": "q-w2-photo-walk", "worldID": "w2-plains", "skill": "play", "xp": 25, "minAgeMonths": 12,
+    "title": { "el": "Φωτογραφική βόλτα", "en": "Photo walk" },
+    "description": { "el": "Βγείτε βόλτα και φωτογράφισε 5 πράγματα που το κάνουν να γελάει.", "en": "Go for a walk and photograph 5 things that make them laugh." }
+  },
+  {
+    "id": "q-w2-little-helper", "worldID": "w2-plains", "skill": "patience", "xp": 25, "minAgeMonths": 15,
+    "title": { "el": "Ο μικρός βοηθός", "en": "Little helper" },
+    "description": { "el": "Άφησέ το να «βοηθήσει» σε μια δουλειά του σπιτιού. Θα πάρει τριπλάσιο χρόνο.", "en": "Let them \"help\" with a chore. It will take three times as long." }
+  }
+]

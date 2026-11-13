@@ -1,0 +1,18 @@
+[
+  {
+    "id": "w1-swamp",
+    "order": 1,
+    "title": { "el": "Ο Βάλτος της Αϋπνίας", "en": "The Swamp of No Sleep" },
+    "tagline": { "el": "Νύχτες χωρίς τέλος, αγκαλιές χωρίς όριο.", "en": "Endless nights, limitless cuddles." },
+    "minAgeMonths": 0,
+    "maxAgeMonths": 8
+  },
+  {
+    "id": "w2-plains",
+    "order": 2,
+    "title": { "el": "Η Πεδιάδα των Πρώτων Βημάτων", "en": "The Plains of First Steps" },
+    "tagline": { "el": "Όλα αγγίζονται, όλα δοκιμάζονται, όλα πέφτουν.", "en": "Everything gets touched, tasted and dropped." },
+    "minAgeMonths": 9,
+    "maxAgeMonths": 24
+  }
+]

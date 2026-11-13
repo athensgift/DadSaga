@@ -1,0 +1,24 @@
+included:
+  - App
+  - Packages/DadSagaKit/Sources
+  - Packages/DadSagaKit/Tests
+
+excluded:
+  - Packages/DadSagaKit/.build
+
+opt_in_rules:
+  - force_unwrapping
+  - empty_count
+  - first_where
+  - sorted_first_last
+  - implicit_return
+
+line_length:
+  warning: 130
+  error: 160
+
+identifier_name:
+  excluded: [id, el, en, xs, s, m, l, xl, xp]
+
+force_cast: error
+force_try: error

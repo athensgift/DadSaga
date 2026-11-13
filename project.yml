@@ -1,0 +1,50 @@
+name: DadSaga
+
+options:
+  bundleIdPrefix: com.athinodoros
+  deploymentTarget:
+    iOS: "26.0"
+  createIntermediateGroups: true
+  developmentLanguage: el
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+
+packages:
+  DadSagaKit:
+    path: Packages/DadSagaKit
+
+targets:
+  DadSaga:
+    type: application
+    platform: iOS
+    sources:
+      - App
+    dependencies:
+      - package: DadSagaKit
+        product: Domain
+      - package: DadSagaKit
+        product: Application
+      - package: DadSagaKit
+        product: Data
+      - package: DadSagaKit
+        product: Presentation
+      - package: DadSagaKit
+        product: DesignSystem
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: DadSaga
+        CFBundleDevelopmentRegion: el
+        CFBundleLocalizations: [el, en]
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.athinodoros.dadsaga
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: ""

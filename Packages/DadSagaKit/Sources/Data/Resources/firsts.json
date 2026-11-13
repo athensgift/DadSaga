@@ -1,0 +1,16 @@
+[
+  { "id": "f-smile", "order": 1, "emoji": "😊", "xp": 30, "companionTrait": "smile", "title": { "el": "Πρώτο χαμόγελο", "en": "First smile" } },
+  { "id": "f-laugh", "order": 2, "emoji": "😂", "xp": 30, "companionTrait": "laugh", "title": { "el": "Πρώτο γέλιο", "en": "First laugh" } },
+  { "id": "f-roll-over", "order": 3, "emoji": "🔄", "xp": 30, "companionTrait": null, "title": { "el": "Γύρισε μπρούμυτα", "en": "Rolled over" } },
+  { "id": "f-sit", "order": 4, "emoji": "🪑", "xp": 30, "companionTrait": "sit", "title": { "el": "Κάθισε μόνο του", "en": "Sat up alone" } },
+  { "id": "f-first-food", "order": 5, "emoji": "🥄", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη τροφή", "en": "First food" } },
+  { "id": "f-crawl", "order": 6, "emoji": "🐛", "xp": 30, "companionTrait": "crawl", "title": { "el": "Μπουσούλησε", "en": "Crawled" } },
+  { "id": "f-tooth", "order": 7, "emoji": "🦷", "xp": 30, "companionTrait": "tooth", "title": { "el": "Πρώτο δόντι", "en": "First tooth" } },
+  { "id": "f-first-word", "order": 8, "emoji": "💬", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη λέξη", "en": "First word" } },
+  { "id": "f-dada", "order": 9, "emoji": "🧔", "xp": 30, "companionTrait": null, "title": { "el": "«Μπαμπά!»", "en": "\"Dada!\"" } },
+  { "id": "f-steps", "order": 10, "emoji": "👣", "xp": 30, "companionTrait": "walk", "title": { "el": "Πρώτα βήματα", "en": "First steps" } },
+  { "id": "f-haircut", "order": 11, "emoji": "✂️", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο κούρεμα", "en": "First haircut" } },
+  { "id": "f-sea", "order": 12, "emoji": "🌊", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη θάλασσα", "en": "First time at the sea" } },
+  { "id": "f-christmas", "order": 13, "emoji": "🎄", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτα Χριστούγεννα", "en": "First Christmas" } },
+  { "id": "f-birthday", "order": 14, "emoji": "🎂", "xp": 30, "companionTrait": "party-hat", "title": { "el": "Πρώτα γενέθλια", "en": "First birthday" } }
+]
