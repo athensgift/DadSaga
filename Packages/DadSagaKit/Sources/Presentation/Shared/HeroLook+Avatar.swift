@@ -3,9 +3,12 @@ import DesignSystem
 extension HeroLook {
     var avatarStyle: HeroAvatar.Style {
         switch self {
-        case .knight: .knight
-        case .mage: .mage
-        case .ranger: .ranger
+        case .hero: .hero
+        case .cool: .cool
+        case .strong: .strong
+        case .smart: .smart
+        case .chef: .chef
+        case .fixer: .fixer
         }
     }
 }

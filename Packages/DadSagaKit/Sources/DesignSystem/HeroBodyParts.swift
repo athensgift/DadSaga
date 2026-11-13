@@ -1,6 +1,6 @@
 import SwiftUI
 
-// The hero's body: legs, torso, arms and head. Coordinates are in `HeroFigure`'s design canvas.
+// The parts every dad shares: legs, arms and head. Coordinates are in `HeroFigure`'s design canvas.
 
 struct HeroLegs: View {
     let style: HeroAvatar.Style
@@ -8,21 +8,15 @@ struct HeroLegs: View {
     var body: some View {
         ForEach([-9.0, 9.0], id: \.self) { side in
             RoundedRectangle(cornerRadius: 5)
-                .fill(DSColor.heroCloth)
+                .fill(style.trousers)
                 .frame(width: 13, height: 22)
                 .offset(x: side, y: 40)
-            if style == .knight {
-                Circle()
-                    .fill(heroGradient(DSColor.heroSteel, DSColor.heroSteelShade))
-                    .frame(width: 9, height: 9)
-                    .offset(x: side, y: 38)
-            }
             RoundedRectangle(cornerRadius: 4)
-                .fill(DSColor.heroLeather)
+                .fill(style.shoes)
                 .frame(width: 17, height: 11)
                 .offset(x: side * 1.15, y: 51.5)
             Capsule()
-                .fill(DSColor.heroWood)
+                .fill(style.cuff)
                 .frame(width: 15, height: 4)
                 .offset(x: side * 1.05, y: 46.5)
             Capsule()
@@ -33,130 +27,32 @@ struct HeroLegs: View {
     }
 }
 
-struct HeroTorso: View {
-    let style: HeroAvatar.Style
-    let breath: CGFloat
-
-    var body: some View {
-        ZStack {
-            Rectangle()
-                .fill(DSColor.heroSkinShade)
-                .frame(width: 12, height: 8)
-                .offset(y: -6)
-            outfit
-                .scaleEffect(breath)
-        }
-    }
-
-    @ViewBuilder private var outfit: some View {
-        switch style {
-        case .knight: knightArmour
-        case .mage: mageRobe
-        case .ranger: rangerTunic
-        }
-    }
-
-    private var knightArmour: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 13)
-                .fill(style.fabric)
-                .frame(width: 40, height: 40)
-                .offset(y: 14)
-            RoundedRectangle(cornerRadius: 9)
-                .fill(heroGradient(DSColor.heroSteel, DSColor.heroSteelShade))
-                .frame(width: 30, height: 23)
-                .offset(y: 8)
-            Rectangle().fill(DSColor.boss).frame(width: 3, height: 13).offset(y: 8)
-            Rectangle().fill(DSColor.boss).frame(width: 11, height: 3).offset(y: 6)
-            belt(width: 40)
-        }
-    }
-
-    private var mageRobe: some View {
-        ZStack {
-            HeroTrapezoid(topRatio: 0.74)
-                .fill(style.fabric)
-                .frame(width: 52, height: 55)
-                .offset(y: 21.5)
-            Rectangle().fill(style.shade).frame(width: 2, height: 26).offset(y: 36)
-            Capsule().fill(DSColor.legendary).frame(width: 52, height: 4).offset(y: 47)
-            Capsule().fill(DSColor.legendary).frame(width: 42, height: 5).offset(y: 22)
-            Ellipse().fill(style.shade).frame(width: 28, height: 10).offset(y: -2)
-            star(size: 6).offset(x: -9, y: 9)
-            star(size: 4).offset(x: 10, y: 34)
-            star(size: 5).offset(x: -12, y: 38)
-        }
-    }
-
-    private var rangerTunic: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 12)
-                .fill(style.fabric)
-                .frame(width: 40, height: 44)
-                .offset(y: 16)
-            Capsule()
-                .fill(DSColor.heroLeather)
-                .frame(width: 4, height: 46)
-                .rotationEffect(.degrees(38))
-                .offset(y: 10)
-            belt(width: 40)
-            Ellipse().fill(style.shade).frame(width: 34, height: 12).offset(y: -2)
-        }
-    }
-
-    private func belt(width: CGFloat) -> some View {
-        ZStack {
-            Rectangle().fill(DSColor.heroLeather).frame(width: width, height: 5)
-            RoundedRectangle(cornerRadius: 2).fill(DSColor.legendary).frame(width: 7, height: 7)
-            RoundedRectangle(cornerRadius: 1).fill(DSColor.heroLeather).frame(width: 3, height: 3)
-        }
-        .offset(y: 25)
-    }
-
-    private func star(size: CGFloat) -> some View {
-        Image(systemName: "star.fill")
-            .font(.system(size: size))
-            .foregroundStyle(DSColor.legendary)
-    }
-}
-
 struct HeroArm: View {
     let style: HeroAvatar.Style
+    let isRight: Bool
     let angle: Double
-    let holdsShield: Bool
+    let sway: Double
 
     var body: some View {
         VStack(spacing: -3) {
             Capsule()
-                .fill(style.fabric)
-                .frame(width: 11, height: 22)
+                .fill(style.sleeve)
+                .frame(width: style.armWidth, height: 22)
             Capsule()
                 .fill(style.cuff)
-                .frame(width: 12, height: 6)
+                .frame(width: style.armWidth + 1, height: 6)
             Circle()
                 .fill(DSColor.heroSkin)
                 .frame(width: 10, height: 10)
                 .overlay {
-                    if holdsShield { HeroShield(tint: style.tint, shade: style.shade) }
+                    if isRight {
+                        // Counter-rotated so whatever he holds stays upright while the arm moves.
+                        HeroHeldItem(style: style, sway: sway)
+                            .rotationEffect(.degrees(-angle))
+                    }
                 }
         }
         .rotationEffect(.degrees(angle), anchor: .top)
-    }
-}
-
-/// Things that sit on top of the arms at the shoulders.
-struct HeroShoulders: View {
-    let style: HeroAvatar.Style
-
-    var body: some View {
-        if style == .knight {
-            ForEach([-23.0, 23.0], id: \.self) { side in
-                Ellipse()
-                    .fill(heroGradient(DSColor.heroSteel, DSColor.heroSteelShade))
-                    .frame(width: 17, height: 12)
-                    .offset(x: side, y: 0)
-            }
-        }
     }
 }
 
@@ -171,6 +67,7 @@ struct HeroHead: View {
             }
             Circle().fill(DSColor.heroSkin).frame(width: 40, height: 40)
                 .offset(y: -24)
+            hair
             ForEach([-13.0, 13.0], id: \.self) { side in
                 Circle().fill(DSColor.heroBlush.opacity(0.55)).frame(width: 7, height: 7).offset(x: side, y: -22.5)
             }
@@ -184,6 +81,19 @@ struct HeroHead: View {
                     .offset(x: side, y: isCheering ? -36.5 : -35)
             }
             Ellipse().fill(DSColor.heroSkinShade).frame(width: 6, height: 5).offset(y: -23.5)
+        }
+    }
+
+    private var hair: some View {
+        ZStack {
+            Ellipse()
+                .trim(from: 0.5, to: 1)
+                .fill(DSColor.heroBeard)
+                .frame(width: 42, height: 26)
+                .offset(y: -39)
+            ForEach([-19.0, 19.0], id: \.self) { side in
+                Capsule().fill(DSColor.heroBeard).frame(width: 5, height: 11).offset(x: side, y: -34)
+            }
         }
     }
 

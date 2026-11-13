@@ -37,7 +37,7 @@ public struct OnboardingView: View {
         @Bindable var viewModel = viewModel
         return ScrollView {
             VStack(spacing: DSSpacing.l) {
-                HeroAvatar(style: .knight, size: 180)
+                HeroAvatar(style: .hero, size: 180)
                     .accessibilityHidden(true)
                 header(title: content.welcomeTitle, subtitle: content.welcomeSubtitle)
                 VStack(spacing: DSSpacing.m) {
