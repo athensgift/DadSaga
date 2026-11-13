@@ -16,7 +16,8 @@ struct HeroClassContentTests {
     }
 }
 
-@Suite("SwiftDataProfileRepository")
+/// Serialized: creating several SwiftData containers for the same model at once can crash the test process.
+@Suite("SwiftDataProfileRepository", .serialized)
 struct SwiftDataProfileRepositoryTests {
     let birth = Date(timeIntervalSince1970: 1_000_000)
 
