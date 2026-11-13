@@ -5,10 +5,10 @@ import Testing
 
 @Suite("Hero classes content")
 struct HeroClassContentTests {
-    @Test("Given the bundled JSON, when fetching, then the three hero classes load in order with text in both languages")
+    @Test("Given the bundled JSON, when fetching, then the six hero classes load in order with text in both languages")
     func loadsHeroClasses() async throws {
         let catalog = try await BundledContentRepository().fetchCatalog()
-        #expect(catalog.heroClasses.map(\.id) == ["h-knight", "h-mage", "h-ranger"])
+        #expect(catalog.heroClasses.map(\.id) == ["h-super", "h-cool", "h-strong", "h-smart", "h-chef", "h-fixer"])
         for hero in catalog.heroClasses {
             #expect(!hero.title.el.isEmpty && !hero.title.en.isEmpty)
             #expect(!hero.tagline.el.isEmpty && !hero.tagline.en.isEmpty)
@@ -30,7 +30,7 @@ struct SwiftDataProfileRepositoryTests {
     @Test("Given a saved profile, when fetching, then the same profile is returned")
     func roundTrip() async throws {
         let sut = try SwiftDataProfileRepository.inMemory()
-        let profile = PlayerProfile(child: Child(name: "Νίκος", birthDate: birth), heroClassID: "h-mage")
+        let profile = PlayerProfile(child: Child(name: "Νίκος", birthDate: birth), heroClassID: "h-cool")
 
         try await sut.save(profile)
 
@@ -40,8 +40,8 @@ struct SwiftDataProfileRepositoryTests {
     @Test("Given an existing profile, when saving again, then it is replaced rather than duplicated")
     func saveReplaces() async throws {
         let sut = try SwiftDataProfileRepository.inMemory()
-        try await sut.save(PlayerProfile(child: Child(name: "Νίκος", birthDate: birth), heroClassID: "h-mage"))
-        let updated = PlayerProfile(child: Child(name: "Άννα", birthDate: birth), heroClassID: "h-ranger")
+        try await sut.save(PlayerProfile(child: Child(name: "Νίκος", birthDate: birth), heroClassID: "h-cool"))
+        let updated = PlayerProfile(child: Child(name: "Άννα", birthDate: birth), heroClassID: "h-smart")
 
         try await sut.save(updated)
 
@@ -51,7 +51,7 @@ struct SwiftDataProfileRepositoryTests {
     @Test("Given a saved profile, when deleting, then the store is empty again")
     func delete() async throws {
         let sut = try SwiftDataProfileRepository.inMemory()
-        try await sut.save(PlayerProfile(child: Child(name: "Νίκος", birthDate: birth), heroClassID: "h-mage"))
+        try await sut.save(PlayerProfile(child: Child(name: "Νίκος", birthDate: birth), heroClassID: "h-cool"))
 
         try await sut.deleteProfile()
 

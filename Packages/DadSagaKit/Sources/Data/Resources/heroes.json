@@ -1,17 +1,32 @@
 [
   {
-    "id": "h-knight", "order": 1,
-    "title": { "el": "Ιππότης", "en": "Knight" },
-    "tagline": { "el": "Προστάτης του ύπνου, της αγκαλιάς και του τελευταίου μπισκότου.", "en": "Protector of sleep, cuddles and the last biscuit." }
+    "id": "h-super", "order": 1,
+    "title": { "el": "Σούπερ Μπαμπάς", "en": "Super Dad" },
+    "tagline": { "el": "Πετάει από τη δουλειά στον παιδικό σε χρόνο μηδέν.", "en": "Flies from work to daycare in no time." }
   },
   {
-    "id": "h-mage", "order": 2,
-    "title": { "el": "Μάγος", "en": "Mage" },
-    "tagline": { "el": "Με λίγη φαντασία, μια κουτάλα γίνεται ραβδί.", "en": "With a little imagination, a spoon becomes a wand." }
+    "id": "h-cool", "order": 2,
+    "title": { "el": "Cool Μπαμπάς", "en": "Cool Dad" },
+    "tagline": { "el": "Γυαλιά ηλίου, playlist έτοιμη, κανένα άγχος.", "en": "Shades on, playlist ready, zero stress." }
   },
   {
-    "id": "h-ranger", "order": 3,
-    "title": { "el": "Τοξότης", "en": "Ranger" },
-    "tagline": { "el": "Ήρεμος και υπομονετικός. Βλέπει την κρίση πριν έρθει.", "en": "Calm and patient. Sees the meltdown coming." }
+    "id": "h-strong", "order": 3,
+    "title": { "el": "Δυνατός Μπαμπάς", "en": "Strong Dad" },
+    "tagline": { "el": "Καρότσι, τσάντα και παιδί. Με το ένα χέρι.", "en": "Stroller, bag and kid. With one arm." }
+  },
+  {
+    "id": "h-smart", "order": 4,
+    "title": { "el": "Έξυπνος Μπαμπάς", "en": "Smart Dad" },
+    "tagline": { "el": "Έχει απάντηση για κάθε «γιατί». Σχεδόν.", "en": "Has an answer for every \"why\". Almost." }
+  },
+  {
+    "id": "h-chef", "order": 5,
+    "title": { "el": "Σεφ Μπαμπάς", "en": "Chef Dad" },
+    "tagline": { "el": "Κάνει το μπρόκολο να μοιάζει με γλυκό.", "en": "Makes broccoli look like dessert." }
+  },
+  {
+    "id": "h-fixer", "order": 6,
+    "title": { "el": "Μάστορας Μπαμπάς", "en": "Fix-it Dad" },
+    "tagline": { "el": "Αν χάλασε, φτιάχνεται. Αν δεν χάλασε, περίμενε.", "en": "If it's broken, he fixes it. If it isn't, give it time." }
   }
 ]

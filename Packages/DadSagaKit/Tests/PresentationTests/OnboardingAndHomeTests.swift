@@ -73,8 +73,8 @@ struct OnboardingViewModelTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        #expect(content.heroes.map(\.title) == ["Ιππότης", "Μάγος"])
-        #expect(content.heroes.map(\.look) == [.knight, .mage])
+        #expect(content.heroes.map(\.title) == ["Σούπερ Μπαμπάς", "Cool Μπαμπάς"])
+        #expect(content.heroes.map(\.look) == [.hero, .cool])
     }
 
     @Test("Given a blank name, when continuing, then the step does not change")
@@ -95,11 +95,11 @@ struct OnboardingViewModelTests {
         #expect(sut.step == .hero)
         #expect(!sut.canFinish)
 
-        sut.selectHero(id: "h-mage")
+        sut.selectHero(id: "h-cool")
         await sut.finish()
 
         #expect(finished)
-        #expect(await save.saved?.heroClassID == "h-mage")
+        #expect(await save.saved?.heroClassID == "h-cool")
         #expect(await save.saved?.child.name == "Νίκος")
     }
 
@@ -109,7 +109,7 @@ struct OnboardingViewModelTests {
         let sut = makeSUT { finished = true }
         await save.failNext()
         sut.childName = "Νίκος"
-        sut.selectHero(id: "h-mage")
+        sut.selectHero(id: "h-cool")
 
         await sut.finish()
 
@@ -131,7 +131,7 @@ struct HomeViewModelTests {
         )
     }
 
-    @Test("Given a mage dad with a 10-month-old, when appearing, then hero, companion and current-world cards are shown")
+    @Test("Given a cool dad with a 10-month-old, when appearing, then hero, companion and current-world cards are shown")
     func loaded() async {
         let sut = makeSUT(profile: HeroStub.profile)
         await sut.onAppear()
@@ -140,8 +140,8 @@ struct HomeViewModelTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        #expect(content.heroTitle == "Μάγος")
-        #expect(content.heroLook == .mage)
+        #expect(content.heroTitle == "Cool Μπαμπάς")
+        #expect(content.heroLook == .cool)
         #expect(content.companionLine == "Νίκος · 10 μηνών")
         #expect(content.level == 1)
         #expect(content.worldTitle == "Κόσμος")
@@ -157,7 +157,7 @@ struct HomeViewModelTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        #expect(content.heroTitle == "Mage")
+        #expect(content.heroTitle == "Cool Dad")
         #expect(content.companionLine == "Νίκος · 10 months old")
     }
 
@@ -210,15 +210,15 @@ struct StubGetAdventure: GetAdventureUseCase {
 enum HeroStub {
     static let today = Date(timeIntervalSince1970: 1_000_000)
     static let text = LocalizedText(el: "x", en: "x")
-    static let profile = PlayerProfile(child: Child(name: "Νίκος", birthDate: today), heroClassID: "h-mage")
+    static let profile = PlayerProfile(child: Child(name: "Νίκος", birthDate: today), heroClassID: "h-cool")
     static let catalog = ContentCatalog(
         worlds: Stub.catalog.worlds,
         quests: Stub.catalog.quests,
         bosses: Stub.catalog.bosses,
         firsts: Stub.catalog.firsts,
         heroClasses: [
-            HeroClass(id: "h-mage", order: 2, title: LocalizedText(el: "Μάγος", en: "Mage"), tagline: text),
-            HeroClass(id: "h-knight", order: 1, title: LocalizedText(el: "Ιππότης", en: "Knight"), tagline: text)
+            HeroClass(id: "h-cool", order: 2, title: LocalizedText(el: "Cool Μπαμπάς", en: "Cool Dad"), tagline: text),
+            HeroClass(id: "h-super", order: 1, title: LocalizedText(el: "Σούπερ Μπαμπάς", en: "Super Dad"), tagline: text)
         ]
     )
 }
