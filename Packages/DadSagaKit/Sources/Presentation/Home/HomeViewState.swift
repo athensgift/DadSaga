@@ -30,11 +30,28 @@ public struct QuestDetail: Equatable, Identifiable, Sendable {
     public let cancelTitle: String
 }
 
-/// Shown briefly after a quest is completed.
+/// The sheet for a boss fight: intro, survival guide and the "we made it" action.
+public struct BossDetail: Equatable, Identifiable, Sendable {
+    public let id: String
+    public let title: String
+    public let intro: String
+    public let guideTitle: String
+    public let guide: [String]
+    public let reward: String
+    public let disclaimer: String
+    public let isDefeated: Bool
+    public let defeatedText: String
+    public let confirmTitle: String
+    public let closeTitle: String
+}
+
+/// Shown briefly after a quest is completed or a boss is defeated.
 public struct Celebration: Equatable, Identifiable, Sendable {
     /// Increases with every completion, so it also works as an animation trigger.
     public let id: Int
     public let xpText: String
     /// Set only when the completion reached a new level.
     public let levelUpText: String?
+    /// The badge earned, for boss fights.
+    public let badgeText: String?
 }

@@ -17,6 +17,7 @@ public struct ProgressChange: Hashable, Sendable {
 
 public enum ProgressError: Error, Equatable {
     case unknownQuest(String)
+    case unknownBoss(String)
 }
 
 /// Records that the dad did a quest in real life. Quests are repeatable and always give their XP.
