@@ -42,6 +42,7 @@ struct DadProgressTests {
         let progress = DadProgress(events: events, catalog: catalog)
         #expect(progress.totalXP == 40)
         #expect(progress.skillXP[.care] == 40)
+        #expect(progress.questCompletions == ["q1": 2])
     }
 
     @Test("Given a boss defeated twice, when aggregating, then XP is counted once")

@@ -48,12 +48,15 @@ public struct QuestCard: View {
     let subtitle: String
     let badge: String
     let style: Style
+    let footnote: String?
 
-    public init(title: String, subtitle: String, badge: String, style: Style = .quest) {
+    /// - Parameter footnote: an optional "done" line under the text, e.g. how many times a quest was completed.
+    public init(title: String, subtitle: String, badge: String, style: Style = .quest, footnote: String? = nil) {
         self.title = title
         self.subtitle = subtitle
         self.badge = badge
         self.style = style
+        self.footnote = footnote
     }
 
     public var body: some View {
@@ -74,7 +77,13 @@ public struct QuestCard: View {
                 .font(DSFont.body)
                 .foregroundStyle(DSColor.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
+            if let footnote {
+                Label(footnote, systemImage: "checkmark.circle.fill")
+                    .font(DSFont.caption)
+                    .foregroundStyle(DSColor.xp)
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(DSSpacing.m)
         .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card))
         .overlay(

@@ -48,14 +48,18 @@ struct ProfileUseCaseTests {
         #expect(try await repository.fetchProfile() == nil)
     }
 
-    @Test("Given a stored profile, when resetting, then no profile is left")
+    @Test("Given a stored profile and progress, when resetting, then both are gone")
     func reset() async throws {
         let repository = SpyProfileRepository()
         try await repository.save(PlayerProfile(child: Child(name: "Νίκος", birthDate: today), heroClassID: "h1"))
 
-        try await DefaultResetProfileUseCase(repository: repository).execute()
+        let progress = SpyProgressRepository()
+        try await progress.add(ProgressEvent(kind: .quest(id: "q1"), date: today))
+
+        try await DefaultResetProfileUseCase(profileRepository: repository, progressRepository: progress).execute()
 
         #expect(try await repository.fetchProfile() == nil)
+        #expect(try await progress.fetchEvents().isEmpty)
     }
 }
 

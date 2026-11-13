@@ -7,12 +7,8 @@ import Presentation
 final class AppContainer {
     // MARK: Data
     private lazy var contentRepository: any ContentRepository = BundledContentRepository()
-    private lazy var profileRepository: any ProfileRepository = Self.makeProfileRepository()
-
-    /// Falls back to a session-only profile if the on-disk store cannot be opened, so the app still starts.
-    private static func makeProfileRepository() -> any ProfileRepository {
-        (try? SwiftDataProfileRepository.live()) ?? InMemoryProfileRepository()
-    }
+    /// Falls back to session-only storage if the on-disk store cannot be opened, so the app still starts.
+    private lazy var store: LocalStore = (try? LocalStore.live()) ?? LocalStore.sessionOnly()
 
     // MARK: Use cases
     private var loadContentCatalogUseCase: any LoadContentCatalogUseCase {
@@ -20,23 +16,20 @@ final class AppContainer {
     }
 
     private var getProfileUseCase: any GetProfileUseCase {
-        DefaultGetProfileUseCase(repository: profileRepository)
+        DefaultGetProfileUseCase(repository: store.profiles)
     }
 
     private var saveProfileUseCase: any SaveProfileUseCase {
-        DefaultSaveProfileUseCase(contentRepository: contentRepository, profileRepository: profileRepository)
-    }
-
-    private var getAdventureUseCase: any GetAdventureUseCase {
-        DefaultGetAdventureUseCase(repository: contentRepository)
+        DefaultSaveProfileUseCase(contentRepository: contentRepository, profileRepository: store.profiles)
     }
 
     // MARK: Presentation
     func makeRootViewModel() -> RootViewModel {
         #if DEBUG
-        RootViewModel(getProfile: getProfileUseCase, resetProfile: DefaultResetProfileUseCase(repository: profileRepository))
+        let reset = DefaultResetProfileUseCase(profileRepository: store.profiles, progressRepository: store.progress)
+        return RootViewModel(getProfile: getProfileUseCase, resetProfile: reset)
         #else
-        RootViewModel(getProfile: getProfileUseCase)
+        return RootViewModel(getProfile: getProfileUseCase)
         #endif
     }
 
@@ -45,7 +38,18 @@ final class AppContainer {
     }
 
     func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(getProfile: getProfileUseCase, loadCatalog: loadContentCatalogUseCase, getAdventure: getAdventureUseCase)
+        HomeViewModel(
+            useCases: HomeViewModel.UseCases(
+                getProfile: getProfileUseCase,
+                loadCatalog: loadContentCatalogUseCase,
+                getAdventure: DefaultGetAdventureUseCase(repository: contentRepository),
+                getProgress: DefaultGetProgressUseCase(contentRepository: contentRepository, progressRepository: store.progress),
+                completeQuest: DefaultCompleteQuestUseCase(
+                    contentRepository: contentRepository,
+                    progressRepository: store.progress
+                )
+            )
+        )
     }
 
     func makeContentExplorerViewModel() -> ContentExplorerViewModel {

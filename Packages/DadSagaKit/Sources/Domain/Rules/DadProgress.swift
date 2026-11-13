@@ -4,6 +4,8 @@ public struct DadProgress: Hashable, Sendable {
     public let skillXP: [Skill: Int]
     public let capturedFirstIDs: Set<String>
     public let defeatedBossIDs: Set<String>
+    /// How many times each quest has been completed.
+    public let questCompletions: [String: Int]
 
     public var level: LevelProgress { LevelCurve.progress(forTotalXP: totalXP) }
 
@@ -18,6 +20,7 @@ public struct DadProgress: Hashable, Sendable {
         var skills: [Skill: Int] = [:]
         var capturedFirsts: Set<String> = []
         var defeatedBosses: Set<String> = []
+        var completions: [String: Int] = [:]
 
         for event in events.sorted(by: { $0.date < $1.date }) {
             switch event.kind {
@@ -25,6 +28,7 @@ public struct DadProgress: Hashable, Sendable {
                 guard let quest = quests[id] else { continue }
                 total += quest.xp
                 skills[quest.skill, default: 0] += quest.xp
+                completions[id, default: 0] += 1
             case .boss(let id):
                 guard let boss = bosses[id], defeatedBosses.insert(id).inserted else { continue }
                 total += boss.xp
@@ -39,5 +43,6 @@ public struct DadProgress: Hashable, Sendable {
         skillXP = skills
         capturedFirstIDs = capturedFirsts
         defeatedBossIDs = defeatedBosses
+        questCompletions = completions
     }
 }

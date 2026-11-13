@@ -30,4 +30,6 @@ public struct CardModel: Equatable, Identifiable, Sendable {
     public let subtitle: String
     public let badge: String
     public let kind: Kind
+    /// A "done" line, e.g. how many times the quest was completed.
+    public var footnote: String?
 }

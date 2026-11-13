@@ -121,14 +121,79 @@ struct OnboardingViewModelTests {
 @MainActor
 @Suite("HomeViewModel")
 struct HomeViewModelTests {
+    let progress = FakeProgress()
+
     func makeSUT(profile: PlayerProfile?, locale: String = "el_GR") -> HomeViewModel {
         HomeViewModel(
-            getProfile: StubGetProfile(profile: profile),
-            loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)),
-            getAdventure: StubGetAdventure(),
+            useCases: HomeViewModel.UseCases(
+                getProfile: StubGetProfile(profile: profile),
+                loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)),
+                getAdventure: StubGetAdventure(),
+                getProgress: progress,
+                completeQuest: progress
+            ),
             locale: Locale(identifier: locale),
             now: { HeroStub.today }
         )
+    }
+
+    @Test("Given a quest card, when selecting and confirming it, then XP is gained, the card shows it and the hero celebrates")
+    func completesQuest() async {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+
+        sut.select(cardID: "q1")
+        #expect(sut.selectedQuest?.title == "Αποστολή")
+        #expect(sut.selectedQuest?.reward == "+20 XP · Φροντίδα")
+        await sut.completeSelectedQuest()
+
+        guard case .loaded(let content) = sut.state else {
+            Issue.record("Expected loaded state, got \(sut.state)")
+            return
+        }
+        #expect(sut.selectedQuest == nil)
+        #expect(content.xpLine == "20 / 100 XP")
+        #expect(content.cards.last?.footnote == "Το έκανες 1 φορά")
+        #expect(sut.celebration?.id == 1)
+        #expect(sut.celebration?.xpText == "+20 XP")
+        #expect(sut.celebration?.levelUpText == nil)
+
+        sut.celebrationFinished()
+        #expect(sut.celebration == nil)
+    }
+
+    @Test("Given 80 XP, when completing a quest, then the celebration announces the new level")
+    func levelUpCelebration() async {
+        await progress.seed(times: 4)
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+
+        #expect(sut.celebration?.levelUpText == "Επίπεδο 2!")
+    }
+
+    @Test("Given a boss card, when selecting it, then nothing opens yet")
+    func bossIsNotActionable() async {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "b1")
+        #expect(sut.selectedQuest == nil)
+    }
+
+    @Test("Given saving fails, when confirming a quest, then the sheet stays open with an error")
+    func completionFailure() async {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        await progress.failNext()
+
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+
+        #expect(sut.selectedQuest != nil)
+        #expect(sut.errorMessage == "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.")
+        #expect(sut.celebration == nil)
     }
 
     @Test("Given a cool dad with a 10-month-old, when appearing, then hero, companion and current-world cards are shown")
@@ -166,6 +231,31 @@ struct HomeViewModelTests {
         let sut = makeSUT(profile: nil)
         await sut.onAppear()
         #expect(sut.state == .failed(message: "Δεν βρέθηκε προφίλ."))
+    }
+}
+
+/// An in-memory stand-in for both progress use cases, backed by the stub catalog.
+actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase {
+    private var events: [ProgressEvent] = []
+    private var shouldFail = false
+
+    func seed(times: Int) {
+        events = (0..<times).map { _ in ProgressEvent(kind: .quest(id: "q1"), date: HeroStub.today) }
+    }
+
+    func failNext() {
+        shouldFail = true
+    }
+
+    func execute() async throws -> DadProgress {
+        DadProgress(events: events, catalog: HeroStub.catalog)
+    }
+
+    func execute(questID: String, on date: Date) async throws -> ProgressChange {
+        if shouldFail { throw StubError.boom }
+        let before = DadProgress(events: events, catalog: HeroStub.catalog)
+        events.append(ProgressEvent(kind: .quest(id: questID), date: date))
+        return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog))
     }
 }
 
