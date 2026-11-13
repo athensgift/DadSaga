@@ -10,14 +10,18 @@ public struct HeroAvatar: View {
 
     private let style: Style
     private let size: CGFloat
+    private let cheerTrigger: Int
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isCheering = false
     @State private var hasAppeared = false
 
-    /// - Parameter size: the avatar's height in points.
-    public init(style: Style, size: CGFloat = 200) {
+    /// - Parameters:
+    ///   - size: the avatar's height in points.
+    ///   - cheerTrigger: change this value to make the hero cheer, as if he had been tapped.
+    public init(style: Style, size: CGFloat = 200, cheerTrigger: Int = 0) {
         self.style = style
         self.size = size
+        self.cheerTrigger = cheerTrigger
     }
 
     public var body: some View {
@@ -34,6 +38,7 @@ public struct HeroAvatar: View {
         .opacity(hasAppeared ? 1 : 0)
         .contentShape(Rectangle())
         .onTapGesture(perform: cheer)
+        .onChange(of: cheerTrigger) { cheer() }
         .sensoryFeedback(.impact, trigger: isCheering) { _, cheering in cheering }
         .onAppear {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) { hasAppeared = true }

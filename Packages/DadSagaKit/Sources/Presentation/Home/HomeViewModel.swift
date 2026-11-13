@@ -7,57 +7,134 @@ import Observation
 @MainActor
 @Observable
 public final class HomeViewModel {
-    public private(set) var state: HomeViewState = .loading
+    public struct UseCases: Sendable {
+        let getProfile: any GetProfileUseCase
+        let loadCatalog: any LoadContentCatalogUseCase
+        let getAdventure: any GetAdventureUseCase
+        let getProgress: any GetProgressUseCase
+        let completeQuest: any CompleteQuestUseCase
 
-    private let getProfile: any GetProfileUseCase
-    private let loadCatalog: any LoadContentCatalogUseCase
-    private let getAdventure: any GetAdventureUseCase
+        public init(
+            getProfile: any GetProfileUseCase,
+            loadCatalog: any LoadContentCatalogUseCase,
+            getAdventure: any GetAdventureUseCase,
+            getProgress: any GetProgressUseCase,
+            completeQuest: any CompleteQuestUseCase
+        ) {
+            self.getProfile = getProfile
+            self.loadCatalog = loadCatalog
+            self.getAdventure = getAdventure
+            self.getProgress = getProgress
+            self.completeQuest = completeQuest
+        }
+    }
+
+    public private(set) var state: HomeViewState = .loading
+    public private(set) var selectedQuest: QuestDetail?
+    public private(set) var celebration: Celebration?
+    public private(set) var errorMessage: String?
+    public private(set) var isCompleting = false
+
+    private let useCases: UseCases
     private let locale: Locale
     private let now: @Sendable () -> Date
+    private var quests: [Quest] = []
+    private var celebrationCount = 0
 
-    public init(
-        getProfile: any GetProfileUseCase,
-        loadCatalog: any LoadContentCatalogUseCase,
-        getAdventure: any GetAdventureUseCase,
-        locale: Locale = .current,
-        now: @escaping @Sendable () -> Date = { .now }
-    ) {
-        self.getProfile = getProfile
-        self.loadCatalog = loadCatalog
-        self.getAdventure = getAdventure
+    public init(useCases: UseCases, locale: Locale = .current, now: @escaping @Sendable () -> Date = { .now }) {
+        self.useCases = useCases
         self.locale = locale
         self.now = now
     }
 
     public func onAppear() async {
+        await load()
+    }
+
+    /// Opens the "did you do it?" sheet for a quest card. Other cards are not actionable yet.
+    public func select(cardID: String) {
+        guard let quest = quests.first(where: { $0.id == cardID }) else { return }
+        errorMessage = nil
+        selectedQuest = QuestDetail(
+            id: quest.id,
+            title: quest.title.resolved(for: locale),
+            description: quest.description.resolved(for: locale),
+            reward: reward(for: quest),
+            confirmTitle: text(el: "Το έκανα!", en: "I did it!"),
+            cancelTitle: text(el: "Όχι ακόμα", en: "Not yet")
+        )
+    }
+
+    public func dismissSelection() {
+        selectedQuest = nil
+        errorMessage = nil
+    }
+
+    public func completeSelectedQuest() async {
+        guard let quest = selectedQuest, !isCompleting else { return }
+        isCompleting = true
+        defer { isCompleting = false }
         do {
-            guard let profile = try await getProfile.execute() else {
+            let change = try await useCases.completeQuest.execute(questID: quest.id, on: now())
+            selectedQuest = nil
+            await load()
+            celebrationCount += 1
+            celebration = Celebration(
+                id: celebrationCount,
+                xpText: "+\(change.gainedXP) XP",
+                levelUpText: change.leveledUp
+                    ? text(el: "Επίπεδο \(change.after.level.level)!", en: "Level \(change.after.level.level)!")
+                    : nil
+            )
+        } catch {
+            errorMessage = text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
+        }
+    }
+
+    public func celebrationFinished() {
+        celebration = nil
+    }
+
+    private func load() async {
+        do {
+            guard let profile = try await useCases.getProfile.execute() else {
                 state = .failed(message: text(el: "Δεν βρέθηκε προφίλ.", en: "No profile found."))
                 return
             }
-            let catalog = try await loadCatalog.execute()
-            let adventure = try await getAdventure.execute(for: profile.child, on: now())
-            state = .loaded(makeContent(profile: profile, catalog: catalog, adventure: adventure))
+            let catalog = try await useCases.loadCatalog.execute()
+            let adventure = try await useCases.getAdventure.execute(for: profile.child, on: now())
+            let progress = try await useCases.getProgress.execute()
+            let worldID = adventure.currentWorld?.id
+            quests = adventure.availableQuests.filter { $0.worldID == worldID }
+            let bosses = adventure.availableBosses.filter { $0.worldID == worldID }
+            state = .loaded(
+                makeContent(profile: profile, catalog: catalog, adventure: adventure, progress: progress, bosses: bosses)
+            )
         } catch {
             state = .failed(message: text(el: "Το περιεχόμενο δεν φόρτωσε.", en: "Content failed to load."))
         }
     }
 
-    private func makeContent(profile: PlayerProfile, catalog: ContentCatalog, adventure: Adventure) -> HomeContent {
+    private func makeContent(
+        profile: PlayerProfile,
+        catalog: ContentCatalog,
+        adventure: Adventure,
+        progress: DadProgress,
+        bosses: [BossFight]
+    ) -> HomeContent {
         let hero = catalog.heroClasses.first { $0.id == profile.heroClassID }
-        let progress = LevelCurve.progress(forTotalXP: 0)
-        let worldID = adventure.currentWorld?.id
+        let level = progress.level
         return HomeContent(
             heroTitle: hero?.title.resolved(for: locale) ?? text(el: "Ήρωας", en: "Hero"),
             heroTagline: hero?.tagline.resolved(for: locale) ?? "",
             heroLook: HeroLook(heroClassID: profile.heroClassID),
             companionLine: "\(profile.child.name) · \(ageText(months: adventure.ageInMonths))",
-            level: progress.level,
-            levelFraction: progress.fraction,
+            level: level.level,
+            levelFraction: level.fraction,
+            xpLine: "\(level.xpIntoLevel) / \(level.xpNeededForNextLevel) XP",
             worldTitle: adventure.currentWorld?.title.resolved(for: locale),
             worldTagline: adventure.currentWorld?.tagline.resolved(for: locale),
-            cards: bossCards(adventure.availableBosses.filter { $0.worldID == worldID })
-                + questCards(adventure.availableQuests.filter { $0.worldID == worldID })
+            cards: bossCards(bosses) + questCards(quests, completions: progress.questCompletions)
         )
     }
 
@@ -73,16 +150,27 @@ public final class HomeViewModel {
         }
     }
 
-    private func questCards(_ quests: [Quest]) -> [CardModel] {
+    private func questCards(_ quests: [Quest], completions: [String: Int]) -> [CardModel] {
         quests.map { quest in
             CardModel(
                 id: quest.id,
                 title: quest.title.resolved(for: locale),
                 subtitle: quest.description.resolved(for: locale),
-                badge: "+\(quest.xp) XP · \(quest.skill.title.resolved(for: locale))",
-                kind: .quest
+                badge: reward(for: quest),
+                kind: .quest,
+                footnote: completions[quest.id].map(doneText)
             )
         }
+    }
+
+    private func reward(for quest: Quest) -> String {
+        "+\(quest.xp) XP · \(quest.skill.title.resolved(for: locale))"
+    }
+
+    private func doneText(times: Int) -> String {
+        times == 1
+            ? text(el: "Το έκανες 1 φορά", en: "Done once")
+            : text(el: "Το έκανες \(times) φορές", en: "Done \(times) times")
     }
 
     private func ageText(months: Int) -> String {
