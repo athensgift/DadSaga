@@ -20,6 +20,11 @@ This is a **personal portfolio / playground project**. Replies to the owner are 
 
 ## Git
 - Commit and push only when asked.
+- **Gitflow** ([ADR-0009](docs/adr/0009-gitflow.md)): `develop` is the integration branch, `main` holds releases only.
+  - `feature/<name>` branches from `develop` and merges back into `develop` through a PR.
+  - `release/<version>` branches from `develop`, then merges into `main` (tagged `v<version>`) and back into `develop`.
+  - `hotfix/<name>` branches from `main`, then merges into `main` (tagged) and into `develop`.
+  - Never commit directly to `main` or `develop`.
 
 ## Done = green
 ```bash
