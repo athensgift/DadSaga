@@ -70,3 +70,9 @@ extension QuestDTO {
         return skill
     }
 }
+
+extension HeroClassDTO {
+    func toDomain() -> HeroClass {
+        HeroClass(id: id, order: order, title: title.toDomain(), tagline: tagline.toDomain())
+    }
+}

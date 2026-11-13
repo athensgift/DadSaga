@@ -1,0 +1,17 @@
+[
+  {
+    "id": "h-knight", "order": 1,
+    "title": { "el": "Ιππότης", "en": "Knight" },
+    "tagline": { "el": "Προστάτης του ύπνου, της αγκαλιάς και του τελευταίου μπισκότου.", "en": "Protector of sleep, cuddles and the last biscuit." }
+  },
+  {
+    "id": "h-mage", "order": 2,
+    "title": { "el": "Μάγος", "en": "Mage" },
+    "tagline": { "el": "Με λίγη φαντασία, μια κουτάλα γίνεται ραβδί.", "en": "With a little imagination, a spoon becomes a wand." }
+  },
+  {
+    "id": "h-ranger", "order": 3,
+    "title": { "el": "Τοξότης", "en": "Ranger" },
+    "tagline": { "el": "Ήρεμος και υπομονετικός. Βλέπει την κρίση πριν έρθει.", "en": "Calm and patient. Sees the meltdown coming." }
+  }
+]

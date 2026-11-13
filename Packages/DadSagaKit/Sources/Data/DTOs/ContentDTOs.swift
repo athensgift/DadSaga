@@ -45,3 +45,10 @@ struct FirstMomentDTO: Decodable, Sendable {
     let xp: Int
     let companionTrait: String?
 }
+
+struct HeroClassDTO: Decodable, Sendable {
+    let id: String
+    let order: Int
+    let title: LocalizedTextDTO
+    let tagline: LocalizedTextDTO
+}
