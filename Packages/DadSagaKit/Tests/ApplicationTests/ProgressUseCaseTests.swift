@@ -53,6 +53,41 @@ struct ProgressUseCaseTests {
         }
         #expect(try await repository.fetchEvents().isEmpty)
     }
+
+    @Test("Given an undefeated boss, when defeating it, then its XP is gained once and one event is stored")
+    func defeatsBoss() async throws {
+        let repository = SpyProgressRepository()
+        let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: repository)
+
+        let change = try await sut.execute(bossID: "b1", on: today)
+
+        #expect(change.gainedXP == 100)
+        #expect(change.after.defeatedBossIDs == ["b1"])
+        #expect(try await repository.fetchEvents().map(\.kind) == [.boss(id: "b1")])
+    }
+
+    @Test("Given a boss already defeated, when defeating it again, then nothing changes and nothing is stored")
+    func bossOnlyOnce() async throws {
+        let repository = SpyProgressRepository()
+        let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: repository)
+        _ = try await sut.execute(bossID: "b1", on: today)
+
+        let change = try await sut.execute(bossID: "b1", on: today)
+
+        #expect(change.gainedXP == 0)
+        #expect(try await repository.fetchEvents().count == 1)
+    }
+
+    @Test("Given an unknown boss, when defeating it, then it throws and nothing is stored")
+    func unknownBoss() async throws {
+        let repository = SpyProgressRepository()
+        let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: repository)
+
+        await #expect(throws: ProgressError.unknownBoss("nope")) {
+            try await sut.execute(bossID: "nope", on: today)
+        }
+        #expect(try await repository.fetchEvents().isEmpty)
+    }
 }
 
 actor SpyProgressRepository: ProgressRepository {

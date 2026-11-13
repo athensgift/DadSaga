@@ -130,7 +130,8 @@ struct HomeViewModelTests {
                 loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)),
                 getAdventure: StubGetAdventure(),
                 getProgress: progress,
-                completeQuest: progress
+                completeQuest: progress,
+                defeatBoss: progress
             ),
             locale: Locale(identifier: locale),
             now: { HeroStub.today }
@@ -174,12 +175,41 @@ struct HomeViewModelTests {
         #expect(sut.celebration?.levelUpText == "Επίπεδο 2!")
     }
 
-    @Test("Given a boss card, when selecting it, then nothing opens yet")
-    func bossIsNotActionable() async {
+    @Test("Given a boss card, when selecting it, then its intro, guide and reward are shown")
+    func bossDetail() async {
         let sut = makeSUT(profile: HeroStub.profile)
         await sut.onAppear()
+
         sut.select(cardID: "b1")
+
         #expect(sut.selectedQuest == nil)
+        #expect(sut.selectedBoss?.title == "Αφεντικό")
+        #expect(sut.selectedBoss?.intro == "ι")
+        #expect(sut.selectedBoss?.guide == ["βήμα"])
+        #expect(sut.selectedBoss?.reward == "+100 XP · β")
+        #expect(sut.selectedBoss?.isDefeated == false)
+    }
+
+    @Test("Given a boss, when defeating it, then XP, badge and level-up are celebrated and the card shows the badge")
+    func defeatsBoss() async {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+
+        sut.select(cardID: "b1")
+        await sut.defeatSelectedBoss()
+
+        #expect(sut.selectedBoss == nil)
+        #expect(sut.celebration?.xpText == "+100 XP")
+        #expect(sut.celebration?.badgeText == "β")
+        #expect(sut.celebration?.levelUpText == "Επίπεδο 2!")
+        guard case .loaded(let content) = sut.state else {
+            Issue.record("Expected loaded state, got \(sut.state)")
+            return
+        }
+        #expect(content.cards.first?.footnote == "Νικήθηκε · β")
+
+        sut.select(cardID: "b1")
+        #expect(sut.selectedBoss?.isDefeated == true)
     }
 
     @Test("Given saving fails, when confirming a quest, then the sheet stays open with an error")
@@ -235,7 +265,7 @@ struct HomeViewModelTests {
 }
 
 /// An in-memory stand-in for both progress use cases, backed by the stub catalog.
-actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase {
+actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase {
     private var events: [ProgressEvent] = []
     private var shouldFail = false
 
@@ -252,9 +282,17 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase {
     }
 
     func execute(questID: String, on date: Date) async throws -> ProgressChange {
+        try record(.quest(id: questID), on: date)
+    }
+
+    func execute(bossID: String, on date: Date) async throws -> ProgressChange {
+        try record(.boss(id: bossID), on: date)
+    }
+
+    private func record(_ kind: ProgressEvent.Kind, on date: Date) throws -> ProgressChange {
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        events.append(ProgressEvent(kind: .quest(id: questID), date: date))
+        events.append(ProgressEvent(kind: kind, date: date))
         return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog))
     }
 }
@@ -304,7 +342,11 @@ enum HeroStub {
     static let catalog = ContentCatalog(
         worlds: Stub.catalog.worlds,
         quests: Stub.catalog.quests,
-        bosses: Stub.catalog.bosses,
+        bosses: [
+            BossFight(id: "b1", worldID: "w1", title: LocalizedText(el: "Αφεντικό", en: "Boss"),
+                      intro: LocalizedText(el: "ι", en: "i"), guide: [LocalizedText(el: "βήμα", en: "step")],
+                      badge: LocalizedText(el: "β", en: "b"), skill: .care, xp: 100, minAgeMonths: 0)
+        ],
         firsts: Stub.catalog.firsts,
         heroClasses: [
             HeroClass(id: "h-cool", order: 2, title: LocalizedText(el: "Cool Μπαμπάς", en: "Cool Dad"), tagline: text),

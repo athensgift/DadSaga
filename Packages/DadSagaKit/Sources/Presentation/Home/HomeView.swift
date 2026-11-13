@@ -23,19 +23,29 @@ public struct HomeView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DSColor.background)
         .task { await viewModel.onAppear() }
-        .sheet(item: selectedQuest) { quest in
-            QuestSheet(quest: quest, errorMessage: viewModel.errorMessage, isCompleting: viewModel.isCompleting) {
-                Task { await viewModel.completeSelectedQuest() }
-            } onCancel: {
-                viewModel.dismissSelection()
+        .sheet(item: activeSheet) { sheet in
+            switch sheet {
+            case .quest(let quest):
+                QuestSheet(quest: quest, errorMessage: viewModel.errorMessage, isCompleting: viewModel.isCompleting) {
+                    Task { await viewModel.completeSelectedQuest() }
+                } onCancel: {
+                    viewModel.dismissSelection()
+                }
+                .presentationDetents([.medium])
+            case .boss(let boss):
+                BossSheet(boss: boss, errorMessage: viewModel.errorMessage, isCompleting: viewModel.isCompleting) {
+                    Task { await viewModel.defeatSelectedBoss() }
+                } onClose: {
+                    viewModel.dismissSelection()
+                }
+                .presentationDetents([.large])
             }
-            .presentationDetents([.medium])
         }
     }
 
-    private var selectedQuest: Binding<QuestDetail?> {
+    private var activeSheet: Binding<HomeSheet?> {
         Binding(
-            get: { viewModel.selectedQuest },
+            get: { viewModel.selectedQuest.map(HomeSheet.quest) ?? viewModel.selectedBoss.map(HomeSheet.boss) },
             set: { if $0 == nil { viewModel.dismissSelection() } }
         )
     }
@@ -70,21 +80,19 @@ public struct HomeView: View {
         }
     }
 
-    @ViewBuilder
     private func cardView(_ card: CardModel) -> some View {
-        let questCard = QuestCard(
-            title: card.title,
-            subtitle: card.subtitle,
-            badge: card.badge,
-            style: card.kind.cardStyle,
-            footnote: card.footnote
-        )
-        if card.kind == .quest {
-            Button { viewModel.select(cardID: card.id) } label: { questCard }
-                .buttonStyle(.plain)
-        } else {
-            questCard
+        Button {
+            viewModel.select(cardID: card.id)
+        } label: {
+            QuestCard(
+                title: card.title,
+                subtitle: card.subtitle,
+                badge: card.badge,
+                style: card.kind.cardStyle,
+                footnote: card.footnote
+            )
         }
+        .buttonStyle(.plain)
     }
 
     private func heroStage(_ content: HomeContent) -> some View {
@@ -132,11 +140,19 @@ public struct HomeView: View {
                         .font(DSFont.headline)
                         .foregroundStyle(DSColor.legendary)
                 }
+                if let badgeText = celebration.badgeText {
+                    Label(badgeText, systemImage: "rosette")
+                        .font(DSFont.headline)
+                        .foregroundStyle(DSColor.boss)
+                }
             }
+            .lineLimit(1)
+            .fixedSize()
             .padding(.horizontal, DSSpacing.m)
             .padding(.vertical, DSSpacing.s)
             .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card))
-            .offset(y: -DSSpacing.s)
+            .shadow(color: DSColor.heroInk.opacity(0.08), radius: 8, y: 2)
+            .offset(y: -DSSpacing.l)
             .transition(.scale(scale: 0.5).combined(with: .opacity).combined(with: .move(edge: .bottom)))
             .task(id: celebration.id) {
                 try? await Task.sleep(for: .seconds(2.2))
@@ -146,43 +162,15 @@ public struct HomeView: View {
     }
 }
 
-private struct QuestSheet: View {
-    let quest: QuestDetail
-    let errorMessage: String?
-    let isCompleting: Bool
-    let onConfirm: () -> Void
-    let onCancel: () -> Void
+/// The one sheet the home screen can show at a time.
+private enum HomeSheet: Identifiable {
+    case quest(QuestDetail)
+    case boss(BossDetail)
 
-    var body: some View {
-        VStack(spacing: DSSpacing.m) {
-            Text(quest.reward)
-                .font(DSFont.caption)
-                .padding(.horizontal, DSSpacing.s)
-                .padding(.vertical, DSSpacing.xs)
-                .background(DSColor.accent.opacity(0.15), in: Capsule())
-                .foregroundStyle(DSColor.accent)
-            Text(quest.title)
-                .font(DSFont.title)
-                .foregroundStyle(DSColor.textPrimary)
-            Text(quest.description)
-                .font(DSFont.body)
-                .foregroundStyle(DSColor.textSecondary)
-            Spacer(minLength: 0)
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.boss)
-            }
-            Button(quest.confirmTitle, action: onConfirm)
-                .buttonStyle(.dsPrimary)
-                .disabled(isCompleting)
-            Button(quest.cancelTitle, action: onCancel)
-                .font(DSFont.body)
-                .tint(DSColor.textSecondary)
+    var id: String {
+        switch self {
+        case .quest(let quest): "quest-" + quest.id
+        case .boss(let boss): "boss-" + boss.id
         }
-        .multilineTextAlignment(.center)
-        .padding(DSSpacing.l)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DSColor.background)
     }
 }

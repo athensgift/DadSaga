@@ -13,24 +13,28 @@ public final class HomeViewModel {
         let getAdventure: any GetAdventureUseCase
         let getProgress: any GetProgressUseCase
         let completeQuest: any CompleteQuestUseCase
+        let defeatBoss: any DefeatBossUseCase
 
         public init(
             getProfile: any GetProfileUseCase,
             loadCatalog: any LoadContentCatalogUseCase,
             getAdventure: any GetAdventureUseCase,
             getProgress: any GetProgressUseCase,
-            completeQuest: any CompleteQuestUseCase
+            completeQuest: any CompleteQuestUseCase,
+            defeatBoss: any DefeatBossUseCase
         ) {
             self.getProfile = getProfile
             self.loadCatalog = loadCatalog
             self.getAdventure = getAdventure
             self.getProgress = getProgress
             self.completeQuest = completeQuest
+            self.defeatBoss = defeatBoss
         }
     }
 
     public private(set) var state: HomeViewState = .loading
     public private(set) var selectedQuest: QuestDetail?
+    public private(set) var selectedBoss: BossDetail?
     public private(set) var celebration: Celebration?
     public private(set) var errorMessage: String?
     public private(set) var isCompleting = false
@@ -39,6 +43,8 @@ public final class HomeViewModel {
     private let locale: Locale
     private let now: @Sendable () -> Date
     private var quests: [Quest] = []
+    private var bosses: [BossFight] = []
+    private var defeatedBossIDs: Set<String> = []
     private var celebrationCount = 0
 
     public init(useCases: UseCases, locale: Locale = .current, now: @escaping @Sendable () -> Date = { .now }) {
@@ -51,32 +57,57 @@ public final class HomeViewModel {
         await load()
     }
 
-    /// Opens the "did you do it?" sheet for a quest card. Other cards are not actionable yet.
+    /// Opens the sheet for a quest ("did you do it?") or a boss (survival guide).
     public func select(cardID: String) {
-        guard let quest = quests.first(where: { $0.id == cardID }) else { return }
         errorMessage = nil
-        selectedQuest = QuestDetail(
-            id: quest.id,
-            title: quest.title.resolved(for: locale),
-            description: quest.description.resolved(for: locale),
-            reward: reward(for: quest),
-            confirmTitle: text(el: "Το έκανα!", en: "I did it!"),
-            cancelTitle: text(el: "Όχι ακόμα", en: "Not yet")
-        )
+        if let quest = quests.first(where: { $0.id == cardID }) {
+            selectedQuest = QuestDetail(
+                id: quest.id,
+                title: quest.title.resolved(for: locale),
+                description: quest.description.resolved(for: locale),
+                reward: reward(for: quest),
+                confirmTitle: text(el: "Το έκανα!", en: "I did it!"),
+                cancelTitle: text(el: "Όχι ακόμα", en: "Not yet")
+            )
+        } else if let boss = bosses.first(where: { $0.id == cardID }) {
+            selectedBoss = detail(for: boss)
+        }
     }
 
     public func dismissSelection() {
         selectedQuest = nil
+        selectedBoss = nil
         errorMessage = nil
     }
 
     public func completeSelectedQuest() async {
-        guard let quest = selectedQuest, !isCompleting else { return }
+        guard let quest = selectedQuest else { return }
+        await record(badge: nil) {
+            try await self.useCases.completeQuest.execute(questID: quest.id, on: self.now())
+        }
+    }
+
+    public func defeatSelectedBoss() async {
+        guard let boss = selectedBoss, !boss.isDefeated else { return }
+        let badge = bosses.first { $0.id == boss.id }?.badge.resolved(for: locale)
+        await record(badge: badge) {
+            try await self.useCases.defeatBoss.execute(bossID: boss.id, on: self.now())
+        }
+    }
+
+    public func celebrationFinished() {
+        celebration = nil
+    }
+
+    /// Runs a progress action, then refreshes the screen and celebrates what it gained.
+    private func record(badge: String?, _ action: () async throws -> ProgressChange) async {
+        guard !isCompleting else { return }
         isCompleting = true
         defer { isCompleting = false }
         do {
-            let change = try await useCases.completeQuest.execute(questID: quest.id, on: now())
+            let change = try await action()
             selectedQuest = nil
+            selectedBoss = nil
             await load()
             celebrationCount += 1
             celebration = Celebration(
@@ -84,15 +115,12 @@ public final class HomeViewModel {
                 xpText: "+\(change.gainedXP) XP",
                 levelUpText: change.leveledUp
                     ? text(el: "Επίπεδο \(change.after.level.level)!", en: "Level \(change.after.level.level)!")
-                    : nil
+                    : nil,
+                badgeText: badge
             )
         } catch {
             errorMessage = text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
         }
-    }
-
-    public func celebrationFinished() {
-        celebration = nil
     }
 
     private func load() async {
@@ -106,10 +134,9 @@ public final class HomeViewModel {
             let progress = try await useCases.getProgress.execute()
             let worldID = adventure.currentWorld?.id
             quests = adventure.availableQuests.filter { $0.worldID == worldID }
-            let bosses = adventure.availableBosses.filter { $0.worldID == worldID }
-            state = .loaded(
-                makeContent(profile: profile, catalog: catalog, adventure: adventure, progress: progress, bosses: bosses)
-            )
+            bosses = adventure.availableBosses.filter { $0.worldID == worldID }
+            defeatedBossIDs = progress.defeatedBossIDs
+            state = .loaded(makeContent(profile: profile, catalog: catalog, adventure: adventure, progress: progress))
         } catch {
             state = .failed(message: text(el: "Το περιεχόμενο δεν φόρτωσε.", en: "Content failed to load."))
         }
@@ -119,8 +146,7 @@ public final class HomeViewModel {
         profile: PlayerProfile,
         catalog: ContentCatalog,
         adventure: Adventure,
-        progress: DadProgress,
-        bosses: [BossFight]
+        progress: DadProgress
     ) -> HomeContent {
         let hero = catalog.heroClasses.first { $0.id == profile.heroClassID }
         let level = progress.level
@@ -134,23 +160,24 @@ public final class HomeViewModel {
             xpLine: "\(level.xpIntoLevel) / \(level.xpNeededForNextLevel) XP",
             worldTitle: adventure.currentWorld?.title.resolved(for: locale),
             worldTagline: adventure.currentWorld?.tagline.resolved(for: locale),
-            cards: bossCards(bosses) + questCards(quests, completions: progress.questCompletions)
+            cards: bossCards() + questCards(completions: progress.questCompletions)
         )
     }
 
-    private func bossCards(_ bosses: [BossFight]) -> [CardModel] {
+    private func bossCards() -> [CardModel] {
         bosses.map { boss in
             CardModel(
                 id: boss.id,
                 title: boss.title.resolved(for: locale),
                 subtitle: boss.intro.resolved(for: locale),
                 badge: "BOSS",
-                kind: .boss
+                kind: .boss,
+                footnote: defeatedBossIDs.contains(boss.id) ? defeatedText(for: boss) : nil
             )
         }
     }
 
-    private func questCards(_ quests: [Quest], completions: [String: Int]) -> [CardModel] {
+    private func questCards(completions: [String: Int]) -> [CardModel] {
         quests.map { quest in
             CardModel(
                 id: quest.id,
@@ -161,6 +188,29 @@ public final class HomeViewModel {
                 footnote: completions[quest.id].map(doneText)
             )
         }
+    }
+
+    private func detail(for boss: BossFight) -> BossDetail {
+        BossDetail(
+            id: boss.id,
+            title: boss.title.resolved(for: locale),
+            intro: boss.intro.resolved(for: locale),
+            guideTitle: text(el: "Οδηγός επιβίωσης", en: "Survival guide"),
+            guide: boss.guide.map { $0.resolved(for: locale) },
+            reward: "+\(boss.xp) XP · \(boss.badge.resolved(for: locale))",
+            disclaimer: text(
+                el: "Γενικές πληροφορίες, όχι ιατρική συμβουλή. Ρώτα πάντα τον παιδίατρό σου.",
+                en: "General information, not medical advice. Always ask your paediatrician."
+            ),
+            isDefeated: defeatedBossIDs.contains(boss.id),
+            defeatedText: defeatedText(for: boss),
+            confirmTitle: text(el: "Τα καταφέραμε!", en: "We made it through!"),
+            closeTitle: text(el: "Κλείσιμο", en: "Close")
+        )
+    }
+
+    private func defeatedText(for boss: BossFight) -> String {
+        text(el: "Νικήθηκε", en: "Defeated") + " · " + boss.badge.resolved(for: locale)
     }
 
     private func reward(for quest: Quest) -> String {

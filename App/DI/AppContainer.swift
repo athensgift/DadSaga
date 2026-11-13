@@ -47,7 +47,8 @@ final class AppContainer {
                 completeQuest: DefaultCompleteQuestUseCase(
                     contentRepository: contentRepository,
                     progressRepository: store.progress
-                )
+                ),
+                defeatBoss: DefaultDefeatBossUseCase(contentRepository: contentRepository, progressRepository: store.progress)
             )
         )
     }
