@@ -8,6 +8,20 @@ public struct Adventure: Hashable, Sendable {
     public let unlockedWorlds: [World]
     public let availableQuests: [Quest]
     public let availableBosses: [BossFight]
+
+    public init(
+        ageInMonths: Int,
+        currentWorld: World?,
+        unlockedWorlds: [World],
+        availableQuests: [Quest],
+        availableBosses: [BossFight]
+    ) {
+        self.ageInMonths = ageInMonths
+        self.currentWorld = currentWorld
+        self.unlockedWorlds = unlockedWorlds
+        self.availableQuests = availableQuests
+        self.availableBosses = availableBosses
+    }
 }
 
 public protocol GetAdventureUseCase: Sendable {

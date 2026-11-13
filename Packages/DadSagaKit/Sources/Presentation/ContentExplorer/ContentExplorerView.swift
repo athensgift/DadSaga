@@ -60,13 +60,3 @@ public struct ContentExplorerView: View {
         }
     }
 }
-
-private extension CardModel.Kind {
-    var cardStyle: QuestCard.Style {
-        switch self {
-        case .quest: .quest
-        case .boss: .boss
-        case .legendary: .legendary
-        }
-    }
-}

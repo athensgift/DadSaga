@@ -7,7 +7,11 @@ struct DadSagaApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentExplorerView(viewModel: container.makeContentExplorerViewModel())
+            RootView(
+                viewModel: container.makeRootViewModel(),
+                makeOnboarding: { container.makeOnboardingViewModel(onFinished: $0) },
+                makeHome: { container.makeHomeViewModel() }
+            )
         }
     }
 }
