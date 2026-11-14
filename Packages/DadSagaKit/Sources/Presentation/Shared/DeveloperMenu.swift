@@ -16,15 +16,22 @@ struct DeveloperMenuToolbar: ToolbarContent {
 
     var body: some ToolbarContent {
         if let menu {
-            ToolbarItem(placement: .primaryAction) {
-                Menu {
-                    Button("Restart from onboarding", systemImage: "arrow.counterclockwise", role: .destructive) {
-                        menu.restartFromOnboarding()
-                    }
-                } label: {
-                    Label("Developer menu", systemImage: "ladybug")
-                }
+            ToolbarItem(placement: .primaryAction) { DeveloperMenuButton(menu: menu) }
+        }
+    }
+}
+
+/// The developer menu's button on its own, for screens that hide the navigation bar.
+struct DeveloperMenuButton: View {
+    let menu: DeveloperMenu
+
+    var body: some View {
+        Menu {
+            Button("Restart from onboarding", systemImage: "arrow.counterclockwise", role: .destructive) {
+                menu.restartFromOnboarding()
             }
+        } label: {
+            Label("Developer menu", systemImage: "ladybug")
         }
     }
 }

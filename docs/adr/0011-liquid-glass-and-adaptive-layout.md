@@ -29,10 +29,12 @@ and a 669×951 pt inner display.
 - **Onboarding's Continue button is part of the form**, not a pinned bar: a pinned bar rides on the keyboard and covers
   the fields on the Duo's cover display. The scroll view anchors to the bottom when the keyboard opens.
 
+- **The two-column home has no navigation bar.** A bar collapses (large title) or minimises (iOS 27) with whichever
+  column scrolls, which shifts the other column. The title and developer menu sit in the hero column instead.
+  `toolbarMinimizationBehavior` would also solve it, but it needs iOS 27 and CI builds with the iOS 26 SDK.
+
 ## Verification status
-Checked in the simulator on iPhone 17 Pro (portrait and landscape) and on the iPhone Duo **cover** display. The Duo's
-**inner** display could not be exercised: there was no way to unfold the simulated device from the command line. The
-two-column layout it would use was checked in landscape on iPhone 17 Pro instead.
+Checked in the simulator on iPhone 17 Pro (portrait and landscape) and on both iPhone Duo displays (cover and inner).
 
 ## Consequences
 - Less custom styling to maintain, and the app picks up future system design changes for free.

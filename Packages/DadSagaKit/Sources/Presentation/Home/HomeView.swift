@@ -29,6 +29,9 @@ public struct HomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(DSColor.background)
             .navigationTitle(title)
+            // Two columns scroll separately. A navigation bar collapses or hides with whichever column scrolls and
+            // shifts the other, so the wide layout has no bar: its title lives in the hero column.
+            .toolbar(isWide ? .hidden : .automatic, for: .navigationBar)
             .toolbar { DeveloperMenuToolbar(menu: developerMenu) }
         }
         .onGeometryChange(for: Bool.self) { $0.size.width >= twoColumnWidth } action: { isWide = $0 }
@@ -88,6 +91,20 @@ public struct HomeView: View {
     private func heroPanel(_ content: HomeContent) -> some View {
         let style = content.heroLook.avatarStyle
         return VStack(spacing: DSSpacing.m) {
+            if isWide {
+                HStack {
+                    Text(content.heroTitle)
+                        .font(DSFont.largeTitle)
+                        .foregroundStyle(DSColor.textPrimary)
+                        .accessibilityAddTraits(.isHeader)
+                    Spacer()
+                    if let developerMenu {
+                        DeveloperMenuButton(menu: developerMenu)
+                            .labelStyle(.iconOnly)
+                            .buttonStyle(.glass)
+                    }
+                }
+            }
             HeroAvatar(style: style, size: isWide ? 260 : 210, cheerTrigger: viewModel.celebration?.id ?? 0)
                 .padding(.top, DSSpacing.xl)
                 .background {
