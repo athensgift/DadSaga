@@ -182,6 +182,15 @@ public final class HomeViewModel {
             heroSkin: SkinToneChoice(profile.dadSkinTone),
             companionLine: hasSiblings ? profile.children.map(\.name).joined(separator: " · ") : childLine,
             childTabs: hasSiblings ? profile.children.map { ChildTab(id: $0.id, name: $0.name) } : [],
+            companions: profile.children.map { child in
+                CompanionModel(
+                    id: child.id,
+                    name: child.name,
+                    stage: CompanionStage(ageInMonths: child.ageInMonths(at: now())),
+                    gender: GenderChoice(child.gender),
+                    skin: SkinToneChoice(child.skinTone)
+                )
+            },
             selectedChildID: child.id,
             selectedChildLine: hasSiblings ? childLine : nil,
             familyTitle: text(el: "Η οικογένειά μου", en: "My family"),

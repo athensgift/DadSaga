@@ -13,7 +13,15 @@ struct ChildEditorCard: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: DSSpacing.s) {
+                ChildAvatar(
+                    stage: child.stage(at: latestBirthDate).avatarStage,
+                    gender: child.gender.avatarGender,
+                    skin: child.skinTone.avatarSkin,
+                    size: 76
+                )
+                .padding(.vertical, -DSSpacing.s)
+                .accessibilityHidden(true)
                 Text(verbatim: "\(labels.childTitle) \(number)")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.textSecondary)
@@ -26,8 +34,9 @@ struct ChildEditorCard: View {
                         .frame(minWidth: 44, minHeight: 44)
                 }
             }
-            .padding(.leading, DSSpacing.m)
+            .padding(.leading, DSSpacing.s)
             .padding(.trailing, DSSpacing.xs)
+            .padding(.top, DSSpacing.xs)
             .frame(minHeight: 44)
             row {
                 TextField(labels.namePlaceholder, text: $child.name)

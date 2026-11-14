@@ -50,6 +50,13 @@ public struct HeroAvatar: View {
         .accessibilityAddTraits(.isImage)
     }
 
+    public static let aspectRatio = HeroFigure.designSize.width / HeroFigure.designSize.height
+
+    /// Space between the bottom of the avatar's frame and the ground it stands on, for an avatar of height `size`.
+    public static func groundInset(forSize size: CGFloat) -> CGFloat {
+        size * 11 / HeroFigure.designSize.height
+    }
+
     private func cheer() {
         guard !isCheering else { return }
         isCheering = true
