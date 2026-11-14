@@ -104,6 +104,70 @@ struct ProgressUseCaseTests {
     }
 }
 
+@Suite("CaptureMomentUseCase")
+struct CaptureMomentUseCaseTests {
+    let today = Date(timeIntervalSince1970: 1_000_000)
+    static let first = FirstMoment(id: "f-steps", order: 1, emoji: "👣", title: Stub.text, xp: 30, companionTrait: "walk")
+    let content = StubContentRepository(
+        result: .success(ContentCatalog(worlds: [], quests: [], bosses: [], firsts: [Self.first]))
+    )
+    let child = UUID()
+    let firstID = Self.first.id
+
+    @Test("Given a first not yet captured, when capturing it with a past date and a note, then it is stored with both")
+    func captures() async throws {
+        let repository = SpyProgressRepository()
+        let sut = DefaultCaptureMomentUseCase(contentRepository: content, progressRepository: repository)
+        let lastWeek = today.addingTimeInterval(-7 * 86_400)
+
+        let change = try await sut.execute(firstID: firstID, childID: child, happenedOn: lastWeek, note: "  Γέλασε! ", now: today)
+
+        #expect(change.gainedXP == 30)
+        let event = try #require(try await repository.fetchEvents().first)
+        #expect(event.kind == .first(id: firstID))
+        #expect(event.childID == child)
+        #expect(event.date == lastWeek)
+        #expect(event.note == "Γέλασε!")
+        #expect(change.after.moments(for: child).map(\.note) == ["Γέλασε!"])
+    }
+
+    @Test("Given a blank note, when capturing, then no note is stored")
+    func blankNote() async throws {
+        let repository = SpyProgressRepository()
+        let sut = DefaultCaptureMomentUseCase(contentRepository: content, progressRepository: repository)
+        _ = try await sut.execute(firstID: firstID, childID: child, happenedOn: today, note: "   ", now: today)
+        #expect(try await repository.fetchEvents().first?.note == nil)
+    }
+
+    @Test("Given a first already captured for this child, when capturing again, then it throws; another child is fine")
+    func oncePerChild() async throws {
+        let repository = SpyProgressRepository()
+        let sut = DefaultCaptureMomentUseCase(contentRepository: content, progressRepository: repository)
+        _ = try await sut.execute(firstID: firstID, childID: child, happenedOn: today, note: nil, now: today)
+
+        await #expect(throws: MomentError.alreadyCaptured(firstID)) {
+            try await sut.execute(firstID: firstID, childID: child, happenedOn: today, note: nil, now: today)
+        }
+        _ = try await sut.execute(firstID: firstID, childID: UUID(), happenedOn: today, note: nil, now: today)
+        #expect(try await repository.fetchEvents().count == 2)
+    }
+
+    @Test("Given a date after today or an unknown first, when capturing, then it throws and nothing is stored")
+    func rejects() async throws {
+        let repository = SpyProgressRepository()
+        let sut = DefaultCaptureMomentUseCase(contentRepository: content, progressRepository: repository)
+
+        await #expect(throws: MomentError.dateInFuture) {
+            let tomorrow = today.addingTimeInterval(86_400)
+            return try await sut.execute(firstID: firstID, childID: child, happenedOn: tomorrow, note: nil, now: today)
+        }
+        await #expect(throws: MomentError.unknownFirst("nope")) {
+            try await sut.execute(firstID: "nope", childID: child, happenedOn: today, note: nil, now: today)
+        }
+        #expect(try await repository.fetchEvents().isEmpty)
+    }
+}
+
 actor SpyProgressRepository: ProgressRepository {
     private var events: [ProgressEvent] = []
 

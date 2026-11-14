@@ -72,6 +72,11 @@ struct CelebrationBadge: View {
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.boss)
             }
+            if let momentText = celebration.momentText {
+                Label(momentText, systemImage: "star.fill")
+                    .font(DSFont.headline)
+                    .foregroundStyle(DSColor.legendary)
+            }
             if let unlockText = celebration.unlockText {
                 Label(unlockText, systemImage: "gift.fill")
                     .font(DSFont.headline)
@@ -88,6 +93,57 @@ struct CelebrationBadge: View {
         .task(id: celebration.id) {
             try? await Task.sleep(for: .seconds(celebration.unlockText == nil ? 2.2 : 3.2))
             onFinished()
+        }
+    }
+}
+
+/// The selected child's legendary moments: gold cards, newest first, and a button to capture one.
+struct MomentsSectionView: View {
+    let section: MomentsSection
+    let onAdd: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: DSSpacing.s) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(section.title)
+                    .font(DSFont.title)
+                    .foregroundStyle(DSColor.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
+                Text(section.progress)
+                    .font(DSFont.caption)
+                    .foregroundStyle(DSColor.legendary)
+                    .monospacedDigit()
+                Spacer()
+                if !section.isComplete {
+                    Button(section.addTitle, systemImage: "plus", action: onAdd)
+                        .labelStyle(.iconOnly)
+                        .buttonStyle(.glass)
+                        .tint(DSColor.legendary)
+                }
+            }
+            if section.cards.isEmpty {
+                Button(action: onAdd) {
+                    Label(section.emptyText, systemImage: "sparkles")
+                        .font(DSFont.subheadline)
+                        .foregroundStyle(DSColor.textSecondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(DSSpacing.m)
+                        .background {
+                            RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous)
+                                .strokeBorder(DSColor.legendary.opacity(0.5), style: StrokeStyle(lineWidth: 1.5, dash: [6, 4]))
+                        }
+                }
+                .buttonStyle(.plain)
+            }
+            ForEach(section.cards) { card in
+                QuestCard(
+                    title: card.title,
+                    subtitle: card.subtitle,
+                    badge: card.badge,
+                    symbol: card.symbol,
+                    style: .legendary
+                )
+            }
         }
     }
 }

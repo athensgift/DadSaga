@@ -48,7 +48,11 @@ final class AppContainer {
                     contentRepository: contentRepository,
                     progressRepository: store.progress
                 ),
-                defeatBoss: DefaultDefeatBossUseCase(contentRepository: contentRepository, progressRepository: store.progress)
+                defeatBoss: DefaultDefeatBossUseCase(contentRepository: contentRepository, progressRepository: store.progress),
+                captureMoment: DefaultCaptureMomentUseCase(
+                    contentRepository: contentRepository,
+                    progressRepository: store.progress
+                )
             )
         )
     }

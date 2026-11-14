@@ -75,7 +75,8 @@ struct FamilyStage: View {
             gender: companion.gender.avatarGender,
             skin: companion.skin.avatarSkin,
             size: size,
-            cheerTrigger: taps[companion.id, default: 0] + (isSelected ? cheerTrigger : 0)
+            cheerTrigger: taps[companion.id, default: 0] + (isSelected ? cheerTrigger : 0),
+            traits: companion.traits.avatarTraits
         )
         .padding(.bottom, HeroAvatar.groundInset(forSize: heroSize) - ChildAvatar.groundInset(forSize: size))
         .contentShape(Rectangle())

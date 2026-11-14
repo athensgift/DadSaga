@@ -37,6 +37,40 @@ public struct HomeContent: Equatable, Sendable {
     /// Shown instead of quests when there is no content for the child's age yet.
     public let emptyMessage: String?
     public let cards: [CardModel]
+    /// The selected child's legendary moments.
+    public let moments: MomentsSection
+}
+
+public struct MomentsSection: Equatable, Sendable {
+    public let title: String
+    /// Captured out of all, e.g. "2 / 14".
+    public let progress: String
+    public let addTitle: String
+    /// Newest first, as gold cards.
+    public let cards: [CardModel]
+    /// Shown when nothing is captured yet.
+    public let emptyText: String
+    /// Every first is already captured for this child.
+    public let isComplete: Bool
+}
+
+/// The sheet for capturing a legendary moment for the selected child.
+public struct MomentCapture: Equatable, Identifiable, Sendable {
+    public let id: UUID
+    public let title: String
+    public let options: [MomentOption]
+    public let dateLabel: String
+    public let earliestDate: Date
+    public let latestDate: Date
+    public let notePlaceholder: String
+    public let saveTitle: String
+}
+
+public struct MomentOption: Equatable, Identifiable, Sendable {
+    public let id: String
+    public let emoji: String
+    public let title: String
+    public let reward: String
 }
 
 /// The sheet asking the dad whether he did a quest.
@@ -73,6 +107,8 @@ public struct Celebration: Equatable, Identifiable, Sendable {
     public let badgeText: String?
     /// Gear the hero just earned, e.g. "Νέο: Κούπα καφέ".
     public let unlockText: String?
+    /// A legendary moment just captured, e.g. "Πρώτα βήματα".
+    public var momentText: String?
 }
 
 public struct ChildTab: Equatable, Identifiable, Sendable {

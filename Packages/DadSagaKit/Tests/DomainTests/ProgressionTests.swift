@@ -66,6 +66,25 @@ struct DadProgressTests {
         #expect(progress.allDefeatedBossIDs == ["b1"])
     }
 
+    @Test("Given firsts captured on different days, when listing moments, then they come newest first with notes")
+    func momentsNewestFirst() {
+        let child = UUID()
+        let catalog = ContentCatalog(
+            worlds: [], quests: [], bosses: [],
+            firsts: [
+                FirstMoment(id: "a", order: 1, emoji: "😊", title: Fixtures.text, xp: 30, companionTrait: nil),
+                FirstMoment(id: "b", order: 2, emoji: "👣", title: Fixtures.text, xp: 30, companionTrait: nil)
+            ]
+        )
+        let events = [
+            ProgressEvent(kind: .first(id: "a"), childID: child, date: Date(timeIntervalSince1970: 100), note: "πρώτο"),
+            ProgressEvent(kind: .first(id: "b"), childID: child, date: Date(timeIntervalSince1970: 200))
+        ]
+        let moments = DadProgress(events: events, catalog: catalog).moments(for: child)
+        #expect(moments.map(\.first.id) == ["b", "a"])
+        #expect(moments.map(\.note) == [nil, "πρώτο"])
+    }
+
     @Test("Given a boss defeated twice, when aggregating, then XP is counted once")
     func bossCountsOnce() {
         let events = [Fixtures.event(.boss(id: "b1")), Fixtures.event(.boss(id: "b1"))]

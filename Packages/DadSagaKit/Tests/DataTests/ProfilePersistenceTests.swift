@@ -111,7 +111,7 @@ struct LocalStoreTests {
     @Test("Given stored events, when fetching, then they come back oldest first with their ids and kinds")
     func progressRoundTrip() async throws {
         let sut = try LocalStore.inMemory().progress
-        let later = ProgressEvent(kind: .boss(id: "b1"), childID: UUID(), date: birth.addingTimeInterval(60))
+        let later = ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth.addingTimeInterval(60), note: "Γέλασε")
         let earlier = ProgressEvent(kind: .quest(id: "q1"), date: birth)
 
         try await sut.add(later)

@@ -14,6 +14,7 @@ public final class HomeViewModel {
         let getProgress: any GetProgressUseCase
         let completeQuest: any CompleteQuestUseCase
         let defeatBoss: any DefeatBossUseCase
+        let captureMoment: any CaptureMomentUseCase
 
         public init(
             getProfile: any GetProfileUseCase,
@@ -21,7 +22,8 @@ public final class HomeViewModel {
             getAdventure: any GetAdventureUseCase,
             getProgress: any GetProgressUseCase,
             completeQuest: any CompleteQuestUseCase,
-            defeatBoss: any DefeatBossUseCase
+            defeatBoss: any DefeatBossUseCase,
+            captureMoment: any CaptureMomentUseCase
         ) {
             self.getProfile = getProfile
             self.loadCatalog = loadCatalog
@@ -29,6 +31,7 @@ public final class HomeViewModel {
             self.getProgress = getProgress
             self.completeQuest = completeQuest
             self.defeatBoss = defeatBoss
+            self.captureMoment = captureMoment
         }
     }
 
@@ -36,15 +39,20 @@ public final class HomeViewModel {
     public private(set) var selectedQuest: QuestDetail?
     public private(set) var selectedBoss: BossDetail?
     public private(set) var celebration: Celebration?
-    public private(set) var errorMessage: String?
+    public internal(set) var errorMessage: String?
+    /// The sheet for capturing a legendary moment, while it is open.
+    public internal(set) var momentCapture: MomentCapture?
     public private(set) var isCompleting = false
     /// The child whose world and quests are shown. The first child until the dad picks another.
     public private(set) var selectedChildID: UUID?
 
-    private let useCases: UseCases
+    let useCases: UseCases
     private let locale: Locale
     private let strings: HomeStrings
-    private let now: @Sendable () -> Date
+    let momentsFormatter: MomentsFormatter
+    let now: @Sendable () -> Date
+    /// What the screen was last built from, for actions that need it (e.g. which firsts are left).
+    private(set) var snapshot: HomeSnapshot?
     private var quests: [Quest] = []
     private var bosses: [BossFight] = []
     private var defeatedBossIDs: Set<String> = []
@@ -55,6 +63,7 @@ public final class HomeViewModel {
         self.useCases = useCases
         self.locale = locale
         strings = HomeStrings(locale: locale)
+        momentsFormatter = MomentsFormatter(strings: strings, locale: locale)
         self.now = now
     }
 
@@ -92,6 +101,7 @@ public final class HomeViewModel {
     public func dismissSelection() {
         selectedQuest = nil
         selectedBoss = nil
+        momentCapture = nil
         errorMessage = nil
     }
 
@@ -115,7 +125,7 @@ public final class HomeViewModel {
     }
 
     /// Runs a progress action, then refreshes the screen and celebrates what it gained.
-    private func record(badge: String?, _ action: () async throws -> ProgressChange) async {
+    func record(badge: String?, moment: String? = nil, _ action: () async throws -> ProgressChange) async {
         guard !isCompleting else { return }
         isCompleting = true
         defer { isCompleting = false }
@@ -123,6 +133,7 @@ public final class HomeViewModel {
             let change = try await action()
             selectedQuest = nil
             selectedBoss = nil
+            momentCapture = nil
             await load()
             celebrationCount += 1
             celebration = Celebration(
@@ -135,7 +146,8 @@ public final class HomeViewModel {
                 unlockText: GearRules
                     .newlyEquipped(gear, before: change.before.skillXP, after: change.after.skillXP)
                     .first
-                    .map { strings.text(el: "Νέο: ", en: "New: ") + $0.title.resolved(for: locale) }
+                    .map { strings.text(el: "Νέο: ", en: "New: ") + $0.title.resolved(for: locale) },
+                momentText: moment
             )
         } catch {
             errorMessage = strings.text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
@@ -158,6 +170,7 @@ public final class HomeViewModel {
             bosses = adventure.availableBosses.filter { $0.worldID == worldID }
             defeatedBossIDs = progress.defeatedBossIDs(for: child.id)
             gear = catalog.gear
+            snapshot = HomeSnapshot(child: child, catalog: catalog, progress: progress)
             state = .loaded(
                 makeContent(
                     profile: profile,
@@ -198,7 +211,8 @@ public final class HomeViewModel {
                     name: child.name,
                     stage: CompanionStage(ageInMonths: child.ageInMonths(at: now())),
                     gender: GenderChoice(child.gender),
-                    skin: SkinToneChoice(child.skinTone)
+                    skin: SkinToneChoice(child.skinTone),
+                    traits: momentsFormatter.traits(for: child, catalog: catalog, progress: progress)
                 )
             },
             selectedChildID: child.id,
@@ -216,7 +230,8 @@ public final class HomeViewModel {
                     en: "Adventures for your child's age are coming soon."
                 )
                 : nil,
-            cards: bossCards() + questCards(completions: progress.questCompletions(for: child.id))
+            cards: bossCards() + questCards(completions: progress.questCompletions(for: child.id)),
+            moments: momentsFormatter.section(for: child, catalog: catalog, progress: progress)
         )
     }
 
