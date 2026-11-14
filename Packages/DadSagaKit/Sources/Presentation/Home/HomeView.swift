@@ -6,18 +6,29 @@ import SwiftUI
 /// runs across the middle of the display, where the Duo folds.
 public struct HomeView: View {
     public typealias MakeFamily = @MainActor (_ onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel
+    public typealias MakeWardrobe = @MainActor () -> WardrobeViewModel
 
-    @State private var viewModel: HomeViewModel
+    @State var viewModel: HomeViewModel
     @State private var isWide = false
-    @State private var familyViewModel: FamilyViewModel?
+    @State var familyViewModel: FamilyViewModel?
+    @State var wardrobeViewModel: WardrobeViewModel?
     private let developerMenu: DeveloperMenu?
-    private let makeFamily: MakeFamily?
+    let makeFamily: MakeFamily?
+    let makeWardrobe: MakeWardrobe?
 
-    /// - Parameter makeFamily: builds the "My family" screen; `nil` hides its button.
-    public init(viewModel: HomeViewModel, developerMenu: DeveloperMenu? = nil, makeFamily: MakeFamily? = nil) {
+    /// - Parameters:
+    ///   - makeFamily: builds the "My family" screen; `nil` hides its button.
+    ///   - makeWardrobe: builds the wardrobe; `nil` hides its button.
+    public init(
+        viewModel: HomeViewModel,
+        developerMenu: DeveloperMenu? = nil,
+        makeFamily: MakeFamily? = nil,
+        makeWardrobe: MakeWardrobe? = nil
+    ) {
         _viewModel = State(initialValue: viewModel)
         self.developerMenu = developerMenu
         self.makeFamily = makeFamily
+        self.makeWardrobe = makeWardrobe
     }
 
     public var body: some View {
@@ -39,6 +50,9 @@ public struct HomeView: View {
             // shifts the other, so the wide layout has no bar: its title lives in the hero column.
             .navigationBarHidden(when: isWide)
             .toolbar {
+                if makeWardrobe != nil {
+                    ToolbarItem(placement: .primaryAction) { wardrobeButton }
+                }
                 if makeFamily != nil {
                     ToolbarItem(placement: .primaryAction) { familyButton }
                 }
@@ -47,6 +61,9 @@ public struct HomeView: View {
         }
         .sheet(item: $familyViewModel) { family in
             FamilyView(viewModel: family) { familyViewModel = nil }
+        }
+        .sheet(item: $wardrobeViewModel, onDismiss: reloadAfterWardrobe) { wardrobe in
+            WardrobeView(viewModel: wardrobe) { wardrobeViewModel = nil }
         }
         .onGeometryChange(for: Bool.self) { $0.size.width >= twoColumnWidth } action: { isWide = $0 }
         .task { await viewModel.onAppear() }
@@ -86,17 +103,6 @@ public struct HomeView: View {
             openFamily()
         } label: {
             Label(familyTitle, systemImage: "person.2")
-        }
-    }
-
-    private var familyTitle: String {
-        if case .loaded(let content) = viewModel.state { content.familyTitle } else { "" }
-    }
-
-    private func openFamily() {
-        familyViewModel = makeFamily? {
-            familyViewModel = nil
-            Task { await viewModel.reload() }
         }
     }
 
@@ -197,6 +203,11 @@ public struct HomeView: View {
                 .foregroundStyle(DSColor.textPrimary)
                 .accessibilityAddTraits(.isHeader)
             Spacer()
+            if makeWardrobe != nil {
+                wardrobeButton
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.glass)
+            }
             if makeFamily != nil {
                 familyButton
                     .labelStyle(.iconOnly)
@@ -271,5 +282,36 @@ private enum HomeSheet: Identifiable {
         case .boss(let boss): "boss-" + boss.id
         case .moment(let capture): "moment-" + capture.id.uuidString
         }
+    }
+}
+
+// MARK: - Family and wardrobe buttons
+
+extension HomeView {
+    var wardrobeButton: some View {
+        Button {
+            wardrobeViewModel = makeWardrobe?()
+        } label: {
+            Label(wardrobeTitle, systemImage: "tshirt")
+        }
+    }
+
+    var wardrobeTitle: String {
+        if case .loaded(let content) = viewModel.state { content.wardrobeTitle } else { "" }
+    }
+
+    var familyTitle: String {
+        if case .loaded(let content) = viewModel.state { content.familyTitle } else { "" }
+    }
+
+    func openFamily() {
+        familyViewModel = makeFamily? {
+            familyViewModel = nil
+            Task { await viewModel.reload() }
+        }
+    }
+
+    func reloadAfterWardrobe() {
+        Task { await viewModel.reload() }
     }
 }

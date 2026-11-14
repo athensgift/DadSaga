@@ -139,6 +139,30 @@ struct LocalStoreTests {
         #expect(try await sut.fetchEvents() == [quest])
     }
 
+    @Test("Given wardrobe choices, when saving and fetching, then they round-trip and deleting clears them")
+    func outfitRoundTrip() async throws {
+        let sut = try LocalStore.inMemory().outfit
+        let outfit = Outfit(choices: [.care: .item("g-burp-cloth"), .play: .hidden])
+
+        try await sut.save(outfit)
+        #expect(try await sut.fetchOutfit() == outfit)
+
+        try await sut.save(Outfit(choices: [.patience: .hidden]))
+        #expect(try await sut.fetchOutfit() == Outfit(choices: [.patience: .hidden]))
+
+        try await sut.deleteAll()
+        #expect(try await sut.fetchOutfit() == Outfit())
+    }
+
+    @Test("Given stored choice text, when decoding, then known values map and unknown ones are ignored")
+    func outfitCoding() {
+        #expect(OutfitCoding.decode("hidden") == .hidden)
+        #expect(OutfitCoding.decode("item:g-mug") == .item("g-mug"))
+        #expect(OutfitCoding.decode("sparkly") == nil)
+        #expect(OutfitCoding.encode(.automatic) == nil)
+        #expect(OutfitCoding.encode(.item("g-mug")) == "item:g-mug")
+    }
+
     @Test("Given stored events, when deleting all, then the log is empty")
     func progressDeleteAll() async throws {
         let sut = try LocalStore.inMemory().progress

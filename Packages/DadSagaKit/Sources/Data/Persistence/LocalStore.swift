@@ -5,6 +5,7 @@ import SwiftData
 public struct LocalStore: Sendable {
     public let profiles: any ProfileRepository
     public let progress: any ProgressRepository
+    public let outfit: any OutfitRepository
 
     /// The on-disk store used by the app.
     public static func live() throws -> LocalStore {
@@ -18,18 +19,23 @@ public struct LocalStore: Sendable {
 
     /// Keeps data only while the app runs. Last resort if the on-disk store cannot be opened.
     public static func sessionOnly() -> LocalStore {
-        LocalStore(profiles: InMemoryProfileRepository(), progress: InMemoryProgressRepository())
+        LocalStore(
+            profiles: InMemoryProfileRepository(),
+            progress: InMemoryProgressRepository(),
+            outfit: InMemoryOutfitRepository()
+        )
     }
 
     private static func make(inMemory: Bool) throws -> LocalStore {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: inMemory)
         let container = try ModelContainer(
-            for: ProfileRecord.self, ChildRecord.self, ProgressEventRecord.self,
+            for: ProfileRecord.self, ChildRecord.self, ProgressEventRecord.self, OutfitRecord.self,
             configurations: configuration
         )
         return LocalStore(
             profiles: SwiftDataProfileRepository(modelContainer: container),
-            progress: SwiftDataProgressRepository(modelContainer: container)
+            progress: SwiftDataProgressRepository(modelContainer: container),
+            outfit: SwiftDataOutfitRepository(modelContainer: container)
         )
     }
 }

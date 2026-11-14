@@ -29,6 +29,7 @@ public final class HomeViewModel {
     private var bosses: [BossFight] = []
     private var defeatedBossIDs: Set<String> = []
     private var gear: [GearItem] = []
+    private var outfit = Outfit()
     private var celebrationCount = 0
 
     public init(useCases: UseCases, locale: Locale = .current, now: @escaping @Sendable () -> Date = { .now }) {
@@ -116,7 +117,7 @@ public final class HomeViewModel {
                     : nil,
                 badgeText: badge,
                 unlockText: GearRules
-                    .newlyEquipped(gear, before: change.before.skillXP, after: change.after.skillXP)
+                    .newlyEarned(gear, before: change.before.skillXP, after: change.after.skillXP)
                     .first
                     .map { strings.text(el: "Νέο: ", en: "New: ") + $0.title.resolved(for: locale) },
                 momentText: moment
@@ -141,6 +142,7 @@ public final class HomeViewModel {
             let catalog = try await useCases.loadCatalog.execute()
             let adventure = try await useCases.getAdventure.execute(for: child, on: now())
             let progress = try await useCases.getProgress.execute()
+            outfit = try await useCases.getOutfit?.execute() ?? Outfit()
             let worldID = adventure.currentWorld?.id
             quests = adventure.availableQuests.filter { $0.worldID == worldID }
             bosses = adventure.availableBosses.filter { $0.worldID == worldID }
@@ -177,7 +179,9 @@ public final class HomeViewModel {
             heroTagline: hero?.tagline.resolved(for: locale) ?? "",
             heroLook: HeroLook(heroClassID: profile.heroClassID),
             heroSkin: SkinToneChoice(profile.dadSkinTone),
-            heroGear: GearRules.equipped(catalog.gear, skillXP: progress.skillXP).compactMap { HeroGearLook(look: $0.look) },
+            heroGear: GearRules
+                .equipped(catalog.gear, skillXP: progress.skillXP, outfit: outfit)
+                .compactMap { HeroGearLook(look: $0.look) },
             medalCount: progress.allDefeatedBossIDs.count,
             companionLine: hasSiblings ? profile.children.map(\.name).joined(separator: " · ") : childLine,
             childTabs: hasSiblings ? profile.children.map { ChildTab(id: $0.id, name: $0.name) } : [],
@@ -194,6 +198,7 @@ public final class HomeViewModel {
             selectedChildID: child.id,
             selectedChildLine: hasSiblings ? childLine : nil,
             familyTitle: strings.text(el: "Η οικογένειά μου", en: "My family"),
+            wardrobeTitle: strings.text(el: "Ντουλάπα", en: "Wardrobe"),
             level: level.level,
             levelTitle: strings.text(el: "Επίπεδο \(level.level)", en: "Level \(level.level)"),
             levelFraction: level.fraction,
