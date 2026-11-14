@@ -54,3 +54,18 @@ extension GenderChoice {
         }
     }
 }
+
+extension HeroGearLook {
+    var heroItem: HeroItem {
+        switch self {
+        case .burpCloth: .burpCloth
+        case .burpClothGold: .burpClothGold
+        case .mug: .mug
+        case .thermos: .thermos
+        case .duck: .duck
+        case .blocks: .blocks
+        case .diaperBag: .diaperBag
+        case .megaBag: .megaBag
+        }
+    }
+}

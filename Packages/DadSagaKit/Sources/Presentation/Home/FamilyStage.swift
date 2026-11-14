@@ -6,6 +6,8 @@ import SwiftUI
 struct FamilyStage: View {
     let heroStyle: HeroAvatar.Style
     let heroSkin: AvatarSkin
+    let heroGear: [HeroItem]
+    let medals: Int
     let heroTitle: String
     let companions: [CompanionModel]
     let selectedChildID: UUID
@@ -29,14 +31,23 @@ struct FamilyStage: View {
             ForEach(leftSide) { companion in
                 child(companion, size: childSize, heroSize: heroSize)
             }
-            HeroAvatar(style: heroStyle, size: heroSize, cheerTrigger: cheerTrigger, skin: heroSkin)
+            HeroAvatar(
+                style: heroStyle,
+                size: heroSize,
+                cheerTrigger: cheerTrigger,
+                skin: heroSkin,
+                items: heroGear,
+                medals: medals
+            )
                 .accessibilityLabel(heroTitle)
                 .zIndex(1)
             ForEach(rightSide) { companion in
                 child(companion, size: childSize, heroSize: heroSize)
             }
         }
-        .frame(maxWidth: .infinity)
+        // minWidth 0: the frame takes the offered width even while the group is still too wide, so the measured
+        // width is what is available, not what the group currently needs (which would never let it shrink).
+        .frame(minWidth: 0, maxWidth: .infinity)
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
     }
 

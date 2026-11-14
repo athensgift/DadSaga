@@ -33,6 +33,7 @@ struct HeroArm: View {
     let angle: Double
     let sway: Double
     @Environment(\.avatarSkin) private var skin
+    @Environment(\.heroEquipment) private var equipment
 
     var body: some View {
         VStack(spacing: -3) {
@@ -46,9 +47,12 @@ struct HeroArm: View {
                 .fill(skin.base)
                 .frame(width: 10, height: 10)
                 .overlay {
+                    // Counter-rotated so whatever he holds stays upright while the arm moves.
                     if isRight {
-                        // Counter-rotated so whatever he holds stays upright while the arm moves.
                         HeroHeldItem(style: style, sway: sway)
+                            .rotationEffect(.degrees(-angle))
+                    } else if let item = equipment.item(in: .leftHand) {
+                        HeroLeftHandItem(item: item, glow: 0.5 + sway / 8)
                             .rotationEffect(.degrees(-angle))
                     }
                 }

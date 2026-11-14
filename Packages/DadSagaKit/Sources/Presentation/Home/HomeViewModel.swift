@@ -43,15 +43,18 @@ public final class HomeViewModel {
 
     private let useCases: UseCases
     private let locale: Locale
+    private let strings: HomeStrings
     private let now: @Sendable () -> Date
     private var quests: [Quest] = []
     private var bosses: [BossFight] = []
     private var defeatedBossIDs: Set<String> = []
+    private var gear: [GearItem] = []
     private var celebrationCount = 0
 
     public init(useCases: UseCases, locale: Locale = .current, now: @escaping @Sendable () -> Date = { .now }) {
         self.useCases = useCases
         self.locale = locale
+        strings = HomeStrings(locale: locale)
         self.now = now
     }
 
@@ -78,8 +81,8 @@ public final class HomeViewModel {
                 id: quest.id,
                 title: quest.title.resolved(for: locale),
                 description: quest.description.resolved(for: locale),
-                reward: reward(for: quest),
-                confirmTitle: text(el: "Το έκανα!", en: "I did it!")
+                reward: strings.reward(for: quest),
+                confirmTitle: strings.text(el: "Το έκανα!", en: "I did it!")
             )
         } else if let boss = bosses.first(where: { $0.id == cardID }) {
             selectedBoss = detail(for: boss)
@@ -126,19 +129,23 @@ public final class HomeViewModel {
                 id: celebrationCount,
                 xpText: "+\(change.gainedXP) XP",
                 levelUpText: change.leveledUp
-                    ? text(el: "Επίπεδο \(change.after.level.level)!", en: "Level \(change.after.level.level)!")
+                    ? strings.text(el: "Επίπεδο \(change.after.level.level)!", en: "Level \(change.after.level.level)!")
                     : nil,
-                badgeText: badge
+                badgeText: badge,
+                unlockText: GearRules
+                    .newlyEquipped(gear, before: change.before.skillXP, after: change.after.skillXP)
+                    .first
+                    .map { strings.text(el: "Νέο: ", en: "New: ") + $0.title.resolved(for: locale) }
             )
         } catch {
-            errorMessage = text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
+            errorMessage = strings.text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
         }
     }
 
     private func load() async {
         do {
             guard let profile = try await useCases.getProfile.execute(), let firstChild = profile.children.first else {
-                state = .failed(message: text(el: "Δεν βρέθηκε προφίλ.", en: "No profile found."))
+                state = .failed(message: strings.text(el: "Δεν βρέθηκε προφίλ.", en: "No profile found."))
                 return
             }
             let child = profile.children.first { $0.id == selectedChildID } ?? firstChild
@@ -150,6 +157,7 @@ public final class HomeViewModel {
             quests = adventure.availableQuests.filter { $0.worldID == worldID }
             bosses = adventure.availableBosses.filter { $0.worldID == worldID }
             defeatedBossIDs = progress.defeatedBossIDs(for: child.id)
+            gear = catalog.gear
             state = .loaded(
                 makeContent(
                     profile: profile,
@@ -160,7 +168,7 @@ public final class HomeViewModel {
                 )
             )
         } catch {
-            state = .failed(message: text(el: "Το περιεχόμενο δεν φόρτωσε.", en: "Content failed to load."))
+            state = .failed(message: strings.text(el: "Το περιεχόμενο δεν φόρτωσε.", en: "Content failed to load."))
         }
     }
 
@@ -173,13 +181,15 @@ public final class HomeViewModel {
     ) -> HomeContent {
         let level = progress.level
         let hero = catalog.heroClasses.first { $0.id == profile.heroClassID }
-        let childLine = "\(child.name) · \(ageText(months: adventure.ageInMonths))"
+        let childLine = "\(child.name) · \(strings.ageText(months: adventure.ageInMonths))"
         let hasSiblings = profile.children.count > 1
         return HomeContent(
-            heroTitle: hero?.title.resolved(for: locale) ?? text(el: "Ήρωας", en: "Hero"),
+            heroTitle: hero?.title.resolved(for: locale) ?? strings.text(el: "Ήρωας", en: "Hero"),
             heroTagline: hero?.tagline.resolved(for: locale) ?? "",
             heroLook: HeroLook(heroClassID: profile.heroClassID),
             heroSkin: SkinToneChoice(profile.dadSkinTone),
+            heroGear: GearRules.equipped(catalog.gear, skillXP: progress.skillXP).compactMap { HeroGearLook(look: $0.look) },
+            medalCount: progress.allDefeatedBossIDs.count,
             companionLine: hasSiblings ? profile.children.map(\.name).joined(separator: " · ") : childLine,
             childTabs: hasSiblings ? profile.children.map { ChildTab(id: $0.id, name: $0.name) } : [],
             companions: profile.children.map { child in
@@ -193,15 +203,15 @@ public final class HomeViewModel {
             },
             selectedChildID: child.id,
             selectedChildLine: hasSiblings ? childLine : nil,
-            familyTitle: text(el: "Η οικογένειά μου", en: "My family"),
+            familyTitle: strings.text(el: "Η οικογένειά μου", en: "My family"),
             level: level.level,
-            levelTitle: text(el: "Επίπεδο \(level.level)", en: "Level \(level.level)"),
+            levelTitle: strings.text(el: "Επίπεδο \(level.level)", en: "Level \(level.level)"),
             levelFraction: level.fraction,
             xpLine: "\(level.xpIntoLevel) / \(level.xpNeededForNextLevel) XP",
             worldTitle: adventure.currentWorld?.title.resolved(for: locale),
             worldTagline: adventure.currentWorld?.tagline.resolved(for: locale),
             emptyMessage: adventure.isBeyondContent
-                ? text(
+                ? strings.text(
                     el: "Οι περιπέτειες για την ηλικία του παιδιού σου έρχονται σύντομα.",
                     en: "Adventures for your child's age are coming soon."
                 )
@@ -219,7 +229,7 @@ public final class HomeViewModel {
                 badge: "BOSS",
                 symbol: "flame.fill",
                 kind: .boss,
-                footnote: defeatedBossIDs.contains(boss.id) ? defeatedText(for: boss) : nil
+                footnote: defeatedBossIDs.contains(boss.id) ? strings.defeatedText(for: boss) : nil
             )
         }
     }
@@ -233,7 +243,7 @@ public final class HomeViewModel {
                 badge: "+\(quest.xp) XP",
                 symbol: quest.skill.symbol,
                 kind: .quest,
-                footnote: completions[quest.id].map(doneText)
+                footnote: completions[quest.id].map(strings.doneText)
             )
         }
     }
@@ -243,44 +253,16 @@ public final class HomeViewModel {
             id: boss.id,
             title: boss.title.resolved(for: locale),
             intro: boss.intro.resolved(for: locale),
-            guideTitle: text(el: "Οδηγός επιβίωσης", en: "Survival guide"),
+            guideTitle: strings.text(el: "Οδηγός επιβίωσης", en: "Survival guide"),
             guide: boss.guide.map { $0.resolved(for: locale) },
             reward: "+\(boss.xp) XP · \(boss.badge.resolved(for: locale))",
-            disclaimer: text(
+            disclaimer: strings.text(
                 el: "Γενικές πληροφορίες, όχι ιατρική συμβουλή. Ρώτα πάντα τον παιδίατρό σου.",
                 en: "General information, not medical advice. Always ask your paediatrician."
             ),
             isDefeated: defeatedBossIDs.contains(boss.id),
-            defeatedText: defeatedText(for: boss),
-            confirmTitle: text(el: "Τα καταφέραμε!", en: "We made it through!")
+            defeatedText: strings.defeatedText(for: boss),
+            confirmTitle: strings.text(el: "Τα καταφέραμε!", en: "We made it through!")
         )
-    }
-
-    private func defeatedText(for boss: BossFight) -> String {
-        text(el: "Νικήθηκε", en: "Defeated") + " · " + boss.badge.resolved(for: locale)
-    }
-
-    private func reward(for quest: Quest) -> String {
-        "+\(quest.xp) XP · \(quest.skill.title.resolved(for: locale))"
-    }
-
-    private func doneText(times: Int) -> String {
-        times == 1
-            ? text(el: "Το έκανες 1 φορά", en: "Done once")
-            : text(el: "Το έκανες \(times) φορές", en: "Done \(times) times")
-    }
-
-    /// Months up to two years, then years.
-    private func ageText(months: Int) -> String {
-        switch months {
-        case 0: text(el: "νεογέννητο", en: "newborn")
-        case 1: text(el: "1 μηνός", en: "1 month old")
-        case ..<24: text(el: "\(months) μηνών", en: "\(months) months old")
-        default: text(el: "\(months / 12) ετών", en: "\(months / 12) years old")
-        }
-    }
-
-    private func text(el: String, en: String) -> String {
-        LocalizedText(el: el, en: en).resolved(for: locale)
     }
 }

@@ -1,0 +1,18 @@
+[
+  { "id": "g-burp-cloth", "skill": "care", "minXP": 50, "look": "burpCloth",
+    "title": { "el": "Πανάκι ώμου", "en": "Burp cloth" } },
+  { "id": "g-burp-cloth-gold", "skill": "care", "minXP": 200, "look": "burpClothGold",
+    "title": { "el": "Θρυλικό πανάκι", "en": "Legendary burp cloth" } },
+  { "id": "g-mug", "skill": "patience", "minXP": 50, "look": "mug",
+    "title": { "el": "Κούπα καφέ", "en": "Coffee mug" } },
+  { "id": "g-thermos", "skill": "patience", "minXP": 200, "look": "thermos",
+    "title": { "el": "Θερμός διπλού εσπρέσο", "en": "Double-espresso thermos" } },
+  { "id": "g-duck", "skill": "play", "minXP": 50, "look": "duck",
+    "title": { "el": "Παπάκι μπάνιου", "en": "Rubber duck" } },
+  { "id": "g-blocks", "skill": "play", "minXP": 200, "look": "blocks",
+    "title": { "el": "Τουβλάκια", "en": "Building blocks" } },
+  { "id": "g-diaper-bag", "skill": "resilience", "minXP": 50, "look": "diaperBag",
+    "title": { "el": "Τσάντα αλλαξιέρα", "en": "Changing bag" } },
+  { "id": "g-mega-bag", "skill": "resilience", "minXP": 200, "look": "megaBag",
+    "title": { "el": "Τσάντα για κάθε ενδεχόμενο", "en": "Bag for every emergency" } }
+]

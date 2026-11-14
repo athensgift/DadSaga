@@ -12,6 +12,7 @@ public struct HeroAvatar: View {
     private let size: CGFloat
     private let cheerTrigger: Int
     private let skin: AvatarSkin
+    private let equipment: HeroEquipment
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isCheering = false
     @State private var hasAppeared = false
@@ -20,11 +21,21 @@ public struct HeroAvatar: View {
     ///   - size: the avatar's height in points.
     ///   - cheerTrigger: change this value to make the hero cheer, as if he had been tapped.
     ///   - skin: the dad's skin tone.
-    public init(style: Style, size: CGFloat = 200, cheerTrigger: Int = 0, skin: AvatarSkin = .mediumLight) {
+    ///   - items: earned gear to draw; at most one per slot (the last one wins).
+    ///   - medals: boss medals on the chest; up to four are drawn.
+    public init(
+        style: Style,
+        size: CGFloat = 200,
+        cheerTrigger: Int = 0,
+        skin: AvatarSkin = .mediumLight,
+        items: [HeroItem] = [],
+        medals: Int = 0
+    ) {
         self.style = style
         self.size = size
         self.cheerTrigger = cheerTrigger
         self.skin = skin
+        equipment = HeroEquipment(items: items, medals: medals)
     }
 
     public var body: some View {
@@ -36,6 +47,7 @@ public struct HeroAvatar: View {
             )
         }
         .environment(\.avatarSkin, skin)
+        .environment(\.heroEquipment, equipment)
         .scaleEffect(size / HeroFigure.designSize.height)
         .frame(width: size * HeroFigure.designSize.width / HeroFigure.designSize.height, height: size)
         .scaleEffect(hasAppeared ? 1 : 0.6)
@@ -169,6 +181,7 @@ struct HeroFigure: View {
     let style: HeroAvatar.Style
     let pose: HeroPose
     let isCheering: Bool
+    @Environment(\.heroEquipment) private var equipment
 
     /// Super Dad hovers above the ground instead of standing on it.
     private var hover: CGFloat { style == .hero ? pose.bob - 6 : 0 }
@@ -187,14 +200,24 @@ struct HeroFigure: View {
                 .fill(DSColor.heroInk.opacity(0.15))
                 .frame(width: isCheering || style == .hero ? 42 : 58, height: 10)
                 .offset(y: 69)
+            if let item = equipment.item(in: .ground) {
+                HeroGroundItem(item: item)
+            }
             ZStack {
                 HeroBackGear(style: style, sway: pose.sway)
+                if let item = equipment.item(in: .back) {
+                    HeroBackItem(item: item)
+                }
                 HeroLegs(style: style)
                 HeroTorso(style: style, breath: pose.breath)
+                HeroMedals(count: equipment.medals)
                 HeroArm(style: style, isRight: false, angle: isCheering ? 150 : 8 + pose.sway, sway: pose.sway)
                     .offset(x: -style.shoulderOffset, y: 14)
                 HeroArm(style: style, isRight: true, angle: rightArmAngle, sway: pose.sway)
                     .offset(x: style.shoulderOffset, y: 14)
+                if let item = equipment.item(in: .shoulder) {
+                    HeroShoulderItem(item: item)
+                }
                 HeroHead(pose: pose, isCheering: isCheering)
                 HeroHeadgear(style: style, pose: pose)
             }

@@ -254,6 +254,10 @@ enum HeroStub {
         heroClasses: [
             HeroClass(id: "h-cool", order: 2, title: LocalizedText(el: "Cool Μπαμπάς", en: "Cool Dad"), tagline: text),
             HeroClass(id: "h-super", order: 1, title: LocalizedText(el: "Σούπερ Μπαμπάς", en: "Super Dad"), tagline: text)
+        ],
+        gear: [
+            GearItem(id: "g1", skill: .care, minXP: 50, look: "burpCloth", title: LocalizedText(el: "Πανάκι", en: "Burp cloth")),
+            GearItem(id: "g2", skill: .care, minXP: 200, look: "unknownLook", title: text)
         ]
     )
 }
