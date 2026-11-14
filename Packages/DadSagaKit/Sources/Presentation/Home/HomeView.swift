@@ -31,7 +31,7 @@ public struct HomeView: View {
             .navigationTitle(title)
             // Two columns scroll separately. A navigation bar collapses or hides with whichever column scrolls and
             // shifts the other, so the wide layout has no bar: its title lives in the hero column.
-            .toolbar(isWide ? .hidden : .automatic, for: .navigationBar)
+            .navigationBarHidden(when: isWide)
             .toolbar { DeveloperMenuToolbar(menu: developerMenu) }
         }
         .onGeometryChange(for: Bool.self) { $0.size.width >= twoColumnWidth } action: { isWide = $0 }
