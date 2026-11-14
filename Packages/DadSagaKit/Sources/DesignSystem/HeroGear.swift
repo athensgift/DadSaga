@@ -5,6 +5,7 @@ import SwiftUI
 struct HeroHeadgear: View {
     let style: HeroAvatar.Style
     let pose: HeroPose
+    @Environment(\.avatarSkin) private var skin
 
     var body: some View {
         switch style {
@@ -19,7 +20,7 @@ struct HeroHeadgear: View {
 
     private var quiff: some View {
         Ellipse()
-            .fill(DSColor.heroBeard)
+            .fill(skin.hair)
             .frame(width: 20, height: 11)
             .rotationEffect(.degrees(-18 + pose.sway * 0.5))
             .offset(x: 5, y: -51)

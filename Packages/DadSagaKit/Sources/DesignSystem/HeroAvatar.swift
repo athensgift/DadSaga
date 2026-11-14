@@ -11,6 +11,7 @@ public struct HeroAvatar: View {
     private let style: Style
     private let size: CGFloat
     private let cheerTrigger: Int
+    private let skin: AvatarSkin
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isCheering = false
     @State private var hasAppeared = false
@@ -18,10 +19,12 @@ public struct HeroAvatar: View {
     /// - Parameters:
     ///   - size: the avatar's height in points.
     ///   - cheerTrigger: change this value to make the hero cheer, as if he had been tapped.
-    public init(style: Style, size: CGFloat = 200, cheerTrigger: Int = 0) {
+    ///   - skin: the dad's skin tone.
+    public init(style: Style, size: CGFloat = 200, cheerTrigger: Int = 0, skin: AvatarSkin = .mediumLight) {
         self.style = style
         self.size = size
         self.cheerTrigger = cheerTrigger
+        self.skin = skin
     }
 
     public var body: some View {
@@ -32,6 +35,7 @@ public struct HeroAvatar: View {
                 isCheering: isCheering
             )
         }
+        .environment(\.avatarSkin, skin)
         .scaleEffect(size / HeroFigure.designSize.height)
         .frame(width: size * HeroFigure.designSize.width / HeroFigure.designSize.height, height: size)
         .scaleEffect(hasAppeared ? 1 : 0.6)
@@ -82,9 +86,9 @@ extension HeroAvatar.Style {
         }
     }
 
-    var sleeve: LinearGradient {
+    func sleeve(_ skin: AvatarSkin) -> LinearGradient {
         switch self {
-        case .strong: heroGradient(DSColor.heroSkin, DSColor.heroSkinShade)
+        case .strong: skin.gradient
         case .smart: heroGradient(DSColor.heroChef, DSColor.heroChefShade)
         default: fabric
         }

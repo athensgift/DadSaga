@@ -4,11 +4,12 @@ import SwiftUI
 struct HeroTorso: View {
     let style: HeroAvatar.Style
     let breath: CGFloat
+    @Environment(\.avatarSkin) private var skin
 
     var body: some View {
         ZStack {
             Rectangle()
-                .fill(DSColor.heroSkinShade)
+                .fill(skin.shade)
                 .frame(width: 12, height: 8)
                 .offset(y: -6)
             outfit
@@ -69,7 +70,7 @@ struct HeroTorso: View {
     private var tankTop: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 14)
-                .fill(heroGradient(DSColor.heroSkin, DSColor.heroSkinShade))
+                .fill(skin.gradient)
                 .frame(width: 46, height: 40)
                 .offset(y: 14)
             HeroTrapezoid(topRatio: 0.5)

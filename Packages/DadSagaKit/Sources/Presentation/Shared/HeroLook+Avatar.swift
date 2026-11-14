@@ -22,3 +22,15 @@ extension CardModel.Kind {
         }
     }
 }
+
+extension SkinToneChoice {
+    var avatarSkin: AvatarSkin {
+        switch self {
+        case .light: .light
+        case .mediumLight: .mediumLight
+        case .medium: .medium
+        case .mediumDark: .mediumDark
+        case .dark: .dark
+        }
+    }
+}

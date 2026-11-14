@@ -9,11 +9,18 @@ public struct RootView: View {
     @State private var viewModel: RootViewModel
     private let makeOnboarding: MakeOnboarding
     private let makeHome: MakeHome
+    private let makeFamily: HomeView.MakeFamily?
 
-    public init(viewModel: RootViewModel, makeOnboarding: @escaping MakeOnboarding, makeHome: @escaping MakeHome) {
+    public init(
+        viewModel: RootViewModel,
+        makeOnboarding: @escaping MakeOnboarding,
+        makeHome: @escaping MakeHome,
+        makeFamily: HomeView.MakeFamily? = nil
+    ) {
         _viewModel = State(initialValue: viewModel)
         self.makeOnboarding = makeOnboarding
         self.makeHome = makeHome
+        self.makeFamily = makeFamily
     }
 
     public var body: some View {
@@ -28,7 +35,7 @@ public struct RootView: View {
                 )
                 .transition(.opacity)
             case .home:
-                HomeView(viewModel: makeHome(), developerMenu: developerMenu)
+                HomeView(viewModel: makeHome(), developerMenu: developerMenu, makeFamily: makeFamily)
                     .transition(.opacity)
             }
         }

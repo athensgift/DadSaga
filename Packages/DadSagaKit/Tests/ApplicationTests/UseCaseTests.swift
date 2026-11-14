@@ -37,9 +37,29 @@ struct GetAdventureUseCaseTests {
         let adventure = try await sut.execute(for: Child(name: "Νίκος", birthDate: birth), on: today)
 
         #expect(adventure.ageInMonths == 10)
+        #expect(!adventure.isBeyondContent)
         #expect(adventure.currentWorld?.id == "w2")
         #expect(adventure.unlockedWorlds.map(\.id) == ["w1", "w2"])
         #expect(Set(adventure.availableQuests.map(\.id)) == ["q1", "q2"])
+        #expect(adventure.availableBosses.isEmpty)
+    }
+}
+
+@Suite("GetAdventureUseCase, older children")
+struct OlderChildAdventureTests {
+    @Test("Given a child older than every world, when executing, then nothing is offered and it is beyond content")
+    func olderThanContent() async throws {
+        let today = Date(timeIntervalSince1970: 1_000_000_000)
+        let sut = DefaultGetAdventureUseCase(repository: StubContentRepository(result: .success(Stub.catalog)))
+
+        let adventure = try await sut.execute(
+            for: Child(name: "Άννα", birthDate: today.addingTimeInterval(-5 * 365 * 86_400)),
+            on: today
+        )
+
+        #expect(adventure.isBeyondContent)
+        #expect(adventure.currentWorld == nil)
+        #expect(adventure.availableQuests.isEmpty)
         #expect(adventure.availableBosses.isEmpty)
     }
 }

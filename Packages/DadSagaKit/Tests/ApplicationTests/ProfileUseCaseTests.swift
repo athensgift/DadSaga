@@ -30,17 +30,17 @@ struct ProfileUseCaseTests {
         let sut = DefaultSaveProfileUseCase(contentRepository: content, profileRepository: repository)
         let child = Child(name: " Νίκος ", birthDate: today)
 
-        try await sut.execute(PlayerProfile(child: child, heroClassID: "h1"), on: today)
+        try await sut.execute(PlayerProfile(children: [child], heroClassID: "h1"), on: today)
 
         let stored = try await DefaultGetProfileUseCase(repository: repository).execute()
-        #expect(stored == PlayerProfile(child: Child(name: "Νίκος", birthDate: today), heroClassID: "h1"))
+        #expect(stored == PlayerProfile(children: [Child(id: child.id, name: "Νίκος", birthDate: today)], heroClassID: "h1"))
     }
 
     @Test("Given an unknown hero class, when saving, then it throws and nothing is stored")
     func rejectsInvalidProfile() async throws {
         let repository = SpyProfileRepository()
         let sut = DefaultSaveProfileUseCase(contentRepository: content, profileRepository: repository)
-        let profile = PlayerProfile(child: Child(name: "Νίκος", birthDate: today), heroClassID: "nope")
+        let profile = PlayerProfile(children: [Child(name: "Νίκος", birthDate: today)], heroClassID: "nope")
 
         await #expect(throws: ProfileValidationError.unknownHeroClass("nope")) {
             try await sut.execute(profile, on: today)
@@ -51,7 +51,7 @@ struct ProfileUseCaseTests {
     @Test("Given a stored profile and progress, when resetting, then both are gone")
     func reset() async throws {
         let repository = SpyProfileRepository()
-        try await repository.save(PlayerProfile(child: Child(name: "Νίκος", birthDate: today), heroClassID: "h1"))
+        try await repository.save(PlayerProfile(children: [Child(name: "Νίκος", birthDate: today)], heroClassID: "h1"))
 
         let progress = SpyProgressRepository()
         try await progress.add(ProgressEvent(kind: .quest(id: "q1"), date: today))

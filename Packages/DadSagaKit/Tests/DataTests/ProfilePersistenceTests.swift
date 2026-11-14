@@ -1,5 +1,6 @@
 import Domain
 import Foundation
+import SwiftData
 import Testing
 @testable import Data
 
@@ -30,7 +31,14 @@ struct LocalStoreTests {
     @Test("Given a saved profile, when fetching, then the same profile is returned")
     func roundTrip() async throws {
         let sut = try LocalStore.inMemory().profiles
-        let profile = PlayerProfile(child: Child(name: "Νίκος", birthDate: birth), heroClassID: "h-cool")
+        let profile = PlayerProfile(
+            children: [
+                Child(name: "Νίκος", birthDate: birth, gender: .boy, skinTone: .medium),
+                Child(name: "Άννα", birthDate: birth.addingTimeInterval(-86_400), gender: .girl, skinTone: .dark)
+            ],
+            heroClassID: "h-cool",
+            dadSkinTone: .mediumDark
+        )
 
         try await sut.save(profile)
 
@@ -40,8 +48,13 @@ struct LocalStoreTests {
     @Test("Given an existing profile, when saving again, then it is replaced rather than duplicated")
     func saveReplaces() async throws {
         let sut = try LocalStore.inMemory().profiles
-        try await sut.save(PlayerProfile(child: Child(name: "Νίκος", birthDate: birth), heroClassID: "h-cool"))
-        let updated = PlayerProfile(child: Child(name: "Άννα", birthDate: birth), heroClassID: "h-smart")
+        try await sut.save(
+            PlayerProfile(
+                children: [Child(name: "Νίκος", birthDate: birth), Child(name: "Μαρία", birthDate: birth)],
+                heroClassID: "h-cool"
+            )
+        )
+        let updated = PlayerProfile(children: [Child(name: "Άννα", birthDate: birth)], heroClassID: "h-smart")
 
         try await sut.save(updated)
 
@@ -51,17 +64,38 @@ struct LocalStoreTests {
     @Test("Given a saved profile, when deleting, then the store is empty again")
     func delete() async throws {
         let sut = try LocalStore.inMemory().profiles
-        try await sut.save(PlayerProfile(child: Child(name: "Νίκος", birthDate: birth), heroClassID: "h-cool"))
+        try await sut.save(PlayerProfile(children: [Child(name: "Νίκος", birthDate: birth)], heroClassID: "h-cool"))
 
         try await sut.deleteProfile()
 
         #expect(try await sut.fetchProfile() == nil)
     }
 
+    @Test("Given a store from before families, when migrating, then the child is kept and their events are linked")
+    func legacyMigration() throws {
+        let container = try ModelContainer(
+            for: ProfileRecord.self, ChildRecord.self, ProgressEventRecord.self,
+            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
+        )
+        let context = ModelContext(container)
+        context.insert(ProfileRecord(childName: "Νίκος", birthDate: birth, heroClassID: "h-cool", dadSkinTone: "mediumLight"))
+        context.insert(ProgressEventRecord(event: ProgressEvent(kind: .quest(id: "q1"), date: birth)))
+        try context.save()
+
+        try LegacyProfileMigration.run(in: context)
+        try LegacyProfileMigration.run(in: context)
+
+        let children = try context.fetch(FetchDescriptor<ChildRecord>())
+        #expect(children.map(\.name) == ["Νίκος"])
+        #expect(children.first?.birthDate == birth)
+        let events = try context.fetch(FetchDescriptor<ProgressEventRecord>())
+        #expect(events.map(\.childID) == [children.first?.childID])
+    }
+
     @Test("Given stored events, when fetching, then they come back oldest first with their ids and kinds")
     func progressRoundTrip() async throws {
         let sut = try LocalStore.inMemory().progress
-        let later = ProgressEvent(kind: .boss(id: "b1"), date: birth.addingTimeInterval(60))
+        let later = ProgressEvent(kind: .boss(id: "b1"), childID: UUID(), date: birth.addingTimeInterval(60))
         let earlier = ProgressEvent(kind: .quest(id: "q1"), date: birth)
 
         try await sut.add(later)

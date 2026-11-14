@@ -3,7 +3,7 @@ import Domain
 import Foundation
 import Observation
 
-/// Presenter for the home screen: the dad's hero, his companion, and what he can play today.
+/// Presenter for the home screen: the dad's hero, his children, and what he can play today with the chosen child.
 @MainActor
 @Observable
 public final class HomeViewModel {
@@ -38,6 +38,8 @@ public final class HomeViewModel {
     public private(set) var celebration: Celebration?
     public private(set) var errorMessage: String?
     public private(set) var isCompleting = false
+    /// The child whose world and quests are shown. The first child until the dad picks another.
+    public private(set) var selectedChildID: UUID?
 
     private let useCases: UseCases
     private let locale: Locale
@@ -54,6 +56,17 @@ public final class HomeViewModel {
     }
 
     public func onAppear() async {
+        await load()
+    }
+
+    /// Reloads everything, e.g. after the family was edited.
+    public func reload() async {
+        await load()
+    }
+
+    public func selectChild(id: UUID) async {
+        guard id != selectedChildID else { return }
+        selectedChildID = id
         await load()
     }
 
@@ -80,17 +93,17 @@ public final class HomeViewModel {
     }
 
     public func completeSelectedQuest() async {
-        guard let quest = selectedQuest else { return }
+        guard let quest = selectedQuest, let childID = selectedChildID else { return }
         await record(badge: nil) {
-            try await self.useCases.completeQuest.execute(questID: quest.id, on: self.now())
+            try await self.useCases.completeQuest.execute(questID: quest.id, childID: childID, on: self.now())
         }
     }
 
     public func defeatSelectedBoss() async {
-        guard let boss = selectedBoss, !boss.isDefeated else { return }
+        guard let boss = selectedBoss, !boss.isDefeated, let childID = selectedChildID else { return }
         let badge = bosses.first { $0.id == boss.id }?.badge.resolved(for: locale)
         await record(badge: badge) {
-            try await self.useCases.defeatBoss.execute(bossID: boss.id, on: self.now())
+            try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now())
         }
     }
 
@@ -124,18 +137,28 @@ public final class HomeViewModel {
 
     private func load() async {
         do {
-            guard let profile = try await useCases.getProfile.execute() else {
+            guard let profile = try await useCases.getProfile.execute(), let firstChild = profile.children.first else {
                 state = .failed(message: text(el: "Δεν βρέθηκε προφίλ.", en: "No profile found."))
                 return
             }
+            let child = profile.children.first { $0.id == selectedChildID } ?? firstChild
+            selectedChildID = child.id
             let catalog = try await useCases.loadCatalog.execute()
-            let adventure = try await useCases.getAdventure.execute(for: profile.child, on: now())
+            let adventure = try await useCases.getAdventure.execute(for: child, on: now())
             let progress = try await useCases.getProgress.execute()
             let worldID = adventure.currentWorld?.id
             quests = adventure.availableQuests.filter { $0.worldID == worldID }
             bosses = adventure.availableBosses.filter { $0.worldID == worldID }
-            defeatedBossIDs = progress.defeatedBossIDs
-            state = .loaded(makeContent(profile: profile, catalog: catalog, adventure: adventure, progress: progress))
+            defeatedBossIDs = progress.defeatedBossIDs(for: child.id)
+            state = .loaded(
+                makeContent(
+                    profile: profile,
+                    child: child,
+                    catalog: catalog,
+                    adventure: adventure,
+                    progress: progress
+                )
+            )
         } catch {
             state = .failed(message: text(el: "Το περιεχόμενο δεν φόρτωσε.", en: "Content failed to load."))
         }
@@ -143,24 +166,38 @@ public final class HomeViewModel {
 
     private func makeContent(
         profile: PlayerProfile,
+        child: Child,
         catalog: ContentCatalog,
         adventure: Adventure,
         progress: DadProgress
     ) -> HomeContent {
-        let hero = catalog.heroClasses.first { $0.id == profile.heroClassID }
         let level = progress.level
+        let hero = catalog.heroClasses.first { $0.id == profile.heroClassID }
+        let childLine = "\(child.name) · \(ageText(months: adventure.ageInMonths))"
+        let hasSiblings = profile.children.count > 1
         return HomeContent(
             heroTitle: hero?.title.resolved(for: locale) ?? text(el: "Ήρωας", en: "Hero"),
             heroTagline: hero?.tagline.resolved(for: locale) ?? "",
             heroLook: HeroLook(heroClassID: profile.heroClassID),
-            companionLine: "\(profile.child.name) · \(ageText(months: adventure.ageInMonths))",
+            heroSkin: SkinToneChoice(profile.dadSkinTone),
+            companionLine: hasSiblings ? profile.children.map(\.name).joined(separator: " · ") : childLine,
+            childTabs: hasSiblings ? profile.children.map { ChildTab(id: $0.id, name: $0.name) } : [],
+            selectedChildID: child.id,
+            selectedChildLine: hasSiblings ? childLine : nil,
+            familyTitle: text(el: "Η οικογένειά μου", en: "My family"),
             level: level.level,
             levelTitle: text(el: "Επίπεδο \(level.level)", en: "Level \(level.level)"),
             levelFraction: level.fraction,
             xpLine: "\(level.xpIntoLevel) / \(level.xpNeededForNextLevel) XP",
             worldTitle: adventure.currentWorld?.title.resolved(for: locale),
             worldTagline: adventure.currentWorld?.tagline.resolved(for: locale),
-            cards: bossCards() + questCards(completions: progress.questCompletions)
+            emptyMessage: adventure.isBeyondContent
+                ? text(
+                    el: "Οι περιπέτειες για την ηλικία του παιδιού σου έρχονται σύντομα.",
+                    en: "Adventures for your child's age are coming soon."
+                )
+                : nil,
+            cards: bossCards() + questCards(completions: progress.questCompletions(for: child.id))
         )
     }
 
@@ -224,11 +261,13 @@ public final class HomeViewModel {
             : text(el: "Το έκανες \(times) φορές", en: "Done \(times) times")
     }
 
+    /// Months up to two years, then years.
     private func ageText(months: Int) -> String {
         switch months {
         case 0: text(el: "νεογέννητο", en: "newborn")
         case 1: text(el: "1 μηνός", en: "1 month old")
-        default: text(el: "\(months) μηνών", en: "\(months) months old")
+        case ..<24: text(el: "\(months) μηνών", en: "\(months) months old")
+        default: text(el: "\(months / 12) ετών", en: "\(months / 12) years old")
         }
     }
 

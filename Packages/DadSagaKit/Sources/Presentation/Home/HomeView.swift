@@ -5,13 +5,19 @@ import SwiftUI
 /// On wide screens (iPhone Duo inner display, landscape) it splits into two equal columns, so neither column
 /// runs across the middle of the display, where the Duo folds.
 public struct HomeView: View {
+    public typealias MakeFamily = @MainActor (_ onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel
+
     @State private var viewModel: HomeViewModel
     @State private var isWide = false
+    @State private var familyViewModel: FamilyViewModel?
     private let developerMenu: DeveloperMenu?
+    private let makeFamily: MakeFamily?
 
-    public init(viewModel: HomeViewModel, developerMenu: DeveloperMenu? = nil) {
+    /// - Parameter makeFamily: builds the "My family" screen; `nil` hides its button.
+    public init(viewModel: HomeViewModel, developerMenu: DeveloperMenu? = nil, makeFamily: MakeFamily? = nil) {
         _viewModel = State(initialValue: viewModel)
         self.developerMenu = developerMenu
+        self.makeFamily = makeFamily
     }
 
     public var body: some View {
@@ -32,7 +38,15 @@ public struct HomeView: View {
             // Two columns scroll separately. A navigation bar collapses or hides with whichever column scrolls and
             // shifts the other, so the wide layout has no bar: its title lives in the hero column.
             .navigationBarHidden(when: isWide)
-            .toolbar { DeveloperMenuToolbar(menu: developerMenu) }
+            .toolbar {
+                if makeFamily != nil {
+                    ToolbarItem(placement: .primaryAction) { familyButton }
+                }
+                DeveloperMenuToolbar(menu: developerMenu)
+            }
+        }
+        .sheet(item: $familyViewModel) { family in
+            FamilyView(viewModel: family) { familyViewModel = nil }
         }
         .onGeometryChange(for: Bool.self) { $0.size.width >= twoColumnWidth } action: { isWide = $0 }
         .task { await viewModel.onAppear() }
@@ -52,6 +66,25 @@ public struct HomeView: View {
                     viewModel.dismissSelection()
                 }
             }
+        }
+    }
+
+    private var familyButton: some View {
+        Button {
+            openFamily()
+        } label: {
+            Label(familyTitle, systemImage: "person.2")
+        }
+    }
+
+    private var familyTitle: String {
+        if case .loaded(let content) = viewModel.state { content.familyTitle } else { "" }
+    }
+
+    private func openFamily() {
+        familyViewModel = makeFamily? {
+            familyViewModel = nil
+            Task { await viewModel.reload() }
         }
     }
 
@@ -92,20 +125,14 @@ public struct HomeView: View {
         let style = content.heroLook.avatarStyle
         return VStack(spacing: DSSpacing.m) {
             if isWide {
-                HStack {
-                    Text(content.heroTitle)
-                        .font(DSFont.largeTitle)
-                        .foregroundStyle(DSColor.textPrimary)
-                        .accessibilityAddTraits(.isHeader)
-                    Spacer()
-                    if let developerMenu {
-                        DeveloperMenuButton(menu: developerMenu)
-                            .labelStyle(.iconOnly)
-                            .buttonStyle(.glass)
-                    }
-                }
+                wideHeader(content)
             }
-            HeroAvatar(style: style, size: isWide ? 260 : 210, cheerTrigger: viewModel.celebration?.id ?? 0)
+            HeroAvatar(
+                style: style,
+                size: isWide ? 260 : 210,
+                cheerTrigger: viewModel.celebration?.id ?? 0,
+                skin: content.heroSkin.avatarSkin
+            )
                 .padding(.top, DSSpacing.xl)
                 .background {
                     Circle()
@@ -119,7 +146,11 @@ public struct HomeView: View {
                         )
                         .frame(width: 300, height: 300)
                 }
-                .overlay(alignment: .top) { celebrationBadge }
+                .overlay(alignment: .top) {
+                    if let celebration = viewModel.celebration {
+                        CelebrationBadge(celebration: celebration) { viewModel.celebrationFinished() }
+                    }
+                }
                 .accessibilityLabel(content.heroTitle)
             VStack(spacing: DSSpacing.xs) {
                 Text(content.companionLine)
@@ -130,35 +161,38 @@ public struct HomeView: View {
                     .foregroundStyle(DSColor.textSecondary)
             }
             .multilineTextAlignment(.center)
-            levelPanel(content)
+            LevelPanel(title: content.levelTitle, xpLine: content.xpLine, fraction: content.levelFraction)
         }
         .frame(maxWidth: .infinity)
         .animation(.spring(response: 0.4, dampingFraction: 0.7), value: viewModel.celebration)
     }
 
-    private func levelPanel(_ content: HomeContent) -> some View {
-        VStack(alignment: .leading, spacing: DSSpacing.s) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(content.levelTitle)
-                    .font(DSFont.headline)
-                    .foregroundStyle(DSColor.textPrimary)
-                Spacer()
-                Text(content.xpLine)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.textSecondary)
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
+    /// The wide layout has no navigation bar, so its title and buttons sit at the top of the hero column.
+    private func wideHeader(_ content: HomeContent) -> some View {
+        HStack {
+            Text(content.heroTitle)
+                .font(DSFont.largeTitle)
+                .foregroundStyle(DSColor.textPrimary)
+                .accessibilityAddTraits(.isHeader)
+            Spacer()
+            if makeFamily != nil {
+                familyButton
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.glass)
             }
-            XPBar(fraction: content.levelFraction)
+            if let developerMenu {
+                DeveloperMenuButton(menu: developerMenu)
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.glass)
+            }
         }
-        .padding(DSSpacing.m)
-        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
-        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: content.levelFraction)
-        .accessibilityElement(children: .combine)
     }
 
     private func adventure(_ content: HomeContent) -> some View {
         LazyVStack(alignment: .leading, spacing: DSSpacing.s) {
+            if !content.childTabs.isEmpty {
+                ChildPicker(content: content) { id in Task { await viewModel.selectChild(id: id) } }
+            }
             if let worldTitle = content.worldTitle {
                 VStack(alignment: .leading, spacing: DSSpacing.xs) {
                     Text(worldTitle)
@@ -172,6 +206,10 @@ public struct HomeView: View {
                 }
                 .padding(.bottom, DSSpacing.s)
                 .accessibilityAddTraits(.isHeader)
+            }
+            if let emptyMessage = content.emptyMessage {
+                ContentUnavailableView(emptyMessage, systemImage: "map")
+                    .padding(.vertical, DSSpacing.l)
             }
             ForEach(content.cards) { card in
                 Button {
@@ -187,38 +225,6 @@ public struct HomeView: View {
                     )
                 }
                 .buttonStyle(.plain)
-            }
-        }
-    }
-
-    /// Floating, transient feedback: the one place on this screen where Liquid Glass sits over content.
-    @ViewBuilder private var celebrationBadge: some View {
-        if let celebration = viewModel.celebration {
-            VStack(spacing: DSSpacing.xs) {
-                Text(celebration.xpText)
-                    .font(DSFont.title)
-                    .foregroundStyle(DSColor.xp)
-                if let levelUpText = celebration.levelUpText {
-                    Label(levelUpText, systemImage: "star.fill")
-                        .font(DSFont.headline)
-                        .foregroundStyle(DSColor.legendary)
-                }
-                if let badgeText = celebration.badgeText {
-                    Label(badgeText, systemImage: "rosette")
-                        .font(DSFont.headline)
-                        .foregroundStyle(DSColor.boss)
-                }
-            }
-            .lineLimit(1)
-            .fixedSize()
-            .padding(.horizontal, DSSpacing.l)
-            .padding(.vertical, DSSpacing.m)
-            .glassEffect(.regular, in: .rect(cornerRadius: DSRadius.card))
-            .offset(y: -DSSpacing.l)
-            .transition(.scale(scale: 0.6).combined(with: .opacity))
-            .task(id: celebration.id) {
-                try? await Task.sleep(for: .seconds(2.2))
-                viewModel.celebrationFinished()
             }
         }
     }

@@ -23,7 +23,10 @@ public struct LocalStore: Sendable {
 
     private static func make(inMemory: Bool) throws -> LocalStore {
         let configuration = ModelConfiguration(isStoredInMemoryOnly: inMemory)
-        let container = try ModelContainer(for: ProfileRecord.self, ProgressEventRecord.self, configurations: configuration)
+        let container = try ModelContainer(
+            for: ProfileRecord.self, ChildRecord.self, ProgressEventRecord.self,
+            configurations: configuration
+        )
         return LocalStore(
             profiles: SwiftDataProfileRepository(modelContainer: container),
             progress: SwiftDataProgressRepository(modelContainer: container)
