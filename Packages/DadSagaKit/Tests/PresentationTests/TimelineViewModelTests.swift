@@ -35,7 +35,7 @@ struct TimelineViewModelTests {
         ]
     }
 
-    func content(_ sut: TimelineViewModel) -> TimelineContent? {
+    func loadedContent(_ sut: TimelineViewModel) -> TimelineContent? {
         guard case .loaded(let content) = sut.state else {
             Issue.record("Expected loaded state, got \(sut.state)")
             return nil
@@ -47,7 +47,7 @@ struct TimelineViewModelTests {
     func groupsByMonth() async throws {
         let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
         await sut.onAppear()
-        let content = try #require(content(sut))
+        let content = try #require(loadedContent(sut))
 
         #expect(content.title == "Χρονολόγιο")
         #expect(content.filters.map(\.title) == ["Όλοι", "Νίκος", "Ελένη"])
@@ -70,13 +70,13 @@ struct TimelineViewModelTests {
 
         sut.select(filter: HeroStub.eleni.id)
 
-        let content = try #require(content(sut))
+        let content = try #require(loadedContent(sut))
         #expect(content.selectedFilter == HeroStub.eleni.id)
         #expect(content.sections.flatMap(\.items).map(\.kind) == [.moment])
         #expect(content.sections.first?.items.first?.subtitle.hasPrefix("Ελένη") == false)
 
         sut.select(filter: nil)
-        #expect(self.content(sut)?.sections.flatMap(\.items).count == 3)
+        #expect(loadedContent(sut)?.sections.flatMap(\.items).count == 3)
     }
 
     @Test("Given one child, when appearing, then there are no filters and no child names")
@@ -84,7 +84,7 @@ struct TimelineViewModelTests {
         let events = [ProgressEvent(kind: .quest(id: "q1"), childID: HeroStub.niko.id, date: january)]
         let sut = makeSUT(profile: HeroStub.profile, events: events)
         await sut.onAppear()
-        let content = try #require(content(sut))
+        let content = try #require(loadedContent(sut))
         #expect(content.filters.isEmpty)
         #expect(content.sections.first?.items.first?.subtitle.hasPrefix("Νίκος") == false)
     }
@@ -93,7 +93,7 @@ struct TimelineViewModelTests {
     func empty() async throws {
         let sut = makeSUT(profile: HeroStub.profile, events: [])
         await sut.onAppear()
-        let content = try #require(content(sut))
+        let content = try #require(loadedContent(sut))
         #expect(content.sections.isEmpty)
         #expect(content.emptyTitle == "Καμία ανάμνηση ακόμα")
     }
