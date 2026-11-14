@@ -11,7 +11,8 @@ struct DadSagaApp: App {
                 viewModel: container.makeRootViewModel(),
                 makeOnboarding: { container.makeOnboardingViewModel(onFinished: $0) },
                 makeHome: { container.makeHomeViewModel() },
-                makeFamily: { container.makeFamilyViewModel(onSaved: $0) }
+                makeFamily: { container.makeFamilyViewModel(onSaved: $0) },
+                makeTimeline: { container.makeTimelineViewModel() }
             )
         }
     }
