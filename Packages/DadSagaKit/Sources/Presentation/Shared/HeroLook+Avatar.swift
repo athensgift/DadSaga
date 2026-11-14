@@ -34,3 +34,23 @@ extension SkinToneChoice {
         }
     }
 }
+
+extension CompanionStage {
+    var avatarStage: ChildAvatar.Stage {
+        switch self {
+        case .baby: .baby
+        case .toddler: .toddler
+        case .preschooler: .preschooler
+        case .kid: .kid
+        }
+    }
+}
+
+extension GenderChoice {
+    var avatarGender: ChildAvatar.Gender {
+        switch self {
+        case .boy: .boy
+        case .girl: .girl
+        }
+    }
+}

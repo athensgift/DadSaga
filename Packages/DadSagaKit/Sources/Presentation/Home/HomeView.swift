@@ -127,31 +127,35 @@ public struct HomeView: View {
             if isWide {
                 wideHeader(content)
             }
-            HeroAvatar(
-                style: style,
-                size: isWide ? 260 : 210,
-                cheerTrigger: viewModel.celebration?.id ?? 0,
-                skin: content.heroSkin.avatarSkin
-            )
-                .padding(.top, DSSpacing.xl)
-                .background {
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [style.tint.opacity(0.28), style.tint.opacity(0)],
-                                center: .center,
-                                startRadius: 10,
-                                endRadius: 150
-                            )
+            FamilyStage(
+                heroStyle: style,
+                heroSkin: content.heroSkin.avatarSkin,
+                heroTitle: content.heroTitle,
+                companions: content.companions,
+                selectedChildID: content.selectedChildID,
+                maxHeroSize: isWide ? 260 : 210,
+                cheerTrigger: viewModel.celebration?.id ?? 0
+            ) { id in
+                Task { await viewModel.selectChild(id: id) }
+            }
+            .padding(.top, DSSpacing.xl)
+            .background {
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [style.tint.opacity(0.28), style.tint.opacity(0)],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 150
                         )
-                        .frame(width: 300, height: 300)
+                    )
+                    .frame(width: 300, height: 300)
+            }
+            .overlay(alignment: .top) {
+                if let celebration = viewModel.celebration {
+                    CelebrationBadge(celebration: celebration) { viewModel.celebrationFinished() }
                 }
-                .overlay(alignment: .top) {
-                    if let celebration = viewModel.celebration {
-                        CelebrationBadge(celebration: celebration) { viewModel.celebrationFinished() }
-                    }
-                }
-                .accessibilityLabel(content.heroTitle)
+            }
             VStack(spacing: DSSpacing.xs) {
                 Text(content.companionLine)
                     .font(DSFont.headline)

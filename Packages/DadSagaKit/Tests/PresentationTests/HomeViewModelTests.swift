@@ -159,6 +159,9 @@ struct HomeViewModelTests {
         #expect(content.selectedChildID == HeroStub.niko.id)
         #expect(content.heroSkin == .mediumDark)
         #expect(content.emptyMessage == nil)
+        #expect(content.companions.map(\.name) == ["Νίκος"])
+        #expect(content.companions.first?.stage == .baby)
+        #expect(content.companions.first?.gender == .boy)
     }
 
     @Test("Given two children, when switching to the older one, then her line shows and there is nothing to play yet")
@@ -172,6 +175,8 @@ struct HomeViewModelTests {
         #expect(first.companionLine == "Νίκος · Ελένη")
         #expect(first.childTabs.map(\.name) == ["Νίκος", "Ελένη"])
         #expect(first.selectedChildLine == "Νίκος · 10 μηνών")
+        #expect(first.companions.map(\.id) == [HeroStub.niko.id, HeroStub.eleni.id])
+        #expect(first.companions.last?.gender == .girl)
 
         await sut.selectChild(id: HeroStub.eleni.id)
 

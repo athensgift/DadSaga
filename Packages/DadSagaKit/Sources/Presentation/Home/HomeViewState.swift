@@ -16,6 +16,8 @@ public struct HomeContent: Equatable, Sendable {
     public let companionLine: String
     /// One tab per child when there are several, to choose whose quests are shown. Empty for one child.
     public let childTabs: [ChildTab]
+    /// Every child, drawn next to the dad.
+    public let companions: [CompanionModel]
     public let selectedChildID: UUID
     /// Name and age of the selected child, shown above their quests when there are several children.
     public let selectedChildLine: String?
