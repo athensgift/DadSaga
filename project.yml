@@ -42,6 +42,7 @@ targets:
         CFBundleDevelopmentRegion: el
         CFBundleLocalizations: [el, en]
         UILaunchScreen: {}
+        NSCameraUsageDescription: Take a photo for a legendary moment. Photos stay on this device.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft

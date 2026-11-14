@@ -23,10 +23,29 @@ struct MomentsFormatter {
 
     func capture(for child: Child, catalog: ContentCatalog, progress: DadProgress, now: Date) -> MomentCapture {
         let captured = progress.capturedFirstIDs(for: child.id)
-        return MomentCapture(
+        return sheet(
+            for: child,
+            options: catalog.firsts.filter { !captured.contains($0.id) },
+            editing: nil,
+            now: now
+        )
+    }
+
+    /// The same sheet, filled in with a moment that already exists.
+    func edit(_ moment: CapturedMoment, for child: Child, now: Date) -> MomentCapture {
+        sheet(
+            for: child,
+            options: [moment.first],
+            editing: MomentEditing(momentID: moment.eventID, date: moment.date, note: moment.note ?? "", photoID: moment.photoID),
+            now: now
+        )
+    }
+
+    private func sheet(for child: Child, options: [FirstMoment], editing: MomentEditing?, now: Date) -> MomentCapture {
+        MomentCapture(
             id: UUID(),
             title: child.name,
-            options: catalog.firsts.filter { !captured.contains($0.id) }.map { first in
+            options: options.map { first in
                 MomentOption(
                     id: first.id,
                     emoji: first.emoji,
@@ -35,10 +54,23 @@ struct MomentsFormatter {
                 )
             },
             dateLabel: strings.text(el: "Πότε έγινε;", en: "When did it happen?"),
-            earliestDate: min(child.birthDate, now),
+            earliestDate: min(child.birthDate, editing?.date ?? now, now),
             latestDate: now,
             notePlaceholder: strings.text(el: "Τι έγινε; (προαιρετικό)", en: "What happened? (optional)"),
-            saveTitle: strings.text(el: "Αποθήκευση", en: "Save")
+            saveTitle: strings.text(el: "Αποθήκευση", en: "Save"),
+            labels: MomentPhotoLabels(
+                addPhoto: strings.text(el: "Πρόσθεσε φωτογραφία", en: "Add a photo"),
+                takePhoto: strings.text(el: "Τράβηξε φωτογραφία", en: "Take a photo"),
+                changePhoto: strings.text(el: "Άλλη φωτογραφία", en: "Choose another"),
+                removePhoto: strings.text(el: "Αφαίρεση φωτογραφίας", en: "Remove photo"),
+                delete: strings.text(el: "Διαγραφή στιγμής", en: "Delete moment"),
+                deleteConfirmation: strings.text(
+                    el: "Η στιγμή, η φωτογραφία της και τα XP της θα σβηστούν.",
+                    en: "The moment, its photo and its XP will be removed."
+                ),
+                cancel: strings.text(el: "Άκυρο", en: "Cancel")
+            ),
+            editing: editing
         )
     }
 
@@ -52,15 +84,14 @@ struct MomentsFormatter {
         )
     }
 
-    private func card(_ moment: CapturedMoment) -> CardModel {
+    private func card(_ moment: CapturedMoment) -> MomentCardModel {
         let date = moment.date.formatted(Date.FormatStyle(date: .abbreviated, time: .omitted).locale(locale))
-        return CardModel(
-            id: "moment-" + moment.first.id,
+        return MomentCardModel(
+            id: moment.eventID,
             title: "\(moment.first.emoji) \(moment.first.title.resolved(for: locale))",
             subtitle: [date, moment.note].compactMap(\.self).joined(separator: " · "),
             badge: "+\(moment.first.xp) XP",
-            symbol: "star.fill",
-            kind: .legendary
+            photoID: moment.photoID
         )
     }
 }

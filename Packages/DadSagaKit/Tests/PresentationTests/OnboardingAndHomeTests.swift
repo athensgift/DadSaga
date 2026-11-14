@@ -154,7 +154,8 @@ struct OnboardingViewModelTests {
 }
 
 /// An in-memory stand-in for both progress use cases, backed by the stub catalog.
-actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCase {
+actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCase,
+    UpdateMomentUseCase, DeleteMomentUseCase, GetPhotoUseCase {
     private var events: [ProgressEvent] = []
     private var shouldFail = false
 
@@ -180,11 +181,49 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase,
         try record(.boss(id: bossID), childID: childID, on: date)
     }
 
-    func execute(firstID: String, childID: UUID, happenedOn date: Date, note: String?, now: Date) async throws -> ProgressChange {
+    private var photos: [String: Data] = [:]
+
+    func execute(_ request: CaptureMomentRequest, now: Date) async throws -> ProgressChange {
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        events.append(ProgressEvent(kind: .first(id: firstID), childID: childID, date: date, note: note))
+        var photoID: String?
+        if let photo = request.photo {
+            photoID = "photo-\(photos.count + 1)"
+            photos[photoID ?? ""] = photo
+        }
+        events.append(
+            ProgressEvent(
+                kind: .first(id: request.firstID), childID: request.childID,
+                date: request.date, note: request.note, photoID: photoID
+            )
+        )
         return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog))
+    }
+
+    func execute(momentID: UUID, happenedOn date: Date, note: String?, photo: PhotoChange, now: Date) async throws {
+        if shouldFail { throw StubError.boom }
+        guard let index = events.firstIndex(where: { $0.id == momentID }) else { return }
+        let old = events[index]
+        var photoID = old.photoID
+        switch photo {
+        case .keep: break
+        case .remove: photoID = nil
+        case .replace(let data):
+            photoID = "photo-\(photos.count + 1)"
+            photos[photoID ?? ""] = data
+        }
+        events[index] = ProgressEvent(
+            id: old.id, kind: old.kind, childID: old.childID, date: date, note: note, photoID: photoID
+        )
+    }
+
+    func execute(momentID: UUID) async throws {
+        if shouldFail { throw StubError.boom }
+        events.removeAll { $0.id == momentID }
+    }
+
+    func execute(id: String) async -> Data? {
+        photos[id]
     }
 
     var recordedChildIDs: [UUID?] { events.map(\.childID) }

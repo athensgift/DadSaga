@@ -120,6 +120,25 @@ struct LocalStoreTests {
         #expect(try await sut.fetchEvents() == [earlier, later])
     }
 
+    @Test("Given a stored moment, when updating then deleting it, then the changes are stored and other events stay")
+    func progressUpdateAndDelete() async throws {
+        let sut = try LocalStore.inMemory().progress
+        let quest = ProgressEvent(kind: .quest(id: "q1"), date: birth)
+        let moment = ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth, note: "πριν", photoID: "p1")
+        try await sut.add(quest)
+        try await sut.add(moment)
+
+        let changed = ProgressEvent(
+            id: moment.id, kind: moment.kind, childID: moment.childID,
+            date: birth.addingTimeInterval(60), note: "μετά", photoID: nil
+        )
+        try await sut.update(changed)
+        #expect(try await sut.fetchEvents() == [quest, changed])
+
+        try await sut.delete(id: moment.id)
+        #expect(try await sut.fetchEvents() == [quest])
+    }
+
     @Test("Given stored events, when deleting all, then the log is empty")
     func progressDeleteAll() async throws {
         let sut = try LocalStore.inMemory().progress
