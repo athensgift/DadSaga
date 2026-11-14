@@ -12,6 +12,7 @@ public struct RootView: View {
     private let makeHome: MakeHome
     private let makeFamily: HomeView.MakeFamily?
     private let makeTimeline: MakeTimeline?
+    private let makeWardrobe: HomeView.MakeWardrobe?
 
     /// - Parameter makeTimeline: builds the timeline tab; `nil` shows home without tabs.
     public init(
@@ -19,13 +20,15 @@ public struct RootView: View {
         makeOnboarding: @escaping MakeOnboarding,
         makeHome: @escaping MakeHome,
         makeFamily: HomeView.MakeFamily? = nil,
-        makeTimeline: MakeTimeline? = nil
+        makeTimeline: MakeTimeline? = nil,
+        makeWardrobe: HomeView.MakeWardrobe? = nil
     ) {
         _viewModel = State(initialValue: viewModel)
         self.makeOnboarding = makeOnboarding
         self.makeHome = makeHome
         self.makeFamily = makeFamily
         self.makeTimeline = makeTimeline
+        self.makeWardrobe = makeWardrobe
     }
 
     public var body: some View {
@@ -42,7 +45,12 @@ public struct RootView: View {
             case .home:
                 MainTabs(
                     tabs: viewModel.tabs,
-                    home: HomeView(viewModel: makeHome(), developerMenu: developerMenu, makeFamily: makeFamily),
+                    home: HomeView(
+                        viewModel: makeHome(),
+                        developerMenu: developerMenu,
+                        makeFamily: makeFamily,
+                        makeWardrobe: makeWardrobe
+                    ),
                     timeline: makeTimeline.map { TimelineView(viewModel: $0()) }
                 )
                 .transition(.opacity)

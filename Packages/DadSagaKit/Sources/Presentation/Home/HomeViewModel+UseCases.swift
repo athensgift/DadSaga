@@ -10,6 +10,7 @@ extension HomeViewModel {
         let completeQuest: any CompleteQuestUseCase
         let defeatBoss: any DefeatBossUseCase
         let moments: MomentUseCases
+        let getOutfit: (any GetOutfitUseCase)?
 
         public init(
             getProfile: any GetProfileUseCase,
@@ -18,7 +19,8 @@ extension HomeViewModel {
             getProgress: any GetProgressUseCase,
             completeQuest: any CompleteQuestUseCase,
             defeatBoss: any DefeatBossUseCase,
-            moments: MomentUseCases
+            moments: MomentUseCases,
+            getOutfit: (any GetOutfitUseCase)? = nil
         ) {
             self.getProfile = getProfile
             self.loadCatalog = loadCatalog
@@ -27,6 +29,7 @@ extension HomeViewModel {
             self.completeQuest = completeQuest
             self.defeatBoss = defeatBoss
             self.moments = moments
+            self.getOutfit = getOutfit
         }
     }
 

@@ -24,7 +24,7 @@ Each phase lists what gets built and what it demonstrates.
 - ✅ Photos on legendary moments (on device), edit and delete moments (ADR-0016)
 - World map with age-based unlocking
 - ✅ Timeline of memories across children, in its own tab (ADR-0017)
-- Wardrobe: choose which earned gear the hero wears
+- ✅ Wardrobe: choose which earned gear the hero wears (ADR-0018)
 
 *Demonstrates:* end-to-end features, state management, persistence, tests.
 

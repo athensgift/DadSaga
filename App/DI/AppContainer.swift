@@ -32,7 +32,8 @@ final class AppContainer {
         let reset = DefaultResetProfileUseCase(
             profileRepository: store.profiles,
             progressRepository: store.progress,
-            photoStore: photoStore
+            photoStore: photoStore,
+            outfitRepository: store.outfit
         )
         return RootViewModel(getProfile: getProfileUseCase, resetProfile: reset)
         #else
@@ -65,13 +66,26 @@ final class AppContainer {
                     update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
                     delete: DefaultDeleteMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
-                )
+                ),
+                getOutfit: DefaultGetOutfitUseCase(repository: store.outfit)
             )
         )
     }
 
     func makeFamilyViewModel(onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel {
         FamilyViewModel(getProfile: getProfileUseCase, saveProfile: saveProfileUseCase, onSaved: onSaved)
+    }
+
+    func makeWardrobeViewModel() -> WardrobeViewModel {
+        WardrobeViewModel(
+            useCases: WardrobeViewModel.UseCases(
+                getProfile: getProfileUseCase,
+                loadCatalog: loadContentCatalogUseCase,
+                getProgress: DefaultGetProgressUseCase(contentRepository: contentRepository, progressRepository: store.progress),
+                getOutfit: DefaultGetOutfitUseCase(repository: store.outfit),
+                setChoice: DefaultSetOutfitChoiceUseCase(repository: store.outfit)
+            )
+        )
     }
 
     func makeTimelineViewModel() -> TimelineViewModel {
