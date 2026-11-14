@@ -29,6 +29,8 @@ public struct CardModel: Equatable, Identifiable, Sendable {
     public let title: String
     public let subtitle: String
     public let badge: String
+    /// SF Symbol for the card's icon tile.
+    public let symbol: String
     public let kind: Kind
     /// A "done" line, e.g. how many times the quest was completed.
     public var footnote: String?

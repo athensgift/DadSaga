@@ -12,6 +12,8 @@ public struct HomeContent: Equatable, Sendable {
     /// The companion: the child's name and age, e.g. "Νίκος · 10 μηνών".
     public let companionLine: String
     public let level: Int
+    /// e.g. "Επίπεδο 2".
+    public let levelTitle: String
     public let levelFraction: Double
     /// XP inside the current level, e.g. "40 / 100 XP".
     public let xpLine: String
@@ -27,7 +29,6 @@ public struct QuestDetail: Equatable, Identifiable, Sendable {
     public let description: String
     public let reward: String
     public let confirmTitle: String
-    public let cancelTitle: String
 }
 
 /// The sheet for a boss fight: intro, survival guide and the "we made it" action.
@@ -42,7 +43,6 @@ public struct BossDetail: Equatable, Identifiable, Sendable {
     public let isDefeated: Bool
     public let defeatedText: String
     public let confirmTitle: String
-    public let closeTitle: String
 }
 
 /// Shown briefly after a quest is completed or a boss is defeated.

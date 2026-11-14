@@ -7,11 +7,20 @@ import AppKit
 #endif
 
 /// Colour tokens. Always use these instead of raw colours so light/dark stay consistent.
+/// Backgrounds and text use the system's semantic colours, so they follow light/dark mode, Increase Contrast and
+/// the Liquid Glass material the way Apple's own apps do (ADR-0011).
 public enum DSColor {
-    public static let background = Color(light: 0xFBF7F0, dark: 0x14161F)
-    public static let surface = Color(light: 0xFFFFFF, dark: 0x1F2230)
-    public static let textPrimary = Color(light: 0x1D1B26, dark: 0xF3F0EA)
-    public static let textSecondary = Color(light: 0x6B6878, dark: 0xA6A3B3)
+    #if canImport(UIKit)
+    public static let background = Color(uiColor: .systemGroupedBackground)
+    public static let surface = Color(uiColor: .secondarySystemGroupedBackground)
+    public static let textPrimary = Color(uiColor: .label)
+    public static let textSecondary = Color(uiColor: .secondaryLabel)
+    #else
+    public static let background = Color(nsColor: .windowBackgroundColor)
+    public static let surface = Color(nsColor: .controlBackgroundColor)
+    public static let textPrimary = Color(nsColor: .labelColor)
+    public static let textSecondary = Color(nsColor: .secondaryLabelColor)
+    #endif
     /// Primary action colour.
     public static let accent = Color(light: 0x3B5BDB, dark: 0x7C93F5)
     /// XP bars and progress.
@@ -56,15 +65,20 @@ public enum DSSpacing {
 }
 
 public enum DSRadius {
-    public static let card: CGFloat = 16
-    public static let pill: CGFloat = 999
+    /// Cards and grouped panels. Always draw with `style: .continuous`.
+    public static let card: CGFloat = 22
+    /// Small icon tiles inside cards: concentric with `card` at `DSSpacing.m` inset.
+    public static let tile: CGFloat = 10
 }
 
+/// Text styles. System text styles so Dynamic Type works everywhere; rounded only for display text.
 public enum DSFont {
+    public static let largeTitle = Font.system(.largeTitle, design: .rounded, weight: .bold)
     public static let title = Font.system(.title2, design: .rounded, weight: .bold)
-    public static let headline = Font.system(.headline, design: .rounded, weight: .semibold)
-    public static let body = Font.system(.body, design: .rounded)
-    public static let caption = Font.system(.caption, design: .rounded, weight: .medium)
+    public static let headline = Font.system(.headline)
+    public static let body = Font.system(.body)
+    public static let subheadline = Font.system(.subheadline)
+    public static let caption = Font.system(.caption, weight: .medium)
 }
 
 extension Color {

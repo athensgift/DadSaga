@@ -66,8 +66,7 @@ public final class HomeViewModel {
                 title: quest.title.resolved(for: locale),
                 description: quest.description.resolved(for: locale),
                 reward: reward(for: quest),
-                confirmTitle: text(el: "Το έκανα!", en: "I did it!"),
-                cancelTitle: text(el: "Όχι ακόμα", en: "Not yet")
+                confirmTitle: text(el: "Το έκανα!", en: "I did it!")
             )
         } else if let boss = bosses.first(where: { $0.id == cardID }) {
             selectedBoss = detail(for: boss)
@@ -156,6 +155,7 @@ public final class HomeViewModel {
             heroLook: HeroLook(heroClassID: profile.heroClassID),
             companionLine: "\(profile.child.name) · \(ageText(months: adventure.ageInMonths))",
             level: level.level,
+            levelTitle: text(el: "Επίπεδο \(level.level)", en: "Level \(level.level)"),
             levelFraction: level.fraction,
             xpLine: "\(level.xpIntoLevel) / \(level.xpNeededForNextLevel) XP",
             worldTitle: adventure.currentWorld?.title.resolved(for: locale),
@@ -171,6 +171,7 @@ public final class HomeViewModel {
                 title: boss.title.resolved(for: locale),
                 subtitle: boss.intro.resolved(for: locale),
                 badge: "BOSS",
+                symbol: "flame.fill",
                 kind: .boss,
                 footnote: defeatedBossIDs.contains(boss.id) ? defeatedText(for: boss) : nil
             )
@@ -183,7 +184,8 @@ public final class HomeViewModel {
                 id: quest.id,
                 title: quest.title.resolved(for: locale),
                 subtitle: quest.description.resolved(for: locale),
-                badge: reward(for: quest),
+                badge: "+\(quest.xp) XP",
+                symbol: quest.skill.symbol,
                 kind: .quest,
                 footnote: completions[quest.id].map(doneText)
             )
@@ -204,8 +206,7 @@ public final class HomeViewModel {
             ),
             isDefeated: defeatedBossIDs.contains(boss.id),
             defeatedText: defeatedText(for: boss),
-            confirmTitle: text(el: "Τα καταφέραμε!", en: "We made it through!"),
-            closeTitle: text(el: "Κλείσιμο", en: "Close")
+            confirmTitle: text(el: "Τα καταφέραμε!", en: "We made it through!")
         )
     }
 

@@ -56,7 +56,13 @@ public struct ContentExplorerView: View {
 
     private func cards(_ cards: [CardModel]) -> some View {
         ForEach(cards) { card in
-            QuestCard(title: card.title, subtitle: card.subtitle, badge: card.badge, style: card.kind.cardStyle)
+            QuestCard(
+                title: card.title,
+                subtitle: card.subtitle,
+                badge: card.badge,
+                symbol: card.symbol,
+                style: card.kind.cardStyle
+            )
         }
     }
 }

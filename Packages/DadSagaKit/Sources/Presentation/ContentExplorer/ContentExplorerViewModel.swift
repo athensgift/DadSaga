@@ -37,6 +37,7 @@ public final class ContentExplorerViewModel {
                     title: boss.title.resolved(for: locale),
                     subtitle: boss.intro.resolved(for: locale),
                     badge: "BOSS",
+                    symbol: "flame.fill",
                     kind: .boss
                 )
             }
@@ -46,6 +47,7 @@ public final class ContentExplorerViewModel {
                     title: quest.title.resolved(for: locale),
                     subtitle: quest.description.resolved(for: locale),
                     badge: "+\(quest.xp) XP · \(quest.skill.title.resolved(for: locale))",
+                    symbol: quest.skill.symbol,
                     kind: .quest
                 )
             }
@@ -62,6 +64,7 @@ public final class ContentExplorerViewModel {
                 title: "\(first.emoji) \(first.title.resolved(for: locale))",
                 subtitle: first.companionTrait.map { "Companion: \($0)" } ?? "",
                 badge: "LEGENDARY",
+                symbol: "star.fill",
                 kind: .legendary
             )
         }

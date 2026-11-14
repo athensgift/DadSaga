@@ -22,36 +22,25 @@ public struct RootView: View {
             case .loading:
                 ProgressView()
             case .onboarding:
-                OnboardingView(viewModel: makeOnboarding { viewModel.onboardingFinished() })
-                    .transition(.opacity)
+                OnboardingView(
+                    viewModel: makeOnboarding { viewModel.onboardingFinished() },
+                    developerMenu: developerMenu
+                )
+                .transition(.opacity)
             case .home:
-                HomeView(viewModel: makeHome())
+                HomeView(viewModel: makeHome(), developerMenu: developerMenu)
                     .transition(.opacity)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DSColor.background)
-        .overlay(alignment: .topTrailing) {
-            if viewModel.hasDeveloperMenu { developerMenu }
-        }
+        .tint(DSColor.accent)
         .animation(.easeInOut(duration: 0.35), value: viewModel.state)
         .task { await viewModel.onAppear() }
     }
 
-    /// Development builds only, so its labels are not localised.
-    private var developerMenu: some View {
-        Menu {
-            Button("Restart from onboarding", systemImage: "arrow.counterclockwise", role: .destructive) {
-                Task { await viewModel.restartFromOnboarding() }
-            }
-        } label: {
-            Image(systemName: "ladybug.fill")
-                .font(DSFont.headline)
-                .foregroundStyle(DSColor.textSecondary)
-                .padding(DSSpacing.s)
-                .background(DSColor.surface, in: Circle())
-        }
-        .padding(.trailing, DSSpacing.m)
-        .accessibilityLabel("Developer menu")
+    private var developerMenu: DeveloperMenu? {
+        guard viewModel.hasDeveloperMenu else { return nil }
+        return DeveloperMenu { Task { await viewModel.restartFromOnboarding() } }
     }
 }
