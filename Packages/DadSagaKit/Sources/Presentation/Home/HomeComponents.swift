@@ -148,3 +148,38 @@ struct MomentsSectionView: View {
         }
     }
 }
+
+/// The world's name and motto, a button to the world map, and a way back when an earlier world is shown.
+struct WorldHeader: View {
+    let content: HomeContent
+    let onMap: () -> Void
+    let onBack: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: DSSpacing.xs) {
+            HStack(alignment: .firstTextBaseline) {
+                if let worldTitle = content.worldTitle {
+                    Text(worldTitle)
+                        .font(DSFont.title)
+                        .foregroundStyle(DSColor.textPrimary)
+                        .accessibilityAddTraits(.isHeader)
+                }
+                Spacer(minLength: DSSpacing.s)
+                Button(content.mapTitle, systemImage: "map", action: onMap)
+                    .labelStyle(.iconOnly)
+                    .buttonStyle(.glass)
+            }
+            if let worldTagline = content.worldTagline {
+                Text(worldTagline)
+                    .font(DSFont.subheadline)
+                    .foregroundStyle(DSColor.textSecondary)
+            }
+            if let back = content.backToCurrentTitle {
+                Button(back, systemImage: "arrow.uturn.backward", action: onBack)
+                    .font(DSFont.subheadline)
+                    .padding(.top, DSSpacing.xs)
+            }
+        }
+        .padding(.bottom, DSSpacing.s)
+    }
+}

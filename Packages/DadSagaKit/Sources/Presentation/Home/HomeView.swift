@@ -62,6 +62,13 @@ public struct HomeView: View {
         .sheet(item: $familyViewModel) { family in
             FamilyView(viewModel: family) { familyViewModel = nil }
         }
+        .sheet(item: worldMapBinding) { map in
+            WorldMapSheet(map: map) { id in
+                Task { await viewModel.showWorld(id: id) }
+            } onClose: {
+                viewModel.closeMap()
+            }
+        }
         .sheet(item: $wardrobeViewModel, onDismiss: reloadAfterWardrobe) { wardrobe in
             WardrobeView(viewModel: wardrobe) { wardrobeViewModel = nil }
         }
@@ -119,6 +126,10 @@ public struct HomeView: View {
             },
             set: { if $0 == nil { viewModel.dismissSelection() } }
         )
+    }
+
+    var worldMapBinding: Binding<WorldMapContent?> {
+        Binding(get: { viewModel.worldMap }, set: { if $0 == nil { viewModel.closeMap() } })
     }
 
     @ViewBuilder
@@ -226,19 +237,10 @@ public struct HomeView: View {
             if !content.childTabs.isEmpty {
                 ChildPicker(content: content) { id in Task { await viewModel.selectChild(id: id) } }
             }
-            if let worldTitle = content.worldTitle {
-                VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                    Text(worldTitle)
-                        .font(DSFont.title)
-                        .foregroundStyle(DSColor.textPrimary)
-                    if let worldTagline = content.worldTagline {
-                        Text(worldTagline)
-                            .font(DSFont.subheadline)
-                            .foregroundStyle(DSColor.textSecondary)
-                    }
-                }
-                .padding(.bottom, DSSpacing.s)
-                .accessibilityAddTraits(.isHeader)
+            WorldHeader(content: content) {
+                viewModel.openMap()
+            } onBack: {
+                Task { await viewModel.showWorld(id: nil) }
             }
             if let emptyMessage = content.emptyMessage {
                 ContentUnavailableView(emptyMessage, systemImage: "map")

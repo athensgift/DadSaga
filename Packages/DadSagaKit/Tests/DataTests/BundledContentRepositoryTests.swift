@@ -9,9 +9,9 @@ struct BundledContentRepositoryTests {
     @Test("Given the bundled JSON, when fetching, then it decodes, maps and passes validation")
     func loadsAndValidates() async throws {
         let catalog = try await repository.fetchCatalog()
-        #expect(catalog.worlds.count == 2)
-        #expect(catalog.quests.count == 20)
-        #expect(catalog.bosses.count == 4)
+        #expect(catalog.worlds.count == 4)
+        #expect(catalog.quests.count == 40)
+        #expect(catalog.bosses.count == 8)
         #expect(catalog.firsts.count == 14)
     }
 
