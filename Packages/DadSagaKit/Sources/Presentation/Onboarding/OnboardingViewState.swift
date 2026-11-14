@@ -14,7 +14,6 @@ public struct OnboardingContent: Equatable, Sendable {
     public let heroTitle: String
     public let heroSubtitle: String
     public let finishTitle: String
-    public let backTitle: String
     public let heroes: [HeroOption]
 }
 

@@ -239,8 +239,12 @@ struct HomeViewModelTests {
         #expect(content.heroLook == .cool)
         #expect(content.companionLine == "Νίκος · 10 μηνών")
         #expect(content.level == 1)
+        #expect(content.levelTitle == "Επίπεδο 1")
+        #expect(content.xpLine == "0 / 100 XP")
         #expect(content.worldTitle == "Κόσμος")
         #expect(content.cards.map(\.id) == ["b1", "q1"])
+        #expect(content.cards.map(\.symbol) == ["flame.fill", "heart.fill"])
+        #expect(content.cards.last?.badge == "+20 XP")
     }
 
     @Test("Given an English locale, when appearing, then the companion line is English")

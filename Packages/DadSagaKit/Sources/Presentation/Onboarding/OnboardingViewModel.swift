@@ -102,7 +102,6 @@ public final class OnboardingViewModel {
                 en: "It's only your look. Every hero is equally strong."
             ),
             finishTitle: text(el: "Ξεκίνα την περιπέτεια", en: "Start the adventure"),
-            backTitle: text(el: "Πίσω", en: "Back"),
             heroes: catalog.heroClasses.map { hero in
                 HeroOption(
                     id: hero.id,

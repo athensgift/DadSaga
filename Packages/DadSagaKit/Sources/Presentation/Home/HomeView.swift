@@ -1,34 +1,47 @@
 import DesignSystem
 import SwiftUI
 
-/// Home: the dad's hero on stage, his companion, and today's quests.
+/// Home: the dad's hero and progress, then what he can play today.
+/// On wide screens (iPhone Duo inner display, landscape) it splits into two equal columns, so neither column
+/// runs across the middle of the display, where the Duo folds.
 public struct HomeView: View {
     @State private var viewModel: HomeViewModel
+    @State private var isWide = false
+    private let developerMenu: DeveloperMenu?
 
-    public init(viewModel: HomeViewModel) {
+    public init(viewModel: HomeViewModel, developerMenu: DeveloperMenu? = nil) {
         _viewModel = State(initialValue: viewModel)
+        self.developerMenu = developerMenu
     }
 
     public var body: some View {
-        Group {
-            switch viewModel.state {
-            case .loading:
-                ProgressView()
-            case .loaded(let content):
-                loadedView(content)
-            case .failed(let message):
-                ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
+        NavigationStack {
+            Group {
+                switch viewModel.state {
+                case .loading:
+                    ProgressView()
+                case .loaded(let content):
+                    loaded(content)
+                case .failed(let message):
+                    ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
+                }
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(DSColor.background)
+            .navigationTitle(title)
+            // Two columns scroll separately. A navigation bar collapses or hides with whichever column scrolls and
+            // shifts the other, so the wide layout has no bar: its title lives in the hero column.
+            .navigationBarHidden(when: isWide)
+            .toolbar { DeveloperMenuToolbar(menu: developerMenu) }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(DSColor.background)
+        .onGeometryChange(for: Bool.self) { $0.size.width >= twoColumnWidth } action: { isWide = $0 }
         .task { await viewModel.onAppear() }
         .sheet(item: activeSheet) { sheet in
             switch sheet {
             case .quest(let quest):
                 QuestSheet(quest: quest, errorMessage: viewModel.errorMessage, isCompleting: viewModel.isCompleting) {
                     Task { await viewModel.completeSelectedQuest() }
-                } onCancel: {
+                } onClose: {
                     viewModel.dismissSelection()
                 }
                 .presentationDetents([.medium])
@@ -38,9 +51,12 @@ public struct HomeView: View {
                 } onClose: {
                     viewModel.dismissSelection()
                 }
-                .presentationDetents([.large])
             }
         }
+    }
+
+    private var title: String {
+        if case .loaded(let content) = viewModel.state { content.heroTitle } else { "" }
     }
 
     private var activeSheet: Binding<HomeSheet?> {
@@ -50,60 +66,52 @@ public struct HomeView: View {
         )
     }
 
-    private func loadedView(_ content: HomeContent) -> some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: DSSpacing.m) {
-                heroStage(content)
-                VStack(alignment: .trailing, spacing: DSSpacing.xs) {
-                    XPBar(level: content.level, fraction: content.levelFraction)
-                    Text(content.xpLine)
-                        .font(DSFont.caption)
-                        .foregroundStyle(DSColor.textSecondary)
-                        .monospacedDigit()
-                        .contentTransition(.numericText())
+    @ViewBuilder
+    private func loaded(_ content: HomeContent) -> some View {
+        if isWide {
+            HStack(alignment: .top, spacing: 0) {
+                ScrollView { heroPanel(content).padding(DSSpacing.l) }
+                    .frame(maxWidth: .infinity)
+                ScrollView { adventure(content).padding(DSSpacing.l) }
+                    .frame(maxWidth: .infinity)
+            }
+        } else {
+            ScrollView {
+                VStack(spacing: DSSpacing.l) {
+                    heroPanel(content)
+                    adventure(content)
                 }
-                .animation(.spring(response: 0.6, dampingFraction: 0.8), value: content.levelFraction)
-                if let worldTitle = content.worldTitle {
-                    VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                        Text(worldTitle).font(DSFont.title).foregroundStyle(DSColor.textPrimary)
-                        if let worldTagline = content.worldTagline {
-                            Text(worldTagline).font(DSFont.body).foregroundStyle(DSColor.textSecondary)
-                        }
+                .frame(maxWidth: readableWidth)
+                .padding(DSSpacing.m)
+                .frame(maxWidth: .infinity)
+            }
+        }
+    }
+
+    private func heroPanel(_ content: HomeContent) -> some View {
+        let style = content.heroLook.avatarStyle
+        return VStack(spacing: DSSpacing.m) {
+            if isWide {
+                HStack {
+                    Text(content.heroTitle)
+                        .font(DSFont.largeTitle)
+                        .foregroundStyle(DSColor.textPrimary)
+                        .accessibilityAddTraits(.isHeader)
+                    Spacer()
+                    if let developerMenu {
+                        DeveloperMenuButton(menu: developerMenu)
+                            .labelStyle(.iconOnly)
+                            .buttonStyle(.glass)
                     }
-                    .padding(.top, DSSpacing.s)
-                }
-                ForEach(content.cards) { card in
-                    cardView(card)
                 }
             }
-            .padding(DSSpacing.m)
-        }
-    }
-
-    private func cardView(_ card: CardModel) -> some View {
-        Button {
-            viewModel.select(cardID: card.id)
-        } label: {
-            QuestCard(
-                title: card.title,
-                subtitle: card.subtitle,
-                badge: card.badge,
-                style: card.kind.cardStyle,
-                footnote: card.footnote
-            )
-        }
-        .buttonStyle(.plain)
-    }
-
-    private func heroStage(_ content: HomeContent) -> some View {
-        let style = content.heroLook.avatarStyle
-        return VStack(spacing: DSSpacing.s) {
-            HeroAvatar(style: style, size: 230, cheerTrigger: viewModel.celebration?.id ?? 0)
+            HeroAvatar(style: style, size: isWide ? 260 : 210, cheerTrigger: viewModel.celebration?.id ?? 0)
+                .padding(.top, DSSpacing.xl)
                 .background {
                     Circle()
                         .fill(
                             RadialGradient(
-                                colors: [style.tint.opacity(0.35), style.tint.opacity(0)],
+                                colors: [style.tint.opacity(0.28), style.tint.opacity(0)],
                                 center: .center,
                                 startRadius: 10,
                                 endRadius: 150
@@ -113,22 +121,77 @@ public struct HomeView: View {
                 }
                 .overlay(alignment: .top) { celebrationBadge }
                 .accessibilityLabel(content.heroTitle)
-            Text(content.heroTitle)
-                .font(DSFont.title)
-                .foregroundStyle(DSColor.textPrimary)
-            Text(content.companionLine)
-                .font(DSFont.headline)
-                .foregroundStyle(style.tint)
-            Text(content.heroTagline)
-                .font(DSFont.body)
-                .foregroundStyle(DSColor.textSecondary)
-                .multilineTextAlignment(.center)
+            VStack(spacing: DSSpacing.xs) {
+                Text(content.companionLine)
+                    .font(DSFont.headline)
+                    .foregroundStyle(style.tint)
+                Text(content.heroTagline)
+                    .font(DSFont.subheadline)
+                    .foregroundStyle(DSColor.textSecondary)
+            }
+            .multilineTextAlignment(.center)
+            levelPanel(content)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, DSSpacing.m)
-        .animation(.spring(response: 0.4, dampingFraction: 0.6), value: viewModel.celebration)
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: viewModel.celebration)
     }
 
+    private func levelPanel(_ content: HomeContent) -> some View {
+        VStack(alignment: .leading, spacing: DSSpacing.s) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(content.levelTitle)
+                    .font(DSFont.headline)
+                    .foregroundStyle(DSColor.textPrimary)
+                Spacer()
+                Text(content.xpLine)
+                    .font(DSFont.caption)
+                    .foregroundStyle(DSColor.textSecondary)
+                    .monospacedDigit()
+                    .contentTransition(.numericText())
+            }
+            XPBar(fraction: content.levelFraction)
+        }
+        .padding(DSSpacing.m)
+        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: content.levelFraction)
+        .accessibilityElement(children: .combine)
+    }
+
+    private func adventure(_ content: HomeContent) -> some View {
+        LazyVStack(alignment: .leading, spacing: DSSpacing.s) {
+            if let worldTitle = content.worldTitle {
+                VStack(alignment: .leading, spacing: DSSpacing.xs) {
+                    Text(worldTitle)
+                        .font(DSFont.title)
+                        .foregroundStyle(DSColor.textPrimary)
+                    if let worldTagline = content.worldTagline {
+                        Text(worldTagline)
+                            .font(DSFont.subheadline)
+                            .foregroundStyle(DSColor.textSecondary)
+                    }
+                }
+                .padding(.bottom, DSSpacing.s)
+                .accessibilityAddTraits(.isHeader)
+            }
+            ForEach(content.cards) { card in
+                Button {
+                    viewModel.select(cardID: card.id)
+                } label: {
+                    QuestCard(
+                        title: card.title,
+                        subtitle: card.subtitle,
+                        badge: card.badge,
+                        symbol: card.symbol,
+                        style: card.kind.cardStyle,
+                        footnote: card.footnote
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    /// Floating, transient feedback: the one place on this screen where Liquid Glass sits over content.
     @ViewBuilder private var celebrationBadge: some View {
         if let celebration = viewModel.celebration {
             VStack(spacing: DSSpacing.xs) {
@@ -148,12 +211,11 @@ public struct HomeView: View {
             }
             .lineLimit(1)
             .fixedSize()
-            .padding(.horizontal, DSSpacing.m)
-            .padding(.vertical, DSSpacing.s)
-            .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card))
-            .shadow(color: DSColor.heroInk.opacity(0.08), radius: 8, y: 2)
+            .padding(.horizontal, DSSpacing.l)
+            .padding(.vertical, DSSpacing.m)
+            .glassEffect(.regular, in: .rect(cornerRadius: DSRadius.card))
             .offset(y: -DSSpacing.l)
-            .transition(.scale(scale: 0.5).combined(with: .opacity).combined(with: .move(edge: .bottom)))
+            .transition(.scale(scale: 0.6).combined(with: .opacity))
             .task(id: celebration.id) {
                 try? await Task.sleep(for: .seconds(2.2))
                 viewModel.celebrationFinished()
