@@ -23,7 +23,7 @@ Each phase lists what gets built and what it demonstrates.
 - ✅ Legendary moments: capture firsts per child with date and note, gold cards, companion traits (ADR-0015)
 - ✅ Photos on legendary moments (on device), edit and delete moments (ADR-0016)
 - World map with age-based unlocking
-- Timeline of memories across children
+- ✅ Timeline of memories across children, in its own tab (ADR-0017)
 - Wardrobe: choose which earned gear the hero wears
 
 *Demonstrates:* end-to-end features, state management, persistence, tests.

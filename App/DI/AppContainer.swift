@@ -74,6 +74,14 @@ final class AppContainer {
         FamilyViewModel(getProfile: getProfileUseCase, saveProfile: saveProfileUseCase, onSaved: onSaved)
     }
 
+    func makeTimelineViewModel() -> TimelineViewModel {
+        TimelineViewModel(
+            getProfile: getProfileUseCase,
+            getTimeline: DefaultGetTimelineUseCase(contentRepository: contentRepository, progressRepository: store.progress),
+            getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
+        )
+    }
+
     func makeContentExplorerViewModel() -> ContentExplorerViewModel {
         ContentExplorerViewModel(loadCatalog: loadContentCatalogUseCase)
     }

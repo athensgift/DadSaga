@@ -1,4 +1,6 @@
 import Application
+import Domain
+import Foundation
 import Observation
 
 /// Decides what the app opens with: onboarding for a new player, home for a returning one.
@@ -14,13 +16,27 @@ public final class RootViewModel {
     /// Development builds only: whether the developer menu is offered.
     public var hasDeveloperMenu: Bool { resetProfile != nil }
 
+    /// Titles of the main tabs.
+    public var tabs: RootTabs {
+        RootTabs(
+            adventure: LocalizedText(el: "Περιπέτεια", en: "Adventure").resolved(for: locale),
+            timeline: LocalizedText(el: "Χρονολόγιο", en: "Timeline").resolved(for: locale)
+        )
+    }
+
     private let getProfile: any GetProfileUseCase
     private let resetProfile: (any ResetProfileUseCase)?
+    private let locale: Locale
 
     /// - Parameter resetProfile: pass it only in development builds; it enables the developer menu.
-    public init(getProfile: any GetProfileUseCase, resetProfile: (any ResetProfileUseCase)? = nil) {
+    public init(
+        getProfile: any GetProfileUseCase,
+        resetProfile: (any ResetProfileUseCase)? = nil,
+        locale: Locale = .current
+    ) {
         self.getProfile = getProfile
         self.resetProfile = resetProfile
+        self.locale = locale
     }
 
     public func onAppear() async {
@@ -42,4 +58,9 @@ public final class RootViewModel {
             // Nothing was deleted, so stay where we are.
         }
     }
+}
+
+public struct RootTabs: Equatable, Sendable {
+    public let adventure: String
+    public let timeline: String
 }

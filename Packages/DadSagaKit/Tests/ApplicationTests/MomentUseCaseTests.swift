@@ -162,3 +162,21 @@ actor SpyPhotoStore: PhotoStore {
         stored = [:]
     }
 }
+
+@Suite("GetTimelineUseCase")
+struct GetTimelineUseCaseTests {
+    @Test("Given stored events, when executing, then the timeline is built from them and the catalog")
+    func buildsTimeline() async throws {
+        let repository = SpyProgressRepository()
+        let quest = try #require(Stub.catalog.quests.first)
+        try await repository.add(ProgressEvent(kind: .quest(id: quest.id), childID: UUID(), date: .now))
+        let sut = DefaultGetTimelineUseCase(
+            contentRepository: StubContentRepository(result: .success(Stub.catalog)),
+            progressRepository: repository
+        )
+
+        let entries = try await sut.execute()
+
+        #expect(entries.map(\.xp) == [quest.xp])
+    }
+}
