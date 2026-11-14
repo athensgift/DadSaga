@@ -32,17 +32,18 @@ struct HeroArm: View {
     let isRight: Bool
     let angle: Double
     let sway: Double
+    @Environment(\.avatarSkin) private var skin
 
     var body: some View {
         VStack(spacing: -3) {
             Capsule()
-                .fill(style.sleeve)
+                .fill(style.sleeve(skin))
                 .frame(width: style.armWidth, height: 22)
             Capsule()
                 .fill(style.cuff)
                 .frame(width: style.armWidth + 1, height: 6)
             Circle()
-                .fill(DSColor.heroSkin)
+                .fill(skin.base)
                 .frame(width: 10, height: 10)
                 .overlay {
                     if isRight {
@@ -59,13 +60,14 @@ struct HeroArm: View {
 struct HeroHead: View {
     let pose: HeroPose
     let isCheering: Bool
+    @Environment(\.avatarSkin) private var skin
 
     var body: some View {
         ZStack {
             ForEach([-20.0, 20.0], id: \.self) { side in
-                Circle().fill(DSColor.heroSkinShade).frame(width: 8, height: 8).offset(x: side, y: -23)
+                Circle().fill(skin.shade).frame(width: 8, height: 8).offset(x: side, y: -23)
             }
-            Circle().fill(DSColor.heroSkin).frame(width: 40, height: 40)
+            Circle().fill(skin.base).frame(width: 40, height: 40)
                 .offset(y: -24)
             hair
             ForEach([-13.0, 13.0], id: \.self) { side in
@@ -75,12 +77,12 @@ struct HeroHead: View {
             ForEach([-8.0, 8.0], id: \.self) { side in
                 eye.offset(x: side, y: -28)
                 Capsule()
-                    .fill(DSColor.heroBeard)
+                    .fill(skin.hair)
                     .frame(width: 9, height: 2.5)
                     .rotationEffect(.degrees(side < 0 ? 8 : -8))
                     .offset(x: side, y: isCheering ? -36.5 : -35)
             }
-            Ellipse().fill(DSColor.heroSkinShade).frame(width: 6, height: 5).offset(y: -23.5)
+            Ellipse().fill(skin.shade).frame(width: 6, height: 5).offset(y: -23.5)
         }
     }
 
@@ -88,11 +90,11 @@ struct HeroHead: View {
         ZStack {
             Ellipse()
                 .trim(from: 0.5, to: 1)
-                .fill(DSColor.heroBeard)
+                .fill(skin.hair)
                 .frame(width: 42, height: 26)
                 .offset(y: -39)
             ForEach([-19.0, 19.0], id: \.self) { side in
-                Capsule().fill(DSColor.heroBeard).frame(width: 5, height: 11).offset(x: side, y: -34)
+                Capsule().fill(skin.hair).frame(width: 5, height: 11).offset(x: side, y: -34)
             }
         }
     }
@@ -109,11 +111,11 @@ struct HeroHead: View {
     private var beard: some View {
         ZStack {
             Circle()
-                .fill(heroGradient(DSColor.heroBeard, DSColor.heroBeard.opacity(0.85)))
+                .fill(heroGradient(skin.hair, skin.hair.opacity(0.85)))
                 .frame(width: 40, height: 40)
                 .mask(alignment: .bottom) { Rectangle().frame(height: 18) }
                 .offset(y: -24)
-            Capsule().fill(DSColor.heroBeard).frame(width: 19, height: 6).offset(y: -20)
+            Capsule().fill(skin.hair).frame(width: 19, height: 6).offset(y: -20)
             HeroMouth(openness: isCheering ? 1 : 0)
                 .fill(DSColor.heroHighlight)
                 .overlay {

@@ -42,7 +42,28 @@ struct DadProgressTests {
         let progress = DadProgress(events: events, catalog: catalog)
         #expect(progress.totalXP == 40)
         #expect(progress.skillXP[.care] == 40)
-        #expect(progress.questCompletions == ["q1": 2])
+        #expect(progress.questCompletions(for: nil) == ["q1": 2])
+    }
+
+    @Test("Given two children, when aggregating, then XP is shared but quests, bosses and firsts are kept per child")
+    func perChild() {
+        let anna = UUID()
+        let niko = UUID()
+        let events = [
+            Fixtures.event(.quest(id: "q1"), child: anna),
+            Fixtures.event(.boss(id: "b1"), child: anna),
+            Fixtures.event(.boss(id: "b1"), child: niko),
+            Fixtures.event(.first(id: "f1"), child: niko)
+        ]
+        let progress = DadProgress(events: events, catalog: catalog)
+        #expect(progress.totalXP == 20 + 100 + 100 + 30)
+        #expect(progress.questCompletions(for: anna) == ["q1": 1])
+        #expect(progress.questCompletions(for: niko).isEmpty)
+        #expect(progress.defeatedBossIDs(for: anna) == ["b1"])
+        #expect(progress.defeatedBossIDs(for: niko) == ["b1"])
+        #expect(progress.capturedFirstIDs(for: anna).isEmpty)
+        #expect(progress.capturedFirstIDs(for: niko) == ["f1"])
+        #expect(progress.allDefeatedBossIDs == ["b1"])
     }
 
     @Test("Given a boss defeated twice, when aggregating, then XP is counted once")
@@ -50,7 +71,7 @@ struct DadProgressTests {
         let events = [Fixtures.event(.boss(id: "b1")), Fixtures.event(.boss(id: "b1"))]
         let progress = DadProgress(events: events, catalog: catalog)
         #expect(progress.totalXP == 100)
-        #expect(progress.defeatedBossIDs == ["b1"])
+        #expect(progress.defeatedBossIDs(for: nil) == ["b1"])
     }
 
     @Test("Given a first captured twice, when aggregating, then XP is counted once and no skill gets XP")
@@ -59,7 +80,7 @@ struct DadProgressTests {
         let progress = DadProgress(events: events, catalog: catalog)
         #expect(progress.totalXP == 30)
         #expect(progress.skillXP.isEmpty)
-        #expect(progress.capturedFirstIDs == ["f1"])
+        #expect(progress.capturedFirstIDs(for: nil) == ["f1"])
     }
 
     @Test("Given an event for removed content, when aggregating, then it is ignored")
@@ -130,7 +151,7 @@ enum Fixtures {
         ]
     )
 
-    static func event(_ kind: ProgressEvent.Kind) -> ProgressEvent {
-        ProgressEvent(kind: kind, date: Date(timeIntervalSince1970: 0))
+    static func event(_ kind: ProgressEvent.Kind, child: UUID? = nil) -> ProgressEvent {
+        ProgressEvent(kind: kind, childID: child, date: Date(timeIntervalSince1970: 0))
     }
 }

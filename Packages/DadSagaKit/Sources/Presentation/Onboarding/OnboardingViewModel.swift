@@ -3,7 +3,7 @@ import Domain
 import Foundation
 import Observation
 
-/// Presenter for onboarding: the child's name and birth date, then the dad's hero class.
+/// Presenter for onboarding: the dad's children (1 to 4), then his hero class and skin tone.
 @MainActor
 @Observable
 public final class OnboardingViewModel {
@@ -16,13 +16,12 @@ public final class OnboardingViewModel {
     public private(set) var selectedHeroID: String?
     public private(set) var isSaving = false
     public private(set) var errorMessage: String?
-    public var childName = ""
-    public var birthDate: Date
+    public var family: FamilyDraft
     /// A child cannot be born in the future.
     public let latestBirthDate: Date
 
     public var canContinue: Bool {
-        !childName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        family.isComplete
     }
 
     public var canFinish: Bool {
@@ -45,7 +44,7 @@ public final class OnboardingViewModel {
         self.saveProfile = saveProfile
         self.locale = locale
         self.onFinished = onFinished
-        birthDate = now
+        family = FamilyDraft(children: [ChildDraft(birthDate: now)])
         latestBirthDate = now
     }
 
@@ -64,6 +63,14 @@ public final class OnboardingViewModel {
         step = .hero
     }
 
+    public func addChild() {
+        family.addChild(birthDate: latestBirthDate)
+    }
+
+    public func removeChild(id: UUID) {
+        family.removeChild(id: id)
+    }
+
     public func backToChild() {
         step = .child
     }
@@ -78,7 +85,11 @@ public final class OnboardingViewModel {
         isSaving = true
         defer { isSaving = false }
         do {
-            let profile = PlayerProfile(child: Child(name: childName, birthDate: birthDate), heroClassID: selectedHeroID)
+            let profile = PlayerProfile(
+                children: family.children.map(\.child),
+                heroClassID: selectedHeroID,
+                dadSkinTone: family.dadSkinTone.domain
+            )
             try await saveProfile.execute(profile, on: latestBirthDate)
             onFinished()
         } catch {
@@ -90,11 +101,11 @@ public final class OnboardingViewModel {
         OnboardingContent(
             welcomeTitle: text(el: "Καλώς ήρθες, ήρωα", en: "Welcome, hero"),
             welcomeSubtitle: text(
-                el: "Κάθε έπος θέλει έναν σύντροφο. Ποιος είναι ο δικός σου;",
-                en: "Every saga needs a companion. Who is yours?"
+                el: "Κάθε έπος θέλει συντρόφους. Πες μας για τα παιδιά σου.",
+                en: "Every saga needs companions. Tell us about your kids."
             ),
-            namePlaceholder: text(el: "Όνομα παιδιού", en: "Child's name"),
-            birthDateLabel: text(el: "Ημερομηνία γέννησης", en: "Date of birth"),
+            childEditor: ChildEditorLabels.make(locale: locale),
+            dadSkinToneLabel: text(el: "Η απόχρωσή σου", en: "Your skin tone"),
             continueTitle: text(el: "Συνέχεια", en: "Continue"),
             heroTitle: text(el: "Διάλεξε τον ήρωά σου", en: "Choose your hero"),
             heroSubtitle: text(

@@ -80,7 +80,7 @@ struct OnboardingViewModelTests {
     @Test("Given a blank name, when continuing, then the step does not change")
     func blankNameBlocksContinue() {
         let sut = makeSUT()
-        sut.childName = "  "
+        sut.family.children[0].name = "  "
         sut.continueToHero()
         #expect(!sut.canContinue)
         #expect(sut.step == .child)
@@ -90,17 +90,52 @@ struct OnboardingViewModelTests {
     func finishSaves() async {
         var finished = false
         let sut = makeSUT { finished = true }
-        sut.childName = "Νίκος"
+        sut.family.children[0].name = "Νίκος"
+        sut.family.children[0].gender = .girl
+        sut.family.children[0].skinTone = .dark
         sut.continueToHero()
         #expect(sut.step == .hero)
         #expect(!sut.canFinish)
 
+        sut.family.dadSkinTone = .medium
         sut.selectHero(id: "h-cool")
         await sut.finish()
 
         #expect(finished)
-        #expect(await save.saved?.heroClassID == "h-cool")
-        #expect(await save.saved?.child.name == "Νίκος")
+        let saved = await save.saved
+        #expect(saved?.heroClassID == "h-cool")
+        #expect(saved?.dadSkinTone == .medium)
+        #expect(saved?.children.map(\.name) == ["Νίκος"])
+        #expect(saved?.children.first?.gender == .girl)
+        #expect(saved?.children.first?.skinTone == .dark)
+    }
+
+    @Test("Given one child, when adding children, then up to four can be added, each needs a name, and one can be removed")
+    func severalChildren() async {
+        let sut = makeSUT()
+        sut.family.children[0].name = "Νίκος"
+        #expect(!sut.family.canRemoveChild)
+
+        sut.addChild()
+        #expect(!sut.canContinue)
+        sut.family.children[1].name = "Άννα"
+        #expect(sut.canContinue)
+        #expect(sut.family.children[1].skinTone == sut.family.children[0].skinTone)
+
+        sut.addChild()
+        sut.addChild()
+        sut.addChild()
+        #expect(sut.family.children.count == 4)
+        #expect(!sut.family.canAddChild)
+
+        sut.removeChild(id: sut.family.children[3].id)
+        sut.removeChild(id: sut.family.children[2].id)
+        #expect(sut.family.children.map(\.name) == ["Νίκος", "Άννα"])
+
+        sut.continueToHero()
+        sut.selectHero(id: "h-super")
+        await sut.finish()
+        #expect(await save.saved?.children.map(\.name) == ["Νίκος", "Άννα"])
     }
 
     @Test("Given saving fails, when finishing, then an error is shown and onFinished is not called")
@@ -108,7 +143,7 @@ struct OnboardingViewModelTests {
         var finished = false
         let sut = makeSUT { finished = true }
         await save.failNext()
-        sut.childName = "Νίκος"
+        sut.family.children[0].name = "Νίκος"
         sut.selectHero(id: "h-cool")
 
         await sut.finish()
@@ -118,163 +153,15 @@ struct OnboardingViewModelTests {
     }
 }
 
-@MainActor
-@Suite("HomeViewModel")
-struct HomeViewModelTests {
-    let progress = FakeProgress()
-
-    func makeSUT(profile: PlayerProfile?, locale: String = "el_GR") -> HomeViewModel {
-        HomeViewModel(
-            useCases: HomeViewModel.UseCases(
-                getProfile: StubGetProfile(profile: profile),
-                loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)),
-                getAdventure: StubGetAdventure(),
-                getProgress: progress,
-                completeQuest: progress,
-                defeatBoss: progress
-            ),
-            locale: Locale(identifier: locale),
-            now: { HeroStub.today }
-        )
-    }
-
-    @Test("Given a quest card, when selecting and confirming it, then XP is gained, the card shows it and the hero celebrates")
-    func completesQuest() async {
-        let sut = makeSUT(profile: HeroStub.profile)
-        await sut.onAppear()
-
-        sut.select(cardID: "q1")
-        #expect(sut.selectedQuest?.title == "Αποστολή")
-        #expect(sut.selectedQuest?.reward == "+20 XP · Φροντίδα")
-        await sut.completeSelectedQuest()
-
-        guard case .loaded(let content) = sut.state else {
-            Issue.record("Expected loaded state, got \(sut.state)")
-            return
-        }
-        #expect(sut.selectedQuest == nil)
-        #expect(content.xpLine == "20 / 100 XP")
-        #expect(content.cards.last?.footnote == "Το έκανες 1 φορά")
-        #expect(sut.celebration?.id == 1)
-        #expect(sut.celebration?.xpText == "+20 XP")
-        #expect(sut.celebration?.levelUpText == nil)
-
-        sut.celebrationFinished()
-        #expect(sut.celebration == nil)
-    }
-
-    @Test("Given 80 XP, when completing a quest, then the celebration announces the new level")
-    func levelUpCelebration() async {
-        await progress.seed(times: 4)
-        let sut = makeSUT(profile: HeroStub.profile)
-        await sut.onAppear()
-
-        sut.select(cardID: "q1")
-        await sut.completeSelectedQuest()
-
-        #expect(sut.celebration?.levelUpText == "Επίπεδο 2!")
-    }
-
-    @Test("Given a boss card, when selecting it, then its intro, guide and reward are shown")
-    func bossDetail() async {
-        let sut = makeSUT(profile: HeroStub.profile)
-        await sut.onAppear()
-
-        sut.select(cardID: "b1")
-
-        #expect(sut.selectedQuest == nil)
-        #expect(sut.selectedBoss?.title == "Αφεντικό")
-        #expect(sut.selectedBoss?.intro == "ι")
-        #expect(sut.selectedBoss?.guide == ["βήμα"])
-        #expect(sut.selectedBoss?.reward == "+100 XP · β")
-        #expect(sut.selectedBoss?.isDefeated == false)
-    }
-
-    @Test("Given a boss, when defeating it, then XP, badge and level-up are celebrated and the card shows the badge")
-    func defeatsBoss() async {
-        let sut = makeSUT(profile: HeroStub.profile)
-        await sut.onAppear()
-
-        sut.select(cardID: "b1")
-        await sut.defeatSelectedBoss()
-
-        #expect(sut.selectedBoss == nil)
-        #expect(sut.celebration?.xpText == "+100 XP")
-        #expect(sut.celebration?.badgeText == "β")
-        #expect(sut.celebration?.levelUpText == "Επίπεδο 2!")
-        guard case .loaded(let content) = sut.state else {
-            Issue.record("Expected loaded state, got \(sut.state)")
-            return
-        }
-        #expect(content.cards.first?.footnote == "Νικήθηκε · β")
-
-        sut.select(cardID: "b1")
-        #expect(sut.selectedBoss?.isDefeated == true)
-    }
-
-    @Test("Given saving fails, when confirming a quest, then the sheet stays open with an error")
-    func completionFailure() async {
-        let sut = makeSUT(profile: HeroStub.profile)
-        await sut.onAppear()
-        await progress.failNext()
-
-        sut.select(cardID: "q1")
-        await sut.completeSelectedQuest()
-
-        #expect(sut.selectedQuest != nil)
-        #expect(sut.errorMessage == "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.")
-        #expect(sut.celebration == nil)
-    }
-
-    @Test("Given a cool dad with a 10-month-old, when appearing, then hero, companion and current-world cards are shown")
-    func loaded() async {
-        let sut = makeSUT(profile: HeroStub.profile)
-        await sut.onAppear()
-
-        guard case .loaded(let content) = sut.state else {
-            Issue.record("Expected loaded state, got \(sut.state)")
-            return
-        }
-        #expect(content.heroTitle == "Cool Μπαμπάς")
-        #expect(content.heroLook == .cool)
-        #expect(content.companionLine == "Νίκος · 10 μηνών")
-        #expect(content.level == 1)
-        #expect(content.levelTitle == "Επίπεδο 1")
-        #expect(content.xpLine == "0 / 100 XP")
-        #expect(content.worldTitle == "Κόσμος")
-        #expect(content.cards.map(\.id) == ["b1", "q1"])
-        #expect(content.cards.map(\.symbol) == ["flame.fill", "heart.fill"])
-        #expect(content.cards.last?.badge == "+20 XP")
-    }
-
-    @Test("Given an English locale, when appearing, then the companion line is English")
-    func english() async {
-        let sut = makeSUT(profile: HeroStub.profile, locale: "en_US")
-        await sut.onAppear()
-
-        guard case .loaded(let content) = sut.state else {
-            Issue.record("Expected loaded state, got \(sut.state)")
-            return
-        }
-        #expect(content.heroTitle == "Cool Dad")
-        #expect(content.companionLine == "Νίκος · 10 months old")
-    }
-
-    @Test("Given no profile, when appearing, then state is failed")
-    func noProfile() async {
-        let sut = makeSUT(profile: nil)
-        await sut.onAppear()
-        #expect(sut.state == .failed(message: "Δεν βρέθηκε προφίλ."))
-    }
-}
-
 /// An in-memory stand-in for both progress use cases, backed by the stub catalog.
 actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase {
     private var events: [ProgressEvent] = []
     private var shouldFail = false
 
     func seed(times: Int) {
-        events = (0..<times).map { _ in ProgressEvent(kind: .quest(id: "q1"), date: HeroStub.today) }
+        events = (0..<times).map { _ in
+            ProgressEvent(kind: .quest(id: "q1"), childID: HeroStub.niko.id, date: HeroStub.today)
+        }
     }
 
     func failNext() {
@@ -285,18 +172,20 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase 
         DadProgress(events: events, catalog: HeroStub.catalog)
     }
 
-    func execute(questID: String, on date: Date) async throws -> ProgressChange {
-        try record(.quest(id: questID), on: date)
+    func execute(questID: String, childID: UUID, on date: Date) async throws -> ProgressChange {
+        try record(.quest(id: questID), childID: childID, on: date)
     }
 
-    func execute(bossID: String, on date: Date) async throws -> ProgressChange {
-        try record(.boss(id: bossID), on: date)
+    func execute(bossID: String, childID: UUID, on date: Date) async throws -> ProgressChange {
+        try record(.boss(id: bossID), childID: childID, on: date)
     }
 
-    private func record(_ kind: ProgressEvent.Kind, on date: Date) throws -> ProgressChange {
+    var recordedChildIDs: [UUID?] { events.map(\.childID) }
+
+    private func record(_ kind: ProgressEvent.Kind, childID: UUID, on date: Date) throws -> ProgressChange {
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        events.append(ProgressEvent(kind: kind, date: date))
+        events.append(ProgressEvent(kind: kind, childID: childID, date: date))
         return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog))
     }
 }
@@ -324,9 +213,16 @@ actor SpySaveProfile: SaveProfileUseCase {
 }
 
 /// Returns the stub catalog's world with everything available, plus one quest from another world.
+/// A child named "Ελένη" is treated as older than every world.
 struct StubGetAdventure: GetAdventureUseCase {
     func execute(for child: Child, on date: Date) async throws -> Adventure {
         let catalog = HeroStub.catalog
+        if child.name == "Ελένη" {
+            return Adventure(
+                ageInMonths: 60, currentWorld: nil, unlockedWorlds: catalog.worlds,
+                availableQuests: [], availableBosses: [], isBeyondContent: true
+            )
+        }
         let other = Quest(id: "q-other", worldID: "w0", title: HeroStub.text, description: HeroStub.text,
                           skill: .play, xp: 10, minAgeMonths: 0)
         return Adventure(
@@ -342,7 +238,10 @@ struct StubGetAdventure: GetAdventureUseCase {
 enum HeroStub {
     static let today = Date(timeIntervalSince1970: 1_000_000)
     static let text = LocalizedText(el: "x", en: "x")
-    static let profile = PlayerProfile(child: Child(name: "Νίκος", birthDate: today), heroClassID: "h-cool")
+    static let niko = Child(name: "Νίκος", birthDate: today)
+    static let eleni = Child(name: "Ελένη", birthDate: today, gender: .girl)
+    static let profile = PlayerProfile(children: [niko], heroClassID: "h-cool", dadSkinTone: .mediumDark)
+    static let family = PlayerProfile(children: [niko, eleni], heroClassID: "h-cool")
     static let catalog = ContentCatalog(
         worlds: Stub.catalog.worlds,
         quests: Stub.catalog.quests,

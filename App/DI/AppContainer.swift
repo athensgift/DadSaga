@@ -53,6 +53,10 @@ final class AppContainer {
         )
     }
 
+    func makeFamilyViewModel(onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel {
+        FamilyViewModel(getProfile: getProfileUseCase, saveProfile: saveProfileUseCase, onSaved: onSaved)
+    }
+
     func makeContentExplorerViewModel() -> ContentExplorerViewModel {
         ContentExplorerViewModel(loadCatalog: loadContentCatalogUseCase)
     }

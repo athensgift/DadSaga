@@ -1,7 +1,7 @@
 import DesignSystem
 import SwiftUI
 
-/// Two steps in a navigation stack: who the companion is, then which hero the dad plays.
+/// Two steps in a navigation stack: the dad's children, then which hero he plays and how he looks.
 /// The second step is pushed, so it gets the system back button and swipe-back gesture.
 public struct OnboardingView: View {
     @State private var viewModel: OnboardingViewModel
@@ -54,26 +54,21 @@ public struct OnboardingView: View {
                         .foregroundStyle(DSColor.textSecondary)
                 }
                 .multilineTextAlignment(.center)
-                VStack(spacing: 0) {
-                    TextField(content.namePlaceholder, text: $viewModel.childName)
-                        .font(DSFont.body)
-                        .submitLabel(.continue)
-                        .onSubmit { viewModel.continueToHero() }
-                        .padding(DSSpacing.m)
-                    Divider()
-                        .padding(.leading, DSSpacing.m)
-                    DatePicker(
-                        content.birthDateLabel,
-                        selection: $viewModel.birthDate,
-                        in: ...viewModel.latestBirthDate,
-                        displayedComponents: .date
+                ForEach(Array($viewModel.family.children.enumerated()), id: \.element.id) { index, $child in
+                    ChildEditorCard(
+                        child: $child,
+                        number: index + 1,
+                        labels: content.childEditor,
+                        latestBirthDate: viewModel.latestBirthDate,
+                        onRemove: viewModel.family.canRemoveChild ? { viewModel.removeChild(id: child.id) } : nil
                     )
-                    .font(DSFont.body)
-                    .padding(.horizontal, DSSpacing.m)
-                    .padding(.vertical, DSSpacing.s)
+                    .transition(.scale(scale: 0.95).combined(with: .opacity))
                 }
-                .foregroundStyle(DSColor.textPrimary)
-                .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+                if viewModel.family.canAddChild {
+                    Button(content.childEditor.addChildTitle, systemImage: "plus") { viewModel.addChild() }
+                        .buttonStyle(.glass)
+                        .controlSize(.large)
+                }
                 // In the content, not pinned: a pinned bar would sit on the keyboard and cover the form on small screens.
                 PrimaryButton(content.continueTitle) { viewModel.continueToHero() }
                     .disabled(!viewModel.canContinue)
@@ -81,6 +76,7 @@ public struct OnboardingView: View {
             .frame(maxWidth: readableWidth)
             .padding(DSSpacing.l)
             .frame(maxWidth: .infinity)
+            .animation(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.family.children.count)
         }
         .scrollDismissesKeyboard(.interactively)
         // When the keyboard shrinks the screen, keep the form and button in view rather than the avatar.
@@ -89,14 +85,29 @@ public struct OnboardingView: View {
     }
 
     private func heroStep(_ content: OnboardingContent) -> some View {
-        ScrollView {
+        @Bindable var viewModel = viewModel
+        return ScrollView {
             VStack(alignment: .leading, spacing: DSSpacing.m) {
                 Text(content.heroSubtitle)
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)
+                HStack {
+                    Text(content.dadSkinToneLabel)
+                    Spacer(minLength: DSSpacing.s)
+                    SkinTonePicker(selection: $viewModel.family.dadSkinTone, names: content.childEditor.skinToneNames)
+                }
+                .font(DSFont.body)
+                .foregroundStyle(DSColor.textPrimary)
+                .padding(.horizontal, DSSpacing.m)
+                .frame(minHeight: 52)
+                .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: DSSpacing.m)], spacing: DSSpacing.m) {
                     ForEach(content.heroes) { hero in
-                        HeroOptionCard(hero: hero, isSelected: hero.id == viewModel.selectedHeroID) {
+                        HeroOptionCard(
+                            hero: hero,
+                            skin: viewModel.family.dadSkinTone.avatarSkin,
+                            isSelected: hero.id == viewModel.selectedHeroID
+                        ) {
                             viewModel.selectHero(id: hero.id)
                         }
                     }
@@ -130,6 +141,7 @@ public struct OnboardingView: View {
 
 private struct HeroOptionCard: View {
     let hero: HeroOption
+    let skin: AvatarSkin
     let isSelected: Bool
     let onSelect: () -> Void
 
@@ -140,7 +152,7 @@ private struct HeroOptionCard: View {
     var body: some View {
         Button(action: onSelect) {
             VStack(spacing: DSSpacing.s) {
-                HeroAvatar(style: hero.look.avatarStyle, size: 120, cheerTrigger: isSelected ? 1 : 0)
+                HeroAvatar(style: hero.look.avatarStyle, size: 120, cheerTrigger: isSelected ? 1 : 0, skin: skin)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
                 Text(hero.title)

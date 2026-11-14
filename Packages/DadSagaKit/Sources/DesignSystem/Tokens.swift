@@ -31,7 +31,6 @@ public enum DSColor {
     public static let boss = Color(light: 0xC2410C, dark: 0xFB923C)
 
     // MARK: Hero avatar palette
-    public static let heroSkin = Color(light: 0xF2C9A0, dark: 0xF2C9A0)
     public static let heroBeard = Color(light: 0x5B3A29, dark: 0x7A5238)
     /// Eyes and other fine dark details.
     public static let heroInk = Color(light: 0x1D1B26, dark: 0x1D1B26)
@@ -46,7 +45,6 @@ public enum DSColor {
     public static let heroTealShade = Color(light: 0x0A6C75, dark: 0x1593A0)
     public static let heroChef = Color(light: 0xFFFFFF, dark: 0xF3F0EA)
     public static let heroChefShade = Color(light: 0xD5CFC2, dark: 0xB9B3A6)
-    public static let heroSkinShade = Color(light: 0xDFAE84, dark: 0xDFAE84)
     public static let heroBlush = Color(light: 0xE8907A, dark: 0xE8907A)
     public static let heroSteelShade = Color(light: 0x7C8796, dark: 0x8E99A8)
     public static let heroLeather = Color(light: 0x6B4423, dark: 0x8A5A30)

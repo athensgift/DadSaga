@@ -7,28 +7,52 @@ struct ProfileRulesTests {
     let today = Date(timeIntervalSince1970: 1_000_000)
     let heroes = [HeroClass(id: "h1", order: 1, title: Fixtures.text, tagline: Fixtures.text)]
 
-    func profile(name: String = "Νίκος", bornDaysAgo days: Double = 30, hero: String = "h1") -> PlayerProfile {
-        PlayerProfile(child: Child(name: name, birthDate: today.addingTimeInterval(-days * 86_400)), heroClassID: hero)
+    func child(_ name: String = "Νίκος", bornDaysAgo days: Double = 30) -> Child {
+        Child(name: name, birthDate: today.addingTimeInterval(-days * 86_400), gender: .girl, skinTone: .dark)
     }
 
-    @Test("Given a name with surrounding spaces, when validating, then the name is trimmed")
-    func trimsName() throws {
-        let valid = try ProfileRules.validated(profile(name: "  Νίκος \n"), on: today, heroClasses: heroes)
-        #expect(valid.child.name == "Νίκος")
+    func profile(_ children: [Child]? = nil, hero: String = "h1") -> PlayerProfile {
+        PlayerProfile(children: children ?? [child()], heroClassID: hero, dadSkinTone: .medium)
+    }
+
+    @Test("Given names with surrounding spaces, when validating, then every name is trimmed and the rest is kept")
+    func trimsNames() throws {
+        let first = child("  Νίκος \n")
+        let second = child(" Άννα", bornDaysAgo: 900)
+        let valid = try ProfileRules.validated(profile([first, second]), on: today, heroClasses: heroes)
+        #expect(valid.children.map(\.name) == ["Νίκος", "Άννα"])
+        #expect(valid.children.map(\.id) == [first.id, second.id])
+        #expect(valid.children.first?.gender == .girl)
+        #expect(valid.children.first?.skinTone == .dark)
+        #expect(valid.dadSkinTone == .medium)
         #expect(valid.heroClassID == "h1")
     }
 
-    @Test("Given a blank name, when validating, then emptyChildName is thrown")
+    @Test("Given no children, when validating, then noChildren is thrown")
+    func noChildren() {
+        #expect(throws: ProfileValidationError.noChildren) {
+            try ProfileRules.validated(profile([]), on: today, heroClasses: heroes)
+        }
+    }
+
+    @Test("Given five children, when validating, then tooManyChildren is thrown")
+    func tooManyChildren() {
+        #expect(throws: ProfileValidationError.tooManyChildren) {
+            try ProfileRules.validated(profile((0..<5).map { _ in child() }), on: today, heroClasses: heroes)
+        }
+    }
+
+    @Test("Given one blank name among several, when validating, then emptyChildName is thrown")
     func blankName() {
         #expect(throws: ProfileValidationError.emptyChildName) {
-            try ProfileRules.validated(profile(name: "   "), on: today, heroClasses: heroes)
+            try ProfileRules.validated(profile([child(), child("   ")]), on: today, heroClasses: heroes)
         }
     }
 
     @Test("Given a birth date after today, when validating, then birthDateInFuture is thrown")
     func futureBirthDate() {
         #expect(throws: ProfileValidationError.birthDateInFuture) {
-            try ProfileRules.validated(profile(bornDaysAgo: -1), on: today, heroClasses: heroes)
+            try ProfileRules.validated(profile([child(bornDaysAgo: -1)]), on: today, heroClasses: heroes)
         }
     }
 

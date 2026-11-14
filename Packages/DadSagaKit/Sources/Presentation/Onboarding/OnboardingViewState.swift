@@ -8,8 +8,8 @@ public enum OnboardingViewState: Equatable, Sendable {
 public struct OnboardingContent: Equatable, Sendable {
     public let welcomeTitle: String
     public let welcomeSubtitle: String
-    public let namePlaceholder: String
-    public let birthDateLabel: String
+    public let childEditor: ChildEditorLabels
+    public let dadSkinToneLabel: String
     public let continueTitle: String
     public let heroTitle: String
     public let heroSubtitle: String

@@ -1,3 +1,5 @@
+import Foundation
+
 /// Display-ready state for the home screen. Plain values only.
 public enum HomeViewState: Equatable, Sendable {
     case loading
@@ -9,8 +11,15 @@ public struct HomeContent: Equatable, Sendable {
     public let heroTitle: String
     public let heroTagline: String
     public let heroLook: HeroLook
-    /// The companion: the child's name and age, e.g. "Νίκος · 10 μηνών".
+    public let heroSkin: SkinToneChoice
+    /// One child: their name and age, e.g. "Νίκος · 10 μηνών". Several: their names.
     public let companionLine: String
+    /// One tab per child when there are several, to choose whose quests are shown. Empty for one child.
+    public let childTabs: [ChildTab]
+    public let selectedChildID: UUID
+    /// Name and age of the selected child, shown above their quests when there are several children.
+    public let selectedChildLine: String?
+    public let familyTitle: String
     public let level: Int
     /// e.g. "Επίπεδο 2".
     public let levelTitle: String
@@ -19,6 +28,8 @@ public struct HomeContent: Equatable, Sendable {
     public let xpLine: String
     public let worldTitle: String?
     public let worldTagline: String?
+    /// Shown instead of quests when there is no content for the child's age yet.
+    public let emptyMessage: String?
     public let cards: [CardModel]
 }
 
@@ -54,4 +65,9 @@ public struct Celebration: Equatable, Identifiable, Sendable {
     public let levelUpText: String?
     /// The badge earned, for boss fights.
     public let badgeText: String?
+}
+
+public struct ChildTab: Equatable, Identifiable, Sendable {
+    public let id: UUID
+    public let name: String
 }

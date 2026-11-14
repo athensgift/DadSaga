@@ -20,9 +20,10 @@ public enum ProgressError: Error, Equatable {
     case unknownBoss(String)
 }
 
-/// Records that the dad did a quest in real life. Quests are repeatable and always give their XP.
+/// Records that the dad did a quest in real life, with one of his children. Quests are repeatable and always give
+/// their XP.
 public protocol CompleteQuestUseCase: Sendable {
-    func execute(questID: String, on date: Date) async throws -> ProgressChange
+    func execute(questID: String, childID: UUID, on date: Date) async throws -> ProgressChange
 }
 
 public struct DefaultCompleteQuestUseCase: CompleteQuestUseCase {
@@ -34,13 +35,13 @@ public struct DefaultCompleteQuestUseCase: CompleteQuestUseCase {
         self.progressRepository = progressRepository
     }
 
-    public func execute(questID: String, on date: Date) async throws -> ProgressChange {
+    public func execute(questID: String, childID: UUID, on date: Date) async throws -> ProgressChange {
         let catalog = try await contentRepository.fetchCatalog()
         guard catalog.quests.contains(where: { $0.id == questID }) else {
             throw ProgressError.unknownQuest(questID)
         }
         let events = try await progressRepository.fetchEvents()
-        let event = ProgressEvent(kind: .quest(id: questID), date: date)
+        let event = ProgressEvent(kind: .quest(id: questID), childID: childID, date: date)
         try await progressRepository.add(event)
         return ProgressChange(
             before: DadProgress(events: events, catalog: catalog),

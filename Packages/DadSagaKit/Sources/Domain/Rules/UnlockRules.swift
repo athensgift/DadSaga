@@ -14,6 +14,13 @@ public enum UnlockRules {
         return catalog.quests.filter { worldIDs.contains($0.worldID) && $0.minAgeMonths <= ageInMonths }
     }
 
+    /// True when the child is older than every world: there is no content for this age yet.
+    public static func isBeyondContent(_ catalog: ContentCatalog, ageInMonths: Int) -> Bool {
+        let limits = catalog.worlds.map(\.maxAgeMonths)
+        guard !limits.isEmpty, !limits.contains(nil) else { return false }
+        return ageInMonths > limits.compactMap(\.self).max() ?? .max
+    }
+
     public static func availableBosses(in catalog: ContentCatalog, ageInMonths: Int) -> [BossFight] {
         let worldIDs = Set(unlockedWorlds(in: catalog, ageInMonths: ageInMonths).map(\.id))
         return catalog.bosses.filter { worldIDs.contains($0.worldID) && $0.minAgeMonths <= ageInMonths }
