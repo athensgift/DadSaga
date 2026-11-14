@@ -69,3 +69,16 @@ extension HeroGearLook {
         }
     }
 }
+
+extension Set where Element == CompanionTrait {
+    var avatarTraits: ChildAvatar.Traits {
+        reduce(into: []) { traits, trait in
+            switch trait {
+            case .smile: traits.insert(.smile)
+            case .tooth: traits.insert(.tooth)
+            case .walks: traits.insert(.walks)
+            case .partyHat: traits.insert(.partyHat)
+            }
+        }
+    }
+}

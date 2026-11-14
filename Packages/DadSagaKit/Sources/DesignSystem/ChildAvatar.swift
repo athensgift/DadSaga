@@ -21,11 +21,27 @@ public struct ChildAvatar: View {
         case boy, girl
     }
 
+    /// Changes earned by legendary moments.
+    public struct Traits: OptionSet, Hashable, Sendable {
+        public let rawValue: Int
+        public init(rawValue: Int) { self.rawValue = rawValue }
+
+        /// The baby smiles instead of having a dummy.
+        public static let smile = Traits(rawValue: 1 << 0)
+        /// A first tooth shows in the smile.
+        public static let tooth = Traits(rawValue: 1 << 1)
+        /// A baby who has walked is drawn standing.
+        public static let walks = Traits(rawValue: 1 << 2)
+        /// From the first birthday on.
+        public static let partyHat = Traits(rawValue: 1 << 3)
+    }
+
     private let stage: Stage
     private let gender: Gender
     private let skin: AvatarSkin
     private let size: CGFloat
     private let cheerTrigger: Int
+    private let traits: Traits
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isCheering = false
     @State private var hasAppeared = false
@@ -33,8 +49,18 @@ public struct ChildAvatar: View {
     /// - Parameters:
     ///   - size: the canvas height in points. A `kid` fills most of it; a `baby` about half.
     ///   - cheerTrigger: change this value to make the child cheer.
-    public init(stage: Stage, gender: Gender, skin: AvatarSkin, size: CGFloat = 120, cheerTrigger: Int = 0) {
-        self.stage = stage
+    ///   - traits: changes earned by legendary moments.
+    public init(
+        stage: Stage,
+        gender: Gender,
+        skin: AvatarSkin,
+        size: CGFloat = 120,
+        cheerTrigger: Int = 0,
+        traits: Traits = []
+    ) {
+        // A baby who has taken first steps stands like a toddler.
+        self.stage = stage == .baby && traits.contains(.walks) ? .toddler : stage
+        self.traits = traits
         self.gender = gender
         self.skin = skin
         self.size = size
@@ -48,6 +74,7 @@ public struct ChildAvatar: View {
             ChildFigure(
                 stage: stage,
                 gender: gender,
+                traits: traits,
                 pose: reduceMotion ? .rest : HeroPose(time: context.date.timeIntervalSinceReferenceDate + 0.7),
                 isCheering: isCheering
             )
@@ -123,6 +150,7 @@ struct ChildFigure: View {
 
     let stage: ChildAvatar.Stage
     let gender: ChildAvatar.Gender
+    var traits: ChildAvatar.Traits = []
     let pose: HeroPose
     let isCheering: Bool
     @Environment(\.avatarSkin) private var skin
@@ -149,6 +177,7 @@ struct ChildFigure: View {
                 ChildHair(stage: stage, gender: gender, layer: .front, headRadius: proportions.headRadius, sway: pose.sway)
                     .offset(y: headCentre)
                 face
+                if traits.contains(.partyHat) { partyHat }
                 if stage == .toddler { teddy }
             }
             // A zero-height frame puts the ground line at the centre, so scaling keeps the feet on the ground.
@@ -263,7 +292,11 @@ struct ChildFigure: View {
                 .offset(x: side * radius * 0.4, y: 1)
                 Circle().fill(DSColor.heroBlush.opacity(0.5)).frame(width: 7, height: 5).offset(x: side * radius * 0.62, y: 8)
             }
-            if stage == .baby {
+            if traits.contains(.tooth) {
+                RoundedRectangle(cornerRadius: 0.8).fill(DSColor.heroHighlight).frame(width: 3, height: 3).offset(y: 9)
+                    .zIndex(1)
+            }
+            if stage == .baby && traits.isDisjoint(with: [.smile, .tooth]) {
                 // Dummy.
                 ZStack {
                     Ellipse().fill(DSColor.heroTeal).frame(width: 12, height: 7)
@@ -281,6 +314,18 @@ struct ChildFigure: View {
     }
 
     // MARK: Accessories
+
+    private var partyHat: some View {
+        let radius = proportions.headRadius
+        return ZStack(alignment: .top) {
+            HeroTrapezoid(topRatio: 0)
+                .fill(heroGradient(DSColor.boss, DSColor.legendary))
+                .frame(width: 16, height: 19)
+            Circle().fill(DSColor.heroHighlight).frame(width: 6, height: 6).offset(y: -3)
+        }
+        .rotationEffect(.degrees(12 + pose.sway * 0.5), anchor: .bottom)
+        .offset(x: 4, y: headCentre - radius - 6)
+    }
 
     private var teddy: some View {
         ZStack {

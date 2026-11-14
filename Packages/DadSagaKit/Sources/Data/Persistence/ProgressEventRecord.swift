@@ -12,11 +12,13 @@ final class ProgressEventRecord {
     /// The child it happened with. `nil` only in stores from before families, until `LegacyProfileMigration` runs.
     var childID: UUID?
     var date: Date
+    var note: String?
 
     init(event: ProgressEvent) {
         eventID = event.id
         childID = event.childID
         date = event.date
+        note = event.note
         switch event.kind {
         case .quest(let id): (kind, contentID) = ("quest", id)
         case .boss(let id): (kind, contentID) = ("boss", id)
@@ -33,6 +35,6 @@ final class ProgressEventRecord {
         case "first": eventKind = .first(id: contentID)
         default: return nil
         }
-        return ProgressEvent(id: eventID, kind: eventKind, childID: childID, date: date)
+        return ProgressEvent(id: eventID, kind: eventKind, childID: childID, date: date, note: note)
     }
 }

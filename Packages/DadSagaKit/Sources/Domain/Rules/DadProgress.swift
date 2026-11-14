@@ -10,6 +10,7 @@ public struct DadProgress: Hashable, Sendable {
     private let firstsByChild: [UUID?: Set<String>]
     private let bossesByChild: [UUID?: Set<String>]
     private let questsByChild: [UUID?: [String: Int]]
+    private let momentsByChild: [UUID?: [CapturedMoment]]
 
     public var level: LevelProgress { LevelCurve.progress(forTotalXP: totalXP) }
 
@@ -28,6 +29,7 @@ public struct DadProgress: Hashable, Sendable {
         var firstsByChild: [UUID?: Set<String>] = [:]
         var bossesByChild: [UUID?: Set<String>] = [:]
         var questsByChild: [UUID?: [String: Int]] = [:]
+        var momentsByChild: [UUID?: [CapturedMoment]] = [:]
 
         for event in events.sorted(by: { $0.date < $1.date }) {
             switch event.kind {
@@ -43,6 +45,8 @@ public struct DadProgress: Hashable, Sendable {
             case .first(let id):
                 guard let first = firsts[id], firstsByChild[event.childID, default: []].insert(id).inserted else { continue }
                 total += first.xp
+                let moment = CapturedMoment(first: first, date: event.date, note: event.note)
+                momentsByChild[event.childID, default: []].append(moment)
             }
         }
 
@@ -51,6 +55,7 @@ public struct DadProgress: Hashable, Sendable {
         self.firstsByChild = firstsByChild
         self.bossesByChild = bossesByChild
         self.questsByChild = questsByChild
+        self.momentsByChild = momentsByChild
     }
 
     public func capturedFirstIDs(for childID: UUID?) -> Set<String> {
@@ -61,8 +66,26 @@ public struct DadProgress: Hashable, Sendable {
         bossesByChild[childID] ?? []
     }
 
+    /// The child's legendary moments, newest first.
+    public func moments(for childID: UUID?) -> [CapturedMoment] {
+        (momentsByChild[childID] ?? []).sorted { $0.date > $1.date }
+    }
+
     /// How many times each quest has been completed with this child.
     public func questCompletions(for childID: UUID?) -> [String: Int] {
         questsByChild[childID] ?? [:]
+    }
+}
+
+/// A first the dad captured for a child, with when it happened and what he wrote.
+public struct CapturedMoment: Hashable, Sendable {
+    public let first: FirstMoment
+    public let date: Date
+    public let note: String?
+
+    public init(first: FirstMoment, date: Date, note: String?) {
+        self.first = first
+        self.date = date
+        self.note = note
     }
 }

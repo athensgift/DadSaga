@@ -65,6 +65,16 @@ public struct HomeView: View {
                 } onClose: {
                     viewModel.dismissSelection()
                 }
+            case .moment(let capture):
+                MomentSheet(
+                    capture: capture,
+                    errorMessage: viewModel.errorMessage,
+                    isSaving: viewModel.isCompleting
+                ) { id, date, note in
+                    Task { await viewModel.captureMoment(firstID: id, date: date, note: note) }
+                } onClose: {
+                    viewModel.dismissSelection()
+                }
             }
         }
     }
@@ -94,7 +104,11 @@ public struct HomeView: View {
 
     private var activeSheet: Binding<HomeSheet?> {
         Binding(
-            get: { viewModel.selectedQuest.map(HomeSheet.quest) ?? viewModel.selectedBoss.map(HomeSheet.boss) },
+            get: {
+                viewModel.selectedQuest.map(HomeSheet.quest)
+                    ?? viewModel.selectedBoss.map(HomeSheet.boss)
+                    ?? viewModel.momentCapture.map(HomeSheet.moment)
+            },
             set: { if $0 == nil { viewModel.dismissSelection() } }
         )
     }
@@ -232,6 +246,8 @@ public struct HomeView: View {
                 }
                 .buttonStyle(.plain)
             }
+            MomentsSectionView(section: content.moments) { viewModel.startCapture() }
+                .padding(.top, DSSpacing.l)
         }
     }
 }
@@ -240,11 +256,13 @@ public struct HomeView: View {
 private enum HomeSheet: Identifiable {
     case quest(QuestDetail)
     case boss(BossDetail)
+    case moment(MomentCapture)
 
     var id: String {
         switch self {
         case .quest(let quest): "quest-" + quest.id
         case .boss(let boss): "boss-" + boss.id
+        case .moment(let capture): "moment-" + capture.id.uuidString
         }
     }
 }

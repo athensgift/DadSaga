@@ -12,14 +12,19 @@ Each phase lists what gets built and what it demonstrates.
 
 *Demonstrates:* architecture and testability before the first real screen.
 
-## Phase 2: Core loop
-- Onboarding: child (name, birth date) and dad avatar
-- Persistence (SwiftData) for child, progress events, photos (on device)
+## Phase 2: Core loop (in progress)
+- ✅ Onboarding: 1–4 children (name, birth date, gender, skin tone), dad's hero class and skin tone (ADR-0010, 0012)
+- ✅ Persistence (SwiftData) for the family and progress events, with migration from the single-child store
+- ✅ Quest completion → XP → level up, per child, shared XP
+- ✅ Boss fights with survival guide + badge, once per child
+- ✅ Liquid Glass redesign, adaptive two-column layout for iPhone Duo and landscape (ADR-0011)
+- ✅ Child avatars by age stage next to the dad (ADR-0013)
+- ✅ Hero gear from skill XP and boss medals (ADR-0014)
+- ✅ Legendary moments: capture firsts per child with date and note, gold cards, companion traits (ADR-0015)
+- Photos on legendary moments (on device)
 - World map with age-based unlocking
-- Quest completion with photo/note → XP → level up
-- Boss fights with guide + badge
-- Legendary moments: capture firsts with photos, gold cards, companion traits
-- Timeline of memories
+- Timeline of memories across children
+- Wardrobe: choose which earned gear the hero wears
 
 *Demonstrates:* end-to-end features, state management, persistence, tests.
 

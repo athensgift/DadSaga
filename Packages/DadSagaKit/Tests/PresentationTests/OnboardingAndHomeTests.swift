@@ -154,7 +154,7 @@ struct OnboardingViewModelTests {
 }
 
 /// An in-memory stand-in for both progress use cases, backed by the stub catalog.
-actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase {
+actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCase {
     private var events: [ProgressEvent] = []
     private var shouldFail = false
 
@@ -178,6 +178,13 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase 
 
     func execute(bossID: String, childID: UUID, on date: Date) async throws -> ProgressChange {
         try record(.boss(id: bossID), childID: childID, on: date)
+    }
+
+    func execute(firstID: String, childID: UUID, happenedOn date: Date, note: String?, now: Date) async throws -> ProgressChange {
+        if shouldFail { throw StubError.boom }
+        let before = DadProgress(events: events, catalog: HeroStub.catalog)
+        events.append(ProgressEvent(kind: .first(id: firstID), childID: childID, date: date, note: note))
+        return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog))
     }
 
     var recordedChildIDs: [UUID?] { events.map(\.childID) }
