@@ -69,12 +69,14 @@ public struct HomeView: View {
                 MomentSheet(
                     capture: capture,
                     errorMessage: viewModel.errorMessage,
-                    isSaving: viewModel.isCompleting
-                ) { id, date, note in
-                    Task { await viewModel.captureMoment(firstID: id, date: date, note: note) }
-                } onClose: {
-                    viewModel.dismissSelection()
-                }
+                    isSaving: viewModel.isCompleting,
+                    loader: { await viewModel.photoData(id: $0) },
+                    onSave: { id, date, note, photo in
+                        Task { await viewModel.saveMoment(firstID: id, date: date, note: note, photo: photo) }
+                    },
+                    onDelete: { Task { await viewModel.deleteMoment() } },
+                    onClose: { viewModel.dismissSelection() }
+                )
             }
         }
     }
@@ -246,7 +248,12 @@ public struct HomeView: View {
                 }
                 .buttonStyle(.plain)
             }
-            MomentsSectionView(section: content.moments) { viewModel.startCapture() }
+            MomentsSectionView(
+                section: content.moments,
+                loader: { await viewModel.photoData(id: $0) },
+                onAdd: { viewModel.startCapture() },
+                onEdit: { viewModel.editMoment(id: $0) }
+            )
                 .padding(.top, DSSpacing.l)
         }
     }

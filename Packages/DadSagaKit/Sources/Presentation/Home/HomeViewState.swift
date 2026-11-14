@@ -47,7 +47,7 @@ public struct MomentsSection: Equatable, Sendable {
     public let progress: String
     public let addTitle: String
     /// Newest first, as gold cards.
-    public let cards: [CardModel]
+    public let cards: [MomentCardModel]
     /// Shown when nothing is captured yet.
     public let emptyText: String
     /// Every first is already captured for this child.
@@ -58,12 +58,52 @@ public struct MomentsSection: Equatable, Sendable {
 public struct MomentCapture: Equatable, Identifiable, Sendable {
     public let id: UUID
     public let title: String
+    /// The firsts to choose from. When editing, only the moment's own first.
     public let options: [MomentOption]
     public let dateLabel: String
     public let earliestDate: Date
     public let latestDate: Date
     public let notePlaceholder: String
     public let saveTitle: String
+    public let labels: MomentPhotoLabels
+    /// Set when an existing moment is being edited rather than a new one captured.
+    public let editing: MomentEditing?
+}
+
+/// The current values of a moment being edited.
+public struct MomentEditing: Equatable, Sendable {
+    public let momentID: UUID
+    public let date: Date
+    public let note: String
+    public let photoID: String?
+}
+
+public struct MomentPhotoLabels: Equatable, Sendable {
+    public let addPhoto: String
+    public let takePhoto: String
+    public let changePhoto: String
+    public let removePhoto: String
+    public let delete: String
+    public let deleteConfirmation: String
+    public let cancel: String
+}
+
+/// A captured moment as a gold card.
+public struct MomentCardModel: Equatable, Identifiable, Sendable {
+    public let id: UUID
+    /// Emoji and name, e.g. "👣 Πρώτα βήματα".
+    public let title: String
+    /// Date and note.
+    public let subtitle: String
+    public let badge: String
+    public let photoID: String?
+}
+
+/// What the dad did with the photo while capturing or editing a moment.
+public enum MomentPhotoEdit: Equatable, Sendable {
+    case keep
+    case remove
+    case replace(Data)
 }
 
 public struct MomentOption: Equatable, Identifiable, Sendable {

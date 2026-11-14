@@ -10,19 +10,7 @@ struct HomeViewModelTests {
     let progress = FakeProgress()
 
     func makeSUT(profile: PlayerProfile?, locale: String = "el_GR") -> HomeViewModel {
-        HomeViewModel(
-            useCases: HomeViewModel.UseCases(
-                getProfile: StubGetProfile(profile: profile),
-                loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)),
-                getAdventure: StubGetAdventure(),
-                getProgress: progress,
-                completeQuest: progress,
-                defeatBoss: progress,
-                captureMoment: progress
-            ),
-            locale: Locale(identifier: locale),
-            now: { HeroStub.today }
-        )
+        makeHomeViewModel(profile: profile, progress: progress, locale: locale)
     }
 
     @Test("Given a quest card, when selecting and confirming it, then XP is gained, the card shows it and the hero celebrates")
@@ -251,50 +239,28 @@ struct HomeViewModelTests {
         #expect(niko.cards.last?.footnote == nil)
     }
 
-    @Test("Given no moments, when appearing, then the section is empty and counts all firsts")
-    func emptyMoments() async {
-        let sut = makeSUT(profile: HeroStub.profile)
-        await sut.onAppear()
-        guard case .loaded(let content) = sut.state else {
-            Issue.record("Expected loaded state, got \(sut.state)")
-            return
-        }
-        #expect(content.moments.title == "Θρυλικές στιγμές")
-        #expect(content.moments.progress == "0 / 1")
-        #expect(content.moments.cards.isEmpty)
-        #expect(!content.moments.isComplete)
-    }
-
-    @Test("Given first steps, when capturing them, then a gold card shows, the child stands and the celebration says so")
-    func capturesMoment() async {
-        let sut = makeSUT(profile: HeroStub.profile)
-        await sut.onAppear()
-
-        sut.startCapture()
-        #expect(sut.momentCapture?.options.map(\.title) == ["Βήματα"])
-        #expect(sut.momentCapture?.title == "Νίκος")
-        await sut.captureMoment(firstID: "f1", date: HeroStub.today, note: "Τρία βήματα!")
-
-        #expect(sut.momentCapture == nil)
-        #expect(sut.celebration?.momentText == "👣 Βήματα")
-        #expect(sut.celebration?.xpText == "+30 XP")
-        guard case .loaded(let content) = sut.state else {
-            Issue.record("Expected loaded state, got \(sut.state)")
-            return
-        }
-        #expect(content.moments.cards.map(\.title) == ["👣 Βήματα"])
-        #expect(content.moments.cards.first?.subtitle.hasSuffix(" · Τρία βήματα!") == true)
-        #expect(content.moments.isComplete)
-        #expect(content.companions.first?.traits == [.walks])
-
-        sut.startCapture()
-        #expect(sut.momentCapture?.options.isEmpty == true)
-    }
-
     @Test("Given no profile, when appearing, then state is failed")
     func noProfile() async {
         let sut = makeSUT(profile: nil)
         await sut.onAppear()
         #expect(sut.state == .failed(message: "Δεν βρέθηκε προφίλ."))
     }
+}
+
+/// A home presenter wired to stubs, shared by the home suites.
+@MainActor
+func makeHomeViewModel(profile: PlayerProfile?, progress: FakeProgress, locale: String = "el_GR") -> HomeViewModel {
+    HomeViewModel(
+        useCases: HomeViewModel.UseCases(
+            getProfile: StubGetProfile(profile: profile),
+            loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)),
+            getAdventure: StubGetAdventure(),
+            getProgress: progress,
+            completeQuest: progress,
+            defeatBoss: progress,
+            moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, delete: progress, getPhoto: progress)
+        ),
+        locale: Locale(identifier: locale),
+        now: { HeroStub.today }
+    )
 }

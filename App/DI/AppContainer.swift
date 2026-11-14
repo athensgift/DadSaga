@@ -10,6 +10,9 @@ final class AppContainer {
     /// Falls back to session-only storage if the on-disk store cannot be opened, so the app still starts.
     private lazy var store: LocalStore = (try? LocalStore.live()) ?? LocalStore.sessionOnly()
 
+    /// Photos of legendary moments, kept on the device.
+    private lazy var photoStore: any PhotoStore = FilePhotoStore.appDefault()
+
     // MARK: Use cases
     private var loadContentCatalogUseCase: any LoadContentCatalogUseCase {
         DefaultLoadContentCatalogUseCase(repository: contentRepository)
@@ -26,7 +29,11 @@ final class AppContainer {
     // MARK: Presentation
     func makeRootViewModel() -> RootViewModel {
         #if DEBUG
-        let reset = DefaultResetProfileUseCase(profileRepository: store.profiles, progressRepository: store.progress)
+        let reset = DefaultResetProfileUseCase(
+            profileRepository: store.profiles,
+            progressRepository: store.progress,
+            photoStore: photoStore
+        )
         return RootViewModel(getProfile: getProfileUseCase, resetProfile: reset)
         #else
         return RootViewModel(getProfile: getProfileUseCase)
@@ -49,9 +56,15 @@ final class AppContainer {
                     progressRepository: store.progress
                 ),
                 defeatBoss: DefaultDefeatBossUseCase(contentRepository: contentRepository, progressRepository: store.progress),
-                captureMoment: DefaultCaptureMomentUseCase(
-                    contentRepository: contentRepository,
-                    progressRepository: store.progress
+                moments: HomeViewModel.MomentUseCases(
+                    capture: DefaultCaptureMomentUseCase(
+                        contentRepository: contentRepository,
+                        progressRepository: store.progress,
+                        photoStore: photoStore
+                    ),
+                    update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
+                    delete: DefaultDeleteMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
+                    getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
                 )
             )
         )

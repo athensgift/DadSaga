@@ -21,7 +21,7 @@ Each phase lists what gets built and what it demonstrates.
 - ✅ Child avatars by age stage next to the dad (ADR-0013)
 - ✅ Hero gear from skill XP and boss medals (ADR-0014)
 - ✅ Legendary moments: capture firsts per child with date and note, gold cards, companion traits (ADR-0015)
-- Photos on legendary moments (on device)
+- ✅ Photos on legendary moments (on device), edit and delete moments (ADR-0016)
 - World map with age-based unlocking
 - Timeline of memories across children
 - Wardrobe: choose which earned gear the hero wears

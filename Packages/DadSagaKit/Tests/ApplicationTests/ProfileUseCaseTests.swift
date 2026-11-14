@@ -56,10 +56,15 @@ struct ProfileUseCaseTests {
         let progress = SpyProgressRepository()
         try await progress.add(ProgressEvent(kind: .quest(id: "q1"), date: today))
 
-        try await DefaultResetProfileUseCase(profileRepository: repository, progressRepository: progress).execute()
+        let photos = SpyPhotoStore()
+        _ = try await photos.save(Data([1]))
+
+        try await DefaultResetProfileUseCase(profileRepository: repository, progressRepository: progress, photoStore: photos)
+            .execute()
 
         #expect(try await repository.fetchProfile() == nil)
         #expect(try await progress.fetchEvents().isEmpty)
+        #expect(await photos.stored.isEmpty)
     }
 }
 

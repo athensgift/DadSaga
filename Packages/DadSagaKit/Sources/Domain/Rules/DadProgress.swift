@@ -45,7 +45,13 @@ public struct DadProgress: Hashable, Sendable {
             case .first(let id):
                 guard let first = firsts[id], firstsByChild[event.childID, default: []].insert(id).inserted else { continue }
                 total += first.xp
-                let moment = CapturedMoment(first: first, date: event.date, note: event.note)
+                let moment = CapturedMoment(
+                    eventID: event.id,
+                    first: first,
+                    date: event.date,
+                    note: event.note,
+                    photoID: event.photoID
+                )
                 momentsByChild[event.childID, default: []].append(moment)
             }
         }
@@ -78,14 +84,21 @@ public struct DadProgress: Hashable, Sendable {
 }
 
 /// A first the dad captured for a child, with when it happened and what he wrote.
-public struct CapturedMoment: Hashable, Sendable {
+public struct CapturedMoment: Hashable, Identifiable, Sendable {
+    /// The event that recorded it.
+    public let eventID: UUID
     public let first: FirstMoment
     public let date: Date
     public let note: String?
+    public let photoID: String?
 
-    public init(first: FirstMoment, date: Date, note: String?) {
+    public var id: UUID { eventID }
+
+    public init(eventID: UUID, first: FirstMoment, date: Date, note: String?, photoID: String?) {
+        self.eventID = eventID
         self.first = first
         self.date = date
         self.note = note
+        self.photoID = photoID
     }
 }

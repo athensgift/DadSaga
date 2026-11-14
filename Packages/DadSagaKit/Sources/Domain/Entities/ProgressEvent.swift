@@ -16,12 +16,22 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
     public let date: Date
     /// The dad's own words, for firsts.
     public let note: String?
+    /// Identifier of a photo kept on the device, for firsts.
+    public let photoID: String?
 
-    public init(id: UUID = UUID(), kind: Kind, childID: UUID? = nil, date: Date, note: String? = nil) {
+    public init(
+        id: UUID = UUID(),
+        kind: Kind,
+        childID: UUID? = nil,
+        date: Date,
+        note: String? = nil,
+        photoID: String? = nil
+    ) {
         self.id = id
         self.kind = kind
         self.childID = childID
         self.date = date
         self.note = note
+        self.photoID = photoID
     }
 }

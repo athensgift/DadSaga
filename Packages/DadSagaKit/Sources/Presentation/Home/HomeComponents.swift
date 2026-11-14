@@ -100,7 +100,9 @@ struct CelebrationBadge: View {
 /// The selected child's legendary moments: gold cards, newest first, and a button to capture one.
 struct MomentsSectionView: View {
     let section: MomentsSection
+    let loader: PhotoLoader
     let onAdd: () -> Void
+    let onEdit: (UUID) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.s) {
@@ -136,13 +138,12 @@ struct MomentsSectionView: View {
                 .buttonStyle(.plain)
             }
             ForEach(section.cards) { card in
-                QuestCard(
-                    title: card.title,
-                    subtitle: card.subtitle,
-                    badge: card.badge,
-                    symbol: card.symbol,
-                    style: .legendary
-                )
+                Button {
+                    onEdit(card.id)
+                } label: {
+                    MomentCard(card: card, loader: loader)
+                }
+                .buttonStyle(.plain)
             }
         }
     }

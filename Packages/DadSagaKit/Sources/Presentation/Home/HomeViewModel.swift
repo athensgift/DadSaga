@@ -7,34 +7,6 @@ import Observation
 @MainActor
 @Observable
 public final class HomeViewModel {
-    public struct UseCases: Sendable {
-        let getProfile: any GetProfileUseCase
-        let loadCatalog: any LoadContentCatalogUseCase
-        let getAdventure: any GetAdventureUseCase
-        let getProgress: any GetProgressUseCase
-        let completeQuest: any CompleteQuestUseCase
-        let defeatBoss: any DefeatBossUseCase
-        let captureMoment: any CaptureMomentUseCase
-
-        public init(
-            getProfile: any GetProfileUseCase,
-            loadCatalog: any LoadContentCatalogUseCase,
-            getAdventure: any GetAdventureUseCase,
-            getProgress: any GetProgressUseCase,
-            completeQuest: any CompleteQuestUseCase,
-            defeatBoss: any DefeatBossUseCase,
-            captureMoment: any CaptureMomentUseCase
-        ) {
-            self.getProfile = getProfile
-            self.loadCatalog = loadCatalog
-            self.getAdventure = getAdventure
-            self.getProgress = getProgress
-            self.completeQuest = completeQuest
-            self.defeatBoss = defeatBoss
-            self.captureMoment = captureMoment
-        }
-    }
-
     public private(set) var state: HomeViewState = .loading
     public private(set) var selectedQuest: QuestDetail?
     public private(set) var selectedBoss: BossDetail?
@@ -42,7 +14,7 @@ public final class HomeViewModel {
     public internal(set) var errorMessage: String?
     /// The sheet for capturing a legendary moment, while it is open.
     public internal(set) var momentCapture: MomentCapture?
-    public private(set) var isCompleting = false
+    public internal(set) var isCompleting = false
     /// The child whose world and quests are shown. The first child until the dad picks another.
     public private(set) var selectedChildID: UUID?
 
@@ -150,8 +122,12 @@ public final class HomeViewModel {
                 momentText: moment
             )
         } catch {
-            errorMessage = strings.text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
+            errorMessage = saveFailedMessage
         }
+    }
+
+    var saveFailedMessage: String {
+        strings.text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
     }
 
     private func load() async {
