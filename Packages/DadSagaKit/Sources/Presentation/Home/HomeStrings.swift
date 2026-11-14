@@ -32,4 +32,27 @@ struct HomeStrings {
     func text(el: String, en: String) -> String {
         LocalizedText(el: el, en: en).resolved(for: locale)
     }
+
+    /// e.g. "0–8 μηνών", "2–3½ ετών", "από 6 ετών". The end is the last month of the world.
+    func ageRange(from min: Int, to max: Int?) -> String {
+        guard let max else { return text(el: "από ", en: "from ") + years(min) + text(el: " ετών", en: " years") }
+        if max <= 24 { return "\(min)–\(max)" + text(el: " μηνών", en: " months") }
+        return years(min) + "–" + years(max + 1) + text(el: " ετών", en: " years")
+    }
+
+    func unlocksIn(months: Int) -> String {
+        months == 1
+            ? text(el: "Ξεκλειδώνει σε 1 μήνα", en: "Unlocks in 1 month")
+            : text(el: "Ξεκλειδώνει σε \(months) μήνες", en: "Unlocks in \(months) months")
+    }
+
+    func worldProgress(quests: Int, of questTotal: Int, bosses: Int, of bossTotal: Int) -> String {
+        "\(quests) / \(questTotal) " + text(el: "αποστολές", en: "quests")
+            + " · \(bosses) / \(bossTotal) " + text(el: "αφεντικά", en: "bosses")
+    }
+
+    /// Whole and half years, e.g. "2", "3½".
+    private func years(_ months: Int) -> String {
+        "\(months / 12)" + (months % 12 >= 6 ? "½" : "")
+    }
 }

@@ -12,7 +12,7 @@ Each phase lists what gets built and what it demonstrates.
 
 *Demonstrates:* architecture and testability before the first real screen.
 
-## Phase 2: Core loop (in progress)
+## Phase 2: Core loop ✅
 - ✅ Onboarding: 1–4 children (name, birth date, gender, skin tone), dad's hero class and skin tone (ADR-0010, 0012)
 - ✅ Persistence (SwiftData) for the family and progress events, with migration from the single-child store
 - ✅ Quest completion → XP → level up, per child, shared XP
@@ -22,7 +22,7 @@ Each phase lists what gets built and what it demonstrates.
 - ✅ Hero gear from skill XP and boss medals (ADR-0014)
 - ✅ Legendary moments: capture firsts per child with date and note, gold cards, companion traits (ADR-0015)
 - ✅ Photos on legendary moments (on device), edit and delete moments (ADR-0016)
-- World map with age-based unlocking
+- ✅ World map with age-based unlocking; earlier worlds replayable; worlds for ages 2–6 (ADR-0019)
 - ✅ Timeline of memories across children, in its own tab (ADR-0017)
 - ✅ Wardrobe: choose which earned gear the hero wears (ADR-0018)
 
@@ -49,4 +49,4 @@ Each phase lists what gets built and what it demonstrates.
 - TestFlight / App Store, demo video (made by the app itself), case study write-up
 
 ## Phase 5: Playground
-- iCloud sync, partner co-op, Android (native or KMP), AI quest suggestions, worlds for ages 2–4, New Game+
+- iCloud sync, partner co-op, Android (native or KMP), AI quest suggestions, worlds for ages 6+, New Game+

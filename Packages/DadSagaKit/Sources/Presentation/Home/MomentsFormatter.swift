@@ -1,3 +1,4 @@
+import Application
 import Domain
 import Foundation
 
@@ -101,4 +102,5 @@ struct HomeSnapshot {
     let child: Child
     let catalog: ContentCatalog
     let progress: DadProgress
+    let adventure: Adventure
 }

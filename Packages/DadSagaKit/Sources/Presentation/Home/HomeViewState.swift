@@ -35,6 +35,9 @@ public struct HomeContent: Equatable, Sendable {
     public let xpLine: String
     public let worldTitle: String?
     public let worldTagline: String?
+    public let mapTitle: String
+    /// Set while an earlier world is shown instead of the current one: the button text to go back.
+    public let backToCurrentTitle: String?
     /// Shown instead of quests when there is no content for the child's age yet.
     public let emptyMessage: String?
     public let cards: [CardModel]
@@ -155,4 +158,37 @@ public struct Celebration: Equatable, Identifiable, Sendable {
 public struct ChildTab: Equatable, Identifiable, Sendable {
     public let id: UUID
     public let name: String
+}
+
+/// Every world in order, for the selected child: where they are, where they have been, what is ahead.
+public struct WorldMapContent: Equatable, Identifiable, Sendable {
+    public var id: String { title }
+    public let title: String
+    /// e.g. "Νίκος · 10 μηνών".
+    public let subtitle: String
+    public let worlds: [WorldMapItem]
+}
+
+public struct WorldMapItem: Equatable, Identifiable, Sendable {
+    public enum Status: Equatable, Sendable {
+        /// The child's age is in this world.
+        case current
+        /// Unlocked earlier; its quests can still be played.
+        case visited
+        case locked
+    }
+
+    public let id: String
+    public let number: Int
+    public let title: String
+    public let tagline: String
+    /// e.g. "9–24 μηνών".
+    public let ageRange: String
+    public let status: Status
+    /// Progress ("3 / 10 αποστολές · 1 / 2 αφεντικά") or when it unlocks ("Ξεκλειδώνει σε 5 μήνες").
+    public let detail: String
+    /// "Είσαι εδώ", "Βλέπεις αυτόν τον κόσμο", or nil.
+    public let tag: String?
+    /// The world shown on home right now.
+    public let isShown: Bool
 }

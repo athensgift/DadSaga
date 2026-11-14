@@ -17,9 +17,13 @@ public final class HomeViewModel {
     public internal(set) var isCompleting = false
     /// The child whose world and quests are shown. The first child until the dad picks another.
     public private(set) var selectedChildID: UUID?
+    /// The world map, while it is open.
+    public internal(set) var worldMap: WorldMapContent?
+    /// An earlier world the dad chose on the map, instead of the child's current one.
+    var viewedWorldID: String?
 
     let useCases: UseCases
-    private let locale: Locale
+    let locale: Locale
     private let strings: HomeStrings
     let momentsFormatter: MomentsFormatter
     let now: @Sendable () -> Date
@@ -52,6 +56,7 @@ public final class HomeViewModel {
     public func selectChild(id: UUID) async {
         guard id != selectedChildID else { return }
         selectedChildID = id
+        viewedWorldID = nil
         await load()
     }
 
@@ -143,12 +148,14 @@ public final class HomeViewModel {
             let adventure = try await useCases.getAdventure.execute(for: child, on: now())
             let progress = try await useCases.getProgress.execute()
             outfit = try await useCases.getOutfit?.execute() ?? Outfit()
-            let worldID = adventure.currentWorld?.id
+            let world = adventure.unlockedWorlds.first { $0.id == viewedWorldID } ?? adventure.currentWorld
+            if world?.id == adventure.currentWorld?.id { viewedWorldID = nil }
+            let worldID = world?.id
             quests = adventure.availableQuests.filter { $0.worldID == worldID }
             bosses = adventure.availableBosses.filter { $0.worldID == worldID }
             defeatedBossIDs = progress.defeatedBossIDs(for: child.id)
             gear = catalog.gear
-            snapshot = HomeSnapshot(child: child, catalog: catalog, progress: progress)
+            snapshot = HomeSnapshot(child: child, catalog: catalog, progress: progress, adventure: adventure)
             state = .loaded(
                 makeContent(
                     profile: profile,
@@ -203,8 +210,12 @@ public final class HomeViewModel {
             levelTitle: strings.text(el: "Επίπεδο \(level.level)", en: "Level \(level.level)"),
             levelFraction: level.fraction,
             xpLine: "\(level.xpIntoLevel) / \(level.xpNeededForNextLevel) XP",
-            worldTitle: adventure.currentWorld?.title.resolved(for: locale),
-            worldTagline: adventure.currentWorld?.tagline.resolved(for: locale),
+            worldTitle: shownWorld(adventure)?.title.resolved(for: locale),
+            worldTagline: shownWorld(adventure)?.tagline.resolved(for: locale),
+            mapTitle: strings.text(el: "Χάρτης κόσμων", en: "World map"),
+            backToCurrentTitle: viewedWorldID == nil
+                ? nil
+                : strings.text(el: "Πίσω στον κόσμο του τώρα", en: "Back to the current world"),
             emptyMessage: adventure.isBeyondContent
                 ? strings.text(
                     el: "Οι περιπέτειες για την ηλικία του παιδιού σου έρχονται σύντομα.",
