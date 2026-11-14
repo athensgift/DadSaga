@@ -76,3 +76,9 @@ extension HeroClassDTO {
         HeroClass(id: id, order: order, title: title.toDomain(), tagline: tagline.toDomain())
     }
 }
+
+extension GearItemDTO {
+    func toDomain() throws -> GearItem {
+        GearItem(id: id, skill: try QuestDTO.skill(skill, itemID: id), minXP: minXP, look: look, title: title.toDomain())
+    }
+}

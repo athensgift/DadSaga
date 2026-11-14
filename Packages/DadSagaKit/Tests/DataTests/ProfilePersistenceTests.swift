@@ -17,6 +17,22 @@ struct HeroClassContentTests {
     }
 }
 
+@Suite("Gear content")
+struct GearContentTests {
+    @Test("Given the bundled JSON, when fetching, then every skill has two gear tiers with text in both languages")
+    func loadsGear() async throws {
+        let catalog = try await BundledContentRepository().fetchCatalog()
+        for skill in Skill.allCases {
+            let tiers = catalog.gear.filter { $0.skill == skill }.map(\.minXP).sorted()
+            #expect(tiers.count == 2, "\(skill)")
+            #expect(tiers.first ?? 0 > 0)
+        }
+        for item in catalog.gear {
+            #expect(!item.title.el.isEmpty && !item.title.en.isEmpty)
+        }
+    }
+}
+
 /// Serialized: creating several SwiftData containers for the same model at once can crash the test process.
 @Suite("LocalStore", .serialized)
 struct LocalStoreTests {

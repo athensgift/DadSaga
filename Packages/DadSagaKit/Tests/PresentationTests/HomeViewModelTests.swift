@@ -49,6 +49,41 @@ struct HomeViewModelTests {
         #expect(sut.celebration == nil)
     }
 
+    @Test("Given 40 care XP, when a quest crosses 50, then the hero carries the burp cloth and the celebration says so")
+    func earnsGear() async {
+        await progress.seed(times: 2)
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        guard case .loaded(let before) = sut.state else {
+            Issue.record("Expected loaded state, got \(sut.state)")
+            return
+        }
+        #expect(before.heroGear.isEmpty)
+
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+
+        #expect(sut.celebration?.unlockText == "Νέο: Πανάκι")
+        guard case .loaded(let after) = sut.state else {
+            Issue.record("Expected loaded state, got \(sut.state)")
+            return
+        }
+        #expect(after.heroGear == [.burpCloth])
+    }
+
+    @Test("Given a defeated boss, when appearing, then the hero wears one medal")
+    func medal() async {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "b1")
+        await sut.defeatSelectedBoss()
+        guard case .loaded(let content) = sut.state else {
+            Issue.record("Expected loaded state, got \(sut.state)")
+            return
+        }
+        #expect(content.medalCount == 1)
+    }
+
     @Test("Given 80 XP, when completing a quest, then the celebration announces the new level")
     func levelUpCelebration() async {
         await progress.seed(times: 4)

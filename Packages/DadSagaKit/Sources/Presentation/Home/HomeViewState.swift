@@ -12,6 +12,10 @@ public struct HomeContent: Equatable, Sendable {
     public let heroTagline: String
     public let heroLook: HeroLook
     public let heroSkin: SkinToneChoice
+    /// Earned gear, one per skill at most.
+    public let heroGear: [HeroGearLook]
+    /// Bosses defeated with any child: one medal each.
+    public let medalCount: Int
     /// One child: their name and age, e.g. "Νίκος · 10 μηνών". Several: their names.
     public let companionLine: String
     /// One tab per child when there are several, to choose whose quests are shown. Empty for one child.
@@ -67,6 +71,8 @@ public struct Celebration: Equatable, Identifiable, Sendable {
     public let levelUpText: String?
     /// The badge earned, for boss fights.
     public let badgeText: String?
+    /// Gear the hero just earned, e.g. "Νέο: Κούπα καφέ".
+    public let unlockText: String?
 }
 
 public struct ChildTab: Equatable, Identifiable, Sendable {

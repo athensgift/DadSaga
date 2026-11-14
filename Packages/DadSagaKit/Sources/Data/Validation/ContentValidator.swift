@@ -5,7 +5,7 @@ enum ContentValidator {
     static func validate(_ catalog: ContentCatalog) throws {
         var seen: Set<String> = []
         let allIDs = catalog.worlds.map(\.id) + catalog.quests.map(\.id) + catalog.bosses.map(\.id)
-            + catalog.firsts.map(\.id) + catalog.heroClasses.map(\.id)
+            + catalog.firsts.map(\.id) + catalog.heroClasses.map(\.id) + catalog.gear.map(\.id)
         for id in allIDs where !seen.insert(id).inserted {
             throw ContentDataError.duplicateID(id)
         }

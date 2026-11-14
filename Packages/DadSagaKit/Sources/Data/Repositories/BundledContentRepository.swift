@@ -24,7 +24,8 @@ public actor BundledContentRepository: ContentRepository {
             quests: try dataSource.decode([QuestDTO].self, resource: "quests").map { try $0.toDomain() },
             bosses: try dataSource.decode([BossFightDTO].self, resource: "bosses").map { try $0.toDomain() },
             firsts: try dataSource.decode([FirstMomentDTO].self, resource: "firsts").map { $0.toDomain() },
-            heroClasses: try dataSource.decode([HeroClassDTO].self, resource: "heroes").map { $0.toDomain() }
+            heroClasses: try dataSource.decode([HeroClassDTO].self, resource: "heroes").map { $0.toDomain() },
+            gear: try dataSource.decode([GearItemDTO].self, resource: "gear").map { try $0.toDomain() }
         )
         try ContentValidator.validate(catalog)
         cached = catalog

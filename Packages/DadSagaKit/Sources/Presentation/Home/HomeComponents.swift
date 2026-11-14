@@ -72,6 +72,11 @@ struct CelebrationBadge: View {
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.boss)
             }
+            if let unlockText = celebration.unlockText {
+                Label(unlockText, systemImage: "gift.fill")
+                    .font(DSFont.headline)
+                    .foregroundStyle(DSColor.accent)
+            }
         }
         .lineLimit(1)
         .fixedSize()
@@ -81,7 +86,7 @@ struct CelebrationBadge: View {
         .offset(y: -DSSpacing.l)
         .transition(.scale(scale: 0.6).combined(with: .opacity))
         .task(id: celebration.id) {
-            try? await Task.sleep(for: .seconds(2.2))
+            try? await Task.sleep(for: .seconds(celebration.unlockText == nil ? 2.2 : 3.2))
             onFinished()
         }
     }

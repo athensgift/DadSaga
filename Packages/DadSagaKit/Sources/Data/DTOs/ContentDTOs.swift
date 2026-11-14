@@ -52,3 +52,11 @@ struct HeroClassDTO: Decodable, Sendable {
     let title: LocalizedTextDTO
     let tagline: LocalizedTextDTO
 }
+
+struct GearItemDTO: Decodable, Sendable {
+    let id: String
+    let skill: String
+    let minXP: Int
+    let look: String
+    let title: LocalizedTextDTO
+}
