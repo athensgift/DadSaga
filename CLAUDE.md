@@ -18,6 +18,23 @@ This is a **personal portfolio / playground project**. Replies to the owner are 
 - Record significant decisions as a new ADR in `docs/adr/`.
 - Product rules in `docs/adr/0006-no-pressure-game-design.md` are non-negotiable (no penalties, no milestone deadlines).
 
+## Model routing
+The main session runs on Opus at medium effort (`.claude/settings.json`). Delegate by task type to the subagents in `.claude/agents/`:
+
+| Task | Subagent | Model / effort |
+|---|---|---|
+| Plan a new feature or phase, draft the ADR | `architect` | Opus / xhigh |
+| Implement a feature across the layers | main session | Opus / medium |
+| Review the branch before a PR into `develop` | `reviewer` | Opus / high |
+| Lint fixes, renames, copy, CI, roadmap ticks | `chores` | Sonnet / low |
+| Tests, accessibility, el/en localization | `quality` | Sonnet / medium |
+| Content JSON (quests, bosses, guides) | `content` | Opus / high |
+| Saga video engine, iCloud sync, a bug failed twice | `fable-hard` | Fable / high |
+
+- For a new feature: `architect` first, then implement, then `reviewer`, then the PR.
+- `fable-hard` costs usage credits on the Pro plan. Never start it on your own: suggest it, say why, and wait for the owner to ask.
+- If a fix fails twice in the main session, stop and suggest `fable-hard` instead of trying a third time.
+
 ## Git
 - Commit and push only when asked.
 - **Gitflow** ([ADR-0009](docs/adr/0009-gitflow.md)): `develop` is the integration branch, `main` holds releases only.
