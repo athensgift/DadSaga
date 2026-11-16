@@ -173,12 +173,12 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase,
         DadProgress(events: events, catalog: HeroStub.catalog)
     }
 
-    func execute(questID: String, childID: UUID, on date: Date) async throws -> ProgressChange {
-        try record(.quest(id: questID), childID: childID, on: date)
+    func execute(questID: String, childID: UUID, on date: Date, journal: JournalInput) async throws -> ProgressChange {
+        try record(.quest(id: questID), childID: childID, on: date, note: journal.note)
     }
 
-    func execute(bossID: String, childID: UUID, on date: Date) async throws -> ProgressChange {
-        try record(.boss(id: bossID), childID: childID, on: date)
+    func execute(bossID: String, childID: UUID, on date: Date, journal: JournalInput) async throws -> ProgressChange {
+        try record(.boss(id: bossID), childID: childID, on: date, note: journal.note)
     }
 
     private var photos: [String: Data] = [:]
@@ -228,10 +228,10 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase,
     var recordedChildIDs: [UUID?] { events.map(\.childID) }
     var eventCount: Int { events.count }
 
-    private func record(_ kind: ProgressEvent.Kind, childID: UUID, on date: Date) throws -> ProgressChange {
+    private func record(_ kind: ProgressEvent.Kind, childID: UUID, on date: Date, note: String?) throws -> ProgressChange {
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        let event = ProgressEvent(kind: kind, childID: childID, date: date)
+        let event = ProgressEvent(kind: kind, childID: childID, date: date, note: note)
         events.append(event)
         return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog), eventID: event.id)
     }

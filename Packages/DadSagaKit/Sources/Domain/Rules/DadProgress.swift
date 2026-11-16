@@ -11,6 +11,7 @@ public struct DadProgress: Hashable, Sendable {
     private let bossesByChild: [UUID?: Set<String>]
     private let questsByChild: [UUID?: [String: Int]]
     private let momentsByChild: [UUID?: [CapturedMoment]]
+    private let journalByChild: [UUID?: [ProgressEvent.Kind: JournalEntry]]
 
     public var level: LevelProgress { LevelCurve.progress(forTotalXP: totalXP) }
 
@@ -30,8 +31,14 @@ public struct DadProgress: Hashable, Sendable {
         var bossesByChild: [UUID?: Set<String>] = [:]
         var questsByChild: [UUID?: [String: Int]] = [:]
         var momentsByChild: [UUID?: [CapturedMoment]] = [:]
+        var journalByChild: [UUID?: [ProgressEvent.Kind: JournalEntry]] = [:]
 
         for event in events.sorted(by: { $0.date < $1.date }) {
+            if event.note != nil || event.photoID != nil {
+                journalByChild[event.childID, default: [:]][event.kind] = JournalEntry(
+                    eventID: event.id, date: event.date, note: event.note, photoID: event.photoID
+                )
+            }
             switch event.kind {
             case .quest(let id):
                 guard let quest = quests[id] else { continue }
@@ -62,6 +69,12 @@ public struct DadProgress: Hashable, Sendable {
         self.bossesByChild = bossesByChild
         self.questsByChild = questsByChild
         self.momentsByChild = momentsByChild
+        self.journalByChild = journalByChild
+    }
+
+    /// The newest note or photo the dad left on this card with this child, if any ("last time you wrote…").
+    public func lastJournal(for kind: ProgressEvent.Kind, childID: UUID?) -> JournalEntry? {
+        journalByChild[childID]?[kind]
     }
 
     public func capturedFirstIDs(for childID: UUID?) -> Set<String> {
@@ -97,6 +110,21 @@ public struct CapturedMoment: Hashable, Identifiable, Sendable {
     public init(eventID: UUID, first: FirstMoment, date: Date, note: String?, photoID: String?) {
         self.eventID = eventID
         self.first = first
+        self.date = date
+        self.note = note
+        self.photoID = photoID
+    }
+}
+
+/// What the dad wrote or photographed when he completed something.
+public struct JournalEntry: Hashable, Sendable {
+    public let eventID: UUID
+    public let date: Date
+    public let note: String?
+    public let photoID: String?
+
+    public init(eventID: UUID, date: Date, note: String?, photoID: String?) {
+        self.eventID = eventID
         self.date = date
         self.note = note
         self.photoID = photoID

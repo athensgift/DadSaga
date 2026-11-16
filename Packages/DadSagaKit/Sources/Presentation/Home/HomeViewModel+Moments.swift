@@ -91,8 +91,10 @@ private extension MomentPhotoEdit {
         case .replace(let data): .replace(data)
         }
     }
+}
 
-    /// For a new moment: the photo to store, if one was chosen.
+extension MomentPhotoEdit {
+    /// For a new entry: the photo to store, if one was chosen.
     var newData: Data? {
         if case .replace(let data) = self { data } else { nil }
     }

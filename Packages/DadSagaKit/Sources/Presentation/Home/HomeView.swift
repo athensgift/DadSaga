@@ -79,18 +79,9 @@ public struct HomeView: View {
         .sheet(item: activeSheet) { sheet in
             switch sheet {
             case .quest(let quest):
-                QuestSheet(quest: quest, errorMessage: viewModel.errorMessage, isCompleting: viewModel.isCompleting) {
-                    Task { await viewModel.completeSelectedQuest() }
-                } onClose: {
-                    viewModel.dismissSelection()
-                }
-                .presentationDetents(quest.tip == nil ? [.medium] : [.medium, .large])
+                questSheet(quest)
             case .boss(let boss):
-                BossSheet(boss: boss, errorMessage: viewModel.errorMessage, isCompleting: viewModel.isCompleting) {
-                    Task { await viewModel.defeatSelectedBoss() }
-                } onClose: {
-                    viewModel.dismissSelection()
-                }
+                bossSheet(boss)
             case .moment(let capture):
                 MomentSheet(
                     capture: capture,
@@ -331,5 +322,28 @@ extension HomeView {
             }
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
+    }
+
+    func questSheet(_ quest: QuestDetail) -> some View {
+        QuestSheet(
+            quest: quest,
+            errorMessage: viewModel.errorMessage,
+            isCompleting: viewModel.isCompleting,
+            loader: { await viewModel.photoData(id: $0) },
+            onConfirm: { note, photo in Task { await viewModel.completeSelectedQuest(note: note, photo: photo) } },
+            onClose: { viewModel.dismissSelection() }
+        )
+        .presentationDetents([.medium, .large])
+    }
+
+    func bossSheet(_ boss: BossDetail) -> some View {
+        BossSheet(
+            boss: boss,
+            errorMessage: viewModel.errorMessage,
+            isCompleting: viewModel.isCompleting,
+            loader: { await viewModel.photoData(id: $0) },
+            onConfirm: { note, photo in Task { await viewModel.defeatSelectedBoss(note: note, photo: photo) } },
+            onClose: { viewModel.dismissSelection() }
+        )
     }
 }

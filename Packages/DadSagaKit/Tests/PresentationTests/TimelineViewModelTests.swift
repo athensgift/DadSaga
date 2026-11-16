@@ -30,6 +30,7 @@ struct TimelineViewModelTests {
             getTimeline: log(events),
             getPhoto: StubGetPhoto(),
             deleteEvent: log(events),
+            updateJournal: log(events),
             locale: Locale(identifier: "el_GR"),
             calendar: calendar
         )
@@ -117,6 +118,30 @@ struct TimelineViewModelTests {
         #expect(loadedContent(sut)?.sections.flatMap(\.items).map(\.kind) == [.moment, .boss])
     }
 
+    @Test("Given a quest entry, when adding a note from the timeline, then the row shows it")
+    func editsJournal() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        let quest = try #require(loadedContent(sut)?.sections.last?.items.first)
+
+        sut.editJournal(id: quest.id)
+        #expect(sut.journalEditor?.title == "Αποστολή")
+        #expect(sut.journalEditor?.note == "")
+        await sut.saveJournal(note: "γέλασε πολύ", photo: .keep)
+
+        #expect(sut.journalEditor == nil)
+        #expect(loadedContent(sut)?.sections.last?.items.first?.subtitle.hasSuffix(" · γέλασε πολύ") == true)
+    }
+
+    @Test("Given a boss entry with a note, when appearing, then the badge and the note are both in the subtitle")
+    func bossNote() async throws {
+        let events = [ProgressEvent(kind: .boss(id: "b1"), childID: HeroStub.niko.id, date: january, note: "δύσκολη νύχτα")]
+        let sut = makeSUT(profile: HeroStub.profile, events: events)
+        await sut.onAppear()
+
+        #expect(loadedContent(sut)?.sections.first?.items.first?.subtitle.hasSuffix(" · β · δύσκολη νύχτα") == true)
+    }
+
     @Test("Given a delete prompt, when cancelling, then nothing is deleted")
     func cancels() async throws {
         let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
@@ -170,7 +195,7 @@ final class TimelineLogs {
     }
 }
 
-actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase {
+actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseCase {
     private var events: [ProgressEvent]
 
     init(events: [ProgressEvent]) {
@@ -183,6 +208,19 @@ actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase {
 
     func execute(eventID: UUID) async throws {
         events.removeAll { $0.id == eventID }
+    }
+
+    func execute(eventID: UUID, note: String?, photo: PhotoChange) async throws {
+        guard let index = events.firstIndex(where: { $0.id == eventID }) else { return }
+        let old = events[index]
+        let photoID: String? = switch photo {
+        case .keep: old.photoID
+        case .remove: nil
+        case .replace: "new-photo"
+        }
+        events[index] = ProgressEvent(
+            id: old.id, kind: old.kind, childID: old.childID, date: old.date, note: note, photoID: photoID
+        )
     }
 }
 

@@ -83,10 +83,7 @@ public struct MomentEditing: Equatable, Sendable {
 }
 
 public struct MomentPhotoLabels: Equatable, Sendable {
-    public let addPhoto: String
-    public let takePhoto: String
-    public let changePhoto: String
-    public let removePhoto: String
+    public let photo: PhotoLabels
     public let delete: String
     public let deleteConfirmation: String
     public let cancel: String
@@ -128,6 +125,9 @@ public struct QuestDetail: Equatable, Identifiable, Sendable {
     /// The "does not replace your paediatrician" line, for medical tips only.
     public let footer: String?
     public let confirmTitle: String
+    public let journal: JournalLabels
+    /// The note or photo from the last time with this child, if he left one.
+    public let lastJournal: LastJournal?
 }
 
 /// A quest tip as shown in the quest sheet.
@@ -148,6 +148,9 @@ public struct BossDetail: Equatable, Identifiable, Sendable {
     public let isDefeated: Bool
     public let defeatedText: String
     public let confirmTitle: String
+    public let journal: JournalLabels
+    /// What he wrote when they got through it, once defeated.
+    public let lastJournal: LastJournal?
 }
 
 /// Shown briefly after a quest is completed or a boss is defeated.
