@@ -261,7 +261,7 @@ actor SpySaveProfile: SaveProfileUseCase {
 /// Returns the stub catalog's world with everything available, plus one quest from another world.
 /// A child named "Ελένη" is treated as older than every world.
 struct StubGetAdventure: GetAdventureUseCase {
-    func execute(for child: Child, on date: Date) async throws -> Adventure {
+    func execute(for child: Child, childCount: Int, on date: Date) async throws -> Adventure {
         let catalog = HeroStub.catalog
         if child.name == "Ελένη" {
             return Adventure(

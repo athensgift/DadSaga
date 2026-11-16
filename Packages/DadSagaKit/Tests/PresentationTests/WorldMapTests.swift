@@ -72,7 +72,7 @@ struct WorldMapTests {
         #expect(map.worlds.map(\.status) == [WorldMapItem.Status.visited, .current, .locked])
         #expect(map.worlds.map(\.ageRange) == ["0–8 μηνών", "9–24 μηνών", "2–3½ ετών"])
         #expect(map.worlds.map(\.tag) == [nil, "Είσαι εδώ", nil])
-        #expect(map.worlds[0].detail == "0 / 1 αποστολές · 0 / 0 αφεντικά")
+        #expect(map.worlds[0].detail == "0 αποστολές · 0 αφεντικά")
         #expect(map.worlds[2].detail == "Ξεκλειδώνει σε 15 μήνες")
         #expect(loaded(sut)?.mapTitle == "Χάρτης κόσμων")
     }
@@ -97,7 +97,7 @@ struct WorldMapTests {
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
         sut.openMap()
-        #expect(sut.worldMap?.worlds.first?.detail == "1 / 1 αποστολές · 0 / 0 αφεντικά")
+        #expect(sut.worldMap?.worlds.first?.detail == "1 αποστολή · 0 αφεντικά")
 
         await sut.showWorld(id: nil)
         #expect(loaded(sut)?.backToCurrentTitle == nil)
@@ -131,7 +131,7 @@ struct WorldMapTests {
 struct FixedAdventure: GetAdventureUseCase {
     let adventure: Adventure
 
-    func execute(for child: Child, on date: Date) async throws -> Adventure {
+    func execute(for child: Child, childCount: Int, on date: Date) async throws -> Adventure {
         adventure
     }
 }

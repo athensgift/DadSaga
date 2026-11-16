@@ -24,7 +24,7 @@ public final class HomeViewModel {
 
     let useCases: UseCases
     let locale: Locale
-    private let strings: HomeStrings
+    let strings: HomeStrings
     let momentsFormatter: MomentsFormatter
     let now: @Sendable () -> Date
     /// What the screen was last built from, for actions that need it (e.g. which firsts are left).
@@ -64,13 +64,7 @@ public final class HomeViewModel {
     public func select(cardID: String) {
         errorMessage = nil
         if let quest = quests.first(where: { $0.id == cardID }) {
-            selectedQuest = QuestDetail(
-                id: quest.id,
-                title: quest.title.resolved(for: locale),
-                description: quest.description.resolved(for: locale),
-                reward: strings.reward(for: quest),
-                confirmTitle: strings.text(el: "Το έκανα!", en: "I did it!")
-            )
+            selectedQuest = detail(for: quest)
         } else if let boss = bosses.first(where: { $0.id == cardID }) {
             selectedBoss = detail(for: boss)
         }
@@ -145,17 +139,27 @@ public final class HomeViewModel {
             let child = profile.children.first { $0.id == selectedChildID } ?? firstChild
             selectedChildID = child.id
             let catalog = try await useCases.loadCatalog.execute()
-            let adventure = try await useCases.getAdventure.execute(for: child, on: now())
+            let adventure = try await useCases.getAdventure.execute(
+                for: child,
+                childCount: profile.children.count,
+                on: now()
+            )
             let progress = try await useCases.getProgress.execute()
             outfit = try await useCases.getOutfit?.execute() ?? Outfit()
             let world = adventure.unlockedWorlds.first { $0.id == viewedWorldID } ?? adventure.currentWorld
             if world?.id == adventure.currentWorld?.id { viewedWorldID = nil }
             let worldID = world?.id
-            quests = adventure.availableQuests.filter { $0.worldID == worldID }
+            quests = world.map { UnlockRules.quests(for: $0, in: catalog, ageInMonths: adventure.ageInMonths) } ?? []
             bosses = adventure.availableBosses.filter { $0.worldID == worldID }
             defeatedBossIDs = progress.defeatedBossIDs(for: child.id)
             gear = catalog.gear
-            snapshot = HomeSnapshot(child: child, catalog: catalog, progress: progress, adventure: adventure)
+            snapshot = HomeSnapshot(
+                child: child,
+                catalog: catalog,
+                progress: progress,
+                adventure: adventure,
+                childCount: profile.children.count
+            )
             state = .loaded(
                 makeContent(
                     profile: profile,
@@ -250,7 +254,8 @@ public final class HomeViewModel {
                 badge: "+\(quest.xp) XP",
                 symbol: quest.skill.symbol,
                 kind: .quest,
-                footnote: completions[quest.id].map(strings.doneText)
+                footnote: completions[quest.id].map(strings.doneText),
+                hint: quest.tip?.title.resolved(for: locale)
             )
         }
     }
@@ -263,10 +268,7 @@ public final class HomeViewModel {
             guideTitle: strings.text(el: "Οδηγός επιβίωσης", en: "Survival guide"),
             guide: boss.guide.map { $0.resolved(for: locale) },
             reward: "+\(boss.xp) XP · \(boss.badge.resolved(for: locale))",
-            disclaimer: strings.text(
-                el: "Γενικές πληροφορίες, όχι ιατρική συμβουλή. Ρώτα πάντα τον παιδίατρό σου.",
-                en: "General information, not medical advice. Always ask your paediatrician."
-            ),
+            disclaimer: strings.medicalFooter,
             isDefeated: defeatedBossIDs.contains(boss.id),
             defeatedText: strings.defeatedText(for: boss),
             confirmTitle: strings.text(el: "Τα καταφέραμε!", en: "We made it through!")

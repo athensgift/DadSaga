@@ -17,5 +17,8 @@ enum ContentValidator {
         for boss in catalog.bosses where !worldIDs.contains(boss.worldID) {
             throw ContentDataError.unknownWorld(itemID: boss.id, worldID: boss.worldID)
         }
+        for quest in catalog.quests where quest.tip?.steps.isEmpty == true {
+            throw ContentDataError.emptyTip(itemID: quest.id)
+        }
     }
 }

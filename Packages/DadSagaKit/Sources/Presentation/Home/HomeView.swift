@@ -82,7 +82,7 @@ public struct HomeView: View {
                 } onClose: {
                     viewModel.dismissSelection()
                 }
-                .presentationDetents([.medium])
+                .presentationDetents(quest.tip == nil ? [.medium] : [.medium, .large])
             case .boss(let boss):
                 BossSheet(boss: boss, errorMessage: viewModel.errorMessage, isCompleting: viewModel.isCompleting) {
                     Task { await viewModel.defeatSelectedBoss() }
@@ -256,7 +256,8 @@ public struct HomeView: View {
                         badge: card.badge,
                         symbol: card.symbol,
                         style: card.kind.cardStyle,
-                        footnote: card.footnote
+                        footnote: card.footnote,
+                        hint: card.hint
                     )
                 }
                 .buttonStyle(.plain)

@@ -7,6 +7,10 @@ public struct Quest: Hashable, Identifiable, Sendable {
     public let skill: Skill
     public let xp: Int
     public let minAgeMonths: Int
+    /// How to do it well, when the card needs more than its title.
+    public let tip: QuestTip?
+    /// Also shown in every later world (ADR-0020): needs that do not belong to one age.
+    public let isEvergreen: Bool
 
     public init(
         id: String,
@@ -15,7 +19,9 @@ public struct Quest: Hashable, Identifiable, Sendable {
         description: LocalizedText,
         skill: Skill,
         xp: Int,
-        minAgeMonths: Int
+        minAgeMonths: Int,
+        tip: QuestTip? = nil,
+        isEvergreen: Bool = false
     ) {
         self.id = id
         self.worldID = worldID
@@ -24,5 +30,20 @@ public struct Quest: Hashable, Identifiable, Sendable {
         self.skill = skill
         self.xp = xp
         self.minAgeMonths = minAgeMonths
+        self.tip = tip
+        self.isEvergreen = isEvergreen
+    }
+}
+
+/// A short, practical "how to" on a quest. Medical tips end with a fixed "ask your paediatrician" line in the app.
+public struct QuestTip: Hashable, Sendable {
+    public let title: LocalizedText
+    public let steps: [LocalizedText]
+    public let isMedical: Bool
+
+    public init(title: LocalizedText, steps: [LocalizedText], isMedical: Bool = false) {
+        self.title = title
+        self.steps = steps
+        self.isMedical = isMedical
     }
 }

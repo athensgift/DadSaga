@@ -9,6 +9,8 @@ public struct BossFight: Hashable, Identifiable, Sendable {
     public let skill: Skill
     public let xp: Int
     public let minAgeMonths: Int
+    /// Only for families with more than one child (e.g. a new sibling). Reads the family, never the child's development.
+    public let requiresSibling: Bool
 
     public init(
         id: String,
@@ -19,7 +21,8 @@ public struct BossFight: Hashable, Identifiable, Sendable {
         badge: LocalizedText,
         skill: Skill,
         xp: Int,
-        minAgeMonths: Int
+        minAgeMonths: Int,
+        requiresSibling: Bool = false
     ) {
         self.id = id
         self.worldID = worldID
@@ -30,5 +33,6 @@ public struct BossFight: Hashable, Identifiable, Sendable {
         self.skill = skill
         self.xp = xp
         self.minAgeMonths = minAgeMonths
+        self.requiresSibling = requiresSibling
     }
 }

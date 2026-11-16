@@ -46,9 +46,18 @@ struct HomeStrings {
             : text(el: "Ξεκλειδώνει σε \(months) μήνες", en: "Unlocks in \(months) months")
     }
 
-    func worldProgress(quests: Int, of questTotal: Int, bosses: Int, of bossTotal: Int) -> String {
-        "\(quests) / \(questTotal) " + text(el: "αποστολές", en: "quests")
-            + " · \(bosses) / \(bossTotal) " + text(el: "αφεντικά", en: "bosses")
+    /// What was kept in a world, never what was left undone (ADR-0020), e.g. "7 quests · 1 boss".
+    func worldProgress(quests: Int, bosses: Int) -> String {
+        "\(quests) " + (quests == 1 ? text(el: "αποστολή", en: "quest") : text(el: "αποστολές", en: "quests"))
+            + " · \(bosses) " + (bosses == 1 ? text(el: "αφεντικό", en: "boss") : text(el: "αφεντικά", en: "bosses"))
+    }
+
+    /// The one health line under medical tips and boss guides. Lives here, not in the JSON, so it cannot drift.
+    var medicalFooter: String {
+        text(
+            el: "Γενικές πληροφορίες. Δεν αντικαθιστούν τον παιδίατρό σου.",
+            en: "General information. It does not replace your paediatrician."
+        )
     }
 
     /// Whole and half years, e.g. "2", "3½".

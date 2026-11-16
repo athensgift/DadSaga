@@ -40,15 +40,16 @@ extension HomeViewModel {
                 let status: WorldMapItem.Status = world.id == snapshot.adventure.currentWorld?.id
                     ? .current
                     : unlocked.contains(world.id) ? .visited : .locked
+                // An evergreen quest counts only in its home world; a boss the family cannot meet does not count.
                 let quests = snapshot.catalog.quests.filter { $0.worldID == world.id }
-                let bosses = snapshot.catalog.bosses.filter { $0.worldID == world.id }
+                let bosses = snapshot.catalog.bosses.filter {
+                    $0.worldID == world.id && UnlockRules.isPossible($0, childCount: snapshot.childCount)
+                }
                 let detail = status == .locked
                     ? strings.unlocksIn(months: world.minAgeMonths - age)
                     : strings.worldProgress(
                         quests: quests.filter { completions[$0.id, default: 0] > 0 }.count,
-                        of: quests.count,
-                        bosses: bosses.filter { defeated.contains($0.id) }.count,
-                        of: bosses.count
+                        bosses: bosses.filter { defeated.contains($0.id) }.count
                     )
                 let isShown = world.id == shownID
                 return WorldMapItem(

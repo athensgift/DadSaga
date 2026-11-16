@@ -1,7 +1,8 @@
 import DesignSystem
 import SwiftUI
 
-/// "Did you do it?" for a quest. No custom background, so the system shows it as a Liquid Glass sheet.
+/// "Did you do it?" for a quest, with its tip when it has one. No custom background, so the system shows it as a
+/// Liquid Glass sheet.
 struct QuestSheet: View {
     let quest: QuestDetail
     let errorMessage: String?
@@ -11,32 +12,54 @@ struct QuestSheet: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: DSSpacing.m) {
-                RewardPill(text: quest.reward, tint: DSColor.accent)
-                Text(quest.title)
-                    .font(DSFont.title)
-                    .foregroundStyle(DSColor.textPrimary)
-                Text(quest.description)
-                    .font(DSFont.body)
-                    .foregroundStyle(DSColor.textSecondary)
-                Spacer(minLength: 0)
-                if let errorMessage {
-                    Text(errorMessage)
-                        .font(DSFont.caption)
-                        .foregroundStyle(DSColor.boss)
+            ScrollView {
+                VStack(spacing: DSSpacing.m) {
+                    RewardPill(text: quest.reward, tint: DSColor.accent)
+                    Text(quest.title)
+                        .font(DSFont.title)
+                        .foregroundStyle(DSColor.textPrimary)
+                    Text(quest.description)
+                        .font(DSFont.body)
+                        .foregroundStyle(DSColor.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    if let tip = quest.tip {
+                        StepsPanel(title: tip.title, steps: tip.steps, tint: DSColor.accent, fill: DSColor.accent.opacity(0.08))
+                            .multilineTextAlignment(.leading)
+                    }
+                    if let footer = quest.footer {
+                        Text(footer)
+                            .font(DSFont.caption)
+                            .foregroundStyle(DSColor.textSecondary)
+                    }
                 }
-                PrimaryButton(quest.confirmTitle, action: onConfirm)
-                    .disabled(isCompleting)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: readableWidth)
+                .padding(.horizontal, DSSpacing.l)
+                .padding(.bottom, DSSpacing.m)
+                .frame(maxWidth: .infinity)
             }
-            .multilineTextAlignment(.center)
-            .padding(.horizontal, DSSpacing.l)
-            .padding(.bottom, DSSpacing.m)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(role: .close, action: onClose)
                 }
             }
+            .safeAreaBar(edge: .bottom) { actions }
         }
+    }
+
+    private var actions: some View {
+        VStack(spacing: DSSpacing.s) {
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(DSFont.caption)
+                    .foregroundStyle(DSColor.boss)
+            }
+            PrimaryButton(quest.confirmTitle, action: onConfirm)
+                .disabled(isCompleting)
+        }
+        .frame(maxWidth: readableWidth)
+        .padding(.horizontal, DSSpacing.l)
+        .padding(.vertical, DSSpacing.s)
     }
 }
 
@@ -78,28 +101,7 @@ struct BossSheet: View {
     }
 
     private var guide: some View {
-        VStack(alignment: .leading, spacing: DSSpacing.m) {
-            Text(boss.guideTitle)
-                .font(DSFont.headline)
-                .foregroundStyle(DSColor.textPrimary)
-                .accessibilityAddTraits(.isHeader)
-            ForEach(Array(boss.guide.enumerated()), id: \.offset) { index, step in
-                HStack(alignment: .firstTextBaseline, spacing: DSSpacing.m) {
-                    Text(verbatim: "\(index + 1)")
-                        .font(DSFont.caption)
-                        .foregroundStyle(DSColor.heroHighlight)
-                        .frame(width: 24, height: 24)
-                        .background(DSColor.boss.gradient, in: Circle())
-                    Text(step)
-                        .font(DSFont.body)
-                        .foregroundStyle(DSColor.textPrimary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-            }
-        }
-        .padding(DSSpacing.m)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+        StepsPanel(title: boss.guideTitle, steps: boss.guide, tint: DSColor.boss, fill: DSColor.surface)
     }
 
     @ViewBuilder private var actions: some View {
@@ -122,6 +124,40 @@ struct BossSheet: View {
         .frame(maxWidth: readableWidth)
         .padding(.horizontal, DSSpacing.l)
         .padding(.vertical, DSSpacing.s)
+    }
+}
+
+/// Numbered "how to" steps on a card: a boss's survival guide or a quest's tip. One look for both.
+private struct StepsPanel: View {
+    let title: String
+    let steps: [String]
+    let tint: Color
+    /// The panel's background. A tinted fill where the sheet itself is light (the quest sheet), a surface elsewhere.
+    let fill: Color
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: DSSpacing.m) {
+            Text(title)
+                .font(DSFont.headline)
+                .foregroundStyle(DSColor.textPrimary)
+                .accessibilityAddTraits(.isHeader)
+            ForEach(Array(steps.enumerated()), id: \.offset) { index, step in
+                HStack(alignment: .firstTextBaseline, spacing: DSSpacing.m) {
+                    Text(verbatim: "\(index + 1)")
+                        .font(DSFont.caption)
+                        .foregroundStyle(DSColor.heroHighlight)
+                        .frame(width: 24, height: 24)
+                        .background(tint.gradient, in: Circle())
+                    Text(step)
+                        .font(DSFont.body)
+                        .foregroundStyle(DSColor.textPrimary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+        }
+        .padding(DSSpacing.m)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(fill, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
     }
 }
 

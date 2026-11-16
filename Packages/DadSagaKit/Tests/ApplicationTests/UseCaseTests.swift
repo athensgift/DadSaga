@@ -34,7 +34,7 @@ struct GetAdventureUseCaseTests {
             calendar: calendar
         )
 
-        let adventure = try await sut.execute(for: Child(name: "Νίκος", birthDate: birth), on: today)
+        let adventure = try await sut.execute(for: Child(name: "Νίκος", birthDate: birth), childCount: 1, on: today)
 
         #expect(adventure.ageInMonths == 10)
         #expect(!adventure.isBeyondContent)
@@ -42,6 +42,26 @@ struct GetAdventureUseCaseTests {
         #expect(adventure.unlockedWorlds.map(\.id) == ["w1", "w2"])
         #expect(Set(adventure.availableQuests.map(\.id)) == ["q1", "q2"])
         #expect(adventure.availableBosses.isEmpty)
+    }
+}
+
+@Suite("GetAdventureUseCase, family size")
+struct FamilySizeAdventureTests {
+    let birth = Date(timeIntervalSince1970: 0)
+    let today = Date(timeIntervalSince1970: 14 * 31 * 86_400)
+
+    @Test("Given one child, when executing, then a sibling-only boss is not offered")
+    func oneChild() async throws {
+        let sut = DefaultGetAdventureUseCase(repository: StubContentRepository(result: .success(Stub.catalog)))
+        let adventure = try await sut.execute(for: Child(name: "Νίκος", birthDate: birth), childCount: 1, on: today)
+        #expect(adventure.availableBosses.map(\.id) == ["b1"])
+    }
+
+    @Test("Given two children, when executing, then the sibling-only boss is offered")
+    func twoChildren() async throws {
+        let sut = DefaultGetAdventureUseCase(repository: StubContentRepository(result: .success(Stub.catalog)))
+        let adventure = try await sut.execute(for: Child(name: "Νίκος", birthDate: birth), childCount: 2, on: today)
+        #expect(adventure.availableBosses.map(\.id) == ["b1", "b-sibling"])
     }
 }
 
@@ -54,6 +74,7 @@ struct OlderChildAdventureTests {
 
         let adventure = try await sut.execute(
             for: Child(name: "Άννα", birthDate: today.addingTimeInterval(-5 * 365 * 86_400)),
+            childCount: 1,
             on: today
         )
 
@@ -88,7 +109,9 @@ enum Stub {
         ],
         bosses: [
             BossFight(id: "b1", worldID: "w2", title: text, intro: text, guide: [], badge: text,
-                      skill: .care, xp: 100, minAgeMonths: 12)
+                      skill: .care, xp: 100, minAgeMonths: 12),
+            BossFight(id: "b-sibling", worldID: "w2", title: text, intro: text, guide: [], badge: text,
+                      skill: .care, xp: 100, minAgeMonths: 12, requiresSibling: true)
         ],
         firsts: []
     )
