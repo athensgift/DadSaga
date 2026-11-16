@@ -50,11 +50,12 @@ struct BundledContentRepositoryTests {
     @Test("Given the bundled content, when checking text, then nothing is empty in either language")
     func noEmptyText() async throws {
         let catalog = try await repository.fetchCatalog()
-        let texts = catalog.worlds.flatMap { [$0.title, $0.tagline] }
-            + catalog.quests.flatMap { [$0.title, $0.description] }
-            + catalog.bosses.flatMap { [$0.title, $0.intro, $0.badge] + $0.guide }
-            + catalog.firsts.map(\.title)
-            + catalog.quests.compactMap(\.tip).flatMap { [$0.title] + $0.steps }
+        var texts: [LocalizedText] = []
+        texts += catalog.worlds.flatMap { [$0.title, $0.tagline] }
+        texts += catalog.quests.flatMap { [$0.title, $0.description] }
+        texts += catalog.bosses.flatMap { [$0.title, $0.intro, $0.badge] + $0.guide }
+        texts += catalog.firsts.map(\.title)
+        texts += catalog.quests.compactMap(\.tip).flatMap { [$0.title] + $0.steps }
         for text in texts {
             #expect(!text.el.isEmpty && !text.en.isEmpty)
         }
