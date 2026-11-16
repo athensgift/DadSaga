@@ -205,11 +205,11 @@ struct HeroFigure: View {
             }
             ZStack {
                 HeroBackGear(style: style, sway: pose.sway)
-                if let item = equipment.item(in: .back) {
-                    HeroBackItem(item: item)
-                }
                 HeroLegs(style: style)
                 HeroTorso(style: style, breath: pose.breath)
+                if let item = equipment.item(in: .hip) {
+                    HeroHipItem(item: item)
+                }
                 HeroMedals(count: equipment.medals)
                 HeroArm(style: style, isRight: false, angle: isCheering ? 150 : 8 + pose.sway, sway: pose.sway)
                     .offset(x: -style.shoulderOffset, y: 14)

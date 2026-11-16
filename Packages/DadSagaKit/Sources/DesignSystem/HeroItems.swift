@@ -15,8 +15,8 @@ public enum HeroItem: CaseIterable, Sendable {
         case leftHand
         /// On the ground, at the dad's feet.
         case ground
-        /// Behind him, peeking out on the right.
-        case back
+        /// Worn crossbody: strap from the right shoulder, bag on the left hip.
+        case hip
     }
 
     var slot: Slot {
@@ -24,7 +24,7 @@ public enum HeroItem: CaseIterable, Sendable {
         case .burpCloth, .burpClothGold: .shoulder
         case .mug, .thermos: .leftHand
         case .duck, .blocks: .ground
-        case .diaperBag, .megaBag: .back
+        case .diaperBag, .megaBag: .hip
         }
     }
 }
@@ -77,14 +77,24 @@ struct HeroLeftHandItem: View {
     var body: some View {
         switch item {
         case .mug:
+            // Held by the handle: the cup sits outside the hand so the whole mug reads at a glance.
             ZStack {
-                Circle().stroke(DSColor.heroHighlight, lineWidth: 1.8).frame(width: 5, height: 5).offset(x: 4.5)
-                RoundedRectangle(cornerRadius: 1.5)
+                ForEach([-2.5, 2.5], id: \.self) { side in
+                    Capsule()
+                        .fill(DSColor.textSecondary.opacity(0.3 + 0.3 * glow))
+                        .frame(width: 1.5, height: 5)
+                        .offset(x: side, y: -11)
+                }
+                Circle().stroke(DSColor.heroChefShade, lineWidth: 2.4).frame(width: 7, height: 7).offset(x: 6.5)
+                RoundedRectangle(cornerRadius: 2.5)
                     .fill(heroGradient(DSColor.heroHighlight, DSColor.heroChefShade))
-                    .frame(width: 8, height: 9)
-                Capsule().fill(DSColor.heroTeal).frame(width: 8, height: 2).offset(y: -1)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 2.5).strokeBorder(DSColor.heroInk.opacity(0.35), lineWidth: 0.8)
+                    }
+                    .frame(width: 13, height: 14)
+                Capsule().fill(DSColor.heroTeal).frame(width: 13, height: 3).offset(y: 1)
             }
-            .offset(x: -1, y: 1)
+            .offset(x: -8, y: 2)
         case .thermos:
             ZStack {
                 ForEach([-1.5, 1.5], id: \.self) { side in
@@ -138,28 +148,45 @@ struct HeroGroundItem: View {
     }
 }
 
-struct HeroBackItem: View {
+/// A crossbody bag: the strap runs across the chest from the right shoulder, the bag hangs on the left hip,
+/// clear of the right hand's archetype item.
+struct HeroHipItem: View {
     let item: HeroItem
 
     var body: some View {
         let isMega = item == .megaBag
-        RoundedRectangle(cornerRadius: 4)
-            .fill(heroGradient(DSColor.heroKnightShade, DSColor.heroCloth))
-            .overlay(alignment: .top) {
-                RoundedRectangle(cornerRadius: 3)
-                    .fill(DSColor.heroCloth)
-                    .frame(height: isMega ? 8 : 6)
-                    .overlay(alignment: .bottom) {
-                        Capsule().fill(isMega ? DSColor.legendary : DSColor.heroSteel).frame(width: 6, height: 2).offset(y: 1)
-                    }
-            }
-            .overlay(alignment: .bottom) {
-                if isMega {
-                    RoundedRectangle(cornerRadius: 2).fill(DSColor.heroTeal).frame(width: 10, height: 7).padding(.bottom, 3)
+        let trim = isMega ? DSColor.legendary : DSColor.heroSteel
+        ZStack {
+            Capsule()
+                .fill(DSColor.heroCloth)
+                .overlay { Capsule().strokeBorder(DSColor.heroInk.opacity(0.3), lineWidth: 0.6) }
+                .frame(width: 3, height: 44)
+                .rotationEffect(.degrees(47))
+                .offset(x: 3, y: 17)
+            RoundedRectangle(cornerRadius: 4)
+                .fill(heroGradient(DSColor.heroCloth, DSColor.heroKnightShade))
+                .overlay(alignment: .top) {
+                    UnevenRoundedRectangle(
+                        topLeadingRadius: 4, bottomLeadingRadius: 3, bottomTrailingRadius: 3, topTrailingRadius: 4
+                    )
+                        .fill(DSColor.heroKnightShade)
+                        .frame(height: isMega ? 8 : 7)
+                        .overlay(alignment: .bottom) {
+                            Capsule().fill(trim).frame(width: isMega ? 7 : 5, height: 2.5).offset(y: 1)
+                        }
                 }
-            }
-            .frame(width: isMega ? 22 : 16, height: isMega ? 25 : 18)
-            .offset(x: isMega ? 27 : 25, y: isMega ? 22 : 25)
+                .overlay(alignment: .bottom) {
+                    if isMega {
+                        RoundedRectangle(cornerRadius: 2).fill(DSColor.heroTeal).frame(width: 11, height: 5).padding(.bottom, 2.5)
+                    }
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: 4).strokeBorder(isMega ? DSColor.legendary : DSColor.heroInk.opacity(0.4),
+                                                                  lineWidth: isMega ? 1.2 : 0.8)
+                }
+                .frame(width: isMega ? 22 : 18, height: isMega ? 18 : 15)
+                .offset(x: -13, y: isMega ? 38 : 37)
+        }
     }
 }
 
