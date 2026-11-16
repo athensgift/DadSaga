@@ -23,21 +23,119 @@
         "en": "If the baby is under 3 months and has 38°C (100.4°F) or higher, call your paediatrician right away."
       },
       {
+        "el": "Από 3 έως 6 μηνών, με 39°C ή παραπάνω, πάρε επίσης τον παιδίατρο την ίδια μέρα.",
+        "en": "From 3 to 6 months, 39°C (102.2°F) or higher also means calling your paediatrician the same day."
+      },
+      {
         "el": "Μη δώσεις φάρμακο χωρίς οδηγία του παιδιάτρου για τη δόση.",
         "en": "Don't give any medicine without your paediatrician's dosing advice."
       },
       {
-        "el": "Δίνε συχνά γάλα ή υγρά και ντύσ' το ελαφριά.",
-        "en": "Offer feeds often and dress them lightly."
+        "el": "Δίνε συχνά γάλα ή υγρά. Μην το κουκουλώνεις και μην το γδύνεις για να δροσιστεί.",
+        "en": "Offer feeds or fluids often. Don't bundle them up, and don't strip them off to cool them."
       },
       {
-        "el": "Αν δυσκολεύεται να αναπνεύσει, είναι ασυνήθιστα νωθρό ή έχει σπασμούς, κάλεσε το 166 ή το 112.",
+        "el": "Κοίτα το παιδί, όχι μόνο τον αριθμό: πίνει; σε κοιτάζει; ξυπνάει εύκολα; Αν όχι, πάρε τηλέφωνο.",
+        "en": "Watch the child, not just the number: are they drinking? looking at you? easy to wake? If not, call."
+      },
+      {
+        "el": "Αν δυσκολεύεται να αναπνεύσει, είναι ασυνήθιστα νωθρό ή έχει σπασμούς, κάλεσε ασθενοφόρο.",
         "en": "If they struggle to breathe, are unusually drowsy or have a seizure, call emergency services."
       }
     ],
     "badge": {
       "el": "Θερμόμετρο της Γενναιότητας",
       "en": "Thermometer of Courage"
+    }
+  },
+  {
+    "id": "b-w1-endless-cry",
+    "worldID": "w1-swamp",
+    "skill": "patience",
+    "xp": 100,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Το Ατέλειωτο Κλάμα",
+      "en": "The Endless Cry"
+    },
+    "intro": {
+      "el": "Τάισες, άλλαξες, κούνησες, και κλαίει ακόμα. Δεν κάνεις κάτι λάθος: έτσι είναι αυτές οι εβδομάδες.",
+      "en": "Fed, changed, rocked, and still crying. You're not doing it wrong: this is what these weeks are like."
+    },
+    "guide": [
+      {
+        "el": "Το κλάμα δυναμώνει από τη δεύτερη εβδομάδα, κορυφώνεται γύρω στις 6 με 8 και υποχωρεί ως τους τρεις μήνες περίπου. Δεν θα κρατήσει για πάντα.",
+        "en": "Crying builds from the second week, peaks at around 6 to 8 weeks and eases by about three months. It won't last forever."
+      },
+      {
+        "el": "Δοκίμασε με τη σειρά: τάισμα, πάνα, αγκαλιά δέρμα με δέρμα, περπάτημα, σιγανό τραγούδι, βόλτα με το καρότσι.",
+        "en": "Work down the list: feed, nappy, skin-to-skin cuddle, walking, quiet singing, a turn in the pram."
+      },
+      {
+        "el": "Αν νιώσεις ότι φτάνεις στα όριά σου, βάλ' το ανάσκελα στην κούνια του και βγες από το δωμάτιο για λίγα λεπτά. Είναι ασφαλές και επιτρέπεται.",
+        "en": "If you feel yourself reaching your limit, lay them on their back in the cot and leave the room for a few minutes. It's safe and it's allowed."
+      },
+      {
+        "el": "Ποτέ μην ταρακουνήσεις μωρό. Λίγα δευτερόλεπτα αρκούν για μόνιμη βλάβη.",
+        "en": "Never shake a baby. A few seconds are enough to cause permanent damage."
+      },
+      {
+        "el": "Αλλάξτε βάρδια με τον/την σύντροφό σου πριν εξαντληθείτε και οι δύο, όχι μετά.",
+        "en": "Swap shifts with your partner before you're both spent, not after."
+      },
+      {
+        "el": "Αν το κλάμα ακούγεται διαφορετικό, αν έχει πυρετό, δεν τρώει ή κάτι σε ανησυχεί, πάρε τον παιδίατρο.",
+        "en": "If the cry sounds different, if there's a fever, they won't feed or something worries you, call your paediatrician."
+      }
+    ],
+    "badge": {
+      "el": "Φάρος στη Θύελλα",
+      "en": "Lighthouse in the Storm"
+    }
+  },
+  {
+    "id": "b-w1-the-wall",
+    "worldID": "w1-swamp",
+    "skill": "resilience",
+    "xp": 100,
+    "minAgeMonths": 1,
+    "title": {
+      "el": "Ο Τοίχος",
+      "en": "The Wall"
+    },
+    "intro": {
+      "el": "Έρχεται μια μέρα που δεν αντέχεις άλλο. Δεν είσαι αδύναμος, είσαι άδειος. Συμβαίνει σε πολύ περισσότερους μπαμπάδες απ' όσους το λένε.",
+      "en": "A day comes when you've got nothing left. You're not weak, you're empty. It happens to far more dads than admit it."
+    },
+    "guide": [
+      {
+        "el": "Ο ύπνος πρώτα. Μοιράστε τη νύχτα σε βάρδιες, ώστε ο καθένας να έχει λίγες συνεχόμενες ώρες.",
+        "en": "Sleep first. Split the night into shifts so each of you gets a few unbroken hours."
+      },
+      {
+        "el": "Πες το σε έναν άνθρωπο με αυτά τα λόγια: «δεν είμαι καλά».",
+        "en": "Tell one person in these words: “I'm not OK.”"
+      },
+      {
+        "el": "Περίπου ένας στους δέκα νέους μπαμπάδες περνά κατάθλιψη. Δεν μοιάζει πάντα με λύπη: μπορεί να είναι νεύρα, απόσυρση ή ατελείωτες ώρες στο κινητό.",
+        "en": "About one new dad in ten goes through depression. It doesn't always look like sadness: it can be a short fuse, pulling away or endless hours on the phone."
+      },
+      {
+        "el": "Αν κρατήσει πάνω από δύο εβδομάδες, μίλα με γιατρό ή πάρε μια γραμμή ψυχολογικής υποστήριξης.",
+        "en": "If it lasts more than two weeks, talk to a doctor or call a mental health helpline."
+      },
+      {
+        "el": "Αν σου περάσουν σκέψεις να κάνεις κακό στον εαυτό σου ή στο μωρό, ζήτα βοήθεια τώρα: κάλεσε τον αριθμό έκτακτης ανάγκης.",
+        "en": "If thoughts of harming yourself or the baby cross your mind, get help now: call the emergency number."
+      },
+      {
+        "el": "Πρόσεχε και τον/την σύντροφό σου. Αν δεις τα ίδια σημάδια, πες το με αγάπη.",
+        "en": "Watch your partner too. If you see the same signs, say so with love."
+      }
+    ],
+    "badge": {
+      "el": "Το Θάρρος να το Πεις",
+      "en": "The Courage to Say It"
     }
   },
   {
@@ -78,11 +176,11 @@
     }
   },
   {
-    "id": "b-w2-teething",
-    "worldID": "w2-plains",
+    "id": "b-w1-teething",
+    "worldID": "w1-swamp",
     "skill": "care",
     "xp": 100,
-    "minAgeMonths": 9,
+    "minAgeMonths": 4,
     "title": {
       "el": "Ο Δαίμονας των Δοντιών",
       "en": "The Teething Demon"
@@ -105,8 +203,16 @@
         "en": "Wipe drool often to prevent a rash."
       },
       {
+        "el": "Όχι κολιέ από κεχριμπάρι και όχι gel με βενζοκαΐνη. Έχουν προκαλέσει σοβαρά ατυχήματα.",
+        "en": "No amber necklaces and no benzocaine gels. Both have caused serious harm."
+      },
+      {
         "el": "Ρώτα τον παιδίατρο πριν από οποιοδήποτε gel ή παυσίπονο.",
         "en": "Ask your paediatrician before any gel or painkiller."
+      },
+      {
+        "el": "Πυρετός 38°C και πάνω δεν είναι από τα δόντια. Αντιμετώπισέ τον σαν πυρετό.",
+        "en": "A temperature of 38°C or more isn't from teething. Treat it as a fever."
       }
     ],
     "badge": {
@@ -115,11 +221,56 @@
     }
   },
   {
+    "id": "b-w1-first-spoon",
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 100,
+    "minAgeMonths": 5,
+    "title": {
+      "el": "Το Πρώτο Κουτάλι",
+      "en": "The First Spoon"
+    },
+    "intro": {
+      "el": "Το μισό θα καταλήξει στο πάτωμα και το άλλο μισό στα μαλλιά του. Έτσι μαθαίνει.",
+      "en": "Half will end up on the floor and the other half in their hair. That's how they learn."
+    },
+    "guide": [
+      {
+        "el": "Οι στερεές ξεκινούν γύρω στους 6 μήνες, όταν κάθεται με στήριξη και κρατά σταθερό το κεφάλι του. Το πότε ακριβώς το λέει ο παιδίατρος.",
+        "en": "Solids start at around 6 months, once they sit with support and hold their head steady. Your paediatrician says exactly when."
+      },
+      {
+        "el": "Η αναγούλα είναι θορυβώδης και φυσιολογική: βήχει και συνεχίζει. Ο πνιγμός είναι αθόρυβος. Μάθε τη διαφορά πριν το πρώτο κουτάλι.",
+        "en": "Gagging is noisy and normal: they cough and carry on. Choking is silent. Learn the difference before the first spoon."
+      },
+      {
+        "el": "Όχι μέλι πριν τον πρώτο χρόνο. Όχι ολόκληροι ξηροί καρποί πριν τα πέντε. Σταφύλια και ντοματίνια κομμένα στα τέσσερα, κατά μήκος.",
+        "en": "No honey before their first birthday. No whole nuts before five. Grapes and cherry tomatoes cut into quarters, lengthways."
+      },
+      {
+        "el": "Το αυγό και το φιστίκι δεν καθυστερούν: από τους 6 μήνες περίπου, ένα καινούργιο τη φορά. Το φιστίκι μόνο αλεσμένο ή ως βούτυρο. Αν υπάρχει έκζεμα ή αλλεργία στην οικογένεια, μίλα πρώτα με τον παιδίατρο.",
+        "en": "Egg and peanut aren't held back: from around 6 months, one new food at a time. Peanut only ground or as butter. With eczema or allergy in the family, talk to your paediatrician first."
+      },
+      {
+        "el": "Πάντα καθιστό και πάντα μαζί σου. Όχι φαγητό στο καρότσι ή στο αυτοκίνητο χωρίς να το βλέπεις.",
+        "en": "Always sitting up and always with you. No food in the pram or the car where you can't see them."
+      },
+      {
+        "el": "Αν γυρίσει το κεφάλι, το γεύμα τελείωσε. Εσύ προσφέρεις, εκείνο αποφασίζει πόσο.",
+        "en": "If they turn their head away, the meal is over. You offer, they decide how much."
+      }
+    ],
+    "badge": {
+      "el": "Χρυσό Κουτάλι",
+      "en": "Golden Spoon"
+    }
+  },
+  {
     "id": "b-w2-first-daycare",
     "worldID": "w2-plains",
     "skill": "resilience",
     "xp": 100,
-    "minAgeMonths": 12,
+    "minAgeMonths": 9,
     "title": {
       "el": "Η Πρώτη Μέρα στον Παιδικό",
       "en": "The First Day at Daycare"
@@ -146,6 +297,10 @@
         "en": "Crying at drop-off is normal. Ask later how the day went."
       },
       {
+        "el": "Τους πρώτους μήνες θα φέρνει σπίτι τη μία ίωση μετά την άλλη. Είναι αναμενόμενο. Συμφωνήστε από τώρα ποιος μένει σπίτι κάθε φορά.",
+        "en": "For the first months they'll bring home one bug after another. That's expected. Agree now who stays home each time."
+      },
+      {
         "el": "Επιτρέπεται να δυσκολευτείς κι εσύ.",
         "en": "You're allowed to find it hard too."
       }
@@ -153,6 +308,92 @@
     "badge": {
       "el": "Ήρωας του Αποχαιρετισμού",
       "en": "Hero of Goodbyes"
+    }
+  },
+  {
+    "id": "b-w2-big-fall",
+    "worldID": "w2-plains",
+    "skill": "care",
+    "xp": 100,
+    "minAgeMonths": 9,
+    "title": {
+      "el": "Η Πρώτη Μεγάλη Τούμπα",
+      "en": "The First Big Fall"
+    },
+    "intro": {
+      "el": "Ένας γδούπος, δύο δευτερόλεπτα σιωπή, και μετά το κλάμα. Η καρδιά σου σταμάτησε. Το πιθανότερο είναι ότι είναι καλά.",
+      "en": "A thud, two seconds of silence, then the crying. Your heart stopped. Most likely they're fine."
+    },
+    "guide": [
+      {
+        "el": "Αν έκλαψε αμέσως και ηρέμησε στην αγκαλιά σου, είναι καλό σημάδι. Βάλε κρύα κομπρέσα στο καρούμπαλο, τυλιγμένη σε πετσέτα.",
+        "en": "If they cried straight away and settled in your arms, that's a good sign. Hold a cold compress, wrapped in a towel, on the bump."
+      },
+      {
+        "el": "Κάλεσε ασθενοφόρο αν έχασε τις αισθήσεις του, αν έκανε σπασμούς, αν δεν μπορεί να μείνει ξύπνιο ή αν έπεσε από ύψος πάνω από ένα μέτρο.",
+        "en": "Call an ambulance if they were knocked out, had a seizure, can't stay awake, or fell from more than one metre."
+      },
+      {
+        "el": "Πήγαινε αμέσως στα επείγοντα αν έκανε εμετό, αν κλαίει περισσότερο από το συνηθισμένο, αν φέρεται διαφορετικά, ή αν είναι κάτω του ενός έτους και έχει μελανιά, πρήξιμο ή μεγάλο κόψιμο στο κεφάλι.",
+        "en": "Go straight to A&E if they've vomited, are crying more than usual, are behaving differently, or are under one with a bruise, swelling or large cut on the head."
+      },
+      {
+        "el": "Μπορεί να κοιμηθεί αν είναι η ώρα του. Τις πρώτες 24 ώρες ένας ενήλικας μένει κοντά και το παρακολουθεί.",
+        "en": "They can sleep if it's their usual time. For the first 24 hours an adult stays close and keeps watch."
+      },
+      {
+        "el": "Αν δεν είσαι σίγουρος, πάρε τον παιδίατρο. Κανείς δεν θα σε πει υπερβολικό.",
+        "en": "If you're not sure, call your paediatrician. Nobody will think you're overreacting."
+      },
+      {
+        "el": "Μετά, ασφάλισε το σημείο απ' όπου έπεσε. Δεν φταις· τώρα ξέρεις.",
+        "en": "Afterwards, make safe the spot they fell from. It's not your fault; now you know."
+      }
+    ],
+    "badge": {
+      "el": "Κράνος της Ψυχραιμίας",
+      "en": "Helmet of Composure"
+    }
+  },
+  {
+    "id": "b-w2-virus-season",
+    "worldID": "w2-plains",
+    "skill": "resilience",
+    "xp": 100,
+    "minAgeMonths": 12,
+    "title": {
+      "el": "Ο Χειμώνας των Ιώσεων",
+      "en": "The Winter of Bugs"
+    },
+    "intro": {
+      "el": "Μύτη που τρέχει από τον Οκτώβρη ως τον Μάη. Μόλις περάσει η μία ίωση, έρχεται η επόμενη, και στο τέλος κολλάς κι εσύ.",
+      "en": "A runny nose from October to May. As one bug clears the next arrives, and in the end you catch it too."
+    },
+    "guide": [
+      {
+        "el": "Τα περισσότερα παιδιά περνούν 8 με 10 κρυολογήματα στα δύο πρώτα τους χρόνια, και όσα πάνε παιδικό ακόμα περισσότερα. Δεν σημαίνει ότι κάτι δεν πάει καλά.",
+        "en": "Most children have 8 to 10 colds in their first two years, and those in daycare even more. It doesn't mean something is wrong."
+      },
+      {
+        "el": "Υγρά, ξεκούραση, αγκαλιά. Τα αντιβιοτικά δεν κάνουν τίποτα στις ιώσεις και τα δίνει μόνο ο παιδίατρος.",
+        "en": "Fluids, rest, cuddles. Antibiotics do nothing against viruses and only your paediatrician prescribes them."
+      },
+      {
+        "el": "Πάρε τον παιδίατρο αν δυσκολεύεται να αναπνεύσει, αν δεν πίνει, αν έχει πολύ λιγότερες βρεγμένες πάνες ή αν ο πυρετός επιμένει.",
+        "en": "Call your paediatrician if they struggle to breathe, won't drink, have far fewer wet nappies, or the fever won't go away."
+      },
+      {
+        "el": "Συμφωνήστε από πριν ποιος μένει σπίτι, εναλλάξ. Να μην είναι πάντα ο ίδιος.",
+        "en": "Agree in advance who stays home, taking turns. It shouldn't always be the same parent."
+      },
+      {
+        "el": "Πλύσιμο χεριών μόλις μπαίνετε σπίτι, και εσύ κοιμήσου όσο μπορείς. Θα το χρειαστείς.",
+        "en": "Hands washed as soon as you get home, and get what sleep you can. You'll need it."
+      }
+    ],
+    "badge": {
+      "el": "Σιδερένιο Ανοσοποιητικό",
+      "en": "Iron Immune System"
     }
   },
   {
@@ -197,6 +438,97 @@
     }
   },
   {
+    "id": "b-w3-picky-eater",
+    "worldID": "w3-no-land",
+    "skill": "patience",
+    "xp": 100,
+    "minAgeMonths": 25,
+    "title": {
+      "el": "Ο Μικρός Κριτικός Γεύσης",
+      "en": "The Tiny Food Critic"
+    },
+    "intro": {
+      "el": "Χθες το λάτρευε, σήμερα «μπλιαχ». Δεν φταίει η μαγειρική σου: σε αυτή την ηλικία σχεδόν όλα τα παιδιά γίνονται καχύποπτα με το φαγητό.",
+      "en": "Yesterday they loved it, today it's “yuck”. It's not your cooking: at this age nearly every child turns suspicious of food."
+    },
+    "guide": [
+      {
+        "el": "Μοιράστε τις δουλειές: εσύ αποφασίζεις τι σερβίρεται και πότε. Εκείνο αποφασίζει αν θα φάει και πόσο.",
+        "en": "Split the jobs: you decide what is served and when. They decide whether to eat and how much."
+      },
+      {
+        "el": "Μην πιέζεις και μην παζαρεύεις. Αν δεν το θέλει, μάζεψε το πιάτο χωρίς σχόλιο.",
+        "en": "Don't push and don't bargain. If they won't eat it, take the plate away without comment."
+      },
+      {
+        "el": "Ξαναβάλε το ίδιο φαγητό στο τραπέζι άλλη μέρα. Μπορεί να χρειαστούν 8 με 10 δοκιμές για να το δεχτεί.",
+        "en": "Put the same food back on the table another day. It can take 8 to 10 tries before they accept it."
+      },
+      {
+        "el": "Όχι γλυκό ως ανταμοιβή. Κάνει το γλυκό βραβείο και τα λαχανικά αγγαρεία.",
+        "en": "No sweets as a reward. It turns pudding into the prize and vegetables into the chore."
+      },
+      {
+        "el": "Μικρή μερίδα, και φάτε μαζί το ίδιο φαγητό. Μαθαίνει βλέποντάς σε.",
+        "en": "A small portion, and eat the same food together. They learn by watching you."
+      },
+      {
+        "el": "Αν χάνει βάρος, τρώει ελάχιστα είδη τροφών ή κάτι σε ανησυχεί, μίλα με τον παιδίατρο.",
+        "en": "If they're losing weight, eat only a handful of foods, or something worries you, talk to your paediatrician."
+      }
+    ],
+    "badge": {
+      "el": "Πιρούνι της Υπομονής",
+      "en": "Fork of Patience"
+    }
+  },
+  {
+    "id": "b-w3-new-sibling",
+    "worldID": "w3-no-land",
+    "skill": "care",
+    "xp": 100,
+    "minAgeMonths": 25,
+    "requiresSibling": true,
+    "title": {
+      "el": "Ο Νέος Συγκάτοικος",
+      "en": "The New Roommate"
+    },
+    "intro": {
+      "el": "Ήρθε μωρό στο σπίτι και το μεγάλο ξαφνικά θέλει πάλι πιπίλα. Δεν γύρισε πίσω: σε ρωτά αν έχεις ακόμα χώρο γι' αυτό.",
+      "en": "A baby has arrived and the big one suddenly wants a dummy again. They haven't gone backwards: they're asking whether you still have room for them."
+    },
+    "guide": [
+      {
+        "el": "Το πισωγύρισμα στην πάνα, στον ύπνο ή στην ομιλία είναι αναμενόμενο και περνά. Μην το σχολιάσεις και μην το τιμωρήσεις.",
+        "en": "Going backwards with the potty, sleep or speech is expected and it passes. Don't comment on it and don't punish it."
+      },
+      {
+        "el": "Λίγος χρόνος κάθε μέρα μόνο οι δυο σας, χωρίς το μωρό στην αγκαλιά. Εδώ ο μπαμπάς είναι αναντικατάστατος.",
+        "en": "A little time every day for just the two of you, without the baby in your arms. This is where a dad can't be replaced."
+      },
+      {
+        "el": "Όχι συγκρίσεις και όχι «εσύ είσαι μεγάλος τώρα». Δεν ζήτησε να μεγαλώσει σήμερα.",
+        "en": "No comparisons and no “you're the big one now”. They didn't ask to grow up today."
+      },
+      {
+        "el": "Δώσε του ρόλο, όχι ευθύνη: φέρνει την πάνα, διαλέγει το φορμάκι.",
+        "en": "Give them a role, not a responsibility: fetching the nappy, choosing the babygrow."
+      },
+      {
+        "el": "Αν θυμώσει με το μωρό, ονόμασε το συναίσθημα και βάλε το όριο: «θύμωσες, και το μωρό δεν το χτυπάμε».",
+        "en": "If they get angry at the baby, name the feeling and set the limit: “you're angry, and we don't hit the baby.”"
+      },
+      {
+        "el": "Ποτέ μόνα τους στο ίδιο δωμάτιο τους πρώτους μήνες.",
+        "en": "Never alone together in the same room for the first months."
+      }
+    ],
+    "badge": {
+      "el": "Διαιτητής της Αγάπης",
+      "en": "Referee of Love"
+    }
+  },
+  {
     "id": "b-w3-potty",
     "worldID": "w3-no-land",
     "skill": "care",
@@ -228,6 +560,10 @@
         "en": "Always carry a change of clothes."
       },
       {
+        "el": "Η νύχτα αργεί περισσότερο από τη μέρα. Η πάνα στον ύπνο μπορεί να μείνει για καιρό ακόμα.",
+        "en": "Nights take longer than days. The nappy at bedtime may stay for a good while yet."
+      },
+      {
         "el": "Αν μετά από μήνες δεν προχωρά ή κάτι πονάει, ρώτα τον παιδίατρο.",
         "en": "If it doesn't progress after months, or something hurts, ask your paediatrician."
       }
@@ -235,6 +571,55 @@
     "badge": {
       "el": "Άρχοντας του Γιογιό",
       "en": "Lord of the Potty"
+    }
+  },
+  {
+    "id": "b-w3-screen-dragon",
+    "worldID": "w3-no-land",
+    "skill": "patience",
+    "xp": 100,
+    "minAgeMonths": 30,
+    "title": {
+      "el": "Ο Δράκος της Οθόνης",
+      "en": "The Screen Dragon"
+    },
+    "intro": {
+      "el": "Κλείνεις την οθόνη και ξεσπά καταιγίδα. Τα παιδικά είναι φτιαγμένα για να μην τελειώνουν ποτέ. Το δύσκολο κομμάτι πέφτει σε σένα.",
+      "en": "You switch the screen off and a storm breaks. Kids' shows are built never to end. The hard part falls to you."
+    },
+    "guide": [
+      {
+        "el": "Συμφωνήστε το τέλος πριν αρχίσει: «ένα επεισόδιο και μετά κλείνουμε».",
+        "en": "Agree the ending before it starts: “one episode, then we switch off.”"
+      },
+      {
+        "el": "Ειδοποίησε λίγο πριν, και άφησέ το να πατήσει εκείνο το κουμπί.",
+        "en": "Give a warning shortly before, and let them press the button."
+      },
+      {
+        "el": "Έχε έτοιμο το επόμενο πράγμα: φαγητό, μπάνιο, βόλτα. Το κενό μετά την οθόνη είναι το δύσκολο.",
+        "en": "Have the next thing ready: food, bath, a walk. The gap after the screen is the hard bit."
+      },
+      {
+        "el": "Όποτε μπορείς, δείτε μαζί και μιλήστε γι' αυτό που βλέπετε.",
+        "en": "Whenever you can, watch together and talk about what you're seeing."
+      },
+      {
+        "el": "Μην τη δίνεις για να ηρεμήσει. Χρειάζεται να μάθει να ηρεμεί και χωρίς αυτήν.",
+        "en": "Don't hand it over to calm them down. They need to learn to calm down without it too."
+      },
+      {
+        "el": "Για τα 2 με 4, ο Παγκόσμιος Οργανισμός Υγείας προτείνει έως μία ώρα την ημέρα, και όσο λιγότερο τόσο καλύτερα.",
+        "en": "For ages 2 to 4, the World Health Organization suggests no more than an hour a day, and less is better."
+      },
+      {
+        "el": "Ισχύει και για το δικό σου κινητό.",
+        "en": "It applies to your own phone too."
+      }
+    ],
+    "badge": {
+      "el": "Δρακοκτόνος του Τηλεκοντρόλ",
+      "en": "Dragon Slayer of the Remote"
     }
   },
   {
@@ -279,11 +664,56 @@
     }
   },
   {
+    "id": "b-w4-hard-question",
+    "worldID": "w4-why-kingdom",
+    "skill": "care",
+    "xp": 100,
+    "minAgeMonths": 42,
+    "title": {
+      "el": "Η Δύσκολη Ερώτηση",
+      "en": "The Hard Question"
+    },
+    "intro": {
+      "el": "«Πού πήγε ο παππούς;» «Θα πεθάνεις κι εσύ;» Έρχεται συνήθως στο αυτοκίνητο, χωρίς προειδοποίηση.",
+      "en": "“Where did Grandad go?” “Will you die too?” It usually arrives in the car, with no warning."
+    },
+    "guide": [
+      {
+        "el": "Πες την αλήθεια με απλά λόγια: «πέθανε. Το σώμα του σταμάτησε να δουλεύει και δεν θα ξαναγυρίσει».",
+        "en": "Tell the truth in plain words: “He died. His body stopped working and he isn't coming back.”"
+      },
+      {
+        "el": "Όχι «κοιμήθηκε», «έφυγε» ή «τον χάσαμε». Τα παίρνει κυριολεκτικά και μπορεί να φοβηθεί τον ύπνο.",
+        "en": "Not “went to sleep”, “went away” or “we lost him”. They take it literally and may become afraid of sleep."
+      },
+      {
+        "el": "Απάντησε μόνο σε αυτό που ρώτησε, σύντομα. Θα ξαναρωτήσει το ίδιο πολλές φορές: έτσι το καταλαβαίνει.",
+        "en": "Answer only what was asked, briefly. They'll ask the same thing many times: that's how they work it out."
+      },
+      {
+        "el": "Στο «θα πεθάνεις κι εσύ;»: «όλοι πεθαίνουν κάποτε. Εγώ είμαι γερός και σκοπεύω να είμαι εδώ για πάρα πολλά χρόνια».",
+        "en": "To “will you die too?”: “Everyone dies one day. I'm healthy and I plan to be here for a very long time.”"
+      },
+      {
+        "el": "Επιτρέπεται να δει ότι στενοχωριέσαι. Και το «δεν ξέρω» είναι τίμια απάντηση.",
+        "en": "They're allowed to see that you're sad. And “I don't know” is an honest answer."
+      },
+      {
+        "el": "Το ίδιο ισχύει για κάθε δύσκολη ερώτηση: αλήθεια, λίγα λόγια, και «ρώτα με ό,τι άλλο θέλεις».",
+        "en": "The same goes for every hard question: the truth, few words, and “ask me anything else you want.”"
+      }
+    ],
+    "badge": {
+      "el": "Φύλακας της Αλήθειας",
+      "en": "Keeper of the Truth"
+    }
+  },
+  {
     "id": "b-w4-kindergarten",
     "worldID": "w4-why-kingdom",
     "skill": "resilience",
     "xp": 100,
-    "minAgeMonths": 48,
+    "minAgeMonths": 44,
     "title": {
       "el": "Η Πρώτη Μέρα στο Νηπιαγωγείο",
       "en": "First Day of Kindergarten"

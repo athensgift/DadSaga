@@ -10,9 +10,9 @@ struct BundledContentRepositoryTests {
     func loadsAndValidates() async throws {
         let catalog = try await repository.fetchCatalog()
         #expect(catalog.worlds.count == 4)
-        #expect(catalog.quests.count == 40)
-        #expect(catalog.bosses.count == 8)
-        #expect(catalog.firsts.count == 14)
+        #expect(catalog.quests.count == 55)
+        #expect(catalog.bosses.count == 17)
+        #expect(catalog.firsts.count == 24)
     }
 
     @Test("Given the bundled content, when checking each world, then it has quests and at least one boss")
