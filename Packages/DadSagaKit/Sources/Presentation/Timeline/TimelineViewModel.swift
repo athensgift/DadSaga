@@ -10,10 +10,14 @@ public final class TimelineViewModel {
     public private(set) var state: TimelineViewState = .loading
     /// The child shown, or `nil` for everyone.
     public private(set) var selectedFilter: UUID?
+    /// "Delete this?" while the dad is deciding.
+    public private(set) var deletion: DeletionPrompt?
+    public private(set) var errorMessage: String?
 
     private let getProfile: any GetProfileUseCase
     private let getTimeline: any GetTimelineUseCase
     private let getPhoto: any GetPhotoUseCase
+    private let deleteEvent: any DeleteEventUseCase
     private let locale: Locale
     private let calendar: Calendar
     private var entries: [TimelineEntry] = []
@@ -23,12 +27,14 @@ public final class TimelineViewModel {
         getProfile: any GetProfileUseCase,
         getTimeline: any GetTimelineUseCase,
         getPhoto: any GetPhotoUseCase,
+        deleteEvent: any DeleteEventUseCase,
         locale: Locale = .current,
         calendar: Calendar = .current
     ) {
         self.getProfile = getProfile
         self.getTimeline = getTimeline
         self.getPhoto = getPhoto
+        self.deleteEvent = deleteEvent
         self.locale = locale
         self.calendar = calendar
     }
@@ -54,6 +60,58 @@ public final class TimelineViewModel {
 
     public func photoData(id: String) async -> Data? {
         await getPhoto.execute(id: id)
+    }
+
+    /// Asks before deleting an entry. A moment with a photo or a note says plainly that those go too.
+    public func requestDeletion(id: UUID) {
+        guard let entry = entries.first(where: { $0.id == id }) else { return }
+        errorMessage = nil
+        let message: String
+        switch entry.kind {
+        case .first where entry.photoID != nil || entry.note != nil:
+            message = text(
+                el: "Η φωτογραφία και η σημείωσή σου θα σβηστούν μαζί του, χωρίς επιστροφή. Θα αφαιρεθούν και τα \(entry.xp) XP.",
+                en: "Your photo and note will be deleted with it, for good. Its \(entry.xp) XP will be removed too."
+            )
+        case .boss:
+            message = text(
+                el: "Θα αφαιρεθούν το έμβλημα και τα \(entry.xp) XP.",
+                en: "The badge and its \(entry.xp) XP will be removed."
+            )
+        default:
+            message = text(el: "Θα αφαιρεθούν τα \(entry.xp) XP.", en: "Its \(entry.xp) XP will be removed.")
+        }
+        deletion = DeletionPrompt(
+            id: id,
+            title: text(el: "Διαγραφή από το χρονολόγιο;", en: "Delete from the timeline?"),
+            message: message,
+            confirmTitle: text(el: "Διαγραφή", en: "Delete"),
+            cancelTitle: text(el: "Άκυρο", en: "Cancel")
+        )
+    }
+
+    public func dismissError() {
+        errorMessage = nil
+    }
+
+    public func cancelDeletion() {
+        deletion = nil
+    }
+
+    /// Takes the id rather than reading `deletion`: the dialog clears its binding before the button's action runs.
+    public func confirmDeletion(id: UUID) async {
+        deletion = nil
+        do {
+            try await deleteEvent.execute(eventID: id)
+            await onAppear()
+        } catch {
+            errorMessage = text(el: "Δεν διαγράφηκε. Δοκίμασε ξανά.", en: "Couldn't delete. Please try again.")
+        }
+    }
+
+    /// The label of the row's delete action.
+    public var deleteTitle: String {
+        text(el: "Διαγραφή", en: "Delete")
     }
 
     // MARK: Building

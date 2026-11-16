@@ -105,7 +105,8 @@ struct WardrobeViewModelTests {
                 getProgress: progress,
                 completeQuest: progress,
                 defeatBoss: progress,
-                moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, delete: progress, getPhoto: progress),
+                deleteEvent: progress,
+                moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
                 getOutfit: outfit
             ),
             locale: Locale(identifier: "el_GR"),

@@ -2,8 +2,8 @@ import Domain
 
 import Foundation
 
-/// Port for the log of things the dad has done. The game only ever adds events (ADR-0006: nothing is lost);
-/// `update` and `delete` exist for the dad correcting a legendary moment he captured himself.
+/// Port for the log of things the dad has done. The game itself only ever adds events (ADR-0006);
+/// `update` and `delete` exist for the dad correcting his own entries (ADR-0021).
 public protocol ProgressRepository: Sendable {
     func fetchEvents() async throws -> [ProgressEvent]
     func add(_ event: ProgressEvent) async throws

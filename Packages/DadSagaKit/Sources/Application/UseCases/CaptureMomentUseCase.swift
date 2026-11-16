@@ -81,7 +81,11 @@ public struct DefaultCaptureMomentUseCase: CaptureMomentUseCase {
             if let photoID { await photoStore.delete(id: photoID) }
             throw error
         }
-        return ProgressChange(before: before, after: DadProgress(events: events + [event], catalog: catalog))
+        return ProgressChange(
+            before: before,
+            after: DadProgress(events: events + [event], catalog: catalog),
+            eventID: event.id
+        )
     }
 }
 

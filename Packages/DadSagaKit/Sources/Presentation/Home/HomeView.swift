@@ -45,6 +45,8 @@ public struct HomeView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(DSColor.background)
+            .safeAreaInset(edge: .bottom) { undoBar }
+            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
             .navigationTitle(title)
             // Two columns scroll separately. A navigation bar collapses or hides with whichever column scrolls and
             // shifts the other, so the wide layout has no bar: its title lives in the hero column.
@@ -102,14 +104,6 @@ public struct HomeView: View {
                     onClose: { viewModel.dismissSelection() }
                 )
             }
-        }
-    }
-
-    private var familyButton: some View {
-        Button {
-            openFamily()
-        } label: {
-            Label(familyTitle, systemImage: "person.2")
         }
     }
 
@@ -316,5 +310,26 @@ extension HomeView {
 
     func reloadAfterWardrobe() {
         Task { await viewModel.reload() }
+    }
+}
+
+extension HomeView {
+    private var familyButton: some View {
+        Button {
+            openFamily()
+        } label: {
+            Label(familyTitle, systemImage: "person.2")
+        }
+    }
+
+    @ViewBuilder var undoBar: some View {
+        if let offer = viewModel.undoOffer {
+            UndoBar(offer: offer) {
+                Task { await viewModel.undoLastRecord() }
+            } onExpire: {
+                viewModel.undoOfferExpired(id: offer.id)
+            }
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        }
     }
 }

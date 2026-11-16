@@ -43,31 +43,6 @@ public struct DefaultUpdateMomentUseCase: UpdateMomentUseCase {
     }
 }
 
-/// Removes a moment the dad captured by mistake, with its photo and the XP it gave.
-/// This is the dad undoing his own entry, not the game taking something away (ADR-0006).
-public protocol DeleteMomentUseCase: Sendable {
-    func execute(momentID: UUID) async throws
-}
-
-public struct DefaultDeleteMomentUseCase: DeleteMomentUseCase {
-    private let progressRepository: any ProgressRepository
-    private let photoStore: any PhotoStore
-
-    public init(progressRepository: any ProgressRepository, photoStore: any PhotoStore) {
-        self.progressRepository = progressRepository
-        self.photoStore = photoStore
-    }
-
-    public func execute(momentID: UUID) async throws {
-        guard let event = try await progressRepository.fetchEvents().first(where: { $0.id == momentID }),
-              case .first = event.kind else { throw MomentError.unknownMoment }
-        try await progressRepository.delete(id: momentID)
-        if let photoID = event.photoID {
-            await photoStore.delete(id: photoID)
-        }
-    }
-}
-
 /// A moment's photo, as stored image data.
 public protocol GetPhotoUseCase: Sendable {
     func execute(id: String) async -> Data?

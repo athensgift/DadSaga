@@ -11,6 +11,8 @@ public final class HomeViewModel {
     public private(set) var selectedQuest: QuestDetail?
     public private(set) var selectedBoss: BossDetail?
     public private(set) var celebration: Celebration?
+    /// "Undo" for a few seconds after the dad records something, in case he tapped by mistake.
+    public internal(set) var undoOffer: UndoOffer?
     public internal(set) var errorMessage: String?
     /// The sheet for capturing a legendary moment, while it is open.
     public internal(set) var momentCapture: MomentCapture?
@@ -121,6 +123,7 @@ public final class HomeViewModel {
                     .map { strings.text(el: "Νέο: ", en: "New: ") + $0.title.resolved(for: locale) },
                 momentText: moment
             )
+            undoOffer = change.eventID.map { makeUndoOffer(id: celebrationCount, eventID: $0) }
         } catch {
             errorMessage = saveFailedMessage
         }

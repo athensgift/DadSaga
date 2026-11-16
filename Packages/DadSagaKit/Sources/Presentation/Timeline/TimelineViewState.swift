@@ -47,3 +47,13 @@ public struct TimelineItem: Equatable, Identifiable, Sendable {
     public let symbol: String
     public let photoID: String?
 }
+
+/// The question asked before deleting an entry.
+public struct DeletionPrompt: Equatable, Identifiable, Sendable {
+    /// The entry to delete.
+    public let id: UUID
+    public let title: String
+    public let message: String
+    public let confirmTitle: String
+    public let cancelTitle: String
+}
