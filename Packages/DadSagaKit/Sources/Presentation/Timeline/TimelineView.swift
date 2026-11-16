@@ -39,6 +39,16 @@ public struct TimelineView: View {
         } message: { prompt in
             Text(prompt.message)
         }
+        .sheet(item: Binding(get: { viewModel.journalEditor }, set: { if $0 == nil { viewModel.closeJournal() } })) { editor in
+            JournalEditorSheet(
+                editor: editor,
+                isSaving: viewModel.isSaving,
+                loader: { await viewModel.photoData(id: $0) },
+                onSave: { note, photo in Task { await viewModel.saveJournal(note: note, photo: photo) } },
+                onClose: { viewModel.closeJournal() }
+            )
+            .presentationDetents([.medium, .large])
+        }
         .alert(
             viewModel.errorMessage ?? "",
             isPresented: Binding(get: { viewModel.errorMessage != nil }, set: { _ in viewModel.dismissError() })
@@ -98,17 +108,25 @@ public struct TimelineView: View {
 }
 
 private extension TimelineView {
-    /// A row that can be deleted from its context menu, or with an accessibility action.
+    /// A row that opens its note and photo when tapped, and can be deleted from its context menu.
     func row(_ item: TimelineItem) -> some View {
-        TimelineRow(item: item) { await viewModel.photoData(id: $0) }
-            .contextMenu {
-                Button(viewModel.deleteTitle, systemImage: "trash", role: .destructive) {
-                    viewModel.requestDeletion(id: item.id)
-                }
+        Button {
+            viewModel.editJournal(id: item.id)
+        } label: {
+            TimelineRow(item: item) { await viewModel.photoData(id: $0) }
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            Button(viewModel.editTitle, systemImage: "square.and.pencil") {
+                viewModel.editJournal(id: item.id)
             }
-            .accessibilityAction(named: viewModel.deleteTitle) {
+            Button(viewModel.deleteTitle, systemImage: "trash", role: .destructive) {
                 viewModel.requestDeletion(id: item.id)
             }
+        }
+        .accessibilityAction(named: viewModel.deleteTitle) {
+            viewModel.requestDeletion(id: item.id)
+        }
     }
 }
 

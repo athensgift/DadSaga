@@ -54,9 +54,14 @@ final class AppContainer {
                 getProgress: DefaultGetProgressUseCase(contentRepository: contentRepository, progressRepository: store.progress),
                 completeQuest: DefaultCompleteQuestUseCase(
                     contentRepository: contentRepository,
-                    progressRepository: store.progress
+                    progressRepository: store.progress,
+                    photoStore: photoStore
                 ),
-                defeatBoss: DefaultDefeatBossUseCase(contentRepository: contentRepository, progressRepository: store.progress),
+                defeatBoss: DefaultDefeatBossUseCase(
+                    contentRepository: contentRepository,
+                    progressRepository: store.progress,
+                    photoStore: photoStore
+                ),
                 deleteEvent: DefaultDeleteEventUseCase(progressRepository: store.progress, photoStore: photoStore),
                 moments: HomeViewModel.MomentUseCases(
                     capture: DefaultCaptureMomentUseCase(
@@ -93,7 +98,8 @@ final class AppContainer {
             getProfile: getProfileUseCase,
             getTimeline: DefaultGetTimelineUseCase(contentRepository: contentRepository, progressRepository: store.progress),
             getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore),
-            deleteEvent: DefaultDeleteEventUseCase(progressRepository: store.progress, photoStore: photoStore)
+            deleteEvent: DefaultDeleteEventUseCase(progressRepository: store.progress, photoStore: photoStore),
+            updateJournal: DefaultUpdateJournalUseCase(progressRepository: store.progress, photoStore: photoStore)
         )
     }
 

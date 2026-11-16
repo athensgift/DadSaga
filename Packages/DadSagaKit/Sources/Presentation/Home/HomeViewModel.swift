@@ -33,7 +33,7 @@ public final class HomeViewModel {
     private(set) var snapshot: HomeSnapshot?
     private var quests: [Quest] = []
     private var bosses: [BossFight] = []
-    private var defeatedBossIDs: Set<String> = []
+    private(set) var defeatedBossIDs: Set<String> = []
     private var gear: [GearItem] = []
     private var outfit = Outfit()
     private var celebrationCount = 0
@@ -79,18 +79,22 @@ public final class HomeViewModel {
         errorMessage = nil
     }
 
-    public func completeSelectedQuest() async {
+    /// Records the open quest, with the dad's optional note and photo.
+    public func completeSelectedQuest(note: String = "", photo: MomentPhotoEdit = .keep) async {
         guard let quest = selectedQuest, let childID = selectedChildID else { return }
+        let journal = JournalInput(note: note, photo: photo.newData)
         await record(badge: nil) {
-            try await self.useCases.completeQuest.execute(questID: quest.id, childID: childID, on: self.now())
+            try await self.useCases.completeQuest.execute(questID: quest.id, childID: childID, on: self.now(), journal: journal)
         }
     }
 
-    public func defeatSelectedBoss() async {
+    /// Records the open boss as defeated, with the dad's optional note and photo.
+    public func defeatSelectedBoss(note: String = "", photo: MomentPhotoEdit = .keep) async {
         guard let boss = selectedBoss, !boss.isDefeated, let childID = selectedChildID else { return }
         let badge = bosses.first { $0.id == boss.id }?.badge.resolved(for: locale)
+        let journal = JournalInput(note: note, photo: photo.newData)
         await record(badge: badge) {
-            try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now())
+            try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now(), journal: journal)
         }
     }
 
@@ -261,20 +265,5 @@ public final class HomeViewModel {
                 hint: quest.tip?.title.resolved(for: locale)
             )
         }
-    }
-
-    private func detail(for boss: BossFight) -> BossDetail {
-        BossDetail(
-            id: boss.id,
-            title: boss.title.resolved(for: locale),
-            intro: boss.intro.resolved(for: locale),
-            guideTitle: strings.text(el: "Οδηγός επιβίωσης", en: "Survival guide"),
-            guide: boss.guide.map { $0.resolved(for: locale) },
-            reward: "+\(boss.xp) XP · \(boss.badge.resolved(for: locale))",
-            disclaimer: strings.medicalFooter,
-            isDefeated: defeatedBossIDs.contains(boss.id),
-            defeatedText: strings.defeatedText(for: boss),
-            confirmTitle: strings.text(el: "Τα καταφέραμε!", en: "We made it through!")
-        )
     }
 }

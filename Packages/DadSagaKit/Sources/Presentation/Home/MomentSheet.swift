@@ -1,5 +1,4 @@
 import DesignSystem
-import PhotosUI
 import SwiftUI
 
 /// Capture a legendary moment, or edit one: which first, when it happened, a few words and a photo.
@@ -16,9 +15,7 @@ struct MomentSheet: View {
     @State private var date: Date
     @State private var note: String
     @State private var photo: MomentPhotoEdit = .keep
-    @State private var pickedItem: PhotosPickerItem?
     @State private var isConfirmingDelete = false
-    @State private var isShowingCamera = false
 
     init(
         capture: MomentCapture,
@@ -51,7 +48,12 @@ struct MomentSheet: View {
                             optionButton(option)
                         }
                     }
-                    photoSection
+                    JournalPhotoField(
+                        photo: $photo,
+                        storedPhotoID: capture.editing?.photoID,
+                        labels: capture.labels.photo,
+                        loader: loader
+                    )
                     details
                     if let errorMessage {
                         Text(errorMessage)
@@ -89,96 +91,6 @@ struct MomentSheet: View {
                 Button(capture.labels.cancel, role: .cancel) {}
             }
         }
-        .onChange(of: pickedItem) { _, item in
-            guard let item else { return }
-            Task {
-                if let data = try? await item.loadTransferable(type: Data.self) {
-                    photo = .replace(data)
-                }
-                pickedItem = nil
-            }
-        }
-        #if os(iOS)
-        .fullScreenCover(isPresented: $isShowingCamera) {
-            CameraPicker { data in
-                if let data { photo = .replace(data) }
-                isShowingCamera = false
-            }
-            .ignoresSafeArea()
-        }
-        #endif
-    }
-
-    // MARK: Photo
-
-    /// The photo as it will be after saving: a newly chosen one, the stored one, or none.
-    @ViewBuilder private var photoSection: some View {
-        let shape = RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous)
-        switch photo {
-        case .replace(let data):
-            if let image = Image(imageData: data) {
-                photoPreview { image.resizable().scaledToFill() }
-            } else {
-                photoButtons(shape: shape)
-            }
-        case .keep where capture.editing?.photoID != nil:
-            photoPreview {
-                MomentPhoto(photoID: capture.editing?.photoID, loader: loader) { DSColor.surface }
-            }
-        default:
-            photoButtons(shape: shape)
-        }
-    }
-
-    private func photoPreview(@ViewBuilder _ content: () -> some View) -> some View {
-        content()
-            .frame(maxWidth: .infinity)
-            .frame(height: 200)
-            .clipShape(RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
-            .overlay(alignment: .bottomTrailing) {
-                Menu {
-                    PhotosPicker(selection: $pickedItem, matching: .images) {
-                        Label(capture.labels.changePhoto, systemImage: "photo.on.rectangle")
-                    }
-                    if canUseCamera {
-                        Button(capture.labels.takePhoto, systemImage: "camera") { isShowingCamera = true }
-                    }
-                    Button(capture.labels.removePhoto, systemImage: "trash", role: .destructive) { photo = .remove }
-                } label: {
-                    Label(capture.labels.changePhoto, systemImage: "ellipsis")
-                        .labelStyle(.iconOnly)
-                        .frame(width: 28, height: 28)
-                }
-                .buttonStyle(.glass)
-                .padding(DSSpacing.s)
-            }
-    }
-
-    private func photoButtons(shape: RoundedRectangle) -> some View {
-        HStack(spacing: DSSpacing.s) {
-            PhotosPicker(selection: $pickedItem, matching: .images) {
-                Label(capture.labels.addPhoto, systemImage: "photo.badge.plus")
-                    .frame(maxWidth: .infinity)
-            }
-            if canUseCamera {
-                Button {
-                    isShowingCamera = true
-                } label: {
-                    Label(capture.labels.takePhoto, systemImage: "camera")
-                        .labelStyle(.iconOnly)
-                }
-            }
-        }
-        .buttonStyle(.glass)
-        .controlSize(.large)
-    }
-
-    private var canUseCamera: Bool {
-        #if os(iOS)
-        CameraPicker.isAvailable
-        #else
-        false
-        #endif
     }
 
     // MARK: Details
@@ -232,44 +144,3 @@ struct MomentSheet: View {
         .animation(.easeOut(duration: 0.15), value: isSelected)
     }
 }
-
-#if os(iOS)
-/// The system camera. Hands back JPEG data, or `nil` if the dad cancelled.
-private struct CameraPicker: UIViewControllerRepresentable {
-    static var isAvailable: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
-
-    let onFinish: (Data?) -> Void
-
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let picker = UIImagePickerController()
-        picker.sourceType = .camera
-        picker.delegate = context.coordinator
-        return picker
-    }
-
-    func updateUIViewController(_ picker: UIImagePickerController, context: Context) {}
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(onFinish: onFinish)
-    }
-
-    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let onFinish: (Data?) -> Void
-
-        init(onFinish: @escaping (Data?) -> Void) {
-            self.onFinish = onFinish
-        }
-
-        func imagePickerController(
-            _ picker: UIImagePickerController,
-            didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
-        ) {
-            onFinish((info[.originalImage] as? UIImage)?.jpegData(compressionQuality: 0.9))
-        }
-
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-            onFinish(nil)
-        }
-    }
-}
-#endif

@@ -57,3 +57,14 @@ public struct DeletionPrompt: Equatable, Identifiable, Sendable {
     public let confirmTitle: String
     public let cancelTitle: String
 }
+
+/// An entry's note and photo, open for editing.
+public struct JournalEditor: Equatable, Identifiable, Sendable {
+    /// The entry.
+    public let id: UUID
+    public let title: String
+    public let note: String
+    public let photoID: String?
+    public let labels: JournalLabels
+    public let saveTitle: String
+}

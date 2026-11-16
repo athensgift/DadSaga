@@ -60,10 +60,7 @@ struct MomentsFormatter {
             notePlaceholder: strings.text(el: "Τι έγινε; (προαιρετικό)", en: "What happened? (optional)"),
             saveTitle: strings.text(el: "Αποθήκευση", en: "Save"),
             labels: MomentPhotoLabels(
-                addPhoto: strings.text(el: "Πρόσθεσε φωτογραφία", en: "Add a photo"),
-                takePhoto: strings.text(el: "Τράβηξε φωτογραφία", en: "Take a photo"),
-                changePhoto: strings.text(el: "Άλλη φωτογραφία", en: "Choose another"),
-                removePhoto: strings.text(el: "Αφαίρεση φωτογραφίας", en: "Remove photo"),
+                photo: PhotoLabels(locale: locale),
                 delete: strings.text(el: "Διαγραφή στιγμής", en: "Delete moment"),
                 deleteConfirmation: strings.text(
                     el: "Η στιγμή, η φωτογραφία της και τα XP της θα σβηστούν.",

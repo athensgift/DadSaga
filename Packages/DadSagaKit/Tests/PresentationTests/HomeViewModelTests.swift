@@ -38,6 +38,21 @@ struct HomeViewModelTests {
         #expect(sut.celebration == nil)
     }
 
+    @Test("Given a quest done with a note, when opening it again, then the sheet shows what he wrote last time")
+    func showsLastJournal() async {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        #expect(sut.selectedQuest?.lastJournal == nil)
+        #expect(sut.selectedQuest?.journal.sectionTitle == "Σημείωση ή φωτογραφία (προαιρετικά)")
+
+        await sut.completeSelectedQuest(note: "το λάτρεψε", photo: .keep)
+        sut.select(cardID: "q1")
+
+        #expect(sut.selectedQuest?.lastJournal?.note == "το λάτρεψε")
+        #expect(sut.selectedQuest?.lastJournal?.title.hasSuffix("έγραψες:") == true)
+    }
+
     @Test("Given a quest just completed, when undoing, then its XP is gone and the offer closes")
     func undoesCompletion() async {
         let sut = makeSUT(profile: HeroStub.profile)

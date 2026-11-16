@@ -13,11 +13,15 @@ public final class TimelineViewModel {
     /// "Delete this?" while the dad is deciding.
     public private(set) var deletion: DeletionPrompt?
     public private(set) var errorMessage: String?
+    /// The note and photo being edited, while the sheet is open.
+    public private(set) var journalEditor: JournalEditor?
+    public private(set) var isSaving = false
 
     private let getProfile: any GetProfileUseCase
     private let getTimeline: any GetTimelineUseCase
     private let getPhoto: any GetPhotoUseCase
     private let deleteEvent: any DeleteEventUseCase
+    private let updateJournal: any UpdateJournalUseCase
     private let locale: Locale
     private let calendar: Calendar
     private var entries: [TimelineEntry] = []
@@ -28,6 +32,7 @@ public final class TimelineViewModel {
         getTimeline: any GetTimelineUseCase,
         getPhoto: any GetPhotoUseCase,
         deleteEvent: any DeleteEventUseCase,
+        updateJournal: any UpdateJournalUseCase,
         locale: Locale = .current,
         calendar: Calendar = .current
     ) {
@@ -35,6 +40,7 @@ public final class TimelineViewModel {
         self.getTimeline = getTimeline
         self.getPhoto = getPhoto
         self.deleteEvent = deleteEvent
+        self.updateJournal = updateJournal
         self.locale = locale
         self.calendar = calendar
     }
@@ -109,6 +115,47 @@ public final class TimelineViewModel {
         }
     }
 
+    /// Opens the note and photo of an entry, to add, change or remove them.
+    public func editJournal(id: UUID) {
+        guard let entry = entries.first(where: { $0.id == id }) else { return }
+        errorMessage = nil
+        journalEditor = JournalEditor(
+            id: id,
+            title: title(of: entry),
+            note: entry.note ?? "",
+            photoID: entry.photoID,
+            labels: JournalLabels(locale: locale),
+            saveTitle: text(el: "Αποθήκευση", en: "Save")
+        )
+    }
+
+    public func closeJournal() {
+        journalEditor = nil
+    }
+
+    public func saveJournal(note: String, photo: MomentPhotoEdit) async {
+        guard let editor = journalEditor, !isSaving else { return }
+        isSaving = true
+        defer { isSaving = false }
+        let change: PhotoChange = switch photo {
+        case .keep: .keep
+        case .remove: .remove
+        case .replace(let data): .replace(data)
+        }
+        do {
+            try await updateJournal.execute(eventID: editor.id, note: note, photo: change)
+            journalEditor = nil
+            await onAppear()
+        } catch {
+            errorMessage = text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
+        }
+    }
+
+    /// The labels of the row's actions.
+    public var editTitle: String {
+        text(el: "Σημείωση και φωτογραφία", en: "Note and photo")
+    }
+
     /// The label of the row's delete action.
     public var deleteTitle: String {
         text(el: "Διαγραφή", en: "Delete")
@@ -165,7 +212,7 @@ public final class TimelineViewModel {
             (kind, title, symbol) = (.quest, quest.title.resolved(for: locale), quest.skill.symbol)
         case .boss(let boss):
             (kind, title, symbol) = (.boss, boss.title.resolved(for: locale), "flame.fill")
-            detail = boss.badge.resolved(for: locale)
+            detail = [boss.badge.resolved(for: locale), entry.note].compactMap(\.self).joined(separator: " · ")
         case .first(let first):
             (kind, title, symbol) = (.moment, "\(first.emoji) \(first.title.resolved(for: locale))", "star.fill")
         }
@@ -178,6 +225,14 @@ public final class TimelineViewModel {
             symbol: symbol,
             photoID: entry.photoID
         )
+    }
+
+    private func title(of entry: TimelineEntry) -> String {
+        switch entry.kind {
+        case .quest(let quest): quest.title.resolved(for: locale)
+        case .boss(let boss): boss.title.resolved(for: locale)
+        case .first(let first): "\(first.emoji) \(first.title.resolved(for: locale))"
+        }
     }
 
     /// The month on its own, e.g. "Νοέμβριος 2026" (not the "Νοεμβρίου" form used inside a date).
