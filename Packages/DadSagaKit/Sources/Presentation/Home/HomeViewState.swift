@@ -165,6 +165,15 @@ public struct Celebration: Equatable, Identifiable, Sendable {
     public var momentText: String?
 }
 
+/// Shown for a few seconds after something is recorded.
+public struct UndoOffer: Equatable, Identifiable, Sendable {
+    /// Matches the celebration it came with.
+    public let id: Int
+    let eventID: UUID
+    public let message: String
+    public let actionTitle: String
+}
+
 public struct ChildTab: Equatable, Identifiable, Sendable {
     public let id: UUID
     public let name: String

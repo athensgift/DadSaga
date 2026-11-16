@@ -155,7 +155,7 @@ struct OnboardingViewModelTests {
 
 /// An in-memory stand-in for both progress use cases, backed by the stub catalog.
 actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCase,
-    UpdateMomentUseCase, DeleteMomentUseCase, GetPhotoUseCase {
+    UpdateMomentUseCase, DeleteEventUseCase, GetPhotoUseCase {
     private var events: [ProgressEvent] = []
     private var shouldFail = false
 
@@ -191,13 +191,12 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase,
             photoID = "photo-\(photos.count + 1)"
             photos[photoID ?? ""] = photo
         }
-        events.append(
-            ProgressEvent(
-                kind: .first(id: request.firstID), childID: request.childID,
-                date: request.date, note: request.note, photoID: photoID
-            )
+        let event = ProgressEvent(
+            kind: .first(id: request.firstID), childID: request.childID,
+            date: request.date, note: request.note, photoID: photoID
         )
-        return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog))
+        events.append(event)
+        return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog), eventID: event.id)
     }
 
     func execute(momentID: UUID, happenedOn date: Date, note: String?, photo: PhotoChange, now: Date) async throws {
@@ -217,9 +216,9 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase,
         )
     }
 
-    func execute(momentID: UUID) async throws {
+    func execute(eventID: UUID) async throws {
         if shouldFail { throw StubError.boom }
-        events.removeAll { $0.id == momentID }
+        events.removeAll { $0.id == eventID }
     }
 
     func execute(id: String) async -> Data? {
@@ -227,12 +226,14 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase,
     }
 
     var recordedChildIDs: [UUID?] { events.map(\.childID) }
+    var eventCount: Int { events.count }
 
     private func record(_ kind: ProgressEvent.Kind, childID: UUID, on date: Date) throws -> ProgressChange {
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        events.append(ProgressEvent(kind: kind, childID: childID, date: date))
-        return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog))
+        let event = ProgressEvent(kind: kind, childID: childID, date: date)
+        events.append(event)
+        return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog), eventID: event.id)
     }
 }
 

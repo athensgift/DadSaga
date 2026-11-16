@@ -17,11 +17,19 @@ struct TimelineViewModelTests {
     let january = Date(timeIntervalSince1970: 1_000_000)
     var february: Date { january.addingTimeInterval(34 * 86_400) }
 
+    /// One log per test, shared by reading and deleting.
+    let logs = TimelineLogs()
+
+    func log(_ events: [ProgressEvent]) -> FakeTimelineLog {
+        logs.log(for: events)
+    }
+
     func makeSUT(profile: PlayerProfile?, events: [ProgressEvent]) -> TimelineViewModel {
         TimelineViewModel(
             getProfile: StubGetProfile(profile: profile),
-            getTimeline: StubGetTimeline(entries: Timeline.entries(from: events, catalog: HeroStub.catalog)),
+            getTimeline: log(events),
             getPhoto: StubGetPhoto(),
+            deleteEvent: log(events),
             locale: Locale(identifier: "el_GR"),
             calendar: calendar
         )
@@ -79,6 +87,50 @@ struct TimelineViewModelTests {
         #expect(loadedContent(sut)?.sections.flatMap(\.items).count == 3)
     }
 
+    @Test("Given a moment with a photo and a note, when asking to delete it, then the prompt warns they go too")
+    func warnsAboutPhoto() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        let moment = try #require(loadedContent(sut)?.sections.first?.items.first)
+
+        sut.requestDeletion(id: moment.id)
+
+        let prompt = try #require(sut.deletion)
+        #expect(prompt.title == "Διαγραφή από το χρονολόγιο;")
+        #expect(prompt.message.contains("φωτογραφία"))
+        #expect(prompt.message.contains("30 XP"))
+    }
+
+    @Test("Given a quest entry, when deleting it and confirming, then it leaves the timeline")
+    func deletes() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        let quest = try #require(loadedContent(sut)?.sections.last?.items.first)
+
+        sut.requestDeletion(id: quest.id)
+        #expect(sut.deletion?.message == "Θα αφαιρεθούν τα 20 XP.")
+        let prompt = try #require(sut.deletion)
+        sut.cancelDeletion() // what the dialog does to its binding before the button's action runs
+        await sut.confirmDeletion(id: prompt.id)
+
+        #expect(sut.deletion == nil)
+        #expect(loadedContent(sut)?.sections.flatMap(\.items).map(\.kind) == [.moment, .boss])
+    }
+
+    @Test("Given a delete prompt, when cancelling, then nothing is deleted")
+    func cancels() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        let quest = try #require(loadedContent(sut)?.sections.last?.items.first)
+
+        sut.requestDeletion(id: quest.id)
+        sut.cancelDeletion()
+        await sut.onAppear()
+
+        #expect(sut.deletion == nil)
+        #expect(loadedContent(sut)?.sections.flatMap(\.items).count == 3)
+    }
+
     @Test("Given one child, when appearing, then there are no filters and no child names")
     func oneChild() async throws {
         let events = [ProgressEvent(kind: .quest(id: "q1"), childID: HeroStub.niko.id, date: january)]
@@ -103,6 +155,34 @@ struct TimelineViewModelTests {
         let root = RootViewModel(getProfile: StubGetProfile(profile: nil), locale: Locale(identifier: "el_GR"))
         #expect(root.tabs.adventure == "Περιπέτεια")
         #expect(root.tabs.timeline == "Χρονολόγιο")
+    }
+}
+
+@MainActor
+final class TimelineLogs {
+    private var current: FakeTimelineLog?
+
+    func log(for events: [ProgressEvent]) -> FakeTimelineLog {
+        if let current { return current }
+        let log = FakeTimelineLog(events: events)
+        current = log
+        return log
+    }
+}
+
+actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase {
+    private var events: [ProgressEvent]
+
+    init(events: [ProgressEvent]) {
+        self.events = events
+    }
+
+    func execute() async throws -> [TimelineEntry] {
+        Timeline.entries(from: events, catalog: HeroStub.catalog)
+    }
+
+    func execute(eventID: UUID) async throws {
+        events.removeAll { $0.id == eventID }
     }
 }
 

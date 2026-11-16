@@ -57,6 +57,7 @@ final class AppContainer {
                     progressRepository: store.progress
                 ),
                 defeatBoss: DefaultDefeatBossUseCase(contentRepository: contentRepository, progressRepository: store.progress),
+                deleteEvent: DefaultDeleteEventUseCase(progressRepository: store.progress, photoStore: photoStore),
                 moments: HomeViewModel.MomentUseCases(
                     capture: DefaultCaptureMomentUseCase(
                         contentRepository: contentRepository,
@@ -64,7 +65,6 @@ final class AppContainer {
                         photoStore: photoStore
                     ),
                     update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
-                    delete: DefaultDeleteMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
                 ),
                 getOutfit: DefaultGetOutfitUseCase(repository: store.outfit)
@@ -92,7 +92,8 @@ final class AppContainer {
         TimelineViewModel(
             getProfile: getProfileUseCase,
             getTimeline: DefaultGetTimelineUseCase(contentRepository: contentRepository, progressRepository: store.progress),
-            getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
+            getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore),
+            deleteEvent: DefaultDeleteEventUseCase(progressRepository: store.progress, photoStore: photoStore)
         )
     }
 

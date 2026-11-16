@@ -110,20 +110,35 @@ struct MomentUseCaseTests {
         _ = try await capture.execute(request(photo: Data([1])), now: today)
         let moment = try #require(try await repository.fetchEvents().first)
 
-        try await DefaultDeleteMomentUseCase(progressRepository: repository, photoStore: photos).execute(momentID: moment.id)
+        try await DefaultDeleteEventUseCase(progressRepository: repository, photoStore: photos).execute(eventID: moment.id)
 
         #expect(try await repository.fetchEvents().isEmpty)
         #expect(await photos.stored.isEmpty)
     }
 
-    @Test("Given an id that is not a moment, when updating or deleting, then unknownMoment is thrown")
-    func unknownMoment() async throws {
+    @Test("Given a quest, when deleting it, then the event and its XP are gone")
+    func deletesQuest() async throws {
         try await repository.add(ProgressEvent(kind: .quest(id: "q1"), date: today))
         let quest = try #require(try await repository.fetchEvents().first)
 
-        await #expect(throws: MomentError.unknownMoment) {
-            try await DefaultDeleteMomentUseCase(progressRepository: repository, photoStore: photos).execute(momentID: quest.id)
+        try await DefaultDeleteEventUseCase(progressRepository: repository, photoStore: photos).execute(eventID: quest.id)
+
+        #expect(try await repository.fetchEvents().isEmpty)
+    }
+
+    @Test("Given an unknown id, when deleting, then unknownEvent is thrown and nothing changes")
+    func unknownEvent() async throws {
+        try await repository.add(ProgressEvent(kind: .quest(id: "q1"), date: today))
+
+        await #expect(throws: ProgressError.unknownEvent) {
+            try await DefaultDeleteEventUseCase(progressRepository: repository, photoStore: photos).execute(eventID: UUID())
         }
+        #expect(try await repository.fetchEvents().count == 1)
+    }
+
+    @Test("Given an id that is not a moment, when updating, then unknownMoment is thrown")
+    func unknownMoment() async throws {
+        try await repository.add(ProgressEvent(kind: .quest(id: "q1"), date: today))
         await #expect(throws: MomentError.unknownMoment) {
             try await DefaultUpdateMomentUseCase(progressRepository: repository, photoStore: photos)
                 .execute(momentID: UUID(), happenedOn: today, note: nil, photo: .keep, now: today)

@@ -9,6 +9,8 @@ extension HomeViewModel {
         let getProgress: any GetProgressUseCase
         let completeQuest: any CompleteQuestUseCase
         let defeatBoss: any DefeatBossUseCase
+        /// Undo right after recording, and deleting a moment.
+        let deleteEvent: any DeleteEventUseCase
         let moments: MomentUseCases
         let getOutfit: (any GetOutfitUseCase)?
 
@@ -19,6 +21,7 @@ extension HomeViewModel {
             getProgress: any GetProgressUseCase,
             completeQuest: any CompleteQuestUseCase,
             defeatBoss: any DefeatBossUseCase,
+            deleteEvent: any DeleteEventUseCase,
             moments: MomentUseCases,
             getOutfit: (any GetOutfitUseCase)? = nil
         ) {
@@ -28,6 +31,7 @@ extension HomeViewModel {
             self.getProgress = getProgress
             self.completeQuest = completeQuest
             self.defeatBoss = defeatBoss
+            self.deleteEvent = deleteEvent
             self.moments = moments
             self.getOutfit = getOutfit
         }
@@ -37,18 +41,15 @@ extension HomeViewModel {
     public struct MomentUseCases: Sendable {
         let capture: any CaptureMomentUseCase
         let update: any UpdateMomentUseCase
-        let delete: any DeleteMomentUseCase
         let getPhoto: any GetPhotoUseCase
 
         public init(
             capture: any CaptureMomentUseCase,
             update: any UpdateMomentUseCase,
-            delete: any DeleteMomentUseCase,
             getPhoto: any GetPhotoUseCase
         ) {
             self.capture = capture
             self.update = update
-            self.delete = delete
             self.getPhoto = getPhoto
         }
     }

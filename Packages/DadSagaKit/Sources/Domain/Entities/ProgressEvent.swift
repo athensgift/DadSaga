@@ -1,6 +1,6 @@
 import Foundation
 
-/// Something the dad completed or captured. Events only ever add XP; nothing is ever taken away.
+/// Something the dad completed or captured. The game never takes XP away; only the dad can remove his own entry.
 public struct ProgressEvent: Hashable, Identifiable, Sendable {
     public enum Kind: Hashable, Sendable {
         case quest(id: String)

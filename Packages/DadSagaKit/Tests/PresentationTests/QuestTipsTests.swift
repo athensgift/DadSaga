@@ -45,7 +45,8 @@ struct QuestTipsTests {
                 getProgress: progress,
                 completeQuest: progress,
                 defeatBoss: progress,
-                moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, delete: progress, getPhoto: progress)
+                deleteEvent: progress,
+                moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress)
             ),
             locale: Locale(identifier: "el_GR"),
             now: { HeroStub.today }

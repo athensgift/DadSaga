@@ -24,10 +24,14 @@ public struct DefaultDefeatBossUseCase: DefeatBossUseCase {
         let events = try await progressRepository.fetchEvents()
         let before = DadProgress(events: events, catalog: catalog)
         guard !before.defeatedBossIDs(for: childID).contains(bossID) else {
-            return ProgressChange(before: before, after: before)
+            return ProgressChange(before: before, after: before, eventID: nil)
         }
         let event = ProgressEvent(kind: .boss(id: bossID), childID: childID, date: date)
         try await progressRepository.add(event)
-        return ProgressChange(before: before, after: DadProgress(events: events + [event], catalog: catalog))
+        return ProgressChange(
+            before: before,
+            after: DadProgress(events: events + [event], catalog: catalog),
+            eventID: event.id
+        )
     }
 }

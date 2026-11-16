@@ -58,7 +58,7 @@ extension HomeViewModel {
     public func deleteMoment() async {
         guard let editing = momentCapture?.editing else { return }
         await perform {
-            try await self.useCases.moments.delete.execute(momentID: editing.momentID)
+            try await self.useCases.deleteEvent.execute(eventID: editing.momentID)
         }
     }
 
@@ -68,7 +68,7 @@ extension HomeViewModel {
     }
 
     /// Runs a change that earns nothing: closes the sheet and refreshes, or shows an error and keeps it open.
-    private func perform(_ action: () async throws -> Void) async {
+    func perform(_ action: () async throws -> Void) async {
         guard !isCompleting else { return }
         isCompleting = true
         defer { isCompleting = false }

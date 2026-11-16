@@ -38,6 +38,44 @@ struct HomeViewModelTests {
         #expect(sut.celebration == nil)
     }
 
+    @Test("Given a quest just completed, when undoing, then its XP is gone and the offer closes")
+    func undoesCompletion() async {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        #expect(sut.undoOffer?.message == "Καταγράφηκε")
+        #expect(sut.undoOffer?.actionTitle == "Αναίρεση")
+
+        await sut.undoLastRecord()
+
+        #expect(sut.undoOffer == nil)
+        #expect(sut.celebration == nil)
+        #expect(await progress.eventCount == 0)
+        guard case .loaded(let content) = sut.state else {
+            Issue.record("Expected loaded state, got \(sut.state)")
+            return
+        }
+        #expect(content.xpLine == "0 / 100 XP")
+    }
+
+    @Test("Given an undo offer, when an older offer expires, then the current one stays; when it expires, it closes")
+    func undoExpires() async throws {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        let offer = try #require(sut.undoOffer)
+
+        sut.undoOfferExpired(id: offer.id - 1)
+        #expect(sut.undoOffer == offer)
+        sut.undoOfferExpired(id: offer.id)
+        #expect(sut.undoOffer == nil)
+        #expect(await progress.eventCount == 2)
+    }
+
     @Test("Given 40 care XP, when a quest crosses 50, then the hero carries the burp cloth and the celebration says so")
     func earnsGear() async {
         await progress.seed(times: 2)
@@ -258,7 +296,8 @@ func makeHomeViewModel(profile: PlayerProfile?, progress: FakeProgress, locale: 
             getProgress: progress,
             completeQuest: progress,
             defeatBoss: progress,
-            moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, delete: progress, getPhoto: progress)
+            deleteEvent: progress,
+            moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress)
         ),
         locale: Locale(identifier: locale),
         now: { HeroStub.today }

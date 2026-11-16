@@ -5,19 +5,23 @@ import Foundation
 public struct ProgressChange: Hashable, Sendable {
     public let before: DadProgress
     public let after: DadProgress
+    /// The event that was recorded, so the dad can undo it. `nil` when nothing was recorded.
+    public let eventID: UUID?
 
     public var gainedXP: Int { after.totalXP - before.totalXP }
     public var leveledUp: Bool { after.level.level > before.level.level }
 
-    public init(before: DadProgress, after: DadProgress) {
+    public init(before: DadProgress, after: DadProgress, eventID: UUID?) {
         self.before = before
         self.after = after
+        self.eventID = eventID
     }
 }
 
 public enum ProgressError: Error, Equatable {
     case unknownQuest(String)
     case unknownBoss(String)
+    case unknownEvent
 }
 
 /// Records that the dad did a quest in real life, with one of his children. Quests are repeatable and always give
@@ -45,7 +49,8 @@ public struct DefaultCompleteQuestUseCase: CompleteQuestUseCase {
         try await progressRepository.add(event)
         return ProgressChange(
             before: DadProgress(events: events, catalog: catalog),
-            after: DadProgress(events: events + [event], catalog: catalog)
+            after: DadProgress(events: events + [event], catalog: catalog),
+            eventID: event.id
         )
     }
 }

@@ -183,3 +183,42 @@ struct WorldHeader: View {
         .padding(.bottom, DSSpacing.s)
     }
 }
+
+/// "Saved · Undo" at the bottom of the screen for a few seconds after the dad records something.
+struct UndoBar: View {
+    let offer: UndoOffer
+    let onUndo: () -> Void
+    let onExpire: () -> Void
+    @Environment(\.accessibilityVoiceOverEnabled) private var voiceOver
+
+    /// Long enough to notice a wrong tap; longer with VoiceOver, where reaching the button takes a few swipes.
+    private var duration: Duration { voiceOver ? .seconds(15) : .seconds(6) }
+
+    var body: some View {
+        HStack(spacing: DSSpacing.m) {
+            Label {
+                Text(offer.message).foregroundStyle(DSColor.textPrimary)
+            } icon: {
+                Image(systemName: "checkmark.circle.fill").foregroundStyle(DSColor.xp)
+            }
+            .font(DSFont.subheadline)
+            Spacer(minLength: 0)
+            Button(offer.actionTitle, systemImage: "arrow.uturn.backward", action: onUndo)
+                .font(DSFont.headline)
+                .buttonStyle(.borderless)
+                .tint(DSColor.accent)
+        }
+        .padding(.horizontal, DSSpacing.m)
+        .padding(.vertical, DSSpacing.s)
+        // Solid, not clear glass: the cards scrolling underneath made the text hard to read.
+        .background(DSColor.surface, in: Capsule())
+        .shadow(color: DSColor.heroInk.opacity(0.15), radius: 12, y: 4)
+        .frame(maxWidth: readableWidth)
+        .padding(.horizontal, DSSpacing.m)
+        .padding(.bottom, DSSpacing.s)
+        .task(id: offer.id) {
+            try? await Task.sleep(for: duration)
+            if !Task.isCancelled { onExpire() }
+        }
+    }
+}
