@@ -18,6 +18,13 @@ This is a **personal portfolio / playground project**. Replies to the owner are 
 - Record significant decisions as a new ADR in `docs/adr/`.
 - Product rules in `docs/adr/0006-no-pressure-game-design.md` are non-negotiable (no penalties, no milestone deadlines).
 
+## Engineering habits
+- Subtract before you add: when new code covers an old path, delete the old path in the same change.
+- Fix root causes: reproduce the bug in a test first, then fix the cause. A guard that hides the symptom is not a fix.
+- Test behaviour, not implementation: call the code the way the screen does and check what the user would see.
+  If a test would still pass with every function returning nothing, rewrite it.
+- Redesign, don't bolt on: for a new requirement, ask what you would have built had it been there from the start.
+
 ## Model routing
 The main session runs on Opus at medium effort (`.claude/settings.json`). Delegate by task type to the subagents in `.claude/agents/`:
 
