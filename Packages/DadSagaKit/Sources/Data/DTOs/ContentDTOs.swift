@@ -23,6 +23,14 @@ struct QuestDTO: Decodable, Sendable {
     let skill: String
     let xp: Int
     let minAgeMonths: Int
+    var tip: QuestTipDTO?
+    var evergreen: Bool?
+}
+
+struct QuestTipDTO: Decodable, Sendable {
+    let title: LocalizedTextDTO
+    let steps: [LocalizedTextDTO]
+    let medical: Bool?
 }
 
 struct BossFightDTO: Decodable, Sendable {
@@ -35,6 +43,7 @@ struct BossFightDTO: Decodable, Sendable {
     let skill: String
     let xp: Int
     let minAgeMonths: Int
+    var requiresSibling: Bool?
 }
 
 struct FirstMomentDTO: Decodable, Sendable {

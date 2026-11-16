@@ -73,17 +73,20 @@ public struct QuestCard: View {
     let symbol: String
     let style: Style
     let footnote: String?
+    let hint: String?
 
     /// - Parameters:
     ///   - symbol: SF Symbol name for the icon tile.
     ///   - footnote: an optional "done" line under the text, e.g. how many times a quest was completed.
+    ///   - hint: an optional marker that there is more inside, e.g. the title of a tip.
     public init(
         title: String,
         subtitle: String,
         badge: String,
         symbol: String,
         style: Style = .quest,
-        footnote: String? = nil
+        footnote: String? = nil,
+        hint: String? = nil
     ) {
         self.title = title
         self.subtitle = subtitle
@@ -91,6 +94,7 @@ public struct QuestCard: View {
         self.symbol = symbol
         self.style = style
         self.footnote = footnote
+        self.hint = hint
     }
 
     public var body: some View {
@@ -117,6 +121,12 @@ public struct QuestCard: View {
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
+                if let hint {
+                    Label(hint, systemImage: "lightbulb.fill")
+                        .font(DSFont.caption)
+                        .foregroundStyle(style.tint)
+                        .padding(.top, DSSpacing.xs)
+                }
                 if let footnote {
                     Label(footnote, systemImage: "checkmark.circle.fill")
                         .font(DSFont.caption)
@@ -137,7 +147,8 @@ public struct QuestCard: View {
     VStack(spacing: DSSpacing.m) {
         XPBar(level: 3, fraction: 0.4)
         QuestCard(title: "Νυχτερινή βάρδια", subtitle: "Ανάλαβε μια ολόκληρη νυχτερινή βάρδια.",
-                  badge: "+30 XP", symbol: "hourglass", footnote: "Το έκανες 1 φορά")
+                  badge: "+30 XP", symbol: "hourglass", footnote: "Το έκανες 1 φορά",
+                  hint: "Ο καναπές είναι παγίδα")
         QuestCard(title: "Ο Πρώτος Πυρετός", subtitle: "Δεν είσαι μόνος.", badge: "BOSS", symbol: "flame.fill", style: .boss)
         PrimaryButton("Συνέχεια") {}
     }

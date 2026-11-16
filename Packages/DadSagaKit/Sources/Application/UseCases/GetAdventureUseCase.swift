@@ -29,7 +29,8 @@ public struct Adventure: Hashable, Sendable {
 }
 
 public protocol GetAdventureUseCase: Sendable {
-    func execute(for child: Child, on date: Date) async throws -> Adventure
+    /// `childCount` is the number of children in the family; sibling-only bosses need more than one.
+    func execute(for child: Child, childCount: Int, on date: Date) async throws -> Adventure
 }
 
 public struct DefaultGetAdventureUseCase: GetAdventureUseCase {
@@ -41,7 +42,7 @@ public struct DefaultGetAdventureUseCase: GetAdventureUseCase {
         self.calendar = calendar
     }
 
-    public func execute(for child: Child, on date: Date) async throws -> Adventure {
+    public func execute(for child: Child, childCount: Int, on date: Date) async throws -> Adventure {
         let catalog = try await repository.fetchCatalog()
         let age = child.ageInMonths(at: date, calendar: calendar)
         if UnlockRules.isBeyondContent(catalog, ageInMonths: age) {
@@ -59,7 +60,7 @@ public struct DefaultGetAdventureUseCase: GetAdventureUseCase {
             currentWorld: UnlockRules.currentWorld(in: catalog, ageInMonths: age),
             unlockedWorlds: UnlockRules.unlockedWorlds(in: catalog, ageInMonths: age),
             availableQuests: UnlockRules.availableQuests(in: catalog, ageInMonths: age),
-            availableBosses: UnlockRules.availableBosses(in: catalog, ageInMonths: age)
+            availableBosses: UnlockRules.availableBosses(in: catalog, ageInMonths: age, childCount: childCount)
         )
     }
 }

@@ -28,8 +28,16 @@ extension QuestDTO {
             description: description.toDomain(),
             skill: try Self.skill(skill, itemID: id),
             xp: xp,
-            minAgeMonths: minAgeMonths
+            minAgeMonths: minAgeMonths,
+            tip: tip?.toDomain(),
+            isEvergreen: evergreen ?? false
         )
+    }
+}
+
+extension QuestTipDTO {
+    func toDomain() -> QuestTip {
+        QuestTip(title: title.toDomain(), steps: steps.map { $0.toDomain() }, isMedical: medical ?? false)
     }
 }
 
@@ -44,7 +52,8 @@ extension BossFightDTO {
             badge: badge.toDomain(),
             skill: try QuestDTO.skill(skill, itemID: id),
             xp: xp,
-            minAgeMonths: minAgeMonths
+            minAgeMonths: minAgeMonths,
+            requiresSibling: requiresSibling ?? false
         )
     }
 }

@@ -11,7 +11,7 @@ struct MomentsFormatter {
         let moments = progress.moments(for: child.id)
         return MomentsSection(
             title: strings.text(el: "Θρυλικές στιγμές", en: "Legendary moments"),
-            progress: "\(moments.count) / \(catalog.firsts.count)",
+            progress: "\(moments.count)",
             addTitle: strings.text(el: "Κατέγραψε στιγμή", en: "Capture a moment"),
             cards: moments.map(card),
             emptyText: strings.text(
@@ -103,4 +103,6 @@ struct HomeSnapshot {
     let catalog: ContentCatalog
     let progress: DadProgress
     let adventure: Adventure
+    /// Children in the family, for bosses that need a sibling.
+    let childCount: Int
 }

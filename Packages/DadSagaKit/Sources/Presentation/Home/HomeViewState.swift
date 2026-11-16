@@ -123,7 +123,17 @@ public struct QuestDetail: Equatable, Identifiable, Sendable {
     public let title: String
     public let description: String
     public let reward: String
+    /// How to do it well, when the quest has a tip.
+    public let tip: TipDetail?
+    /// The "does not replace your paediatrician" line, for medical tips only.
+    public let footer: String?
     public let confirmTitle: String
+}
+
+/// A quest tip as shown in the quest sheet.
+public struct TipDetail: Equatable, Sendable {
+    public let title: String
+    public let steps: [String]
 }
 
 /// The sheet for a boss fight: intro, survival guide and the "we made it" action.

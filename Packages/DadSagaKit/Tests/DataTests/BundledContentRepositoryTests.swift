@@ -15,6 +15,15 @@ struct BundledContentRepositoryTests {
         #expect(catalog.firsts.count == 24)
     }
 
+    @Test("Given the bundled JSON, when fetching, then tips, evergreen quests and sibling-only bosses are read")
+    func readsNewFields() async throws {
+        let catalog = try await repository.fetchCatalog()
+        #expect(catalog.quests.compactMap(\.tip).count == 40)
+        #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 12)
+        #expect(catalog.quests.filter(\.isEvergreen).count == 14)
+        #expect(catalog.bosses.filter(\.requiresSibling).map(\.id) == ["b-w3-new-sibling"])
+    }
+
     @Test("Given the bundled content, when checking each world, then it has quests and at least one boss")
     func everyWorldHasContent() async throws {
         let catalog = try await repository.fetchCatalog()
@@ -45,6 +54,7 @@ struct BundledContentRepositoryTests {
             + catalog.quests.flatMap { [$0.title, $0.description] }
             + catalog.bosses.flatMap { [$0.title, $0.intro, $0.badge] + $0.guide }
             + catalog.firsts.map(\.title)
+            + catalog.quests.compactMap(\.tip).flatMap { [$0.title] + $0.steps }
         for text in texts {
             #expect(!text.el.isEmpty && !text.en.isEmpty)
         }
@@ -61,6 +71,34 @@ struct MappingTests {
         let quest = try dto.toDomain()
         #expect(quest.skill == .resilience)
         #expect(quest.title == LocalizedText(el: "α", en: "a"))
+    }
+
+    @Test("Given a quest DTO with a medical tip, when mapping, then the tip keeps its steps and medical flag")
+    func mapsTip() throws {
+        var dto = QuestDTO(id: "q", worldID: "w", title: text, description: text, skill: "care", xp: 10, minAgeMonths: 0)
+        dto.tip = QuestTipDTO(title: text, steps: [text, LocalizedTextDTO(el: "β", en: "b")], medical: true)
+        dto.evergreen = true
+        let quest = try dto.toDomain()
+        let tip = try #require(quest.tip)
+        #expect(tip.steps.map(\.en) == ["a", "b"])
+        #expect(tip.isMedical)
+        #expect(quest.isEvergreen)
+    }
+
+    @Test("Given a quest DTO without tip or flags, when mapping, then it has no tip and is not evergreen")
+    func mapsDefaults() throws {
+        let dto = QuestDTO(id: "q", worldID: "w", title: text, description: text, skill: "care", xp: 10, minAgeMonths: 0)
+        let quest = try dto.toDomain()
+        #expect(quest.tip == nil)
+        #expect(!quest.isEvergreen)
+    }
+
+    @Test("Given a boss DTO marked requiresSibling, when mapping, then the Domain boss requires a sibling")
+    func mapsSibling() throws {
+        var dto = BossFightDTO(id: "b", worldID: "w", title: text, intro: text, guide: [text], badge: text,
+                               skill: "care", xp: 100, minAgeMonths: 0)
+        dto.requiresSibling = true
+        #expect(try dto.toDomain().requiresSibling)
     }
 
     @Test("Given a quest DTO with an unknown skill, when mapping, then unknownSkill is thrown")
@@ -85,6 +123,21 @@ struct ContentValidatorTests {
             firsts: []
         )
         #expect(throws: ContentDataError.unknownWorld(itemID: "q", worldID: "nope")) {
+            try ContentValidator.validate(catalog)
+        }
+    }
+
+    @Test("Given a quest whose tip has no steps, when validating, then emptyTip is thrown")
+    func emptyTip() {
+        let world = World(id: "w", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: nil)
+        let catalog = ContentCatalog(
+            worlds: [world],
+            quests: [Quest(id: "q", worldID: "w", title: text, description: text, skill: .care, xp: 1, minAgeMonths: 0,
+                           tip: QuestTip(title: text, steps: []))],
+            bosses: [],
+            firsts: []
+        )
+        #expect(throws: ContentDataError.emptyTip(itemID: "q")) {
             try ContentValidator.validate(catalog)
         }
     }

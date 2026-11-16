@@ -1,6 +1,7 @@
 # ADR-0020: Card tips, evergreen cards and a sibling-only boss
 
-**Status:** Proposed. The content is written (branch `feature/content-review-0-6`); the code below is not. Points marked
+**Status:** Accepted (2026-11-16). The owner approved decisions 2, 4 and 6 as proposed. Implemented on
+`feature/content-review-0-6`.
 **(owner)** still need the owner's yes.
 
 ## Context

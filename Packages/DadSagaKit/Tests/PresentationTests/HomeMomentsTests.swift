@@ -22,7 +22,7 @@ struct HomeMomentsTests {
             return
         }
         #expect(content.moments.title == "Θρυλικές στιγμές")
-        #expect(content.moments.progress == "0 / 1")
+        #expect(content.moments.progress == "0")
         #expect(content.moments.cards.isEmpty)
         #expect(!content.moments.isComplete)
     }

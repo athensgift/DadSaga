@@ -117,7 +117,7 @@ struct UnlockRulesTests {
     func newborn() {
         #expect(UnlockRules.unlockedWorlds(in: catalog, ageInMonths: 0).map(\.id) == ["w1"])
         #expect(UnlockRules.availableQuests(in: catalog, ageInMonths: 0).map(\.id) == ["q1"])
-        #expect(UnlockRules.availableBosses(in: catalog, ageInMonths: 0).map(\.id) == ["b1"])
+        #expect(UnlockRules.availableBosses(in: catalog, ageInMonths: 0, childCount: 1).map(\.id) == ["b1"])
     }
 
     @Test("Given a 10-month-old, when unlocking, then both worlds are open and the current world is the second")

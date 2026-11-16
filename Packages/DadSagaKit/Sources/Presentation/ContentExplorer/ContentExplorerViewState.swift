@@ -34,4 +34,6 @@ public struct CardModel: Equatable, Identifiable, Sendable {
     public let kind: Kind
     /// A "done" line, e.g. how many times the quest was completed.
     public var footnote: String?
+    /// A marker that the card has more inside, e.g. a tip's title.
+    public var hint: String?
 }
