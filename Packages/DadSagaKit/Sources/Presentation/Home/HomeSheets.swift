@@ -38,6 +38,7 @@ struct QuestSheet: View {
                             .foregroundStyle(DSColor.textSecondary)
                     }
                     JournalSection(labels: quest.journal, note: $note, photo: $photo, loader: loader, fill: DSColor.background)
+                    actions
                 }
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: readableWidth)
@@ -51,7 +52,6 @@ struct QuestSheet: View {
                     Button(role: .close, action: onClose)
                 }
             }
-            .safeAreaBar(edge: .bottom) { actions }
         }
     }
 
@@ -65,9 +65,8 @@ struct QuestSheet: View {
             PrimaryButton(quest.confirmTitle) { onConfirm(note, photo) }
                 .disabled(isCompleting)
         }
-        .frame(maxWidth: readableWidth)
-        .padding(.horizontal, DSSpacing.l)
-        .padding(.vertical, DSSpacing.s)
+        .frame(maxWidth: .infinity)
+        .padding(.top, DSSpacing.s)
     }
 }
 
@@ -101,6 +100,7 @@ struct BossSheet: View {
                     if !boss.isDefeated {
                         JournalSection(labels: boss.journal, note: $note, photo: $photo, loader: loader, fill: DSColor.surface)
                     }
+                    actions
                 }
                 .frame(maxWidth: readableWidth, alignment: .leading)
                 .padding(DSSpacing.m)
@@ -114,7 +114,6 @@ struct BossSheet: View {
                     Button(role: .close, action: onClose)
                 }
             }
-            .safeAreaBar(edge: .bottom) { actions }
         }
     }
 
@@ -139,9 +138,8 @@ struct BossSheet: View {
                     .disabled(isCompleting)
             }
         }
-        .frame(maxWidth: readableWidth)
-        .padding(.horizontal, DSSpacing.l)
-        .padding(.vertical, DSSpacing.s)
+        .frame(maxWidth: .infinity)
+        .padding(.top, DSSpacing.s)
     }
 }
 
