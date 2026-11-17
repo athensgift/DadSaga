@@ -235,7 +235,7 @@ public struct HomeView: View {
                 Task { await viewModel.showWorld(id: nil) }
             }
             if let emptyMessage = content.emptyMessage {
-                ContentUnavailableView(emptyMessage, systemImage: "flag.checkered")
+                ContentUnavailableView(emptyMessage, systemImage: "map")
                     .padding(.vertical, DSSpacing.l)
             }
             ForEach(content.cards) { card in

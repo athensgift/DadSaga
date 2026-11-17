@@ -29,7 +29,7 @@ Each phase lists what gets built and what it demonstrates.
 *Demonstrates:* end-to-end features, state management, persistence, tests.
 
 ## Phase 3: Polish
-- Level-up / legendary / unlock animations + haptics
+- ✅ Level-up / legendary / unlock animations + haptics
 - Home-screen widget (weekly quest + latest legendary moment)
 - Gentle local notifications (max one a week)
 - Accessibility (Dynamic Type, VoiceOver, contrast), full el/en localization
@@ -49,4 +49,4 @@ Each phase lists what gets built and what it demonstrates.
 - TestFlight / App Store, demo video (made by the app itself), case study write-up
 
 ## Phase 5: Playground
-- iCloud sync, partner co-op, Android (native or KMP), AI quest suggestions, worlds for ages 6+, New Game+
+- iCloud sync, partner co-op, Android (native or KMP), AI quest suggestions, worlds for ages 6+ (planned and drafted in `docs/content-plan-6-plus.md`, parked; the app stays 0–6 for now), New Game+

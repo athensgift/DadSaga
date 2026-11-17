@@ -267,7 +267,7 @@ struct StubGetAdventure: GetAdventureUseCase {
         if child.name == "Ελένη" {
             return Adventure(
                 ageInMonths: 60, currentWorld: nil, unlockedWorlds: catalog.worlds,
-                availableQuests: [], availableBosses: [], isJourneyComplete: true
+                availableQuests: [], availableBosses: [], isBeyondContent: true
             )
         }
         let other = Quest(id: "q-other", worldID: "w0", title: HeroStub.text, description: HeroStub.text,

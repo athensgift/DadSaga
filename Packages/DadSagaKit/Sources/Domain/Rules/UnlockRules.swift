@@ -27,9 +27,8 @@ public enum UnlockRules {
         return own + evergreen.sorted { order[$0.worldID, default: 0] < order[$1.worldID, default: 0] }
     }
 
-    /// True when the child is older than every world: the journey ends there by design (12 years),
-    /// and what the family lived through stays in the timeline.
-    public static func isJourneyComplete(_ catalog: ContentCatalog, ageInMonths: Int) -> Bool {
+    /// True when the child is older than every world: there is no content for this age yet.
+    public static func isBeyondContent(_ catalog: ContentCatalog, ageInMonths: Int) -> Bool {
         let limits = catalog.worlds.map(\.maxAgeMonths)
         guard !limits.isEmpty, !limits.contains(nil) else { return false }
         return ageInMonths > limits.compactMap(\.self).max() ?? .max
