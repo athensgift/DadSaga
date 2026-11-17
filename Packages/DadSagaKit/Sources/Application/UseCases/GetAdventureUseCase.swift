@@ -4,8 +4,8 @@ import Foundation
 /// What the dad can play right now with one child, given the child's age today.
 public struct Adventure: Hashable, Sendable {
     public let ageInMonths: Int
-    /// The child is older than every world: the journey is over; the timeline and moments stay.
-    public let isJourneyComplete: Bool
+    /// The child is older than any world: nothing to play with them yet.
+    public let isBeyondContent: Bool
     public let currentWorld: World?
     public let unlockedWorlds: [World]
     public let availableQuests: [Quest]
@@ -17,10 +17,10 @@ public struct Adventure: Hashable, Sendable {
         unlockedWorlds: [World],
         availableQuests: [Quest],
         availableBosses: [BossFight],
-        isJourneyComplete: Bool = false
+        isBeyondContent: Bool = false
     ) {
         self.ageInMonths = ageInMonths
-        self.isJourneyComplete = isJourneyComplete
+        self.isBeyondContent = isBeyondContent
         self.currentWorld = currentWorld
         self.unlockedWorlds = unlockedWorlds
         self.availableQuests = availableQuests
@@ -45,14 +45,14 @@ public struct DefaultGetAdventureUseCase: GetAdventureUseCase {
     public func execute(for child: Child, childCount: Int, on date: Date) async throws -> Adventure {
         let catalog = try await repository.fetchCatalog()
         let age = child.ageInMonths(at: date, calendar: calendar)
-        if UnlockRules.isJourneyComplete(catalog, ageInMonths: age) {
+        if UnlockRules.isBeyondContent(catalog, ageInMonths: age) {
             return Adventure(
                 ageInMonths: age,
                 currentWorld: nil,
                 unlockedWorlds: UnlockRules.unlockedWorlds(in: catalog, ageInMonths: age),
                 availableQuests: [],
                 availableBosses: [],
-                isJourneyComplete: true
+                isBeyondContent: true
             )
         }
         return Adventure(
