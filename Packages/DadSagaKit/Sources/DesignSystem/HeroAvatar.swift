@@ -201,14 +201,14 @@ struct HeroFigure: View {
                 .frame(width: isCheering || style == .hero ? 42 : 58, height: 10)
                 .offset(y: 69)
             if let item = equipment.item(in: .ground) {
-                HeroGroundItem(item: item)
+                HeroGroundItem(item: item, glow: pose.glow)
             }
             ZStack {
                 HeroBackGear(style: style, sway: pose.sway)
                 HeroLegs(style: style)
                 HeroTorso(style: style, breath: pose.breath)
                 if let item = equipment.item(in: .hip) {
-                    HeroHipItem(item: item)
+                    HeroHipItem(item: item, glow: pose.glow)
                 }
                 HeroMedals(count: equipment.medals)
                 HeroArm(style: style, isRight: false, angle: isCheering ? 150 : 8 + pose.sway, sway: pose.sway)
@@ -216,7 +216,7 @@ struct HeroFigure: View {
                 HeroArm(style: style, isRight: true, angle: rightArmAngle, sway: pose.sway)
                     .offset(x: style.shoulderOffset, y: 14)
                 if let item = equipment.item(in: .shoulder) {
-                    HeroShoulderItem(item: item)
+                    HeroShoulderItem(item: item, glow: pose.glow)
                 }
                 HeroHead(pose: pose, isCheering: isCheering)
                 HeroHeadgear(style: style, pose: pose)

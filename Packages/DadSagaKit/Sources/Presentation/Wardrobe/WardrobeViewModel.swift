@@ -115,7 +115,8 @@ public final class WardrobeViewModel {
                 detail: text(el: "Το καλύτερο", en: "The best one"),
                 isSelected: choice == .automatic,
                 isLocked: false,
-                progress: nil
+                progress: nil,
+                item: nil
             ),
             WardrobeOption(
                 id: Self.hiddenID,
@@ -123,7 +124,8 @@ public final class WardrobeViewModel {
                 detail: nil,
                 isSelected: choice == .hidden,
                 isLocked: false,
-                progress: nil
+                progress: nil,
+                item: nil
             )
         ]
         options += items.map { item in
@@ -134,7 +136,8 @@ public final class WardrobeViewModel {
                 detail: isLocked ? "\(xp) / \(item.minXP) XP" : nil,
                 isSelected: choice == .item(item.id),
                 isLocked: isLocked,
-                progress: isLocked ? Double(xp) / Double(item.minXP) : nil
+                progress: isLocked ? Double(xp) / Double(item.minXP) : nil,
+                item: HeroGearLook(look: item.look)
             )
         }
         return WardrobeSlot(
@@ -191,4 +194,6 @@ public struct WardrobeOption: Equatable, Identifiable, Sendable {
     public let isLocked: Bool
     /// How far the skill is towards a locked item, 0 to 1. `nil` when nothing is locked.
     public let progress: Double?
+    /// The item's drawing, for real items; `nil` for "automatic" and "nothing".
+    public let item: HeroGearLook?
 }

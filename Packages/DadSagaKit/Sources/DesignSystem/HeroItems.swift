@@ -19,6 +19,19 @@ public enum HeroItem: CaseIterable, Sendable {
         case hip
     }
 
+    /// Each skill has a first item and an upgrade. Upgrades read as special from their shape and a gold glow,
+    /// not from colour alone.
+    public enum Tier: Sendable {
+        case standard, legendary
+    }
+
+    public var tier: Tier {
+        switch self {
+        case .burpCloth, .mug, .duck, .diaperBag: .standard
+        case .burpClothGold, .thermos, .blocks, .megaBag: .legendary
+        }
+    }
+
     var slot: Slot {
         switch self {
         case .burpCloth, .burpClothGold: .shoulder
@@ -43,27 +56,95 @@ extension EnvironmentValues {
     @Entry var heroEquipment = HeroEquipment()
 }
 
-// MARK: - Drawings (coordinates in `HeroFigure`'s design canvas)
+extension View {
+    /// A cartoon outline around the whole silhouette, like the rest of the avatar: four hard ink shadows.
+    func heroOutline(_ width: CGFloat) -> some View {
+        let ink = DSColor.heroInk.opacity(0.75)
+        return compositingGroup()
+            .shadow(color: ink, radius: 0, x: width, y: 0)
+            .shadow(color: ink, radius: 0, x: -width, y: 0)
+            .shadow(color: ink, radius: 0, x: 0, y: width)
+            .shadow(color: ink, radius: 0, x: 0, y: -width)
+    }
+
+    /// Legendary items glow gold, pulsing with `glow`, and carry a sparkle.
+    @ViewBuilder
+    func heroTier(_ tier: HeroItem.Tier, glow: Double, sparkleAt sparkle: CGPoint) -> some View {
+        switch tier {
+        case .standard:
+            self
+        case .legendary:
+            self
+                .shadow(color: DSColor.legendary.opacity(0.45 + 0.45 * glow), radius: 2.5 + 2 * glow)
+                .overlay {
+                    HeroSparkle()
+                        .fill(DSColor.legendary)
+                        .frame(width: 5, height: 5)
+                        .scaleEffect(0.75 + 0.35 * glow)
+                        .offset(x: sparkle.x, y: sparkle.y)
+                }
+        }
+    }
+}
+
+/// An item as the avatar wears it: simplified, outlined, with its tier's glow.
+private struct HeroWornItem: View {
+    let item: HeroItem
+    let glow: Double
+
+    private var sparkle: CGPoint {
+        switch item {
+        case .burpClothGold: CGPoint(x: 8, y: -7)
+        case .thermos: CGPoint(x: 7, y: -12)
+        case .blocks: CGPoint(x: 7, y: -8)
+        case .megaBag: CGPoint(x: 11, y: -9)
+        default: .zero
+        }
+    }
+
+    var body: some View {
+        ZStack {
+            HeroItemSteam(item: item, glow: glow)
+            HeroItemArt(item: item)
+                .heroOutline(0.7)
+                .heroTier(item.tier, glow: glow, sparkleAt: sparkle)
+        }
+    }
+}
+
+/// The large, detailed item for lists such as the wardrobe. Legendary items glow and sparkle here too.
+public struct HeroItemIcon: View {
+    let item: HeroItem
+    let size: CGFloat
+
+    public init(item: HeroItem, size: CGFloat = 56) {
+        self.item = item
+        self.size = size
+    }
+
+    public var body: some View {
+        let canvas = HeroItemArt.canvas
+        ZStack {
+            HeroItemSteam(item: item, glow: 1)
+            HeroItemArt(item: item, detailed: true)
+                .heroOutline(0.45)
+                .heroTier(item.tier, glow: 0.6, sparkleAt: CGPoint(x: 10, y: -10))
+        }
+            .frame(width: canvas.width, height: canvas.height)
+            .scaleEffect(size / canvas.width)
+            .frame(width: size, height: size)
+            .accessibilityHidden(true)
+    }
+}
+
+// MARK: - Slots (coordinates in `HeroFigure`'s design canvas)
 
 struct HeroShoulderItem: View {
     let item: HeroItem
+    var glow: Double = 0.5
 
     var body: some View {
-        let isGold = item == .burpClothGold
-        RoundedRectangle(cornerRadius: 3)
-            .fill(DSColor.heroHighlight)
-            .overlay {
-                VStack(spacing: 2) {
-                    ForEach(0..<2, id: \.self) { _ in
-                        Capsule().fill(isGold ? DSColor.legendary : DSColor.accent.opacity(0.6)).frame(height: 1.5)
-                    }
-                }
-                .padding(.horizontal, 2)
-            }
-            .overlay {
-                RoundedRectangle(cornerRadius: 3).strokeBorder(isGold ? DSColor.legendary : DSColor.heroChefShade, lineWidth: 1)
-            }
-            .frame(width: 15, height: 9)
+        HeroWornItem(item: item, glow: glow)
             .rotationEffect(.degrees(-28))
             .offset(x: -23, y: 9)
     }
@@ -75,76 +156,19 @@ struct HeroLeftHandItem: View {
     let glow: Double
 
     var body: some View {
-        switch item {
-        case .mug:
-            // Held by the handle: the cup sits outside the hand so the whole mug reads at a glance.
-            ZStack {
-                ForEach([-2.5, 2.5], id: \.self) { side in
-                    Capsule()
-                        .fill(DSColor.textSecondary.opacity(0.3 + 0.3 * glow))
-                        .frame(width: 1.5, height: 5)
-                        .offset(x: side, y: -11)
-                }
-                Circle().stroke(DSColor.heroChefShade, lineWidth: 2.4).frame(width: 7, height: 7).offset(x: 6.5)
-                RoundedRectangle(cornerRadius: 2.5)
-                    .fill(heroGradient(DSColor.heroHighlight, DSColor.heroChefShade))
-                    .overlay {
-                        RoundedRectangle(cornerRadius: 2.5).strokeBorder(DSColor.heroInk.opacity(0.35), lineWidth: 0.8)
-                    }
-                    .frame(width: 13, height: 14)
-                Capsule().fill(DSColor.heroTeal).frame(width: 13, height: 3).offset(y: 1)
-            }
-            .offset(x: -8, y: 2)
-        case .thermos:
-            ZStack {
-                ForEach([-1.5, 1.5], id: \.self) { side in
-                    Capsule()
-                        .fill(DSColor.textSecondary.opacity(0.35 * glow))
-                        .frame(width: 1.5, height: 5)
-                        .offset(x: side, y: -13)
-                }
-                RoundedRectangle(cornerRadius: 2)
-                    .fill(heroGradient(DSColor.heroSteel, DSColor.heroSteelShade))
-                    .frame(width: 7, height: 15)
-                RoundedRectangle(cornerRadius: 1).fill(DSColor.legendary).frame(width: 8, height: 3).offset(y: -7)
-            }
-            .offset(y: -2)
-        default:
-            EmptyView()
-        }
+        // The mug is held by the handle, so the cup sits outside the hand and reads at a glance.
+        HeroWornItem(item: item, glow: glow)
+            .offset(x: item == .mug ? -8 : -7, y: item == .mug ? 2 : 0)
     }
 }
 
 struct HeroGroundItem: View {
     let item: HeroItem
+    var glow: Double = 0.5
 
     var body: some View {
-        switch item {
-        case .duck:
-            ZStack {
-                Ellipse().fill(DSColor.legendary).frame(width: 14, height: 9)
-                Circle().fill(DSColor.legendary).frame(width: 8, height: 8).offset(x: 5, y: -5)
-                Capsule().fill(DSColor.boss).frame(width: 4, height: 2).offset(x: 10, y: -4.5)
-                Circle().fill(DSColor.heroInk).frame(width: 1.5, height: 1.5).offset(x: 6, y: -6)
-            }
-            .offset(x: -40, y: 60)
-        case .blocks:
-            ZStack {
-                block(DSColor.boss).offset(x: -4.5, y: 0)
-                block(DSColor.accent).offset(x: 4.5, y: 0)
-                block(DSColor.legendary).offset(x: 0, y: -8.5)
-            }
-            .offset(x: -40, y: 59)
-        default:
-            EmptyView()
-        }
-    }
-
-    private func block(_ color: Color) -> some View {
-        RoundedRectangle(cornerRadius: 1.5)
-            .fill(color)
-            .overlay { RoundedRectangle(cornerRadius: 1.5).strokeBorder(DSColor.heroInk.opacity(0.2), lineWidth: 0.8) }
-            .frame(width: 8, height: 8)
+        HeroWornItem(item: item, glow: glow)
+            .offset(x: -45, y: item == .duck ? 60 : 58)
     }
 }
 
@@ -152,10 +176,10 @@ struct HeroGroundItem: View {
 /// clear of the right hand's archetype item.
 struct HeroHipItem: View {
     let item: HeroItem
+    var glow: Double = 0.5
 
     var body: some View {
         let isMega = item == .megaBag
-        let trim = isMega ? DSColor.legendary : DSColor.heroSteel
         ZStack {
             Capsule()
                 .fill(DSColor.heroCloth)
@@ -163,28 +187,7 @@ struct HeroHipItem: View {
                 .frame(width: 3, height: 44)
                 .rotationEffect(.degrees(47))
                 .offset(x: 3, y: 17)
-            RoundedRectangle(cornerRadius: 4)
-                .fill(heroGradient(DSColor.heroCloth, DSColor.heroKnightShade))
-                .overlay(alignment: .top) {
-                    UnevenRoundedRectangle(
-                        topLeadingRadius: 4, bottomLeadingRadius: 3, bottomTrailingRadius: 3, topTrailingRadius: 4
-                    )
-                        .fill(DSColor.heroKnightShade)
-                        .frame(height: isMega ? 8 : 7)
-                        .overlay(alignment: .bottom) {
-                            Capsule().fill(trim).frame(width: isMega ? 7 : 5, height: 2.5).offset(y: 1)
-                        }
-                }
-                .overlay(alignment: .bottom) {
-                    if isMega {
-                        RoundedRectangle(cornerRadius: 2).fill(DSColor.heroTeal).frame(width: 11, height: 5).padding(.bottom, 2.5)
-                    }
-                }
-                .overlay {
-                    RoundedRectangle(cornerRadius: 4).strokeBorder(isMega ? DSColor.legendary : DSColor.heroInk.opacity(0.4),
-                                                                  lineWidth: isMega ? 1.2 : 0.8)
-                }
-                .frame(width: isMega ? 22 : 18, height: isMega ? 18 : 15)
+            HeroWornItem(item: item, glow: glow)
                 .offset(x: -13, y: isMega ? 38 : 37)
         }
     }
