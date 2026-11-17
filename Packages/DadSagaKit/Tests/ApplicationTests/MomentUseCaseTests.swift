@@ -169,6 +169,11 @@ actor SpyPhotoStore: PhotoStore {
         stored[id]
     }
 
+    /// Tags the data so tests can tell a thumbnail from the original.
+    func thumbnail(id: String, maxPixelSize: Int) async -> Data? {
+        stored[id].map { Data("thumb\(maxPixelSize):".utf8) + $0 }
+    }
+
     func delete(id: String) async {
         stored[id] = nil
     }

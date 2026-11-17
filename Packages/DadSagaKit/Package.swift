@@ -3,9 +3,9 @@ import PackageDescription
 
 // Clean Architecture: dependencies point inward only.
 //
-//   Presentation ─┐
-//                 ├─▶ Application ─▶ Domain
-//   Data ─────────┘
+//   Presentation ───────┐
+//   WidgetPresentation ─┼─▶ Application ─▶ Domain
+//   Data ───────────────┘
 //
 // The app target is the composition root: the only place that knows every layer and wires them together.
 let package = Package(
@@ -18,6 +18,7 @@ let package = Package(
         .library(name: "Data", targets: ["Data"]),
         .library(name: "Presentation", targets: ["Presentation"]),
         .library(name: "DesignSystem", targets: ["DesignSystem"]),
+        .library(name: "WidgetPresentation", targets: ["WidgetPresentation"]),
     ],
     targets: [
         // Entities + enterprise business rules. Pure Swift, depends on nothing.
@@ -34,10 +35,13 @@ let package = Package(
         .target(name: "Presentation", dependencies: ["Application", "Domain", "DesignSystem"]),
         // Tokens + reusable SwiftUI components. No business knowledge.
         .target(name: "DesignSystem"),
+        // What the home-screen widget shows (ADR-0023). No SwiftUI and no WidgetKit, so `swift test` covers it.
+        .target(name: "WidgetPresentation", dependencies: ["Application", "Domain"]),
 
         .testTarget(name: "DomainTests", dependencies: ["Domain"]),
         .testTarget(name: "ApplicationTests", dependencies: ["Application", "Domain"]),
         .testTarget(name: "DataTests", dependencies: ["Data", "Application", "Domain"]),
         .testTarget(name: "PresentationTests", dependencies: ["Presentation", "Application", "Domain"]),
+        .testTarget(name: "WidgetPresentationTests", dependencies: ["WidgetPresentation", "Application", "Domain"]),
     ]
 )

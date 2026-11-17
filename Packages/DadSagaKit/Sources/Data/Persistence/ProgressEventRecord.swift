@@ -9,7 +9,7 @@ final class ProgressEventRecord {
     /// "quest", "boss" or "first".
     var kind: String
     var contentID: String
-    /// The child it happened with. `nil` only in stores from before families, until `LegacyProfileMigration` runs.
+    /// The child it happened with. `nil` only for events that were never linked to a child.
     var childID: UUID?
     var date: Date
     var note: String?

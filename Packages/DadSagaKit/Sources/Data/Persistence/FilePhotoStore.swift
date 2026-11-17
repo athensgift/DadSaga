@@ -21,15 +21,14 @@ public actor FilePhotoStore: PhotoStore {
         self.maxPixelSize = maxPixelSize
     }
 
-    /// The app's photo folder, inside Application Support.
-    public static func appDefault() -> FilePhotoStore {
-        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
-            ?? FileManager.default.temporaryDirectory
-        return FilePhotoStore(directory: base.appending(path: "MomentPhotos", directoryHint: .isDirectory))
+    /// The photos of legendary moments, in `directory` (the folder the app shares with the widget, ADR-0023).
+    public static func moments(in directory: URL) -> FilePhotoStore {
+        FilePhotoStore(directory: directory.appending(path: "MomentPhotos", directoryHint: .isDirectory))
     }
 
     public func save(_ imageData: Data) async throws -> String {
-        let jpeg = try Self.downscaledJPEG(from: imageData, maxPixelSize: maxPixelSize)
+        guard let source = CGImageSourceCreateWithData(imageData as CFData, nil) else { throw PhotoError.notAnImage }
+        let jpeg = try Self.downscaledJPEG(from: source, maxPixelSize: maxPixelSize)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let id = UUID().uuidString
         try jpeg.write(to: url(for: id), options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
@@ -38,6 +37,12 @@ public actor FilePhotoStore: PhotoStore {
 
     public func load(id: String) async -> Data? {
         try? Data(contentsOf: url(for: id))
+    }
+
+    /// Decodes only a downscaled image straight from the file, so the full photo never sits in memory.
+    public func thumbnail(id: String, maxPixelSize: Int) async -> Data? {
+        guard let source = CGImageSourceCreateWithURL(url(for: id) as CFURL, nil) else { return nil }
+        return try? Self.downscaledJPEG(from: source, maxPixelSize: maxPixelSize)
     }
 
     public func delete(id: String) async {
@@ -53,12 +58,12 @@ public actor FilePhotoStore: PhotoStore {
         directory.appending(path: (id as NSString).lastPathComponent + ".jpg")
     }
 
-    private static func downscaledJPEG(from data: Data, maxPixelSize: Int) throws -> Data {
-        guard let source = CGImageSourceCreateWithData(data as CFData, nil) else { throw PhotoError.notAnImage }
+    private static func downscaledJPEG(from source: CGImageSource, maxPixelSize: Int) throws -> Data {
         let options: [CFString: Any] = [
             kCGImageSourceCreateThumbnailFromImageAlways: true,
             kCGImageSourceCreateThumbnailWithTransform: true,
-            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize
+            kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+            kCGImageSourceShouldCacheImmediately: true
         ]
         guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
             throw PhotoError.notAnImage

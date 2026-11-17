@@ -6,6 +6,9 @@ public protocol PhotoStore: Sendable {
     func save(_ imageData: Data) async throws -> String
     /// `nil` if there is no photo with that id.
     func load(id: String) async -> Data?
+    /// A smaller JPEG copy whose longest side is at most `maxPixelSize`, for places with little memory (the widget).
+    /// `nil` if there is no photo with that id or it cannot be read.
+    func thumbnail(id: String, maxPixelSize: Int) async -> Data?
     func delete(id: String) async
     /// Wipes every photo. Only the developer reset uses this.
     func deleteAll() async

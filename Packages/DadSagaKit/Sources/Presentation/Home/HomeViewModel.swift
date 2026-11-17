@@ -8,7 +8,7 @@ import Observation
 @Observable
 public final class HomeViewModel {
     public private(set) var state: HomeViewState = .loading
-    public private(set) var selectedQuest: QuestDetail?
+    public internal(set) var selectedQuest: QuestDetail?
     public private(set) var selectedBoss: BossDetail?
     public private(set) var celebration: Celebration?
     /// "Undo" for a few seconds after the dad records something, in case he tapped by mistake.
@@ -18,7 +18,7 @@ public final class HomeViewModel {
     public internal(set) var momentCapture: MomentCapture?
     public internal(set) var isCompleting = false
     /// The child whose world and quests are shown. The first child until the dad picks another.
-    public private(set) var selectedChildID: UUID?
+    public internal(set) var selectedChildID: UUID?
     /// The world map, while it is open.
     public internal(set) var worldMap: WorldMapContent?
     /// An earlier world the dad chose on the map, instead of the child's current one.
@@ -37,6 +37,9 @@ public final class HomeViewModel {
     private var gear: [GearItem] = []
     private var outfit = Outfit()
     private var celebrationCount = 0
+    /// Each load takes a number; only the latest one may update the screen, so an older load that finishes last
+    /// (e.g. home appearing while a widget link opens another child) cannot put back what it read.
+    private var loadGeneration = 0
 
     public init(useCases: UseCases, locale: Locale = .current, now: @escaping @Sendable () -> Date = { .now }) {
         self.useCases = useCases
@@ -138,13 +141,15 @@ public final class HomeViewModel {
     }
 
     private func load() async {
+        loadGeneration += 1
+        let generation = loadGeneration
         do {
             guard let profile = try await useCases.getProfile.execute(), let firstChild = profile.children.first else {
+                guard generation == loadGeneration else { return }
                 state = .failed(message: strings.text(el: "Δεν βρέθηκε προφίλ.", en: "No profile found."))
                 return
             }
             let child = profile.children.first { $0.id == selectedChildID } ?? firstChild
-            selectedChildID = child.id
             let catalog = try await useCases.loadCatalog.execute()
             let adventure = try await useCases.getAdventure.execute(
                 for: child,
@@ -152,7 +157,10 @@ public final class HomeViewModel {
                 on: now()
             )
             let progress = try await useCases.getProgress.execute()
-            outfit = try await useCases.getOutfit?.execute() ?? Outfit()
+            let outfit = try await useCases.getOutfit?.execute() ?? Outfit()
+            guard generation == loadGeneration else { return }
+            selectedChildID = child.id
+            self.outfit = outfit
             let world = adventure.unlockedWorlds.first { $0.id == viewedWorldID } ?? adventure.currentWorld
             if world?.id == adventure.currentWorld?.id { viewedWorldID = nil }
             let worldID = world?.id
@@ -177,6 +185,7 @@ public final class HomeViewModel {
                 )
             )
         } catch {
+            guard generation == loadGeneration else { return }
             state = .failed(message: strings.text(el: "Το περιεχόμενο δεν φόρτωσε.", en: "Content failed to load."))
         }
     }

@@ -5,9 +5,13 @@ import SwiftUI
 /// chronology line, and each month is a node on that line.
 public struct TimelineView: View {
     @State private var viewModel: TimelineViewModel
+    private let isOpeningLink: Bool
 
-    public init(viewModel: TimelineViewModel) {
+    /// - Parameter isOpeningLink: a link from outside the app (the widget) is opening on another tab; the journal
+    ///   editor closes so it does not cover that screen.
+    public init(viewModel: TimelineViewModel, isOpeningLink: Bool = false) {
         _viewModel = State(initialValue: viewModel)
+        self.isOpeningLink = isOpeningLink
     }
 
     public var body: some View {
@@ -39,6 +43,9 @@ public struct TimelineView: View {
             Button(prompt.cancelTitle, role: .cancel) { viewModel.cancelDeletion() }
         } message: { prompt in
             Text(prompt.message)
+        }
+        .onChange(of: isOpeningLink) { _, opening in
+            if opening { viewModel.closeJournal() }
         }
         .sheet(item: Binding(get: { viewModel.journalEditor }, set: { if $0 == nil { viewModel.closeJournal() } })) { editor in
             JournalEditorSheet(
