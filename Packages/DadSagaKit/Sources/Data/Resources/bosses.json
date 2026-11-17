@@ -664,51 +664,6 @@
     }
   },
   {
-    "id": "b-w4-hard-question",
-    "worldID": "w4-why-kingdom",
-    "skill": "care",
-    "xp": 100,
-    "minAgeMonths": 42,
-    "title": {
-      "el": "Η Δύσκολη Ερώτηση",
-      "en": "The Hard Question"
-    },
-    "intro": {
-      "el": "«Πού πήγε ο παππούς;» «Θα πεθάνεις κι εσύ;» Έρχεται συνήθως στο αυτοκίνητο, χωρίς προειδοποίηση.",
-      "en": "“Where did Grandad go?” “Will you die too?” It usually arrives in the car, with no warning."
-    },
-    "guide": [
-      {
-        "el": "Πες την αλήθεια με απλά λόγια: «πέθανε. Το σώμα του σταμάτησε να δουλεύει και δεν θα ξαναγυρίσει».",
-        "en": "Tell the truth in plain words: “He died. His body stopped working and he isn't coming back.”"
-      },
-      {
-        "el": "Όχι «κοιμήθηκε», «έφυγε» ή «τον χάσαμε». Τα παίρνει κυριολεκτικά και μπορεί να φοβηθεί τον ύπνο.",
-        "en": "Not “went to sleep”, “went away” or “we lost him”. They take it literally and may become afraid of sleep."
-      },
-      {
-        "el": "Απάντησε μόνο σε αυτό που ρώτησε, σύντομα. Θα ξαναρωτήσει το ίδιο πολλές φορές: έτσι το καταλαβαίνει.",
-        "en": "Answer only what was asked, briefly. They'll ask the same thing many times: that's how they work it out."
-      },
-      {
-        "el": "Στο «θα πεθάνεις κι εσύ;»: «όλοι πεθαίνουν κάποτε. Εγώ είμαι γερός και σκοπεύω να είμαι εδώ για πάρα πολλά χρόνια».",
-        "en": "To “will you die too?”: “Everyone dies one day. I'm healthy and I plan to be here for a very long time.”"
-      },
-      {
-        "el": "Επιτρέπεται να δει ότι στενοχωριέσαι. Και το «δεν ξέρω» είναι τίμια απάντηση.",
-        "en": "They're allowed to see that you're sad. And “I don't know” is an honest answer."
-      },
-      {
-        "el": "Το ίδιο ισχύει για κάθε δύσκολη ερώτηση: αλήθεια, λίγα λόγια, και «ρώτα με ό,τι άλλο θέλεις».",
-        "en": "The same goes for every hard question: the truth, few words, and “ask me anything else you want.”"
-      }
-    ],
-    "badge": {
-      "el": "Φύλακας της Αλήθειας",
-      "en": "Keeper of the Truth"
-    }
-  },
-  {
     "id": "b-w4-kindergarten",
     "worldID": "w4-why-kingdom",
     "skill": "resilience",

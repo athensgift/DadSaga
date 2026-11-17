@@ -11,7 +11,7 @@ struct BundledContentRepositoryTests {
         let catalog = try await repository.fetchCatalog()
         #expect(catalog.worlds.count == 4)
         #expect(catalog.quests.count == 55)
-        #expect(catalog.bosses.count == 17)
+        #expect(catalog.bosses.count == 16)
         #expect(catalog.firsts.count == 24)
     }
 
