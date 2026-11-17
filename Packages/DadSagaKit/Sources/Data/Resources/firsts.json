@@ -22,5 +22,15 @@
   { "id": "f-swim", "order": 21, "emoji": "🏊", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη βουτιά", "en": "First swim" } },
   { "id": "f-bike", "order": 22, "emoji": "🚲", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη βόλτα με ποδήλατο", "en": "First bike ride" } },
   { "id": "f-wrote-name", "order": 23, "emoji": "✏️", "xp": 30, "companionTrait": null, "title": { "el": "Έγραψε το όνομά του", "en": "Wrote their own name" } },
-  { "id": "f-lost-tooth", "order": 24, "emoji": "🧚", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο δόντι που έπεσε", "en": "First lost tooth" } }
+  { "id": "f-lost-tooth", "order": 24, "emoji": "🧚", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο δόντι που έπεσε", "en": "First lost tooth" } },
+  { "id": "f-read-alone", "order": 25, "emoji": "📖", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο βιβλίο που διάβασε μόνο του", "en": "First book read on their own" } },
+  { "id": "f-first-match", "order": 26, "emoji": "⚽", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο γκολ ή πρώτος αγώνας", "en": "First goal or first match" } },
+  { "id": "f-camp", "order": 27, "emoji": "⛺", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη κατασκήνωση", "en": "First camp" } },
+  { "id": "f-home-alone", "order": 28, "emoji": "🏠", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη φορά μόνο του στο σπίτι", "en": "First time home alone" } },
+  { "id": "f-errand", "order": 29, "emoji": "🥖", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο θέλημα μόνο του", "en": "First errand on their own" } },
+  { "id": "f-savings", "order": 30, "emoji": "🐷", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτα χρήματα που μάζεψε", "en": "First money they saved up" } },
+  { "id": "f-concert", "order": 31, "emoji": "🎸", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη συναυλία ή γήπεδο μαζί", "en": "First concert or game together" } },
+  { "id": "f-beat-you", "order": 32, "emoji": "♟️", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη φορά που σε νίκησε τίμια", "en": "First time they beat you fair and square" } },
+  { "id": "f-phone", "order": 33, "emoji": "📱", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο κινητό", "en": "First phone" } },
+  { "id": "f-cooked-for-all", "order": 34, "emoji": "🍳", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη φορά που μαγείρεψε για όλους", "en": "First meal they cooked for everyone" } }
 ]

@@ -53,6 +53,34 @@
       "en": "Every answer brings three more “why”s."
     },
     "minAgeMonths": 42,
-    "maxAgeMonths": 71
+    "maxAgeMonths": 67
+  },
+  {
+    "id": "w5-by-myself",
+    "order": 5,
+    "title": {
+      "el": "Το Νησί του Μόνος Μου",
+      "en": "The Island of By Myself"
+    },
+    "tagline": {
+      "el": "«Άσ' το, θα το κάνω μόνο μου!» Και δύο λεπτά μετά: «Μπαμπάαα!»",
+      "en": "“Leave it, I'll do it myself!” Two minutes later: “Daaad!”"
+    },
+    "minAgeMonths": 68,
+    "maxAgeMonths": 107
+  },
+  {
+    "id": "w6-borderlands",
+    "order": 6,
+    "title": {
+      "el": "Τα Σύνορα",
+      "en": "The Borderlands"
+    },
+    "tagline": {
+      "el": "Η πόρτα κλείνει. Εσύ μένεις απ' έξω, αλλά κοντά.",
+      "en": "The door closes. You stay outside, but close by."
+    },
+    "minAgeMonths": 108,
+    "maxAgeMonths": 143
   }
 ]

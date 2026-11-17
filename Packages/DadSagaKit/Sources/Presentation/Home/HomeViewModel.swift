@@ -227,10 +227,10 @@ public final class HomeViewModel {
             backToCurrentTitle: viewedWorldID == nil
                 ? nil
                 : strings.text(el: "Πίσω στον κόσμο του τώρα", en: "Back to the current world"),
-            emptyMessage: adventure.isBeyondContent
+            emptyMessage: adventure.isJourneyComplete
                 ? strings.text(
-                    el: "Οι περιπέτειες για την ηλικία του παιδιού σου έρχονται σύντομα.",
-                    en: "Adventures for your child's age are coming soon."
+                    el: "Το ταξίδι σας ολοκληρώθηκε. Ό,τι ζήσατε μαζί μένει στο χρονολόγιο.",
+                    en: "Your journey together is complete. Everything you lived through stays in the timeline."
                 )
                 : nil,
             cards: bossCards() + questCards(completions: progress.questCompletions(for: child.id)),

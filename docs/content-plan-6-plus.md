@@ -1,6 +1,25 @@
 # Πλάνο περιεχομένου 6+ ετών
 
-Ημερομηνία: 17 Νοεμβρίου 2026 · Κατάσταση: **η δομή εγκρίθηκε 17/11** (αποφάσεις 1, 2, 4). Δεν έχει γραφτεί ακόμα κανένα κείμενο κάρτας και κανένα JSON.
+Ημερομηνία: 17 Νοεμβρίου 2026 · Κατάσταση: **η δομή εγκρίθηκε 17/11** (αποφάσεις 1, 2, 4). **Τα κείμενα γράφτηκαν 17/11** σε `worlds.json`, `quests.json`, `bosses.json`, `firsts.json` (25 αποστολές, 10 bosses, 10 πρώτες φορές, 2 κόσμοι). Θέλουν το διάβασμά σου, κυρίως οι οδηγοί των bosses.
+
+**Bosses Β (μπορούν να φύγουν):** `b-w5-first-defeat` (Η Πρώτη Ήττα) · `b-w6-lost-friend` (Ο Χαμένος Φίλος)
+
+### Τι άλλαξε από το πλάνο
+
+- **Ονόματα κόσμων:** `w5-by-myself` «Το Νησί του Μόνος Μου» / “The Island of By Myself” (68–107 μήνες) και `w6-borderlands` «Τα Σύνορα» / “The Borderlands” (108–143). Ο Κόσμος 4 τελειώνει πια στους 67.
+- **«Κανένα σχόλιο για το σώμα» → «Αλλαγή θέματος»** (`q-w6-change-subject`): αντί για μία εβδομάδα χωρίς σχόλια, μία φορά: όταν η κουβέντα στο τραπέζι πάει σε κιλά ή δίαιτες, αλλάζεις θέμα. Μία πράξη, ένα πάτημα. Η πηγή βρέθηκε (AAP 2016, παρακάτω), οπότε η κάρτα μένει.
+- **«Ο στόχος αποταμίευσης» → «Ο κουμπαράς με στόχο»**: ζητά μία συζήτηση για το σχέδιο (τι, πόσο, από πού), όχι να το συνοδεύεις για εβδομάδες.
+- **«Ο κατάλογος των φίλων» → «Το σπίτι με τους φίλους»**: ήταν δύο πράξεις (μάθε τρία ονόματα + κάλεσε έναν). Έμεινε μία: καλείς έναν φίλο σπίτι και μαθαίνεις ονόματα εκεί.
+- **«Άσ' το να τα παρατήσει» → «Ως το τέλος της σεζόν»**: η πράξη είναι η συμφωνία που κάνετε, ο τίτλος δεν λέει πια «παράτα το».
+- **«Χτύπα την πόρτα»**: «σήμερα, χτύπα πριν μπεις», για να είναι μία μέρα και όχι μόνιμος κανόνας.
+- **«Μάθε του κάτι δικό σου» → «Το κόλπο του μπαμπά»**, **«Ένα βήμα πίσω» → «Μιλάει εκείνο»**, **«Μία ώρα κίνηση μαζί» → «Μία ώρα στο πόδι»**, **«Ο ήσυχος της κερκίδας» → «Ο σιωπηλός της κερκίδας»**: μόνο ο τίτλος, για να ακούγεται πιο φυσικά.
+- **«Η Πρώτη Δημοτικού»**: στα αγγλικά “Big School”, όχι “First Grade” που είναι αμερικάνικο.
+- **«Οι Ψείρες» → «Η Εισβολή των Ψειρών»** (`b-w5-lice`). Κανένα όνομα σκευάσματος· για σκεύασμα, «ρώτα τον φαρμακοποιό ή τον παιδίατρο».
+- **«Η Μεγάλη Αλλαγή» μπήκε στον Κόσμο 5** (`b-w5-big-change`, ανοίγει στους 96 μήνες). Το πλάνο λέει «ανοίγει στα 8», και ένα test απαγορεύει boss να ανοίγει πριν από τον κόσμο του (ο 6 αρχίζει στα 9). Μένει διαθέσιμο και στον Κόσμο 6, όπως όλα τα bosses παλιότερων κόσμων.
+- **«Το Τέρας στο Chat»**: προστέθηκε ότι για σεξουαλικές εικόνες παιδιού δεν τραβάς screenshot, δεν προωθείς και δεν σβήνεις, πας στην αστυνομία. Το «screenshots πριν το μπλοκ» ισχύει για όλα τα άλλα.
+- **«Ο Νταής»**: προστέθηκε ένα βήμα για όταν ο νταής είναι το δικό σου παιδί.
+- **«Το «σ' αγαπώ» που ντρέπεται»**: στα αγγλικά “The eye-roll ‘love you’”.
+- Καμία νέα κάρτα δεν σημειώθηκε `evergreen`. Υποψήφιες αν θέλεις: «Δέκα λεπτά χωρίς ερωτήσεις», «Μία ώρα στο πόδι».
 
 Είναι το αντίστοιχο της λίστας 0–6 για τους επόμενους κόσμους: τι κάρτες, γιατί, και τι πρέπει να αποφασίσεις πριν γραφτούν.
 
@@ -123,8 +142,8 @@
 ## Τι δεν έχω επαληθεύσει
 
 - **Ύπνος 9–12 ώρες** για τα 6–12 (AASM): από μνήμης, η αναζήτηση δεν το έδειξε.
-- **Ψείρες:** οι οδηγίες του NHS για χτένισμα, και τι συνιστούν οι Έλληνες παιδίατροι για σκευάσματα.
-- **Σχόλια για το σώμα και διατροφικές διαταραχές:** θέλει πηγή πριν γίνει κάρτα.
+- **Ψείρες:** ~~οι οδηγίες του NHS για χτένισμα~~ επαληθεύτηκαν (χτένισμα σε βρεγμένα μαλλιά τις μέρες 1, 5, 9, 13, έλεγχος τη 17η, όχι απουσία από το σχολείο, όχι σκευάσματα για πρόληψη). Τι συνιστούν οι Έλληνες παιδίατροι για σκευάσματα δεν το έψαξα· ο οδηγός λέει «ρώτα φαρμακοποιό ή παιδίατρο».
+- ~~**Σχόλια για το σώμα και διατροφικές διαταραχές:** θέλει πηγή πριν γίνει κάρτα.~~ Πηγή: AAP 2016 (Golden et al.), παρακάτω.
 - **«Δεν θα σου πάρω το κινητό»:** είναι συνηθισμένη σύσταση οργανισμών για την ασφάλεια online, δεν βρήκα σήμερα μελέτη.
 - **Ηλικία για μόνο του στον δρόμο και στο σπίτι:** δεν βρήκα έρευνα ούτε ελληνικό νομικό όριο. Γι' αυτό οι κάρτες δεν δίνουν ηλικία.
 - **Το 70% που παρατά τον αθλητισμό ως τα 13** προέρχεται από δημοσιεύματα για την έκθεση της AAP του 2016, όχι από την ίδια την έκθεση.
@@ -137,5 +156,7 @@
 - AAP 2026, [Helping kids thrive in a digital world](https://www.healthychildren.org/English/family-life/Media/Pages/helping-kids-thrive-in-a-digital-world-AAP-policy-explained.aspx) · [Getting your first phone](https://www.aap.org/en/patient-care/media-and-children/center-of-excellence-on-social-media-and-youth-mental-health/qa-portal/qa-portal-library/qa-portal-library-questions/getting-your-first-phone/)
 - AAP 2016, Sports specialization and intensive training in young athletes · [περίληψη](https://www.hopkinsmedicine.org/health/conditions-and-diseases/sports-injuries/youth-sport-specialization)
 - Εκφοβισμός: [Movember Family Man](https://familyman.movember.com/en-gb/articles/what-to-do-if-your-child-is-being-bullied) · [Family Lives](https://familylives.org.uk/advice/bullying/advice-for-parents/what-to-do-if-your-child-is-being-bullied)
-- Εφηβεία: [Family Lives, Understanding puberty](https://familylives.org.uk/advice/primary/health-and-development/understanding-puberty)
+- Εφηβεία: [Family Lives, Understanding puberty](https://familylives.org.uk/advice/primary/health-and-development/understanding-puberty) · [NHS, Early or delayed puberty](https://www.nhs.uk/conditions/early-or-delayed-puberty/)
+- Ψείρες: [NHS, Head lice and nits](https://www.nhs.uk/conditions/head-lice-and-nits/)
+- Σχόλια για το σώμα: Golden et al., AAP 2016, *Preventing Obesity and Eating Disorders in Adolescents*, Pediatrics 138(3):e20161649 (αποφυγή κουβέντας για βάρος και δίαιτες στο σπίτι, έμφαση στην υγεία και όχι στο βάρος)
 - Ελλάδα: [Υπουργείο Παιδείας, εγγραφές Α΄ δημοτικού](https://mitos.gov.gr/index.php/%CE%94%CE%94:%CE%95%CE%B3%CE%B3%CF%81%CE%B1%CF%86%CE%AD%CF%82_%CE%BC%CE%B1%CE%B8%CE%B7%CF%84%CF%8E%CE%BD/%CF%84%CF%81%CE%B9%CF%8E%CE%BD_%CF%83%CF%84%CE%BF_%CE%94%CE%B7%CE%BC%CE%BF%CF%84%CE%B9%CE%BA%CF%8C_%CE%A3%CF%87%CE%BF%CE%BB%CE%B5%CE%AF%CE%BF) · [SaferInternet4Kids](https://saferinternet4kids.gr/wp-content/uploads/2026/01/sid_2026_parents_Pamphlet_cyberbullying.pdf) · [γραμμές βοήθειας (UNHCR)](https://help.unhcr.org/greece/el/%CF%80%CE%B1%CE%B9%CE%B4%CE%B9%CE%AC-%CE%BA%CE%B1%CE%B9-%CE%BD%CE%AD%CE%BF%CF%85%CF%82/helplines-greek-2/)

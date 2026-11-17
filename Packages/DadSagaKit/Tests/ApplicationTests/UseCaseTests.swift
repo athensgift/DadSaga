@@ -37,7 +37,7 @@ struct GetAdventureUseCaseTests {
         let adventure = try await sut.execute(for: Child(name: "Νίκος", birthDate: birth), childCount: 1, on: today)
 
         #expect(adventure.ageInMonths == 10)
-        #expect(!adventure.isBeyondContent)
+        #expect(!adventure.isJourneyComplete)
         #expect(adventure.currentWorld?.id == "w2")
         #expect(adventure.unlockedWorlds.map(\.id) == ["w1", "w2"])
         #expect(Set(adventure.availableQuests.map(\.id)) == ["q1", "q2"])
@@ -78,7 +78,7 @@ struct OlderChildAdventureTests {
             on: today
         )
 
-        #expect(adventure.isBeyondContent)
+        #expect(adventure.isJourneyComplete)
         #expect(adventure.currentWorld == nil)
         #expect(adventure.availableQuests.isEmpty)
         #expect(adventure.availableBosses.isEmpty)
