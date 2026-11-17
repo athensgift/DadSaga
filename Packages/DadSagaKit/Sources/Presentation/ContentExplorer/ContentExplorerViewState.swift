@@ -36,4 +36,6 @@ public struct CardModel: Equatable, Identifiable, Sendable {
     public var footnote: String?
     /// A marker that the card has more inside, e.g. a tip's title.
     public var hint: String?
+    /// The skill a quest feeds, e.g. "Care", so the dad sees which gear it moves him towards.
+    public var skill: String?
 }

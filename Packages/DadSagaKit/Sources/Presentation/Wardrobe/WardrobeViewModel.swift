@@ -114,14 +114,16 @@ public final class WardrobeViewModel {
                 title: text(el: "Αυτόματα", en: "Automatic"),
                 detail: text(el: "Το καλύτερο", en: "The best one"),
                 isSelected: choice == .automatic,
-                isLocked: false
+                isLocked: false,
+                progress: nil
             ),
             WardrobeOption(
                 id: Self.hiddenID,
                 title: text(el: "Τίποτα", en: "Nothing"),
                 detail: nil,
                 isSelected: choice == .hidden,
-                isLocked: false
+                isLocked: false,
+                progress: nil
             )
         ]
         options += items.map { item in
@@ -129,9 +131,10 @@ public final class WardrobeViewModel {
             return WardrobeOption(
                 id: item.id,
                 title: item.title.resolved(for: locale),
-                detail: isLocked ? text(el: "Στα \(item.minXP) XP", en: "At \(item.minXP) XP") : nil,
+                detail: isLocked ? "\(xp) / \(item.minXP) XP" : nil,
                 isSelected: choice == .item(item.id),
-                isLocked: isLocked
+                isLocked: isLocked,
+                progress: isLocked ? Double(xp) / Double(item.minXP) : nil
             )
         }
         return WardrobeSlot(
@@ -182,8 +185,10 @@ public struct WardrobeSlot: Equatable, Identifiable, Sendable {
 public struct WardrobeOption: Equatable, Identifiable, Sendable {
     public let id: String
     public let title: String
-    /// e.g. "Στα 200 XP" for a locked item.
+    /// The skill's XP towards a locked item, e.g. "120 / 200 XP".
     public let detail: String?
     public let isSelected: Bool
     public let isLocked: Bool
+    /// How far the skill is towards a locked item, 0 to 1. `nil` when nothing is locked.
+    public let progress: Double?
 }

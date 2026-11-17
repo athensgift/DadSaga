@@ -262,7 +262,8 @@ public final class HomeViewModel {
                 symbol: quest.skill.symbol,
                 kind: .quest,
                 footnote: completions[quest.id].map(strings.doneText),
-                hint: quest.tip?.title.resolved(for: locale)
+                hint: quest.tip?.title.resolved(for: locale),
+                skill: quest.skill.title.resolved(for: locale)
             )
         }
     }
