@@ -1,7 +1,8 @@
 import DesignSystem
 import SwiftUI
 
-/// The family's history: a section per month, newest first, for everyone or one child.
+/// The family's history, newest first, for everyone or one child: entries hang off a vertical
+/// chronology line, and each month is a node on that line.
 public struct TimelineView: View {
     @State private var viewModel: TimelineViewModel
 
@@ -61,7 +62,7 @@ public struct TimelineView: View {
 
     private func loaded(_ content: TimelineContent) -> some View {
         ScrollView {
-            LazyVStack(alignment: .leading, spacing: DSSpacing.s, pinnedViews: [.sectionHeaders]) {
+            LazyVStack(alignment: .leading, spacing: 0) {
                 if !content.filters.isEmpty {
                     Picker(
                         content.title,
@@ -82,20 +83,10 @@ public struct TimelineView: View {
                     )
                     .padding(.top, DSSpacing.xl)
                 }
-                ForEach(content.sections) { section in
-                    Section {
-                        ForEach(section.items) { item in
-                            row(item)
-                        }
-                    } header: {
-                        Text(section.title)
-                            .font(DSFont.headline)
-                            .foregroundStyle(DSColor.textSecondary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.top, DSSpacing.m)
-                            .padding(.bottom, DSSpacing.xs)
-                            .background(DSColor.background)
-                            .accessibilityAddTraits(.isHeader)
+                ForEach(Array(content.sections.enumerated()), id: \.element.id) { index, section in
+                    MonthNode(title: section.title, isFirst: index == 0)
+                    ForEach(section.items) { item in
+                        row(item, isLast: index == content.sections.count - 1 && item.id == section.items.last?.id)
                     }
                 }
             }
@@ -109,11 +100,11 @@ public struct TimelineView: View {
 
 private extension TimelineView {
     /// A row that opens its note and photo when tapped, and can be deleted from its context menu.
-    func row(_ item: TimelineItem) -> some View {
+    func row(_ item: TimelineItem, isLast: Bool) -> some View {
         Button {
             viewModel.editJournal(id: item.id)
         } label: {
-            TimelineRow(item: item) { await viewModel.photoData(id: $0) }
+            TimelineRow(item: item, isLast: isLast) { await viewModel.photoData(id: $0) }
         }
         .buttonStyle(.plain)
         .contextMenu {
@@ -130,8 +121,55 @@ private extension TimelineView {
     }
 }
 
+/// Width of the column that holds the chronology line and the entry icons.
+private let railWidth: CGFloat = 36
+
+/// The chronology line: a thin vertical stroke centred in the rail, optionally cut at the top or bottom
+/// so the line starts at the first month and ends at the last entry.
+private struct RailLine: View {
+    var startsHere = false
+    var endsHere = false
+
+    var body: some View {
+        GeometryReader { proxy in
+            let top = startsHere ? proxy.size.height / 2 : 0
+            let bottom = endsHere ? proxy.size.height / 2 : proxy.size.height
+            Rectangle()
+                .fill(DSColor.textSecondary.opacity(0.3))
+                .frame(width: 2, height: max(bottom - top, 0))
+                .offset(x: (proxy.size.width - 2) / 2, y: top)
+        }
+        .frame(width: railWidth)
+        .accessibilityHidden(true)
+    }
+}
+
+/// A month on the chronology line: a dot on the line and the month's name beside it.
+private struct MonthNode: View {
+    let title: String
+    let isFirst: Bool
+
+    var body: some View {
+        HStack(spacing: DSSpacing.m) {
+            Circle()
+                .fill(DSColor.textSecondary)
+                .frame(width: 10, height: 10)
+                .frame(width: railWidth)
+            Text(title)
+                .font(DSFont.headline)
+                .foregroundStyle(DSColor.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(.top, isFirst ? DSSpacing.s : DSSpacing.l)
+        .padding(.bottom, DSSpacing.s)
+        .background(alignment: .leading) { RailLine(startsHere: isFirst) }
+        .accessibilityAddTraits(.isHeader)
+    }
+}
+
 private struct TimelineRow: View {
     let item: TimelineItem
+    let isLast: Bool
     let loader: PhotoLoader
 
     private var tint: Color {
@@ -144,16 +182,28 @@ private struct TimelineRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: DSSpacing.m) {
-            MomentPhoto(photoID: item.photoID, loader: loader) {
-                Image(systemName: item.symbol)
-                    .font(.system(.body, weight: .semibold))
-                    .foregroundStyle(DSColor.heroHighlight)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(tint.gradient)
+            Image(systemName: item.symbol)
+                .font(.system(.subheadline, weight: .semibold))
+                .foregroundStyle(DSColor.heroHighlight)
+                .frame(width: railWidth, height: railWidth)
+                .background(tint.gradient, in: Circle())
+                .overlay(Circle().stroke(DSColor.background, lineWidth: 3))
+                .padding(.top, DSSpacing.m)
+                .accessibilityHidden(true)
+            card
+        }
+        .padding(.vertical, DSSpacing.xs)
+        .background(alignment: .leading) { RailLine(endsHere: isLast) }
+    }
+
+    private var card: some View {
+        HStack(alignment: .top, spacing: DSSpacing.m) {
+            if item.photoID != nil {
+                MomentPhoto(photoID: item.photoID, loader: loader) { tint.opacity(0.2) }
+                    .frame(width: 64, height: 64)
+                    .clipShape(RoundedRectangle(cornerRadius: DSRadius.tile, style: .continuous))
+                    .accessibilityHidden(true)
             }
-            .frame(width: item.photoID == nil ? 36 : 64, height: item.photoID == nil ? 36 : 64)
-            .clipShape(RoundedRectangle(cornerRadius: DSRadius.tile, style: .continuous))
-            .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: DSSpacing.xs) {
                 HStack(alignment: .firstTextBaseline, spacing: DSSpacing.s) {
                     Text(item.title)
