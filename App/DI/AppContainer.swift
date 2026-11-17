@@ -14,6 +14,10 @@ final class AppContainer {
     /// Photos of legendary moments, kept on the device, next to the store.
     private lazy var photoStore: any PhotoStore = FilePhotoStore.moments(in: SharedContainer.directory())
 
+    /// The weekly reminder (ADR-0024): its settings stay in the app's own defaults, the notifications are local.
+    private let reminderSettings: any ReminderSettingsRepository = UserDefaultsReminderSettingsRepository()
+    private let notificationScheduler: any NotificationScheduler = UserNotificationScheduler()
+
     // MARK: Use cases
     private var loadContentCatalogUseCase: any LoadContentCatalogUseCase {
         DefaultLoadContentCatalogUseCase(repository: contentRepository)
@@ -27,6 +31,32 @@ final class AppContainer {
         DefaultSaveProfileUseCase(contentRepository: contentRepository, profileRepository: store.profiles)
     }
 
+    /// Reschedules the next weekly notifications; the app runs it whenever it leaves the foreground.
+    /// One instance, so every reschedule (leaving the app, a settings change) waits for the one before it.
+    lazy var scheduleWeeklyReminders: any ScheduleWeeklyRemindersUseCase = DefaultScheduleWeeklyRemindersUseCase(
+        settings: reminderSettings,
+        scheduler: notificationScheduler,
+        profileRepository: store.profiles,
+        highlights: DefaultGetWeeklyHighlightsUseCase(
+            contentRepository: contentRepository,
+            profileRepository: store.profiles,
+            progressRepository: store.progress,
+            photoStore: photoStore
+        ),
+        text: WeeklyReminderText()
+    )
+
+    private var reminderUseCases: ReminderUseCases {
+        ReminderUseCases(
+            get: DefaultGetWeeklyReminderUseCase(settings: reminderSettings, scheduler: notificationScheduler),
+            update: DefaultUpdateWeeklyReminderUseCase(
+                settings: reminderSettings,
+                scheduler: notificationScheduler,
+                schedule: scheduleWeeklyReminders
+            )
+        )
+    }
+
     // MARK: Presentation
     func makeRootViewModel() -> RootViewModel {
         #if DEBUG
@@ -34,7 +64,9 @@ final class AppContainer {
             profileRepository: store.profiles,
             progressRepository: store.progress,
             photoStore: photoStore,
-            outfitRepository: store.outfit
+            outfitRepository: store.outfit,
+            reminderSettings: reminderSettings,
+            notificationScheduler: notificationScheduler
         )
         return RootViewModel(getProfile: getProfileUseCase, resetProfile: reset)
         #else
@@ -73,9 +105,14 @@ final class AppContainer {
                     update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
                 ),
-                getOutfit: DefaultGetOutfitUseCase(repository: store.outfit)
+                getOutfit: DefaultGetOutfitUseCase(repository: store.outfit),
+                reminder: reminderUseCases
             )
         )
+    }
+
+    func makeReminderSettingsViewModel() -> ReminderSettingsViewModel {
+        ReminderSettingsViewModel(useCases: reminderUseCases)
     }
 
     func makeFamilyViewModel(onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel {

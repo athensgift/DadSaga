@@ -32,7 +32,7 @@ public enum WeeklyQuest {
     }
 
     /// Weeks elapsed since a fixed reference week, counted by the calendar so daylight saving never shifts it.
-    static func weekNumber(of week: DateInterval, calendar: Calendar) -> Int {
+    public static func weekNumber(of week: DateInterval, calendar: Calendar) -> Int {
         let reference = Self.week(containing: Date(timeIntervalSinceReferenceDate: 0), calendar: calendar).start
         return calendar.dateComponents([.weekOfYear], from: reference, to: week.start).weekOfYear ?? 0
     }

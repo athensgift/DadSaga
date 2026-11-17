@@ -13,6 +13,8 @@ extension HomeViewModel {
         let deleteEvent: any DeleteEventUseCase
         let moments: MomentUseCases
         let getOutfit: (any GetOutfitUseCase)?
+        /// The weekly reminder offer; `nil` never offers it.
+        let reminder: ReminderUseCases?
 
         public init(
             getProfile: any GetProfileUseCase,
@@ -23,7 +25,8 @@ extension HomeViewModel {
             defeatBoss: any DefeatBossUseCase,
             deleteEvent: any DeleteEventUseCase,
             moments: MomentUseCases,
-            getOutfit: (any GetOutfitUseCase)? = nil
+            getOutfit: (any GetOutfitUseCase)? = nil,
+            reminder: ReminderUseCases? = nil
         ) {
             self.getProfile = getProfile
             self.loadCatalog = loadCatalog
@@ -34,6 +37,7 @@ extension HomeViewModel {
             self.deleteEvent = deleteEvent
             self.moments = moments
             self.getOutfit = getOutfit
+            self.reminder = reminder
         }
     }
 

@@ -21,6 +21,10 @@ public final class HomeViewModel {
     public internal(set) var selectedChildID: UUID?
     /// The world map, while it is open.
     public internal(set) var worldMap: WorldMapContent?
+    /// The offer of a weekly reminder, until the dad answers it.
+    public internal(set) var reminderOffer: ReminderOffer?
+    /// The dad answered the reminder offer in this session.
+    var reminderAnswered = false
     /// An earlier world the dad chose on the map, instead of the child's current one.
     var viewedWorldID: String?
 
@@ -158,7 +162,9 @@ public final class HomeViewModel {
             )
             let progress = try await useCases.getProgress.execute()
             let outfit = try await useCases.getOutfit?.execute() ?? Outfit()
+            let offer = await makeReminderOffer(children: profile.children, progress: progress)
             guard generation == loadGeneration else { return }
+            reminderOffer = offer
             selectedChildID = child.id
             self.outfit = outfit
             let world = adventure.unlockedWorlds.first { $0.id == viewedWorldID } ?? adventure.currentWorld
@@ -226,6 +232,7 @@ public final class HomeViewModel {
             selectedChildLine: hasSiblings ? childLine : nil,
             familyTitle: strings.text(el: "Η οικογένειά μου", en: "My family"),
             wardrobeTitle: strings.text(el: "Ντουλάπα", en: "Wardrobe"),
+            reminderTitle: strings.text(el: "Εβδομαδιαία υπενθύμιση", en: "Weekly reminder"),
             level: level.level,
             levelTitle: strings.text(el: "Επίπεδο \(level.level)", en: "Level \(level.level)"),
             levelFraction: level.fraction,
