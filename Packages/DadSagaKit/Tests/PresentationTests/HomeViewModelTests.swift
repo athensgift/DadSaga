@@ -265,7 +265,7 @@ struct HomeViewModelTests {
         #expect(second.selectedChildID == HeroStub.eleni.id)
         #expect(second.selectedChildLine == "Ελένη · 5 ετών")
         #expect(second.cards.isEmpty)
-        #expect(second.emptyMessage == "Οι περιπέτειες για την ηλικία του παιδιού σου έρχονται σύντομα.")
+        #expect(second.emptyMessage == "Το ταξίδι σας ολοκληρώθηκε. Ό,τι ζήσατε μαζί μένει στο χρονολόγιο.")
     }
 
     @Test("Given the second child is selected, when completing a quest, then it is recorded with that child")
