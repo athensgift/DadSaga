@@ -51,7 +51,7 @@ struct QuestSheet: View {
                     Button(role: .close, action: onClose)
                 }
             }
-            .safeAreaBar(edge: .bottom) { actions }
+            .sheetActions { actions }
         }
     }
 
@@ -67,7 +67,6 @@ struct QuestSheet: View {
         }
         .frame(maxWidth: readableWidth)
         .padding(.horizontal, DSSpacing.l)
-        .padding(.vertical, DSSpacing.s)
     }
 }
 
@@ -106,7 +105,6 @@ struct BossSheet: View {
                 .padding(DSSpacing.m)
                 .frame(maxWidth: .infinity)
             }
-            .background(DSColor.background)
             .navigationTitle(boss.title)
             .scrollDismissesKeyboard(.interactively)
             .toolbar {
@@ -114,7 +112,8 @@ struct BossSheet: View {
                     Button(role: .close, action: onClose)
                 }
             }
-            .safeAreaBar(edge: .bottom) { actions }
+            .sheetActions { actions }
+            .background(DSColor.background)
         }
     }
 
@@ -141,7 +140,20 @@ struct BossSheet: View {
         }
         .frame(maxWidth: readableWidth)
         .padding(.horizontal, DSSpacing.l)
-        .padding(.vertical, DSSpacing.s)
+    }
+}
+
+private extension View {
+    /// Pins a sheet's actions to its bottom edge, below the scrolling content rather than floating over it. The sheet's
+    /// bottom safe area is large at the medium detent, so the actions take it over instead of sitting above it.
+    func sheetActions(@ViewBuilder _ actions: () -> some View) -> some View {
+        VStack(spacing: 0) {
+            self
+            actions()
+                .padding(.top, DSSpacing.s)
+                .padding(.bottom, DSSpacing.l)
+        }
+        .ignoresSafeArea(.container, edges: .bottom)
     }
 }
 
