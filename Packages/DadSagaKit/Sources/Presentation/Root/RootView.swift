@@ -13,15 +13,24 @@ public struct RootView: View {
     private let makeFamily: HomeView.MakeFamily?
     private let makeTimeline: MakeTimeline?
     private let makeWardrobe: HomeView.MakeWardrobe?
+    private let makeReminderSettings: HomeView.MakeReminderSettings?
+    private let incomingURL: URL?
+    private let onIncomingURLHandled: @MainActor () -> Void
 
-    /// - Parameter makeTimeline: builds the timeline tab; `nil` shows home without tabs.
+    /// - Parameters:
+    ///   - makeTimeline: builds the timeline tab; `nil` shows home without tabs.
+    ///   - incomingURL: a link handed over by the app itself, e.g. from a tapped notification; `onIncomingURLHandled`
+    ///     runs once it was passed on.
     public init(
         viewModel: RootViewModel,
         makeOnboarding: @escaping MakeOnboarding,
         makeHome: @escaping MakeHome,
         makeFamily: HomeView.MakeFamily? = nil,
         makeTimeline: MakeTimeline? = nil,
-        makeWardrobe: HomeView.MakeWardrobe? = nil
+        makeWardrobe: HomeView.MakeWardrobe? = nil,
+        makeReminderSettings: HomeView.MakeReminderSettings? = nil,
+        incomingURL: URL? = nil,
+        onIncomingURLHandled: @escaping @MainActor () -> Void = {}
     ) {
         _viewModel = State(initialValue: viewModel)
         self.makeOnboarding = makeOnboarding
@@ -29,6 +38,9 @@ public struct RootView: View {
         self.makeFamily = makeFamily
         self.makeTimeline = makeTimeline
         self.makeWardrobe = makeWardrobe
+        self.makeReminderSettings = makeReminderSettings
+        self.incomingURL = incomingURL
+        self.onIncomingURLHandled = onIncomingURLHandled
     }
 
     public var body: some View {
@@ -51,6 +63,7 @@ public struct RootView: View {
                         developerMenu: developerMenu,
                         makeFamily: makeFamily,
                         makeWardrobe: makeWardrobe,
+                        makeReminderSettings: makeReminderSettings,
                         pendingLink: viewModel.pendingLink,
                         onLinkHandled: { viewModel.linkHandled() }
                     ),
@@ -63,8 +76,19 @@ public struct RootView: View {
         .background(DSColor.background)
         .tint(DSColor.accent)
         .animation(.easeInOut(duration: 0.35), value: viewModel.state)
-        .task { await viewModel.onAppear() }
+        .task {
+            await viewModel.onAppear()
+            openIncomingURL()
+        }
         .onOpenURL { viewModel.open(url: $0) }
+        .onChange(of: incomingURL) { openIncomingURL() }
+    }
+
+    /// Waits until the app knows whether there is a family, so a cold-launch link is not dropped while loading.
+    private func openIncomingURL() {
+        guard let incomingURL, viewModel.state != .loading else { return }
+        viewModel.open(url: incomingURL)
+        onIncomingURLHandled()
     }
 
     private var developerMenu: DeveloperMenu? {

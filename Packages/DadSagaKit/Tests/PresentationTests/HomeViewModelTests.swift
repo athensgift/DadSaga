@@ -294,7 +294,12 @@ struct HomeViewModelTests {
 
 /// A home presenter wired to stubs, shared by the home suites.
 @MainActor
-func makeHomeViewModel(profile: PlayerProfile?, progress: FakeProgress, locale: String = "el_GR") -> HomeViewModel {
+func makeHomeViewModel(
+    profile: PlayerProfile?,
+    progress: FakeProgress,
+    locale: String = "el_GR",
+    reminder: ReminderUseCases? = nil
+) -> HomeViewModel {
     HomeViewModel(
         useCases: HomeViewModel.UseCases(
             getProfile: StubGetProfile(profile: profile),
@@ -304,7 +309,8 @@ func makeHomeViewModel(profile: PlayerProfile?, progress: FakeProgress, locale: 
             completeQuest: progress,
             defeatBoss: progress,
             deleteEvent: progress,
-            moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress)
+            moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
+            reminder: reminder
         ),
         locale: Locale(identifier: locale),
         now: { HeroStub.today }

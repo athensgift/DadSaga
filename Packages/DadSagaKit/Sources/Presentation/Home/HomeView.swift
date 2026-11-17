@@ -8,26 +8,31 @@ import SwiftUI
 public struct HomeView: View {
     public typealias MakeFamily = @MainActor (_ onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel
     public typealias MakeWardrobe = @MainActor () -> WardrobeViewModel
+    public typealias MakeReminderSettings = @MainActor () -> ReminderSettingsViewModel
 
     @State var viewModel: HomeViewModel
     @State private var isWide = false
     @State var familyViewModel: FamilyViewModel?
     @State var wardrobeViewModel: WardrobeViewModel?
-    private let developerMenu: DeveloperMenu?
+    @State var reminderViewModel: ReminderSettingsViewModel?
+    let developerMenu: DeveloperMenu?
     let makeFamily: MakeFamily?
     let makeWardrobe: MakeWardrobe?
+    let makeReminderSettings: MakeReminderSettings?
     let pendingLink: AppLink?
     let onLinkHandled: @MainActor () -> Void
 
     /// - Parameters:
     ///   - makeFamily: builds the "My family" screen; `nil` hides its button.
     ///   - makeWardrobe: builds the wardrobe; `nil` hides its button.
+    ///   - makeReminderSettings: builds the weekly reminder settings; `nil` hides its button.
     ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` runs once it is open.
     public init(
         viewModel: HomeViewModel,
         developerMenu: DeveloperMenu? = nil,
         makeFamily: MakeFamily? = nil,
         makeWardrobe: MakeWardrobe? = nil,
+        makeReminderSettings: MakeReminderSettings? = nil,
         pendingLink: AppLink? = nil,
         onLinkHandled: @escaping @MainActor () -> Void = {}
     ) {
@@ -35,6 +40,7 @@ public struct HomeView: View {
         self.developerMenu = developerMenu
         self.makeFamily = makeFamily
         self.makeWardrobe = makeWardrobe
+        self.makeReminderSettings = makeReminderSettings
         self.pendingLink = pendingLink
         self.onLinkHandled = onLinkHandled
     }
@@ -66,6 +72,9 @@ public struct HomeView: View {
                 if makeFamily != nil {
                     ToolbarItem(placement: .primaryAction) { familyButton }
                 }
+                if makeReminderSettings != nil {
+                    ToolbarItem(placement: .primaryAction) { reminderButton }
+                }
                 DeveloperMenuToolbar(menu: developerMenu)
             }
         }
@@ -79,8 +88,11 @@ public struct HomeView: View {
                 viewModel.closeMap()
             }
         }
-        .sheet(item: $wardrobeViewModel, onDismiss: reloadAfterWardrobe) { wardrobe in
+        .sheet(item: $wardrobeViewModel, onDismiss: reloadAfterSheet) { wardrobe in
             WardrobeView(viewModel: wardrobe) { wardrobeViewModel = nil }
+        }
+        .sheet(item: $reminderViewModel, onDismiss: reloadAfterSheet) { reminder in
+            ReminderSettingsView(viewModel: reminder) { reminderViewModel = nil }
         }
         .onGeometryChange(for: Bool.self) { $0.size.width >= twoColumnWidth } action: { isWide = $0 }
         .task { await viewModel.onAppear() }
@@ -207,36 +219,16 @@ public struct HomeView: View {
         .frame(maxWidth: .infinity)
     }
 
-    /// The wide layout has no navigation bar, so its title and buttons sit at the top of the hero column.
-    private func wideHeader(_ content: HomeContent) -> some View {
-        HStack {
-            Text(content.heroTitle)
-                .font(DSFont.largeTitle)
-                .foregroundStyle(DSColor.textPrimary)
-                .accessibilityAddTraits(.isHeader)
-            Spacer()
-            if makeWardrobe != nil {
-                wardrobeButton
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.glass)
-            }
-            if makeFamily != nil {
-                familyButton
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.glass)
-            }
-            if let developerMenu {
-                DeveloperMenuButton(menu: developerMenu)
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.glass)
-            }
-        }
-    }
-
     private func adventure(_ content: HomeContent) -> some View {
         LazyVStack(alignment: .leading, spacing: DSSpacing.s) {
             if !content.childTabs.isEmpty {
                 ChildPicker(content: content) { id in Task { await viewModel.selectChild(id: id) } }
+            }
+            if let offer = viewModel.reminderOffer {
+                ReminderOfferCard(offer: offer) { accept in
+                    Task { await viewModel.answerReminderOffer(accept: accept) }
+                }
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
             }
             WorldHeader(content: content) {
                 viewModel.openMap()
@@ -272,6 +264,7 @@ public struct HomeView: View {
             )
                 .padding(.top, DSSpacing.l)
         }
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.reminderOffer)
     }
 }
 
@@ -290,46 +283,7 @@ private enum HomeSheet: Identifiable {
     }
 }
 
-// MARK: - Family and wardrobe buttons
-
 extension HomeView {
-    var wardrobeButton: some View {
-        Button {
-            wardrobeViewModel = makeWardrobe?()
-        } label: {
-            Label(wardrobeTitle, systemImage: "tshirt")
-        }
-    }
-
-    var wardrobeTitle: String {
-        if case .loaded(let content) = viewModel.state { content.wardrobeTitle } else { "" }
-    }
-
-    var familyTitle: String {
-        if case .loaded(let content) = viewModel.state { content.familyTitle } else { "" }
-    }
-
-    func openFamily() {
-        familyViewModel = makeFamily? {
-            familyViewModel = nil
-            Task { await viewModel.reload() }
-        }
-    }
-
-    func reloadAfterWardrobe() {
-        Task { await viewModel.reload() }
-    }
-}
-
-extension HomeView {
-    private var familyButton: some View {
-        Button {
-            openFamily()
-        } label: {
-            Label(familyTitle, systemImage: "person.2")
-        }
-    }
-
     @ViewBuilder var undoBar: some View {
         if let offer = viewModel.undoOffer {
             UndoBar(offer: offer) {
@@ -371,9 +325,11 @@ extension HomeView {
     /// Closes this screen's own sheets, then lets the presenter open the link (ADR-0023).
     func openPendingLink() async {
         guard let pendingLink else { return }
-        let hadSheet = familyViewModel != nil || wardrobeViewModel != nil || viewModel.worldMap != nil
+        let hadSheet = familyViewModel != nil || wardrobeViewModel != nil || reminderViewModel != nil
+            || viewModel.worldMap != nil
         familyViewModel = nil
         wardrobeViewModel = nil
+        reminderViewModel = nil
         viewModel.closeMap()
         // A new sheet cannot appear while the old one is still sliding away.
         if hadSheet { try? await Task.sleep(for: .milliseconds(450)) }

@@ -27,6 +27,7 @@ public struct HomeContent: Equatable, Sendable {
     public let selectedChildLine: String?
     public let familyTitle: String
     public let wardrobeTitle: String
+    public let reminderTitle: String
     public let level: Int
     /// e.g. "Επίπεδο 2".
     public let levelTitle: String
