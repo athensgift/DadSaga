@@ -1,7 +1,8 @@
 import DesignSystem
 import SwiftUI
 
-/// The dad with his children standing next to him: the first child on his right, the second on his left, and so on.
+/// The dad with his children standing next to him, left to right in the same order as the child tabs below:
+/// the first half of the children on his left, the rest on his right (one child stands on his right).
 /// Shrinks to fit the width, so four children fit on the iPhone Duo cover display. Tapping a child selects them.
 struct FamilyStage: View {
     let heroStyle: HeroAvatar.Style
@@ -59,13 +60,14 @@ struct FamilyStage: View {
         return min(maxHeroSize, width / widthPerHeroHeight)
     }
 
-    /// Odd positions (2nd, 4th child) stand on the dad's left, nearest first.
+    /// The first half of the children, rounded down, in tab order.
     private var leftSide: [CompanionModel] {
-        companions.enumerated().filter { $0.offset.isMultiple(of: 2) == false }.map(\.element).reversed()
+        Array(companions.prefix(companions.count / 2))
     }
 
+    /// The rest of the children, in tab order.
     private var rightSide: [CompanionModel] {
-        companions.enumerated().filter { $0.offset.isMultiple(of: 2) }.map(\.element)
+        Array(companions.dropFirst(companions.count / 2))
     }
 
     private func child(_ companion: CompanionModel, size: CGFloat, heroSize: CGFloat) -> some View {
