@@ -40,6 +40,7 @@ struct HomeMomentsTests {
         #expect(sut.momentCapture == nil)
         #expect(sut.celebration?.momentText == "👣 Βήματα")
         #expect(sut.celebration?.xpText == "+30 XP")
+        #expect(sut.celebration?.highlight == .moment)
         guard case .loaded(let content) = sut.state else {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
