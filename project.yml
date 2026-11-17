@@ -35,10 +35,18 @@ targets:
         product: Presentation
       - package: DadSagaKit
         product: DesignSystem
+      - target: DadSagaWidget
+    entitlements:
+      path: App/DadSaga.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.athinodoros.dadsaga]
     info:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: DadSaga
+        CFBundleURLTypes:
+          - CFBundleURLName: com.athinodoros.dadsaga
+            CFBundleURLSchemes: [dadsaga]
         CFBundleDevelopmentRegion: el
         CFBundleLocalizations: [el, en]
         UILaunchScreen: {}
@@ -52,3 +60,38 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.athinodoros.dadsaga
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: ""
+
+  # Home-screen widget (ADR-0023). Never links Presentation; WidgetContainer is its own composition root.
+  DadSagaWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Widget
+    dependencies:
+      - package: DadSagaKit
+        product: Domain
+      - package: DadSagaKit
+        product: Application
+      - package: DadSagaKit
+        product: Data
+      - package: DadSagaKit
+        product: DesignSystem
+      - package: DadSagaKit
+        product: WidgetPresentation
+    entitlements:
+      path: Widget/DadSagaWidget.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.athinodoros.dadsaga]
+    info:
+      path: Widget/Info.plist
+      properties:
+        CFBundleDisplayName: DadSaga
+        CFBundleDevelopmentRegion: el
+        CFBundleLocalizations: [el, en]
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.athinodoros.dadsaga.widget
+        TARGETED_DEVICE_FAMILY: "1"
+        SWIFT_EMIT_LOC_STRINGS: YES

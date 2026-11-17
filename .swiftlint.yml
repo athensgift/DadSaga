@@ -1,5 +1,6 @@
 included:
   - App
+  - Widget
   - Packages/DadSagaKit/Sources
   - Packages/DadSagaKit/Tests
 

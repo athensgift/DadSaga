@@ -7,11 +7,12 @@ import Presentation
 final class AppContainer {
     // MARK: Data
     private lazy var contentRepository: any ContentRepository = BundledContentRepository()
-    /// Falls back to session-only storage if the on-disk store cannot be opened, so the app still starts.
-    private lazy var store: LocalStore = (try? LocalStore.live()) ?? LocalStore.sessionOnly()
+    /// In the folder the app shares with the widget (ADR-0023). Falls back to session-only storage if the on-disk
+    /// store cannot be opened, so the app still starts.
+    private lazy var store: LocalStore = (try? LocalStore.live(in: SharedContainer.directory())) ?? LocalStore.sessionOnly()
 
-    /// Photos of legendary moments, kept on the device.
-    private lazy var photoStore: any PhotoStore = FilePhotoStore.appDefault()
+    /// Photos of legendary moments, kept on the device, next to the store.
+    private lazy var photoStore: any PhotoStore = FilePhotoStore.moments(in: SharedContainer.directory())
 
     // MARK: Use cases
     private var loadContentCatalogUseCase: any LoadContentCatalogUseCase {

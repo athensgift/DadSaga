@@ -1,27 +1,8 @@
 import DesignSystem
 import SwiftUI
 
-#if canImport(UIKit)
-import UIKit
-#elseif canImport(AppKit)
-import AppKit
-#endif
-
 /// Loads a moment's photo from the device by id.
 typealias PhotoLoader = (_ id: String) async -> Data?
-
-extension Image {
-    /// An image from encoded data (JPEG, HEIC, PNG…), or `nil` if it cannot be decoded.
-    init?(imageData: Data) {
-        #if canImport(UIKit)
-        guard let image = UIImage(data: imageData) else { return nil }
-        self.init(uiImage: image)
-        #elseif canImport(AppKit)
-        guard let image = NSImage(data: imageData) else { return nil }
-        self.init(nsImage: image)
-        #endif
-    }
-}
 
 /// A moment's photo, filling its frame. Shows the placeholder until it loads, or if it is missing.
 struct MomentPhoto<Placeholder: View>: View {

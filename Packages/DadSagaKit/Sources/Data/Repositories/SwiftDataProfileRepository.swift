@@ -7,7 +7,6 @@ import SwiftData
 @ModelActor
 actor SwiftDataProfileRepository: ProfileRepository {
     func fetchProfile() async throws -> PlayerProfile? {
-        try LegacyProfileMigration.run(in: modelContext)
         guard let record = try record() else { return nil }
         let children = try modelContext
             .fetch(FetchDescriptor<ChildRecord>(sortBy: [SortDescriptor(\.order)]))
@@ -21,17 +20,12 @@ actor SwiftDataProfileRepository: ProfileRepository {
 
     /// Replaces the stored profile and family. Children keep their ids, so their progress stays linked.
     func save(_ profile: PlayerProfile) async throws {
-        let first = profile.children.first
         if let record = try record() {
-            record.childName = first?.name ?? ""
-            record.birthDate = first?.birthDate ?? .now
             record.heroClassID = profile.heroClassID
             record.dadSkinTone = profile.dadSkinTone.rawValue
         } else {
             modelContext.insert(
                 ProfileRecord(
-                    childName: first?.name ?? "",
-                    birthDate: first?.birthDate ?? .now,
                     heroClassID: profile.heroClassID,
                     dadSkinTone: profile.dadSkinTone.rawValue
                 )

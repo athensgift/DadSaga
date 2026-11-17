@@ -1,3 +1,4 @@
+import Application
 import DesignSystem
 import SwiftUI
 
@@ -15,20 +16,27 @@ public struct HomeView: View {
     private let developerMenu: DeveloperMenu?
     let makeFamily: MakeFamily?
     let makeWardrobe: MakeWardrobe?
+    let pendingLink: AppLink?
+    let onLinkHandled: @MainActor () -> Void
 
     /// - Parameters:
     ///   - makeFamily: builds the "My family" screen; `nil` hides its button.
     ///   - makeWardrobe: builds the wardrobe; `nil` hides its button.
+    ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` runs once it is open.
     public init(
         viewModel: HomeViewModel,
         developerMenu: DeveloperMenu? = nil,
         makeFamily: MakeFamily? = nil,
-        makeWardrobe: MakeWardrobe? = nil
+        makeWardrobe: MakeWardrobe? = nil,
+        pendingLink: AppLink? = nil,
+        onLinkHandled: @escaping @MainActor () -> Void = {}
     ) {
         _viewModel = State(initialValue: viewModel)
         self.developerMenu = developerMenu
         self.makeFamily = makeFamily
         self.makeWardrobe = makeWardrobe
+        self.pendingLink = pendingLink
+        self.onLinkHandled = onLinkHandled
     }
 
     public var body: some View {
@@ -76,6 +84,7 @@ public struct HomeView: View {
         }
         .onGeometryChange(for: Bool.self) { $0.size.width >= twoColumnWidth } action: { isWide = $0 }
         .task { await viewModel.onAppear() }
+        .task(id: pendingLink) { await openPendingLink() }
         .sheet(item: activeSheet) { sheet in
             switch sheet {
             case .quest(let quest):
@@ -353,5 +362,22 @@ extension HomeView {
             onConfirm: { note, photo in Task { await viewModel.defeatSelectedBoss(note: note, photo: photo) } },
             onClose: { viewModel.dismissSelection() }
         )
+    }
+}
+
+// MARK: - Links from outside the app
+
+extension HomeView {
+    /// Closes this screen's own sheets, then lets the presenter open the link (ADR-0023).
+    func openPendingLink() async {
+        guard let pendingLink else { return }
+        let hadSheet = familyViewModel != nil || wardrobeViewModel != nil || viewModel.worldMap != nil
+        familyViewModel = nil
+        wardrobeViewModel = nil
+        viewModel.closeMap()
+        // A new sheet cannot appear while the old one is still sliding away.
+        if hadSheet { try? await Task.sleep(for: .milliseconds(450)) }
+        await viewModel.open(pendingLink)
+        onLinkHandled()
     }
 }

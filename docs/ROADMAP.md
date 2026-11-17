@@ -30,7 +30,7 @@ Each phase lists what gets built and what it demonstrates.
 
 ## Phase 3: Polish
 - ✅ Level-up / legendary / unlock animations + haptics
-- Home-screen widget (weekly quest + latest legendary moment)
+- ✅ Home-screen widget (weekly quest + latest legendary moment, ADR-0023)
 - Gentle local notifications (max one a week)
 - Accessibility (Dynamic Type, VoiceOver, contrast), full el/en localization
 - Snapshot / UI tests

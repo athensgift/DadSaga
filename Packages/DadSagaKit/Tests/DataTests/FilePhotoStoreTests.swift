@@ -76,4 +76,16 @@ struct FilePhotoStoreTests {
         let sut = FilePhotoStore(directory: directory)
         #expect(await sut.load(id: "../../etc/hosts") == nil)
     }
+
+    @Test("Given a stored photo, when asking for a thumbnail, then its longest side is at most the limit")
+    func thumbnail() async throws {
+        let sut = FilePhotoStore(directory: directory)
+        let id = try await sut.save(try png(width: 1200, height: 900))
+
+        let thumbnail = try #require(await sut.thumbnail(id: id, maxPixelSize: 300))
+
+        let size = try pixelSize(of: thumbnail)
+        #expect(max(size.width, size.height) == 300)
+        #expect(await sut.thumbnail(id: UUID().uuidString, maxPixelSize: 300) == nil)
+    }
 }

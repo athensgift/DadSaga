@@ -87,27 +87,6 @@ struct LocalStoreTests {
         #expect(try await sut.fetchProfile() == nil)
     }
 
-    @Test("Given a store from before families, when migrating, then the child is kept and their events are linked")
-    func legacyMigration() throws {
-        let container = try ModelContainer(
-            for: ProfileRecord.self, ChildRecord.self, ProgressEventRecord.self,
-            configurations: ModelConfiguration(isStoredInMemoryOnly: true)
-        )
-        let context = ModelContext(container)
-        context.insert(ProfileRecord(childName: "Νίκος", birthDate: birth, heroClassID: "h-cool", dadSkinTone: "mediumLight"))
-        context.insert(ProgressEventRecord(event: ProgressEvent(kind: .quest(id: "q1"), date: birth)))
-        try context.save()
-
-        try LegacyProfileMigration.run(in: context)
-        try LegacyProfileMigration.run(in: context)
-
-        let children = try context.fetch(FetchDescriptor<ChildRecord>())
-        #expect(children.map(\.name) == ["Νίκος"])
-        #expect(children.first?.birthDate == birth)
-        let events = try context.fetch(FetchDescriptor<ProgressEventRecord>())
-        #expect(events.map(\.childID) == [children.first?.childID])
-    }
-
     @Test("Given stored events, when fetching, then they come back oldest first with their ids and kinds")
     func progressRoundTrip() async throws {
         let sut = try LocalStore.inMemory().progress

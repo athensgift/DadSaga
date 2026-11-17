@@ -45,13 +45,16 @@ public struct RootView: View {
             case .home:
                 MainTabs(
                     tabs: viewModel.tabs,
+                    selection: $viewModel.selectedTab,
                     home: HomeView(
                         viewModel: makeHome(),
                         developerMenu: developerMenu,
                         makeFamily: makeFamily,
-                        makeWardrobe: makeWardrobe
+                        makeWardrobe: makeWardrobe,
+                        pendingLink: viewModel.pendingLink,
+                        onLinkHandled: { viewModel.linkHandled() }
                     ),
-                    timeline: makeTimeline.map { TimelineView(viewModel: $0()) }
+                    timeline: makeTimeline.map { TimelineView(viewModel: $0(), isOpeningLink: viewModel.pendingLink != nil) }
                 )
                 .transition(.opacity)
             }
@@ -61,6 +64,7 @@ public struct RootView: View {
         .tint(DSColor.accent)
         .animation(.easeInOut(duration: 0.35), value: viewModel.state)
         .task { await viewModel.onAppear() }
+        .onOpenURL { viewModel.open(url: $0) }
     }
 
     private var developerMenu: DeveloperMenu? {
@@ -72,14 +76,15 @@ public struct RootView: View {
 /// Adventure and timeline as tabs. The tab bar is Liquid Glass and shrinks while scrolling.
 private struct MainTabs: View {
     let tabs: RootTabs
+    @Binding var selection: RootTab
     let home: HomeView
     let timeline: TimelineView?
 
     var body: some View {
         if let timeline {
-            TabView {
-                Tab(tabs.adventure, systemImage: "figure.and.child.holdinghands") { home }
-                Tab(tabs.timeline, systemImage: "clock.arrow.circlepath") { timeline }
+            TabView(selection: $selection) {
+                Tab(tabs.adventure, systemImage: "figure.and.child.holdinghands", value: RootTab.adventure) { home }
+                Tab(tabs.timeline, systemImage: "clock.arrow.circlepath", value: RootTab.timeline) { timeline }
             }
             #if os(iOS)
             .tabBarMinimizeBehavior(.onScrollDown)

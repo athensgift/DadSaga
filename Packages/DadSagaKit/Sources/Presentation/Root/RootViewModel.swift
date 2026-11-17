@@ -12,6 +12,10 @@ public final class RootViewModel {
     }
 
     public private(set) var state: State = .loading
+    /// The tab on screen.
+    public var selectedTab: RootTab = .adventure
+    /// A link from outside the app waiting for home to open it.
+    public private(set) var pendingLink: AppLink?
 
     /// Development builds only: whether the developer menu is offered.
     public var hasDeveloperMenu: Bool { resetProfile != nil }
@@ -42,9 +46,23 @@ public final class RootViewModel {
     public func onAppear() async {
         let profile = try? await getProfile.execute()
         state = profile == nil ? .onboarding : .home
+        if state == .onboarding { pendingLink = nil }
+    }
+
+    /// A URL the app was opened with (the widget). Anything that is not a DadSaga link, or any link before the family
+    /// exists, is ignored.
+    public func open(url: URL) {
+        guard state != .onboarding, let link = AppLink(url: url) else { return }
+        selectedTab = .adventure
+        pendingLink = link
+    }
+
+    public func linkHandled() {
+        pendingLink = nil
     }
 
     public func onboardingFinished() {
+        selectedTab = .adventure
         state = .home
     }
 
@@ -58,6 +76,10 @@ public final class RootViewModel {
             // Nothing was deleted, so stay where we are.
         }
     }
+}
+
+public enum RootTab: Hashable, Sendable {
+    case adventure, timeline
 }
 
 public struct RootTabs: Equatable, Sendable {
