@@ -6,6 +6,12 @@ struct LevelPanel: View {
     let title: String
     let xpLine: String
     let fraction: Double
+    /// Set while a level-up is celebrated: the bar fills to the end before starting the new level, and the panel glows.
+    var levelUpID: Int?
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var shownFraction: Double?
+    @State private var isGlowing = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.s) {
@@ -13,6 +19,7 @@ struct LevelPanel: View {
                 Text(title)
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.textPrimary)
+                    .contentTransition(.numericText())
                 Spacer()
                 Text(xpLine)
                     .font(DSFont.caption)
@@ -20,12 +27,34 @@ struct LevelPanel: View {
                     .monospacedDigit()
                     .contentTransition(.numericText())
             }
-            XPBar(fraction: fraction)
+            XPBar(fraction: shownFraction ?? fraction)
         }
         .padding(DSSpacing.m)
         .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous)
+                .stroke(DSColor.legendary, lineWidth: 2)
+                .shadow(color: DSColor.legendary.opacity(0.7), radius: 8)
+                .opacity(isGlowing ? 1 : 0)
+        }
         .animation(.spring(response: 0.6, dampingFraction: 0.8), value: fraction)
+        .task(id: levelUpID) { await celebrateLevelUp() }
         .accessibilityElement(children: .combine)
+    }
+
+    /// Fills the old level to the end, then empties into the new one, instead of the bar running backwards.
+    private func celebrateLevelUp() async {
+        guard levelUpID != nil else { return }
+        withAnimation(.easeInOut(duration: 0.3)) { isGlowing = true }
+        if !reduceMotion {
+            withAnimation(.easeOut(duration: 0.45)) { shownFraction = 1 }
+            try? await Task.sleep(for: .milliseconds(550))
+            shownFraction = 0
+            try? await Task.sleep(for: .milliseconds(50))
+        }
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) { shownFraction = nil }
+        try? await Task.sleep(for: .seconds(1.2))
+        withAnimation(.easeInOut(duration: 0.6)) { isGlowing = false }
     }
 }
 
@@ -66,21 +95,25 @@ struct CelebrationBadge: View {
                 Label(levelUpText, systemImage: "star.fill")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.legendary)
+                    .symbolEffect(.bounce, value: celebration.id)
             }
             if let badgeText = celebration.badgeText {
                 Label(badgeText, systemImage: "rosette")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.boss)
+                    .symbolEffect(.bounce, value: celebration.id)
             }
             if let momentText = celebration.momentText {
                 Label(momentText, systemImage: "star.fill")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.legendary)
+                    .symbolEffect(.bounce, value: celebration.id)
             }
             if let unlockText = celebration.unlockText {
                 Label(unlockText, systemImage: "gift.fill")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.accent)
+                    .symbolEffect(.bounce, value: celebration.id)
             }
         }
         .lineLimit(1)
@@ -88,11 +121,59 @@ struct CelebrationBadge: View {
         .padding(.horizontal, DSSpacing.l)
         .padding(.vertical, DSSpacing.m)
         .glassEffect(.regular, in: .rect(cornerRadius: DSRadius.card))
-        .offset(y: -DSSpacing.l)
         .transition(.scale(scale: 0.6).combined(with: .opacity))
         .task(id: celebration.id) {
-            try? await Task.sleep(for: .seconds(celebration.unlockText == nil ? 2.2 : 3.2))
+            try? await Task.sleep(for: .seconds(celebration.highlight >= .unlock ? 3.2 : 2.2))
             onFinished()
+        }
+    }
+}
+
+/// The badge with its burst, centred over the screen, and the haptic, while something is celebrated.
+struct CelebrationOverlay: ViewModifier {
+    let celebration: Celebration?
+    let onFinished: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if let celebration {
+                    ZStack {
+                        if let color = celebration.burstColor {
+                            CelebrationBurst(
+                                color: color,
+                                sparkles: celebration.highlight == .levelUp ? 16 : 10,
+                                // The card's sheet is still closing when the celebration starts.
+                                delay: 0.35
+                            )
+                                .id(celebration.id)
+                        }
+                        CelebrationBadge(celebration: celebration, onFinished: onFinished)
+                    }
+                }
+            }
+            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: celebration)
+            .sensoryFeedback(trigger: celebration) { _, celebration in celebration?.feedback }
+    }
+}
+
+extension Celebration {
+    /// The burst behind the badge, for moments bigger than an ordinary quest.
+    var burstColor: Color? {
+        switch highlight {
+        case .quest: nil
+        case .boss: DSColor.boss
+        case .unlock: DSColor.accent
+        case .moment, .levelUp: DSColor.legendary
+        }
+    }
+
+    /// An ordinary quest gets none here: the hero's cheer already taps once.
+    var feedback: SensoryFeedback? {
+        switch highlight {
+        case .quest: nil
+        case .boss, .unlock: .impact(weight: .heavy)
+        case .moment, .levelUp: .success
         }
     }
 }

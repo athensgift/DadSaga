@@ -166,6 +166,19 @@ public struct Celebration: Equatable, Identifiable, Sendable {
     public let unlockText: String?
     /// A legendary moment just captured, e.g. "Πρώτα βήματα".
     public var momentText: String?
+
+    /// How big a moment this is, which sets the animation and haptic. Bigger moments win when several happen at once.
+    public enum Highlight: Comparable, Sendable {
+        case quest, boss, unlock, moment, levelUp
+    }
+
+    public var highlight: Highlight {
+        if levelUpText != nil { return .levelUp }
+        if momentText != nil { return .moment }
+        if unlockText != nil { return .unlock }
+        if badgeText != nil { return .boss }
+        return .quest
+    }
 }
 
 /// Shown for a few seconds after something is recorded.

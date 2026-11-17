@@ -123,6 +123,7 @@ public struct HomeView: View {
             HStack(alignment: .top, spacing: 0) {
                 ScrollView { heroPanel(content).padding(DSSpacing.l) }
                     .frame(maxWidth: .infinity)
+                    .modifier(celebrationOverlay)
                 ScrollView { adventure(content).padding(DSSpacing.l) }
                     .frame(maxWidth: .infinity)
             }
@@ -136,7 +137,14 @@ public struct HomeView: View {
                 .padding(DSSpacing.m)
                 .frame(maxWidth: .infinity)
             }
+            .modifier(celebrationOverlay)
         }
+    }
+
+    /// Fixed over the scroll view, not scrolled with the hero, so a dad who completes a card further down still sees it.
+    /// On wide screens it stays in the hero column, away from the Duo's fold.
+    private var celebrationOverlay: CelebrationOverlay {
+        CelebrationOverlay(celebration: viewModel.celebration) { viewModel.celebrationFinished() }
     }
 
     private func heroPanel(_ content: HomeContent) -> some View {
@@ -171,11 +179,6 @@ public struct HomeView: View {
                     )
                     .frame(width: 300, height: 300)
             }
-            .overlay(alignment: .top) {
-                if let celebration = viewModel.celebration {
-                    CelebrationBadge(celebration: celebration) { viewModel.celebrationFinished() }
-                }
-            }
             VStack(spacing: DSSpacing.xs) {
                 Text(content.companionLine)
                     .font(DSFont.headline)
@@ -185,10 +188,14 @@ public struct HomeView: View {
                     .foregroundStyle(DSColor.textSecondary)
             }
             .multilineTextAlignment(.center)
-            LevelPanel(title: content.levelTitle, xpLine: content.xpLine, fraction: content.levelFraction)
+            LevelPanel(
+                title: content.levelTitle,
+                xpLine: content.xpLine,
+                fraction: content.levelFraction,
+                levelUpID: viewModel.celebration.flatMap { $0.highlight == .levelUp ? $0.id : nil }
+            )
         }
         .frame(maxWidth: .infinity)
-        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: viewModel.celebration)
     }
 
     /// The wide layout has no navigation bar, so its title and buttons sit at the top of the hero column.

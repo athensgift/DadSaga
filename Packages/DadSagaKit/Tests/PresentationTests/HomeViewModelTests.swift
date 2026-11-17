@@ -33,6 +33,7 @@ struct HomeViewModelTests {
         #expect(sut.celebration?.id == 1)
         #expect(sut.celebration?.xpText == "+20 XP")
         #expect(sut.celebration?.levelUpText == nil)
+        #expect(sut.celebration?.highlight == .quest)
 
         sut.celebrationFinished()
         #expect(sut.celebration == nil)
@@ -106,6 +107,7 @@ struct HomeViewModelTests {
         await sut.completeSelectedQuest()
 
         #expect(sut.celebration?.unlockText == "Νέο: Πανάκι")
+        #expect(sut.celebration?.highlight == .unlock)
         guard case .loaded(let after) = sut.state else {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
@@ -124,18 +126,6 @@ struct HomeViewModelTests {
             return
         }
         #expect(content.medalCount == 1)
-    }
-
-    @Test("Given 80 XP, when completing a quest, then the celebration announces the new level")
-    func levelUpCelebration() async {
-        await progress.seed(times: 4)
-        let sut = makeSUT(profile: HeroStub.profile)
-        await sut.onAppear()
-
-        sut.select(cardID: "q1")
-        await sut.completeSelectedQuest()
-
-        #expect(sut.celebration?.levelUpText == "Επίπεδο 2!")
     }
 
     @Test("Given a boss card, when selecting it, then its intro, guide and reward are shown")
@@ -165,6 +155,7 @@ struct HomeViewModelTests {
         #expect(sut.celebration?.xpText == "+100 XP")
         #expect(sut.celebration?.badgeText == "β")
         #expect(sut.celebration?.levelUpText == "Επίπεδο 2!")
+        #expect(sut.celebration?.highlight == .levelUp)
         guard case .loaded(let content) = sut.state else {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
