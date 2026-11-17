@@ -113,6 +113,11 @@ public struct WardrobeView: View {
             Task { await viewModel.select(slotID: slotID, optionID: option.id) }
         } label: {
             VStack(spacing: DSSpacing.xs) {
+                if let item = option.item {
+                    HeroItemIcon(item: item.heroItem, size: 60)
+                        .grayscale(option.isLocked ? 1 : 0)
+                        .opacity(option.isLocked ? 0.55 : 1)
+                }
                 HStack(spacing: DSSpacing.xs) {
                     if option.isLocked {
                         Image(systemName: "lock.fill").font(.caption)

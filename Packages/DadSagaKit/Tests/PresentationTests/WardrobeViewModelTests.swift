@@ -52,6 +52,8 @@ struct WardrobeViewModelTests {
         #expect(care.options.last?.detail == "60 / 200 XP")
         #expect(care.options.last?.progress == 0.3)
         #expect(care.options.dropLast().allSatisfy { $0.progress == nil })
+        // Real items carry their drawing for the wardrobe icon; a look the app cannot draw carries none.
+        #expect(care.options.map(\.item) == [nil, nil, .burpCloth, nil])
     }
 
     @Test("Given an earned item, when choosing nothing then the item, then the preview and storage follow")
