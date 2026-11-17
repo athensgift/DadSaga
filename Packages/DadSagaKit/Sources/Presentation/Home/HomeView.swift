@@ -242,7 +242,8 @@ public struct HomeView: View {
                         symbol: card.symbol,
                         style: card.kind.cardStyle,
                         footnote: card.footnote,
-                        hint: card.hint
+                        hint: card.hint,
+                        skill: card.skill
                     )
                 }
                 .buttonStyle(.plain)

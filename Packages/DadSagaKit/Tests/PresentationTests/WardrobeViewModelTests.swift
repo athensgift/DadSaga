@@ -31,7 +31,7 @@ struct WardrobeViewModelTests {
         return content
     }
 
-    @Test("Given 60 care XP, when appearing, then the burp cloth is worn automatically and the next tier is locked")
+    @Test("Given 60 care XP, when appearing, then the burp cloth is worn automatically and the next tier shows the XP towards it")
     func loads() async throws {
         await progress.seed(times: 3)
         let sut = makeSUT()
@@ -49,7 +49,9 @@ struct WardrobeViewModelTests {
         #expect(care.options.map(\.title) == ["Αυτόματα", "Τίποτα", "Πανάκι", "x"])
         #expect(care.options.map(\.isSelected) == [true, false, false, false])
         #expect(care.options.map(\.isLocked) == [false, false, false, true])
-        #expect(care.options.last?.detail == "Στα 200 XP")
+        #expect(care.options.last?.detail == "60 / 200 XP")
+        #expect(care.options.last?.progress == 0.3)
+        #expect(care.options.dropLast().allSatisfy { $0.progress == nil })
     }
 
     @Test("Given an earned item, when choosing nothing then the item, then the preview and storage follow")

@@ -127,6 +127,12 @@ public struct WardrobeView: View {
                     Text(detail)
                         .font(DSFont.caption)
                         .foregroundStyle(DSColor.textSecondary)
+                        .monospacedDigit()
+                }
+                if let progress = option.progress {
+                    ProgressView(value: progress)
+                        .tint(DSColor.xp)
+                        .accessibilityHidden(true)
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 52)
@@ -135,7 +141,7 @@ public struct WardrobeView: View {
             .background(DSColor.surface, in: shape)
             .overlay { shape.strokeBorder(DSColor.accent, lineWidth: option.isSelected ? 2.5 : 0) }
             .contentShape(shape)
-            .opacity(option.isLocked ? 0.5 : 1)
+            .opacity(option.isLocked ? 0.7 : 1)
         }
         .buttonStyle(.plain)
         .disabled(option.isLocked)

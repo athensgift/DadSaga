@@ -74,11 +74,13 @@ public struct QuestCard: View {
     let style: Style
     let footnote: String?
     let hint: String?
+    let skill: String?
 
     /// - Parameters:
     ///   - symbol: SF Symbol name for the icon tile.
     ///   - footnote: an optional "done" line under the text, e.g. how many times a quest was completed.
     ///   - hint: an optional marker that there is more inside, e.g. the title of a tip.
+    ///   - skill: the skill the card feeds, shown with the icon's symbol, e.g. "Care".
     public init(
         title: String,
         subtitle: String,
@@ -86,7 +88,8 @@ public struct QuestCard: View {
         symbol: String,
         style: Style = .quest,
         footnote: String? = nil,
-        hint: String? = nil
+        hint: String? = nil,
+        skill: String? = nil
     ) {
         self.title = title
         self.subtitle = subtitle
@@ -95,6 +98,7 @@ public struct QuestCard: View {
         self.style = style
         self.footnote = footnote
         self.hint = hint
+        self.skill = skill
     }
 
     public var body: some View {
@@ -121,6 +125,12 @@ public struct QuestCard: View {
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
+                if let skill {
+                    Label(skill, systemImage: symbol)
+                        .font(DSFont.caption)
+                        .foregroundStyle(DSColor.textSecondary)
+                        .padding(.top, DSSpacing.xs)
+                }
                 if let hint {
                     Label(hint, systemImage: "lightbulb.fill")
                         .font(DSFont.caption)
