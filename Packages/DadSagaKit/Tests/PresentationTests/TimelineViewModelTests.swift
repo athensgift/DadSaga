@@ -233,7 +233,7 @@ struct StubGetTimeline: GetTimelineUseCase {
 }
 
 struct StubGetPhoto: GetPhotoUseCase {
-    func execute(id: String) async -> Data? {
+    func execute(id: String, maxPixelSize: Int) async -> Data? {
         nil
     }
 }

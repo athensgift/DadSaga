@@ -1,6 +1,7 @@
 import Application
 import Domain
 import Foundation
+import Localization
 import Observation
 
 /// Presenter for the wardrobe: choose, per slot, which earned item the hero wears, or nothing, or "automatic".
@@ -55,7 +56,7 @@ public final class WardrobeViewModel {
             outfit = try await useCases.getOutfit.execute()
             rebuild()
         } catch {
-            state = .failed(message: text(el: "Η ντουλάπα δεν φόρτωσε.", en: "The wardrobe failed to load."))
+            state = .failed(message: strings.text("The wardrobe failed to load."))
         }
     }
 
@@ -79,7 +80,7 @@ public final class WardrobeViewModel {
             errorMessage = nil
         } catch {
             outfit = previous
-            errorMessage = text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
+            errorMessage = strings.text("Couldn't save. Please try again.")
         }
         rebuild()
     }
@@ -91,16 +92,13 @@ public final class WardrobeViewModel {
         let skillXP = progress.skillXP
         state = .loaded(
             WardrobeContent(
-                title: text(el: "Ντουλάπα", en: "Wardrobe"),
+                title: strings.text("Wardrobe"),
                 heroLook: HeroLook(heroClassID: profile?.heroClassID ?? ""),
                 heroSkin: SkinToneChoice(profile?.dadSkinTone ?? .mediumLight),
                 gear: GearRules.equipped(gear, skillXP: skillXP, outfit: outfit).compactMap { HeroGearLook(look: $0.look) },
                 medalCount: progress.allDefeatedBossIDs.count,
                 slots: Skill.allCases.map { slot(for: $0, xp: skillXP[$0, default: 0]) },
-                footnote: text(
-                    el: "Κερδίζεις αντικείμενα με τα XP κάθε δεξιότητας. Ό,τι κερδίζεις μένει δικό σου.",
-                    en: "You earn items with each skill's XP. What you earn stays yours."
-                )
+                footnote: strings.text("You earn items with each skill's XP. What you earn stays yours.")
             )
         )
     }
@@ -111,8 +109,8 @@ public final class WardrobeViewModel {
         var options = [
             WardrobeOption(
                 id: Self.automaticID,
-                title: text(el: "Αυτόματα", en: "Automatic"),
-                detail: text(el: "Το καλύτερο", en: "The best one"),
+                title: strings.text("Automatic"),
+                detail: strings.text("The best one"),
                 isSelected: choice == .automatic,
                 isLocked: false,
                 progress: nil,
@@ -120,7 +118,7 @@ public final class WardrobeViewModel {
             ),
             WardrobeOption(
                 id: Self.hiddenID,
-                title: text(el: "Τίποτα", en: "Nothing"),
+                title: strings.text("Nothing"),
                 detail: nil,
                 isSelected: choice == .hidden,
                 isLocked: false,
@@ -142,16 +140,14 @@ public final class WardrobeViewModel {
         }
         return WardrobeSlot(
             id: skill.rawValue,
-            title: skill.title.resolved(for: locale),
+            title: strings.skill(skill),
             symbol: skill.symbol,
             xpText: "\(xp) XP",
             options: options
         )
     }
 
-    private func text(el: String, en: String) -> String {
-        LocalizedText(el: el, en: en).resolved(for: locale)
-    }
+    private var strings: Strings { Strings(locale: locale) }
 }
 
 /// Identified by object, so home can present it with `sheet(item:)`.

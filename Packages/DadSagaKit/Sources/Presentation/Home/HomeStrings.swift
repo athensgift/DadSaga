@@ -1,63 +1,68 @@
 import Domain
 import Foundation
+import Localization
 
-/// Text and formatting for the home screen, in the user's language.
+/// Text and formatting for the home screen, in the user's language (ADR-0027).
 struct HomeStrings {
-    let locale: Locale
+    let strings: Strings
+    var locale: Locale { strings.locale }
+
+    init(locale: Locale) {
+        strings = Strings(locale: locale)
+    }
+
+    func text(_ key: String.LocalizationValue) -> String {
+        strings.text(key)
+    }
 
     func defeatedText(for boss: BossFight) -> String {
-        text(el: "Νικήθηκε", en: "Defeated") + " · " + boss.badge.resolved(for: locale)
+        strings.text("Defeated") + " · " + boss.badge.resolved(for: locale)
+    }
+
+    func skill(_ skill: Skill) -> String {
+        strings.skill(skill)
+    }
+
+    func day(_ date: Date) -> String {
+        strings.day(date)
     }
 
     func reward(for quest: Quest) -> String {
-        "+\(quest.xp) XP · \(quest.skill.title.resolved(for: locale))"
+        strings.reward(xp: quest.xp, skill: quest.skill)
     }
 
     func doneText(times: Int) -> String {
-        times == 1
-            ? text(el: "Το έκανες 1 φορά", en: "Done once")
-            : text(el: "Το έκανες \(times) φορές", en: "Done \(times) times")
+        strings.text("Done \(times) times")
     }
 
     /// Months up to two years, then years.
     func ageText(months: Int) -> String {
         switch months {
-        case 0: text(el: "νεογέννητο", en: "newborn")
-        case 1: text(el: "1 μηνός", en: "1 month old")
-        case ..<24: text(el: "\(months) μηνών", en: "\(months) months old")
-        default: text(el: "\(months / 12) ετών", en: "\(months / 12) years old")
+        case 0: strings.text("newborn")
+        case ..<24: strings.text("\(months) months old")
+        default: strings.text("\(months / 12) years old")
         }
-    }
-
-    func text(el: String, en: String) -> String {
-        LocalizedText(el: el, en: en).resolved(for: locale)
     }
 
     /// e.g. "0–8 μηνών", "2–3½ ετών", "από 6 ετών". The end is the last month of the world.
     func ageRange(from min: Int, to max: Int?) -> String {
-        guard let max else { return text(el: "από ", en: "from ") + years(min) + text(el: " ετών", en: " years") }
-        if max <= 24 { return "\(min)–\(max)" + text(el: " μηνών", en: " months") }
-        return years(min) + "–" + years(max + 1) + text(el: " ετών", en: " years")
+        guard let max else { return strings.text("from \(years(min)) years") }
+        if max <= 24 { return strings.text("\(min)–\(max) months") }
+        return strings.text("\(years(min))–\(years(max + 1)) years")
     }
 
     func unlocksIn(months: Int) -> String {
-        months == 1
-            ? text(el: "Ξεκλειδώνει σε 1 μήνα", en: "Unlocks in 1 month")
-            : text(el: "Ξεκλειδώνει σε \(months) μήνες", en: "Unlocks in \(months) months")
+        strings.text("Unlocks in \(months) months")
     }
 
     /// What was kept in a world, never what was left undone (ADR-0020), e.g. "7 quests · 1 boss".
     func worldProgress(quests: Int, bosses: Int) -> String {
-        "\(quests) " + (quests == 1 ? text(el: "αποστολή", en: "quest") : text(el: "αποστολές", en: "quests"))
-            + " · \(bosses) " + (bosses == 1 ? text(el: "αφεντικό", en: "boss") : text(el: "αφεντικά", en: "bosses"))
+        strings.text("\(quests) quests") + " · " + strings.text("\(bosses) bosses")
     }
 
     /// The one health line under medical tips and boss guides. Lives here, not in the JSON, so it cannot drift.
     var medicalFooter: String {
-        text(
-            el: "Γενικές πληροφορίες. Δεν αντικαθιστούν τον παιδίατρό σου.",
-            en: "General information. It does not replace your paediatrician."
-        )
+        strings.text("General information. It does not replace your paediatrician.")
     }
 
     /// Whole and half years, e.g. "2", "3½".

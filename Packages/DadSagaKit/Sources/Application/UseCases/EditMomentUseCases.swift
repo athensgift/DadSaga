@@ -19,33 +19,15 @@ public struct DefaultUpdateMomentUseCase: UpdateMomentUseCase {
         guard let event = try await progressRepository.fetchEvents().first(where: { $0.id == momentID }),
               case .first = event.kind else { throw MomentError.unknownMoment }
         guard date <= now else { throw MomentError.dateInFuture }
-
-        var photoID = event.photoID
-        switch photo {
-        case .keep: break
-        case .remove: photoID = nil
-        case .replace(let data): photoID = try await photoStore.save(data)
-        }
-        try await progressRepository.update(
-            ProgressEvent(
-                id: event.id,
-                kind: event.kind,
-                childID: event.childID,
-                date: date,
-                note: note.trimmedOrNil,
-                photoID: photoID
-            )
-        )
-        // Only after the moment points elsewhere is the old photo safe to remove.
-        if let old = event.photoID, old != photoID {
-            await photoStore.delete(id: old)
-        }
+        try await EventRecorder(progressRepository: progressRepository, photoStore: photoStore)
+            .update(event, date: date, note: note, photo: photo)
     }
 }
 
-/// A moment's photo, as stored image data.
+/// A moment's photo, decoded only as large as it is shown, so a small row never holds a full photo in memory.
 public protocol GetPhotoUseCase: Sendable {
-    func execute(id: String) async -> Data?
+    /// - Parameter maxPixelSize: the longest side, in pixels, the photo is shown at.
+    func execute(id: String, maxPixelSize: Int) async -> Data?
 }
 
 public struct DefaultGetPhotoUseCase: GetPhotoUseCase {
@@ -55,7 +37,7 @@ public struct DefaultGetPhotoUseCase: GetPhotoUseCase {
         self.photoStore = photoStore
     }
 
-    public func execute(id: String) async -> Data? {
-        await photoStore.load(id: id)
+    public func execute(id: String, maxPixelSize: Int) async -> Data? {
+        await photoStore.thumbnail(id: id, maxPixelSize: maxPixelSize)
     }
 }

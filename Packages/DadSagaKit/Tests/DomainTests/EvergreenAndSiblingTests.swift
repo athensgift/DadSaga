@@ -1,4 +1,5 @@
 import Domain
+import Foundation
 import Testing
 
 @Suite("UnlockRules, evergreen quests and sibling-only bosses")
@@ -64,5 +65,22 @@ struct EvergreenAndSiblingTests {
     func siblingBossShownForTwoChildren() {
         let ids = UnlockRules.availableBosses(in: catalog, ageInMonths: 0, childCount: 2).map(\.id)
         #expect(ids == ["b-plain", "b-sibling"])
+    }
+
+    @Test("Given evergreen quests done in a later world and a sibling boss, when counting a world, then only its own count")
+    func worldProgressCountsOwnContent() {
+        let child = UUID()
+        let events = ["w1-ever", "w1-plain", "w1-plain", "w2-own"].map {
+            ProgressEvent(kind: .quest(id: $0), childID: child, date: .distantPast)
+        } + ["b-plain", "b-sibling"].map { ProgressEvent(kind: .boss(id: $0), childID: child, date: .distantPast) }
+        let progress = DadProgress(events: events, catalog: catalog)
+
+        let alone = progress.progress(in: first, catalog: catalog, childID: child, childCount: 1)
+        let withSibling = progress.progress(in: first, catalog: catalog, childID: child, childCount: 2)
+        let other = progress.progress(in: first, catalog: catalog, childID: UUID(), childCount: 1)
+
+        #expect(alone == WorldProgress(questsDone: 2, bossesDone: 1))
+        #expect(withSibling == WorldProgress(questsDone: 2, bossesDone: 2))
+        #expect(other == WorldProgress(questsDone: 0, bossesDone: 0))
     }
 }

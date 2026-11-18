@@ -49,6 +49,9 @@ public struct DefaultUpdateWeeklyReminderUseCase: UpdateWeeklyReminderUseCase {
     private let settings: any ReminderSettingsRepository
     private let scheduler: any NotificationScheduler
     private let schedule: any ScheduleWeeklyRemindersUseCase
+    /// Runs one change at a time, in the order the dad made them, so an older change can never be saved after a newer
+    /// one. Shared by every copy of this use case; the app keeps one instance.
+    private let queue = SerialQueue()
 
     public init(
         settings: any ReminderSettingsRepository,
@@ -61,6 +64,10 @@ public struct DefaultUpdateWeeklyReminderUseCase: UpdateWeeklyReminderUseCase {
     }
 
     public func execute(_ reminder: WeeklyReminder, on date: Date) async -> WeeklyReminderStatus {
+        await queue.run { await update(reminder, on: date) }
+    }
+
+    private func update(_ reminder: WeeklyReminder, on date: Date) async -> WeeklyReminderStatus {
         var reminder = reminder
         reminder.wasOffered = true
         await settings.save(reminder)
@@ -99,7 +106,7 @@ public struct DefaultScheduleWeeklyRemindersUseCase: ScheduleWeeklyRemindersUseC
         profileRepository: any ProfileRepository,
         highlights: any GetWeeklyHighlightsUseCase,
         text: any ReminderTextProvider,
-        calendar: Calendar = .current
+        calendar: Calendar = .autoupdatingCurrent
     ) {
         self.settings = settings
         self.scheduler = scheduler
@@ -115,9 +122,18 @@ public struct DefaultScheduleWeeklyRemindersUseCase: ScheduleWeeklyRemindersUseC
 
     private func reschedule(on date: Date) async {
         let reminder = await settings.fetch()
-        guard reminder.isEnabled, await scheduler.authorization() == .allowed,
-              let children = (try? await profileRepository.fetchProfile())?.children, !children.isEmpty
-        else {
+        guard reminder.isEnabled, await scheduler.authorization() == .allowed else {
+            await scheduler.replacePending(with: [])
+            return
+        }
+        // A family that cannot be read is not "no family": the notes already waiting stay as they are (ADR-0026).
+        let profile: PlayerProfile?
+        do {
+            profile = try await profileRepository.fetchProfile()
+        } catch {
+            return
+        }
+        guard let children = profile?.children, !children.isEmpty else {
             await scheduler.replacePending(with: [])
             return
         }
@@ -140,7 +156,7 @@ public struct DefaultScheduleWeeklyRemindersUseCase: ScheduleWeeklyRemindersUseC
             else { continue }
             if isDone { return nil }
             return PendingReminder(
-                date: fireDate,
+                time: calendar.dateComponents([.year, .month, .day, .hour, .minute], from: fireDate),
                 title: text.title(),
                 body: text.body(questTitle: quest.title, childName: children.count > 1 ? child.name : nil),
                 link: .quest(id: quest.id, childID: child.id)
@@ -154,13 +170,13 @@ public struct DefaultScheduleWeeklyRemindersUseCase: ScheduleWeeklyRemindersUseC
 actor SerialQueue {
     private var last: Task<Void, Never>?
 
-    func run(_ work: @escaping @Sendable () async -> Void) async {
+    func run<Result: Sendable>(_ work: @escaping @Sendable () async -> Result) async -> Result {
         let previous = last
         let task = Task {
             await previous?.value
-            await work()
+            return await work()
         }
-        last = task
-        await task.value
+        last = Task { _ = await task.value }
+        return await task.value
     }
 }

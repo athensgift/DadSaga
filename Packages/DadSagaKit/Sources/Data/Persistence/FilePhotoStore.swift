@@ -35,10 +35,6 @@ public actor FilePhotoStore: PhotoStore {
         return id
     }
 
-    public func load(id: String) async -> Data? {
-        try? Data(contentsOf: url(for: id))
-    }
-
     /// Decodes only a downscaled image straight from the file, so the full photo never sits in memory.
     public func thumbnail(id: String, maxPixelSize: Int) async -> Data? {
         guard let source = CGImageSourceCreateWithURL(url(for: id) as CFURL, nil) else { return nil }

@@ -30,20 +30,24 @@ So DadSaga follows a few rules (see [ADR-0006](docs/adr/0006-no-pressure-game-de
 DadSaga (app)              composition root: AppContainer wires everything (DI)
 Packages/DadSagaKit
 ├── Presentation           @Observable ViewModels → display models; SwiftUI views
+├── WidgetPresentation     what the home-screen widget shows (no WidgetKit, unit-tested)
+├── Localization           UI text: one String Catalog (el + en) for the app and the widget
 ├── Data                   repository implementations, DTOs, mappers, bundled JSON
 ├── Application            use cases + repository protocols (ports)
 ├── Domain                 entities + business rules (level curve, unlocks, progress)
 └── DesignSystem           tokens + reusable SwiftUI components
 
-Presentation ─┐
-              ├─▶ Application ─▶ Domain
-Data ─────────┘
+Presentation ───────┐
+WidgetPresentation ─┼─▶ Application ─▶ Domain
+Data ───────────────┘
 ```
 
 - Swift 6 with strict concurrency, iOS 26+, Swift Testing, with a test target per layer.
 - The Xcode project is generated with [XcodeGen](https://github.com/yonaskolb/XcodeGen) and isn't committed ([ADR-0003](docs/adr/0003-modular-spm-and-xcodegen.md)).
 - Offline-first: photos and the child's data never leave the device ([ADR-0004](docs/adr/0004-offline-first-on-device-data.md)).
-- Game content is data, not code ([ADR-0005](docs/adr/0005-content-as-data.md)).
+- Game content is data, not code ([ADR-0005](docs/adr/0005-content-as-data.md)); UI text lives in a String Catalog
+  ([ADR-0027](docs/adr/0027-ui-string-catalog.md)).
+- The on-device store is versioned and never silently replaced ([ADR-0026](docs/adr/0026-versioned-store-and-unavailable-screen.md)).
 
 All decisions are recorded in [`docs/adr`](docs/adr).
 

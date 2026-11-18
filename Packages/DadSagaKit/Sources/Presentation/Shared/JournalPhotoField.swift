@@ -20,10 +20,13 @@ struct JournalPhotoField: View {
     let loader: PhotoLoader
 
     @State private var pickedItem: PhotosPickerItem?
+    @State private var isShowingLibrary = false
     @State private var isShowingCamera = false
 
     var body: some View {
         content
+            // Presented from the field itself: a picker inside the menu would close with the menu and never appear.
+            .photosPicker(isPresented: $isShowingLibrary, selection: $pickedItem, matching: .images)
             .onChange(of: pickedItem) { _, item in
                 guard let item else { return }
                 Task {
@@ -67,9 +70,7 @@ struct JournalPhotoField: View {
             .clipShape(RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
             .overlay(alignment: .bottomTrailing) {
                 Menu {
-                    PhotosPicker(selection: $pickedItem, matching: .images) {
-                        Label(labels.changePhoto, systemImage: "photo.on.rectangle")
-                    }
+                    Button(labels.changePhoto, systemImage: "photo.on.rectangle") { isShowingLibrary = true }
                     if canUseCamera {
                         Button(labels.takePhoto, systemImage: "camera") { isShowingCamera = true }
                     }
@@ -86,7 +87,9 @@ struct JournalPhotoField: View {
 
     private var buttons: some View {
         HStack(spacing: DSSpacing.s) {
-            PhotosPicker(selection: $pickedItem, matching: .images) {
+            Button {
+                isShowingLibrary = true
+            } label: {
                 Label(labels.addPhoto, systemImage: "photo.badge.plus")
                     .frame(maxWidth: .infinity)
             }

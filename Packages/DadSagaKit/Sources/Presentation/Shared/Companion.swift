@@ -43,7 +43,7 @@ public struct CompanionModel: Equatable, Identifiable, Sendable {
 
 extension ChildDraft {
     /// The stage the child is drawn at, given today's date.
-    func stage(at date: Date, calendar: Calendar = .current) -> CompanionStage {
+    func stage(at date: Date, calendar: Calendar = .autoupdatingCurrent) -> CompanionStage {
         CompanionStage(ageInMonths: child.ageInMonths(at: date, calendar: calendar))
     }
 }

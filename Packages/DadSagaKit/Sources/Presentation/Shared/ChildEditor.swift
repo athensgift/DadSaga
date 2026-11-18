@@ -29,7 +29,7 @@ struct ChildEditorCard: View {
                 if let onRemove {
                     Button(labels.removeTitle, systemImage: "minus.circle.fill", role: .destructive, action: onRemove)
                         .labelStyle(.iconOnly)
-                        .font(.title3)
+                        .font(DSFont.symbol)
                         .foregroundStyle(DSColor.boss)
                         .frame(minWidth: 44, minHeight: 44)
                 }
@@ -93,7 +93,7 @@ struct SkinTonePicker: View {
                         .fill(tone.avatarSkin.base)
                         .frame(width: 26, height: 26)
                         .overlay { Circle().strokeBorder(DSColor.textPrimary.opacity(0.12), lineWidth: 1) }
-                        .padding(3)
+                        .padding(DSSpacing.xxs)
                         .overlay { Circle().strokeBorder(DSColor.accent, lineWidth: isSelected ? 2.5 : 0) }
                         .frame(width: 40, height: 44)
                         .contentShape(Rectangle())

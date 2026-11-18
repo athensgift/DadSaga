@@ -1,5 +1,6 @@
 import Domain
 import Foundation
+import Localization
 
 public enum GenderChoice: CaseIterable, Hashable, Sendable {
     case boy, girl
@@ -79,24 +80,24 @@ public struct ChildEditorLabels: Equatable, Sendable {
     public let addChildTitle: String
 
     static func make(locale: Locale) -> ChildEditorLabels {
-        let text = { (el: String, en: String) in LocalizedText(el: el, en: en).resolved(for: locale) }
+        let strings = Strings(locale: locale)
         return ChildEditorLabels(
-            childTitle: text("Παιδί", "Child"),
-            namePlaceholder: text("Όνομα", "Name"),
-            birthDateLabel: text("Ημερομηνία γέννησης", "Date of birth"),
-            genderLabel: text("Φύλο", "Gender"),
-            boy: text("Αγόρι", "Boy"),
-            girl: text("Κορίτσι", "Girl"),
-            skinToneLabel: text("Απόχρωση", "Skin tone"),
+            childTitle: strings.text("Child"),
+            namePlaceholder: strings.text("Name"),
+            birthDateLabel: strings.text("Date of birth"),
+            genderLabel: strings.text("Gender"),
+            boy: strings.text("Boy"),
+            girl: strings.text("Girl"),
+            skinToneLabel: strings.text("Skin tone"),
             skinToneNames: [
-                text("Ανοιχτή", "Light"),
-                text("Ανοιχτή μεσαία", "Medium light"),
-                text("Μεσαία", "Medium"),
-                text("Σκούρα μεσαία", "Medium dark"),
-                text("Σκούρα", "Dark")
+                strings.text("Light"),
+                strings.text("Medium light"),
+                strings.text("Medium"),
+                strings.text("Medium dark"),
+                strings.text("Dark")
             ],
-            removeTitle: text("Αφαίρεση παιδιού", "Remove child"),
-            addChildTitle: text("Πρόσθεσε παιδί", "Add a child")
+            removeTitle: strings.text("Remove child"),
+            addChildTitle: strings.text("Add a child")
         )
     }
 }

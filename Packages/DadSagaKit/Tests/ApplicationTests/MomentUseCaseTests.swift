@@ -90,6 +90,32 @@ struct MomentUseCaseTests {
         #expect(await photos.stored == [try #require(updated.photoID): Data([2])])
     }
 
+    @Test("Given saving fails, when replacing a moment's photo, then the new photo is removed and the old one stays")
+    func failedUpdateLeavesNoPhoto() async throws {
+        _ = try await capture.execute(request(photo: Data([1])), now: today)
+        let moment = try #require(try await repository.fetchEvents().first)
+        let sut = DefaultUpdateMomentUseCase(progressRepository: FailingUpdates(repository), photoStore: photos)
+
+        await #expect(throws: FailingUpdates.Failure.self) {
+            try await sut.execute(momentID: moment.id, happenedOn: today, note: nil, photo: .replace(Data([2])), now: today)
+        }
+
+        #expect(await photos.stored == [try #require(moment.photoID): Data([1])])
+    }
+
+    @Test("Given saving fails, when replacing an entry's photo from the journal, then no new photo is left behind")
+    func failedJournalUpdateLeavesNoPhoto() async throws {
+        _ = try await capture.execute(request(photo: Data([1])), now: today)
+        let moment = try #require(try await repository.fetchEvents().first)
+        let sut = DefaultUpdateJournalUseCase(progressRepository: FailingUpdates(repository), photoStore: photos)
+
+        await #expect(throws: FailingUpdates.Failure.self) {
+            try await sut.execute(eventID: moment.id, note: "x", photo: .replace(Data([2])))
+        }
+
+        #expect(await photos.stored == [try #require(moment.photoID): Data([1])])
+    }
+
     @Test("Given a moment with a photo, when keeping or removing the photo, then it stays or is deleted")
     func updateKeepsOrRemovesPhoto() async throws {
         _ = try await capture.execute(request(photo: Data([1])), now: today)
@@ -118,7 +144,7 @@ struct MomentUseCaseTests {
 
     @Test("Given a quest, when deleting it, then the event and its XP are gone")
     func deletesQuest() async throws {
-        try await repository.add(ProgressEvent(kind: .quest(id: "q1"), date: today))
+        try await repository.add(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today))
         let quest = try #require(try await repository.fetchEvents().first)
 
         try await DefaultDeleteEventUseCase(progressRepository: repository, photoStore: photos).execute(eventID: quest.id)
@@ -128,7 +154,7 @@ struct MomentUseCaseTests {
 
     @Test("Given an unknown id, when deleting, then unknownEvent is thrown and nothing changes")
     func unknownEvent() async throws {
-        try await repository.add(ProgressEvent(kind: .quest(id: "q1"), date: today))
+        try await repository.add(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today))
 
         await #expect(throws: ProgressError.unknownEvent) {
             try await DefaultDeleteEventUseCase(progressRepository: repository, photoStore: photos).execute(eventID: UUID())
@@ -138,7 +164,7 @@ struct MomentUseCaseTests {
 
     @Test("Given an id that is not a moment, when updating, then unknownMoment is thrown")
     func unknownMoment() async throws {
-        try await repository.add(ProgressEvent(kind: .quest(id: "q1"), date: today))
+        try await repository.add(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today))
         await #expect(throws: MomentError.unknownMoment) {
             try await DefaultUpdateMomentUseCase(progressRepository: repository, photoStore: photos)
                 .execute(momentID: UUID(), happenedOn: today, note: nil, photo: .keep, now: today)
@@ -146,13 +172,27 @@ struct MomentUseCaseTests {
         #expect(try await repository.fetchEvents().count == 1)
     }
 
-    @Test("Given a stored photo, when getting it by id, then its data is returned")
+    @Test("Given a stored photo, when getting it for a small frame, then a thumbnail of that size is returned")
     func getsPhoto() async throws {
         let id = try await photos.save(Data([7]))
         let sut = DefaultGetPhotoUseCase(photoStore: photos)
-        #expect(await sut.execute(id: id) == Data([7]))
-        #expect(await sut.execute(id: "missing") == nil)
+        #expect(await sut.execute(id: id, maxPixelSize: 192) == Data("thumb192:".utf8) + Data([7]))
+        #expect(await sut.execute(id: "missing", maxPixelSize: 192) == nil)
     }
+}
+
+/// Reads from the wrapped repository; every update fails, like a full disk.
+struct FailingUpdates: ProgressRepository {
+    struct Failure: Error {}
+    let base: any ProgressRepository
+
+    init(_ base: any ProgressRepository) { self.base = base }
+
+    func fetchEvents() async throws -> [ProgressEvent] { try await base.fetchEvents() }
+    func add(_ event: ProgressEvent) async throws { throw Failure() }
+    func update(_ event: ProgressEvent) async throws { throw Failure() }
+    func delete(id: UUID) async throws { throw Failure() }
+    func deleteAll() async throws { throw Failure() }
 }
 
 /// Keeps "photos" in memory, exactly as given.
@@ -163,10 +203,6 @@ actor SpyPhotoStore: PhotoStore {
         let id = UUID().uuidString
         stored[id] = imageData
         return id
-    }
-
-    func load(id: String) async -> Data? {
-        stored[id]
     }
 
     /// Tags the data so tests can tell a thumbnail from the original.

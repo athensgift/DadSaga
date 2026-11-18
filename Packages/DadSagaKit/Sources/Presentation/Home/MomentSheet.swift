@@ -122,7 +122,7 @@ struct MomentSheet: View {
             selectedID = option.id
         } label: {
             VStack(spacing: DSSpacing.xs) {
-                Text(option.emoji).font(.system(size: 30))
+                Text(option.emoji).font(DSFont.emoji)
                 Text(option.title)
                     .font(DSFont.caption)
                     .foregroundStyle(DSColor.textPrimary)

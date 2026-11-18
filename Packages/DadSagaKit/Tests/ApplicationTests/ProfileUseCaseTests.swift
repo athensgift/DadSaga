@@ -54,13 +54,19 @@ struct ProfileUseCaseTests {
         try await repository.save(PlayerProfile(children: [Child(name: "Νίκος", birthDate: today)], heroClassID: "h1"))
 
         let progress = SpyProgressRepository()
-        try await progress.add(ProgressEvent(kind: .quest(id: "q1"), date: today))
+        try await progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today))
 
         let photos = SpyPhotoStore()
         _ = try await photos.save(Data([1]))
 
-        try await DefaultResetProfileUseCase(profileRepository: repository, progressRepository: progress, photoStore: photos)
-            .execute()
+        try await DefaultResetProfileUseCase(
+            profileRepository: repository,
+            progressRepository: progress,
+            photoStore: photos,
+            outfitRepository: SpyOutfitRepository(),
+            reminderSettings: FakeReminderSettings(),
+            notificationScheduler: FakeNotificationScheduler(status: .allowed)
+        ).execute()
 
         #expect(try await repository.fetchProfile() == nil)
         #expect(try await progress.fetchEvents().isEmpty)

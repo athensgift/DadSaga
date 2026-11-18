@@ -12,21 +12,15 @@ extension HomeView {
                 .foregroundStyle(DSColor.textPrimary)
                 .accessibilityAddTraits(.isHeader)
             Spacer()
-            if makeWardrobe != nil {
-                wardrobeButton
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.glass)
-            }
-            if makeFamily != nil {
-                familyButton
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.glass)
-            }
-            if makeReminderSettings != nil {
-                reminderButton
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.glass)
-            }
+            wardrobeButton
+                .labelStyle(.iconOnly)
+                .buttonStyle(.glass)
+            familyButton
+                .labelStyle(.iconOnly)
+                .buttonStyle(.glass)
+            reminderButton
+                .labelStyle(.iconOnly)
+                .buttonStyle(.glass)
             if let developerMenu {
                 DeveloperMenuButton(menu: developerMenu)
                     .labelStyle(.iconOnly)
@@ -37,7 +31,7 @@ extension HomeView {
 
     var wardrobeButton: some View {
         Button {
-            wardrobeViewModel = makeWardrobe?()
+            wardrobeViewModel = makeWardrobe()
         } label: {
             Label(wardrobeTitle, systemImage: "tshirt")
         }
@@ -52,7 +46,7 @@ extension HomeView {
     }
 
     func openFamily() {
-        familyViewModel = makeFamily? {
+        familyViewModel = makeFamily {
             familyViewModel = nil
             Task { await viewModel.reload() }
         }
@@ -60,7 +54,7 @@ extension HomeView {
 
     var reminderButton: some View {
         Button {
-            reminderViewModel = makeReminderSettings?()
+            reminderViewModel = makeReminderSettings()
         } label: {
             Label(reminderTitle, systemImage: "bell")
         }

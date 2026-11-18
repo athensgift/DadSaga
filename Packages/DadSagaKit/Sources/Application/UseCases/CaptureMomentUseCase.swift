@@ -63,24 +63,12 @@ public struct DefaultCaptureMomentUseCase: CaptureMomentUseCase {
         guard !before.capturedFirstIDs(for: request.childID).contains(request.firstID) else {
             throw MomentError.alreadyCaptured(request.firstID)
         }
-        var photoID: String?
-        if let photo = request.photo {
-            photoID = try await photoStore.save(photo)
-        }
-        let event = ProgressEvent(
-            kind: .first(id: request.firstID),
+        let event = try await EventRecorder(progressRepository: progressRepository, photoStore: photoStore).record(
+            .first(id: request.firstID),
             childID: request.childID,
             date: request.date,
-            note: request.note.trimmedOrNil,
-            photoID: photoID
+            journal: JournalInput(note: request.note, photo: request.photo)
         )
-        do {
-            try await progressRepository.add(event)
-        } catch {
-            // Don't leave a photo behind that no moment points to.
-            if let photoID { await photoStore.delete(id: photoID) }
-            throw error
-        }
         return ProgressChange(
             before: before,
             after: DadProgress(events: events + [event], catalog: catalog),

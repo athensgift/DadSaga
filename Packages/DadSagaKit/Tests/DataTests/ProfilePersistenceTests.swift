@@ -40,13 +40,13 @@ struct LocalStoreTests {
 
     @Test("Given an empty store, when fetching, then there is no profile")
     func emptyStore() async throws {
-        let sut = try LocalStore.inMemory().profiles
+        let sut = LocalStore.inMemory().profiles
         #expect(try await sut.fetchProfile() == nil)
     }
 
     @Test("Given a saved profile, when fetching, then the same profile is returned")
     func roundTrip() async throws {
-        let sut = try LocalStore.inMemory().profiles
+        let sut = LocalStore.inMemory().profiles
         let profile = PlayerProfile(
             children: [
                 Child(name: "Νίκος", birthDate: birth, gender: .boy, skinTone: .medium),
@@ -63,7 +63,7 @@ struct LocalStoreTests {
 
     @Test("Given an existing profile, when saving again, then it is replaced rather than duplicated")
     func saveReplaces() async throws {
-        let sut = try LocalStore.inMemory().profiles
+        let sut = LocalStore.inMemory().profiles
         try await sut.save(
             PlayerProfile(
                 children: [Child(name: "Νίκος", birthDate: birth), Child(name: "Μαρία", birthDate: birth)],
@@ -79,7 +79,7 @@ struct LocalStoreTests {
 
     @Test("Given a saved profile, when deleting, then the store is empty again")
     func delete() async throws {
-        let sut = try LocalStore.inMemory().profiles
+        let sut = LocalStore.inMemory().profiles
         try await sut.save(PlayerProfile(children: [Child(name: "Νίκος", birthDate: birth)], heroClassID: "h-cool"))
 
         try await sut.deleteProfile()
@@ -89,9 +89,9 @@ struct LocalStoreTests {
 
     @Test("Given stored events, when fetching, then they come back oldest first with their ids and kinds")
     func progressRoundTrip() async throws {
-        let sut = try LocalStore.inMemory().progress
+        let sut = LocalStore.inMemory().progress
         let later = ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth.addingTimeInterval(60), note: "Γέλασε")
-        let earlier = ProgressEvent(kind: .quest(id: "q1"), date: birth)
+        let earlier = ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: birth)
 
         try await sut.add(later)
         try await sut.add(earlier)
@@ -101,8 +101,8 @@ struct LocalStoreTests {
 
     @Test("Given a stored moment, when updating then deleting it, then the changes are stored and other events stay")
     func progressUpdateAndDelete() async throws {
-        let sut = try LocalStore.inMemory().progress
-        let quest = ProgressEvent(kind: .quest(id: "q1"), date: birth)
+        let sut = LocalStore.inMemory().progress
+        let quest = ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: birth)
         let moment = ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth, note: "πριν", photoID: "p1")
         try await sut.add(quest)
         try await sut.add(moment)
@@ -120,7 +120,7 @@ struct LocalStoreTests {
 
     @Test("Given wardrobe choices, when saving and fetching, then they round-trip and deleting clears them")
     func outfitRoundTrip() async throws {
-        let sut = try LocalStore.inMemory().outfit
+        let sut = LocalStore.inMemory().outfit
         let outfit = Outfit(choices: [.care: .item("g-burp-cloth"), .play: .hidden])
 
         try await sut.save(outfit)
@@ -144,8 +144,8 @@ struct LocalStoreTests {
 
     @Test("Given stored events, when deleting all, then the log is empty")
     func progressDeleteAll() async throws {
-        let sut = try LocalStore.inMemory().progress
-        try await sut.add(ProgressEvent(kind: .first(id: "f1"), date: birth))
+        let sut = LocalStore.inMemory().progress
+        try await sut.add(ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth))
 
         try await sut.deleteAll()
 
@@ -154,7 +154,7 @@ struct LocalStoreTests {
 
     @Test("Given a record of a kind this version does not know, when mapping, then it is skipped")
     func unknownKindIsSkipped() {
-        let record = ProgressEventRecord(event: ProgressEvent(kind: .quest(id: "q1"), date: birth))
+        let record = ProgressEventRecord(event: ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: birth))
         record.kind = "future-kind"
         #expect(record.toDomain() == nil)
     }

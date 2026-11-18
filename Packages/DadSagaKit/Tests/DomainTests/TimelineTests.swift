@@ -7,7 +7,7 @@ struct TimelineTests {
     let anna = UUID()
     let niko = UUID()
 
-    func event(_ kind: ProgressEvent.Kind, child: UUID?, at seconds: TimeInterval, note: String? = nil, photo: String? = nil)
+    func event(_ kind: ProgressEvent.Kind, child: UUID, at seconds: TimeInterval, note: String? = nil, photo: String? = nil)
         -> ProgressEvent {
         ProgressEvent(kind: kind, childID: child, date: Date(timeIntervalSince1970: seconds), note: note, photoID: photo)
     }

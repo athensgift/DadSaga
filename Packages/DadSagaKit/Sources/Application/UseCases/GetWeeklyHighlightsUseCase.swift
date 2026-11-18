@@ -56,7 +56,7 @@ public struct DefaultGetWeeklyHighlightsUseCase: GetWeeklyHighlightsUseCase {
         profileRepository: any ProfileRepository,
         progressRepository: any ProgressRepository,
         photoStore: any PhotoStore,
-        calendar: Calendar = .current
+        calendar: Calendar = .autoupdatingCurrent
     ) {
         self.contentRepository = contentRepository
         self.profileRepository = profileRepository

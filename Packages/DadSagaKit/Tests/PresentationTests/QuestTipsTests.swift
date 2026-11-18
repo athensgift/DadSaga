@@ -38,7 +38,6 @@ struct QuestTipsTests {
                         ageInMonths: 10,
                         currentWorld: Self.plains,
                         unlockedWorlds: [Self.swamp, Self.plains],
-                        availableQuests: Self.catalog.quests,
                         availableBosses: []
                     )
                 ),
@@ -46,7 +45,9 @@ struct QuestTipsTests {
                 completeQuest: progress,
                 defeatBoss: progress,
                 deleteEvent: progress,
-                moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress)
+                moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
+                getOutfit: FakeOutfit(),
+                reminder: .neverOffered
             ),
             locale: Locale(identifier: "el_GR"),
             now: { HeroStub.today }

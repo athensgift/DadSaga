@@ -18,23 +18,30 @@ actor SwiftDataProfileRepository: ProfileRepository {
         )
     }
 
-    /// Replaces the stored profile and family. Children keep their ids, so their progress stays linked.
+    /// Updates the stored profile and family in place: rows keep their identity, which sync will need (ADR-0026).
+    /// Children are matched by id, so their progress stays linked; removed children and duplicate rows go.
     func save(_ profile: PlayerProfile) async throws {
-        if let record = try record() {
+        let profiles = try modelContext.fetch(FetchDescriptor<ProfileRecord>())
+        if let record = profiles.first {
             record.heroClassID = profile.heroClassID
             record.dadSkinTone = profile.dadSkinTone.rawValue
         } else {
-            modelContext.insert(
-                ProfileRecord(
-                    heroClassID: profile.heroClassID,
-                    dadSkinTone: profile.dadSkinTone.rawValue
-                )
-            )
+            modelContext.insert(ProfileRecord(heroClassID: profile.heroClassID, dadSkinTone: profile.dadSkinTone.rawValue))
         }
-        try modelContext.delete(model: ChildRecord.self)
+        profiles.dropFirst().forEach(modelContext.delete)
+
+        var stored: [UUID: ChildRecord] = [:]
+        for record in try modelContext.fetch(FetchDescriptor<ChildRecord>()) {
+            if stored[record.childID] == nil { stored[record.childID] = record } else { modelContext.delete(record) }
+        }
         for (order, child) in profile.children.enumerated() {
-            modelContext.insert(ChildRecord(child: child, order: order))
+            if let record = stored.removeValue(forKey: child.id) {
+                record.update(from: child, order: order)
+            } else {
+                modelContext.insert(ChildRecord(child: child, order: order))
+            }
         }
+        stored.values.forEach(modelContext.delete)
         try modelContext.save()
     }
 
@@ -46,22 +53,5 @@ actor SwiftDataProfileRepository: ProfileRepository {
 
     private func record() throws -> ProfileRecord? {
         try modelContext.fetch(FetchDescriptor<ProfileRecord>()).first
-    }
-}
-
-/// Keeps the profile only while the app runs. See `LocalStore.sessionOnly()`.
-actor InMemoryProfileRepository: ProfileRepository {
-    private var profile: PlayerProfile?
-
-    func fetchProfile() async throws -> PlayerProfile? {
-        profile
-    }
-
-    func save(_ profile: PlayerProfile) async throws {
-        self.profile = profile
-    }
-
-    func deleteProfile() async throws {
-        profile = nil
     }
 }

@@ -11,7 +11,7 @@ public struct TimelineEntry: Hashable, Identifiable, Sendable {
     /// The event it comes from.
     public let id: UUID
     public let kind: Kind
-    public let childID: UUID?
+    public let childID: UUID
     public let date: Date
     public let note: String?
     public let photoID: String?
@@ -26,10 +26,18 @@ public struct TimelineEntry: Hashable, Identifiable, Sendable {
 }
 
 /// The family's history, derived from progress events. Pure and deterministic.
+///
+/// The one place that decides which events count: unknown content is skipped (e.g. removed in an update), and a boss
+/// or first counts only the first time per child; quests are repeatable. `DadProgress` is built from the same entries,
+/// so the timeline and the dad's XP can never disagree (ADR-0017).
 public enum Timeline {
-    /// Newest first. Follows the same rules as `DadProgress`: unknown content is skipped, and a boss or first counts
-    /// only the first time per child, so the timeline never shows XP the dad did not get.
+    /// Newest first.
     public static func entries(from events: [ProgressEvent], catalog: ContentCatalog) -> [TimelineEntry] {
+        countedEntries(from: events, catalog: catalog).reversed()
+    }
+
+    /// Oldest first: every event that counts, with its content.
+    static func countedEntries(from events: [ProgressEvent], catalog: ContentCatalog) -> [TimelineEntry] {
         let quests = Dictionary(uniqueKeysWithValues: catalog.quests.map { ($0.id, $0) })
         let bosses = Dictionary(uniqueKeysWithValues: catalog.bosses.map { ($0.id, $0) })
         let firsts = Dictionary(uniqueKeysWithValues: catalog.firsts.map { ($0.id, $0) })
@@ -62,11 +70,11 @@ public enum Timeline {
                 )
             )
         }
-        return entries.reversed()
+        return entries
     }
 
     private struct OncePerChild: Hashable {
-        let childID: UUID?
+        let childID: UUID
         let contentID: String
     }
 }

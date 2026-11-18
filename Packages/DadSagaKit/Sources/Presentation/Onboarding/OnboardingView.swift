@@ -171,7 +171,7 @@ private struct HeroOptionCard: View {
             .overlay(alignment: .topTrailing) {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .font(.title3)
+                        .font(DSFont.symbol)
                         .foregroundStyle(hero.look.avatarStyle.tint)
                         .padding(DSSpacing.s)
                         .transition(.scale.combined(with: .opacity))

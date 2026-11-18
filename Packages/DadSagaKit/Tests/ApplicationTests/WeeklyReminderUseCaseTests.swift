@@ -3,43 +3,6 @@ import Domain
 import Foundation
 import Testing
 
-actor FakeReminderSettings: ReminderSettingsRepository {
-    var stored: WeeklyReminder?
-
-    func fetch() async -> WeeklyReminder { stored ?? .default }
-    func save(_ reminder: WeeklyReminder) async { stored = reminder }
-    func deleteAll() async { stored = nil }
-}
-
-actor FakeNotificationScheduler: NotificationScheduler {
-    var status: NotificationAuthorization
-    let allowsWhenAsked: Bool
-    private(set) var pending: [PendingReminder] = []
-    private(set) var promptCount = 0
-
-    init(status: NotificationAuthorization, allowsWhenAsked: Bool = true) {
-        self.status = status
-        self.allowsWhenAsked = allowsWhenAsked
-    }
-
-    func authorization() async -> NotificationAuthorization { status }
-
-    func requestAuthorization() async -> Bool {
-        promptCount += 1
-        status = allowsWhenAsked ? .allowed : .denied
-        return allowsWhenAsked
-    }
-
-    func replacePending(with reminders: [PendingReminder]) async { pending = reminders }
-}
-
-struct EchoReminderText: ReminderTextProvider {
-    func title() -> String { "This week's quest" }
-    func body(questTitle: LocalizedText, childName: String?) -> String {
-        [childName, questTitle.en].compactMap(\.self).joined(separator: " · ")
-    }
-}
-
 @Suite("Weekly reminder use cases")
 struct WeeklyReminderUseCaseTests {
     typealias Fixture = WeeklyHighlightsUseCaseTests
@@ -64,7 +27,10 @@ struct WeeklyReminderUseCaseTests {
     let progress = SpyProgressRepository()
     let settings = FakeReminderSettings()
 
-    func schedule(_ scheduler: FakeNotificationScheduler) -> DefaultScheduleWeeklyRemindersUseCase {
+    func schedule(
+        _ scheduler: FakeNotificationScheduler,
+        calendar: Calendar = Fixture.calendar
+    ) -> DefaultScheduleWeeklyRemindersUseCase {
         DefaultScheduleWeeklyRemindersUseCase(
             settings: settings,
             scheduler: scheduler,
@@ -74,10 +40,10 @@ struct WeeklyReminderUseCaseTests {
                 profileRepository: profiles,
                 progressRepository: progress,
                 photoStore: SpyPhotoStore(),
-                calendar: Fixture.calendar
+                calendar: calendar
             ),
             text: EchoReminderText(),
-            calendar: Fixture.calendar
+            calendar: calendar
         )
     }
 
@@ -93,6 +59,11 @@ struct WeeklyReminderUseCaseTests {
         var reminder = WeeklyReminder.default
         reminder.isEnabled = true
         await settings.save(reminder)
+    }
+
+    /// The wall-clock time a note is due: that day at 10:00, with no time zone.
+    static func tenOClock(_ year: Int, _ month: Int, _ day: Int) -> DateComponents {
+        DateComponents(year: year, month: month, day: day, hour: 10, minute: 0)
     }
 
     /// The quest the widget shows for this child in the week of `date`.
@@ -111,7 +82,9 @@ struct WeeklyReminderUseCaseTests {
 
         let pending = await scheduler.pending
         let saturdays = [21, 28].map { Fixture.date(2026, 11, $0, 10) } + [5, 12].map { Fixture.date(2026, 12, $0, 10) }
-        #expect(pending.map(\.date) == saturdays)
+        #expect(pending.map(\.time) == saturdays.map {
+            Fixture.calendar.dateComponents([.year, .month, .day, .hour, .minute], from: $0)
+        })
         #expect(pending.map(\.link) == saturdays.map { .quest(id: weeklyQuest(for: lena, on: $0) ?? "", childID: lena.id) })
         #expect(pending.first?.title == "This week's quest")
         #expect(pending.first?.body == weeklyQuest(for: lena, on: saturdays[0]))
@@ -127,8 +100,8 @@ struct WeeklyReminderUseCaseTests {
 
         await schedule(scheduler).execute(on: today)
 
-        #expect(await scheduler.pending.map(\.date) == [Fixture.date(2026, 11, 28, 10)] + [5, 12].map {
-            Fixture.date(2026, 12, $0, 10)
+        #expect(await scheduler.pending.map(\.time) == [Self.tenOClock(2026, 11, 28)] + [5, 12].map {
+            Self.tenOClock(2026, 12, $0)
         })
     }
 
@@ -168,7 +141,8 @@ struct WeeklyReminderUseCaseTests {
         #expect(zip(children, children.dropFirst()).allSatisfy { $0 != $1 })
         for reminder in pending {
             let child = reminder.link.childID == lena.id ? lena : nikos
-            #expect(reminder.body == "\(child.name) · \(weeklyQuest(for: child, on: reminder.date) ?? "")")
+            let date = try #require(Fixture.calendar.date(from: reminder.time))
+            #expect(reminder.body == "\(child.name) · \(weeklyQuest(for: child, on: date) ?? "")")
         }
     }
 
@@ -232,8 +206,22 @@ struct WeeklyReminderUseCaseTests {
         await schedule(scheduler).execute(on: Fixture.date(2026, 11, 21, 11))
 
         let first = try #require(await scheduler.pending.first)
-        #expect(first.date == Fixture.date(2026, 11, 28, 10))
-        #expect(first.link == .quest(id: weeklyQuest(for: lena, on: first.date) ?? "", childID: lena.id))
+        #expect(first.time == Self.tenOClock(2026, 11, 28))
+        #expect(first.link == .quest(id: weeklyQuest(for: lena, on: Fixture.date(2026, 11, 28)) ?? "", childID: lena.id))
+    }
+
+    @Test("Given a dad in Athens, when scheduling, then each note is due at 10:00 on the clock, with no fixed time zone")
+    func wallClockTime() async throws {
+        try await onboard([lena])
+        await enable()
+        var athens = Fixture.calendar
+        athens.timeZone = TimeZone(identifier: "Europe/Athens") ?? .gmt
+        let scheduler = FakeNotificationScheduler(status: .allowed)
+        await schedule(scheduler, calendar: athens).execute(on: today)
+
+        let first = try #require(await scheduler.pending.first)
+        #expect(first.time == Self.tenOClock(2026, 11, 21))
+        #expect(first.time.timeZone == nil)
     }
 
     @Test("Given three children and the middle one past every world, when scheduling, then only the other two come up")
@@ -288,6 +276,8 @@ struct WeeklyReminderUseCaseTests {
         try await DefaultResetProfileUseCase(
             profileRepository: profiles,
             progressRepository: progress,
+            photoStore: SpyPhotoStore(),
+            outfitRepository: SpyOutfitRepository(),
             reminderSettings: settings,
             notificationScheduler: scheduler
         ).execute()
@@ -297,17 +287,52 @@ struct WeeklyReminderUseCaseTests {
     }
 }
 
-/// Allowed; the first time it is asked for pending notifications it takes a while to add them, like a slow run.
-actor SlowFirstScheduler: NotificationScheduler {
-    private(set) var pending: [PendingReminder] = []
-    private(set) var calls = 0
+extension WeeklyReminderUseCaseTests {
+    @Test("Given the family cannot be read, when rescheduling, then the notes already waiting stay as they were")
+    func unreadableFamilyKeepsNotes() async throws {
+        try await onboard([lena])
+        await enable()
+        let scheduler = FakeNotificationScheduler(status: .allowed)
+        await schedule(scheduler).execute(on: today)
+        let waiting = await scheduler.pending
+        let unreadable = DefaultScheduleWeeklyRemindersUseCase(
+            settings: settings,
+            scheduler: scheduler,
+            profileRepository: UnreadableProfiles(),
+            highlights: DefaultGetWeeklyHighlightsUseCase(
+                contentRepository: StubContentRepository(result: .success(Self.catalog)),
+                profileRepository: profiles,
+                progressRepository: progress,
+                photoStore: SpyPhotoStore(),
+                calendar: Fixture.calendar
+            ),
+            text: EchoReminderText(),
+            calendar: Fixture.calendar
+        )
 
-    func authorization() async -> NotificationAuthorization { .allowed }
-    func requestAuthorization() async -> Bool { true }
+        await unreadable.execute(on: today)
 
-    func replacePending(with reminders: [PendingReminder]) async {
-        calls += 1
-        if calls == 1 { try? await Task.sleep(for: .milliseconds(200)) }
-        pending = reminders
+        #expect(!waiting.isEmpty)
+        #expect(await scheduler.pending == waiting)
+    }
+
+    @Test("Given a slow first change, when the dad changes the time again meanwhile, then the newer time is saved")
+    func newestChangeIsSaved() async throws {
+        try await onboard([lena])
+        let slowSettings = SlowFirstSettings()
+        let scheduler = FakeNotificationScheduler(status: .allowed)
+        let sut = DefaultUpdateWeeklyReminderUseCase(settings: slowSettings, scheduler: scheduler, schedule: schedule(scheduler))
+        var eleven = WeeklyReminder.default
+        eleven.isEnabled = true
+        eleven.hour = 11
+        var halfPast = eleven
+        halfPast.minute = 30
+
+        let first = Task { await sut.execute(eleven, on: today) }
+        while await slowSettings.calls == 0 { await Task.yield() }
+        _ = await sut.execute(halfPast, on: today)
+        _ = await first.value
+
+        #expect(await slowSettings.fetch().minute == 30)
     }
 }

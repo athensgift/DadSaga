@@ -1,6 +1,7 @@
 import Application
 import Domain
 import Foundation
+import Localization
 
 /// Builds the legendary-moment parts of home: the section, the capture sheet and the traits they give a child.
 struct MomentsFormatter {
@@ -10,14 +11,11 @@ struct MomentsFormatter {
     func section(for child: Child, catalog: ContentCatalog, progress: DadProgress) -> MomentsSection {
         let moments = progress.moments(for: child.id)
         return MomentsSection(
-            title: strings.text(el: "Θρυλικές στιγμές", en: "Legendary moments"),
+            title: strings.text("Legendary moments"),
             progress: "\(moments.count)",
-            addTitle: strings.text(el: "Κατέγραψε στιγμή", en: "Capture a moment"),
+            addTitle: strings.text("Capture a moment"),
             cards: moments.map(card),
-            emptyText: strings.text(
-                el: "Το πρώτο χαμόγελο, τα πρώτα βήματα… Κατέγραψέ τα εδώ όταν συμβούν.",
-                en: "First smile, first steps… Capture them here when they happen."
-            ),
+            emptyText: strings.text("First smile, first steps… Capture them here when they happen."),
             isComplete: moments.count >= catalog.firsts.count
         )
     }
@@ -54,19 +52,16 @@ struct MomentsFormatter {
                     reward: "+\(first.xp) XP"
                 )
             },
-            dateLabel: strings.text(el: "Πότε έγινε;", en: "When did it happen?"),
+            dateLabel: strings.text("When did it happen?"),
             earliestDate: min(child.birthDate, editing?.date ?? now, now),
             latestDate: now,
-            notePlaceholder: strings.text(el: "Τι έγινε; (προαιρετικό)", en: "What happened? (optional)"),
-            saveTitle: strings.text(el: "Αποθήκευση", en: "Save"),
+            notePlaceholder: strings.text("What happened? (optional)"),
+            saveTitle: strings.text("Save"),
             labels: MomentPhotoLabels(
                 photo: PhotoLabels(locale: locale),
-                delete: strings.text(el: "Διαγραφή στιγμής", en: "Delete moment"),
-                deleteConfirmation: strings.text(
-                    el: "Η στιγμή, η φωτογραφία της και τα XP της θα σβηστούν.",
-                    en: "The moment, its photo and its XP will be removed."
-                ),
-                cancel: strings.text(el: "Άκυρο", en: "Cancel")
+                delete: strings.text("Delete moment"),
+                deleteConfirmation: strings.text("The moment, its photo and its XP will be removed."),
+                cancel: strings.text("Cancel")
             ),
             editing: editing
         )

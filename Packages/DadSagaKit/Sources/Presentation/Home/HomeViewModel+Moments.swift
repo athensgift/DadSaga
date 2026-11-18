@@ -63,8 +63,8 @@ extension HomeViewModel {
     }
 
     /// Image data for a moment's photo, or `nil` if it is gone.
-    public func photoData(id: String) async -> Data? {
-        await useCases.moments.getPhoto.execute(id: id)
+    public func photoData(id: String, maxPixelSize: Int) async -> Data? {
+        await useCases.moments.getPhoto.execute(id: id, maxPixelSize: maxPixelSize)
     }
 
     /// Runs a change that earns nothing: closes the sheet and refreshes, or shows an error and keeps it open.

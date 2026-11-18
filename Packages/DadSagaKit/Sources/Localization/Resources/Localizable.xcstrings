@@ -1,0 +1,2088 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@–%@ years" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@–%@ ετών"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@–%@ years"
+          }
+        }
+      }
+    },
+    "%lld bosses" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld αφεντικό"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld αφεντικά"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld boss"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld bosses"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld months old" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld μηνός"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld μηνών"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld month old"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld months old"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld quests" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld αποστολή"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld αποστολές"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld quest"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld quests"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld years old" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld έτους"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld ετών"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld year old"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld years old"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld–%lld months" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld–%lld μηνών"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld–%lld months"
+          }
+        }
+      }
+    },
+    "✓ Done this week" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ Έγινε αυτή την εβδομάδα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "✓ Done this week"
+          }
+        }
+      }
+    },
+    "A reminder once a week?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μια υπενθύμιση την εβδομάδα;"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A reminder once a week?"
+          }
+        }
+      }
+    },
+    "Add a child" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Πρόσθεσε παιδί"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a child"
+          }
+        }
+      }
+    },
+    "Add a photo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Πρόσθεσε φωτογραφία"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a photo"
+          }
+        }
+      }
+    },
+    "Adventure" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Περιπέτεια"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adventure"
+          }
+        }
+      }
+    },
+    "Adventures for your child's age are coming soon." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οι περιπέτειες για την ηλικία του παιδιού σου έρχονται σύντομα."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adventures for your child's age are coming soon."
+          }
+        }
+      }
+    },
+    "All" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όλοι"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All"
+          }
+        }
+      }
+    },
+    "Automatic" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αυτόματα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic"
+          }
+        }
+      }
+    },
+    "Back to the current world" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Πίσω στον κόσμο του τώρα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to the current world"
+          }
+        }
+      }
+    },
+    "BOSS" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BOSS"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BOSS"
+          }
+        }
+      }
+    },
+    "Boy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αγόρι"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Boy"
+          }
+        }
+      }
+    },
+    "Cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Άκυρο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "Capture a moment" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Κατέγραψε στιγμή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Capture a moment"
+          }
+        }
+      }
+    },
+    "Care" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Φροντίδα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Care"
+          }
+        }
+      }
+    },
+    "Child" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Παιδί"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Child"
+          }
+        }
+      }
+    },
+    "Choose another" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Άλλη φωτογραφία"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose another"
+          }
+        }
+      }
+    },
+    "Choose your hero" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Διάλεξε τον ήρωά σου"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose your hero"
+          }
+        }
+      }
+    },
+    "Content failed to load." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το περιεχόμενο δεν φόρτωσε."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Content failed to load."
+          }
+        }
+      }
+    },
+    "Continue" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Συνέχεια"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        }
+      }
+    },
+    "Couldn't delete. Please try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν διαγράφηκε. Δοκίμασε ξανά."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't delete. Please try again."
+          }
+        }
+      }
+    },
+    "Couldn't save. Please try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν αποθηκεύτηκε. Δοκίμασε ξανά."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save. Please try again."
+          }
+        }
+      }
+    },
+    "Cuddle time" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ώρα αγκαλιάς"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuddle time"
+          }
+        }
+      }
+    },
+    "DadSaga notifications are turned off in iPhone Settings." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οι ειδοποιήσεις του DadSaga είναι κλειστές στις ρυθμίσεις του iPhone."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DadSaga notifications are turned off in iPhone Settings."
+          }
+        }
+      }
+    },
+    "Dark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Σκούρα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dark"
+          }
+        }
+      }
+    },
+    "Date of birth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ημερομηνία γέννησης"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date of birth"
+          }
+        }
+      }
+    },
+    "Day" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μέρα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Day"
+          }
+        }
+      }
+    },
+    "Defeated" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Νικήθηκε"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Defeated"
+          }
+        }
+      }
+    },
+    "Delete" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Διαγραφή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Delete from the timeline?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Διαγραφή από το χρονολόγιο;"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete from the timeline?"
+          }
+        }
+      }
+    },
+    "Delete moment" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Διαγραφή στιγμής"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete moment"
+          }
+        }
+      }
+    },
+    "Done %lld times" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Το έκανες %lld φορά"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Το έκανες %lld φορές"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Done once"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Done %lld times"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Every saga needs companions. Tell us about your kids." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Κάθε έπος θέλει συντρόφους. Πες μας για τα παιδιά σου."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every saga needs companions. Tell us about your kids."
+          }
+        }
+      }
+    },
+    "Everything you do with your kids will gather here." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ό,τι κάνεις με τα παιδιά σου θα μαζεύεται εδώ."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Everything you do with your kids will gather here."
+          }
+        }
+      }
+    },
+    "Everything you've recorded is still on this iPhone, and nothing was changed. Try again in a moment. If it keeps happening, check that your iPhone has some free storage." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ό,τι έχεις καταγράψει είναι ακόμα σε αυτό το iPhone και δεν αλλάξαμε τίποτα. Δοκίμασε ξανά σε λίγο. Αν συνεχίσει, δες αν το iPhone έχει ελεύθερο χώρο."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Everything you've recorded is still on this iPhone, and nothing was changed. Try again in a moment. If it keeps happening, check that your iPhone has some free storage."
+          }
+        }
+      }
+    },
+    "First smile, first steps… Capture them here when they happen." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το πρώτο χαμόγελο, τα πρώτα βήματα… Κατέγραψέ τα εδώ όταν συμβούν."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "First smile, first steps… Capture them here when they happen."
+          }
+        }
+      }
+    },
+    "First steps" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Πρώτα βήματα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "First steps"
+          }
+        }
+      }
+    },
+    "from %@ years" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "από %@ ετών"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "from %@ years"
+          }
+        }
+      }
+    },
+    "Gender" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Φύλο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gender"
+          }
+        }
+      }
+    },
+    "General information. It does not replace your paediatrician." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Γενικές πληροφορίες. Δεν αντικαθιστούν τον παιδίατρό σου."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "General information. It does not replace your paediatrician."
+          }
+        }
+      }
+    },
+    "Girl" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Κορίτσι"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Girl"
+          }
+        }
+      }
+    },
+    "Hero" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ήρωας"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hero"
+          }
+        }
+      }
+    },
+    "I did it!" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το έκανα!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I did it!"
+          }
+        }
+      }
+    },
+    "If you remove a child, everything you earned together stays." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αν αφαιρέσεις ένα παιδί, ό,τι κέρδισες μαζί του μένει."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you remove a child, everything you earned together stays."
+          }
+        }
+      }
+    },
+    "It's only your look. Every hero is equally strong." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Είναι μόνο η εμφάνισή σου. Όλοι οι ήρωες είναι το ίδιο δυνατοί."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It's only your look. Every hero is equally strong."
+          }
+        }
+      }
+    },
+    "Its %lld XP will be removed." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Θα αφαιρεθούν τα %lld XP."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Its %lld XP will be removed."
+          }
+        }
+      }
+    },
+    "Last time (%@)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Την προηγούμενη φορά (%@)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last time (%@)"
+          }
+        }
+      }
+    },
+    "Last time (%@) you wrote:" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Την προηγούμενη φορά (%@) έγραψες:"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last time (%@) you wrote:"
+          }
+        }
+      }
+    },
+    "Legendary moment" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Θρυλική στιγμή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legendary moment"
+          }
+        }
+      }
+    },
+    "Legendary moments" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Θρυλικές στιγμές"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legendary moments"
+          }
+        }
+      }
+    },
+    "Legendary moments you capture show up here." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οι θρυλικές στιγμές που καταγράφεις θα εμφανίζονται εδώ."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Legendary moments you capture show up here."
+          }
+        }
+      }
+    },
+    "Level %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Επίπεδο %lld"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Level %lld"
+          }
+        }
+      }
+    },
+    "Light" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ανοιχτή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Light"
+          }
+        }
+      }
+    },
+    "Medium" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μεσαία"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medium"
+          }
+        }
+      }
+    },
+    "Medium dark" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Σκούρα μεσαία"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medium dark"
+          }
+        }
+      }
+    },
+    "Medium light" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ανοιχτή μεσαία"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medium light"
+          }
+        }
+      }
+    },
+    "My family" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η οικογένειά μου"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "My family"
+          }
+        }
+      }
+    },
+    "Name" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όνομα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        }
+      }
+    },
+    "New: %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Νέο: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New: %@"
+          }
+        }
+      }
+    },
+    "newborn" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "νεογέννητο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "newborn"
+          }
+        }
+      }
+    },
+    "No memories yet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Καμία ανάμνηση ακόμα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No memories yet"
+          }
+        }
+      }
+    },
+    "No profile found." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν βρέθηκε προφίλ."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No profile found."
+          }
+        }
+      }
+    },
+    "No, thanks" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όχι, ευχαριστώ"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No, thanks"
+          }
+        }
+      }
+    },
+    "Note and photo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Σημείωση και φωτογραφία"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Note and photo"
+          }
+        }
+      }
+    },
+    "Note or photo (optional)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Σημείωση ή φωτογραφία (προαιρετικά)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Note or photo (optional)"
+          }
+        }
+      }
+    },
+    "Nothing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τίποτα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing"
+          }
+        }
+      }
+    },
+    "Once a week (%@), this week's quest. Nothing more. If you've already done it, you won't get it that week." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μία φορά την εβδομάδα (%@), η αποστολή της εβδομάδας. Τίποτα παραπάνω. Αν την έχεις ήδη κάνει, δεν έρχεται."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Once a week (%@), this week's quest. Nothing more. If you've already done it, you won't get it that week."
+          }
+        }
+      }
+    },
+    "One notification a week with this week's quest. If you've already done it that week, you won't get it." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μία ειδοποίηση την εβδομάδα με την αποστολή της εβδομάδας. Αν την έχεις ήδη κάνει, δεν έρχεται."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One notification a week with this week's quest. If you've already done it that week, you won't get it."
+          }
+        }
+      }
+    },
+    "Open DadSaga to start the adventure." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Άνοιξε το DadSaga για να ξεκινήσει η περιπέτεια."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open DadSaga to start the adventure."
+          }
+        }
+      }
+    },
+    "Open iPhone Settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Άνοιγμα ρυθμίσεων iPhone"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open iPhone Settings"
+          }
+        }
+      }
+    },
+    "Patience" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Υπομονή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Patience"
+          }
+        }
+      }
+    },
+    "Play" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Παιχνίδι"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play"
+          }
+        }
+      }
+    },
+    "Quest of the week" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αποστολή της εβδομάδας"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quest of the week"
+          }
+        }
+      }
+    },
+    "Remove child" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αφαίρεση παιδιού"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove child"
+          }
+        }
+      }
+    },
+    "Remove photo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αφαίρεση φωτογραφίας"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove photo"
+          }
+        }
+      }
+    },
+    "Resilience" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αντοχή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resilience"
+          }
+        }
+      }
+    },
+    "Save" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αποθήκευση"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "Saved" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Καταγράφηκε"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved"
+          }
+        }
+      }
+    },
+    "Showing now" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το βλέπεις τώρα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Showing now"
+          }
+        }
+      }
+    },
+    "Skin tone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Απόχρωση"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skin tone"
+          }
+        }
+      }
+    },
+    "Start the adventure" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ξεκίνα την περιπέτεια"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start the adventure"
+          }
+        }
+      }
+    },
+    "Survival guide" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οδηγός επιβίωσης"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Survival guide"
+          }
+        }
+      }
+    },
+    "Take a photo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τράβηξε φωτογραφία"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Take a photo"
+          }
+        }
+      }
+    },
+    "The badge and its %lld XP will be removed." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Θα αφαιρεθούν το έμβλημα και τα %lld XP."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The badge and its %lld XP will be removed."
+          }
+        }
+      }
+    },
+    "The best one" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το καλύτερο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The best one"
+          }
+        }
+      }
+    },
+    "The moment, its photo and its XP will be removed." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η στιγμή, η φωτογραφία της και τα XP της θα σβηστούν."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The moment, its photo and its XP will be removed."
+          }
+        }
+      }
+    },
+    "The timeline failed to load." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το χρονολόγιο δεν φόρτωσε."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The timeline failed to load."
+          }
+        }
+      }
+    },
+    "The wardrobe failed to load." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η ντουλάπα δεν φόρτωσε."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The wardrobe failed to load."
+          }
+        }
+      }
+    },
+    "This week's quest" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η αποστολή της εβδομάδας"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This week's quest"
+          }
+        }
+      }
+    },
+    "Time" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ώρα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        }
+      }
+    },
+    "Timeline" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Χρονολόγιο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Timeline"
+          }
+        }
+      }
+    },
+    "Try again" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δοκίμασε ξανά"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try again"
+          }
+        }
+      }
+    },
+    "Undo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αναίρεση"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Undo"
+          }
+        }
+      }
+    },
+    "Unlocks in %lld months" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ξεκλειδώνει σε %lld μήνα"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ξεκλειδώνει σε %lld μήνες"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Unlocks in %lld month"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Unlocks in %lld months"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Wardrobe" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ντουλάπα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wardrobe"
+          }
+        }
+      }
+    },
+    "We couldn't open your saga" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν μπορέσαμε να ανοίξουμε την ιστορία σου"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We couldn't open your saga"
+          }
+        }
+      }
+    },
+    "We made it through!" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τα καταφέραμε!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "We made it through!"
+          }
+        }
+      }
+    },
+    "Weekly reminder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εβδομαδιαία υπενθύμιση"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Weekly reminder"
+          }
+        }
+      }
+    },
+    "Welcome, hero" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Καλώς ήρθες, ήρωα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome, hero"
+          }
+        }
+      }
+    },
+    "What happened? (optional)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τι έγινε; (προαιρετικό)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What happened? (optional)"
+          }
+        }
+      }
+    },
+    "What happened? What do you want to remember?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τι έγινε; Τι θες να θυμάσαι;"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What happened? What do you want to remember?"
+          }
+        }
+      }
+    },
+    "When did it happen?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Πότε έγινε;"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When did it happen?"
+          }
+        }
+      }
+    },
+    "World map" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Χάρτης κόσμων"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "World map"
+          }
+        }
+      }
+    },
+    "Yes, send it" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ναι, στείλε μου"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes, send it"
+          }
+        }
+      }
+    },
+    "You are here" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Είσαι εδώ"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You are here"
+          }
+        }
+      }
+    },
+    "You earn items with each skill's XP. What you earn stays yours." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Κερδίζεις αντικείμενα με τα XP κάθε δεξιότητας. Ό,τι κερδίζεις μένει δικό σου."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You earn items with each skill's XP. What you earn stays yours."
+          }
+        }
+      }
+    },
+    "Your family failed to load." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η οικογένεια δεν φόρτωσε."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your family failed to load."
+          }
+        }
+      }
+    },
+    "Your photo and note will be deleted with it, for good. Its %lld XP will be removed too." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η φωτογραφία και η σημείωσή σου θα σβηστούν μαζί του, χωρίς επιστροφή. Θα αφαιρεθούν και τα %lld XP."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your photo and note will be deleted with it, for good. Its %lld XP will be removed too."
+          }
+        }
+      }
+    },
+    "Your skin tone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η απόχρωσή σου"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your skin tone"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

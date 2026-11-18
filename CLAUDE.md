@@ -14,6 +14,8 @@ This is a **personal portfolio / playground project**. Replies to the owner are 
 - Domain entities are not `Codable`. Persistence/wire formats use DTOs in Data.
 - Colours, spacing and fonts only via `DesignSystem` tokens (`DSColor`, `DSSpacing`, `DSFont`).
 - Game content is JSON in `Sources/Data/Resources`, bilingual (`el` + `en`). Don't hardcode it in Swift.
+- UI text: `strings.text("English text")` plus an entry with `el` and `en` (state `translated`, `extractionState: manual`)
+  in `Sources/Localization/Resources/Localizable.xcstrings`; plurals as catalog variations. Never `text(el:en:)` (ADR-0027).
 - Tests use Swift Testing with Given/When/Then names.
 - Record significant decisions as a new ADR in `docs/adr/`.
 - Product rules in `docs/adr/0006-no-pressure-game-design.md` are non-negotiable (no penalties, no milestone deadlines).

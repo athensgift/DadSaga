@@ -1,16 +1,24 @@
 import DesignSystem
 import SwiftUI
 
-/// Loads a moment's photo from the device by id.
-typealias PhotoLoader = (_ id: String) async -> Data?
+/// Loads a moment's photo from the device by id, no larger than `maxPixelSize` on its longest side.
+typealias PhotoLoader = (_ id: String, _ maxPixelSize: Int) async -> Data?
 
 /// A moment's photo, filling its frame. Shows the placeholder until it loads, or if it is missing.
+/// Loads it only as large as the frame it fills, so a small row never decodes the full photo.
 struct MomentPhoto<Placeholder: View>: View {
     let photoID: String?
     let loader: PhotoLoader
     @ViewBuilder let placeholder: () -> Placeholder
 
     @State private var image: Image?
+    @State private var maxPixelSize = 0
+    @Environment(\.displayScale) private var displayScale
+
+    private struct Request: Equatable {
+        let photoID: String?
+        let maxPixelSize: Int
+    }
 
     var body: some View {
         ZStack {
@@ -22,8 +30,16 @@ struct MomentPhoto<Placeholder: View>: View {
                 placeholder()
             }
         }
-        .task(id: photoID) {
-            guard let photoID, let data = await loader(photoID) else {
+        .onGeometryChange(for: Int.self) { proxy in
+            Int((max(proxy.size.width, proxy.size.height) * displayScale).rounded(.up))
+        } action: { maxPixelSize = $0 }
+        .task(id: Request(photoID: photoID, maxPixelSize: maxPixelSize)) {
+            guard let photoID else {
+                image = nil
+                return
+            }
+            guard maxPixelSize > 0 else { return }
+            guard let data = await loader(photoID, maxPixelSize) else {
                 image = nil
                 return
             }
@@ -41,7 +57,7 @@ struct MomentCard: View {
         HStack(alignment: .top, spacing: DSSpacing.m) {
             MomentPhoto(photoID: card.photoID, loader: loader) {
                 Image(systemName: "star.fill")
-                    .font(.system(.body, weight: .semibold))
+                    .font(DSFont.tileSymbol)
                     .foregroundStyle(DSColor.heroHighlight)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .background(DSColor.legendary.gradient)

@@ -32,8 +32,23 @@ Each phase lists what gets built and what it demonstrates.
 - ✅ Level-up / legendary / unlock animations + haptics
 - ✅ Home-screen widget (weekly quest + latest legendary moment, ADR-0023)
 - ✅ Gentle local notifications (max one a week, ADR-0024)
-- Accessibility (Dynamic Type, VoiceOver, contrast), full el/en localization
+- Accessibility (Dynamic Type, VoiceOver, contrast)
+- ✅ el/en localization: UI text in one String Catalog, plurals, camera prompt (ADR-0027)
+- ✅ Versioned on-device store, calm "couldn't open" screen instead of a silent fallback (ADR-0026)
 - Snapshot / UI tests
+
+### Later: left over from the 2026-11 architecture review
+- Check on a device: the "couldn't open your saga" screen (junk store file), installing over a `develop` build, every
+  screen and the widget in Greek and English, photos loading at their shown size.
+- Before the first schema V2 ships: a test that the widget opening an older store read-only fails without touching it
+  (ADR-0026).
+- Sync ADR before Phase 5: CKSyncEngine over the event log, V2 schema (non-optional `childID` column, `#Unique` ids),
+  photos, export/backup (ADR-0004, ADR-0026).
+- Hero look enums exist three times (Domain, Presentation, DesignSystem); move them to one SwiftUI-free place and give
+  heroes a `look` in the JSON.
+- Hero colour tokens still carry old class names (`heroMage`, `heroRanger`, `heroKnightShade`).
+- Measure with Instruments whether the `@ModelActor` repositories run off the main thread.
+- CI runs on an unpinned `macos-latest`.
 
 *Demonstrates:* platform depth and product quality.
 

@@ -1,14 +1,15 @@
 import Domain
 import Foundation
+import Localization
 
 extension PhotoLabels {
     init(locale: Locale) {
-        func text(_ el: String, _ en: String) -> String { LocalizedText(el: el, en: en).resolved(for: locale) }
+        let strings = Strings(locale: locale)
         self.init(
-            addPhoto: text("Πρόσθεσε φωτογραφία", "Add a photo"),
-            takePhoto: text("Τράβηξε φωτογραφία", "Take a photo"),
-            changePhoto: text("Άλλη φωτογραφία", "Choose another"),
-            removePhoto: text("Αφαίρεση φωτογραφίας", "Remove photo")
+            addPhoto: strings.text("Add a photo"),
+            takePhoto: strings.text("Take a photo"),
+            changePhoto: strings.text("Choose another"),
+            removePhoto: strings.text("Remove photo")
         )
     }
 }
@@ -21,9 +22,9 @@ public struct JournalLabels: Equatable, Sendable {
     public let photo: PhotoLabels
 
     init(locale: Locale) {
-        func text(_ el: String, _ en: String) -> String { LocalizedText(el: el, en: en).resolved(for: locale) }
-        sectionTitle = text("Σημείωση ή φωτογραφία (προαιρετικά)", "Note or photo (optional)")
-        notePlaceholder = text("Τι έγινε; Τι θες να θυμάσαι;", "What happened? What do you want to remember?")
+        let strings = Strings(locale: locale)
+        sectionTitle = strings.text("Note or photo (optional)")
+        notePlaceholder = strings.text("What happened? What do you want to remember?")
         photo = PhotoLabels(locale: locale)
     }
 }

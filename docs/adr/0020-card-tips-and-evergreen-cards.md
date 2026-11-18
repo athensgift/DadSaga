@@ -2,7 +2,6 @@
 
 **Status:** Accepted (2026-11-16). The owner approved decisions 2, 4 and 6 as proposed. Implemented on
 `feature/content-review-0-6`.
-**(owner)** still need the owner's yes.
 
 ## Context
 The content review for ages 0–6 (`docs/content-review-0-6.md`) rewrote the card set against one test: "would an experienced

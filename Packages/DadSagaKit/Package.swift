@@ -7,6 +7,8 @@ import PackageDescription
 //   WidgetPresentation ─┼─▶ Application ─▶ Domain
 //   Data ───────────────┘
 //
+//   Presentation, WidgetPresentation ─▶ Localization ─▶ Domain   (UI text, ADR-0027)
+//
 // The app target is the composition root: the only place that knows every layer and wires them together.
 let package = Package(
     name: "DadSagaKit",
@@ -19,6 +21,7 @@ let package = Package(
         .library(name: "Presentation", targets: ["Presentation"]),
         .library(name: "DesignSystem", targets: ["DesignSystem"]),
         .library(name: "WidgetPresentation", targets: ["WidgetPresentation"]),
+        .library(name: "Localization", targets: ["Localization"]),
     ],
     targets: [
         // Entities + enterprise business rules. Pure Swift, depends on nothing.
@@ -32,16 +35,19 @@ let package = Package(
             resources: [.process("Resources")]
         ),
         // ViewModels (presenters) + SwiftUI views.
-        .target(name: "Presentation", dependencies: ["Application", "Domain", "DesignSystem"]),
+        .target(name: "Presentation", dependencies: ["Application", "Domain", "DesignSystem", "Localization"]),
         // Tokens + reusable SwiftUI components. No business knowledge.
         .target(name: "DesignSystem"),
         // What the home-screen widget shows (ADR-0023). No SwiftUI and no WidgetKit, so `swift test` covers it.
-        .target(name: "WidgetPresentation", dependencies: ["Application", "Domain"]),
+        .target(name: "WidgetPresentation", dependencies: ["Application", "Domain", "Localization"]),
+        // UI text in one String Catalog, shared by the app's and the widget's presenters (ADR-0027). No SwiftUI.
+        .target(name: "Localization", dependencies: ["Domain"], resources: [.process("Resources")]),
 
         .testTarget(name: "DomainTests", dependencies: ["Domain"]),
         .testTarget(name: "ApplicationTests", dependencies: ["Application", "Domain"]),
-        .testTarget(name: "DataTests", dependencies: ["Data", "Application", "Domain"]),
+        .testTarget(name: "DataTests", dependencies: ["Data", "Application", "Domain"], exclude: ["Fixtures"]),
         .testTarget(name: "PresentationTests", dependencies: ["Presentation", "Application", "Domain"]),
+        .testTarget(name: "LocalizationTests", dependencies: ["Localization", "Domain"]),
         .testTarget(name: "WidgetPresentationTests", dependencies: ["WidgetPresentation", "Application", "Domain"]),
     ]
 )

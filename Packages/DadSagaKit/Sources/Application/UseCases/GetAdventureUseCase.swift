@@ -8,14 +8,12 @@ public struct Adventure: Hashable, Sendable {
     public let isBeyondContent: Bool
     public let currentWorld: World?
     public let unlockedWorlds: [World]
-    public let availableQuests: [Quest]
     public let availableBosses: [BossFight]
 
     public init(
         ageInMonths: Int,
         currentWorld: World?,
         unlockedWorlds: [World],
-        availableQuests: [Quest],
         availableBosses: [BossFight],
         isBeyondContent: Bool = false
     ) {
@@ -23,7 +21,6 @@ public struct Adventure: Hashable, Sendable {
         self.isBeyondContent = isBeyondContent
         self.currentWorld = currentWorld
         self.unlockedWorlds = unlockedWorlds
-        self.availableQuests = availableQuests
         self.availableBosses = availableBosses
     }
 }
@@ -37,7 +34,7 @@ public struct DefaultGetAdventureUseCase: GetAdventureUseCase {
     private let repository: any ContentRepository
     private let calendar: Calendar
 
-    public init(repository: any ContentRepository, calendar: Calendar = .current) {
+    public init(repository: any ContentRepository, calendar: Calendar = .autoupdatingCurrent) {
         self.repository = repository
         self.calendar = calendar
     }
@@ -50,7 +47,6 @@ public struct DefaultGetAdventureUseCase: GetAdventureUseCase {
                 ageInMonths: age,
                 currentWorld: nil,
                 unlockedWorlds: UnlockRules.unlockedWorlds(in: catalog, ageInMonths: age),
-                availableQuests: [],
                 availableBosses: [],
                 isBeyondContent: true
             )
@@ -59,7 +55,6 @@ public struct DefaultGetAdventureUseCase: GetAdventureUseCase {
             ageInMonths: age,
             currentWorld: UnlockRules.currentWorld(in: catalog, ageInMonths: age),
             unlockedWorlds: UnlockRules.unlockedWorlds(in: catalog, ageInMonths: age),
-            availableQuests: UnlockRules.availableQuests(in: catalog, ageInMonths: age),
             availableBosses: UnlockRules.availableBosses(in: catalog, ageInMonths: age, childCount: childCount)
         )
     }

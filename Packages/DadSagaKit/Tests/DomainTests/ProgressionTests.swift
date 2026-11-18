@@ -42,7 +42,7 @@ struct DadProgressTests {
         let progress = DadProgress(events: events, catalog: catalog)
         #expect(progress.totalXP == 40)
         #expect(progress.skillXP[.care] == 40)
-        #expect(progress.questCompletions(for: nil) == ["q1": 2])
+        #expect(progress.questCompletions(for: Fixtures.child) == ["q1": 2])
     }
 
     @Test("Given two children, when aggregating, then XP is shared but quests, bosses and firsts are kept per child")
@@ -90,7 +90,7 @@ struct DadProgressTests {
         let events = [Fixtures.event(.boss(id: "b1")), Fixtures.event(.boss(id: "b1"))]
         let progress = DadProgress(events: events, catalog: catalog)
         #expect(progress.totalXP == 100)
-        #expect(progress.defeatedBossIDs(for: nil) == ["b1"])
+        #expect(progress.defeatedBossIDs(for: Fixtures.child) == ["b1"])
     }
 
     @Test("Given a first captured twice, when aggregating, then XP is counted once and no skill gets XP")
@@ -99,7 +99,7 @@ struct DadProgressTests {
         let progress = DadProgress(events: events, catalog: catalog)
         #expect(progress.totalXP == 30)
         #expect(progress.skillXP.isEmpty)
-        #expect(progress.capturedFirstIDs(for: nil) == ["f1"])
+        #expect(progress.capturedFirstIDs(for: Fixtures.child) == ["f1"])
     }
 
     @Test("Given an event for removed content, when aggregating, then it is ignored")
@@ -114,17 +114,21 @@ struct UnlockRulesTests {
     let catalog = Fixtures.catalog
 
     @Test("Given a newborn, when unlocking, then only the first world and its age-0 quests are available")
-    func newborn() {
+    func newborn() throws {
         #expect(UnlockRules.unlockedWorlds(in: catalog, ageInMonths: 0).map(\.id) == ["w1"])
-        #expect(UnlockRules.availableQuests(in: catalog, ageInMonths: 0).map(\.id) == ["q1"])
+        let first = try #require(catalog.worlds.first { $0.id == "w1" })
+        #expect(UnlockRules.quests(for: first, in: catalog, ageInMonths: 0).map(\.id) == ["q1"])
         #expect(UnlockRules.availableBosses(in: catalog, ageInMonths: 0, childCount: 1).map(\.id) == ["b1"])
     }
 
     @Test("Given a 10-month-old, when unlocking, then both worlds are open and the current world is the second")
-    func tenMonths() {
+    func tenMonths() throws {
         #expect(UnlockRules.unlockedWorlds(in: catalog, ageInMonths: 10).count == 2)
         #expect(UnlockRules.currentWorld(in: catalog, ageInMonths: 10)?.id == "w2")
-        #expect(Set(UnlockRules.availableQuests(in: catalog, ageInMonths: 10).map(\.id)) == ["q1", "q2", "q3"])
+        let first = try #require(catalog.worlds.first { $0.id == "w1" })
+        let second = try #require(catalog.worlds.first { $0.id == "w2" })
+        #expect(UnlockRules.quests(for: first, in: catalog, ageInMonths: 10).map(\.id) == ["q1", "q2"])
+        #expect(UnlockRules.quests(for: second, in: catalog, ageInMonths: 10).map(\.id) == ["q3"])
     }
 }
 
@@ -170,7 +174,10 @@ enum Fixtures {
         ]
     )
 
-    static func event(_ kind: ProgressEvent.Kind, child: UUID? = nil) -> ProgressEvent {
+    /// The child an event happens with when a test doesn't name one.
+    static let child = UUID(uuidString: "00000000-0000-0000-0000-0000000000C1") ?? UUID()
+
+    static func event(_ kind: ProgressEvent.Kind, child: UUID = Fixtures.child) -> ProgressEvent {
         ProgressEvent(kind: kind, childID: child, date: Date(timeIntervalSince1970: 0))
     }
 }

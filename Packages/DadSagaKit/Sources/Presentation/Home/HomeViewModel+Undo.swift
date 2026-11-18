@@ -1,10 +1,12 @@
 import Foundation
+import Localization
 
 /// Undo for a few seconds after the dad records something (ADR-0021).
 extension HomeViewModel {
     /// Takes back what was just recorded: its XP, and any level, gear or badge it brought.
+    /// While another save is still running the offer stays, so the tap is not lost and can be made again.
     public func undoLastRecord() async {
-        guard let offer = undoOffer else { return }
+        guard !isCompleting, let offer = undoOffer else { return }
         undoOffer = nil
         celebrationFinished()
         await perform {
@@ -16,8 +18,8 @@ extension HomeViewModel {
         UndoOffer(
             id: id,
             eventID: eventID,
-            message: strings.text(el: "Καταγράφηκε", en: "Saved"),
-            actionTitle: strings.text(el: "Αναίρεση", en: "Undo")
+            message: strings.text("Saved"),
+            actionTitle: strings.text("Undo")
         )
     }
 
