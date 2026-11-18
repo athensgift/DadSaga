@@ -40,9 +40,9 @@ func trimmed(_ image: CGImage) -> CGImage? {
     context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
     let pixels = data.bindMemory(to: UInt8.self, capacity: width * height * 4)
     var minX = width, minY = height, maxX = -1, maxY = -1
-    for y in 0..<height {
-        for x in 0..<width where pixels[(y * width + x) * 4 + 3] > 8 {
-            minX = min(minX, x); maxX = max(maxX, x); minY = min(minY, y); maxY = max(maxY, y)
+    for row in 0..<height {
+        for column in 0..<width where pixels[(row * width + column) * 4 + 3] > 8 {
+            minX = min(minX, column); maxX = max(maxX, column); minY = min(minY, row); maxY = max(maxY, row)
         }
     }
     guard maxX >= minX else { return nil }
@@ -50,11 +50,10 @@ func trimmed(_ image: CGImage) -> CGImage? {
 }
 
 let output = URL(fileURLWithPath: "App/Resources/Assets.xcassets/LaunchLogo.imageset", isDirectory: true)
-let appearances: [(name: String, appearance: NSAppearance.Name, scheme: ColorScheme)] = [
-    ("light", .aqua, .light), ("dark", .darkAqua, .dark),
-]
+/// One rendering pass per launch appearance: the asset name suffix and the colour scheme to draw in.
+let appearances: [(name: String, scheme: ColorScheme)] = [("light", .light), ("dark", .dark)]
 for entry in appearances {
-    NSAppearance(named: entry.appearance)?.performAsCurrentDrawingAppearance {
+    NSAppearance(named: entry.scheme == .dark ? .darkAqua : .aqua)?.performAsCurrentDrawingAppearance {
         MainActor.assumeIsolated {
             for scale in [2, 3] {
                 let renderer = ImageRenderer(
