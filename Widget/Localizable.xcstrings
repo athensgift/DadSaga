@@ -1,108 +1,111 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "Widget settings": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Widget settings"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@" : {
+      "shouldTranslate" : false
+    },
+    "Child" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Παιδί"
           }
         },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ρυθμίσεις widget"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Child"
           }
         }
       }
     },
-    "Choose the child this widget shows.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choose the child this widget shows."
+    "Choose the child this widget shows." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Διάλεξε ποιο παιδί δείχνει αυτό το widget."
           }
         },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Διάλεξε ποιο παιδί δείχνει αυτό το widget."
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the child this widget shows."
           }
         }
       }
     },
-    "Child": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Child"
+    "DadSaga" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DadSaga"
           }
         },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Παιδί"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DadSaga"
           }
         }
       }
     },
-    "Show photo": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show photo"
+    "Show photo" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εμφάνιση φωτογραφίας"
           }
         },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Εμφάνιση φωτογραφίας"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show photo"
           }
         }
       }
     },
-    "DadSaga": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DadSaga"
+    "The quest of the week and your latest legendary moment." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η αποστολή της εβδομάδας και η τελευταία θρυλική στιγμή σας."
           }
         },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DadSaga"
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The quest of the week and your latest legendary moment."
           }
         }
       }
     },
-    "The quest of the week and your latest legendary moment.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The quest of the week and your latest legendary moment."
+    "Widget settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ρυθμίσεις widget"
           }
         },
-        "el": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Η αποστολή της εβδομάδας και η τελευταία θρυλική στιγμή σας."
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget settings"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }
