@@ -1,0 +1,35 @@
+{
+  "fill": {
+    "linear-gradient": [
+      "srgb:0.33,0.44,0.91,1.0",
+      "srgb:0.19,0.28,0.72,1.0"
+    ]
+  },
+  "groups": [
+    {
+      "layers": [
+        {
+          "image-name": "02-child.svg",
+          "name": "02-child"
+        },
+        {
+          "image-name": "01-dad.svg",
+          "name": "01-dad"
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": true,
+        "value": 0.4
+      }
+    }
+  ],
+  "supported-platforms": {
+    "squares": [
+      "iOS"
+    ]
+  }
+}

@@ -3,9 +3,11 @@ included:
   - Widget
   - Packages/DadSagaKit/Sources
   - Packages/DadSagaKit/Tests
+  - Tools
 
 excluded:
   - Packages/DadSagaKit/.build
+  - Tools/LaunchLogo/.build
 
 opt_in_rules:
   - force_unwrapping

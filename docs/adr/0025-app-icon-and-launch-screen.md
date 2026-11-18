@@ -1,0 +1,52 @@
+# ADR-0025: App icon in Icon Composer, native launch screen with Super Dad and a baby
+
+**Status:** Accepted (2026-11-18). The owner chose the icon (dad and child hand in hand, no star, beard or crown) and
+the launch screen (Super Dad with a smiling baby, static).
+
+## Context
+The app had no icon and launched on a white screen (`UILaunchScreen: {}`). The icon has to say "a game for dads" at a
+glance and stay clean at home-screen size. On iOS 26 icons are Liquid Glass: the system renders the default, dark,
+clear and tinted looks from one layered Icon Composer file, and Apple asks for flat, simple layers with the depth left
+to the glass. The launch screen must be the native one (no SwiftUI splash view), so it can only be a colour and an
+image, and it cannot animate.
+
+## Decision
+
+### 1. Icon: `App/Resources/AppIcon.icon`
+- An **Icon Composer** document, not PNGs in an asset catalog. `ASSETCATALOG_COMPILER_APPICON_NAME` changes from
+  `""` to `AppIcon`, the `.icon` file's name. XcodeGen picks it up as a resource of the app target.
+- Two flat white SVG layers in one group, dad (`01-dad.svg`) and child (`02-child.svg`) walking hand in hand. No
+  star, beard or crown: the owner found them noisy, and the size difference already says "dad and child".
+- Background: a linear gradient around the accent blue (#5470E8 → #3048B8), one step lighter and darker than
+  `DSColor.accent` (#3B5BDB) so the glass has some light to catch. No gradients, shadows or highlights in the
+  layers; Liquid Glass adds them. Dark, clear and tinted are left to the system.
+- To edit it: open the file in Icon Composer (Xcode › Open Developer Tool › Icon Composer). Preview any appearance
+  without Xcode with `ictool AppIcon.icon --export-image --platform iOS --rendition Dark …`.
+
+### 2. Launch screen: `UILaunchScreen` in `project.yml`
+- `UIColorName: LaunchBackground`: `DSColor.background` (system grouped background: #F2F2F7 light, #000000 dark), so
+  the hand-over to the first screen is seamless. The match holds for the standard appearance; with Increase Contrast
+  the system colour shifts slightly and the hand-over may show a faint change.
+- `UIImageName: LaunchLogo`: the home screen's own avatars, Super Dad (`HeroAvatar` style `.hero`) with a smiling baby
+  (`ChildAvatar` stage `.baby`, trait `.smile`), at rest and centred. A baby, because 0–1 is the main audience.
+  Light and dark images use the matching `DSColor` tokens.
+- Static: the system shows it before any app code runs, and the app has no splash view.
+
+### 3. The launch image is generated, not drawn
+The avatars are drawn in code (ADR-0008, ADR-0013), so the launch image is rendered from that same code with
+`Tools/LaunchLogo`, a small macOS executable that uses `ImageRenderer` and writes the four PNGs (light/dark, @2x/@3x)
+straight into `LaunchLogo.imageset`. Run it from the repository root after any avatar change:
+
+```bash
+swift run --package-path Tools/LaunchLogo -Xswiftc -enable-testing LaunchLogo
+```
+
+It uses `@testable import DesignSystem` to draw `HeroFigure`/`ChildFigure` in the rest pose without the appear
+animation, so no production API was added for it.
+
+## Consequences
+- One icon file serves every iOS 26 appearance.
+- `Tools` is in SwiftLint's `included` paths, so `swiftlint --strict` covers the tool too.
+- iOS caches launch screens. After changing the image, testing in the Simulator needs the app deleted and the
+  Simulator restarted (or the app's `Library/SplashBoard` snapshots removed) before the new image shows.
+- If an avatar's look changes, the launch image is stale until `Tools/LaunchLogo` is run again.
