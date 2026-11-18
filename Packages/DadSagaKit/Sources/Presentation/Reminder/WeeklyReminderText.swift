@@ -1,6 +1,7 @@
 import Application
 import Domain
 import Foundation
+import Localization
 
 /// The words of the weekly notification and of everything around it, in the dad's language (ADR-0024).
 /// No counts, no "you haven't", nothing left: it only suggests (ADR-0006).
@@ -12,7 +13,7 @@ public struct WeeklyReminderText: ReminderTextProvider {
     }
 
     public func title() -> String {
-        text(el: "Η αποστολή της εβδομάδας", en: "This week's quest")
+        strings.text("This week's quest")
     }
 
     public func body(questTitle: LocalizedText, childName: String?) -> String {
@@ -44,9 +45,7 @@ public struct WeeklyReminderText: ReminderTextProvider {
         return day + " " + time
     }
 
-    func text(el: String, en: String) -> String {
-        LocalizedText(el: el, en: en).resolved(for: locale)
-    }
+    var strings: Strings { Strings(locale: locale) }
 }
 
 public struct WeekdayOption: Hashable, Identifiable, Sendable {

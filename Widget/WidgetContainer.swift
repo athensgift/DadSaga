@@ -11,7 +11,7 @@ enum WidgetContainer {
 
     static func highlights(childID: UUID?, on date: Date, withPhoto: Bool) async throws -> WeeklyHighlights? {
         let directory = SharedContainer.directory()
-        let store = try LocalStore.live(in: directory, readOnly: true)
+        let store = LocalStore.live(in: directory, readOnly: true)
         let useCase = DefaultGetWeeklyHighlightsUseCase(
             contentRepository: content,
             profileRepository: store.profiles,
@@ -27,7 +27,7 @@ enum WidgetContainer {
 
     /// The family, in the order the dad entered them, for the widget's "Child" setting.
     static func children() async throws -> [Child] {
-        let store = try LocalStore.live(in: SharedContainer.directory(), readOnly: true)
+        let store = LocalStore.live(in: SharedContainer.directory(), readOnly: true)
         return try await store.profiles.fetchProfile()?.children ?? []
     }
 }

@@ -46,7 +46,7 @@ no countdowns, nothing "missed" or "left".
 - **Before onboarding, or if the store cannot be read:** "Open DadSaga to start the adventure."
 - **The photo**: shown by default, with a "Show photo" switch in the widget's settings. Marked
   `privacySensitive()`. It appears only in the medium size, so never in StandBy or CarPlay (small only). The widget
-  gallery shows sample content, never the family's data. The widget receives a copy of at most 600 px, made with ImageIO;
+  gallery shows sample content, never the family's data. The widget receives a copy of at most 720 px, made with ImageIO;
   the full 2048 px JPEG is never decoded in the extension (about 30 MB of memory).
 - **Taps open the matching screen and record nothing.** The dad still taps "I did it" in the app.
   - Quest: Adventure tab, that child, the quest sheet (`dadsaga://quest/<quest id>?child=<uuid>`). It opens even if the

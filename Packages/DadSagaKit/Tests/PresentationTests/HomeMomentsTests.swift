@@ -51,7 +51,7 @@ struct HomeMomentsTests {
         #expect(content.companions.first?.traits == [.walks])
         let photoID = content.moments.cards.first?.photoID
         #expect(photoID != nil)
-        #expect(await sut.photoData(id: photoID ?? "") == Data([1, 2]))
+        #expect(await sut.photoData(id: photoID ?? "", maxPixelSize: 192) == Data([1, 2]))
 
         sut.startCapture()
         #expect(sut.momentCapture?.options.isEmpty == true)

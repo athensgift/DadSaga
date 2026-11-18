@@ -1,6 +1,7 @@
 import Application
 import Domain
 import Foundation
+import Localization
 
 /// The world map: every world for the selected child, and playing an earlier world's quests again.
 extension HomeViewModel {
@@ -31,26 +32,19 @@ extension HomeViewModel {
         let age = snapshot.adventure.ageInMonths
         let unlocked = Set(snapshot.adventure.unlockedWorlds.map(\.id))
         let shownID = shownWorld(snapshot.adventure)?.id
-        let completions = snapshot.progress.questCompletions(for: snapshot.child.id)
-        let defeated = snapshot.progress.defeatedBossIDs(for: snapshot.child.id)
         return WorldMapContent(
-            title: strings.text(el: "Χάρτης κόσμων", en: "World map"),
+            title: strings.text("World map"),
             subtitle: "\(snapshot.child.name) · \(strings.ageText(months: age))",
             worlds: snapshot.catalog.worlds.map { world in
                 let status: WorldMapItem.Status = world.id == snapshot.adventure.currentWorld?.id
                     ? .current
                     : unlocked.contains(world.id) ? .visited : .locked
-                // An evergreen quest counts only in its home world; a boss the family cannot meet does not count.
-                let quests = snapshot.catalog.quests.filter { $0.worldID == world.id }
-                let bosses = snapshot.catalog.bosses.filter {
-                    $0.worldID == world.id && UnlockRules.isPossible($0, childCount: snapshot.childCount)
-                }
+                let done = snapshot.progress.progress(
+                    in: world, catalog: snapshot.catalog, childID: snapshot.child.id, childCount: snapshot.childCount
+                )
                 let detail = status == .locked
                     ? strings.unlocksIn(months: world.minAgeMonths - age)
-                    : strings.worldProgress(
-                        quests: quests.filter { completions[$0.id, default: 0] > 0 }.count,
-                        bosses: bosses.filter { defeated.contains($0.id) }.count
-                    )
+                    : strings.worldProgress(quests: done.questsDone, bosses: done.bossesDone)
                 let isShown = world.id == shownID
                 return WorldMapItem(
                     id: world.id,
@@ -61,8 +55,8 @@ extension HomeViewModel {
                     status: status,
                     detail: detail,
                     tag: status == .current
-                        ? strings.text(el: "Είσαι εδώ", en: "You are here")
-                        : isShown ? strings.text(el: "Το βλέπεις τώρα", en: "Showing now") : nil,
+                        ? strings.text("You are here")
+                        : isShown ? strings.text("Showing now") : nil,
                     isShown: isShown
                 )
             }

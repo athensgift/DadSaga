@@ -22,7 +22,7 @@ jobs:
 
       - name: Package tests
         working-directory: Packages/DadSagaKit
-        run: swift test
+        run: swift test --build-system swiftbuild
 
       - name: Generate Xcode project
         run: xcodegen generate

@@ -1,35 +1,28 @@
 import Domain
 import Foundation
-import SwiftData
 
-/// SwiftData storage shape of a progress event. Never leaves the Data layer.
-@Model
-final class ProgressEventRecord {
-    var eventID: UUID
-    /// "quest", "boss" or "first".
-    var kind: String
-    var contentID: String
-    /// The child it happened with. `nil` only for events that were never linked to a child.
-    var childID: UUID?
-    var date: Date
-    var note: String?
-    var photoID: String?
-
-    init(event: ProgressEvent) {
-        eventID = event.id
-        childID = event.childID
-        date = event.date
-        note = event.note
-        photoID = event.photoID
-        switch event.kind {
-        case .quest(let id): (kind, contentID) = ("quest", id)
-        case .boss(let id): (kind, contentID) = ("boss", id)
-        case .first(let id): (kind, contentID) = ("first", id)
+extension ProgressEventRecord {
+    convenience init(event: ProgressEvent) {
+        let (kind, contentID): (String, String) = switch event.kind {
+        case .quest(let id): ("quest", id)
+        case .boss(let id): ("boss", id)
+        case .first(let id): ("first", id)
         }
+        self.init(
+            eventID: event.id,
+            kind: kind,
+            contentID: contentID,
+            childID: event.childID,
+            date: event.date,
+            note: event.note,
+            photoID: event.photoID
+        )
     }
 
-    /// `nil` for a kind this version does not know, so newer data never crashes an older build.
+    /// `nil` for a kind this version does not know, so newer data never crashes an older build, and for a row with no
+    /// child, which no store since ADR-0023 holds.
     func toDomain() -> ProgressEvent? {
+        guard let childID else { return nil }
         let eventKind: ProgressEvent.Kind
         switch kind {
         case "quest": eventKind = .quest(id: contentID)

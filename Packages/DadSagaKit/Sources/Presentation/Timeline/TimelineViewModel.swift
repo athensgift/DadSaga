@@ -1,6 +1,7 @@
 import Application
 import Domain
 import Foundation
+import Localization
 import Observation
 
 /// Presenter for the timeline: everything the family has done, by month, for everyone or one child.
@@ -34,7 +35,7 @@ public final class TimelineViewModel {
         deleteEvent: any DeleteEventUseCase,
         updateJournal: any UpdateJournalUseCase,
         locale: Locale = .current,
-        calendar: Calendar = .current
+        calendar: Calendar = .autoupdatingCurrent
     ) {
         self.getProfile = getProfile
         self.getTimeline = getTimeline
@@ -55,7 +56,7 @@ public final class TimelineViewModel {
             }
             state = .loaded(makeContent())
         } catch {
-            state = .failed(message: text(el: "Το χρονολόγιο δεν φόρτωσε.", en: "The timeline failed to load."))
+            state = .failed(message: strings.text("The timeline failed to load."))
         }
     }
 
@@ -64,8 +65,8 @@ public final class TimelineViewModel {
         state = .loaded(makeContent())
     }
 
-    public func photoData(id: String) async -> Data? {
-        await getPhoto.execute(id: id)
+    public func photoData(id: String, maxPixelSize: Int) async -> Data? {
+        await getPhoto.execute(id: id, maxPixelSize: maxPixelSize)
     }
 
     /// Asks before deleting an entry. A moment with a photo or a note says plainly that those go too.
@@ -75,24 +76,22 @@ public final class TimelineViewModel {
         let message: String
         switch entry.kind {
         case .first where entry.photoID != nil || entry.note != nil:
-            message = text(
-                el: "Η φωτογραφία και η σημείωσή σου θα σβηστούν μαζί του, χωρίς επιστροφή. Θα αφαιρεθούν και τα \(entry.xp) XP.",
-                en: "Your photo and note will be deleted with it, for good. Its \(entry.xp) XP will be removed too."
+            message = strings.text(
+                """
+                Your photo and note will be deleted with it, for good. Its \(entry.xp) XP will be removed too.
+                """
             )
         case .boss:
-            message = text(
-                el: "Θα αφαιρεθούν το έμβλημα και τα \(entry.xp) XP.",
-                en: "The badge and its \(entry.xp) XP will be removed."
-            )
+            message = strings.text("The badge and its \(entry.xp) XP will be removed.")
         default:
-            message = text(el: "Θα αφαιρεθούν τα \(entry.xp) XP.", en: "Its \(entry.xp) XP will be removed.")
+            message = strings.text("Its \(entry.xp) XP will be removed.")
         }
         deletion = DeletionPrompt(
             id: id,
-            title: text(el: "Διαγραφή από το χρονολόγιο;", en: "Delete from the timeline?"),
+            title: strings.text("Delete from the timeline?"),
             message: message,
-            confirmTitle: text(el: "Διαγραφή", en: "Delete"),
-            cancelTitle: text(el: "Άκυρο", en: "Cancel")
+            confirmTitle: strings.text("Delete"),
+            cancelTitle: strings.text("Cancel")
         )
     }
 
@@ -111,7 +110,7 @@ public final class TimelineViewModel {
             try await deleteEvent.execute(eventID: id)
             await onAppear()
         } catch {
-            errorMessage = text(el: "Δεν διαγράφηκε. Δοκίμασε ξανά.", en: "Couldn't delete. Please try again.")
+            errorMessage = strings.text("Couldn't delete. Please try again.")
         }
     }
 
@@ -125,7 +124,7 @@ public final class TimelineViewModel {
             note: entry.note ?? "",
             photoID: entry.photoID,
             labels: JournalLabels(locale: locale),
-            saveTitle: text(el: "Αποθήκευση", en: "Save")
+            saveTitle: strings.text("Save")
         )
     }
 
@@ -147,18 +146,18 @@ public final class TimelineViewModel {
             journalEditor = nil
             await onAppear()
         } catch {
-            errorMessage = text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
+            errorMessage = strings.text("Couldn't save. Please try again.")
         }
     }
 
     /// The labels of the row's actions.
     public var editTitle: String {
-        text(el: "Σημείωση και φωτογραφία", en: "Note and photo")
+        strings.text("Note and photo")
     }
 
     /// The label of the row's delete action.
     public var deleteTitle: String {
-        text(el: "Διαγραφή", en: "Delete")
+        strings.text("Delete")
     }
 
     // MARK: Building
@@ -167,18 +166,15 @@ public final class TimelineViewModel {
         let hasSiblings = children.count > 1
         let shown = entries.filter { selectedFilter == nil || $0.childID == selectedFilter }
         return TimelineContent(
-            title: text(el: "Χρονολόγιο", en: "Timeline"),
+            title: strings.text("Timeline"),
             filters: hasSiblings
-                ? [TimelineFilter(id: nil, title: text(el: "Όλοι", en: "All"))]
+                ? [TimelineFilter(id: nil, title: strings.text("All"))]
                     + children.map { TimelineFilter(id: $0.id, title: $0.name) }
                 : [],
             selectedFilter: selectedFilter,
             sections: sections(for: shown, showChild: hasSiblings && selectedFilter == nil),
-            emptyTitle: text(el: "Καμία ανάμνηση ακόμα", en: "No memories yet"),
-            emptyMessage: text(
-                el: "Ό,τι κάνεις με τα παιδιά σου θα μαζεύεται εδώ.",
-                en: "Everything you do with your kids will gather here."
-            )
+            emptyTitle: strings.text("No memories yet"),
+            emptyMessage: strings.text("Everything you do with your kids will gather here.")
         )
     }
 
@@ -246,7 +242,5 @@ public final class TimelineViewModel {
         return title.prefix(1).uppercased(with: locale) + title.dropFirst()
     }
 
-    private func text(el: String, en: String) -> String {
-        LocalizedText(el: el, en: en).resolved(for: locale)
-    }
+    private var strings: Strings { Strings(locale: locale) }
 }

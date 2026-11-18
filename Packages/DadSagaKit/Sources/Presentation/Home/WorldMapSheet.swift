@@ -63,7 +63,7 @@ struct WorldMapSheet: View {
         ZStack {
             Circle().fill(tint(world).gradient)
             if world.status == .locked {
-                Image(systemName: "lock.fill").font(.system(.subheadline, weight: .semibold))
+                Image(systemName: "lock.fill").font(DSFont.smallSymbol)
             } else {
                 Text(verbatim: "\(world.number)").font(DSFont.headline)
             }

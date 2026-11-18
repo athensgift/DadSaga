@@ -12,6 +12,12 @@ public struct LocalizedText: Hashable, Sendable {
 
     /// Greek for Greek locales, English for everything else.
     public func resolved(for locale: Locale = .current) -> String {
-        locale.language.languageCode?.identifier == "el" ? el : en
+        Self.languageCode(for: locale) == "el" ? el : en
+    }
+
+    /// "el" for Greek locales, "en" for everything else. UI text follows the same rule (ADR-0027), so the screen and
+    /// the content are never in two languages.
+    public static func languageCode(for locale: Locale) -> String {
+        locale.language.languageCode?.identifier == "el" ? "el" : "en"
     }
 }

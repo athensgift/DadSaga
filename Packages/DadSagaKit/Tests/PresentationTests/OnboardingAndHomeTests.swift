@@ -169,12 +169,23 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase,
         shouldFail = true
     }
 
+    private var isSlow = false
+
+    /// The next quest takes a while to save, like a slow disk.
+    func slowNext() {
+        isSlow = true
+    }
+
     func execute() async throws -> DadProgress {
         DadProgress(events: events, catalog: HeroStub.catalog)
     }
 
     func execute(questID: String, childID: UUID, on date: Date, journal: JournalInput) async throws -> ProgressChange {
-        try record(.quest(id: questID), childID: childID, on: date, note: journal.note)
+        if isSlow {
+            isSlow = false
+            try? await Task.sleep(for: .milliseconds(200))
+        }
+        return try record(.quest(id: questID), childID: childID, on: date, note: journal.note)
     }
 
     func execute(bossID: String, childID: UUID, on date: Date, journal: JournalInput) async throws -> ProgressChange {
@@ -221,11 +232,11 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase,
         events.removeAll { $0.id == eventID }
     }
 
-    func execute(id: String) async -> Data? {
+    func execute(id: String, maxPixelSize: Int) async -> Data? {
         photos[id]
     }
 
-    var recordedChildIDs: [UUID?] { events.map(\.childID) }
+    var recordedChildIDs: [UUID] { events.map(\.childID) }
     var eventCount: Int { events.count }
 
     private func record(_ kind: ProgressEvent.Kind, childID: UUID, on date: Date, note: String?) throws -> ProgressChange {
@@ -267,7 +278,7 @@ struct StubGetAdventure: GetAdventureUseCase {
         if child.name == "Ελένη" {
             return Adventure(
                 ageInMonths: 60, currentWorld: nil, unlockedWorlds: catalog.worlds,
-                availableQuests: [], availableBosses: [], isBeyondContent: true
+                availableBosses: [], isBeyondContent: true
             )
         }
         let other = Quest(id: "q-other", worldID: "w0", title: HeroStub.text, description: HeroStub.text,
@@ -276,7 +287,6 @@ struct StubGetAdventure: GetAdventureUseCase {
             ageInMonths: 10,
             currentWorld: catalog.worlds.first,
             unlockedWorlds: catalog.worlds,
-            availableQuests: catalog.quests + [other],
             availableBosses: catalog.bosses
         )
     }

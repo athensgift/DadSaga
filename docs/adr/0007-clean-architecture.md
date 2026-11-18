@@ -17,6 +17,7 @@ Four layers, each a separate SwiftPM target, so the compiler enforces the **depe
 | Use Cases | `Application` | Use case protocols + `Default…` implementations, and repository **protocols** (ports) such as `ContentRepository`. |
 | Interface Adapters (gateways) | `Data` | Repository implementations, DTOs, DTO → entity mappers, validation. |
 | Interface Adapters (presenters) | `Presentation` | `@Observable` ViewModels that call use cases and map entities to plain display models (`ViewState`). |
+| Interface Adapters (presenters) | `WidgetPresentation` | The widget's presenter: plain, unit-tested, no WidgetKit. Imports Application and Domain only ([ADR-0023](0023-home-screen-widget.md)). |
 | Frameworks & Drivers | `Data/DataSources`, `Presentation` views, `DesignSystem`, App | Bundle/JSON access, SwiftUI views, UI kit. |
 | Main / composition root | App target (`AppContainer`) | The only place that knows concrete types and wires them via constructor injection. |
 

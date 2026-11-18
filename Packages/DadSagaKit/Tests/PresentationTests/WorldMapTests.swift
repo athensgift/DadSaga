@@ -37,7 +37,6 @@ struct WorldMapTests {
                         ageInMonths: months,
                         currentWorld: unlocked.last,
                         unlockedWorlds: unlocked,
-                        availableQuests: Self.catalog.quests.filter { $0.minAgeMonths <= months },
                         availableBosses: []
                     )
                 ),
@@ -45,7 +44,9 @@ struct WorldMapTests {
                 completeQuest: progress,
                 defeatBoss: progress,
                 deleteEvent: progress,
-                moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress)
+                moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
+                getOutfit: FakeOutfit(),
+                reminder: .neverOffered
             ),
             locale: Locale(identifier: "el_GR"),
             now: { HeroStub.today }

@@ -27,7 +27,7 @@ struct LevelPanel: View {
                     .monospacedDigit()
                     .contentTransition(.numericText())
             }
-            XPBar(fraction: shownFraction ?? fraction)
+            XPBar(label: title, fraction: shownFraction ?? fraction)
         }
         .padding(DSSpacing.m)
         .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))

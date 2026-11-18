@@ -20,14 +20,16 @@ public enum NotificationAuthorization: Hashable, Sendable {
 
 /// One notification waiting to be delivered.
 public struct PendingReminder: Hashable, Sendable {
-    public let date: Date
+    /// The wall-clock day and time it is due (year, month, day, hour, minute), with no time zone, so it arrives at
+    /// that time on the phone's clock wherever the dad is, even if he travels before it fires.
+    public let time: DateComponents
     public let title: String
     public let body: String
     /// What a tap opens.
     public let link: AppLink
 
-    public init(date: Date, title: String, body: String, link: AppLink) {
-        self.date = date
+    public init(time: DateComponents, title: String, body: String, link: AppLink) {
+        self.time = time
         self.title = title
         self.body = body
         self.link = link

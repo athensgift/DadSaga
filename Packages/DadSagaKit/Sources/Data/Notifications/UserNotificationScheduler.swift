@@ -27,18 +27,16 @@ public struct UserNotificationScheduler: NotificationScheduler {
     public func replacePending(with reminders: [PendingReminder]) async {
         let old = await center.pendingNotificationRequests().map(\.identifier).filter { $0.hasPrefix(Self.idPrefix) }
         center.removePendingNotificationRequests(withIdentifiers: old)
-        let calendar = Calendar.current
         for (index, reminder) in reminders.enumerated() {
             let content = UNMutableNotificationContent()
             content.title = reminder.title
             content.body = reminder.body
             content.sound = .default
             content.userInfo = [Self.linkKey: reminder.link.url.absoluteString]
-            let when = calendar.dateComponents([.year, .month, .day, .hour, .minute], from: reminder.date)
             let request = UNNotificationRequest(
                 identifier: Self.idPrefix + String(index),
                 content: content,
-                trigger: UNCalendarNotificationTrigger(dateMatching: when, repeats: false)
+                trigger: UNCalendarNotificationTrigger(dateMatching: reminder.time, repeats: false)
             )
             try? await center.add(request)
         }

@@ -5,13 +5,21 @@ import WidgetKit
 @main
 struct DadSagaApp: App {
     @UIApplicationDelegateAdaptor(NotificationDelegate.self) private var notificationDelegate
-    private let container = AppContainer()
+    private let container: AppContainer
+    /// Built once; `body` runs again on every scene-phase change and must not rebuild it.
+    private let rootViewModel: RootViewModel
     @Environment(\.scenePhase) private var scenePhase
+
+    init() {
+        let container = AppContainer()
+        self.container = container
+        rootViewModel = container.makeRootViewModel()
+    }
 
     var body: some Scene {
         WindowGroup {
             RootView(
-                viewModel: container.makeRootViewModel(),
+                viewModel: rootViewModel,
                 makeOnboarding: { container.makeOnboardingViewModel(onFinished: $0) },
                 makeHome: { container.makeHomeViewModel() },
                 makeFamily: { container.makeFamilyViewModel(onSaved: $0) },
@@ -29,7 +37,38 @@ struct DadSagaApp: App {
             guard old == .active else { return }
             WidgetCenter.shared.reloadAllTimelines()
             let schedule = container.scheduleWeeklyReminders
-            Task { await schedule.execute(on: .now) }
+            // Asks iOS for a little time, so the app is not suspended before the new notifications are in place.
+            let application = UIApplication.shared
+            let backgroundTask = BackgroundTask(application: application)
+            backgroundTask.begin()
+            Task {
+                await schedule.execute(on: .now)
+                backgroundTask.end()
+            }
         }
+    }
+}
+
+/// A little extra time from iOS after the app leaves the screen. Ended once: when the work is done, or when iOS says
+/// time is up, so the app is never terminated for holding it too long.
+@MainActor
+private final class BackgroundTask {
+    private let application: UIApplication
+    private var identifier = UIBackgroundTaskIdentifier.invalid
+
+    init(application: UIApplication) {
+        self.application = application
+    }
+
+    func begin() {
+        identifier = application.beginBackgroundTask(withName: "Reschedule weekly reminders") { [weak self] in
+            MainActor.assumeIsolated { self?.end() }
+        }
+    }
+
+    func end() {
+        guard identifier != .invalid else { return }
+        application.endBackgroundTask(identifier)
+        identifier = .invalid
     }
 }

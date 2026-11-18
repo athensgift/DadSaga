@@ -3,19 +3,6 @@ import Domain
 import Foundation
 import SwiftData
 
-/// SwiftData storage shape of one wardrobe choice. Slots that are automatic have no record.
-@Model
-final class OutfitRecord {
-    var skill: String
-    /// "hidden" or "item:<gear id>".
-    var choice: String
-
-    init(skill: String, choice: String) {
-        self.skill = skill
-        self.choice = choice
-    }
-}
-
 /// `OutfitRepository` backed by SwiftData. Created through `LocalStore`.
 @ModelActor
 actor SwiftDataOutfitRepository: OutfitRepository {
@@ -40,22 +27,6 @@ actor SwiftDataOutfitRepository: OutfitRepository {
     func deleteAll() async throws {
         try modelContext.delete(model: OutfitRecord.self)
         try modelContext.save()
-    }
-}
-
-actor InMemoryOutfitRepository: OutfitRepository {
-    private var outfit = Outfit()
-
-    func fetchOutfit() async throws -> Outfit {
-        outfit
-    }
-
-    func save(_ outfit: Outfit) async throws {
-        self.outfit = outfit
-    }
-
-    func deleteAll() async throws {
-        outfit = Outfit()
     }
 }
 

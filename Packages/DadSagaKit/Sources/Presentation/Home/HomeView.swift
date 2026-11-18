@@ -1,4 +1,3 @@
-import Application
 import DesignSystem
 import SwiftUI
 
@@ -16,24 +15,22 @@ public struct HomeView: View {
     @State var wardrobeViewModel: WardrobeViewModel?
     @State var reminderViewModel: ReminderSettingsViewModel?
     let developerMenu: DeveloperMenu?
-    let makeFamily: MakeFamily?
-    let makeWardrobe: MakeWardrobe?
-    let makeReminderSettings: MakeReminderSettings?
-    let pendingLink: AppLink?
+    let makeFamily: MakeFamily
+    let makeWardrobe: MakeWardrobe
+    let makeReminderSettings: MakeReminderSettings
+    let pendingLink: PendingLink?
     let onLinkHandled: @MainActor () -> Void
 
     /// - Parameters:
-    ///   - makeFamily: builds the "My family" screen; `nil` hides its button.
-    ///   - makeWardrobe: builds the wardrobe; `nil` hides its button.
-    ///   - makeReminderSettings: builds the weekly reminder settings; `nil` hides its button.
+    ///   - makeFamily, makeWardrobe, makeReminderSettings: build the screens behind the toolbar buttons.
     ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` runs once it is open.
     public init(
         viewModel: HomeViewModel,
         developerMenu: DeveloperMenu? = nil,
-        makeFamily: MakeFamily? = nil,
-        makeWardrobe: MakeWardrobe? = nil,
-        makeReminderSettings: MakeReminderSettings? = nil,
-        pendingLink: AppLink? = nil,
+        makeFamily: @escaping MakeFamily,
+        makeWardrobe: @escaping MakeWardrobe,
+        makeReminderSettings: @escaping MakeReminderSettings,
+        pendingLink: PendingLink? = nil,
         onLinkHandled: @escaping @MainActor () -> Void = {}
     ) {
         _viewModel = State(initialValue: viewModel)
@@ -66,15 +63,9 @@ public struct HomeView: View {
             // shifts the other, so the wide layout has no bar: its title lives in the hero column.
             .navigationBarHidden(when: isWide)
             .toolbar {
-                if makeWardrobe != nil {
-                    ToolbarItem(placement: .primaryAction) { wardrobeButton }
-                }
-                if makeFamily != nil {
-                    ToolbarItem(placement: .primaryAction) { familyButton }
-                }
-                if makeReminderSettings != nil {
-                    ToolbarItem(placement: .primaryAction) { reminderButton }
-                }
+                ToolbarItem(placement: .primaryAction) { wardrobeButton }
+                ToolbarItem(placement: .primaryAction) { familyButton }
+                ToolbarItem(placement: .primaryAction) { reminderButton }
                 DeveloperMenuToolbar(menu: developerMenu)
             }
         }
@@ -108,7 +99,7 @@ public struct HomeView: View {
                     capture: capture,
                     errorMessage: viewModel.errorMessage,
                     isSaving: viewModel.isCompleting,
-                    loader: { await viewModel.photoData(id: $0) },
+                    loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
                     onSave: { id, date, note, photo in
                         Task { await viewModel.saveMoment(firstID: id, date: date, note: note, photo: photo) }
                     },
@@ -258,7 +249,7 @@ public struct HomeView: View {
             }
             MomentsSectionView(
                 section: content.moments,
-                loader: { await viewModel.photoData(id: $0) },
+                loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
                 onAdd: { viewModel.startCapture() },
                 onEdit: { viewModel.editMoment(id: $0) }
             )
@@ -300,7 +291,7 @@ extension HomeView {
             quest: quest,
             errorMessage: viewModel.errorMessage,
             isCompleting: viewModel.isCompleting,
-            loader: { await viewModel.photoData(id: $0) },
+            loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
             onConfirm: { note, photo in Task { await viewModel.completeSelectedQuest(note: note, photo: photo) } },
             onClose: { viewModel.dismissSelection() }
         )
@@ -312,7 +303,7 @@ extension HomeView {
             boss: boss,
             errorMessage: viewModel.errorMessage,
             isCompleting: viewModel.isCompleting,
-            loader: { await viewModel.photoData(id: $0) },
+            loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
             onConfirm: { note, photo in Task { await viewModel.defeatSelectedBoss(note: note, photo: photo) } },
             onClose: { viewModel.dismissSelection() }
         )
@@ -333,6 +324,8 @@ extension HomeView {
         viewModel.closeMap()
         // A new sheet cannot appear while the old one is still sliding away.
         if hadSheet { try? await Task.sleep(for: .milliseconds(450)) }
+        // A newer link replaced this one while the sheets closed; its own task opens it.
+        guard !Task.isCancelled else { return }
         await viewModel.open(pendingLink)
         onLinkHandled()
     }

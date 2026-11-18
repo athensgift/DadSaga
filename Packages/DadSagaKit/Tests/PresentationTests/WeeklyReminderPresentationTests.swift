@@ -4,6 +4,14 @@ import Foundation
 import Presentation
 import Testing
 
+extension ReminderUseCases {
+    /// iOS already said no, so home never offers the reminder.
+    static var neverOffered: ReminderUseCases {
+        let fake = FakeReminder(authorization: .denied)
+        return ReminderUseCases(get: fake, update: fake)
+    }
+}
+
 /// The reminder settings and what iOS allows, as the use cases would report them.
 actor FakeReminder: GetWeeklyReminderUseCase, UpdateWeeklyReminderUseCase {
     var reminder = WeeklyReminder.default

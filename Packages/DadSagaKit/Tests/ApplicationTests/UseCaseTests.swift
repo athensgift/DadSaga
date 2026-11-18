@@ -40,7 +40,6 @@ struct GetAdventureUseCaseTests {
         #expect(!adventure.isBeyondContent)
         #expect(adventure.currentWorld?.id == "w2")
         #expect(adventure.unlockedWorlds.map(\.id) == ["w1", "w2"])
-        #expect(Set(adventure.availableQuests.map(\.id)) == ["q1", "q2"])
         #expect(adventure.availableBosses.isEmpty)
     }
 }
@@ -80,7 +79,6 @@ struct OlderChildAdventureTests {
 
         #expect(adventure.isBeyondContent)
         #expect(adventure.currentWorld == nil)
-        #expect(adventure.availableQuests.isEmpty)
         #expect(adventure.availableBosses.isEmpty)
     }
 }

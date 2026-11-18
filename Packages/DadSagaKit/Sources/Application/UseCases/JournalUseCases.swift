@@ -14,7 +14,8 @@ public struct JournalInput: Equatable, Sendable {
     }
 }
 
-/// Stores the photo, then the event; if the event can't be stored, the photo is removed again so nothing is orphaned.
+/// Stores the photo, then the event; if the event can't be stored, the new photo is removed again so nothing is
+/// orphaned. An old photo is removed only once the event no longer points to it.
 struct EventRecorder {
     let progressRepository: any ProgressRepository
     let photoStore: any PhotoStore
@@ -32,6 +33,31 @@ struct EventRecorder {
             throw error
         }
         return event
+    }
+
+    /// Saves `event` with a new date, note and photo. Its id, what it was and the child stay the same.
+    func update(_ event: ProgressEvent, date: Date, note: String?, photo: PhotoChange) async throws {
+        var photoID = event.photoID
+        var newPhotoID: String?
+        switch photo {
+        case .keep: break
+        case .remove: photoID = nil
+        case .replace(let data):
+            newPhotoID = try await photoStore.save(data)
+            photoID = newPhotoID
+        }
+        let updated = ProgressEvent(
+            id: event.id, kind: event.kind, childID: event.childID, date: date, note: note.trimmedOrNil, photoID: photoID
+        )
+        do {
+            try await progressRepository.update(updated)
+        } catch {
+            if let newPhotoID { await photoStore.delete(id: newPhotoID) }
+            throw error
+        }
+        if let old = event.photoID, old != photoID {
+            await photoStore.delete(id: old)
+        }
     }
 }
 
@@ -53,25 +79,7 @@ public struct DefaultUpdateJournalUseCase: UpdateJournalUseCase {
         guard let event = try await progressRepository.fetchEvents().first(where: { $0.id == eventID }) else {
             throw ProgressError.unknownEvent
         }
-        var photoID = event.photoID
-        switch photo {
-        case .keep: break
-        case .remove: photoID = nil
-        case .replace(let data): photoID = try await photoStore.save(data)
-        }
-        try await progressRepository.update(
-            ProgressEvent(
-                id: event.id,
-                kind: event.kind,
-                childID: event.childID,
-                date: event.date,
-                note: note.trimmedOrNil,
-                photoID: photoID
-            )
-        )
-        // Only after the entry points elsewhere is the old photo safe to remove.
-        if let old = event.photoID, old != photoID {
-            await photoStore.delete(id: old)
-        }
+        try await EventRecorder(progressRepository: progressRepository, photoStore: photoStore)
+            .update(event, date: event.date, note: note, photo: photo)
     }
 }

@@ -1,6 +1,7 @@
 import Application
 import Domain
 import Foundation
+import Localization
 import Observation
 
 /// Presenter for onboarding: the dad's children (1 to 4), then his hero class and skin tone.
@@ -54,7 +55,7 @@ public final class OnboardingViewModel {
             let catalog = try await loadCatalog.execute()
             state = .loaded(makeContent(from: catalog))
         } catch {
-            state = .failed(message: text(el: "Το περιεχόμενο δεν φόρτωσε.", en: "Content failed to load."))
+            state = .failed(message: strings.text("Content failed to load."))
         }
     }
 
@@ -93,26 +94,20 @@ public final class OnboardingViewModel {
             try await saveProfile.execute(profile, on: latestBirthDate)
             onFinished()
         } catch {
-            errorMessage = text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
+            errorMessage = strings.text("Couldn't save. Please try again.")
         }
     }
 
     private func makeContent(from catalog: ContentCatalog) -> OnboardingContent {
         OnboardingContent(
-            welcomeTitle: text(el: "Καλώς ήρθες, ήρωα", en: "Welcome, hero"),
-            welcomeSubtitle: text(
-                el: "Κάθε έπος θέλει συντρόφους. Πες μας για τα παιδιά σου.",
-                en: "Every saga needs companions. Tell us about your kids."
-            ),
+            welcomeTitle: strings.text("Welcome, hero"),
+            welcomeSubtitle: strings.text("Every saga needs companions. Tell us about your kids."),
             childEditor: ChildEditorLabels.make(locale: locale),
-            dadSkinToneLabel: text(el: "Η απόχρωσή σου", en: "Your skin tone"),
-            continueTitle: text(el: "Συνέχεια", en: "Continue"),
-            heroTitle: text(el: "Διάλεξε τον ήρωά σου", en: "Choose your hero"),
-            heroSubtitle: text(
-                el: "Είναι μόνο η εμφάνισή σου. Όλοι οι ήρωες είναι το ίδιο δυνατοί.",
-                en: "It's only your look. Every hero is equally strong."
-            ),
-            finishTitle: text(el: "Ξεκίνα την περιπέτεια", en: "Start the adventure"),
+            dadSkinToneLabel: strings.text("Your skin tone"),
+            continueTitle: strings.text("Continue"),
+            heroTitle: strings.text("Choose your hero"),
+            heroSubtitle: strings.text("It's only your look. Every hero is equally strong."),
+            finishTitle: strings.text("Start the adventure"),
             heroes: catalog.heroClasses.map { hero in
                 HeroOption(
                     id: hero.id,
@@ -124,7 +119,5 @@ public final class OnboardingViewModel {
         )
     }
 
-    private func text(el: String, en: String) -> String {
-        LocalizedText(el: el, en: en).resolved(for: locale)
-    }
+    private var strings: Strings { Strings(locale: locale) }
 }

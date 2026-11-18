@@ -10,8 +10,8 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
 
     public let id: UUID
     public let kind: Kind
-    /// The child it happened with. `nil` only for events that were never linked to a child.
-    public let childID: UUID?
+    /// The child it happened with. Every event has one (ADR-0026).
+    public let childID: UUID
     /// When it happened. For a first, the day the dad says it happened, which may be in the past.
     public let date: Date
     /// The dad's own words, for firsts.
@@ -22,7 +22,7 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
     public init(
         id: UUID = UUID(),
         kind: Kind,
-        childID: UUID? = nil,
+        childID: UUID,
         date: Date,
         note: String? = nil,
         photoID: String? = nil

@@ -7,18 +7,18 @@ public protocol ResetProfileUseCase: Sendable {
 public struct DefaultResetProfileUseCase: ResetProfileUseCase {
     private let profileRepository: any ProfileRepository
     private let progressRepository: any ProgressRepository
-    private let photoStore: (any PhotoStore)?
-    private let outfitRepository: (any OutfitRepository)?
-    private let reminderSettings: (any ReminderSettingsRepository)?
-    private let notificationScheduler: (any NotificationScheduler)?
+    private let photoStore: any PhotoStore
+    private let outfitRepository: any OutfitRepository
+    private let reminderSettings: any ReminderSettingsRepository
+    private let notificationScheduler: any NotificationScheduler
 
     public init(
         profileRepository: any ProfileRepository,
         progressRepository: any ProgressRepository,
-        photoStore: (any PhotoStore)? = nil,
-        outfitRepository: (any OutfitRepository)? = nil,
-        reminderSettings: (any ReminderSettingsRepository)? = nil,
-        notificationScheduler: (any NotificationScheduler)? = nil
+        photoStore: any PhotoStore,
+        outfitRepository: any OutfitRepository,
+        reminderSettings: any ReminderSettingsRepository,
+        notificationScheduler: any NotificationScheduler
     ) {
         self.profileRepository = profileRepository
         self.progressRepository = progressRepository
@@ -31,9 +31,9 @@ public struct DefaultResetProfileUseCase: ResetProfileUseCase {
     public func execute() async throws {
         try await profileRepository.deleteProfile()
         try await progressRepository.deleteAll()
-        try await outfitRepository?.deleteAll()
-        await photoStore?.deleteAll()
-        await reminderSettings?.deleteAll()
-        await notificationScheduler?.replacePending(with: [])
+        try await outfitRepository.deleteAll()
+        await photoStore.deleteAll()
+        await reminderSettings.deleteAll()
+        await notificationScheduler.replacePending(with: [])
     }
 }

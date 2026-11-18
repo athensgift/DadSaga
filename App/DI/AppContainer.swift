@@ -7,9 +7,9 @@ import Presentation
 final class AppContainer {
     // MARK: Data
     private lazy var contentRepository: any ContentRepository = BundledContentRepository()
-    /// In the folder the app shares with the widget (ADR-0023). Falls back to session-only storage if the on-disk
-    /// store cannot be opened, so the app still starts.
-    private lazy var store: LocalStore = (try? LocalStore.live(in: SharedContainer.directory())) ?? LocalStore.sessionOnly()
+    /// In the folder the app shares with the widget (ADR-0023). Opened on first use; if it cannot be opened, the app
+    /// says so and waits (ADR-0026).
+    private let store = LocalStore.live(in: SharedContainer.directory())
 
     /// Photos of legendary moments, kept on the device, next to the store.
     private lazy var photoStore: any PhotoStore = FilePhotoStore.moments(in: SharedContainer.directory())
@@ -46,16 +46,15 @@ final class AppContainer {
         text: WeeklyReminderText()
     )
 
-    private var reminderUseCases: ReminderUseCases {
-        ReminderUseCases(
-            get: DefaultGetWeeklyReminderUseCase(settings: reminderSettings, scheduler: notificationScheduler),
-            update: DefaultUpdateWeeklyReminderUseCase(
-                settings: reminderSettings,
-                scheduler: notificationScheduler,
-                schedule: scheduleWeeklyReminders
-            )
+    /// One instance for home's offer and the settings screen, so every change waits for the one before it.
+    private lazy var reminderUseCases = ReminderUseCases(
+        get: DefaultGetWeeklyReminderUseCase(settings: reminderSettings, scheduler: notificationScheduler),
+        update: DefaultUpdateWeeklyReminderUseCase(
+            settings: reminderSettings,
+            scheduler: notificationScheduler,
+            schedule: scheduleWeeklyReminders
         )
-    }
+    )
 
     // MARK: Presentation
     func makeRootViewModel() -> RootViewModel {
@@ -139,9 +138,5 @@ final class AppContainer {
             deleteEvent: DefaultDeleteEventUseCase(progressRepository: store.progress, photoStore: photoStore),
             updateJournal: DefaultUpdateJournalUseCase(progressRepository: store.progress, photoStore: photoStore)
         )
-    }
-
-    func makeContentExplorerViewModel() -> ContentExplorerViewModel {
-        ContentExplorerViewModel(loadCatalog: loadContentCatalogUseCase)
     }
 }

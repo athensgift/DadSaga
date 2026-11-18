@@ -1,6 +1,7 @@
 import Application
 import Domain
 import Foundation
+import Localization
 import Observation
 
 /// The use cases behind the weekly reminder, shared by home's offer and the settings screen.
@@ -30,6 +31,7 @@ public final class ReminderSettingsViewModel: Identifiable {
 
     private let useCases: ReminderUseCases
     private let text: WeeklyReminderText
+    private let strings: Strings
     private let now: @Sendable () -> Date
     private var reminder = WeeklyReminder.default
     /// Each save takes a number; only the latest one may update the screen, so a slow earlier save that finishes last
@@ -39,24 +41,28 @@ public final class ReminderSettingsViewModel: Identifiable {
     public init(
         useCases: ReminderUseCases,
         locale: Locale = .current,
-        calendar: Calendar = .current,
+        calendar: Calendar = .autoupdatingCurrent,
         now: @escaping @Sendable () -> Date = { .now }
     ) {
         self.useCases = useCases
         self.now = now
         let text = WeeklyReminderText(locale: locale)
         self.text = text
+        let strings = Strings(locale: locale)
+        self.strings = strings
         weekdays = text.weekdays(calendar: calendar)
         labels = ReminderSettingsLabels(
-            title: text.text(el: "Εβδομαδιαία υπενθύμιση", en: "Weekly reminder"),
-            toggle: text.text(el: "Η αποστολή της εβδομάδας", en: "This week's quest"),
-            explanation: text.text(
-                el: "Μία ειδοποίηση την εβδομάδα με την αποστολή της εβδομάδας. Αν την έχεις ήδη κάνει, δεν έρχεται.",
-                en: "One notification a week with this week's quest. If you've already done it that week, you won't get it."
+            title: strings.text("Weekly reminder"),
+            toggle: strings.text("This week's quest"),
+            explanation: strings.text(
+                """
+                One notification a week with this week's quest. If you've already done it that week, you won't get \
+                it.
+                """
             ),
-            day: text.text(el: "Μέρα", en: "Day"),
-            time: text.text(el: "Ώρα", en: "Time"),
-            openSettings: text.text(el: "Άνοιγμα ρυθμίσεων iPhone", en: "Open iPhone Settings")
+            day: strings.text("Day"),
+            time: strings.text("Time"),
+            openSettings: strings.text("Open iPhone Settings")
         )
     }
 
@@ -102,10 +108,7 @@ public final class ReminderSettingsViewModel: Identifiable {
         hour = status.reminder.hour
         minute = status.reminder.minute
         deniedMessage = status.reminder.isEnabled && status.authorization == .denied
-            ? text.text(
-                el: "Οι ειδοποιήσεις του DadSaga είναι κλειστές στις ρυθμίσεις του iPhone.",
-                en: "DadSaga notifications are turned off in iPhone Settings."
-            )
+            ? strings.text("DadSaga notifications are turned off in iPhone Settings.")
             : nil
         isLoaded = true
     }

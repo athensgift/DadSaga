@@ -33,21 +33,21 @@ struct FilePhotoStoreTests {
         return (image.width, image.height)
     }
 
-    @Test("Given a large image, when saving, then a JPEG no larger than the limit is stored and can be loaded")
+    @Test("Given a large image, when saving, then a JPEG no larger than the limit is stored")
     func savesDownscaled() async throws {
         let sut = FilePhotoStore(directory: directory, maxPixelSize: 200)
         defer { try? FileManager.default.removeItem(at: directory) }
 
         let id = try await sut.save(try png(width: 800, height: 400))
 
-        let stored = try #require(await sut.load(id: id))
+        let stored = try #require(await sut.thumbnail(id: id, maxPixelSize: 4096))
         let size = try pixelSize(of: stored)
         #expect(size.width == 200)
         #expect(size.height == 100)
         #expect(stored.prefix(2) == Data([0xFF, 0xD8]))
     }
 
-    @Test("Given a stored photo, when deleting it, then it can no longer be loaded")
+    @Test("Given a stored photo, when deleting it, then it can no longer be read")
     func deletes() async throws {
         let sut = FilePhotoStore(directory: directory)
         defer { try? FileManager.default.removeItem(at: directory) }
@@ -55,11 +55,11 @@ struct FilePhotoStoreTests {
         let removed = try await sut.save(try png(width: 10, height: 10))
 
         await sut.delete(id: removed)
-        #expect(await sut.load(id: removed) == nil)
-        #expect(await sut.load(id: kept) != nil)
+        #expect(await sut.thumbnail(id: removed, maxPixelSize: 4096) == nil)
+        #expect(await sut.thumbnail(id: kept, maxPixelSize: 4096) != nil)
 
         await sut.deleteAll()
-        #expect(await sut.load(id: kept) == nil)
+        #expect(await sut.thumbnail(id: kept, maxPixelSize: 4096) == nil)
     }
 
     @Test("Given data that is not an image, when saving, then it throws and nothing is written")
@@ -71,10 +71,10 @@ struct FilePhotoStoreTests {
         #expect(!FileManager.default.fileExists(atPath: directory.path))
     }
 
-    @Test("Given an id that looks like a path, when loading, then nothing outside the folder is read")
+    @Test("Given an id that looks like a path, when reading, then nothing outside the folder is read")
     func idsStayInsideTheFolder() async throws {
         let sut = FilePhotoStore(directory: directory)
-        #expect(await sut.load(id: "../../etc/hosts") == nil)
+        #expect(await sut.thumbnail(id: "../../etc/hosts", maxPixelSize: 4096) == nil)
     }
 
     @Test("Given a stored photo, when asking for a thumbnail, then its longest side is at most the limit")

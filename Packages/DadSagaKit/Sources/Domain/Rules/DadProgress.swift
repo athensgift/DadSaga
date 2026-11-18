@@ -7,59 +7,51 @@ import Foundation
 public struct DadProgress: Hashable, Sendable {
     public let totalXP: Int
     public let skillXP: [Skill: Int]
-    private let firstsByChild: [UUID?: Set<String>]
-    private let bossesByChild: [UUID?: Set<String>]
-    private let questsByChild: [UUID?: [String: Int]]
-    private let momentsByChild: [UUID?: [CapturedMoment]]
-    private let journalByChild: [UUID?: [ProgressEvent.Kind: JournalEntry]]
+    private let firstsByChild: [UUID: Set<String>]
+    private let bossesByChild: [UUID: Set<String>]
+    private let questsByChild: [UUID: [String: Int]]
+    private let momentsByChild: [UUID: [CapturedMoment]]
+    private let journalByChild: [UUID: [ProgressEvent.Kind: JournalEntry]]
 
     public var level: LevelProgress { LevelCurve.progress(forTotalXP: totalXP) }
 
     /// Every boss defeated, with any child.
     public var allDefeatedBossIDs: Set<String> { bossesByChild.values.reduce(into: []) { $0.formUnion($1) } }
 
-    /// Events whose ids are not in the catalog are ignored (e.g. content removed in an update).
-    /// Bosses and firsts count once per child; quests are repeatable.
+    /// Counts the same events as the timeline (see `Timeline`): unknown content is ignored, bosses and firsts count
+    /// once per child, quests are repeatable.
     public init(events: [ProgressEvent], catalog: ContentCatalog) {
-        let quests = Dictionary(uniqueKeysWithValues: catalog.quests.map { ($0.id, $0) })
-        let bosses = Dictionary(uniqueKeysWithValues: catalog.bosses.map { ($0.id, $0) })
-        let firsts = Dictionary(uniqueKeysWithValues: catalog.firsts.map { ($0.id, $0) })
-
         var total = 0
         var skills: [Skill: Int] = [:]
-        var firstsByChild: [UUID?: Set<String>] = [:]
-        var bossesByChild: [UUID?: Set<String>] = [:]
-        var questsByChild: [UUID?: [String: Int]] = [:]
-        var momentsByChild: [UUID?: [CapturedMoment]] = [:]
-        var journalByChild: [UUID?: [ProgressEvent.Kind: JournalEntry]] = [:]
+        var firstsByChild: [UUID: Set<String>] = [:]
+        var bossesByChild: [UUID: Set<String>] = [:]
+        var questsByChild: [UUID: [String: Int]] = [:]
+        var momentsByChild: [UUID: [CapturedMoment]] = [:]
+        var journalByChild: [UUID: [ProgressEvent.Kind: JournalEntry]] = [:]
 
-        for event in events.sorted(by: { $0.date < $1.date }) {
-            if event.note != nil || event.photoID != nil {
-                journalByChild[event.childID, default: [:]][event.kind] = JournalEntry(
-                    eventID: event.id, date: event.date, note: event.note, photoID: event.photoID
+        for entry in Timeline.countedEntries(from: events, catalog: catalog) {
+            total += entry.xp
+            let eventKind: ProgressEvent.Kind
+            switch entry.kind {
+            case .quest(let quest):
+                eventKind = .quest(id: quest.id)
+                skills[quest.skill, default: 0] += quest.xp
+                questsByChild[entry.childID, default: [:]][quest.id, default: 0] += 1
+            case .boss(let boss):
+                eventKind = .boss(id: boss.id)
+                skills[boss.skill, default: 0] += boss.xp
+                bossesByChild[entry.childID, default: []].insert(boss.id)
+            case .first(let first):
+                eventKind = .first(id: first.id)
+                firstsByChild[entry.childID, default: []].insert(first.id)
+                momentsByChild[entry.childID, default: []].append(
+                    CapturedMoment(eventID: entry.id, first: first, date: entry.date, note: entry.note, photoID: entry.photoID)
                 )
             }
-            switch event.kind {
-            case .quest(let id):
-                guard let quest = quests[id] else { continue }
-                total += quest.xp
-                skills[quest.skill, default: 0] += quest.xp
-                questsByChild[event.childID, default: [:]][id, default: 0] += 1
-            case .boss(let id):
-                guard let boss = bosses[id], bossesByChild[event.childID, default: []].insert(id).inserted else { continue }
-                total += boss.xp
-                skills[boss.skill, default: 0] += boss.xp
-            case .first(let id):
-                guard let first = firsts[id], firstsByChild[event.childID, default: []].insert(id).inserted else { continue }
-                total += first.xp
-                let moment = CapturedMoment(
-                    eventID: event.id,
-                    first: first,
-                    date: event.date,
-                    note: event.note,
-                    photoID: event.photoID
+            if entry.note != nil || entry.photoID != nil {
+                journalByChild[entry.childID, default: [:]][eventKind] = JournalEntry(
+                    eventID: entry.id, date: entry.date, note: entry.note, photoID: entry.photoID
                 )
-                momentsByChild[event.childID, default: []].append(moment)
             }
         }
 
@@ -73,26 +65,49 @@ public struct DadProgress: Hashable, Sendable {
     }
 
     /// The newest note or photo the dad left on this card with this child, if any ("last time you wrote…").
-    public func lastJournal(for kind: ProgressEvent.Kind, childID: UUID?) -> JournalEntry? {
+    public func lastJournal(for kind: ProgressEvent.Kind, childID: UUID) -> JournalEntry? {
         journalByChild[childID]?[kind]
     }
 
-    public func capturedFirstIDs(for childID: UUID?) -> Set<String> {
+    public func capturedFirstIDs(for childID: UUID) -> Set<String> {
         firstsByChild[childID] ?? []
     }
 
-    public func defeatedBossIDs(for childID: UUID?) -> Set<String> {
+    public func defeatedBossIDs(for childID: UUID) -> Set<String> {
         bossesByChild[childID] ?? []
     }
 
     /// The child's legendary moments, newest first.
-    public func moments(for childID: UUID?) -> [CapturedMoment] {
+    public func moments(for childID: UUID) -> [CapturedMoment] {
         (momentsByChild[childID] ?? []).sorted { $0.date > $1.date }
     }
 
     /// How many times each quest has been completed with this child.
-    public func questCompletions(for childID: UUID?) -> [String: Int] {
+    public func questCompletions(for childID: UUID) -> [String: Int] {
         questsByChild[childID] ?? [:]
+    }
+
+    /// How far the dad got in one world with this child. An evergreen quest counts only in its home world, and a boss
+    /// this family cannot meet (a sibling boss with one child) does not count.
+    public func progress(in world: World, catalog: ContentCatalog, childID: UUID, childCount: Int) -> WorldProgress {
+        let completions = questCompletions(for: childID)
+        let defeated = defeatedBossIDs(for: childID)
+        let bosses = catalog.bosses.filter { $0.worldID == world.id && UnlockRules.isPossible($0, childCount: childCount) }
+        return WorldProgress(
+            questsDone: catalog.quests.filter { $0.worldID == world.id && completions[$0.id, default: 0] > 0 }.count,
+            bossesDone: bosses.filter { defeated.contains($0.id) }.count
+        )
+    }
+}
+
+/// Quests done at least once and bosses beaten in one world, with one child.
+public struct WorldProgress: Hashable, Sendable {
+    public let questsDone: Int
+    public let bossesDone: Int
+
+    public init(questsDone: Int, bossesDone: Int) {
+        self.questsDone = questsDone
+        self.bossesDone = bossesDone
     }
 }
 

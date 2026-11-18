@@ -33,7 +33,7 @@ public struct Child: Hashable, Identifiable, Sendable {
     }
 
     /// Completed months of age at `date`. Never negative.
-    public func ageInMonths(at date: Date, calendar: Calendar = .current) -> Int {
+    public func ageInMonths(at date: Date, calendar: Calendar = .autoupdatingCurrent) -> Int {
         let months = calendar.dateComponents([.month], from: birthDate, to: date).month ?? 0
         return max(0, months)
     }

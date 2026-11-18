@@ -51,7 +51,7 @@ public struct TimelineView: View {
             JournalEditorSheet(
                 editor: editor,
                 isSaving: viewModel.isSaving,
-                loader: { await viewModel.photoData(id: $0) },
+                loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
                 onSave: { note, photo in Task { await viewModel.saveJournal(note: note, photo: photo) } },
                 onClose: { viewModel.closeJournal() }
             )
@@ -111,7 +111,7 @@ private extension TimelineView {
         Button {
             viewModel.editJournal(id: item.id)
         } label: {
-            TimelineRow(item: item, isLast: isLast) { await viewModel.photoData(id: $0) }
+            TimelineRow(item: item, isLast: isLast) { await viewModel.photoData(id: $0, maxPixelSize: $1) }
         }
         .buttonStyle(.plain)
         .contextMenu {
@@ -190,7 +190,7 @@ private struct TimelineRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: DSSpacing.m) {
             Image(systemName: item.symbol)
-                .font(.system(.subheadline, weight: .semibold))
+                .font(DSFont.smallSymbol)
                 .foregroundStyle(DSColor.heroHighlight)
                 .frame(width: railWidth, height: railWidth)
                 .background(tint.gradient, in: Circle())

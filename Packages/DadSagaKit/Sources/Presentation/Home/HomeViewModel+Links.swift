@@ -24,4 +24,9 @@ extension HomeViewModel {
             break
         }
     }
+
+    /// The link the root screen is holding, as the view passes it on.
+    public func open(_ pending: PendingLink) async {
+        await open(pending.link)
+    }
 }

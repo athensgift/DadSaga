@@ -292,13 +292,35 @@ struct HomeViewModelTests {
     }
 }
 
+extension HomeViewModelTests {
+    @Test("Given another save still running, when undoing, then nothing is lost: the offer stays to tap again")
+    func undoDuringSave() async {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        let offer = sut.undoOffer
+        await progress.slowNext()
+        sut.select(cardID: "q1")
+        let saving = Task { await sut.completeSelectedQuest() }
+        while !sut.isCompleting { await Task.yield() }
+
+        await sut.undoLastRecord()
+
+        #expect(sut.undoOffer == offer)
+        await saving.value
+        await sut.undoLastRecord()
+        #expect(await progress.eventCount == 1)
+    }
+}
+
 /// A home presenter wired to stubs, shared by the home suites.
 @MainActor
 func makeHomeViewModel(
     profile: PlayerProfile?,
     progress: FakeProgress,
     locale: String = "el_GR",
-    reminder: ReminderUseCases? = nil
+    reminder: ReminderUseCases = .neverOffered
 ) -> HomeViewModel {
     HomeViewModel(
         useCases: HomeViewModel.UseCases(
@@ -310,6 +332,7 @@ func makeHomeViewModel(
             defeatBoss: progress,
             deleteEvent: progress,
             moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
+            getOutfit: FakeOutfit(),
             reminder: reminder
         ),
         locale: Locale(identifier: locale),

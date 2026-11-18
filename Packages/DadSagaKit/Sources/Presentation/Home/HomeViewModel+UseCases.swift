@@ -12,9 +12,9 @@ extension HomeViewModel {
         /// Undo right after recording, and deleting a moment.
         let deleteEvent: any DeleteEventUseCase
         let moments: MomentUseCases
-        let getOutfit: (any GetOutfitUseCase)?
-        /// The weekly reminder offer; `nil` never offers it.
-        let reminder: ReminderUseCases?
+        let getOutfit: any GetOutfitUseCase
+        /// The weekly reminder offer.
+        let reminder: ReminderUseCases
 
         public init(
             getProfile: any GetProfileUseCase,
@@ -25,8 +25,8 @@ extension HomeViewModel {
             defeatBoss: any DefeatBossUseCase,
             deleteEvent: any DeleteEventUseCase,
             moments: MomentUseCases,
-            getOutfit: (any GetOutfitUseCase)? = nil,
-            reminder: ReminderUseCases? = nil
+            getOutfit: any GetOutfitUseCase,
+            reminder: ReminderUseCases
         ) {
             self.getProfile = getProfile
             self.loadCatalog = loadCatalog

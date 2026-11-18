@@ -9,11 +9,6 @@ public enum UnlockRules {
         unlockedWorlds(in: catalog, ageInMonths: ageInMonths).last
     }
 
-    public static func availableQuests(in catalog: ContentCatalog, ageInMonths: Int) -> [Quest] {
-        let worldIDs = Set(unlockedWorlds(in: catalog, ageInMonths: ageInMonths).map(\.id))
-        return catalog.quests.filter { worldIDs.contains($0.worldID) && $0.minAgeMonths <= ageInMonths }
-    }
-
     /// The quests shown for one world: its own, then every evergreen quest from an earlier world (ADR-0020).
     /// Each still needs the child to have reached its own minimum age.
     public static func quests(for world: World, in catalog: ContentCatalog, ageInMonths: Int) -> [Quest] {

@@ -120,7 +120,7 @@ public struct WardrobeView: View {
                 }
                 HStack(spacing: DSSpacing.xs) {
                     if option.isLocked {
-                        Image(systemName: "lock.fill").font(.caption)
+                        Image(systemName: "lock.fill").font(DSFont.caption)
                     }
                     Text(option.title)
                         .font(DSFont.subheadline)

@@ -69,7 +69,7 @@ struct ProgressUseCaseTests {
     func levelsUp() async throws {
         let repository = SpyProgressRepository()
         for _ in 0..<4 {
-            try await repository.add(ProgressEvent(kind: .quest(id: "q1"), date: today))
+            try await repository.add(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today))
         }
         let sut = DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
 

@@ -18,7 +18,6 @@ extension CardModel.Kind {
         switch self {
         case .quest: .quest
         case .boss: .boss
-        case .legendary: .legendary
         }
     }
 }

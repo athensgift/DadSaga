@@ -1,33 +1,26 @@
 import SwiftUI
 
-/// Horizontal XP progress bar, optionally with a level label.
+/// Horizontal XP progress bar.
 public struct XPBar: View {
-    let level: Int?
+    /// What VoiceOver reads, in the dad's language, e.g. "Επίπεδο 3".
+    let label: String
     let fraction: Double
 
-    public init(level: Int? = nil, fraction: Double) {
-        self.level = level
+    public init(label: String, fraction: Double) {
+        self.label = label
         self.fraction = min(max(fraction, 0), 1)
     }
 
     public var body: some View {
-        HStack(spacing: DSSpacing.s) {
-            if let level {
-                Text(verbatim: "Lv \(level)")
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.textPrimary)
-                    .monospacedDigit()
+        GeometryReader { proxy in
+            ZStack(alignment: .leading) {
+                Capsule().fill(DSColor.xp.opacity(0.18))
+                Capsule().fill(DSColor.xp.gradient).frame(width: proxy.size.width * fraction)
             }
-            GeometryReader { proxy in
-                ZStack(alignment: .leading) {
-                    Capsule().fill(DSColor.xp.opacity(0.18))
-                    Capsule().fill(DSColor.xp.gradient).frame(width: proxy.size.width * fraction)
-                }
-            }
-            .frame(height: 8)
         }
+        .frame(height: 8)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(level.map { "Level \($0)" } ?? "XP")
+        .accessibilityLabel(label)
         .accessibilityValue("\(Int(fraction * 100))%")
     }
 }
@@ -155,7 +148,7 @@ public struct QuestCard: View {
 
 #Preview("Components") {
     VStack(spacing: DSSpacing.m) {
-        XPBar(level: 3, fraction: 0.4)
+        XPBar(label: "Επίπεδο 3", fraction: 0.4)
         QuestCard(title: "Νυχτερινή βάρδια", subtitle: "Ανάλαβε μια ολόκληρη νυχτερινή βάρδια.",
                   badge: "+30 XP", symbol: "hourglass", footnote: "Το έκανες 1 φορά",
                   hint: "Ο καναπές είναι παγίδα")

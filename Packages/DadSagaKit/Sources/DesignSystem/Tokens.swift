@@ -55,6 +55,8 @@ public enum DSColor {
 }
 
 public enum DSSpacing {
+    /// The ring of space between a swatch and its selection outline.
+    public static let xxs: CGFloat = 3
     public static let xs: CGFloat = 4
     public static let s: CGFloat = 8
     public static let m: CGFloat = 16
@@ -77,6 +79,13 @@ public enum DSFont {
     public static let body = Font.system(.body)
     public static let subheadline = Font.system(.subheadline)
     public static let caption = Font.system(.caption, weight: .medium)
+    /// A standalone symbol button or badge, e.g. remove or selected.
+    public static let symbol = Font.system(.title3)
+    /// A symbol inside a tile or row, e.g. a lock or a placeholder star.
+    public static let tileSymbol = Font.system(.body, weight: .semibold)
+    public static let smallSymbol = Font.system(.subheadline, weight: .semibold)
+    /// A large emoji used as a picture.
+    public static let emoji = Font.system(.title)
 }
 
 extension Color {

@@ -1,6 +1,7 @@
 import Application
 import Domain
 import Foundation
+import Localization
 import Observation
 
 /// Presenter for the home screen: the dad's hero, his children, and what he can play today with the chosen child.
@@ -125,13 +126,13 @@ public final class HomeViewModel {
                 id: celebrationCount,
                 xpText: "+\(change.gainedXP) XP",
                 levelUpText: change.leveledUp
-                    ? strings.text(el: "Επίπεδο \(change.after.level.level)!", en: "Level \(change.after.level.level)!")
+                    ? strings.text("Level \(change.after.level.level)") + "!"
                     : nil,
                 badgeText: badge,
                 unlockText: GearRules
                     .newlyEarned(gear, before: change.before.skillXP, after: change.after.skillXP)
                     .first
-                    .map { strings.text(el: "Νέο: ", en: "New: ") + $0.title.resolved(for: locale) },
+                    .map { strings.text("New: \($0.title.resolved(for: locale))") },
                 momentText: moment
             )
             undoOffer = change.eventID.map { makeUndoOffer(id: celebrationCount, eventID: $0) }
@@ -141,7 +142,7 @@ public final class HomeViewModel {
     }
 
     var saveFailedMessage: String {
-        strings.text(el: "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.", en: "Couldn't save. Please try again.")
+        strings.text("Couldn't save. Please try again.")
     }
 
     private func load() async {
@@ -150,7 +151,7 @@ public final class HomeViewModel {
         do {
             guard let profile = try await useCases.getProfile.execute(), let firstChild = profile.children.first else {
                 guard generation == loadGeneration else { return }
-                state = .failed(message: strings.text(el: "Δεν βρέθηκε προφίλ.", en: "No profile found."))
+                state = .failed(message: strings.text("No profile found."))
                 return
             }
             let child = profile.children.first { $0.id == selectedChildID } ?? firstChild
@@ -161,7 +162,7 @@ public final class HomeViewModel {
                 on: now()
             )
             let progress = try await useCases.getProgress.execute()
-            let outfit = try await useCases.getOutfit?.execute() ?? Outfit()
+            let outfit = try await useCases.getOutfit.execute()
             let offer = await makeReminderOffer(children: profile.children, progress: progress)
             guard generation == loadGeneration else { return }
             reminderOffer = offer
@@ -192,7 +193,7 @@ public final class HomeViewModel {
             )
         } catch {
             guard generation == loadGeneration else { return }
-            state = .failed(message: strings.text(el: "Το περιεχόμενο δεν φόρτωσε.", en: "Content failed to load."))
+            state = .failed(message: strings.text("Content failed to load."))
         }
     }
 
@@ -208,7 +209,7 @@ public final class HomeViewModel {
         let childLine = "\(child.name) · \(strings.ageText(months: adventure.ageInMonths))"
         let hasSiblings = profile.children.count > 1
         return HomeContent(
-            heroTitle: hero?.title.resolved(for: locale) ?? strings.text(el: "Ήρωας", en: "Hero"),
+            heroTitle: hero?.title.resolved(for: locale) ?? strings.text("Hero"),
             heroTagline: hero?.tagline.resolved(for: locale) ?? "",
             heroLook: HeroLook(heroClassID: profile.heroClassID),
             heroSkin: SkinToneChoice(profile.dadSkinTone),
@@ -230,24 +231,21 @@ public final class HomeViewModel {
             },
             selectedChildID: child.id,
             selectedChildLine: hasSiblings ? childLine : nil,
-            familyTitle: strings.text(el: "Η οικογένειά μου", en: "My family"),
-            wardrobeTitle: strings.text(el: "Ντουλάπα", en: "Wardrobe"),
-            reminderTitle: strings.text(el: "Εβδομαδιαία υπενθύμιση", en: "Weekly reminder"),
+            familyTitle: strings.text("My family"),
+            wardrobeTitle: strings.text("Wardrobe"),
+            reminderTitle: strings.text("Weekly reminder"),
             level: level.level,
-            levelTitle: strings.text(el: "Επίπεδο \(level.level)", en: "Level \(level.level)"),
+            levelTitle: strings.text("Level \(level.level)"),
             levelFraction: level.fraction,
             xpLine: "\(level.xpIntoLevel) / \(level.xpNeededForNextLevel) XP",
             worldTitle: shownWorld(adventure)?.title.resolved(for: locale),
             worldTagline: shownWorld(adventure)?.tagline.resolved(for: locale),
-            mapTitle: strings.text(el: "Χάρτης κόσμων", en: "World map"),
+            mapTitle: strings.text("World map"),
             backToCurrentTitle: viewedWorldID == nil
                 ? nil
-                : strings.text(el: "Πίσω στον κόσμο του τώρα", en: "Back to the current world"),
+                : strings.text("Back to the current world"),
             emptyMessage: adventure.isBeyondContent
-                ? strings.text(
-                    el: "Οι περιπέτειες για την ηλικία του παιδιού σου έρχονται σύντομα.",
-                    en: "Adventures for your child's age are coming soon."
-                )
+                ? strings.text("Adventures for your child's age are coming soon.")
                 : nil,
             cards: bossCards() + questCards(completions: progress.questCompletions(for: child.id)),
             moments: momentsFormatter.section(for: child, catalog: catalog, progress: progress)
@@ -260,7 +258,7 @@ public final class HomeViewModel {
                 id: boss.id,
                 title: boss.title.resolved(for: locale),
                 subtitle: boss.intro.resolved(for: locale),
-                badge: "BOSS",
+                badge: strings.text("BOSS"),
                 symbol: "flame.fill",
                 kind: .boss,
                 footnote: defeatedBossIDs.contains(boss.id) ? strings.defeatedText(for: boss) : nil
@@ -279,7 +277,7 @@ public final class HomeViewModel {
                 kind: .quest,
                 footnote: completions[quest.id].map(strings.doneText),
                 hint: quest.tip?.title.resolved(for: locale),
-                skill: quest.skill.title.resolved(for: locale)
+                skill: strings.skill(quest.skill)
             )
         }
     }

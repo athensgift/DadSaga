@@ -17,7 +17,7 @@ first word) belong to a specific child, so the model had to change before them.
 - **Home shows one child at a time.** A segmented picker chooses whose world and quests are shown. A child older than
   every world sees "coming soon" instead of quests meant for babies.
 - **"My family"** (from home) adds, edits or removes children after onboarding. Removing a child never removes XP.
-- **Migration.** Stores from before families are converted on first read (`LegacyProfileMigration`): the old child
+- **Migration.** *(Superseded by [ADR-0023](0023-home-screen-widget.md): the migration was removed.)* Stores from before families are converted on first read (`LegacyProfileMigration`): the old child
   becomes a `ChildRecord` and every event without a child is linked to them. The legacy columns stay, so an older build
   can still open the store.
 
