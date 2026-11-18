@@ -49,7 +49,11 @@ targets:
             CFBundleURLSchemes: [dadsaga]
         CFBundleDevelopmentRegion: el
         CFBundleLocalizations: [el, en]
-        UILaunchScreen: {}
+        # Native launch screen (ADR-0025): Super Dad with a baby on DSColor.background, light and dark.
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: LaunchLogo
+          UIImageRespectsSafeAreaInsets: true
         NSCameraUsageDescription: Take a photo for a legendary moment. Photos stay on this device.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
@@ -59,7 +63,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.athinodoros.dadsaga
         TARGETED_DEVICE_FAMILY: "1"
-        ASSETCATALOG_COMPILER_APPICON_NAME: ""
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
   # Home-screen widget (ADR-0023). Never links Presentation; WidgetContainer is its own composition root.
   DadSagaWidget:
