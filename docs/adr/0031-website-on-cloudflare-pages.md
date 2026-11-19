@@ -18,8 +18,12 @@ is and where to get it is also wanted. It has to cost nothing to run.
 - Colours mirror `DSColor` (light and dark). The images come from the app: the launch screen's Super Dad and baby
   (ADR-0025) and the app icon's layers, flattened into `web/assets/icon.svg`. When the avatars change, copy the
   `LaunchLogo-*@3x.png` files again.
-- No cookies, no analytics, no third-party requests. `_headers` sets a strict Content-Security-Policy (`script-src
-  'none'`) so that stays true.
+- No analytics, no tracking cookies, no third-party requests. `_headers` sets a strict Content-Security-Policy
+  (`script-src 'none'`) so that stays true, and `Cache-Control: no-transform` so Cloudflare's Email Address
+  Obfuscation leaves the `mailto:` links alone (its decoder script would be blocked by the CSP). Pages Web Analytics,
+  Bot Fight Mode and other features that inject scripts stay off for the zone; Cloudflare's own security cookie is
+  the one the privacy policy allows for.
+- `assets/og.png` (1200×630, the launch art on the light background) is the link-preview image.
 
 ### 2. Content follows the product rules
 - The copy follows ADR-0006: XP for the dad's actions, nothing lost, worlds by age, the Resilience branch. Example
@@ -28,6 +32,8 @@ is and where to get it is also wanted. It has to cost nothing to run.
   only on request, `PhotosPicker` without library access, local notifications. It must be updated **before** a release
   that changes how data is handled (for example iCloud sync in Phase 5).
 - The guides are general information, not medical advice, as in the app.
+- The support and privacy pages point to the Settings screen (Contact us, Language, Start over; ADR-0030), so this
+  branch merges into `develop` after `feature/settings`.
 
 ### 3. Hosting: Cloudflare Pages, Git integration
 - The Pages project builds from this GitHub repository with no build command and `web` as the output directory. Build

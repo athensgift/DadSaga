@@ -1,7 +1,9 @@
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  # no-transform keeps Cloudflare's Email Address Obfuscation from rewriting the mailto links into a script the CSP blocks.
+  Cache-Control: no-transform
   Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self'; script-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
 
 /assets/*
