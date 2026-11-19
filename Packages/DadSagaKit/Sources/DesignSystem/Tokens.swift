@@ -7,14 +7,16 @@ import AppKit
 #endif
 
 /// Colour tokens. Always use these instead of raw colours so light/dark stay consistent.
-/// Backgrounds and text use the system's semantic colours, so they follow light/dark mode, Increase Contrast and
-/// the Liquid Glass material the way Apple's own apps do (ADR-0011).
+/// Backgrounds and primary text use the system's semantic colours, so they follow light/dark mode, Increase Contrast
+/// and the Liquid Glass material the way Apple's own apps do (ADR-0011). Secondary text has its own values, since the
+/// system's is below AA in light mode (ADR-0033).
 public enum DSColor {
     #if canImport(UIKit)
     public static let background = Color(uiColor: .systemGroupedBackground)
     public static let surface = Color(uiColor: .secondarySystemGroupedBackground)
     public static let textPrimary = Color(uiColor: .label)
-    public static let textSecondary = Color(uiColor: .secondaryLabel)
+    /// Not the system's `secondaryLabel`: in light mode that is 3.3:1 on the background, below AA (ADR-0033).
+    public static let textSecondary = Color(DSText.secondary, increasedContrast: DSText.secondaryIncreased)
     #else
     public static let background = Color(nsColor: .windowBackgroundColor)
     public static let surface = Color(nsColor: .controlBackgroundColor)
@@ -64,6 +66,13 @@ public enum DSColor {
     public static let heroPurpleShade = Color(light: 0x5527A8, dark: 0x7C5CD6)
     public static let heroGreenShade = Color(light: 0x1F5A37, dark: 0x2C7A4C)
     public static let heroCapeShade = Color(light: 0x8F2F08, dark: 0xC96A2A)
+}
+
+/// Secondary text, opaque so its contrast can be measured: 4.5:1 or more on the background and the surface in both
+/// modes (`DSTextContrastTests`), and closer to the primary text when Increase Contrast is on (ADR-0033).
+package enum DSText {
+    package static let secondary = ColorPair(light: 0x58585D, dark: 0x98989F)
+    package static let secondaryIncreased = ColorPair(light: 0x48484A, dark: 0xC7C7CC)
 }
 
 /// A colour's light- and dark-mode values, kept as numbers so tests can measure contrast.
@@ -125,6 +134,19 @@ public enum DSFont {
 extension Color {
     package init(_ pair: ColorPair) {
         self.init(light: pair.light, dark: pair.dark)
+    }
+
+    /// A colour with its own values for when Increase Contrast is on.
+    package init(_ pair: ColorPair, increasedContrast: ColorPair) {
+        #if canImport(UIKit)
+        self.init(uiColor: UIColor { traits in
+            let values = traits.accessibilityContrast == .high ? increasedContrast : pair
+            return UIColor(rgb: traits.userInterfaceStyle == .dark ? values.dark : values.light)
+        })
+        #elseif canImport(AppKit)
+        // macOS draws only previews and the launch-image tool, which never turn on Increase Contrast.
+        self.init(pair)
+        #endif
     }
 
     /// A colour that adapts to light/dark mode, from 0xRRGGBB values.

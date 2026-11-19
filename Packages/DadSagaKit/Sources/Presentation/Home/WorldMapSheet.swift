@@ -78,11 +78,12 @@ struct WorldMapSheet: View {
     private func card(_ world: WorldMapItem) -> some View {
         let shape = RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous)
         return VStack(alignment: .leading, spacing: DSSpacing.xs) {
-            HStack(alignment: .firstTextBaseline) {
+            // Side by side, or the tag under the ages at the accessibility sizes, where "months" would break mid-word.
+            AdaptiveStack(alignment: .firstTextBaseline, spacing: DSSpacing.xs) {
                 Text(world.ageRange)
                     .font(DSFont.caption)
                     .foregroundStyle(tint(world))
-                Spacer()
+                Spacer(minLength: 0)
                 if let tag = world.tag {
                     Text(tag)
                         .font(DSFont.caption)

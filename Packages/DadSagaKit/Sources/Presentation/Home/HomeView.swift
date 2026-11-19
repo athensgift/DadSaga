@@ -179,9 +179,10 @@ public struct HomeView: View {
                     .frame(width: 300, height: 300)
             }
             VStack(spacing: DSSpacing.xs) {
+                // Text in the primary colour: several hero colours are below 3:1 as text (ADR-0033).
                 Text(content.companionLine)
                     .font(DSFont.headline)
-                    .foregroundStyle(style.tint)
+                    .foregroundStyle(DSColor.textPrimary)
                 Text(content.heroTagline)
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)

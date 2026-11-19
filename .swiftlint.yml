@@ -4,6 +4,7 @@ included:
   - Packages/DadSagaKit/Sources
   - Packages/DadSagaKit/Tests
   - Tools
+  - UITests
 
 excluded:
   - Packages/DadSagaKit/.build

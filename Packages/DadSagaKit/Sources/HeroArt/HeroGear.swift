@@ -244,6 +244,24 @@ struct HeroShieldShape: Shape {
     }
 }
 
+/// The "D" on Super Dad's crest: a straight back and a round belly.
+struct HeroCrestLetter: Shape {
+    func path(in rect: CGRect) -> Path {
+        let bend = rect.minX + rect.width * 0.4
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.minY))
+        path.addLine(to: CGPoint(x: bend, y: rect.minY))
+        path.addCurve(
+            to: CGPoint(x: bend, y: rect.maxY),
+            control1: CGPoint(x: rect.maxX + rect.width * 0.15, y: rect.minY),
+            control2: CGPoint(x: rect.maxX + rect.width * 0.15, y: rect.maxY)
+        )
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.closeSubpath()
+        return path
+    }
+}
+
 /// The mouth as one shape, so it can morph: a thin smile at `openness` 0, a wide open grin at 1.
 struct HeroMouth: Shape {
     var openness: CGFloat

@@ -72,6 +72,22 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.athinodoros.dadsaga
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    scheme:
+      testTargets: [DadSagaUITests]
+
+  # Drives the app on a simulator: the accessibility audit of every screen.
+  DadSagaUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - UITests
+    dependencies:
+      - target: DadSaga
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.athinodoros.dadsaga.uitests
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
 
   # Home-screen widget (ADR-0023). Never links Presentation; WidgetContainer is its own composition root.
   DadSagaWidget:

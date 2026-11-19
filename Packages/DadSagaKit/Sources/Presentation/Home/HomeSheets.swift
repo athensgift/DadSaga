@@ -33,8 +33,9 @@ struct QuestSheet: View {
                             .multilineTextAlignment(.leading)
                     }
                     if let footer = quest.footer {
+                        // A safety note: big enough to read at a glance, not fine print.
                         Text(footer)
-                            .font(DSFont.caption)
+                            .font(DSFont.subheadline)
                             .foregroundStyle(DSColor.textSecondary)
                     }
                     JournalSection(labels: quest.journal, note: $note, photo: $photo, loader: loader, fill: DSColor.background)
@@ -94,8 +95,9 @@ struct BossSheet: View {
                         LastJournalView(last: last, loader: loader)
                     }
                     guide
+                    // The same safety note as on a quest's tip: readable at a glance.
                     Text(boss.disclaimer)
-                        .font(DSFont.caption)
+                        .font(DSFont.subheadline)
                         .foregroundStyle(DSColor.textSecondary)
                     if !boss.isDefeated {
                         JournalSection(labels: boss.journal, note: $note, photo: $photo, loader: loader, fill: DSColor.surface)

@@ -21,8 +21,9 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ el/en String Catalog (ADR-0027); screen queries and the `HeroArt` target (ADR-0028); hero looks in the content
   (ADR-0029)
 - ✅ Settings: language, appearance, haptics, reminder, hero and family, contact, about, start over (ADR-0030)
-- Accessibility (Dynamic Type, VoiceOver, contrast)
-- Snapshot / UI tests
+- ✅ Accessibility: Dynamic Type, readable tints and secondary text, an accessibility audit of the main screens
+  (ADR-0032, ADR-0033)
+- Snapshot / UI tests (the UI test target and its accessibility audit exist; ADR-0033)
 
 ### Open items from the 2026-11 architecture review
 - Check on a device: the "couldn't open your saga" screen (junk store file), installing over a `develop` build, every

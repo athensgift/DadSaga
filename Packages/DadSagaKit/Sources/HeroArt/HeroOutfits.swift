@@ -29,7 +29,7 @@ struct HeroTorso: View {
         }
     }
 
-    /// An original crest (a gold shield with "Μ" for Μπαμπάς), not any existing superhero's logo.
+    /// An original crest (a gold shield with "D" for Dad), not any existing superhero's logo (ADR-0033).
     private var superSuit: some View {
         ZStack {
             base(style.fabric)
@@ -37,9 +37,10 @@ struct HeroTorso: View {
                 .fill(heroGradient(DSColor.heroGold, DSColor.heroOrange))
                 .overlay { HeroShieldShape().stroke(DSColor.heroHighlight, lineWidth: 1.5) }
                 .overlay {
-                    Text(verbatim: "Μ")
-                        .font(.system(size: 11, weight: .black, design: .rounded))
-                        .foregroundStyle(DSColor.heroHighlight)
+                    // Drawn, not text: a letter would be read and measured as text although it is part of the art.
+                    HeroCrestLetter()
+                        .stroke(DSColor.heroHighlight, style: StrokeStyle(lineWidth: 2.2, lineCap: .round, lineJoin: .round))
+                        .frame(width: 7, height: 8)
                         .offset(y: -1.5)
                 }
                 .frame(width: 21, height: 21)

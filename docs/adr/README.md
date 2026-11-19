@@ -17,8 +17,8 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0007](0007-clean-architecture.md) | Clean Architecture: Domain, Application, Data, Presentation | architecture | |
 | [0008](0008-hero-classes-and-code-drawn-avatar.md) | Hero classes as content, a code-drawn avatar, the profile in SwiftData | hero, avatar, storage | 0010 (class list), 0026 (store fallback), 0028 (avatar target), 0029 (class look) |
 | [0009](0009-gitflow.md) | Gitflow: `feature/*` from `develop`, releases on `main` | process, git | |
-| [0010](0010-dad-archetype-heroes.md) | Heroes are dad archetypes, not fantasy classes | hero, content | 0029 (class look) |
-| [0011](0011-liquid-glass-and-adaptive-layout.md) | Liquid Glass, system styling, adaptive layout for iPhone Duo | UI, layout | 0030 (developer menu), 0032 (tint values) |
+| [0010](0010-dad-archetype-heroes.md) | Heroes are dad archetypes, not fantasy classes | hero, content | 0029 (class look), 0033 (crest letter) |
+| [0011](0011-liquid-glass-and-adaptive-layout.md) | Liquid Glass, system styling, adaptive layout for iPhone Duo | UI, layout | 0030 (developer menu), 0032 (tint values), 0033 (secondary text) |
 | [0012](0012-families.md) | Up to four children, XP shared by the dad | family, model | 0023 (migration removed), 0030 (family entry) |
 | [0013](0013-child-avatars.md) | Child avatars by age stage | avatar, family | |
 | [0014](0014-hero-gear.md) | Gear earned from skills and bosses | gear, avatar | 0018 (wardrobe) |
@@ -32,11 +32,12 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0022](0022-journal-on-every-card.md) | A note and a photo on every card | journal, photos | |
 | [0023](0023-home-screen-widget.md) | Home-screen widget: weekly quest and latest moment | widget | 0026 (migrations), 0027 (widget strings) |
 | [0024](0024-weekly-notification.md) | One gentle weekly notification | notifications, product rules | 0030 (bell button) |
-| [0025](0025-app-icon-and-launch-screen.md) | App icon in Icon Composer, native launch screen | branding | |
+| [0025](0025-app-icon-and-launch-screen.md) | App icon in Icon Composer, native launch screen | branding | 0033 (also writes the website's images) |
 | [0026](0026-versioned-store-and-unavailable-screen.md) | Versioned store with migrations; a calm stop when it can't open | storage, errors | |
 | [0027](0027-ui-string-catalog.md) | UI strings in one shared String Catalog | localization | 0030 (reset wording) |
 | [0028](0028-screen-queries-and-hero-art-target.md) | One query per screen, one way to record progress, `HeroArt` target | architecture, modules | |
 | [0029](0029-hero-look-in-content.md) | A hero class names its look in the content | hero, content | |
 | [0030](0030-settings-screen.md) | One Settings screen; "start over" for everyone | settings, privacy | |
-| [0031](0031-website-on-cloudflare-pages.md) | Static website at dadsaga.app on Cloudflare Pages | website, privacy | |
-| [0032](0032-contrast-of-tints.md) | Tints readable as text and as fills; the hero keeps its own colours | UI, accessibility, colour | |
+| [0031](0031-website-on-cloudflare-pages.md) | Static website at dadsaga.app on Cloudflare Pages | website, privacy | 0033 (images generated) |
+| [0032](0032-contrast-of-tints.md) | Tints readable as text and as fills; the hero keeps its own colours | UI, accessibility, colour | 0033 (its open items) |
+| [0033](0033-accessibility-audit-and-secondary-text.md) | Accessibility audit of the main screens, readable secondary text, "D" on the crest | accessibility, testing, colour, hero | |

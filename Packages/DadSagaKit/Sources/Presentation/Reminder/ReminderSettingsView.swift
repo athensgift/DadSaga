@@ -42,7 +42,7 @@ struct ReminderSettingsView: View {
                     DatePicker(labels.time, selection: timeBinding, displayedComponents: .hourAndMinute)
                 }
             } footer: {
-                Text(labels.explanation)
+                Text(labels.explanation).foregroundStyle(DSColor.textSecondary)
             }
             if let denied = viewModel.deniedMessage {
                 Section {
