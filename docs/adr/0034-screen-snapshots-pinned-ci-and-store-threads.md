@@ -1,7 +1,7 @@
 # ADR-0034: Screen snapshots, a pinned CI toolchain, and where the store's work runs
 
-**Status:** Accepted (2026-11-19). The owner asked to close Phase 3 and chose swift-snapshot-testing for the snapshot
-tests. Closes the Phase 3 open items "Snapshot / UI tests", "CI runs on an unpinned `macos-latest`", "measure whether
+**Status:** Accepted (2026-11-19). The owner asked to close Phase 3, chose swift-snapshot-testing for the snapshot
+tests, and chose to run them on the Mac, not in CI. Closes the Phase 3 open items "Snapshot / UI tests", "CI runs on an unpinned `macos-latest`", "measure whether
 the `@ModelActor` repositories run off the main thread", and the widget test ADR-0026 asks for before the first V2.
 
 ## Context
@@ -38,9 +38,11 @@ the `@ModelActor` repositories run off the main thread", and the widget test ADR
    hundred pixels one level apart as 1–15 % of pixels changed, most of all on CI's virtual GPU. Through PNG, Liquid
    Glass's run-to-run noise is under 250 pixels, at most three levels in 255. Tolerance: 99.9 % of pixels, 98 %
    perceptual; renaming the child from "Alex" to "Alexa" fails home in all three looks.
-5. **CI is pinned:** the `xcode-27` image with `DEVELOPER_DIR` on Xcode 27.2, and the snapshots run there on an
-   iPhone 17 with iOS 27.2, the same as on the Mac. A failed run keeps the result bundle, with the diffs. Moving to a
-   new Xcode means moving the image, `DEVELOPER_DIR` and the simulator together and re-recording the snapshots. The
+5. **CI is pinned, and the snapshots run on the Mac only.** CI runs on the `xcode-27` image with `DEVELOPER_DIR` on
+   Xcode 27.2, the Mac's. The snapshots ran in CI at first and took it from about 4 to about 15 minutes, nearly all of
+   it a second build and a simulator boot; the owner chose to keep CI fast and run them on the Mac whenever a change
+   touches the UI or the content (`CLAUDE.md`), on an iPhone 17 with iOS 27.2. Moving to a new Xcode means moving the
+   image and `DEVELOPER_DIR` together, and re-recording the snapshots. The
    accessibility audit stays on the iOS 26.0 simulator it was tuned on: on iOS 27.2, three glass buttons fail its
    contrast check, which is its own piece of work.
 6. **The widget before a migration is tested now:** the store can be opened at any version (`StoreVersions`), and a
@@ -55,9 +57,12 @@ the `@ModelActor` repositories run off the main thread", and the widget test ADR
    projects) it moved onto the main thread. Those methods are now `@concurrent`.
 
 ## Consequences
-- A change to how a screen looks fails CI until its new images are recorded and committed; review sees the images.
+- A change to how a screen looks fails the snapshots until its new images are recorded and committed; review sees the
+  images. Only if they are run: CI does not, so it is a habit, like the accessibility audit, not a gate.
 - Content edits (titles, taglines, XP) change the images too.
-- Snapshots need the pinned Xcode and simulator. On another Xcode they fail by design; re-record on the new pair.
+- Snapshots need Xcode 27.2 and the iOS 27.2 simulator. On another Xcode they fail by design; re-record on the new
+  pair. They were stable in CI too once compared through PNG and on a region of their own, so moving them back is one
+  step in `ci.yml`.
 - The `xcode-27` runner image is still a preview on GitHub, and an image keeps only the newest patch of each Xcode:
   when 27.2.1 arrives, `/Applications/Xcode_27.2.app` goes and CI fails until the pin moves.
 - swift-snapshot-testing is pinned exactly; its own dependencies (swift-custom-dump, swift-issue-reporting,

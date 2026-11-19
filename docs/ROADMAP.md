@@ -23,7 +23,7 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ Settings: language, appearance, haptics, reminder, hero and family, contact, about, start over (ADR-0030)
 - ✅ Accessibility: Dynamic Type, readable tints and secondary text, an accessibility audit of the main screens
   (ADR-0032, ADR-0033)
-- ✅ Snapshot / UI tests: the accessibility audit (ADR-0033) and screen snapshots in CI (ADR-0034)
+- ✅ Snapshot / UI tests: the accessibility audit (ADR-0033) and screen snapshots (ADR-0034), both run on the Mac
 
 ### Open items from the 2026-11 architecture review
 - Check on a device: the "couldn't open your saga" screen (junk store file), installing over a `develop` build, every

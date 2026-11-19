@@ -10,8 +10,8 @@ permissions:
 
 jobs:
   build-and-test:
-    # Pinned, so an image update never changes the toolchain under us. Snapshots are drawn by this Xcode and simulator
-    # and must match the ones recorded on the Mac (ADR-0034); move all three together.
+    # Pinned to the Mac's Xcode, so an image update never changes the toolchain under us (ADR-0034). The screen
+    # snapshots run on the Mac, not here.
     runs-on: xcode-27
     env:
       DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
@@ -38,19 +38,3 @@ jobs:
             -scheme DadSaga \
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO
-
-      - name: Screen snapshots (iPhone 17, iOS 27.2)
-        run: |
-          xcodebuild test \
-            -project DadSaga.xcodeproj \
-            -scheme DadSagaSnapshots \
-            -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2' \
-            -resultBundlePath snapshots.xcresult
-
-      - name: Keep the snapshot diffs
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: snapshots
-          path: snapshots.xcresult
-          if-no-files-found: ignore
