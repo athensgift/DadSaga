@@ -45,12 +45,6 @@ actor SwiftDataProfileRepository: ProfileRepository {
         try modelContext.save()
     }
 
-    func deleteProfile() async throws {
-        try modelContext.delete(model: ProfileRecord.self)
-        try modelContext.delete(model: ChildRecord.self)
-        try modelContext.save()
-    }
-
     private func record() throws -> ProfileRecord? {
         try modelContext.fetch(FetchDescriptor<ProfileRecord>()).first
     }

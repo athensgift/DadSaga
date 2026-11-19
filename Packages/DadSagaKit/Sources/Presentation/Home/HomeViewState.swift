@@ -27,7 +27,7 @@ public struct HomeContent: Equatable, Sendable {
     public let selectedChildLine: String?
     public let familyTitle: String
     public let wardrobeTitle: String
-    public let reminderTitle: String
+    public let settingsTitle: String
     public let level: Int
     /// e.g. "Επίπεδο 2".
     public let levelTitle: String
@@ -180,6 +180,21 @@ public struct Celebration: Equatable, Identifiable, Sendable {
         if badgeText != nil { return .boss }
         return .quest
     }
+
+    /// The tap this celebration plays, if any. An ordinary quest gets none here: the hero's cheer already taps once.
+    /// None at all when the dad turned haptics off (ADR-0030).
+    public func haptic(isEnabled: Bool) -> CelebrationHaptic? {
+        guard isEnabled else { return nil }
+        return switch highlight {
+        case .quest: nil
+        case .boss, .unlock: .heavy
+        case .moment, .levelUp: .success
+        }
+    }
+}
+
+public enum CelebrationHaptic: Equatable, Sendable {
+    case heavy, success
 }
 
 /// Shown for a few seconds after something is recorded.

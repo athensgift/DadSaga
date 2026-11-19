@@ -6,39 +6,30 @@ import SwiftUI
 /// On wide screens (iPhone Duo inner display, landscape) it splits into two equal columns, so neither column
 /// runs across the middle of the display, where the Duo folds.
 public struct HomeView: View {
-    public typealias MakeFamily = @MainActor (_ onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel
     public typealias MakeWardrobe = @MainActor () -> WardrobeViewModel
-    public typealias MakeReminderSettings = @MainActor () -> ReminderSettingsViewModel
 
     @State var viewModel: HomeViewModel
     @State private var isWide = false
-    @State var familyViewModel: FamilyViewModel?
     @State var wardrobeViewModel: WardrobeViewModel?
-    @State var reminderViewModel: ReminderSettingsViewModel?
-    let developerMenu: DeveloperMenu?
-    let makeFamily: MakeFamily
+    @State var settingsViewModel: SettingsViewModel?
     let makeWardrobe: MakeWardrobe
-    let makeReminderSettings: MakeReminderSettings
+    let settings: SettingsScreens
     let pendingLink: PendingLink?
     let onLinkHandled: @MainActor () -> Void
 
     /// - Parameters:
-    ///   - makeFamily, makeWardrobe, makeReminderSettings: build the screens behind the toolbar buttons.
+    ///   - makeWardrobe, settings: build the screens behind the toolbar buttons.
     ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` runs once it is open.
     public init(
         viewModel: HomeViewModel,
-        developerMenu: DeveloperMenu? = nil,
-        makeFamily: @escaping MakeFamily,
         makeWardrobe: @escaping MakeWardrobe,
-        makeReminderSettings: @escaping MakeReminderSettings,
+        settings: SettingsScreens,
         pendingLink: PendingLink? = nil,
         onLinkHandled: @escaping @MainActor () -> Void = {}
     ) {
         _viewModel = State(initialValue: viewModel)
-        self.developerMenu = developerMenu
-        self.makeFamily = makeFamily
         self.makeWardrobe = makeWardrobe
-        self.makeReminderSettings = makeReminderSettings
+        self.settings = settings
         self.pendingLink = pendingLink
         self.onLinkHandled = onLinkHandled
     }
@@ -65,13 +56,8 @@ public struct HomeView: View {
             .navigationBarHidden(when: isWide)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) { wardrobeButton }
-                ToolbarItem(placement: .primaryAction) { familyButton }
-                ToolbarItem(placement: .primaryAction) { reminderButton }
-                DeveloperMenuToolbar(menu: developerMenu)
+                ToolbarItem(placement: .primaryAction) { settingsButton }
             }
-        }
-        .sheet(item: $familyViewModel) { family in
-            FamilyView(viewModel: family) { familyViewModel = nil }
         }
         .sheet(item: worldMapBinding) { map in
             WorldMapSheet(map: map) { id in
@@ -83,8 +69,8 @@ public struct HomeView: View {
         .sheet(item: $wardrobeViewModel, onDismiss: reloadAfterSheet) { wardrobe in
             WardrobeView(viewModel: wardrobe) { wardrobeViewModel = nil }
         }
-        .sheet(item: $reminderViewModel, onDismiss: reloadAfterSheet) { reminder in
-            ReminderSettingsView(viewModel: reminder) { reminderViewModel = nil }
+        .sheet(item: $settingsViewModel, onDismiss: reloadAfterSheet) { settingsModel in
+            SettingsView(viewModel: settingsModel, pages: settings.pages) { settingsViewModel = nil }
         }
         .onGeometryChange(for: Bool.self) { $0.size.width >= twoColumnWidth } action: { isWide = $0 }
         .task { await viewModel.onAppear() }
@@ -317,11 +303,9 @@ extension HomeView {
     /// Closes this screen's own sheets, then lets the presenter open the link (ADR-0023).
     func openPendingLink() async {
         guard let pendingLink else { return }
-        let hadSheet = familyViewModel != nil || wardrobeViewModel != nil || reminderViewModel != nil
-            || viewModel.worldMap != nil
-        familyViewModel = nil
+        let hadSheet = wardrobeViewModel != nil || settingsViewModel != nil || viewModel.worldMap != nil
         wardrobeViewModel = nil
-        reminderViewModel = nil
+        settingsViewModel = nil
         viewModel.closeMap()
         // A new sheet cannot appear while the old one is still sliding away.
         if hadSheet { try? await Task.sleep(for: .milliseconds(450)) }

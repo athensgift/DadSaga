@@ -22,10 +22,10 @@ struct DadSagaApp: App {
                 viewModel: rootViewModel,
                 makeOnboarding: { container.makeOnboardingViewModel(onFinished: $0) },
                 makeHome: { container.makeHomeViewModel() },
-                makeFamily: { container.makeFamilyViewModel(onSaved: $0) },
                 makeTimeline: { container.makeTimelineViewModel() },
                 makeWardrobe: { container.makeWardrobeViewModel() },
-                makeReminderSettings: { container.makeReminderSettingsViewModel() },
+                makeSettings: { container.makeSettingsViewModel(preferences: $0, actions: $1) },
+                settingsPages: container.settingsPages,
                 incomingURL: NotificationInbox.shared.url,
                 onIncomingURLHandled: { NotificationInbox.shared.url = nil }
             )

@@ -15,17 +15,9 @@ extension HomeView {
             wardrobeButton
                 .labelStyle(.iconOnly)
                 .buttonStyle(.glass)
-            familyButton
+            settingsButton
                 .labelStyle(.iconOnly)
                 .buttonStyle(.glass)
-            reminderButton
-                .labelStyle(.iconOnly)
-                .buttonStyle(.glass)
-            if let developerMenu {
-                DeveloperMenuButton(menu: developerMenu)
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.glass)
-            }
         }
     }
 
@@ -41,38 +33,19 @@ extension HomeView {
         if case .loaded(let content) = viewModel.state { content.wardrobeTitle } else { "" }
     }
 
-    var familyTitle: String {
-        if case .loaded(let content) = viewModel.state { content.familyTitle } else { "" }
-    }
-
-    func openFamily() {
-        familyViewModel = makeFamily {
-            familyViewModel = nil
-            Task { await viewModel.reload() }
-        }
-    }
-
-    var reminderButton: some View {
+    var settingsButton: some View {
         Button {
-            reminderViewModel = makeReminderSettings()
+            settingsViewModel = settings.makeSettings()
         } label: {
-            Label(reminderTitle, systemImage: "bell")
+            Label(settingsTitle, systemImage: "gearshape")
         }
     }
 
-    var reminderTitle: String {
-        if case .loaded(let content) = viewModel.state { content.reminderTitle } else { "" }
+    var settingsTitle: String {
+        if case .loaded(let content) = viewModel.state { content.settingsTitle } else { "" }
     }
 
     func reloadAfterSheet() {
         Task { await viewModel.reload() }
-    }
-
-    var familyButton: some View {
-        Button {
-            openFamily()
-        } label: {
-            Label(familyTitle, systemImage: "person.2")
-        }
     }
 }

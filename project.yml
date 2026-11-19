@@ -44,11 +44,19 @@ targets:
       path: App/Info.plist
       properties:
         CFBundleDisplayName: DadSaga
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleURLTypes:
           - CFBundleURLName: com.athinodoros.dadsaga
             CFBundleURLSchemes: [dadsaga]
         CFBundleDevelopmentRegion: el
         CFBundleLocalizations: [el, en]
+        # Always show the per-app language in iOS Settings; Settings' language row opens it (ADR-0030).
+        UIPrefersShowingLanguageSettings: true
+        # Settings' contact, rate/share and privacy rows (ADR-0030). An empty value hides its row.
+        DadSagaFeedbackAddress: "hello@dadsaga.app"
+        DadSagaAppStoreID: ""
+        DadSagaPrivacyPolicyURL: ""
         # Native launch screen (ADR-0025): Super Dad with a baby on DSColor.background, light and dark.
         UILaunchScreen:
           UIColorName: LaunchBackground
@@ -90,6 +98,8 @@ targets:
       path: Widget/Info.plist
       properties:
         CFBundleDisplayName: DadSaga
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleDevelopmentRegion: el
         CFBundleLocalizations: [el, en]
         NSExtension:

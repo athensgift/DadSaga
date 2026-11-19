@@ -20,9 +20,8 @@ public final class RootViewModel {
     public var selectedTab: RootTab = .adventure
     /// A link from outside the app waiting for home to open it.
     public private(set) var pendingLink: PendingLink?
-
-    /// Development builds only: whether the developer menu is offered.
-    public var hasDeveloperMenu: Bool { resetProfile != nil }
+    /// Light/dark and haptics, applied to every screen (ADR-0030).
+    public private(set) var preferences = PreferencesChoice()
 
     /// Titles of the main tabs.
     public var tabs: RootTabs {
@@ -47,24 +46,24 @@ public final class RootViewModel {
     }
 
     private let getProfile: any GetProfileUseCase
-    private let resetProfile: (any ResetProfileUseCase)?
+    private let getPreferences: any GetPreferencesUseCase
     private let locale: Locale
     private var strings: Strings { Strings(locale: locale) }
 
-    /// - Parameter resetProfile: pass it only in development builds; it enables the developer menu.
     public init(
         getProfile: any GetProfileUseCase,
-        resetProfile: (any ResetProfileUseCase)? = nil,
+        getPreferences: any GetPreferencesUseCase,
         locale: Locale = .current
     ) {
         self.getProfile = getProfile
-        self.resetProfile = resetProfile
+        self.getPreferences = getPreferences
         self.locale = locale
     }
 
     /// Only "no family" opens onboarding. A read error is not "no family": onboarding would give the children new ids
     /// and their history would drop out of sight.
     public func onAppear() async {
+        preferences = PreferencesChoice(await getPreferences.execute())
         do {
             let profile = try await getProfile.execute()
             state = profile == nil ? .onboarding : .home
@@ -98,15 +97,16 @@ public final class RootViewModel {
         state = .home
     }
 
-    /// Developer menu: wipe the profile and start again from onboarding.
-    public func restartFromOnboarding() async {
-        guard let resetProfile else { return }
-        do {
-            try await resetProfile.execute()
-            state = .onboarding
-        } catch {
-            // Nothing was deleted, so stay where we are.
-        }
+    /// Settings stored new preferences.
+    public func preferencesChanged(_ preferences: PreferencesChoice) {
+        self.preferences = preferences
+    }
+
+    /// Settings erased the saga: onboarding opens, which closes home and its sheets.
+    public func startedOver() {
+        pendingLink = nil
+        selectedTab = .adventure
+        state = .onboarding
     }
 }
 

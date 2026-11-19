@@ -18,7 +18,7 @@ public struct ReminderUseCases: Sendable {
 /// Presenter for the weekly reminder settings: on/off, day and time (ADR-0024).
 @MainActor
 @Observable
-public final class ReminderSettingsViewModel: Identifiable {
+public final class ReminderSettingsViewModel {
     public private(set) var isLoaded = false
     public private(set) var isEnabled = false
     public private(set) var weekday = WeeklyReminder.default.weekday

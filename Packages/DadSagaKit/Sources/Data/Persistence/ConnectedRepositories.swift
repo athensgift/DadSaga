@@ -8,7 +8,6 @@ struct ConnectedProfileRepository: ProfileRepository {
 
     func fetchProfile() async throws -> PlayerProfile? { try await connection.open().profiles.fetchProfile() }
     func save(_ profile: PlayerProfile) async throws { try await connection.open().profiles.save(profile) }
-    func deleteProfile() async throws { try await connection.open().profiles.deleteProfile() }
 }
 
 struct ConnectedProgressRepository: ProgressRepository {
@@ -21,7 +20,6 @@ struct ConnectedProgressRepository: ProgressRepository {
     }
     func update(_ event: ProgressEvent) async throws { try await connection.open().progress.update(event) }
     func delete(id: UUID) async throws { try await connection.open().progress.delete(id: id) }
-    func deleteAll() async throws { try await connection.open().progress.deleteAll() }
 }
 
 struct ConnectedOutfitRepository: OutfitRepository {
@@ -31,5 +29,10 @@ struct ConnectedOutfitRepository: OutfitRepository {
     func setChoice(_ choice: OutfitChoice, for skill: Skill) async throws -> Outfit {
         try await connection.open().outfit.setChoice(choice, for: skill)
     }
-    func deleteAll() async throws { try await connection.open().outfit.deleteAll() }
+}
+
+struct ConnectedSagaEraser: SagaEraser {
+    let connection: StoreConnection
+
+    func eraseAll() async throws { try await connection.open().eraser.eraseAll() }
 }

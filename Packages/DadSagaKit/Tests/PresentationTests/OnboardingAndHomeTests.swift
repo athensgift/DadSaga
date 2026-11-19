@@ -9,7 +9,7 @@ import Testing
 struct RootViewModelTests {
     @Test("Given no stored profile, when appearing, then onboarding is shown, and home after it finishes")
     func newPlayer() async {
-        let sut = RootViewModel(getProfile: StubGetProfile(profile: nil))
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: nil), getPreferences: StubGetPreferences())
         #expect(sut.state == .loading)
 
         await sut.onAppear()
@@ -21,32 +21,56 @@ struct RootViewModelTests {
 
     @Test("Given a stored profile, when appearing, then home is shown")
     func returningPlayer() async {
-        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile))
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
         await sut.onAppear()
         #expect(sut.state == .home)
-        #expect(!sut.hasDeveloperMenu)
     }
 
-    @Test("Given a development build, when restarting from the developer menu, then the profile is reset and onboarding shows")
-    func developerRestart() async {
-        let reset = SpyResetProfile()
-        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), resetProfile: reset)
-        await sut.onAppear()
-        #expect(sut.hasDeveloperMenu)
+    @Test("Given dark appearance and haptics off are stored, when appearing, then every screen gets them")
+    func appliesStoredPreferences() async {
+        let sut = RootViewModel(
+            getProfile: StubGetProfile(profile: HeroStub.profile),
+            getPreferences: StubGetPreferences(Preferences(appearance: .dark, hapticsEnabled: false))
+        )
 
-        await sut.restartFromOnboarding()
+        await sut.onAppear()
+
+        #expect(sut.preferences == PreferencesChoice(appearance: .dark, isHapticsEnabled: false))
+    }
+
+    @Test("Given home, when Settings stores light appearance, then the root switches to it at once")
+    func followsSettings() async {
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
+        await sut.onAppear()
+
+        sut.preferencesChanged(PreferencesChoice(appearance: .light, isHapticsEnabled: true))
+
+        #expect(sut.preferences.appearance == .light)
+    }
+
+    @Test("Given home on the timeline with a link waiting, when the saga was erased, then onboarding opens clean")
+    func startedOver() async throws {
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
+        await sut.onAppear()
+        sut.selectedTab = .timeline
+        sut.open(url: try #require(URL(string: "dadsaga://quest/q1")))
+
+        sut.startedOver()
 
         #expect(sut.state == .onboarding)
-        #expect(await reset.callCount == 1)
+        #expect(sut.selectedTab == .adventure)
+        #expect(sut.pendingLink == nil)
     }
 }
 
-actor SpyResetProfile: ResetProfileUseCase {
-    private(set) var callCount = 0
+struct StubGetPreferences: GetPreferencesUseCase {
+    var preferences = Preferences.default
 
-    func execute() async throws {
-        callCount += 1
+    init(_ preferences: Preferences = .default) {
+        self.preferences = preferences
     }
+
+    func execute() async -> Preferences { preferences }
 }
 
 @MainActor
@@ -73,8 +97,8 @@ struct OnboardingViewModelTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        #expect(content.heroes.map(\.title) == ["Σούπερ Μπαμπάς", "Cool Μπαμπάς"])
-        #expect(content.heroes.map(\.look) == [.hero, .cool])
+        #expect(content.hero.heroes.map(\.title) == ["Σούπερ Μπαμπάς", "Cool Μπαμπάς"])
+        #expect(content.hero.heroes.map(\.look) == [.hero, .cool])
     }
 
     @Test("Given a blank name, when continuing, then the step does not change")

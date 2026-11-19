@@ -29,11 +29,6 @@ actor SwiftDataOutfitRepository: OutfitRepository {
         }
         return outfit
     }
-
-    func deleteAll() async throws {
-        try modelContext.delete(model: OutfitRecord.self)
-        try modelContext.save()
-    }
 }
 
 enum OutfitCoding {

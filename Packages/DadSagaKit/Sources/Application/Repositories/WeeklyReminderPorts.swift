@@ -6,7 +6,7 @@ public protocol ReminderSettingsRepository: Sendable {
     /// `WeeklyReminder.default` until something was saved.
     func fetch() async -> WeeklyReminder
     func save(_ reminder: WeeklyReminder) async
-    /// Only the developer reset uses this.
+    /// Only starting over uses this.
     func deleteAll() async
 }
 
@@ -43,6 +43,8 @@ public protocol NotificationScheduler: Sendable {
     func requestAuthorization() async -> Bool
     /// Removes every DadSaga notification still waiting and schedules these instead.
     func replacePending(with reminders: [PendingReminder]) async
+    /// Removes DadSaga's notifications already shown in Notification Center. Only starting over uses this.
+    func removeDelivered() async
 }
 
 /// Port for the words of the weekly notification, in the dad's language. Presentation implements it.

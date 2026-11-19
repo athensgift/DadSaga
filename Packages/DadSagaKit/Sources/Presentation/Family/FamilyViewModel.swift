@@ -4,7 +4,7 @@ import Foundation
 import Localization
 import Observation
 
-/// Presenter for "My family": add, edit or remove children, and change the dad's skin tone, after onboarding.
+/// Presenter for "My family": add, edit or remove children after onboarding. The dad's look is on "Your hero".
 /// Children keep their ids, so progress with them stays linked; removing a child never takes XP away (ADR-0006).
 @MainActor
 @Observable
@@ -19,20 +19,19 @@ public final class FamilyViewModel {
     public var canSave: Bool { family.isComplete && !isSaving }
 
     private let getProfile: any GetProfileUseCase
-    private let saveProfile: any SaveProfileUseCase
+    private let updateFamily: any UpdateFamilyUseCase
     private let locale: Locale
     private let onSaved: @MainActor () -> Void
-    private var heroClassID = ""
 
     public init(
         getProfile: any GetProfileUseCase,
-        saveProfile: any SaveProfileUseCase,
+        updateFamily: any UpdateFamilyUseCase,
         locale: Locale = .current,
         now: Date = .now,
         onSaved: @escaping @MainActor () -> Void
     ) {
         self.getProfile = getProfile
-        self.saveProfile = saveProfile
+        self.updateFamily = updateFamily
         self.locale = locale
         self.onSaved = onSaved
         latestBirthDate = now
@@ -45,7 +44,6 @@ public final class FamilyViewModel {
                 state = .failed(message: strings.text("No profile found."))
                 return
             }
-            heroClassID = profile.heroClassID
             family = FamilyDraft(profile)
             state = .loaded(makeContent())
         } catch {
@@ -66,12 +64,7 @@ public final class FamilyViewModel {
         isSaving = true
         defer { isSaving = false }
         do {
-            let profile = PlayerProfile(
-                children: family.children.map(\.child),
-                heroClassID: heroClassID,
-                dadSkinTone: family.dadSkinTone.domain
-            )
-            try await saveProfile.execute(profile, on: latestBirthDate)
+            try await updateFamily.execute(children: family.children.map(\.child), on: latestBirthDate)
             errorMessage = nil
             onSaved()
         } catch {
@@ -83,7 +76,6 @@ public final class FamilyViewModel {
         FamilyContent(
             title: strings.text("My family"),
             childEditor: ChildEditorLabels.make(locale: locale),
-            dadSkinToneLabel: strings.text("Your skin tone"),
             saveTitle: strings.text("Save"),
             footnote: strings.text("If you remove a child, everything you earned together stays.")
         )
@@ -91,9 +83,6 @@ public final class FamilyViewModel {
 
     private var strings: Strings { Strings(locale: locale) }
 }
-
-/// Identified by object, so home can present it with `sheet(item:)`.
-extension FamilyViewModel: Identifiable {}
 
 public enum FamilyViewState: Equatable, Sendable {
     case loading
@@ -104,7 +93,6 @@ public enum FamilyViewState: Equatable, Sendable {
 public struct FamilyContent: Equatable, Sendable {
     public let title: String
     public let childEditor: ChildEditorLabels
-    public let dadSkinToneLabel: String
     public let saveTitle: String
     public let footnote: String
 }

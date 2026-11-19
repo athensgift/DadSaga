@@ -177,7 +177,11 @@ struct TimelineViewModelTests {
 
     @Test("Given the root presenter, when reading tab titles, then they are in the user's language")
     func tabTitles() {
-        let root = RootViewModel(getProfile: StubGetProfile(profile: nil), locale: Locale(identifier: "el_GR"))
+        let root = RootViewModel(
+            getProfile: StubGetProfile(profile: nil),
+            getPreferences: StubGetPreferences(),
+            locale: Locale(identifier: "el_GR")
+        )
         #expect(root.tabs.adventure == "Περιπέτεια")
         #expect(root.tabs.timeline == "Χρονολόγιο")
     }

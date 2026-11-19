@@ -4,36 +4,23 @@ import SwiftUI
 import UIKit
 #endif
 
-/// The weekly reminder settings, as a sheet from home (ADR-0024).
-public struct ReminderSettingsView: View {
-    @State private var viewModel: ReminderSettingsViewModel
+/// The weekly reminder settings (ADR-0024), pushed from Settings (ADR-0030).
+struct ReminderSettingsView: View {
+    @State var viewModel: ReminderSettingsViewModel
     @Environment(\.openURL) private var openURL
-    private let onClose: () -> Void
 
-    public init(viewModel: ReminderSettingsViewModel, onClose: @escaping () -> Void) {
-        _viewModel = State(initialValue: viewModel)
-        self.onClose = onClose
-    }
-
-    public var body: some View {
-        NavigationStack {
-            Group {
-                if viewModel.isLoaded {
-                    form
-                } else {
-                    ProgressView()
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(DSColor.background)
-            .navigationTitle(viewModel.labels.title)
-            .toolbarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .close, action: onClose)
-                }
+    var body: some View {
+        Group {
+            if viewModel.isLoaded {
+                form
+            } else {
+                ProgressView()
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(DSColor.background)
+        .navigationTitle(viewModel.labels.title)
+        .toolbarTitleDisplayMode(.inline)
         .task { await viewModel.onAppear() }
     }
 

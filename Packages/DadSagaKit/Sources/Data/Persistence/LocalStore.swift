@@ -9,11 +9,14 @@ public struct LocalStore: Sendable {
     public let profiles: any ProfileRepository
     public let progress: any ProgressRepository
     public let outfit: any OutfitRepository
+    /// Starting over: the whole saga in one write.
+    public let eraser: any SagaEraser
 
     private init(connection: StoreConnection) {
         profiles = ConnectedProfileRepository(connection: connection)
         progress = ConnectedProgressRepository(connection: connection)
         outfit = ConnectedOutfitRepository(connection: connection)
+        eraser = ConnectedSagaEraser(connection: connection)
     }
 
     /// The on-disk store in `directory`, named explicitly so SwiftData never picks a location on its own (ADR-0023).

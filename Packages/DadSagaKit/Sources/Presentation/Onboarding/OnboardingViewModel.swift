@@ -103,19 +103,10 @@ public final class OnboardingViewModel {
             welcomeTitle: strings.text("Welcome, hero"),
             welcomeSubtitle: strings.text("Every saga needs companions. Tell us about your kids."),
             childEditor: ChildEditorLabels.make(locale: locale),
-            dadSkinToneLabel: strings.text("Your skin tone"),
             continueTitle: strings.text("Continue"),
             heroTitle: strings.text("Choose your hero"),
-            heroSubtitle: strings.text("It's only your look. Every hero is equally strong."),
             finishTitle: strings.text("Start the adventure"),
-            heroes: catalog.heroClasses.map { hero in
-                HeroOption(
-                    id: hero.id,
-                    title: hero.title.resolved(for: locale),
-                    tagline: hero.tagline.resolved(for: locale),
-                    look: HeroLook(look: hero.look)
-                )
-            }
+            hero: HeroPickerContent.make(heroClasses: catalog.heroClasses, locale: locale)
         )
     }
 

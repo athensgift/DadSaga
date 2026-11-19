@@ -1,6 +1,7 @@
 import Application
 import Data
 import Presentation
+import UIKit
 
 /// Composition root: the only place that knows concrete types from every layer and wires them together.
 @MainActor
@@ -17,6 +18,8 @@ final class AppContainer {
     /// The weekly reminder (ADR-0024): its settings stay in the app's own defaults, the notifications are local.
     private let reminderSettings: any ReminderSettingsRepository = UserDefaultsReminderSettingsRepository()
     private let notificationScheduler: any NotificationScheduler = UserNotificationScheduler()
+    /// Light/dark and haptics (ADR-0030), in the app's own defaults: they belong to the phone, not to the saga.
+    private let preferencesRepository: any PreferencesRepository = UserDefaultsPreferencesRepository()
 
     // MARK: Use cases
     private var loadContentCatalogUseCase: any LoadContentCatalogUseCase {
@@ -67,19 +70,52 @@ final class AppContainer {
 
     // MARK: Presentation
     func makeRootViewModel() -> RootViewModel {
-        #if DEBUG
-        let reset = DefaultResetProfileUseCase(
-            profileRepository: store.profiles,
-            progressRepository: store.progress,
-            photoStore: photoStore,
-            outfitRepository: store.outfit,
-            reminderSettings: reminderSettings,
-            notificationScheduler: notificationScheduler
+        RootViewModel(
+            getProfile: getProfileUseCase,
+            getPreferences: DefaultGetPreferencesUseCase(repository: preferencesRepository)
         )
-        return RootViewModel(getProfile: getProfileUseCase, resetProfile: reset)
-        #else
-        return RootViewModel(getProfile: getProfileUseCase)
-        #endif
+    }
+
+    func makeSettingsViewModel(preferences: PreferencesChoice, actions: SettingsActions) -> SettingsViewModel {
+        SettingsViewModel(
+            useCases: SettingsViewModel.UseCases(
+                savePreferences: DefaultSavePreferencesUseCase(repository: preferencesRepository),
+                startOver: DefaultStartOverUseCase(
+                    eraser: store.eraser,
+                    photoStore: photoStore,
+                    reminderSettings: reminderSettings,
+                    schedule: scheduleWeeklyReminders,
+                    notificationScheduler: notificationScheduler
+                )
+            ),
+            preferences: preferences,
+            appInfo: appInfo,
+            actions: actions
+        )
+    }
+
+    var settingsPages: SettingsPages {
+        SettingsPages(
+            makeHero: { [unowned self] in makeHeroSettingsViewModel(onSaved: $0) },
+            makeFamily: { [unowned self] in makeFamilyViewModel(onSaved: $0) },
+            makeReminder: { [unowned self] in makeReminderSettingsViewModel() }
+        )
+    }
+
+    func makeHeroSettingsViewModel(onSaved: @escaping @MainActor () -> Void) -> HeroSettingsViewModel {
+        HeroSettingsViewModel(
+            getHeroChoice: DefaultGetHeroChoiceUseCase(
+                contentRepository: contentRepository,
+                profileRepository: store.profiles
+            ),
+            updateHero: DefaultUpdateHeroUseCase(contentRepository: contentRepository, profileRepository: store.profiles),
+            onSaved: onSaved
+        )
+    }
+
+    /// The version, and the three `DadSaga…` keys from `project.yml`; an empty key hides its row.
+    private var appInfo: AppInfo {
+        AppInfo(infoDictionary: Bundle.main.infoDictionary ?? [:], systemVersion: UIDevice.current.systemVersion)
     }
 
     func makeOnboardingViewModel(onFinished: @escaping @MainActor () -> Void) -> OnboardingViewModel {
@@ -125,7 +161,11 @@ final class AppContainer {
     }
 
     func makeFamilyViewModel(onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel {
-        FamilyViewModel(getProfile: getProfileUseCase, saveProfile: saveProfileUseCase, onSaved: onSaved)
+        FamilyViewModel(
+            getProfile: getProfileUseCase,
+            updateFamily: DefaultUpdateFamilyUseCase(contentRepository: contentRepository, profileRepository: store.profiles),
+            onSaved: onSaved
+        )
     }
 
     func makeWardrobeViewModel() -> WardrobeViewModel {

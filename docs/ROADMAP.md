@@ -20,6 +20,7 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ Versioned on-device store with a calm "couldn't open" screen (ADR-0026)
 - ✅ el/en String Catalog (ADR-0027); screen queries and the `HeroArt` target (ADR-0028); hero looks in the content
   (ADR-0029)
+- ✅ Settings: language, appearance, haptics, reminder, hero and family, contact, about, start over (ADR-0030)
 - Accessibility (Dynamic Type, VoiceOver, contrast)
 - Snapshot / UI tests
 
