@@ -8,6 +8,7 @@ This is a **personal portfolio / playground project**. Replies to the owner are 
 - **Clean Architecture** ([ADR-0007](docs/adr/0007-clean-architecture.md)), one SwiftPM target per layer:
   `Domain` (entities + rules, imports only Foundation) ← `Application` (use cases + repository protocols)
   ← `Data` (repository impls, DTOs, mappers) / `Presentation` (ViewModels + views). Data and Presentation never import each other.
+  The full target map is in `README.md`.
 - New feature flow: entity/rule in Domain → use case (protocol + `Default…`) and any repository protocol in Application
   → repository impl in Data → ViewModel + ViewState + View in Presentation → wire it in `App/DI/AppContainer.swift`.
 - ViewModels are `@MainActor @Observable`, don't import SwiftUI, and expose display models only (no Domain types in views).
@@ -15,7 +16,7 @@ This is a **personal portfolio / playground project**. Replies to the owner are 
 - Colours, spacing and fonts only via `DesignSystem` tokens (`DSColor`, `DSSpacing`, `DSFont`).
 - Game content is JSON in `Sources/Data/Resources`, bilingual (`el` + `en`). Don't hardcode it in Swift.
 - UI text: `strings.text("English text")` plus an entry with `el` and `en` (state `translated`, `extractionState: manual`)
-  in `Sources/Localization/Resources/Localizable.xcstrings`; plurals as catalog variations. Never `text(el:en:)` (ADR-0027).
+  in `Sources/Localization/Resources/Localizable.xcstrings`; plurals as catalog variations (ADR-0027).
 - Tests use Swift Testing with Given/When/Then names.
 - Record significant decisions as a new ADR in `docs/adr/`.
 - Product rules in `docs/adr/0006-no-pressure-game-design.md` are non-negotiable (no penalties, no milestone deadlines).
@@ -27,21 +28,9 @@ This is a **personal portfolio / playground project**. Replies to the owner are 
   If a test would still pass with every function returning nothing, rewrite it.
 - Redesign, don't bolt on: for a new requirement, ask what you would have built had it been there from the start.
 
-## Model routing
-The main session runs on Opus at medium effort (`.claude/settings.json`). Delegate by task type to the subagents in `.claude/agents/`:
-
-| Task | Subagent | Model / effort |
-|---|---|---|
-| Plan a new feature or phase, draft the ADR | `architect` | Opus / xhigh |
-| Implement a feature across the layers | main session | Opus / medium |
-| Review the branch before a PR into `develop` | `reviewer` | Opus / high |
-| Lint fixes, renames, copy, CI, roadmap ticks | `chores` | Sonnet / low |
-| Tests, accessibility, el/en localization | `quality` | Sonnet / medium |
-| Content JSON (quests, bosses, guides) | `content` | Opus / high |
-| Saga video engine, iCloud sync, a bug failed twice | `fable-hard` | Fable / high |
-
-- For a new feature: `architect` first, then implement, then `reviewer`, then the PR.
-- `fable-hard` costs usage credits on the Pro plan. Never start it on your own: suggest it, say why, and wait for the owner to ask.
+## Subagents (`.claude/agents/`)
+- A new feature: `architect` plans, the main session implements, `reviewer` checks, then the PR.
+- `fable-hard` costs usage credits on the Pro plan. Never start it on your own: suggest it, say why, and wait for the owner.
 - If a fix fails twice in the main session, stop and suggest `fable-hard` instead of trying a third time.
 
 ## Git
@@ -55,7 +44,7 @@ The main session runs on Opus at medium effort (`.claude/settings.json`). Delega
 ## Done = green
 ```bash
 swiftlint --strict
-(cd Packages/DadSagaKit && swift test)
+(cd Packages/DadSagaKit && swift test --build-system swiftbuild)
 xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ```

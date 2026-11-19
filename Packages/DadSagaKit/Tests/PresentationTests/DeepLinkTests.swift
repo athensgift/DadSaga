@@ -55,7 +55,7 @@ struct DeepLinkTests {
         await sut.saveMoment(firstID: "f1", date: HeroStub.today, note: "Τρία βήματα!")
         guard case .loaded(let content) = sut.state else { throw StubLinkError.notLoaded }
         let card = try #require(content.moments.cards.first)
-        sut.dismissCapture()
+        sut.dismissSelection()
 
         await sut.open(.moment(eventID: card.id, childID: HeroStub.niko.id))
         #expect(sut.momentCapture?.editing?.note == "Τρία βήματα!")

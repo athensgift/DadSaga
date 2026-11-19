@@ -4,8 +4,8 @@
 `feature/content-review-0-6`.
 
 ## Context
-The content review for ages 0–6 (`docs/content-review-0-6.md`) rewrote the card set against one test: "would an experienced
-dad tell this to a friend who just became one?" Three things came out of it that the current schema cannot express:
+The content review for ages 0–6 (`docs/content-review-0-6.md`, since removed; last version in commit `6d99458`)
+rewrote the card set against one test: "would an experienced dad tell this to a friend who just became one?" Three things came out of it that the current schema cannot express:
 
 - **Tips.** A card title says what to do; the useful part is how. 40 of the 55 quests now carry a short tip in the JSON
   (`tip`), 12 of them about health or safety. The app does not read the field, so none of it is visible.

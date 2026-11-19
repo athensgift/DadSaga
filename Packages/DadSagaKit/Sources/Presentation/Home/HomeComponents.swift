@@ -59,18 +59,32 @@ struct LevelPanel: View {
 }
 
 /// Whose world and quests are shown, when there are several children.
+/// The picker keeps its own selection and reports changes, so it needs no `Binding(get:set:)`: that would turn
+/// `onSelect` into an `@isolated(any) @Sendable` closure, which the Xcode 26 compiler cannot build.
 struct ChildPicker: View {
     let content: HomeContent
-    let onSelect: @MainActor @Sendable (UUID) -> Void
+    let onSelect: (UUID) -> Void
+
+    @State private var selection: UUID
+
+    init(content: HomeContent, onSelect: @escaping (UUID) -> Void) {
+        self.content = content
+        self.onSelect = onSelect
+        _selection = State(initialValue: content.selectedChildID)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.s) {
-            Picker(content.familyTitle, selection: Binding(get: { content.selectedChildID }, set: onSelect)) {
+            Picker(content.familyTitle, selection: $selection) {
                 ForEach(content.childTabs) { tab in
                     Text(tab.name).tag(tab.id)
                 }
             }
             .pickerStyle(.segmented)
+            .onChange(of: selection) { _, id in
+                if id != content.selectedChildID { onSelect(id) }
+            }
+            .onChange(of: content.selectedChildID) { _, id in selection = id }
             if let line = content.selectedChildLine {
                 Text(line)
                     .font(DSFont.subheadline)

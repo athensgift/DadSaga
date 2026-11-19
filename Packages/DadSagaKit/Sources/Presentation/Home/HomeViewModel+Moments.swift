@@ -22,11 +22,6 @@ extension HomeViewModel {
         momentCapture = momentsFormatter.edit(moment, for: overview.child, now: now())
     }
 
-    public func dismissCapture() {
-        momentCapture = nil
-        errorMessage = nil
-    }
-
     /// Saves the open sheet: a new moment (with XP and a celebration) or changes to an existing one.
     public func saveMoment(firstID: String, date: Date, note: String, photo: MomentPhotoEdit = .keep) async {
         guard let capture = momentCapture, let childID = selectedChildID else { return }
