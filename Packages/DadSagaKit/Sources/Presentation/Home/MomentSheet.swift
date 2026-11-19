@@ -97,13 +97,8 @@ struct MomentSheet: View {
 
     private var details: some View {
         VStack(spacing: 0) {
-            DatePicker(
-                capture.dateLabel,
-                selection: $date,
-                in: capture.earliestDate...capture.latestDate,
-                displayedComponents: .date
-            )
-            .padding(.horizontal, DSSpacing.m)
+            DateRow(label: capture.dateLabel, date: $date, range: capture.earliestDate...capture.latestDate)
+                .padding(.horizontal, DSSpacing.m)
             .frame(minHeight: 50)
             Divider().padding(.leading, DSSpacing.m)
             TextField(capture.notePlaceholder, text: $note, axis: .vertical)

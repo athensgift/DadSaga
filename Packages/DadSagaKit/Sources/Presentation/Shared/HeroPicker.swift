@@ -8,15 +8,18 @@ struct HeroPicker: View {
     @Binding var skinTone: SkinToneChoice
     let selectedHeroID: String?
     let onSelect: (String) -> Void
+    /// Grows with the text, so large sizes get one hero per row instead of names broken mid-word. Never below 150,
+    /// which the 120pt avatar needs.
+    @ScaledMetric(relativeTo: .headline) private var cardMinimumWidth: CGFloat = 150
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.m) {
             Text(content.subtitle)
                 .font(DSFont.subheadline)
                 .foregroundStyle(DSColor.textSecondary)
-            HStack {
+            AdaptiveStack(spacing: DSSpacing.s) {
                 Text(content.skinToneLabel)
-                Spacer(minLength: DSSpacing.s)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 SkinTonePicker(selection: $skinTone, names: content.skinToneNames)
             }
             .font(DSFont.body)
@@ -24,7 +27,8 @@ struct HeroPicker: View {
             .padding(.horizontal, DSSpacing.m)
             .frame(minHeight: 52)
             .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: DSSpacing.m)], spacing: DSSpacing.m) {
+            let columns = [GridItem(.adaptive(minimum: max(150, cardMinimumWidth)), spacing: DSSpacing.m)]
+            LazyVGrid(columns: columns, spacing: DSSpacing.m) {
                 ForEach(content.heroes) { hero in
                     HeroOptionCard(hero: hero, skin: skinTone.avatarSkin, isSelected: hero.id == selectedHeroID) {
                         onSelect(hero.id)

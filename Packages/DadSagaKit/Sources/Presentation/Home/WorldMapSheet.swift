@@ -7,6 +7,8 @@ struct WorldMapSheet: View {
     let map: WorldMapContent
     let onSelect: (String) -> Void
     let onClose: () -> Void
+    /// The numbered marker grows with its number; the path under it stays centred.
+    @ScaledMetric(relativeTo: .headline) private var markerSize: CGFloat = 44
 
     var body: some View {
         NavigationStack {
@@ -46,7 +48,7 @@ struct WorldMapSheet: View {
                         .frame(maxHeight: .infinity)
                 }
             }
-            .frame(width: 44)
+            .frame(width: markerSize)
             Button {
                 onSelect(world.id)
             } label: {
@@ -69,7 +71,7 @@ struct WorldMapSheet: View {
             }
         }
         .foregroundStyle(DSColor.heroHighlight)
-        .frame(width: 44, height: 44)
+        .frame(width: markerSize, height: markerSize)
         .accessibilityHidden(true)
     }
 

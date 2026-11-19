@@ -130,11 +130,13 @@ struct CelebrationBadge: View {
                     .symbolEffect(.bounce, value: celebration.id)
             }
         }
-        .lineLimit(1)
-        .fixedSize()
+        // Each line at its natural width when it fits the screen; wrapped within the screen when it doesn't.
+        .fixedSize(horizontal: false, vertical: true)
+        .multilineTextAlignment(.center)
         .padding(.horizontal, DSSpacing.l)
         .padding(.vertical, DSSpacing.m)
         .glassEffect(.regular, in: .rect(cornerRadius: DSRadius.card))
+        .padding(.horizontal, DSSpacing.m)
         .transition(.scale(scale: 0.6).combined(with: .opacity))
         .task(id: celebration.id) {
             try? await Task.sleep(for: .seconds(celebration.highlight >= .unlock ? 3.2 : 2.2))

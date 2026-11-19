@@ -150,6 +150,8 @@ private struct StepsPanel: View {
     let tint: Color
     /// The panel's background. A tinted fill where the sheet itself is light (the quest sheet), a surface elsewhere.
     let fill: Color
+    /// The circle round each step's number grows with the number.
+    @ScaledMetric(relativeTo: .caption) private var numberSize: CGFloat = 24
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.m) {
@@ -162,7 +164,7 @@ private struct StepsPanel: View {
                     Text(verbatim: "\(index + 1)")
                         .font(DSFont.caption)
                         .foregroundStyle(DSColor.heroHighlight)
-                        .frame(width: 24, height: 24)
+                        .frame(width: numberSize, height: numberSize)
                         .background(tint.gradient, in: Circle())
                     Text(step)
                         .font(DSFont.body)
@@ -180,13 +182,21 @@ private struct StepsPanel: View {
 private struct RewardPill: View {
     let text: String
     let tint: Color
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    /// A capsule for one line; a rounded rectangle once the text wraps at the accessibility sizes.
+    private var shape: AnyShape {
+        dynamicTypeSize.isAccessibilitySize
+            ? AnyShape(RoundedRectangle(cornerRadius: DSRadius.tile, style: .continuous))
+            : AnyShape(Capsule())
+    }
 
     var body: some View {
         Text(text)
             .font(DSFont.caption)
             .padding(.horizontal, DSSpacing.s)
             .padding(.vertical, DSSpacing.xs)
-            .background(tint.opacity(0.15), in: Capsule())
+            .background(tint.opacity(0.15), in: shape)
             .foregroundStyle(tint)
     }
 }

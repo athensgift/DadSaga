@@ -56,29 +56,17 @@ struct MomentCard: View {
     let loader: PhotoLoader
 
     var body: some View {
-        HStack(alignment: .top, spacing: DSSpacing.m) {
-            MomentPhoto(photoID: card.photoID, loader: loader) {
-                Image(systemName: "star.fill")
-                    .font(DSFont.tileSymbol)
-                    .foregroundStyle(DSColor.heroHighlight)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(DSColor.legendary.gradient)
+        AdaptiveStack(alignment: .top, spacing: DSSpacing.m) {
+            if card.photoID == nil {
+                IconTile(symbol: "star.fill", tint: DSColor.legendary)
+            } else {
+                MomentPhoto(photoID: card.photoID, loader: loader) { DSColor.legendary.opacity(0.2) }
+                    .frame(width: 64, height: 64)
+                    .clipShape(RoundedRectangle(cornerRadius: DSRadius.tile, style: .continuous))
+                    .accessibilityHidden(true)
             }
-            .frame(width: card.photoID == nil ? 36 : 64, height: card.photoID == nil ? 36 : 64)
-            .clipShape(RoundedRectangle(cornerRadius: DSRadius.tile, style: .continuous))
-            .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                HStack(alignment: .firstTextBaseline, spacing: DSSpacing.s) {
-                    Text(card.title)
-                        .font(DSFont.headline)
-                        .foregroundStyle(DSColor.textPrimary)
-                    Spacer(minLength: 0)
-                    Text(card.badge)
-                        .font(DSFont.caption)
-                        .foregroundStyle(DSColor.legendary)
-                        .lineLimit(1)
-                        .fixedSize()
-                }
+                CardTitle(card.title, badge: card.badge, tint: DSColor.legendary)
                 Text(card.subtitle)
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)

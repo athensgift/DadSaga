@@ -46,7 +46,7 @@ struct ChildEditorCard: View {
                     .onSubmit(onSubmit)
             }
             row {
-                DatePicker(labels.birthDateLabel, selection: $child.birthDate, in: ...latestBirthDate, displayedComponents: .date)
+                DateRow(label: labels.birthDateLabel, date: $child.birthDate, range: .distantPast...latestBirthDate)
             }
             row {
                 Picker(labels.genderLabel, selection: $child.gender) {
@@ -56,9 +56,9 @@ struct ChildEditorCard: View {
                 .pickerStyle(.segmented)
             }
             row {
-                HStack {
+                AdaptiveStack(spacing: DSSpacing.s) {
                     Text(labels.skinToneLabel)
-                    Spacer(minLength: DSSpacing.s)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     SkinTonePicker(selection: $child.skinTone, names: labels.skinToneNames)
                 }
             }
