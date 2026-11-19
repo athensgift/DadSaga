@@ -41,6 +41,24 @@ struct TimelineTests {
         #expect(entries.last?.date == Date(timeIntervalSince1970: 1))
     }
 
+    @Test("Given a boss and a first with the same id for one child, when building, then both count")
+    func onceIsPerKind() {
+        let text = LocalizedText(el: "x", en: "x")
+        let catalog = ContentCatalog(
+            worlds: Fixtures.catalog.worlds,
+            quests: [],
+            bosses: [BossFight(id: "same", worldID: "w1", title: text, intro: text, guide: [], badge: text,
+                               skill: .care, xp: 100, minAgeMonths: 0)],
+            firsts: [FirstMoment(id: "same", order: 1, emoji: "😊", title: text, xp: 30, companionTrait: "smile")]
+        )
+        let events = [event(.boss(id: "same"), child: anna, at: 1), event(.first(id: "same"), child: anna, at: 2)]
+
+        let entries = Timeline.entries(from: events, catalog: catalog)
+
+        #expect(entries.map(\.xp) == [30, 100])
+        #expect(DadProgress(events: events, catalog: catalog).totalXP == 130)
+    }
+
     @Test("Given an event for content that no longer exists, when building, then it is skipped")
     func unknownContent() {
         let entries = Timeline.entries(from: [event(.quest(id: "gone"), child: anna, at: 1)], catalog: Fixtures.catalog)

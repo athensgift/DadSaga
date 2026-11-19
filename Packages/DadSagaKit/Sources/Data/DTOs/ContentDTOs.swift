@@ -60,6 +60,7 @@ struct HeroClassDTO: Decodable, Sendable {
     let order: Int
     let title: LocalizedTextDTO
     let tagline: LocalizedTextDTO
+    let look: String
 }
 
 struct GearItemDTO: Decodable, Sendable {

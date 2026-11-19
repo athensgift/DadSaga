@@ -51,14 +51,14 @@ public enum Timeline {
                 guard let quest = quests[id] else { continue }
                 kind = .quest(quest)
             case .boss(let id):
-                guard let boss = bosses[id], counted.insert(OncePerChild(childID: event.childID, contentID: id)).inserted
-                else { continue }
+                guard let boss = bosses[id] else { continue }
                 kind = .boss(boss)
             case .first(let id):
-                guard let first = firsts[id], counted.insert(OncePerChild(childID: event.childID, contentID: id)).inserted
-                else { continue }
+                guard let first = firsts[id] else { continue }
                 kind = .first(first)
             }
+            if event.kind.countsOncePerChild,
+               !counted.insert(OncePerChild(childID: event.childID, kind: event.kind)).inserted { continue }
             entries.append(
                 TimelineEntry(
                     id: event.id,
@@ -75,6 +75,6 @@ public enum Timeline {
 
     private struct OncePerChild: Hashable {
         let childID: UUID
-        let contentID: String
+        let kind: ProgressEvent.Kind
     }
 }

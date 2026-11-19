@@ -1,3 +1,4 @@
+import DesignSystem
 import SwiftUI
 
 // What makes each dad recognisable: what he wears on his head, on his back and holds in his hand.
@@ -28,8 +29,8 @@ struct HeroHeadgear: View {
 
     private var capAndShades: some View {
         ZStack {
-            dome(heroGradient(DSColor.heroMage, DSColor.heroMageShade), width: 45, height: 30).offset(y: -40)
-            Capsule().fill(DSColor.heroMageShade).frame(width: 46, height: 4).offset(y: -40)
+            dome(heroGradient(DSColor.heroPurple, DSColor.heroPurpleShade), width: 45, height: 30).offset(y: -40)
+            Capsule().fill(DSColor.heroPurpleShade).frame(width: 46, height: 4).offset(y: -40)
             Circle().fill(DSColor.heroHighlight).frame(width: 4, height: 4).offset(y: -54)
             ForEach([-8.0, 8.0], id: \.self) { side in
                 RoundedRectangle(cornerRadius: 3.5)
@@ -169,7 +170,7 @@ struct HeroHeldItem: View {
 
     private var book: some View {
         RoundedRectangle(cornerRadius: 2)
-            .fill(heroGradient(DSColor.accent, DSColor.heroKnightShade))
+            .fill(heroGradient(DSColor.accent, DSColor.heroNavyShade))
             .frame(width: 16, height: 20)
             .overlay(alignment: .trailing) {
                 Rectangle().fill(DSColor.heroChef).frame(width: 2.5, height: 17).padding(.trailing, 1)

@@ -1,4 +1,5 @@
 import DesignSystem
+import HeroArt
 import SwiftUI
 
 /// The wardrobe, as a sheet from home: the hero on top, updated live, and a row of choices per slot.

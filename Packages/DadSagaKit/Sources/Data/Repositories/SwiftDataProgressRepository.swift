@@ -16,6 +16,22 @@ actor SwiftDataProgressRepository: ProgressRepository {
         try modelContext.save()
     }
 
+    /// Synchronous inside the actor between the check and the save, so no other write can land in between.
+    func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool {
+        let record = ProgressEventRecord(event: event)
+        let kind = record.kind
+        let contentID = record.contentID
+        let childID: UUID? = event.childID
+        var existing = FetchDescriptor<ProgressEventRecord>(
+            predicate: #Predicate { $0.kind == kind && $0.contentID == contentID && $0.childID == childID }
+        )
+        existing.fetchLimit = 1
+        guard try modelContext.fetchCount(existing) == 0 else { return false }
+        modelContext.insert(record)
+        try modelContext.save()
+        return true
+    }
+
     func update(_ event: ProgressEvent) async throws {
         guard let record = try record(id: event.id) else { return }
         record.date = event.date

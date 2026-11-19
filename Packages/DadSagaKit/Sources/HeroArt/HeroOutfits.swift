@@ -1,3 +1,4 @@
+import DesignSystem
 import SwiftUI
 
 /// The torso, dressed for each dad archetype.
@@ -50,8 +51,8 @@ struct HeroTorso: View {
     private var hoodie: some View {
         ZStack {
             base(style.fabric)
-            RoundedRectangle(cornerRadius: 4).fill(DSColor.heroMageShade).frame(width: 24, height: 9).offset(y: 23)
-            Ellipse().fill(DSColor.heroMageShade).frame(width: 34, height: 12).offset(y: -2)
+            RoundedRectangle(cornerRadius: 4).fill(DSColor.heroPurpleShade).frame(width: 24, height: 9).offset(y: 23)
+            Ellipse().fill(DSColor.heroPurpleShade).frame(width: 34, height: 12).offset(y: -2)
             ForEach([-4.0, 4.0], id: \.self) { side in
                 Capsule().fill(DSColor.heroHighlight).frame(width: 1.5, height: 11).offset(x: side, y: 7)
             }
@@ -98,7 +99,7 @@ struct HeroTorso: View {
             ForEach([19.0, 26.0], id: \.self) { height in
                 Circle().fill(DSColor.legendary).frame(width: 2.8, height: 2.8).offset(y: height)
             }
-            RoundedRectangle(cornerRadius: 1).fill(DSColor.heroRangerShade).frame(width: 8, height: 7).offset(x: 12, y: 12)
+            RoundedRectangle(cornerRadius: 1).fill(DSColor.heroGreenShade).frame(width: 8, height: 7).offset(x: 12, y: 12)
             Capsule().fill(DSColor.accent).frame(width: 2, height: 8).offset(x: 12, y: 8)
         }
     }
@@ -132,10 +133,10 @@ struct HeroTorso: View {
                 Circle().fill(DSColor.legendary).frame(width: 3.5, height: 3.5).offset(x: side, y: 9)
             }
             RoundedRectangle(cornerRadius: 4)
-                .fill(heroGradient(DSColor.accent, DSColor.heroKnightShade))
+                .fill(heroGradient(DSColor.accent, DSColor.heroNavyShade))
                 .frame(width: 30, height: 25)
                 .offset(y: 21.5)
-            RoundedRectangle(cornerRadius: 2).fill(DSColor.heroKnightShade).frame(width: 13, height: 8).offset(y: 16)
+            RoundedRectangle(cornerRadius: 2).fill(DSColor.heroNavyShade).frame(width: 13, height: 8).offset(y: 16)
             Rectangle().fill(DSColor.heroLeather).frame(width: 40, height: 5).offset(y: 29)
             RoundedRectangle(cornerRadius: 2).fill(DSColor.heroWood).frame(width: 9, height: 10).offset(x: -13, y: 32)
         }

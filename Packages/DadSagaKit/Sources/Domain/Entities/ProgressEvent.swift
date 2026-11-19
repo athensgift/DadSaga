@@ -6,6 +6,14 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
         case quest(id: String)
         case boss(id: String)
         case first(id: String)
+
+        /// A boss or a first counts once per child; a quest can be done again and again.
+        public var countsOncePerChild: Bool {
+            switch self {
+            case .quest: false
+            case .boss, .first: true
+            }
+        }
     }
 
     public let id: UUID

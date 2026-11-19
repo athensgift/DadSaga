@@ -28,24 +28,14 @@ struct WorldMapTests {
     /// A child of `months` whose current world is the latest one unlocked.
     func makeSUT(ageInMonths months: Int, profile: PlayerProfile = HeroStub.profile) -> HomeViewModel {
         let unlocked = Self.catalog.worlds.filter { $0.minAgeMonths <= months }
+        let adventure = Adventure(ageInMonths: months, currentWorld: unlocked.last, unlockedWorlds: unlocked, availableBosses: [])
         return HomeViewModel(
             useCases: HomeViewModel.UseCases(
-                getProfile: StubGetProfile(profile: profile),
-                loadCatalog: StubLoadCatalog(result: .success(Self.catalog)),
-                getAdventure: FixedAdventure(
-                    adventure: Adventure(
-                        ageInMonths: months,
-                        currentWorld: unlocked.last,
-                        unlockedWorlds: unlocked,
-                        availableBosses: []
-                    )
-                ),
-                getProgress: progress,
+                getOverview: FakeHomeOverview(profile: profile, catalog: Self.catalog, progress: progress) { _ in adventure },
                 completeQuest: progress,
                 defeatBoss: progress,
                 deleteEvent: progress,
                 moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
-                getOutfit: FakeOutfit(),
                 reminder: .neverOffered
             ),
             locale: Locale(identifier: "el_GR"),
@@ -127,13 +117,5 @@ struct WorldMapTests {
 
         #expect(loaded(sut)?.backToCurrentTitle == nil)
         #expect(loaded(sut)?.worldTitle == "Πεδιάδα")
-    }
-}
-
-struct FixedAdventure: GetAdventureUseCase {
-    let adventure: Adventure
-
-    func execute(for child: Child, childCount: Int, on date: Date) async throws -> Adventure {
-        adventure
     }
 }

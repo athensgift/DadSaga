@@ -31,6 +31,15 @@ final class AppContainer {
         DefaultSaveProfileUseCase(contentRepository: contentRepository, profileRepository: store.profiles)
     }
 
+    private var getWardrobeUseCase: any GetWardrobeUseCase {
+        DefaultGetWardrobeUseCase(
+            contentRepository: contentRepository,
+            profileRepository: store.profiles,
+            progressRepository: store.progress,
+            outfitRepository: store.outfit
+        )
+    }
+
     /// Reschedules the next weekly notifications; the app runs it whenever it leaves the foreground.
     /// One instance, so every reschedule (leaving the app, a settings change) waits for the one before it.
     lazy var scheduleWeeklyReminders: any ScheduleWeeklyRemindersUseCase = DefaultScheduleWeeklyRemindersUseCase(
@@ -80,10 +89,12 @@ final class AppContainer {
     func makeHomeViewModel() -> HomeViewModel {
         HomeViewModel(
             useCases: HomeViewModel.UseCases(
-                getProfile: getProfileUseCase,
-                loadCatalog: loadContentCatalogUseCase,
-                getAdventure: DefaultGetAdventureUseCase(repository: contentRepository),
-                getProgress: DefaultGetProgressUseCase(contentRepository: contentRepository, progressRepository: store.progress),
+                getOverview: DefaultGetHomeOverviewUseCase(
+                    contentRepository: contentRepository,
+                    profileRepository: store.profiles,
+                    progressRepository: store.progress,
+                    outfitRepository: store.outfit
+                ),
                 completeQuest: DefaultCompleteQuestUseCase(
                     contentRepository: contentRepository,
                     progressRepository: store.progress,
@@ -104,7 +115,6 @@ final class AppContainer {
                     update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
                 ),
-                getOutfit: DefaultGetOutfitUseCase(repository: store.outfit),
                 reminder: reminderUseCases
             )
         )
@@ -121,11 +131,12 @@ final class AppContainer {
     func makeWardrobeViewModel() -> WardrobeViewModel {
         WardrobeViewModel(
             useCases: WardrobeViewModel.UseCases(
-                getProfile: getProfileUseCase,
-                loadCatalog: loadContentCatalogUseCase,
-                getProgress: DefaultGetProgressUseCase(contentRepository: contentRepository, progressRepository: store.progress),
-                getOutfit: DefaultGetOutfitUseCase(repository: store.outfit),
-                setChoice: DefaultSetOutfitChoiceUseCase(repository: store.outfit)
+                getWardrobe: getWardrobeUseCase,
+                setChoice: DefaultSetOutfitChoiceUseCase(
+                    contentRepository: contentRepository,
+                    progressRepository: store.progress,
+                    outfitRepository: store.outfit
+                )
             )
         )
     }

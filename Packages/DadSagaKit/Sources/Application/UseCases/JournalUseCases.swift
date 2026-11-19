@@ -20,17 +20,29 @@ struct EventRecorder {
     let progressRepository: any ProgressRepository
     let photoStore: any PhotoStore
 
-    func record(_ kind: ProgressEvent.Kind, childID: UUID, date: Date, journal: JournalInput) async throws -> ProgressEvent {
+    /// Stores the event with the journal. A boss or a first that this child already has is not stored again: then the
+    /// result is `nil` and no photo is kept.
+    func record(_ kind: ProgressEvent.Kind, childID: UUID, date: Date, journal: JournalInput) async throws -> ProgressEvent? {
         var photoID: String?
         if let photo = journal.photo {
             photoID = try await photoStore.save(photo)
         }
         let event = ProgressEvent(kind: kind, childID: childID, date: date, note: journal.note.trimmedOrNil, photoID: photoID)
+        let added: Bool
         do {
-            try await progressRepository.add(event)
+            if kind.countsOncePerChild {
+                added = try await progressRepository.addUnlessRecorded(event)
+            } else {
+                try await progressRepository.add(event)
+                added = true
+            }
         } catch {
             if let photoID { await photoStore.delete(id: photoID) }
             throw error
+        }
+        guard added else {
+            if let photoID { await photoStore.delete(id: photoID) }
+            return nil
         }
         return event
     }

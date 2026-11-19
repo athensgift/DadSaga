@@ -13,7 +13,7 @@ struct ProfileUseCaseTests {
                 quests: [],
                 bosses: [],
                 firsts: [],
-                heroClasses: [HeroClass(id: "h1", order: 1, title: Stub.text, tagline: Stub.text)]
+                heroClasses: [HeroClass(id: "h1", order: 1, title: Stub.text, tagline: Stub.text, look: "hero")]
             )
         )
     )

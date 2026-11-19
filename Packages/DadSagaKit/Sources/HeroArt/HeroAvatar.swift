@@ -1,3 +1,4 @@
+import DesignSystem
 import SwiftUI
 
 /// The player's hero, drawn in code: no image assets, and every part can animate.
@@ -86,9 +87,9 @@ extension HeroAvatar.Style {
     public var tint: Color {
         switch self {
         case .hero: DSColor.heroTeal
-        case .cool: DSColor.heroMage
+        case .cool: DSColor.heroPurple
         case .strong: DSColor.boss
-        case .smart: DSColor.heroRanger
+        case .smart: DSColor.heroGreen
         case .chef: DSColor.legendary
         case .fixer: DSColor.accent
         }
@@ -98,9 +99,9 @@ extension HeroAvatar.Style {
     var fabric: LinearGradient {
         switch self {
         case .hero: heroGradient(DSColor.heroTeal, DSColor.heroTealShade)
-        case .cool: heroGradient(DSColor.heroMage, DSColor.heroMageShade)
+        case .cool: heroGradient(DSColor.heroPurple, DSColor.heroPurpleShade)
         case .strong, .fixer: heroGradient(DSColor.boss, DSColor.heroCapeShade)
-        case .smart: heroGradient(DSColor.heroRanger, DSColor.heroRangerShade)
+        case .smart: heroGradient(DSColor.heroGreen, DSColor.heroGreenShade)
         case .chef: heroGradient(DSColor.heroChef, DSColor.heroChefShade)
         }
     }
@@ -117,7 +118,7 @@ extension HeroAvatar.Style {
     var cuff: Color {
         switch self {
         case .hero: DSColor.legendary
-        case .cool: DSColor.heroMageShade
+        case .cool: DSColor.heroPurpleShade
         case .strong: DSColor.heroInk
         case .smart: DSColor.heroSteel
         case .chef: DSColor.heroChefShade
@@ -128,7 +129,7 @@ extension HeroAvatar.Style {
     var trousers: Color {
         switch self {
         case .hero: DSColor.heroTealShade
-        case .fixer: DSColor.heroKnightShade
+        case .fixer: DSColor.heroNavyShade
         default: DSColor.heroCloth
         }
     }

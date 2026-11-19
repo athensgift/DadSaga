@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 // The figures are internal: drawing them directly gives the rest pose without the avatars' appear animation.
-@testable import DesignSystem
+@testable import HeroArt
 
 /// Super Dad with a smiling baby, laid out like the home screen's family (child canvas at 0.62 of the dad's height),
 /// a little closer together so the pair reads as one picture.

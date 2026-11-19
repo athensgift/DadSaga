@@ -88,13 +88,3 @@ struct MomentsFormatter {
         )
     }
 }
-
-/// What home was last built from.
-struct HomeSnapshot {
-    let child: Child
-    let catalog: ContentCatalog
-    let progress: DadProgress
-    let adventure: Adventure
-    /// Children in the family, for bosses that need a sibling.
-    let childCount: Int
-}

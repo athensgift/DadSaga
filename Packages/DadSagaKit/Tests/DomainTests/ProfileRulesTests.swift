@@ -5,7 +5,7 @@ import Testing
 @Suite("ProfileRules")
 struct ProfileRulesTests {
     let today = Date(timeIntervalSince1970: 1_000_000)
-    let heroes = [HeroClass(id: "h1", order: 1, title: Fixtures.text, tagline: Fixtures.text)]
+    let heroes = [HeroClass(id: "h1", order: 1, title: Fixtures.text, tagline: Fixtures.text, look: "hero")]
 
     func child(_ name: String = "Νίκος", bornDaysAgo days: Double = 30) -> Child {
         Child(name: name, birthDate: today.addingTimeInterval(-days * 86_400), gender: .girl, skinTone: .dark)

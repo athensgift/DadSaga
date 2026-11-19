@@ -1,3 +1,4 @@
+import DesignSystem
 import SwiftUI
 
 /// Things the hero has earned and carries. Each lives in its own slot, chosen so it never clashes with what a dad
@@ -77,7 +78,7 @@ extension View {
             self
                 .shadow(color: DSColor.legendary.opacity(0.45 + 0.45 * glow), radius: 2.5 + 2 * glow)
                 .overlay {
-                    HeroSparkle()
+                    Sparkle()
                         .fill(DSColor.legendary)
                         .frame(width: 5, height: 5)
                         .scaleEffect(0.75 + 0.35 * glow)

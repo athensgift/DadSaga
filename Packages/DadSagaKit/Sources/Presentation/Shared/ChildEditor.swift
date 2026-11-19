@@ -1,4 +1,5 @@
 import DesignSystem
+import HeroArt
 import SwiftUI
 
 /// One child's details: name, birth date, gender and skin tone. Used by onboarding and the family screen.

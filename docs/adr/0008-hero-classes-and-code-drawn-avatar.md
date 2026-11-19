@@ -1,6 +1,6 @@
 # ADR-0008: Hero classes, a code-drawn avatar, and the profile in SwiftData
 
-**Status:** Accepted
+**Status:** Accepted. The avatar moved from `DesignSystem` to its own `HeroArt` target in ADR-0028.
 
 ## Context
 The dad is the hero of the game, so he needs a visible, animated character on the home screen. Onboarding has to

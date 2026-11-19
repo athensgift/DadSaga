@@ -1,4 +1,5 @@
 import DesignSystem
+import HeroArt
 import SwiftUI
 
 /// The dad with his children standing next to him, left to right in the same order as the child tabs below:

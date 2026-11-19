@@ -9,23 +9,11 @@ import Observation
 @Observable
 public final class WardrobeViewModel {
     public struct UseCases: Sendable {
-        let getProfile: any GetProfileUseCase
-        let loadCatalog: any LoadContentCatalogUseCase
-        let getProgress: any GetProgressUseCase
-        let getOutfit: any GetOutfitUseCase
+        let getWardrobe: any GetWardrobeUseCase
         let setChoice: any SetOutfitChoiceUseCase
 
-        public init(
-            getProfile: any GetProfileUseCase,
-            loadCatalog: any LoadContentCatalogUseCase,
-            getProgress: any GetProgressUseCase,
-            getOutfit: any GetOutfitUseCase,
-            setChoice: any SetOutfitChoiceUseCase
-        ) {
-            self.getProfile = getProfile
-            self.loadCatalog = loadCatalog
-            self.getProgress = getProgress
-            self.getOutfit = getOutfit
+        public init(getWardrobe: any GetWardrobeUseCase, setChoice: any SetOutfitChoiceUseCase) {
+            self.getWardrobe = getWardrobe
             self.setChoice = setChoice
         }
     }
@@ -38,10 +26,7 @@ public final class WardrobeViewModel {
 
     private let useCases: UseCases
     private let locale: Locale
-    private var profile: PlayerProfile?
-    private var gear: [GearItem] = []
-    private var progress: DadProgress?
-    private var outfit = Outfit()
+    private var wardrobe: Wardrobe?
 
     public init(useCases: UseCases, locale: Locale = .current) {
         self.useCases = useCases
@@ -50,10 +35,7 @@ public final class WardrobeViewModel {
 
     public func onAppear() async {
         do {
-            profile = try await useCases.getProfile.execute()
-            gear = try await useCases.loadCatalog.execute().gear
-            progress = try await useCases.getProgress.execute()
-            outfit = try await useCases.getOutfit.execute()
+            wardrobe = try await useCases.getWardrobe.execute()
             rebuild()
         } catch {
             state = .failed(message: strings.text("The wardrobe failed to load."))
@@ -62,24 +44,25 @@ public final class WardrobeViewModel {
 
     /// Wears an option. Locked items cannot be chosen.
     public func select(slotID: String, optionID: String) async {
-        guard let skill = Skill(rawValue: slotID), let progress else { return }
+        guard let skill = Skill(rawValue: slotID), let wardrobe else { return }
         let choice: OutfitChoice
         switch optionID {
         case Self.automaticID: choice = .automatic
         case Self.hiddenID: choice = .hidden
         default:
-            let earned = GearRules.earned(gear, skillXP: progress.skillXP)
-            guard earned.contains(where: { $0.id == optionID && $0.skill == skill }) else { return }
+            guard wardrobe.isEarned(itemID: optionID, skill: skill) else { return }
             choice = .item(optionID)
         }
-        let previous = outfit
-        outfit.choices[skill] = choice == .automatic ? nil : choice
+        // Only this slot changes on screen, so a reply for another slot never undoes a tap made meanwhile.
+        let previous = wardrobe.outfit.choices[skill]
+        self.wardrobe?.outfit.choices[skill] = choice == .automatic ? nil : choice
         rebuild()
         do {
-            outfit = try await useCases.setChoice.execute(skill: skill, choice: choice)
+            let saved = try await useCases.setChoice.execute(skill: skill, choice: choice)
+            self.wardrobe?.outfit.choices[skill] = saved.choices[skill]
             errorMessage = nil
         } catch {
-            outfit = previous
+            self.wardrobe?.outfit.choices[skill] = previous
             errorMessage = strings.text("Couldn't save. Please try again.")
         }
         rebuild()
@@ -88,24 +71,25 @@ public final class WardrobeViewModel {
     // MARK: Building
 
     private func rebuild() {
-        guard let progress else { return }
-        let skillXP = progress.skillXP
+        guard let wardrobe else { return }
+        let profile = wardrobe.profile
         state = .loaded(
             WardrobeContent(
                 title: strings.text("Wardrobe"),
-                heroLook: HeroLook(heroClassID: profile?.heroClassID ?? ""),
+                heroLook: HeroLook(look: wardrobe.hero?.look),
                 heroSkin: SkinToneChoice(profile?.dadSkinTone ?? .mediumLight),
-                gear: GearRules.equipped(gear, skillXP: skillXP, outfit: outfit).compactMap { HeroGearLook(look: $0.look) },
-                medalCount: progress.allDefeatedBossIDs.count,
-                slots: Skill.allCases.map { slot(for: $0, xp: skillXP[$0, default: 0]) },
+                gear: wardrobe.equipped.compactMap { HeroGearLook(look: $0.look) },
+                medalCount: wardrobe.progress.allDefeatedBossIDs.count,
+                slots: Skill.allCases.map { slot(for: $0, in: wardrobe) },
                 footnote: strings.text("You earn items with each skill's XP. What you earn stays yours.")
             )
         )
     }
 
-    private func slot(for skill: Skill, xp: Int) -> WardrobeSlot {
-        let items = gear.filter { $0.skill == skill }.sorted { $0.minXP < $1.minXP }
-        let choice = outfit.choice(for: skill)
+    private func slot(for skill: Skill, in wardrobe: Wardrobe) -> WardrobeSlot {
+        let xp = wardrobe.progress.skillXP[skill, default: 0]
+        let items = wardrobe.gear.filter { $0.skill == skill }.sorted { $0.minXP < $1.minXP }
+        let choice = wardrobe.outfit.choice(for: skill)
         var options = [
             WardrobeOption(
                 id: Self.automaticID,

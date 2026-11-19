@@ -154,7 +154,7 @@ struct OnboardingViewModelTests {
 }
 
 /// An in-memory stand-in for both progress use cases, backed by the stub catalog.
-actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCase,
+actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCase,
     UpdateMomentUseCase, DeleteEventUseCase, GetPhotoUseCase {
     private var events: [ProgressEvent] = []
     private var shouldFail = false
@@ -176,7 +176,8 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase,
         isSlow = true
     }
 
-    func execute() async throws -> DadProgress {
+    /// The log as the dad's progress, read against the hero stub catalog.
+    var current: DadProgress {
         DadProgress(events: events, catalog: HeroStub.catalog)
     }
 
@@ -207,7 +208,12 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase,
             date: request.date, note: request.note, photoID: photoID
         )
         events.append(event)
-        return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog), eventID: event.id)
+        return ProgressChange(
+            before: before,
+            after: DadProgress(events: events, catalog: HeroStub.catalog),
+            eventID: event.id,
+            gear: HeroStub.catalog.gear
+        )
     }
 
     func execute(momentID: UUID, happenedOn date: Date, note: String?, photo: PhotoChange, now: Date) async throws {
@@ -244,7 +250,12 @@ actor FakeProgress: GetProgressUseCase, CompleteQuestUseCase, DefeatBossUseCase,
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
         let event = ProgressEvent(kind: kind, childID: childID, date: date, note: note)
         events.append(event)
-        return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog), eventID: event.id)
+        return ProgressChange(
+            before: before,
+            after: DadProgress(events: events, catalog: HeroStub.catalog),
+            eventID: event.id,
+            gear: HeroStub.catalog.gear
+        )
     }
 }
 
@@ -270,19 +281,39 @@ actor SpySaveProfile: SaveProfileUseCase {
     }
 }
 
-/// Returns the stub catalog's world with everything available, plus one quest from another world.
-/// A child named "Ελένη" is treated as older than every world.
-struct StubGetAdventure: GetAdventureUseCase {
-    func execute(for child: Child, childCount: Int, on date: Date) async throws -> Adventure {
-        let catalog = HeroStub.catalog
+/// Home's overview from stubs: the family, the fake log and wardrobe, and an adventure per child. Built with the real
+/// `HomeOverview`, so which world, quests, bosses and gear show follows the same rules as the app.
+struct FakeHomeOverview: GetHomeOverviewUseCase {
+    let profile: PlayerProfile?
+    var catalog = HeroStub.catalog
+    let progress: FakeProgress
+    var outfit = FakeOutfit()
+    var adventure: @Sendable (Child) -> Adventure = HeroStub.adventure
+
+    func execute(childID: UUID?, worldID: String?, on date: Date) async throws -> HomeOverview? {
+        guard let profile, let child = HomeOverview.child(childID, in: profile) else { return nil }
+        return HomeOverview(
+            profile: profile,
+            child: child,
+            catalog: catalog,
+            adventure: adventure(child),
+            progress: await progress.current,
+            outfit: await outfit.stored,
+            worldID: worldID
+        )
+    }
+}
+
+enum HeroStub {
+    /// The stub catalog's world with everything available. A child named "Ελένη" is older than every world.
+    @Sendable
+    static func adventure(for child: Child) -> Adventure {
         if child.name == "Ελένη" {
             return Adventure(
                 ageInMonths: 60, currentWorld: nil, unlockedWorlds: catalog.worlds,
                 availableBosses: [], isBeyondContent: true
             )
         }
-        let other = Quest(id: "q-other", worldID: "w0", title: HeroStub.text, description: HeroStub.text,
-                          skill: .play, xp: 10, minAgeMonths: 0)
         return Adventure(
             ageInMonths: 10,
             currentWorld: catalog.worlds.first,
@@ -290,9 +321,7 @@ struct StubGetAdventure: GetAdventureUseCase {
             availableBosses: catalog.bosses
         )
     }
-}
 
-enum HeroStub {
     static let today = Date(timeIntervalSince1970: 1_000_000)
     static let text = LocalizedText(el: "x", en: "x")
     static let niko = Child(name: "Νίκος", birthDate: today)
@@ -309,8 +338,14 @@ enum HeroStub {
         ],
         firsts: Stub.catalog.firsts,
         heroClasses: [
-            HeroClass(id: "h-cool", order: 2, title: LocalizedText(el: "Cool Μπαμπάς", en: "Cool Dad"), tagline: text),
-            HeroClass(id: "h-super", order: 1, title: LocalizedText(el: "Σούπερ Μπαμπάς", en: "Super Dad"), tagline: text)
+            HeroClass(
+                id: "h-cool", order: 2, title: LocalizedText(el: "Cool Μπαμπάς", en: "Cool Dad"),
+                tagline: text, look: "cool"
+            ),
+            HeroClass(
+                id: "h-super", order: 1, title: LocalizedText(el: "Σούπερ Μπαμπάς", en: "Super Dad"),
+                tagline: text, look: "hero"
+            )
         ],
         gear: [
             GearItem(id: "g1", skill: .care, minXP: 50, look: "burpCloth", title: LocalizedText(el: "Πανάκι", en: "Burp cloth")),

@@ -1,4 +1,5 @@
 import DesignSystem
+import HeroArt
 import SwiftUI
 
 /// Home: the dad's hero and progress, then what he can play today.

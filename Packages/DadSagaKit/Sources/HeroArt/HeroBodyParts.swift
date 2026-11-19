@@ -1,3 +1,4 @@
+import DesignSystem
 import SwiftUI
 
 // The parts every dad shares: legs, arms and head. Coordinates are in `HeroFigure`'s design canvas.

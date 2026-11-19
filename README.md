@@ -35,6 +35,7 @@ Packages/DadSagaKit
 ├── Data                   repository implementations, DTOs, mappers, bundled JSON
 ├── Application            use cases + repository protocols (ports)
 ├── Domain                 entities + business rules (level curve, unlocks, progress)
+├── HeroArt                the code-drawn hero and children (ADR-0028)
 └── DesignSystem           tokens + reusable SwiftUI components
 
 Presentation ───────┐
