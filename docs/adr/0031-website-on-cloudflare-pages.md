@@ -24,6 +24,8 @@ is and where to get it is also wanted. It has to cost nothing to run.
   Bot Fight Mode and other features that inject scripts stay off for the zone; Cloudflare's own security cookie is
   the one the privacy policy allows for.
 - `assets/og.png` (1200×630, the launch art on the light background) is the link-preview image.
+- No long cache on `assets/`: the file names aren't versioned, so Pages' default revalidation (ETag) keeps a
+  changed stylesheet from being served stale.
 
 ### 2. Content follows the product rules
 - The copy follows ADR-0006: XP for the dad's actions, nothing lost, worlds by age, the Resilience branch. Example
