@@ -14,7 +14,7 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0004](0004-offline-first-on-device-data.md) | All child data on device: no account, backend or analytics SDK | privacy, storage, sync | |
 | [0005](0005-content-as-data.md) | Game content is bilingual JSON, validated at load | content, localization | 0027 (UI strings) |
 | [0006](0006-no-pressure-game-design.md) | No pressure: XP for the dad's actions, no penalties, streaks or deadlines | product rules | 0021 (the dad may delete his own entries) |
-| [0007](0007-clean-architecture.md) | Clean Architecture: Domain, Application, Data, Presentation | architecture | |
+| [0007](0007-clean-architecture.md) | Clean Architecture: Domain, Application, Data, Presentation | architecture | 0036 (a presenter may hold a drawing protocol: the film renderer) |
 | [0008](0008-hero-classes-and-code-drawn-avatar.md) | Hero classes as content, a code-drawn avatar, the profile in SwiftData | hero, avatar, storage | 0010 (class list), 0026 (store fallback), 0028 (avatar target), 0029 (class look) |
 | [0009](0009-gitflow.md) | Gitflow: `feature/*` from `develop`, releases on `main` | process, git | |
 | [0010](0010-dad-archetype-heroes.md) | Heroes are dad archetypes, not fantasy classes | hero, content | 0029 (class look), 0033 (crest letter) |
@@ -37,9 +37,10 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0027](0027-ui-string-catalog.md) | UI strings in one shared String Catalog | localization | 0030 (reset wording) |
 | [0028](0028-screen-queries-and-hero-art-target.md) | One query per screen, one way to record progress, `HeroArt` target | architecture, modules | |
 | [0029](0029-hero-look-in-content.md) | A hero class names its look in the content | hero, content | |
-| [0030](0030-settings-screen.md) | One Settings screen; "start over" for everyone | settings, privacy | |
+| [0030](0030-settings-screen.md) | One Settings screen; "start over" for everyone | settings, privacy | 0036 (start over also forgets the film offers) |
 | [0031](0031-website-on-cloudflare-pages.md) | Static website at dadsaga.app on Cloudflare Pages | website, privacy | 0033 (images generated) |
 | [0032](0032-contrast-of-tints.md) | Tints readable as text and as fills; the hero keeps its own colours | UI, accessibility, colour | 0033 (its open items) |
-| [0033](0033-accessibility-audit-and-secondary-text.md) | Accessibility audit of the main screens, readable secondary text, "D" on the crest | accessibility, testing, colour, hero | 0034 (snapshots at the largest text size, test data for snapshots), 0035 (audit skips, iOS 27.2) |
-| [0034](0034-screen-snapshots-pinned-ci-and-store-threads.md) | Screen snapshots, a pinned CI toolchain, the store's work off the main thread | testing, CI, storage, concurrency | 0035 (snapshots get the app's tint) |
+| [0033](0033-accessibility-audit-and-secondary-text.md) | Accessibility audit of the main screens, readable secondary text, "D" on the crest | accessibility, testing, colour, hero | 0034 (snapshots at the largest text size, test data for snapshots), 0035 (audit skips, iOS 27.2), 0036 (the audit covers the film sheet) |
+| [0034](0034-screen-snapshots-pinned-ci-and-store-threads.md) | Screen snapshots, a pinned CI toolchain, the store's work off the main thread | testing, CI, storage, concurrency | 0035 (snapshots get the app's tint), 0036 (film sheet and card snapshots) |
 | [0035](0035-audit-on-ios-27-shaded-glass.md) | The audit on iOS 27.2: re-measure labels on shaded glass | accessibility, testing | |
+| [0036](0036-saga-video.md) | Saga film: drawn frame by frame on the device from the timeline, offered gently, never stored | video, media, product rules, concurrency | |
