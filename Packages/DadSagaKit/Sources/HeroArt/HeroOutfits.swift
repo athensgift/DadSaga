@@ -34,7 +34,7 @@ struct HeroTorso: View {
         ZStack {
             base(style.fabric)
             HeroShieldShape()
-                .fill(heroGradient(DSColor.legendary, DSColor.boss))
+                .fill(heroGradient(DSColor.heroGold, DSColor.heroOrange))
                 .overlay { HeroShieldShape().stroke(DSColor.heroHighlight, lineWidth: 1.5) }
                 .overlay {
                     Text(verbatim: "Μ")
@@ -44,7 +44,7 @@ struct HeroTorso: View {
                 }
                 .frame(width: 21, height: 21)
                 .offset(y: 8)
-            Capsule().fill(DSColor.legendary).frame(width: 40, height: 5).offset(y: 25)
+            Capsule().fill(DSColor.heroGold).frame(width: 40, height: 5).offset(y: 25)
         }
     }
 
@@ -81,7 +81,7 @@ struct HeroTorso: View {
                 .offset(y: 15.5)
             Image(systemName: "bolt.fill")
                 .font(.system(size: 11))
-                .foregroundStyle(DSColor.legendary)
+                .foregroundStyle(DSColor.heroGold)
                 .offset(y: 14)
         }
     }
@@ -94,13 +94,13 @@ struct HeroTorso: View {
                 .frame(width: 18, height: 20)
                 .rotationEffect(.degrees(180))
                 .offset(y: 4)
-            Capsule().fill(DSColor.boss).frame(width: 4.5, height: 15).offset(y: 5)
+            Capsule().fill(DSColor.heroOrange).frame(width: 4.5, height: 15).offset(y: 5)
             Circle().fill(DSColor.heroCapeShade).frame(width: 6, height: 6).offset(y: -3)
             ForEach([19.0, 26.0], id: \.self) { height in
-                Circle().fill(DSColor.legendary).frame(width: 2.8, height: 2.8).offset(y: height)
+                Circle().fill(DSColor.heroGold).frame(width: 2.8, height: 2.8).offset(y: height)
             }
             RoundedRectangle(cornerRadius: 1).fill(DSColor.heroGreenShade).frame(width: 8, height: 7).offset(x: 12, y: 12)
-            Capsule().fill(DSColor.accent).frame(width: 2, height: 8).offset(x: 12, y: 8)
+            Capsule().fill(DSColor.heroBlue).frame(width: 2, height: 8).offset(x: 12, y: 8)
         }
     }
 
@@ -118,7 +118,7 @@ struct HeroTorso: View {
                 }
             }
             HeroTrapezoid(topRatio: 0)
-                .fill(heroGradient(DSColor.boss, DSColor.heroCapeShade))
+                .fill(heroGradient(DSColor.heroOrange, DSColor.heroCapeShade))
                 .frame(width: 18, height: 11)
                 .rotationEffect(.degrees(180))
                 .offset(y: -0.5)
@@ -129,11 +129,11 @@ struct HeroTorso: View {
         ZStack {
             base(style.fabric)
             ForEach([-9.0, 9.0], id: \.self) { side in
-                Capsule().fill(DSColor.accent).frame(width: 5, height: 18).offset(x: side, y: 2)
-                Circle().fill(DSColor.legendary).frame(width: 3.5, height: 3.5).offset(x: side, y: 9)
+                Capsule().fill(DSColor.heroBlue).frame(width: 5, height: 18).offset(x: side, y: 2)
+                Circle().fill(DSColor.heroGold).frame(width: 3.5, height: 3.5).offset(x: side, y: 9)
             }
             RoundedRectangle(cornerRadius: 4)
-                .fill(heroGradient(DSColor.accent, DSColor.heroNavyShade))
+                .fill(heroGradient(DSColor.heroBlue, DSColor.heroNavyShade))
                 .frame(width: 30, height: 25)
                 .offset(y: 21.5)
             RoundedRectangle(cornerRadius: 2).fill(DSColor.heroNavyShade).frame(width: 13, height: 8).offset(y: 16)

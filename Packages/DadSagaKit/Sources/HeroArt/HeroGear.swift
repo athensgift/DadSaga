@@ -53,12 +53,12 @@ struct HeroHeadgear: View {
         ZStack {
             ForEach([-12.0, 14.0], id: \.self) { tilt in
                 Capsule()
-                    .fill(DSColor.legendary)
+                    .fill(DSColor.heroGold)
                     .frame(width: 4, height: 13)
                     .rotationEffect(.degrees(tilt + pose.sway * 2), anchor: .top)
                     .offset(x: -22, y: -33)
             }
-            Capsule().fill(DSColor.legendary).frame(width: 44, height: 6).offset(y: -39)
+            Capsule().fill(DSColor.heroGold).frame(width: 44, height: 6).offset(y: -39)
         }
     }
 
@@ -70,9 +70,9 @@ struct HeroHeadgear: View {
             Rectangle().fill(DSColor.heroInk).frame(width: 4, height: 1.8).offset(y: -28)
             Image(systemName: "lightbulb.fill")
                 .font(.system(size: 15))
-                .foregroundStyle(DSColor.legendary)
+                .foregroundStyle(DSColor.heroGold)
                 .opacity(0.35 + 0.65 * pose.glow)
-                .shadow(color: DSColor.legendary.opacity(0.8 * pose.glow), radius: 6 * pose.glow)
+                .shadow(color: DSColor.heroGold.opacity(0.8 * pose.glow), radius: 6 * pose.glow)
                 .offset(y: -66)
         }
     }
@@ -96,9 +96,9 @@ struct HeroHeadgear: View {
 
     private var hardHat: some View {
         ZStack {
-            dome(heroGradient(DSColor.legendary, DSColor.boss), width: 46, height: 34).offset(y: -40)
+            dome(heroGradient(DSColor.heroGold, DSColor.heroOrange), width: 46, height: 34).offset(y: -40)
             RoundedRectangle(cornerRadius: 2).fill(DSColor.heroHighlight.opacity(0.45)).frame(width: 5, height: 14).offset(y: -49)
-            Capsule().fill(DSColor.legendary).frame(width: 53, height: 5).offset(y: -39.5)
+            Capsule().fill(DSColor.heroGold).frame(width: 53, height: 5).offset(y: -39.5)
         }
     }
 
@@ -119,7 +119,7 @@ struct HeroBackGear: View {
     var body: some View {
         if style == .hero {
             HeroTrapezoid(topRatio: 0.55)
-                .fill(heroGradient(DSColor.legendary, DSColor.boss))
+                .fill(heroGradient(DSColor.heroGold, DSColor.heroOrange))
                 .frame(width: 62, height: 58)
                 .rotationEffect(.degrees(sway * 1.4), anchor: .top)
                 .offset(y: 25)
@@ -154,7 +154,7 @@ struct HeroHeldItem: View {
                 Circle().fill(DSColor.heroInk).frame(width: 6, height: 6).offset(x: 6, y: height)
             }
             Capsule().fill(heroGradient(DSColor.heroWood, DSColor.heroLeather)).frame(width: 10, height: 50)
-            Capsule().fill(DSColor.legendary).frame(width: 2.5, height: 34)
+            Capsule().fill(DSColor.heroGold).frame(width: 2.5, height: 34)
         }
         .rotationEffect(.degrees(4 + sway * 0.3), anchor: .bottom)
         .offset(x: 5, y: 7)
@@ -170,12 +170,12 @@ struct HeroHeldItem: View {
 
     private var book: some View {
         RoundedRectangle(cornerRadius: 2)
-            .fill(heroGradient(DSColor.accent, DSColor.heroNavyShade))
+            .fill(heroGradient(DSColor.heroBlue, DSColor.heroNavyShade))
             .frame(width: 16, height: 20)
             .overlay(alignment: .trailing) {
                 Rectangle().fill(DSColor.heroChef).frame(width: 2.5, height: 17).padding(.trailing, 1)
             }
-            .overlay { Capsule().fill(DSColor.legendary).frame(width: 7, height: 2).offset(x: -1.5, y: -4) }
+            .overlay { Capsule().fill(DSColor.heroGold).frame(width: 7, height: 2).offset(x: -1.5, y: -4) }
             .rotationEffect(.degrees(sway * 0.5))
             .offset(x: 3, y: 3)
     }

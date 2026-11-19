@@ -197,7 +197,7 @@ private struct TimelineRow: View {
         HStack(alignment: .top, spacing: DSSpacing.m) {
             Image(systemName: item.symbol)
                 .font(DSFont.smallSymbol)
-                .foregroundStyle(DSColor.heroHighlight)
+                .foregroundStyle(DSColor.onTint)
                 .frame(width: railWidth, height: railWidth)
                 .background(tint.gradient, in: Circle())
                 .overlay(Circle().stroke(DSColor.background, lineWidth: 3))

@@ -238,11 +238,11 @@ struct ChildFigure: View {
                     .frame(width: 16, height: 12)
                     .offset(y: 5)
                 ForEach([-6.0, 6.0], id: \.self) { side in
-                    Circle().fill(DSColor.legendary).frame(width: 3, height: 3).offset(x: side, y: 0)
+                    Circle().fill(DSColor.heroGold).frame(width: 3, height: 3).offset(x: side, y: 0)
                 }
             case .preschooler:
                 Circle()
-                    .fill(DSColor.legendary)
+                    .fill(DSColor.heroGold)
                     .frame(width: 9, height: 9)
                     .overlay { Circle().fill(DSColor.heroHighlight).frame(width: 3, height: 3) }
                     .offset(y: 1)
@@ -320,7 +320,7 @@ struct ChildFigure: View {
         let radius = proportions.headRadius
         return ZStack(alignment: .top) {
             HeroTrapezoid(topRatio: 0)
-                .fill(heroGradient(DSColor.boss, DSColor.legendary))
+                .fill(heroGradient(DSColor.heroOrange, DSColor.heroGold))
                 .frame(width: 16, height: 19)
             Circle().fill(DSColor.heroHighlight).frame(width: 6, height: 6).offset(y: -3)
         }
@@ -343,7 +343,7 @@ struct ChildFigure: View {
 
     private var backpack: some View {
         RoundedRectangle(cornerRadius: 7)
-            .fill(heroGradient(DSColor.accent, DSColor.heroNavyShade))
+            .fill(heroGradient(DSColor.heroBlue, DSColor.heroNavyShade))
             .frame(width: proportions.torso.width + 8, height: proportions.torso.height - 2)
             .offset(y: torsoCentre - 2)
     }

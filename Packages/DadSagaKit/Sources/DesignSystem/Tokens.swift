@@ -21,16 +21,28 @@ public enum DSColor {
     public static let textPrimary = Color(nsColor: .labelColor)
     public static let textSecondary = Color(nsColor: .secondaryLabelColor)
     #endif
+    // MARK: Tints (values and the contrast rule in `DSTint`)
+
     /// Primary action colour.
-    public static let accent = Color(light: 0x3B5BDB, dark: 0x7C93F5)
+    public static let accent = Color(DSTint.accent)
     /// XP bars and progress.
-    public static let xp = Color(light: 0x0E9F6E, dark: 0x34D399)
+    public static let xp = Color(DSTint.xp)
     /// "Legendary moments" (firsts) and badges.
-    public static let legendary = Color(light: 0xD99A00, dark: 0xFBBF24)
+    public static let legendary = Color(DSTint.legendary)
     /// Boss fights.
-    public static let boss = Color(light: 0xC2410C, dark: 0xFB923C)
+    public static let boss = Color(DSTint.boss)
+    /// Symbols and text on a tint fill: white on the deep light-mode tints, ink on the bright dark-mode ones.
+    /// For a button's label, use `onTintLabel()`, which leaves a disabled button to the system.
+    public static let onTint = Color(DSTint.onTint)
 
     // MARK: Hero avatar palette
+    // The hero's own colours, apart from the tints, so making the interface readable never repaints the hero.
+    /// Gold: crowns, stars, buckles.
+    public static let heroGold = Color(light: 0xD99A00, dark: 0xFBBF24)
+    /// Orange: capes and flames.
+    public static let heroOrange = Color(light: 0xC2410C, dark: 0xFB923C)
+    /// Blue: shields and cloth.
+    public static let heroBlue = Color(light: 0x3B5BDB, dark: 0x7C93F5)
     public static let heroBeard = Color(light: 0x5B3A29, dark: 0x7A5238)
     /// Eyes and other fine dark details.
     public static let heroInk = Color(light: 0x1D1B26, dark: 0x1D1B26)
@@ -52,6 +64,28 @@ public enum DSColor {
     public static let heroPurpleShade = Color(light: 0x5527A8, dark: 0x7C5CD6)
     public static let heroGreenShade = Color(light: 0x1F5A37, dark: 0x2C7A4C)
     public static let heroCapeShade = Color(light: 0x8F2F08, dark: 0xC96A2A)
+}
+
+/// A colour's light- and dark-mode values, kept as numbers so tests can measure contrast.
+package struct ColorPair: Sendable {
+    package let light: UInt32
+    package let dark: UInt32
+}
+
+/// The interface tints. Each one is text, a fill and the ground for `onTint`, so in each mode it reaches 4.5:1
+/// (WCAG AA for small text) on the background and the surface, on its own 15% wash over either, and under `onTint`
+/// (ADR-0032). `DSTintContrastTests` checks this for every tint.
+package enum DSTint {
+    /// Also the app's tint, so the system draws its own white symbols on it, e.g. the toolbar's ✓: those need 3:1.
+    package static let accent = ColorPair(light: 0x3755CD, dark: 0x6F90F5)
+    package static let xp = ColorPair(light: 0x046C4E, dark: 0x34D399)
+    package static let legendary = ColorPair(light: 0x875700, dark: 0xFBBF24)
+    package static let boss = ColorPair(light: 0xAD3709, dark: 0xFB923C)
+    package static let onTint = ColorPair(light: 0xFFFFFF, dark: 0x1D1B26)
+    /// Every tint the rule applies to.
+    package static let all: [ColorPair] = [accent, xp, legendary, boss]
+    /// How strongly a tint washes the ground behind its own text, as in the reward pill.
+    package static let washOpacity = 0.15
 }
 
 public enum DSSpacing {
@@ -89,6 +123,10 @@ public enum DSFont {
 }
 
 extension Color {
+    package init(_ pair: ColorPair) {
+        self.init(light: pair.light, dark: pair.dark)
+    }
+
     /// A colour that adapts to light/dark mode, from 0xRRGGBB values.
     package init(light: UInt32, dark: UInt32) {
         #if canImport(UIKit)

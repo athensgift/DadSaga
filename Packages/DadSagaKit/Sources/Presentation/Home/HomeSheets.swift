@@ -163,7 +163,7 @@ private struct StepsPanel: View {
                 HStack(alignment: .firstTextBaseline, spacing: DSSpacing.m) {
                     Text(verbatim: "\(index + 1)")
                         .font(DSFont.caption)
-                        .foregroundStyle(DSColor.heroHighlight)
+                        .foregroundStyle(DSColor.onTint)
                         .frame(width: numberSize, height: numberSize)
                         .background(tint.gradient, in: Circle())
                     Text(step)

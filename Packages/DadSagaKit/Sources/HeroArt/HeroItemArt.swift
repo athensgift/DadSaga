@@ -27,13 +27,13 @@ struct HeroItemArt: View {
     private var ink: Color { DSColor.heroInk.opacity(0.45) }
 
     private func burpCloth(isGold: Bool) -> some View {
-        let trim = isGold ? DSColor.legendary : DSColor.accent.opacity(0.6)
+        let trim = isGold ? DSColor.heroGold : DSColor.heroBlue.opacity(0.6)
         return ZStack {
             if isGold {
                 // Fringe on both ends: the legendary cloth has a different outline, not just a different colour.
                 ForEach([-1.0, 1.0], id: \.self) { side in
                     ForEach([-2.6, 0, 2.6], id: \.self) { row in
-                        Capsule().fill(DSColor.legendary).frame(width: 3, height: 1.3).offset(x: side * 9, y: row)
+                        Capsule().fill(DSColor.heroGold).frame(width: 3, height: 1.3).offset(x: side * 9, y: row)
                     }
                 }
             }
@@ -56,7 +56,7 @@ struct HeroItemArt: View {
                 }
                 .overlay {
                     RoundedRectangle(cornerRadius: 3)
-                        .strokeBorder(isGold ? DSColor.legendary : DSColor.heroChefShade, lineWidth: 1)
+                        .strokeBorder(isGold ? DSColor.heroGold : DSColor.heroChefShade, lineWidth: 1)
                 }
                 .frame(width: 15, height: 9)
         }
@@ -85,21 +85,21 @@ struct HeroItemArt: View {
                 .overlay { RoundedRectangle(cornerRadius: 2.5).strokeBorder(ink, lineWidth: 0.8) }
                 .frame(width: 9, height: 19)
                 .offset(y: 1)
-            RoundedRectangle(cornerRadius: 1.5).fill(DSColor.legendary).frame(width: 10, height: 4).offset(y: -9)
+            RoundedRectangle(cornerRadius: 1.5).fill(DSColor.heroGold).frame(width: 10, height: 4).offset(y: -9)
             RoundedRectangle(cornerRadius: 1).fill(DSColor.heroSteelShade).frame(width: 6, height: 2.5).offset(y: -12)
-            Capsule().fill(DSColor.legendary).frame(width: 9, height: 1.6).offset(y: 6)
+            Capsule().fill(DSColor.heroGold).frame(width: 9, height: 1.6).offset(y: 6)
             if detailed {
                 Capsule().fill(DSColor.heroHighlight.opacity(0.8)).frame(width: 1.4, height: 11).offset(x: -2.5, y: 0)
-                Capsule().fill(DSColor.legendary).frame(width: 9, height: 1.2).offset(y: 3)
+                Capsule().fill(DSColor.heroGold).frame(width: 9, height: 1.2).offset(y: 3)
             }
         }
     }
 
     private var duck: some View {
         ZStack {
-            Ellipse().fill(DSColor.legendary).frame(width: 14, height: 9)
-            Circle().fill(DSColor.legendary).frame(width: 8, height: 8).offset(x: 5, y: -5)
-            Capsule().fill(DSColor.boss).frame(width: 4, height: 2).offset(x: 10, y: -4.5)
+            Ellipse().fill(DSColor.heroGold).frame(width: 14, height: 9)
+            Circle().fill(DSColor.heroGold).frame(width: 8, height: 8).offset(x: 5, y: -5)
+            Capsule().fill(DSColor.heroOrange).frame(width: 4, height: 2).offset(x: 10, y: -4.5)
             Circle().fill(DSColor.heroInk).frame(width: 1.5, height: 1.5).offset(x: 6, y: -6)
             if detailed {
                 Ellipse().fill(DSColor.heroCapeShade.opacity(0.25)).frame(width: 7, height: 4).offset(x: -1.5, y: 0.5)
@@ -111,9 +111,9 @@ struct HeroItemArt: View {
 
     private var blocks: some View {
         ZStack {
-            block(DSColor.boss, letter: "A").offset(x: -4.5, y: 4.5)
-            block(DSColor.accent, letter: "B").offset(x: 4.5, y: 4.5)
-            block(DSColor.legendary, letter: "C").offset(x: 0, y: -4)
+            block(DSColor.heroOrange, letter: "A").offset(x: -4.5, y: 4.5)
+            block(DSColor.heroBlue, letter: "B").offset(x: 4.5, y: 4.5)
+            block(DSColor.heroGold, letter: "C").offset(x: 0, y: -4)
         }
     }
 
@@ -130,7 +130,7 @@ struct HeroItemArt: View {
     }
 
     private func bag(isMega: Bool) -> some View {
-        let trim = isMega ? DSColor.legendary : DSColor.heroSteel
+        let trim = isMega ? DSColor.heroGold : DSColor.heroSteel
         let size = isMega ? CGSize(width: 22, height: 18) : CGSize(width: 18, height: 15)
         return ZStack {
             if isMega {
@@ -173,7 +173,7 @@ struct HeroItemArt: View {
                 }
                 .overlay {
                     RoundedRectangle(cornerRadius: 4)
-                        .strokeBorder(isMega ? DSColor.legendary : ink, lineWidth: isMega ? 1.2 : 0.8)
+                        .strokeBorder(isMega ? DSColor.heroGold : ink, lineWidth: isMega ? 1.2 : 0.8)
                 }
                 .frame(width: size.width, height: size.height)
         }
