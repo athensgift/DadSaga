@@ -40,7 +40,7 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 
 ## Phase 3½: Saga video (ADR-0036)
 - On-device video generation with AVFoundation, drawn frame by frame (Core Image, `AVAssetWriter`)
-- Ken Burns photos, title cards per first, bundled royalty-free music, end "credits"
+- Ken Burns photos, title cards per first, an original theme made in code (`Tools/SagaTheme`), end "credits"
 - Triggers: birthday, world completed, on demand
 - Export/share in 9:16 and 16:9
 

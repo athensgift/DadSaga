@@ -70,3 +70,15 @@ struct GearItemDTO: Decodable, Sendable {
     let look: String
     let title: LocalizedTextDTO
 }
+
+struct SoundtrackDTO: Decodable, Sendable {
+    let id: String
+    /// A file bundled next to the JSON, e.g. `saga-theme.m4a`. Names must be unique: resources are flattened.
+    let file: String
+    /// The track's own name and its artist's, credited as they are in every language: proper nouns, not UI text.
+    let title: String
+    let artist: String
+    let licence: String
+    /// Where it came from: a tool in this repository, or the page its licence was taken from.
+    let source: String
+}
