@@ -1,15 +1,15 @@
-/// Which avatar a hero class is drawn with. Unknown class ids fall back to Super Dad,
-/// so content added or renamed later never breaks the screen.
+/// Which avatar a hero class is drawn with, from the content's `look` names. An unknown or missing look
+/// (a hero class removed from the content, say) falls back to Super Dad, so the screen never breaks.
 public enum HeroLook: Equatable, Sendable {
     case hero, cool, strong, smart, chef, fixer
 
-    init(heroClassID: String) {
-        switch heroClassID {
-        case "h-cool": self = .cool
-        case "h-strong": self = .strong
-        case "h-smart": self = .smart
-        case "h-chef": self = .chef
-        case "h-fixer": self = .fixer
+    init(look: String?) {
+        switch look {
+        case "cool": self = .cool
+        case "strong": self = .strong
+        case "smart": self = .smart
+        case "chef": self = .chef
+        case "fixer": self = .fixer
         default: self = .hero
         }
     }

@@ -82,7 +82,7 @@ extension QuestDTO {
 
 extension HeroClassDTO {
     func toDomain() -> HeroClass {
-        HeroClass(id: id, order: order, title: title.toDomain(), tagline: tagline.toDomain())
+        HeroClass(id: id, order: order, title: title.toDomain(), tagline: tagline.toDomain(), look: look)
     }
 }
 

@@ -113,7 +113,7 @@ public final class OnboardingViewModel {
                     id: hero.id,
                     title: hero.title.resolved(for: locale),
                     tagline: hero.tagline.resolved(for: locale),
-                    look: HeroLook(heroClassID: hero.id)
+                    look: HeroLook(look: hero.look)
                 )
             }
         )

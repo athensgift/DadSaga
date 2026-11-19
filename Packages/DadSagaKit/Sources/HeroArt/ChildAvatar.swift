@@ -248,7 +248,7 @@ struct ChildFigure: View {
                     .offset(y: 1)
             case .kid:
                 ForEach([-9.0, 9.0], id: \.self) { side in
-                    Capsule().fill(DSColor.heroKnightShade).frame(width: 4, height: proportions.torso.height - 4).offset(x: side)
+                    Capsule().fill(DSColor.heroNavyShade).frame(width: 4, height: proportions.torso.height - 4).offset(x: side)
                 }
             }
         }
@@ -343,7 +343,7 @@ struct ChildFigure: View {
 
     private var backpack: some View {
         RoundedRectangle(cornerRadius: 7)
-            .fill(heroGradient(DSColor.accent, DSColor.heroKnightShade))
+            .fill(heroGradient(DSColor.accent, DSColor.heroNavyShade))
             .frame(width: proportions.torso.width + 8, height: proportions.torso.height - 2)
             .offset(y: torsoCentre - 2)
     }

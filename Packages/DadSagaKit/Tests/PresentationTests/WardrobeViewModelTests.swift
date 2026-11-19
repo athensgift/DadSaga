@@ -146,6 +146,7 @@ struct FakeWardrobe: GetWardrobeUseCase {
     func execute() async throws -> Wardrobe {
         Wardrobe(
             profile: HeroStub.profile,
+            hero: HeroStub.catalog.heroClasses.first { $0.id == HeroStub.profile.heroClassID },
             gear: HeroStub.catalog.gear,
             progress: await progress.current,
             outfit: await outfit.stored

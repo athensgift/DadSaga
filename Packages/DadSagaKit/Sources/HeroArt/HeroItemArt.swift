@@ -143,12 +143,12 @@ struct HeroItemArt: View {
                     .offset(x: -10, y: -6)
             }
             RoundedRectangle(cornerRadius: 4)
-                .fill(heroGradient(DSColor.heroCloth, DSColor.heroKnightShade))
+                .fill(heroGradient(DSColor.heroCloth, DSColor.heroNavyShade))
                 .overlay(alignment: .top) {
                     UnevenRoundedRectangle(
                         topLeadingRadius: 4, bottomLeadingRadius: 3, bottomTrailingRadius: 3, topTrailingRadius: 4
                     )
-                        .fill(DSColor.heroKnightShade)
+                        .fill(DSColor.heroNavyShade)
                         .frame(height: isMega ? 8 : 7)
                         .overlay {
                             if detailed {

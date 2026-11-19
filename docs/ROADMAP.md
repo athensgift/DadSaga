@@ -18,7 +18,8 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ Celebration animations + haptics
 - ✅ Home-screen widget (ADR-0023), weekly notification (ADR-0024), app icon and launch screen (ADR-0025)
 - ✅ Versioned on-device store with a calm "couldn't open" screen (ADR-0026)
-- ✅ el/en String Catalog (ADR-0027); screen queries and the `HeroArt` target (ADR-0028)
+- ✅ el/en String Catalog (ADR-0027); screen queries and the `HeroArt` target (ADR-0028); hero looks in the content
+  (ADR-0029)
 - Accessibility (Dynamic Type, VoiceOver, contrast)
 - Snapshot / UI tests
 
@@ -29,9 +30,6 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   (ADR-0026).
 - Sync ADR before Phase 5: CKSyncEngine over the event log, V2 schema (non-optional `childID` column, `#Unique` ids),
   photos, export/backup (ADR-0004, ADR-0026).
-- Hero look enums exist three times (`HeroLook` in Presentation, `HeroAvatar.Style` in HeroArt, `Style` in
-  DesignSystem); keep one and give heroes a `look` in the JSON.
-- Hero colour tokens still carry old class names (`heroMage`, `heroRanger`, `heroKnightShade`).
 - Measure with Instruments whether the `@ModelActor` repositories run off the main thread.
 - CI runs on an unpinned `macos-latest`.
 

@@ -24,6 +24,12 @@ struct BundledContentRepositoryTests {
         #expect(catalog.bosses.filter(\.requiresSibling).map(\.id) == ["b-w3-new-sibling"])
     }
 
+    @Test("Given the bundled heroes, when fetching, then each dad is drawn with his own look")
+    func heroLooks() async throws {
+        let catalog = try await repository.fetchCatalog()
+        #expect(catalog.heroClasses.map(\.look) == ["hero", "cool", "strong", "smart", "chef", "fixer"])
+    }
+
     @Test("Given the bundled content, when checking each world, then it has quests and at least one boss")
     func everyWorldHasContent() async throws {
         let catalog = try await repository.fetchCatalog()

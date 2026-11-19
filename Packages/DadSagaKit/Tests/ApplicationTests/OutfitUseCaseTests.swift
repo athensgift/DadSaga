@@ -53,6 +53,26 @@ struct OutfitUseCaseTests {
         #expect(try await getWardrobe.execute().outfit == outfit)
     }
 
+    @Test("Given the dad's hero class, when reading the wardrobe, then it carries that class; a removed class gives none")
+    func wardrobeHero() async throws {
+        let chef = HeroClass(id: "h-x", order: 1, title: Self.text, tagline: Self.text, look: "chef")
+        let catalog = ContentCatalog(worlds: [], quests: [], bosses: [], firsts: [], heroClasses: [chef], gear: [])
+        let profiles = SpyProfileRepository()
+        let sut = DefaultGetWardrobeUseCase(
+            contentRepository: StubContentRepository(result: .success(catalog)),
+            profileRepository: profiles,
+            progressRepository: progress,
+            outfitRepository: repository
+        )
+        let child = Child(name: "Νίκος", birthDate: .now)
+
+        try await profiles.save(PlayerProfile(children: [child], heroClassID: "h-x"))
+        #expect(try await sut.execute().hero?.look == "chef")
+
+        try await profiles.save(PlayerProfile(children: [child], heroClassID: "h-gone"))
+        #expect(try await sut.execute().hero == nil)
+    }
+
     @Test("Given an item not earned, of another slot or unknown, when wearing it, then it throws and nothing changes")
     func onlyEarnedItems() async throws {
         try await earnCloth()

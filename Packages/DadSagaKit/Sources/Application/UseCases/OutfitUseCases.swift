@@ -3,6 +3,8 @@ import Domain
 /// The hero's wardrobe: the family's dad, every item in the game, his progress and what he chose to wear.
 public struct Wardrobe: Sendable {
     public let profile: PlayerProfile?
+    /// The dad's hero class, if the content still has it.
+    public let hero: HeroClass?
     /// Every item, earned or not.
     public let gear: [GearItem]
     public let progress: DadProgress
@@ -11,8 +13,9 @@ public struct Wardrobe: Sendable {
     /// What the hero wears with the current choices.
     public var equipped: [GearItem] { GearRules.equipped(gear, skillXP: progress.skillXP, outfit: outfit) }
 
-    public init(profile: PlayerProfile?, gear: [GearItem], progress: DadProgress, outfit: Outfit) {
+    public init(profile: PlayerProfile?, hero: HeroClass?, gear: [GearItem], progress: DadProgress, outfit: Outfit) {
         self.profile = profile
+        self.hero = hero
         self.gear = gear
         self.progress = progress
         self.outfit = outfit
@@ -51,8 +54,10 @@ public struct DefaultGetWardrobeUseCase: GetWardrobeUseCase {
         async let pendingEvents = progressRepository.fetchEvents()
         async let pendingOutfit = outfitRepository.fetchOutfit()
         let catalog = try await pendingCatalog
+        let profile = try await pendingProfile
         return Wardrobe(
-            profile: try await pendingProfile,
+            profile: profile,
+            hero: catalog.heroClasses.first { $0.id == profile?.heroClassID },
             gear: catalog.gear,
             progress: DadProgress(events: try await pendingEvents, catalog: catalog),
             outfit: try await pendingOutfit

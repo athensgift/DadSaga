@@ -180,6 +180,15 @@ struct HomeViewModelTests {
         #expect(sut.celebration == nil)
     }
 
+    @Test("Given a hero class the content no longer has, when appearing, then the dad is drawn as Super Dad")
+    func removedHeroClass() async throws {
+        let sut = makeSUT(profile: PlayerProfile(children: [HeroStub.niko], heroClassID: "h-gone"))
+        await sut.onAppear()
+
+        guard case .loaded(let content) = sut.state else { throw StubLinkError.notLoaded }
+        #expect(content.heroLook == .hero)
+    }
+
     @Test("Given a cool dad with a 10-month-old, when appearing, then hero, companion and current-world cards are shown")
     func loaded() async {
         let sut = makeSUT(profile: HeroStub.profile)

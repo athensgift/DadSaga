@@ -76,7 +76,7 @@ public final class WardrobeViewModel {
         state = .loaded(
             WardrobeContent(
                 title: strings.text("Wardrobe"),
-                heroLook: HeroLook(heroClassID: profile?.heroClassID ?? ""),
+                heroLook: HeroLook(look: wardrobe.hero?.look),
                 heroSkin: SkinToneChoice(profile?.dadSkinTone ?? .mediumLight),
                 gear: wardrobe.equipped.compactMap { HeroGearLook(look: $0.look) },
                 medalCount: wardrobe.progress.allDefeatedBossIDs.count,

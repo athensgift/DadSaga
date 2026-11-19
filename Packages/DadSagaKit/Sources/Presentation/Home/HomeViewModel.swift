@@ -175,7 +175,7 @@ public final class HomeViewModel {
         return HomeContent(
             heroTitle: hero?.title.resolved(for: locale) ?? strings.text("Hero"),
             heroTagline: hero?.tagline.resolved(for: locale) ?? "",
-            heroLook: HeroLook(heroClassID: profile.heroClassID),
+            heroLook: HeroLook(look: hero?.look),
             heroSkin: SkinToneChoice(profile.dadSkinTone),
             heroGear: overview.equippedGear.compactMap { HeroGearLook(look: $0.look) },
             medalCount: progress.allDefeatedBossIDs.count,
