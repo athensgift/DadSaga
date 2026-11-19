@@ -86,7 +86,7 @@ public struct TimelineView: View {
                     ContentUnavailableView(
                         content.emptyTitle,
                         systemImage: "clock.arrow.circlepath",
-                        description: Text(content.emptyMessage)
+                        description: Text(content.emptyMessage).foregroundStyle(DSColor.textSecondary)
                     )
                     .padding(.top, DSSpacing.xl)
                 }

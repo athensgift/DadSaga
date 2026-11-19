@@ -99,6 +99,7 @@ public struct SettingsView: View {
         } label: {
             LabeledContent {
                 Text(content.languageValue)
+                    .foregroundStyle(DSColor.textSecondary)
             } label: {
                 Label(content.languageTitle, systemImage: "globe")
                     .foregroundStyle(DSColor.textPrimary)
@@ -122,20 +123,22 @@ public struct SettingsView: View {
                 page = .reminder(pages.makeReminder())
             }
         } header: {
-            Text(content.preferencesSection)
+            Text(content.preferencesSection).foregroundStyle(DSColor.textSecondary)
         } footer: {
-            Text(content.languageFooter)
+            Text(content.languageFooter).foregroundStyle(DSColor.textSecondary)
         }
     }
 
     private func heroSection(_ content: SettingsContent) -> some View {
-        Section(content.heroSection) {
+        Section {
             row(content.heroTitle, systemImage: "figure.fencing") {
                 page = .hero(pages.makeHero { page = nil })
             }
             row(content.familyTitle, systemImage: "person.2") {
                 page = .family(pages.makeFamily { page = nil })
             }
+        } header: {
+            Text(content.heroSection).foregroundStyle(DSColor.textSecondary)
         }
     }
 
@@ -153,12 +156,12 @@ public struct SettingsView: View {
                     .foregroundStyle(DSColor.boss)
             }
         } footer: {
-            Text(labels.footer)
+            Text(labels.footer).foregroundStyle(DSColor.textSecondary)
         }
     }
 
     private func supportSection(_ support: SupportSection) -> some View {
-        Section(support.title) {
+        Section {
             if let contact = support.contact {
                 Button {
                     openURL(contact.mailURL) { accepted in viewModel.mailOpened(accepted) }
@@ -176,6 +179,8 @@ public struct SettingsView: View {
                     Label(share.title, systemImage: "square.and.arrow.up")
                 }
             }
+        } header: {
+            Text(support.title).foregroundStyle(DSColor.textSecondary)
         }
     }
 
@@ -183,6 +188,7 @@ public struct SettingsView: View {
         Section {
             LabeledContent {
                 Text(about.versionValue)
+                    .foregroundStyle(DSColor.textSecondary)
             } label: {
                 Label(about.versionTitle, systemImage: "info.circle")
             }
@@ -192,9 +198,9 @@ public struct SettingsView: View {
                 }
             }
         } header: {
-            Text(about.title)
+            Text(about.title).foregroundStyle(DSColor.textSecondary)
         } footer: {
-            Text(about.privacyStatement)
+            Text(about.privacyStatement).foregroundStyle(DSColor.textSecondary)
         }
     }
 

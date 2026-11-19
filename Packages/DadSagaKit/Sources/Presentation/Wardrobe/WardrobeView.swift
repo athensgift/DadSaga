@@ -6,6 +6,8 @@ import SwiftUI
 public struct WardrobeView: View {
     @State private var viewModel: WardrobeViewModel
     private let onClose: () -> Void
+    /// Grows with the text, so at the accessibility sizes an item gets a row of its own instead of a name cut short.
+    @ScaledMetric(relativeTo: .subheadline) private var optionMinimumWidth: CGFloat = 120
 
     public init(viewModel: WardrobeViewModel, onClose: @escaping () -> Void) {
         _viewModel = State(initialValue: viewModel)
@@ -100,7 +102,8 @@ public struct WardrobeView: View {
             }
             .accessibilityElement(children: .combine)
             .accessibilityAddTraits(.isHeader)
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 120), spacing: DSSpacing.s)], spacing: DSSpacing.s) {
+            let columns = [GridItem(.adaptive(minimum: optionMinimumWidth), spacing: DSSpacing.s)]
+            LazyVGrid(columns: columns, spacing: DSSpacing.s) {
                 ForEach(slot.options) { option in
                     optionButton(option, slotID: slot.id)
                 }
@@ -126,7 +129,7 @@ public struct WardrobeView: View {
                     Text(option.title)
                         .font(DSFont.subheadline)
                         .multilineTextAlignment(.center)
-                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
                 .foregroundStyle(DSColor.textPrimary)
                 if let detail = option.detail {

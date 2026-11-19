@@ -70,9 +70,10 @@ private struct HeroOptionCard: View {
             .overlay { shape.strokeBorder(hero.look.avatarStyle.tint, lineWidth: isSelected ? 2.5 : 0) }
             .overlay(alignment: .topTrailing) {
                 if isSelected {
+                    // The accent, not the hero's colour: gold and teal are below 3:1 on the card (ADR-0033).
                     Image(systemName: "checkmark.circle.fill")
                         .font(DSFont.symbol)
-                        .foregroundStyle(hero.look.avatarStyle.tint)
+                        .foregroundStyle(DSColor.accent)
                         .padding(DSSpacing.s)
                         .transition(.scale.combined(with: .opacity))
                 }

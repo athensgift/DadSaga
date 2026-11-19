@@ -8,18 +8,23 @@ import UIKit
 final class AppContainer {
     // MARK: Data
     private lazy var contentRepository: any ContentRepository = BundledContentRepository()
-    /// In the folder the app shares with the widget (ADR-0023). Opened on first use; if it cannot be opened, the app
-    /// says so and waits (ADR-0026).
-    private let store = LocalStore.live(in: SharedContainer.directory())
-
+    /// The saga's store, opened on first use; if it cannot be opened, the app says so and waits (ADR-0026).
+    private let store: LocalStore
     /// Photos of legendary moments, kept on the device, next to the store.
-    private lazy var photoStore: any PhotoStore = FilePhotoStore.moments(in: SharedContainer.directory())
-
+    private let photoStore: any PhotoStore
     /// The weekly reminder (ADR-0024): its settings stay in the app's own defaults, the notifications are local.
-    private let reminderSettings: any ReminderSettingsRepository = UserDefaultsReminderSettingsRepository()
-    private let notificationScheduler: any NotificationScheduler = UserNotificationScheduler()
+    private let reminderSettings: any ReminderSettingsRepository
+    private let notificationScheduler: any NotificationScheduler
     /// Light/dark and haptics (ADR-0030), in the app's own defaults: they belong to the phone, not to the saga.
-    private let preferencesRepository: any PreferencesRepository = UserDefaultsPreferencesRepository()
+    private let preferencesRepository: any PreferencesRepository
+
+    init(data: DeviceData = .forLaunch()) {
+        store = data.store
+        photoStore = FilePhotoStore.moments(in: data.photoDirectory)
+        reminderSettings = UserDefaultsReminderSettingsRepository(defaults: data.defaults)
+        notificationScheduler = data.notificationScheduler
+        preferencesRepository = UserDefaultsPreferencesRepository(defaults: data.defaults)
+    }
 
     // MARK: Use cases
     private var loadContentCatalogUseCase: any LoadContentCatalogUseCase {
