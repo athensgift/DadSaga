@@ -10,8 +10,11 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ```
 - One suite: `swift test --build-system swiftbuild --filter DeepLinkTests` (from `Packages/DadSagaKit`).
+- Screen snapshots (CI runs them; after a UI change, run them, look at the new images and commit them):
+  `xcodebuild test -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2' -only-testing:DadSagaSnapshotTests`.
+  A deliberate change: delete its images in `SnapshotTests/__Snapshots__`, run twice (record, then check).
 - Accessibility audit of the main screens (UI test, about a minute; run it after UI changes):
-  `xcodebuild test -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=iPhone 17 Pro'`
+  `xcodebuild test -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' -only-testing:DadSagaUITests`
 - `DadSaga.xcodeproj`, `Info.plist` and the entitlements are generated: change `project.yml`, then `xcodegen generate`.
 
 ## Rules that aren't in the code

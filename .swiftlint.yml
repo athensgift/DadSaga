@@ -5,6 +5,7 @@ included:
   - Packages/DadSagaKit/Tests
   - Tools
   - UITests
+  - SnapshotTests
 
 excluded:
   - Packages/DadSagaKit/.build

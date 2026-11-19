@@ -17,6 +17,10 @@ settings:
 packages:
   DadSagaKit:
     path: Packages/DadSagaKit
+  # Screen snapshots only (ADR-0034); never linked by the app or the widget.
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    exactVersion: 1.19.7
 
 targets:
   DadSaga:
@@ -73,7 +77,29 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     scheme:
-      testTargets: [DadSagaUITests]
+      testTargets: [DadSagaSnapshotTests, DadSagaUITests]
+
+  # The main screens as images (ADR-0034), on a fixed saga of their own. Hosted by the app, which then runs on test
+  # data (`DeviceData`): Liquid Glass is only drawn in a real window.
+  DadSagaSnapshotTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: SnapshotTests
+        excludes: ["**/__Snapshots__/**"]
+    # DadSagaKit comes from the app it is injected into: linking it here too would give the bundle second copies of
+    # its modules, whose environment keys the app's views never read.
+    dependencies:
+      - package: SnapshotTesting
+        product: SnapshotTesting
+      - target: DadSaga
+    settings:
+      base:
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/DadSaga.app/DadSaga
+        BUNDLE_LOADER: $(TEST_HOST)
+        PRODUCT_BUNDLE_IDENTIFIER: com.athinodoros.dadsaga.snapshottests
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
 
   # Drives the app on a simulator: the accessibility audit of every screen.
   DadSagaUITests:
