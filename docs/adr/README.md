@@ -40,5 +40,6 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0030](0030-settings-screen.md) | One Settings screen; "start over" for everyone | settings, privacy | |
 | [0031](0031-website-on-cloudflare-pages.md) | Static website at dadsaga.app on Cloudflare Pages | website, privacy | 0033 (images generated) |
 | [0032](0032-contrast-of-tints.md) | Tints readable as text and as fills; the hero keeps its own colours | UI, accessibility, colour | 0033 (its open items) |
-| [0033](0033-accessibility-audit-and-secondary-text.md) | Accessibility audit of the main screens, readable secondary text, "D" on the crest | accessibility, testing, colour, hero | 0034 (snapshots at the largest text size, test data for snapshots) |
-| [0034](0034-screen-snapshots-pinned-ci-and-store-threads.md) | Screen snapshots, a pinned CI toolchain, the store's work off the main thread | testing, CI, storage, concurrency | |
+| [0033](0033-accessibility-audit-and-secondary-text.md) | Accessibility audit of the main screens, readable secondary text, "D" on the crest | accessibility, testing, colour, hero | 0034 (snapshots at the largest text size, test data for snapshots), 0035 (audit skips, iOS 27.2) |
+| [0034](0034-screen-snapshots-pinned-ci-and-store-threads.md) | Screen snapshots, a pinned CI toolchain, the store's work off the main thread | testing, CI, storage, concurrency | 0035 (snapshots get the app's tint) |
+| [0035](0035-audit-on-ios-27-shaded-glass.md) | The audit on iOS 27.2: re-measure labels on shaded glass | accessibility, testing | |

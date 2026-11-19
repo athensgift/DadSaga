@@ -1,3 +1,4 @@
+import DesignSystem
 import HeroArt
 import Presentation
 import SnapshotTesting
@@ -80,7 +81,9 @@ struct ScreenSnapshotTests {
         _ view: some View, look: Look, named name: String,
         fileID: StaticString = #fileID, file: StaticString = #filePath, line: UInt = #line, column: UInt = #column
     ) {
+        // The app's tint, as `RootView` sets it around every screen.
         let still = view
+            .tint(DSColor.accent)
             .environment(\.locale, look.locale)
             .environment(\.avatarsAreStill, true)
             .transaction { $0.disablesAnimations = true }
