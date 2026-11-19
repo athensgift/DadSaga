@@ -13,7 +13,7 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 
 *Demonstrates:* end-to-end features, state management, persistence, tests.
 
-## Phase 3: Polish (done but the checks on a device)
+## Phase 3: Polish ✅
 - ✅ Card tips, evergreen cards, undo, journal on every card (ADR-0020–0022)
 - ✅ Celebration animations + haptics
 - ✅ Home-screen widget (ADR-0023), weekly notification (ADR-0024), app icon and launch screen (ADR-0025)
@@ -26,8 +26,10 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ Snapshot / UI tests: the accessibility audit (ADR-0033) and screen snapshots (ADR-0034), both run on the Mac
 
 ### Open items from the 2026-11 architecture review
-- Check on a device: the "couldn't open your saga" screen (junk store file), installing over a `develop` build, every
-  screen and the widget in Greek and English, photos loading at their shown size.
+- ✅ Checked on a device (2026-11-19): installing over a `develop` build, every screen and the widget in Greek and
+  English, photos loading at their shown size.
+- The "couldn't open your saga" screen (junk store file) is covered by tests (`StoreVersioningTests`,
+  `StoreUnavailableRootTests`), not checked on a device: it needs a damaged store, which is unlikely in practice.
 - ✅ The widget opening an older store read-only fails without touching it, tested with a draft V2 (ADR-0034).
 - Sync ADR before Phase 5: CKSyncEngine over the event log, V2 schema (non-optional `childID` column, `#Unique` ids),
   photos, export/backup (ADR-0004, ADR-0026).
