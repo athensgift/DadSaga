@@ -82,12 +82,15 @@ final class AccessibilityAuditTests: XCTestCase {
     /// Contrast issues that don't reach a user; every other kind of issue always fails:
     /// - a disabled control (WCAG exempts inactive controls), e.g. Continue before a name is typed;
     /// - text fading under a bar: iOS 26 blurs scrolled content near the bars (the scroll edge effect) and under a
-    ///   pinned bottom button, and the audit measures it through that; scrolled into view, the same text passes.
+    ///   pinned bottom button, and the audit measures it through that; scrolled into view, the same text passes;
+    /// - text that reaches AA when measured again with `LabelContrast`: on the shaded glass of an iOS 27 button the
+    ///   audit compares two shades of the fill and never reads the label. A faint label still fails.
     private func isFalseAlarm(
         _ issue: XCUIAccessibilityAuditIssue, element: XCUIElement, bottomButton: Bool
     ) -> Bool {
         guard issue.auditType == .contrast else { return false }
         return !element.isEnabled || isUnderABar(element.frame, bottomButton: bottomButton)
+            || (LabelContrast.ratioOnShadedGround(of: element) ?? 0) >= LabelContrast.smallText
     }
 
     private func isUnderABar(_ frame: CGRect, bottomButton: Bool) -> Bool {

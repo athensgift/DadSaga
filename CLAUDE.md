@@ -14,7 +14,7 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
   `xcodebuild test -project DadSaga.xcodeproj -scheme DadSagaSnapshots -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2'`.
   A deliberate change: delete its images in `SnapshotTests/__Snapshots__`, run twice (record, then check).
 - Accessibility audit of the main screens (UI test, about a minute; run it after UI changes):
-  `xcodebuild test -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' -only-testing:DadSagaUITests`
+  `xcodebuild test -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2' -only-testing:DadSagaUITests`
 - `DadSaga.xcodeproj`, `Info.plist` and the entitlements are generated: change `project.yml`, then `xcodegen generate`.
 
 ## Rules that aren't in the code
