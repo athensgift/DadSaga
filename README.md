@@ -50,6 +50,9 @@ Data ───────────────┘
   ([ADR-0027](docs/adr/0027-ui-string-catalog.md)).
 - The on-device store is versioned and never silently replaced ([ADR-0026](docs/adr/0026-versioned-store-and-unavailable-screen.md)).
 
+- The website [dadsaga.app](https://dadsaga.app) (landing, privacy, support in el/en) is static HTML in [`web/`](web),
+  deployed by Cloudflare Pages ([ADR-0031](docs/adr/0031-website-on-cloudflare-pages.md)).
+
 All decisions are recorded in [`docs/adr`](docs/adr).
 
 ## Getting started

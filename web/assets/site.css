@@ -1,0 +1,129 @@
+/* DadSaga website. Colours mirror DesignSystem/Tokens.swift (DSColor), light and dark. */
+:root {
+  --bg: #F2F2F7;
+  --surface: #FFFFFF;
+  --text: #1C1C1E;
+  --text-2: #5C5C66;
+  --line: rgba(60, 60, 67, 0.14);
+  --accent: #3B5BDB;
+  --accent-ink: #FFFFFF;
+  --xp: #0E9F6E;
+  --legendary: #D99A00;
+  --boss: #C2410C;
+  --radius: 20px;
+  --max: 1080px;
+  color-scheme: light dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #000000;
+    --surface: #1C1C1E;
+    --text: #F2F2F7;
+    --text-2: #A1A1AA;
+    --line: rgba(235, 235, 245, 0.16);
+    --accent: #7C93F5;
+    --accent-ink: #0B0B12;
+    --xp: #34D399;
+    --legendary: #FBBF24;
+    --boss: #FB923C;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 17px/1.55 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+a { color: var(--accent); }
+img { max-width: 100%; height: auto; display: block; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+
+/* Header */
+.top { padding: 18px 0; }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; color: var(--text); text-decoration: none; }
+.brand img { width: 36px; height: 36px; border-radius: 9px; }
+.nav { display: flex; gap: 18px; align-items: center; font-size: 15px; }
+.nav a { color: var(--text-2); text-decoration: none; }
+.nav a:hover { color: var(--text); }
+.nav .lang { border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
+
+/* Hero */
+.hero { padding: 40px 0 56px; }
+.hero .wrap { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 40px; align-items: center; }
+.eyebrow { color: var(--accent); font-weight: 600; font-size: 15px; letter-spacing: 0.02em; margin: 0 0 12px; }
+h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 18px; }
+.lead { font-size: clamp(18px, 2.2vw, 21px); color: var(--text-2); margin: 0 0 28px; max-width: 34em; }
+.hero-art { justify-self: center; max-width: 340px; width: 100%; }
+
+/* App Store button: a placeholder until the app is live, then Apple's official badge replaces it (ADR-0031). */
+.store {
+  display: inline-flex; align-items: center; gap: 12px;
+  background: var(--text); color: var(--bg);
+  border-radius: 14px; padding: 12px 22px; text-decoration: none;
+}
+.store small { display: block; font-size: 12px; opacity: 0.8; line-height: 1.2; }
+.store strong { display: block; font-size: 19px; line-height: 1.2; }
+.note { color: var(--text-2); font-size: 14px; margin: 12px 0 0; }
+
+/* Sections */
+section { padding: 48px 0; }
+h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.01em; line-height: 1.15; margin: 0 0 12px; }
+.section-lead { color: var(--text-2); margin: 0 0 28px; max-width: 40em; }
+.cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.card { background: var(--surface); border-radius: var(--radius); padding: 24px; border: 1px solid var(--line); }
+.card h3 { margin: 0 0 6px; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+.card p { margin: 0; color: var(--text-2); }
+.card .examples { margin-top: 12px; font-size: 15px; color: var(--text); }
+.dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.dot.quest { background: var(--accent); }
+.dot.boss { background: var(--boss); }
+.dot.legendary { background: var(--legendary); }
+.dot.xp { background: var(--xp); }
+
+.rules { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; counter-reset: rule; padding: 0; margin: 0; list-style: none; }
+.rules li { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 24px 20px 64px; position: relative; }
+.rules li::before {
+  counter-increment: rule; content: counter(rule);
+  position: absolute; left: 20px; top: 18px; width: 30px; height: 30px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-ink); font-weight: 700; display: grid; place-items: center; font-size: 15px;
+}
+.rules strong { display: block; }
+.rules span { color: var(--text-2); }
+
+.privacy-band { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.privacy-band .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
+.checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.checks li { padding-left: 30px; position: relative; }
+.checks li::before { content: "✓"; position: absolute; left: 0; color: var(--xp); font-weight: 700; }
+
+.cta { text-align: center; padding: 64px 0; }
+.cta .lead { margin-left: auto; margin-right: auto; }
+
+/* Text pages (privacy, support) */
+.doc { max-width: 720px; padding-top: 24px; padding-bottom: 56px; }
+.doc h1 { font-size: clamp(32px, 5vw, 44px); }
+.doc h2 { font-size: 24px; margin-top: 36px; }
+.doc p, .doc li { color: var(--text); }
+.doc .meta { color: var(--text-2); font-size: 15px; }
+.doc details { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin: 10px 0; }
+.doc summary { font-weight: 600; cursor: pointer; }
+.doc details p { margin: 10px 0 0; color: var(--text-2); }
+.mail { display: inline-block; background: var(--accent); color: var(--accent-ink); padding: 12px 22px; border-radius: 12px; text-decoration: none; font-weight: 600; }
+
+/* Footer */
+footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--text-2); font-size: 14px; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+footer nav { display: flex; gap: 18px; flex-wrap: wrap; }
+footer a { color: var(--text-2); }
+
+@media (max-width: 760px) {
+  .hero { padding-top: 16px; }
+  .hero .wrap, .privacy-band .wrap { grid-template-columns: 1fr; }
+  .hero-art { max-width: 240px; grid-row: 1; }
+  .cards, .rules { grid-template-columns: 1fr; }
+  .nav a:not(.lang) { display: none; }
+}
