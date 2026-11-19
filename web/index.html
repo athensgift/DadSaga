@@ -16,7 +16,7 @@
   <meta property="og:description" content="You're the hero, your kid is your companion, and real life is the campaign.">
   <meta property="og:url" content="https://dadsaga.app/">
   <meta property="og:image" content="https://dadsaga.app/assets/og.png">
-  <link rel="stylesheet" href="/assets/site.css?v=2">
+  <link rel="stylesheet" href="/assets/site.css?v=3">
 </head>
 <body>
   <header class="top">
@@ -79,24 +79,26 @@
       </div>
     </section>
 
-    <section id="timeline">
+    <section id="timeline" class="timeline-section">
       <div class="wrap split">
         <div>
           <h2>Your saga, all in one place</h2>
-          <p class="section-lead">Every quest, boss fight and first lands on your timeline, with the notes and photos you added, grouped by month. Scroll back to the night shifts of the first weeks, or show one child at a time.</p>
-          <ul class="checks">
-            <li>Everything you logged, newest first</li>
-            <li>A note and a photo on any entry, added now or later</li>
-            <li>One timeline for the whole family, or one child at a time</li>
-          </ul>
+          <p class="section-lead">Every quest, boss and first, with your notes and photos, gathered month by month.</p>
+          <ul class="pills"><li>By month</li><li>Notes &amp; photos</li><li>One child or everyone</li></ul>
         </div>
-        <div class="timeline" aria-label="Example timeline">
+        <div class="phone" role="img" aria-label="Example of the Timeline tab">
+          <p class="tl-title">Timeline</p>
+          <div class="tl-chips"><span class="tl-chip on">Everyone</span><span class="tl-chip">Lena</span><span class="tl-chip">Alex</span></div>
           <p class="tl-month">November 2026</p>
-          <div class="tl-row"><span class="tl-icon legendary">★</span><div><strong>First smile</strong><span>She looked straight at me. I'll never forget it.</span></div></div>
-          <div class="tl-row"><span class="tl-icon quest">☾</span><div><strong>Night shift</strong><span>3 a.m., just us and the fridge light.</span></div></div>
-          <div class="tl-row"><span class="tl-icon boss">⚔</span><div><strong>The First Fever</strong><span>A long night. We got through it.</span></div></div>
+          <ul class="tl-list">
+            <li class="tl-row"><span class="tl-icon legendary" aria-hidden="true">★</span><div class="tl-text"><strong>First smile</strong><small>Lena</small><span>She looked straight at me.</span><span class="tl-photo" aria-hidden="true"></span></div></li>
+            <li class="tl-row"><span class="tl-icon quest" aria-hidden="true">☾</span><div class="tl-text"><strong>Night shift</strong><small>Alex</small><span>3 a.m., just us and the fridge light.</span></div></li>
+            <li class="tl-row"><span class="tl-icon boss" aria-hidden="true">⚔</span><div class="tl-text"><strong>The First Fever</strong><small>Lena</small><span>A long night. We got through it.</span></div></li>
+          </ul>
           <p class="tl-month">October 2026</p>
-          <div class="tl-row"><span class="tl-icon legendary">★</span><div><strong>The first time I held you</strong><span>Delivery room, 04:12.</span></div></div>
+          <ul class="tl-list">
+            <li class="tl-row"><span class="tl-icon legendary" aria-hidden="true">★</span><div class="tl-text"><strong>The first time I held you</strong><small>Alex</small><span>Delivery room, 04:12.</span></div></li>
+          </ul>
         </div>
       </div>
     </section>
