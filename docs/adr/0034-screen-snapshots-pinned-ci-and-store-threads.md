@@ -61,8 +61,9 @@ the `@ModelActor` repositories run off the main thread", and the widget test ADR
   images. Only if they are run: CI does not, so it is a habit, like the accessibility audit, not a gate.
 - Content edits (titles, taglines, XP) change the images too.
 - Snapshots need Xcode 27.2 and the iOS 27.2 simulator. On another Xcode they fail by design; re-record on the new
-  pair. They were stable in CI too once compared through PNG and on a region of their own, so moving them back is one
-  step in `ci.yml`.
+  pair. In CI, comparing through PNG fixed every image but onboarding, whose date picker then needed the region of
+  their own; that last fix was not yet seen passing in CI when the step was removed. Moving them back is one step in
+  `ci.yml`.
 - The `xcode-27` runner image is still a preview on GitHub, and an image keeps only the newest patch of each Xcode:
   when 27.2.1 arrives, `/Applications/Xcode_27.2.app` goes and CI fails until the pin moves.
 - swift-snapshot-testing is pinned exactly; its own dependencies (swift-custom-dump, swift-issue-reporting,
