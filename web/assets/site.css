@@ -94,6 +94,20 @@ h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.01em; line-height: 
 .rules strong { display: block; }
 .rules span { color: var(--text-2); }
 
+/* Timeline: an HTML mock of the app's Timeline tab (ADR-0017), no screenshot needed. */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.split .checks { margin-top: 8px; }
+.timeline { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px 20px 16px; }
+.tl-month { margin: 16px 0 6px; font-weight: 700; font-size: 15px; color: var(--text-2); }
+.tl-row { display: flex; gap: 14px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--line); }
+.tl-month + .tl-row { border-top: 0; }
+.tl-row strong { display: block; }
+.tl-row span:not(.tl-icon) { display: block; color: var(--text-2); font-size: 15px; }
+.tl-icon { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; color: var(--bg); font-size: 16px; }
+.tl-icon.quest { background: var(--accent); }
+.tl-icon.boss { background: var(--boss); }
+.tl-icon.legendary { background: var(--legendary); }
+
 .privacy-band { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .privacy-band .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
 .checks { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
@@ -122,7 +136,7 @@ footer a { color: var(--text-2); }
 
 @media (max-width: 760px) {
   .hero { padding-top: 16px; }
-  .hero .wrap, .privacy-band .wrap { grid-template-columns: 1fr; }
+  .hero .wrap, .privacy-band .wrap, .split { grid-template-columns: 1fr; }
   .hero-art { max-width: 240px; grid-row: 1; }
   .cards, .rules { grid-template-columns: 1fr; }
   .nav a:not(.lang) { display: none; }
