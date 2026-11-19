@@ -10,7 +10,11 @@ permissions:
 
 jobs:
   build-and-test:
-    runs-on: macos-latest
+    # Pinned to the Mac's Xcode, so an image update never changes the toolchain under us (ADR-0034). The screen
+    # snapshots run on the Mac, not here.
+    runs-on: xcode-27
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
     steps:
       - uses: actions/checkout@v4
 

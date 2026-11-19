@@ -15,6 +15,7 @@ public struct HeroAvatar: View {
     private let skin: AvatarSkin
     private let equipment: HeroEquipment
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.avatarsAreStill) private var isStill
     @Environment(\.isHapticsEnabled) private var isHapticsEnabled
     @State private var isCheering = false
     @State private var hasAppeared = false
@@ -41,10 +42,10 @@ public struct HeroAvatar: View {
     }
 
     public var body: some View {
-        TimelineView(.animation(paused: reduceMotion)) { context in
+        TimelineView(.animation(paused: reduceMotion || isStill)) { context in
             HeroFigure(
                 style: style,
-                pose: reduceMotion ? .rest : HeroPose(time: context.date.timeIntervalSinceReferenceDate),
+                pose: reduceMotion || isStill ? .rest : HeroPose(time: context.date.timeIntervalSinceReferenceDate),
                 isCheering: isCheering
             )
         }
@@ -52,8 +53,8 @@ public struct HeroAvatar: View {
         .environment(\.heroEquipment, equipment)
         .scaleEffect(size / HeroFigure.designSize.height)
         .frame(width: size * HeroFigure.designSize.width / HeroFigure.designSize.height, height: size)
-        .scaleEffect(hasAppeared ? 1 : 0.6)
-        .opacity(hasAppeared ? 1 : 0)
+        .scaleEffect(hasAppeared || isStill ? 1 : 0.6)
+        .opacity(hasAppeared || isStill ? 1 : 0)
         .contentShape(Rectangle())
         .onTapGesture(perform: cheer)
         .onChange(of: cheerTrigger) { cheer() }

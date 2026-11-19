@@ -17,6 +17,10 @@ settings:
 packages:
   DadSagaKit:
     path: Packages/DadSagaKit
+  # Screen snapshots only (ADR-0034); never linked by the app or the widget.
+  SnapshotTesting:
+    url: https://github.com/pointfreeco/swift-snapshot-testing
+    exactVersion: 1.19.7
 
 targets:
   DadSaga:
@@ -75,6 +79,28 @@ targets:
     scheme:
       testTargets: [DadSagaUITests]
 
+  # The main screens as images (ADR-0034), on a fixed saga of their own. Hosted by the app, which then runs on test
+  # data (`DeviceData`): Liquid Glass is only drawn in a real window.
+  DadSagaSnapshotTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: SnapshotTests
+        excludes: ["**/__Snapshots__/**"]
+    # DadSagaKit comes from the app it is injected into: linking it here too would give the bundle second copies of
+    # its modules, whose environment keys the app's views never read.
+    dependencies:
+      - package: SnapshotTesting
+        product: SnapshotTesting
+      - target: DadSaga
+    settings:
+      base:
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/DadSaga.app/DadSaga
+        BUNDLE_LOADER: $(TEST_HOST)
+        PRODUCT_BUNDLE_IDENTIFIER: com.athinodoros.dadsaga.snapshottests
+        TARGETED_DEVICE_FAMILY: "1"
+        GENERATE_INFOPLIST_FILE: YES
+
   # Drives the app on a simulator: the accessibility audit of every screen.
   DadSagaUITests:
     type: bundle.ui-testing
@@ -125,3 +151,19 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.athinodoros.dadsaga.widget
         TARGETED_DEVICE_FAMILY: "1"
         SWIFT_EMIT_LOC_STRINGS: YES
+
+schemes:
+  # The screen snapshots (ADR-0034), on a region and time zone of their own: iOS formats dates (the date picker) by the
+  # simulator's region, which differs between Macs and CI. Only this scheme's test action sets them.
+  DadSagaSnapshots:
+    build:
+      targets:
+        DadSaga: all
+        DadSagaSnapshotTests: [test]
+    test:
+      targets: [DadSagaSnapshotTests]
+      commandLineArguments:
+        "-AppleLocale en_US": true
+        "-AppleLanguages (en)": true
+      environmentVariables:
+        TZ: UTC

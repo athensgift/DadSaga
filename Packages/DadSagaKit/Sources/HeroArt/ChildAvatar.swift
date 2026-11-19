@@ -44,6 +44,7 @@ public struct ChildAvatar: View {
     private let cheerTrigger: Int
     private let traits: Traits
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.avatarsAreStill) private var isStill
     @State private var isCheering = false
     @State private var hasAppeared = false
 
@@ -71,20 +72,20 @@ public struct ChildAvatar: View {
     public static let aspectRatio = ChildFigure.designSize.width / ChildFigure.designSize.height
 
     public var body: some View {
-        TimelineView(.animation(paused: reduceMotion)) { context in
+        TimelineView(.animation(paused: reduceMotion || isStill)) { context in
             ChildFigure(
                 stage: stage,
                 gender: gender,
                 traits: traits,
-                pose: reduceMotion ? .rest : HeroPose(time: context.date.timeIntervalSinceReferenceDate + 0.7),
+                pose: reduceMotion || isStill ? .rest : HeroPose(time: context.date.timeIntervalSinceReferenceDate + 0.7),
                 isCheering: isCheering
             )
         }
         .environment(\.avatarSkin, skin)
         .scaleEffect(size / ChildFigure.designSize.height)
         .frame(width: size * Self.aspectRatio, height: size)
-        .scaleEffect(hasAppeared ? 1 : 0.6, anchor: .bottom)
-        .opacity(hasAppeared ? 1 : 0)
+        .scaleEffect(hasAppeared || isStill ? 1 : 0.6, anchor: .bottom)
+        .opacity(hasAppeared || isStill ? 1 : 0)
         .onChange(of: cheerTrigger) { cheer() }
         .onAppear {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) { hasAppeared = true }
