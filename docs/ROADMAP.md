@@ -39,10 +39,13 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 *Demonstrates:* platform depth and product quality.
 
 ## Phase 3½: Saga video (ADR-0036)
-- On-device video generation with AVFoundation, drawn frame by frame (Core Image, `AVAssetWriter`)
-- Ken Burns photos, title cards per first, an original theme made in code (`Tools/SagaTheme`), end "credits"
-- Triggers: birthday, world completed, on demand
-- Export/share in 9:16 and 16:9
+- ✅ What goes in a film and when to offer it (Domain); the film's one query (Application)
+- ✅ An original theme made in code (`Tools/SagaTheme`), bundled in the `SagaMusic` target
+- ✅ `FilmKit`: on-device video drawn frame by frame (Core Image, `AVAssetWriter`), Ken Burns photos, cross-fades, music
+- Drawing the film: title cards per first, end "credits", Reduce Motion
+- The film sheet: watch, then export/share in 9:16 and 16:9
+- Triggers: on demand; one calm card on a birthday or when the child grows into the next world (by age, never by
+  quests or bosses done)
 
 *Demonstrates:* media composition, which few mobile engineers have done.
 
