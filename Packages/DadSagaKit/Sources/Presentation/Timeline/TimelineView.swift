@@ -128,14 +128,18 @@ private extension TimelineView {
     }
 }
 
-/// Width of the column that holds the chronology line and the entry icons.
-private let railWidth: CGFloat = 36
+/// The column that holds the chronology line and the entry icons. It grows with the icons' text size, so the line
+/// stays centred under them; each view scales it the same way.
+private enum TimelineRail {
+    static let width: CGFloat = 36
+}
 
 /// The chronology line: a thin vertical stroke centred in the rail, optionally cut at the top or bottom
 /// so the line starts at the first month and ends at the last entry.
 private struct RailLine: View {
     var startsHere = false
     var endsHere = false
+    @ScaledMetric(relativeTo: .subheadline) private var railWidth: CGFloat = TimelineRail.width
 
     var body: some View {
         GeometryReader { proxy in
@@ -155,6 +159,7 @@ private struct RailLine: View {
 private struct MonthNode: View {
     let title: String
     let isFirst: Bool
+    @ScaledMetric(relativeTo: .subheadline) private var railWidth: CGFloat = TimelineRail.width
 
     var body: some View {
         HStack(spacing: DSSpacing.m) {
@@ -178,6 +183,7 @@ private struct TimelineRow: View {
     let item: TimelineItem
     let isLast: Bool
     let loader: PhotoLoader
+    @ScaledMetric(relativeTo: .subheadline) private var railWidth: CGFloat = TimelineRail.width
 
     private var tint: Color {
         switch item.kind {
@@ -204,7 +210,7 @@ private struct TimelineRow: View {
     }
 
     private var card: some View {
-        HStack(alignment: .top, spacing: DSSpacing.m) {
+        AdaptiveStack(alignment: .top, spacing: DSSpacing.m) {
             if item.photoID != nil {
                 MomentPhoto(photoID: item.photoID, loader: loader) { tint.opacity(0.2) }
                     .frame(width: 64, height: 64)
@@ -212,17 +218,7 @@ private struct TimelineRow: View {
                     .accessibilityHidden(true)
             }
             VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                HStack(alignment: .firstTextBaseline, spacing: DSSpacing.s) {
-                    Text(item.title)
-                        .font(DSFont.headline)
-                        .foregroundStyle(DSColor.textPrimary)
-                    Spacer(minLength: 0)
-                    Text(item.badge)
-                        .font(DSFont.caption)
-                        .foregroundStyle(tint)
-                        .lineLimit(1)
-                        .fixedSize()
-                }
+                CardTitle(item.title, badge: item.badge, tint: tint)
                 Text(item.subtitle)
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)

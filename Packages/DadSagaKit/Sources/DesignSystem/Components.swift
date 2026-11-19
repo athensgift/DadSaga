@@ -95,25 +95,10 @@ public struct QuestCard: View {
     }
 
     public var body: some View {
-        HStack(alignment: .top, spacing: DSSpacing.m) {
-            Image(systemName: symbol)
-                .font(.system(.body, weight: .semibold))
-                .foregroundStyle(DSColor.heroHighlight)
-                .frame(width: 36, height: 36)
-                .background(style.tint.gradient, in: RoundedRectangle(cornerRadius: DSRadius.tile, style: .continuous))
-                .accessibilityHidden(true)
+        AdaptiveStack(alignment: .top, spacing: DSSpacing.m) {
+            IconTile(symbol: symbol, tint: style.tint)
             VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                HStack(alignment: .firstTextBaseline, spacing: DSSpacing.s) {
-                    Text(title)
-                        .font(DSFont.headline)
-                        .foregroundStyle(DSColor.textPrimary)
-                    Spacer(minLength: 0)
-                    Text(badge)
-                        .font(DSFont.caption)
-                        .foregroundStyle(style.tint)
-                        .lineLimit(1)
-                        .fixedSize()
-                }
+                CardTitle(title, badge: badge, tint: style.tint)
                 Text(subtitle)
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)
@@ -143,6 +128,28 @@ public struct QuestCard: View {
         .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
         .contentShape(RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// A card's symbol on a tinted square, growing with the text so the symbol stays inside it. Decorative: hidden from
+/// VoiceOver, since the card's text says the same.
+public struct IconTile: View {
+    let symbol: String
+    let tint: Color
+    @ScaledMetric(relativeTo: .body) private var size: CGFloat = 36
+
+    public init(symbol: String, tint: Color) {
+        self.symbol = symbol
+        self.tint = tint
+    }
+
+    public var body: some View {
+        Image(systemName: symbol)
+            .font(DSFont.tileSymbol)
+            .foregroundStyle(DSColor.heroHighlight)
+            .frame(width: size, height: size)
+            .background(tint.gradient, in: RoundedRectangle(cornerRadius: DSRadius.tile, style: .continuous))
+            .accessibilityHidden(true)
     }
 }
 
