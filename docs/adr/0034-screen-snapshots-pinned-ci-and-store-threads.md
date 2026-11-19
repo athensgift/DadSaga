@@ -30,10 +30,11 @@ the `@ModelActor` repositories run off the main thread", and the widget test ADR
    an environment value set from the test's copy of `HeroArt` was never read by the app's `Presentation`.
 4. **Still pictures:** `EnvironmentValues.avatarsAreStill` (HeroArt) draws the hero and the children at rest and
    already in place, as Reduce Motion does for the idling (which SwiftUI does not let a test set). The snapshots also
-   turn animations off, and run one at a time in the one window. Tolerance: 98 % of pixels, 98 % perceptual. Liquid Glass is not drawn the same on every run:
-   on onboarding, about 230 pixels differ by one to three levels in 255, which the library's perceptual check counts as
-   1.1 % of pixels. A small change (one word) can therefore pass unnoticed; a colour, layout or a screen's state does
-   not.
+   turn animations off, and run one at a time in the one window. The new image goes through PNG before it is compared, like the
+   reference (`savedScreen`): compared straight from memory, its other pixel format made the library count a few
+   hundred pixels one level apart as 1–15 % of pixels changed, most of all on CI's virtual GPU. Through PNG, Liquid
+   Glass's run-to-run noise is under 250 pixels, at most three levels in 255. Tolerance: 99.9 % of pixels, 98 %
+   perceptual; renaming the child from "Alex" to "Alexa" fails home in all three looks.
 5. **CI is pinned:** the `xcode-27` image with `DEVELOPER_DIR` on Xcode 27.2, and the snapshots run there on an
    iPhone 17 with iOS 27.2, the same as on the Mac. A failed run keeps the result bundle, with the diffs. Moving to a
    new Xcode means moving the image, `DEVELOPER_DIR` and the simulator together and re-recording the snapshots. The

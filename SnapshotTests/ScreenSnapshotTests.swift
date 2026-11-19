@@ -79,8 +79,7 @@ struct ScreenSnapshotTests {
     }
 
     /// A 390 × 844 pt screen drawn in the app's window, where Liquid Glass is drawn, and still: avatars at rest and no
-    /// animations. Each test has loaded its view model first, so the screen is complete when it is drawn. Liquid Glass
-    /// differs by a level or two from run to run, which the library counts as up to 1.1 % of pixels; hence 98 %.
+    /// animations. Each test has loaded its view model first, so the screen is complete when it is drawn.
     private func verify(
         _ view: some View, look: Look, named name: String,
         fileID: StaticString = #fileID, file: StaticString = #filePath, line: UInt = #line, column: UInt = #column
@@ -90,13 +89,29 @@ struct ScreenSnapshotTests {
             .environment(\.avatarsAreStill, true)
             .transaction { $0.disablesAnimations = true }
         assertSnapshot(
-            of: UIHostingController(rootView: still),
-            as: .image(
-                drawHierarchyInKeyWindow: true, precision: 0.98, perceptualPrecision: 0.98,
-                size: ViewImageConfig.iPhone13Pro.size, traits: look.traits
-            ),
+            of: UIHostingController(rootView: still) as UIViewController,
+            as: .savedScreen(traits: look.traits),
             named: look.rawValue,
             fileID: fileID, file: file, testName: name, line: line, column: column
         )
+    }
+}
+
+extension Snapshotting where Value == UIViewController, Format == UIImage {
+    /// The screen as it is saved: the new image goes through PNG before it is compared, like the reference it is
+    /// compared with. Compared straight from memory, its other pixel format made the library count a difference of one
+    /// level in 255 on a few hundred pixels as 1–15 % of pixels changed, most of all on CI's virtual GPU (ADR-0034).
+    /// Through PNG, Liquid Glass's run-to-run noise is a few hundred pixels, far under the 0.1 % allowed, and one
+    /// changed word is above it.
+    static func savedScreen(traits: UITraitCollection) -> Snapshotting {
+        let drawn = Snapshotting.image(
+            drawHierarchyInKeyWindow: true, precision: 0.999, perceptualPrecision: 0.98,
+            size: ViewImageConfig.iPhone13Pro.size, traits: traits
+        )
+        return Snapshotting(pathExtension: drawn.pathExtension, diffing: drawn.diffing) { controller in
+            drawn.snapshot(controller).map { image in
+                image.pngData().flatMap { UIImage(data: $0, scale: image.scale) } ?? image
+            }
+        }
     }
 }
