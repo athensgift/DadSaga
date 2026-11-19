@@ -39,18 +39,27 @@ public enum SagaPeriod: Hashable, Sendable {
         return DateInterval(start: start, end: end)
     }
 
-    /// The periods a film can tell today: every year so far (the current one included), every world the child has
-    /// been in, and everything.
+    /// The periods a film can tell today: every year so far (the current one included) and every world the child has
+    /// been in, each only with something the dad did with the child in it, and everything. A film is never offered
+    /// for a stretch with nothing in it (ADR-0006).
     public static func available(
         for child: Child,
+        events: [ProgressEvent],
         catalog: ContentCatalog,
         now: Date,
         calendar: Calendar = .autoupdatingCurrent
     ) -> [SagaPeriod] {
+        let dates = Timeline.countedEntries(from: events, catalog: catalog)
+            .filter { $0.childID == child.id }
+            .map(\.date)
         let candidates = (1...(child.sagaCompleted(.year, at: now, calendar: calendar) + 1)).map(SagaPeriod.year)
             + catalog.worlds.map { SagaPeriod.world(id: $0.id) }
-        return candidates.filter { $0.interval(for: child, catalog: catalog, now: now, calendar: calendar) != nil }
-            + [.everything]
+        return candidates.filter { period in
+            guard let interval = period.interval(for: child, catalog: catalog, now: now, calendar: calendar) else {
+                return false
+            }
+            return dates.contains(where: interval.holds)
+        } + [.everything]
     }
 }
 

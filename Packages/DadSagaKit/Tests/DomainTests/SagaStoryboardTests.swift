@@ -166,6 +166,27 @@ struct SagaStoryboardTests {
         #expect(try #require(saga.storyboard([], period: .year(2))).period == .year(2))
     }
 
+    @Test("Given the first year's film, born at midnight or in the afternoon, when drawn, then the child is 11 months")
+    func childAgeAtTheLastMomentOfTheYear() throws {
+        for hour in [0, 15] {
+            let born = SagaFixtures(birth: DateComponents(year: 2024, month: 1, day: 15, hour: hour))
+            let storyboard = try #require(SagaStoryboard.make(
+                events: [], child: born.child, period: .year(1), catalog: born.catalog, now: born.date(months: 30),
+                calendar: born.calendar
+            ))
+            #expect(storyboard.childAgeInMonths == 11)
+        }
+    }
+
+    @Test("Given a year still going, when making its film, then the child is drawn at their age today")
+    func childAgeToday() throws {
+        let storyboard = try #require(SagaStoryboard.make(
+            events: [], child: saga.child, period: .year(3), catalog: saga.catalog, now: saga.date(months: 26, days: 2),
+            calendar: saga.calendar
+        ))
+        #expect(storyboard.childAgeInMonths == 26)
+    }
+
     @Test("Given no entries, when making the film, then it is the opening and the credits")
     func empty() throws {
         let storyboard = try #require(saga.storyboard([], period: .year(1)))

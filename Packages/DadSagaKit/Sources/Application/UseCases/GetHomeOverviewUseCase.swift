@@ -21,10 +21,6 @@ public struct HomeOverview: Sendable {
 
     public var childCount: Int { profile.children.count }
 
-    /// The child with `id`, or the first child when `id` is `nil` or no longer in the family. `nil` without children.
-    public static func child(_ id: UUID?, in profile: PlayerProfile) -> Child? {
-        profile.children.first { $0.id == id } ?? profile.children.first
-    }
     public var isShowingCurrentWorld: Bool { shownWorld?.id == adventure.currentWorld?.id }
     public var defeatedBossIDs: Set<String> { progress.defeatedBossIDs(for: child.id) }
 
@@ -83,7 +79,7 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
         async let pendingEvents = progressRepository.fetchEvents()
         async let pendingOutfit = outfitRepository.fetchOutfit()
         guard let profile = try await profileRepository.fetchProfile(),
-              let child = HomeOverview.child(childID, in: profile)
+              let child = profile.child(childID)
         else { return nil }
         let catalog = try await pendingCatalog
         return HomeOverview(
