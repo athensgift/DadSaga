@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "website",
+      "runtimeExecutable": "/bin/sh",
+      "runtimeArgs": ["-c", "cd web && exec python3 -m http.server 8787"],
+      "port": 8787
+    }
+  ]
+}
