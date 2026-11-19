@@ -315,7 +315,7 @@ struct FakeHomeOverview: GetHomeOverviewUseCase {
     var adventure: @Sendable (Child) -> Adventure = HeroStub.adventure
 
     func execute(childID: UUID?, worldID: String?, on date: Date) async throws -> HomeOverview? {
-        guard let profile, let child = HomeOverview.child(childID, in: profile) else { return nil }
+        guard let profile, let child = profile.child(childID) else { return nil }
         return HomeOverview(
             profile: profile,
             child: child,

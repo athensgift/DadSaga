@@ -1,0 +1,179 @@
+import Application
+import Domain
+import Foundation
+import Testing
+
+@Suite("GetSagaFilmUseCase")
+struct SagaFilmUseCaseTests {
+    static let text = Stub.text
+    static let catalog = ContentCatalog(
+        worlds: [
+            World(id: "w1", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: 8),
+            World(id: "w2", order: 2, title: text, tagline: text, minAgeMonths: 9, maxAgeMonths: 24),
+            World(id: "w3", order: 3, title: text, tagline: text, minAgeMonths: 25, maxAgeMonths: 41)
+        ],
+        quests: [Quest(id: "q1", worldID: "w1", title: text, description: text, skill: .care, xp: 20, minAgeMonths: 0)],
+        bosses: [BossFight(id: "b1", worldID: "w2", title: text, intro: text, guide: [], badge: text,
+                           skill: .care, xp: 100, minAgeMonths: 9)],
+        firsts: [FirstMoment(id: "f-walk", order: 1, emoji: "👣", title: text, xp: 30, companionTrait: "walk")],
+        gear: [
+            GearItem(id: "g-cloth", skill: .care, minXP: 20, look: "burpCloth", title: text),
+            GearItem(id: "g-hat", skill: .care, minXP: 100, look: "hat", title: text)
+        ]
+    )
+    static let music = Soundtrack(
+        id: "theme", title: "Theme", artist: "Dad", licence: .original, audioURL: URL(fileURLWithPath: "/theme.m4a")
+    )
+
+    let calendar: Calendar
+    let anna: Child
+    let niko: Child
+    let profiles = SpyProfileRepository()
+    let progress = SpyProgressRepository()
+
+    init() {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+        self.calendar = calendar
+        let birth = calendar.date(from: DateComponents(year: 2024, month: 1, day: 15)) ?? .distantPast
+        anna = Child(name: "Άννα", birthDate: birth)
+        niko = Child(name: "Νίκος", birthDate: birth)
+    }
+
+    func date(months: Int, days: Int = 0) -> Date {
+        let month = calendar.date(byAdding: .month, value: months, to: anna.birthDate) ?? .distantPast
+        return calendar.date(byAdding: .day, value: days, to: month) ?? .distantPast
+    }
+
+    func sut(soundtracks: [Soundtrack] = [Self.music]) -> DefaultGetSagaFilmUseCase {
+        DefaultGetSagaFilmUseCase(
+            contentRepository: StubContentRepository(result: .success(Self.catalog)),
+            profileRepository: profiles,
+            progressRepository: progress,
+            outfitRepository: SpyOutfitRepository(),
+            soundtrackRepository: StubSoundtrackRepository(soundtracks: soundtracks),
+            calendar: calendar
+        )
+    }
+
+    func family() async throws {
+        try await profiles.save(PlayerProfile(children: [anna, niko], heroClassID: "h"))
+    }
+
+    func record(_ kind: ProgressEvent.Kind, months: Int, child: Child? = nil) async throws {
+        try await progress.add(ProgressEvent(kind: kind, childID: (child ?? anna).id, date: date(months: months)))
+    }
+
+    @Test("Given no family yet, when reading the film, then there is none")
+    func noFamily() async throws {
+        #expect(try await sut().execute(childID: nil, period: nil, on: date(months: 26)) == nil)
+    }
+
+    @Test("Given no choice, or a child no longer in the family, when reading the film, then it is about the first child")
+    func childFallsBackToFirst() async throws {
+        try await family()
+
+        #expect(try await sut().execute(childID: nil, period: .everything, on: date(months: 26))?.child == anna)
+        #expect(try await sut().execute(childID: UUID(), period: .everything, on: date(months: 26))?.child == anna)
+        #expect(try await sut().execute(childID: niko.id, period: .everything, on: date(months: 26))?.child == niko)
+    }
+
+    @Test("Given the second birthday a few days ago, when reading the film with no period, then it tells the second year")
+    func defaultsToTheOccasion() async throws {
+        try await family()
+        try await record(.quest(id: "q1"), months: 18)
+
+        let film = try await sut().execute(childID: nil, period: nil, on: date(months: 24, days: 5))
+
+        #expect(film?.period == .year(2))
+    }
+
+    @Test("Given no occasion today, or a period not started, when reading the film, then it tells everything")
+    func fallsBackToEverything() async throws {
+        try await family()
+        try await record(.quest(id: "q1"), months: 18)
+
+        #expect(try await sut().execute(childID: nil, period: nil, on: date(months: 40))?.period == .everything)
+        #expect(try await sut().execute(childID: nil, period: .year(9), on: date(months: 26))?.period == .everything)
+    }
+
+    @Test("Given gear and firsts earned after the first year, when reading its film, then the hero and child are as then")
+    func asOfThePeriodsEnd() async throws {
+        try await family()
+        try await record(.quest(id: "q1"), months: 3)
+        try await record(.boss(id: "b1"), months: 14)
+        try await record(.first(id: "f-walk"), months: 13)
+
+        let film = try #require(try await sut().execute(childID: nil, period: .year(1), on: date(months: 26)))
+        let everything = try #require(try await sut().execute(childID: nil, period: .everything, on: date(months: 26)))
+
+        #expect(film.equippedGear.map(\.id) == ["g-cloth"])
+        #expect(film.medalCount == 0)
+        #expect(film.childFirsts.isEmpty)
+        #expect(film.storyboard.childAgeInMonths == 11)
+        #expect(everything.equippedGear.map(\.id) == ["g-hat"])
+        #expect(everything.childFirsts.map(\.id) == ["f-walk"])
+        #expect(everything.medalCount == 1)
+    }
+
+    @Test("Given gear, a medal and a first from the first year, when reading the third year's film, then they all show")
+    func earlierYearsCarryOver() async throws {
+        try await family()
+        try await record(.quest(id: "q1"), months: 3)
+        try await record(.boss(id: "b1"), months: 10)
+        try await record(.first(id: "f-walk"), months: 11)
+        try await record(.quest(id: "q1"), months: 25)
+
+        let film = try #require(try await sut().execute(childID: nil, period: .year(3), on: date(months: 26)))
+
+        #expect(film.period == .year(3))
+        #expect(film.equippedGear.map(\.id) == ["g-hat"])
+        #expect(film.medalCount == 1)
+        #expect(film.childFirsts.map(\.id) == ["f-walk"])
+        #expect(film.storyboard.childAgeInMonths == 26)
+    }
+
+    @Test("Given a boss and a first with Niko, when reading Anna's film, then the medal shows but the first is Niko's own")
+    func medalsAreTheDadsFirstsTheChilds() async throws {
+        try await family()
+        try await record(.quest(id: "q1"), months: 3)
+        try await record(.boss(id: "b1"), months: 10, child: niko)
+        try await record(.first(id: "f-walk"), months: 11, child: niko)
+
+        let film = try #require(try await sut().execute(childID: anna.id, period: .everything, on: date(months: 26)))
+
+        #expect(film.medalCount == 1)
+        #expect(film.childFirsts.isEmpty)
+    }
+
+    @Test("Given quests in two years and another child's, when reading a year's film, then its credits count that year only")
+    func creditsOfThePeriod() async throws {
+        try await family()
+        try await record(.quest(id: "q1"), months: 2)
+        try await record(.quest(id: "q1"), months: 5)
+        try await record(.quest(id: "q1"), months: 15)
+        try await record(.quest(id: "q1"), months: 6, child: niko)
+
+        let film = try #require(try await sut().execute(childID: anna.id, period: .year(1), on: date(months: 26)))
+
+        #expect(film.storyboard.scenes.last?.kind == .credits(SagaCredits(questsDone: 2, bossesBeaten: 0)))
+        #expect(film.availablePeriods == [.year(1), .year(2), .world(id: "w1"), .world(id: "w2"), .everything])
+        #expect(film.soundtrack == Self.music)
+    }
+
+    @Test("Given no bundled music, when reading the film, then it fails as broken, not as an empty saga")
+    func noSoundtrack() async throws {
+        try await family()
+        await #expect(throws: SagaFilmError.noSoundtrack) {
+            try await sut(soundtracks: []).execute(childID: nil, period: nil, on: date(months: 26))
+        }
+    }
+}
+
+struct StubSoundtrackRepository: SoundtrackRepository {
+    let soundtracks: [Soundtrack]
+
+    func fetchSoundtracks() async throws -> [Soundtrack] {
+        soundtracks
+    }
+}

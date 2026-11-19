@@ -38,6 +38,8 @@ public struct SagaStoryboard: Hashable, Sendable {
     /// The moment the film tells the saga as of: the end of its period, or now if the period is still going. The
     /// opening draws the hero and the child as they were then.
     public let asOf: Date
+    /// The child's completed months of age at the last moment of the period, or now: how the film draws them.
+    public let childAgeInMonths: Int
     public let scenes: [SagaScene]
 
     public var seconds: TimeInterval {
@@ -70,7 +72,14 @@ public struct SagaStoryboard: Hashable, Sendable {
             ).map { (entry.id, $0) }
         })
         let cutter = Cutter(shown: shown, worlds: worlds, pacing: pacing, credits: credits)
-        return SagaStoryboard(period: period, asOf: min(interval.end, now), scenes: cutter.cut())
+        let asOf = min(interval.end, now)
+        let lastMoment = asOf == interval.end ? asOf.addingTimeInterval(-1) : asOf
+        return SagaStoryboard(
+            period: period,
+            asOf: asOf,
+            childAgeInMonths: child.sagaCompleted(.month, at: lastMoment, calendar: calendar),
+            scenes: cutter.cut()
+        )
     }
 }
 
