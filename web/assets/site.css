@@ -1,15 +1,16 @@
-/* DadSaga website. Colours mirror DesignSystem/Tokens.swift (DSColor), light and dark. */
+/* DadSaga website. Colours mirror DesignSystem/Tokens.swift (DSColor, DSTint), light and dark, so they pass the
+   same contrast rule (ADR-0032). */
 :root {
   --bg: #F2F2F7;
   --surface: #FFFFFF;
   --text: #1C1C1E;
   --text-2: #5C5C66;
   --line: rgba(60, 60, 67, 0.14);
-  --accent: #3B5BDB;
-  --accent-ink: #FFFFFF;
-  --xp: #0E9F6E;
-  --legendary: #D99A00;
-  --boss: #C2410C;
+  --accent: #3755CD;
+  --on-tint: #FFFFFF;
+  --xp: #046C4E;
+  --legendary: #875700;
+  --boss: #AD3709;
   --radius: 20px;
   --max: 1080px;
   color-scheme: light dark;
@@ -21,8 +22,8 @@
     --text: #F2F2F7;
     --text-2: #A1A1AA;
     --line: rgba(235, 235, 245, 0.16);
-    --accent: #7C93F5;
-    --accent-ink: #0B0B12;
+    --accent: #6F90F5;
+    --on-tint: #1D1B26;
     --xp: #34D399;
     --legendary: #FBBF24;
     --boss: #FB923C;
@@ -89,7 +90,7 @@ h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.01em; line-height: 
 .rules li::before {
   counter-increment: rule; content: counter(rule);
   position: absolute; left: 20px; top: 18px; width: 30px; height: 30px; border-radius: 50%;
-  background: var(--accent); color: var(--accent-ink); font-weight: 700; display: grid; place-items: center; font-size: 15px;
+  background: var(--accent); color: var(--on-tint); font-weight: 700; display: grid; place-items: center; font-size: 15px;
 }
 .rules strong { display: block; }
 .rules span { color: var(--text-2); }
@@ -107,7 +108,7 @@ h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.01em; line-height: 
 .tl-title { margin: 0 0 10px; font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
 .tl-chips { display: flex; gap: 6px; margin-bottom: 4px; }
 .tl-chip { font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--surface); color: var(--text-2); }
-.tl-chip.on { background: var(--accent); color: var(--accent-ink); }
+.tl-chip.on { background: var(--accent); color: var(--on-tint); }
 .tl-month { margin: 14px 4px 6px; font-weight: 700; font-size: 13px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em; }
 .tl-list { list-style: none; margin: 0; padding: 0; background: var(--surface); border-radius: 16px; }
 .tl-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px; }
@@ -121,10 +122,10 @@ h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.01em; line-height: 
   background: url("/assets/super-dad-light.png") right -4px bottom -6px / auto 250% no-repeat,
               linear-gradient(135deg, #FDE68A, #F59E0B);
 }
-.tl-icon { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: #FFFFFF; font-size: 15px; }
-.tl-icon.quest { background: #3B5BDB; }
-.tl-icon.boss { background: #C2410C; }
-.tl-icon.legendary { background: #D99A00; }
+.tl-icon { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: var(--on-tint); font-size: 15px; }
+.tl-icon.quest { background: var(--accent); }
+.tl-icon.boss { background: var(--boss); }
+.tl-icon.legendary { background: var(--legendary); }
 
 .privacy-band { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .privacy-band .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
@@ -144,7 +145,7 @@ h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.01em; line-height: 
 .doc details { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 18px; margin: 10px 0; }
 .doc summary { font-weight: 600; cursor: pointer; }
 .doc details p { margin: 10px 0 0; color: var(--text-2); }
-.mail { display: inline-block; background: var(--accent); color: var(--accent-ink); padding: 12px 22px; border-radius: 12px; text-decoration: none; font-weight: 600; }
+.mail { display: inline-block; background: var(--accent); color: var(--on-tint); padding: 12px 22px; border-radius: 12px; text-decoration: none; font-weight: 600; }
 
 /* Footer */
 footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--text-2); font-size: 14px; }
