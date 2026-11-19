@@ -7,7 +7,7 @@ DadSaga turns the first years of fatherhood into a game, without turning your ch
 - **Quests** are real things you do: a night shift, bath time, a walk on your own.
 - **Boss fights** are real challenges, like the first fever or the sleep regression, and each comes with a short survival guide.
 - **Legendary moments** (first smile, first steps…) are celebrated with photos when they happen, never expected by a date.
-- **Saga**: the app turns those photos into a short film for each birthday.
+- **Saga**: the app turns those photos into a short film, whenever you ask and gently offered on each birthday.
 
 ## Why
 
@@ -36,7 +36,9 @@ Packages/DadSagaKit
 ├── Application            use cases + repository protocols (ports)
 ├── Domain                 entities + business rules (level curve, unlocks, progress)
 ├── HeroArt                the code-drawn hero and children (ADR-0028)
-└── DesignSystem           tokens + reusable SwiftUI components
+├── DesignSystem           tokens + reusable SwiftUI components
+├── FilmKit                writes a film frame by frame; Apple frameworks only, knows nothing of the game (ADR-0036)
+└── SagaMusic              the saga film's bundled theme and its credits, carried by the app only (ADR-0036)
 
 Presentation ───────┐
 WidgetPresentation ─┼─▶ Application ─▶ Domain
@@ -66,7 +68,7 @@ open DadSaga.xcodeproj
 Run the package tests (no simulator needed):
 
 ```bash
-cd Packages/DadSagaKit && swift test
+cd Packages/DadSagaKit && swift test --build-system swiftbuild
 ```
 
 ## Roadmap
