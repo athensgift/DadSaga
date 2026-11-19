@@ -9,6 +9,7 @@ import PackageDescription
 //
 //   Presentation, WidgetPresentation ─▶ Localization ─▶ Domain   (UI text, ADR-0027)
 //   Presentation ─▶ HeroArt ─▶ DesignSystem                        (drawing, ADR-0028)
+//   FilmKit                                                         (video writing, ADR-0036; knows no game)
 //
 // The app target is the composition root: the only place that knows every layer and wires them together.
 let package = Package(
@@ -25,6 +26,7 @@ let package = Package(
         .library(name: "WidgetPresentation", targets: ["WidgetPresentation"]),
         .library(name: "Localization", targets: ["Localization"]),
         .library(name: "SagaMusic", targets: ["SagaMusic"]),
+        .library(name: "FilmKit", targets: ["FilmKit"]),
     ],
     targets: [
         // Entities + enterprise business rules. Pure Swift, depends on nothing.
@@ -50,6 +52,9 @@ let package = Package(
         .target(name: "Localization", dependencies: ["Domain"], resources: [.process("Resources")]),
         // The saga film's music and its credits, read by Data (ADR-0036 §8). Linked by the app only, never the widget.
         .target(name: "SagaMusic", resources: [.process("Resources")]),
+        // Writes a film frame by frame from pictures, overlays and music (ADR-0036 §3). Apple frameworks only; it knows
+        // nothing of the game, so its tests check frames, timing and sound, not content.
+        .target(name: "FilmKit"),
 
         .testTarget(name: "DomainTests", dependencies: ["Domain"]),
         .testTarget(name: "DesignSystemTests", dependencies: ["DesignSystem"]),
@@ -57,6 +62,7 @@ let package = Package(
         .testTarget(name: "DataTests", dependencies: ["Data", "Application", "Domain", "SagaMusic"], exclude: ["Fixtures"]),
         .testTarget(name: "PresentationTests", dependencies: ["Presentation", "Application", "Domain"]),
         .testTarget(name: "LocalizationTests", dependencies: ["Localization", "Domain"]),
+        .testTarget(name: "FilmKitTests", dependencies: ["FilmKit"]),
         .testTarget(name: "WidgetPresentationTests", dependencies: ["WidgetPresentation", "Application", "Domain"]),
     ]
 )
