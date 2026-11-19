@@ -193,7 +193,6 @@ struct FailingUpdates: ProgressRepository {
     func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool { throw Failure() }
     func update(_ event: ProgressEvent) async throws { throw Failure() }
     func delete(id: UUID) async throws { throw Failure() }
-    func deleteAll() async throws { throw Failure() }
 }
 
 /// Keeps "photos" in memory, exactly as given.

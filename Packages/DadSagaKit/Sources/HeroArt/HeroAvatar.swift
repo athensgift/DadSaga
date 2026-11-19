@@ -15,6 +15,7 @@ public struct HeroAvatar: View {
     private let skin: AvatarSkin
     private let equipment: HeroEquipment
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.isHapticsEnabled) private var isHapticsEnabled
     @State private var isCheering = false
     @State private var hasAppeared = false
 
@@ -56,7 +57,7 @@ public struct HeroAvatar: View {
         .contentShape(Rectangle())
         .onTapGesture(perform: cheer)
         .onChange(of: cheerTrigger) { cheer() }
-        .sensoryFeedback(.impact, trigger: isCheering) { _, cheering in cheering }
+        .sensoryFeedback(.impact, trigger: isCheering) { _, cheering in cheering && isHapticsEnabled }
         .onAppear {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) { hasAppeared = true }
         }

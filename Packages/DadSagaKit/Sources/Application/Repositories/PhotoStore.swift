@@ -9,6 +9,6 @@ public protocol PhotoStore: Sendable {
     /// `nil` if there is no photo with that id or it cannot be read.
     func thumbnail(id: String, maxPixelSize: Int) async -> Data?
     func delete(id: String) async
-    /// Wipes every photo. Only the developer reset uses this.
+    /// Wipes every photo. Only starting over uses this.
     func deleteAll() async
 }

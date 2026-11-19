@@ -12,6 +12,4 @@ public protocol ProgressRepository: Sendable {
     /// Replaces the stored event that has the same id. Does nothing if there is none.
     func update(_ event: ProgressEvent) async throws
     func delete(id: UUID) async throws
-    /// Wipes the log. Only the developer reset uses this.
-    func deleteAll() async throws
 }

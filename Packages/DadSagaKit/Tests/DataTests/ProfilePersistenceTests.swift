@@ -77,14 +77,20 @@ struct LocalStoreTests {
         #expect(try await sut.fetchProfile() == updated)
     }
 
-    @Test("Given a saved profile, when deleting, then the store is empty again")
-    func delete() async throws {
-        let sut = LocalStore.inMemory().profiles
-        try await sut.save(PlayerProfile(children: [Child(name: "Νίκος", birthDate: birth)], heroClassID: "h-cool"))
+    @Test("Given a profile, events and wardrobe choices, when erasing the saga, then all of them read back empty")
+    func eraseAll() async throws {
+        let store = LocalStore.inMemory()
+        try await store.profiles.save(
+            PlayerProfile(children: [Child(name: "Νίκος", birthDate: birth)], heroClassID: "h-cool")
+        )
+        try await store.progress.add(ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth))
+        _ = try await store.outfit.setChoice(.hidden, for: .care)
 
-        try await sut.deleteProfile()
+        try await store.eraser.eraseAll()
 
-        #expect(try await sut.fetchProfile() == nil)
+        #expect(try await store.profiles.fetchProfile() == nil)
+        #expect(try await store.progress.fetchEvents().isEmpty)
+        #expect(try await store.outfit.fetchOutfit() == Outfit())
     }
 
     @Test("Given stored events, when fetching, then they come back oldest first with their ids and kinds")
@@ -118,7 +124,7 @@ struct LocalStoreTests {
         #expect(try await sut.fetchEvents() == [quest])
     }
 
-    @Test("Given wardrobe choices, when setting slots one by one, then each keeps the others and deleting clears them")
+    @Test("Given wardrobe choices, when setting slots one by one, then each keeps the others")
     func outfitRoundTrip() async throws {
         let sut = LocalStore.inMemory().outfit
 
@@ -128,9 +134,6 @@ struct LocalStoreTests {
         #expect(try await sut.fetchOutfit() == outfit)
 
         #expect(try await sut.setChoice(.automatic, for: .care) == Outfit(choices: [.play: .hidden]))
-
-        try await sut.deleteAll()
-        #expect(try await sut.fetchOutfit() == Outfit())
     }
 
     @Test("Given two slots changed at the same moment, when both run, then both choices are kept")
@@ -151,16 +154,6 @@ struct LocalStoreTests {
         #expect(OutfitCoding.decode("sparkly") == nil)
         #expect(OutfitCoding.encode(.automatic) == nil)
         #expect(OutfitCoding.encode(.item("g-mug")) == "item:g-mug")
-    }
-
-    @Test("Given stored events, when deleting all, then the log is empty")
-    func progressDeleteAll() async throws {
-        let sut = LocalStore.inMemory().progress
-        try await sut.add(ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth))
-
-        try await sut.deleteAll()
-
-        #expect(try await sut.fetchEvents().isEmpty)
     }
 
     @Test("Given two saves of the same boss for one child at the same moment, when both run, then exactly one is stored")

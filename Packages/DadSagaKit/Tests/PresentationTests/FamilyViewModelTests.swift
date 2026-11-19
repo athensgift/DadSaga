@@ -7,19 +7,19 @@ import Testing
 @MainActor
 @Suite("FamilyViewModel")
 struct FamilyViewModelTests {
-    let save = SpySaveProfile()
+    let update = SpyUpdateFamily()
 
     func makeSUT(profile: PlayerProfile? = HeroStub.profile, onSaved: @escaping @MainActor () -> Void = {}) -> FamilyViewModel {
         FamilyViewModel(
             getProfile: StubGetProfile(profile: profile),
-            saveProfile: save,
+            updateFamily: update,
             locale: Locale(identifier: "el_GR"),
             now: HeroStub.today,
             onSaved: onSaved
         )
     }
 
-    @Test("Given a stored family, when appearing, then the children and skin tone are loaded in Greek")
+    @Test("Given a stored family, when appearing, then the children are loaded in Greek")
     func loads() async {
         let sut = makeSUT()
         await sut.onAppear()
@@ -31,10 +31,9 @@ struct FamilyViewModelTests {
         #expect(content.title == "Η οικογένειά μου")
         #expect(sut.family.children.map(\.name) == ["Νίκος"])
         #expect(sut.family.children.first?.id == HeroStub.niko.id)
-        #expect(sut.family.dadSkinTone == .mediumDark)
     }
 
-    @Test("Given a family, when adding a child and saving, then ids, hero and new child are saved and onSaved is called")
+    @Test("Given a family, when adding a child and saving, then the children keep their ids and onSaved is called")
     func addsChild() async {
         var saved = false
         let sut = makeSUT { saved = true }
@@ -47,11 +46,10 @@ struct FamilyViewModelTests {
         await sut.save()
 
         #expect(saved)
-        let profile = await save.saved
-        #expect(profile?.heroClassID == "h-cool")
-        #expect(profile?.children.map(\.name) == ["Νίκος", "Ελένη"])
-        #expect(profile?.children.first?.id == HeroStub.niko.id)
-        #expect(profile?.children.last?.gender == .girl)
+        let children = await update.saved
+        #expect(children?.map(\.name) == ["Νίκος", "Ελένη"])
+        #expect(children?.first?.id == HeroStub.niko.id)
+        #expect(children?.last?.gender == .girl)
     }
 
     @Test("Given two children, when removing one, then the other stays and the last child cannot be removed")
@@ -70,7 +68,7 @@ struct FamilyViewModelTests {
         var saved = false
         let sut = makeSUT { saved = true }
         await sut.onAppear()
-        await save.failNext()
+        await update.failNext()
 
         await sut.save()
 
@@ -83,5 +81,19 @@ struct FamilyViewModelTests {
         let sut = makeSUT(profile: nil)
         await sut.onAppear()
         #expect(sut.state == .failed(message: "Δεν βρέθηκε προφίλ."))
+    }
+}
+
+actor SpyUpdateFamily: UpdateFamilyUseCase {
+    private(set) var saved: [Child]?
+    private var shouldFail = false
+
+    func failNext() {
+        shouldFail = true
+    }
+
+    func execute(children: [Child], on date: Date) async throws {
+        if shouldFail { throw StubError.boom }
+        saved = children
     }
 }

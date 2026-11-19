@@ -47,31 +47,6 @@ struct ProfileUseCaseTests {
         }
         #expect(try await repository.fetchProfile() == nil)
     }
-
-    @Test("Given a stored profile and progress, when resetting, then both are gone")
-    func reset() async throws {
-        let repository = SpyProfileRepository()
-        try await repository.save(PlayerProfile(children: [Child(name: "Νίκος", birthDate: today)], heroClassID: "h1"))
-
-        let progress = SpyProgressRepository()
-        try await progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today))
-
-        let photos = SpyPhotoStore()
-        _ = try await photos.save(Data([1]))
-
-        try await DefaultResetProfileUseCase(
-            profileRepository: repository,
-            progressRepository: progress,
-            photoStore: photos,
-            outfitRepository: SpyOutfitRepository(),
-            reminderSettings: FakeReminderSettings(),
-            notificationScheduler: FakeNotificationScheduler(status: .allowed)
-        ).execute()
-
-        #expect(try await repository.fetchProfile() == nil)
-        #expect(try await progress.fetchEvents().isEmpty)
-        #expect(await photos.stored.isEmpty)
-    }
 }
 
 actor SpyProfileRepository: ProfileRepository {
@@ -83,9 +58,5 @@ actor SpyProfileRepository: ProfileRepository {
 
     func save(_ profile: PlayerProfile) async throws {
         self.profile = profile
-    }
-
-    func deleteProfile() async throws {
-        profile = nil
     }
 }

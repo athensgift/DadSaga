@@ -47,11 +47,6 @@ actor SwiftDataProgressRepository: ProgressRepository {
         try modelContext.save()
     }
 
-    func deleteAll() async throws {
-        try modelContext.delete(model: ProgressEventRecord.self)
-        try modelContext.save()
-    }
-
     private func record(id: UUID) throws -> ProgressEventRecord? {
         try modelContext.fetch(FetchDescriptor<ProgressEventRecord>(predicate: #Predicate { $0.eventID == id })).first
     }

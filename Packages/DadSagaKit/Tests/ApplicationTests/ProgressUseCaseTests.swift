@@ -207,7 +207,6 @@ struct LosesRace: ProgressRepository {
     func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool { false }
     func update(_ event: ProgressEvent) async throws {}
     func delete(id: UUID) async throws {}
-    func deleteAll() async throws {}
 }
 
 actor SpyProgressRepository: ProgressRepository {
@@ -234,9 +233,5 @@ actor SpyProgressRepository: ProgressRepository {
 
     func delete(id: UUID) async throws {
         events.removeAll { $0.id == id }
-    }
-
-    func deleteAll() async throws {
-        events = []
     }
 }

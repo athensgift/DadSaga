@@ -84,7 +84,7 @@ struct DeepLinkTests {
 struct RootLinkTests {
     @Test("Given a family, when a link arrives on the timeline tab, then Adventure shows and the link waits for home")
     func keepsLinkForHome() async {
-        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile))
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
         await sut.onAppear()
         sut.selectedTab = .timeline
         let link = AppLink.quest(id: "q1", childID: HeroStub.niko.id)
@@ -99,7 +99,7 @@ struct RootLinkTests {
 
     @Test("Given a link while the app is still loading, when there turns out to be no family, then it is dropped")
     func dropsLinkForOnboarding() async {
-        let sut = RootViewModel(getProfile: StubGetProfile(profile: nil))
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: nil), getPreferences: StubGetPreferences())
         sut.open(url: AppLink.child(UUID()).url)
         #expect(sut.pendingLink != nil)
 
@@ -112,7 +112,7 @@ struct RootLinkTests {
 
     @Test("Given a URL that is not a DadSaga link, when opening it, then nothing happens")
     func ignoresOtherURLs() async throws {
-        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile))
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
         await sut.onAppear()
         sut.selectedTab = .timeline
 

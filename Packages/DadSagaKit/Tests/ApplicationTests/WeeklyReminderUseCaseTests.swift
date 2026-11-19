@@ -265,26 +265,6 @@ struct WeeklyReminderUseCaseTests {
 
         #expect(await scheduler.pending.isEmpty)
     }
-
-    @Test("Given a profile with reminder settings and notifications, when resetting, then both are gone")
-    func resetClearsReminder() async throws {
-        try await onboard([lena])
-        await enable()
-        let scheduler = FakeNotificationScheduler(status: .allowed)
-        await schedule(scheduler).execute(on: today)
-
-        try await DefaultResetProfileUseCase(
-            profileRepository: profiles,
-            progressRepository: progress,
-            photoStore: SpyPhotoStore(),
-            outfitRepository: SpyOutfitRepository(),
-            reminderSettings: settings,
-            notificationScheduler: scheduler
-        ).execute()
-
-        #expect(await settings.fetch() == .default)
-        #expect(await scheduler.pending.isEmpty)
-    }
 }
 
 extension WeeklyReminderUseCaseTests {

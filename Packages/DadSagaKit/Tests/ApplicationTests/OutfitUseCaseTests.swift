@@ -101,8 +101,4 @@ actor SpyOutfitRepository: OutfitRepository {
         outfit.choices[skill] = choice == .automatic ? nil : choice
         return outfit
     }
-
-    func deleteAll() async throws {
-        outfit = Outfit()
-    }
 }

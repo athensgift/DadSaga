@@ -7,6 +7,7 @@ public struct RootView: View {
     public typealias MakeOnboarding = @MainActor (_ onFinished: @escaping @MainActor () -> Void) -> OnboardingViewModel
     public typealias MakeHome = @MainActor () -> HomeViewModel
     public typealias MakeTimeline = @MainActor () -> TimelineViewModel
+    public typealias MakeSettings = @MainActor (PreferencesChoice, SettingsActions) -> SettingsViewModel
 
     @State private var viewModel: RootViewModel
     @Environment(\.scenePhase) private var scenePhase
@@ -15,10 +16,10 @@ public struct RootView: View {
     @State private var timeline: TimelineViewModel?
     private let makeOnboarding: MakeOnboarding
     private let makeHome: MakeHome
-    private let makeFamily: HomeView.MakeFamily
     private let makeTimeline: MakeTimeline
     private let makeWardrobe: HomeView.MakeWardrobe
-    private let makeReminderSettings: HomeView.MakeReminderSettings
+    private let makeSettings: MakeSettings
+    private let settingsPages: SettingsPages
     private let incomingURL: URL?
     private let onIncomingURLHandled: @MainActor () -> Void
 
@@ -29,20 +30,20 @@ public struct RootView: View {
         viewModel: RootViewModel,
         makeOnboarding: @escaping MakeOnboarding,
         makeHome: @escaping MakeHome,
-        makeFamily: @escaping HomeView.MakeFamily,
         makeTimeline: @escaping MakeTimeline,
         makeWardrobe: @escaping HomeView.MakeWardrobe,
-        makeReminderSettings: @escaping HomeView.MakeReminderSettings,
+        makeSettings: @escaping MakeSettings,
+        settingsPages: SettingsPages,
         incomingURL: URL? = nil,
         onIncomingURLHandled: @escaping @MainActor () -> Void = {}
     ) {
         _viewModel = State(initialValue: viewModel)
         self.makeOnboarding = makeOnboarding
         self.makeHome = makeHome
-        self.makeFamily = makeFamily
         self.makeTimeline = makeTimeline
         self.makeWardrobe = makeWardrobe
-        self.makeReminderSettings = makeReminderSettings
+        self.makeSettings = makeSettings
+        self.settingsPages = settingsPages
         self.incomingURL = incomingURL
         self.onIncomingURLHandled = onIncomingURLHandled
     }
@@ -57,7 +58,7 @@ public struct RootView: View {
                     .transition(.opacity)
             case .onboarding:
                 if let onboarding {
-                    OnboardingView(viewModel: onboarding, developerMenu: developerMenu)
+                    OnboardingView(viewModel: onboarding)
                         .transition(.opacity)
                 } else {
                     ProgressView()
@@ -69,10 +70,8 @@ public struct RootView: View {
                         selection: $viewModel.selectedTab,
                         home: HomeView(
                             viewModel: home,
-                            developerMenu: developerMenu,
-                            makeFamily: makeFamily,
                             makeWardrobe: makeWardrobe,
-                            makeReminderSettings: makeReminderSettings,
+                            settings: settingsScreens,
                             pendingLink: viewModel.pendingLink,
                             onLinkHandled: { viewModel.linkHandled() }
                         ),
@@ -88,6 +87,8 @@ public struct RootView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DSColor.background)
         .tint(DSColor.accent)
+        .preferredColorScheme(viewModel.preferences.appearance.colorScheme)
+        .environment(\.isHapticsEnabled, viewModel.preferences.isHapticsEnabled)
         .animation(.easeInOut(duration: 0.35), value: viewModel.state)
         .task {
             await viewModel.onAppear()
@@ -127,9 +128,12 @@ public struct RootView: View {
         onIncomingURLHandled()
     }
 
-    private var developerMenu: DeveloperMenu? {
-        guard viewModel.hasDeveloperMenu, viewModel.state != .unavailable else { return nil }
-        return DeveloperMenu { Task { await viewModel.restartFromOnboarding() } }
+    private var settingsScreens: SettingsScreens {
+        let actions = SettingsActions(
+            onPreferencesChanged: { viewModel.preferencesChanged($0) },
+            onStartedOver: { viewModel.startedOver() }
+        )
+        return SettingsScreens(makeSettings: { makeSettings(viewModel.preferences, actions) }, pages: settingsPages)
     }
 }
 

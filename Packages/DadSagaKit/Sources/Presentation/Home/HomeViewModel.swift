@@ -195,7 +195,7 @@ public final class HomeViewModel {
             selectedChildLine: hasSiblings ? childLine : nil,
             familyTitle: strings.text("My family"),
             wardrobeTitle: strings.text("Wardrobe"),
-            reminderTitle: strings.text("Weekly reminder"),
+            settingsTitle: strings.text("Settings"),
             level: level.level,
             levelTitle: strings.text("Level \(level.level)"),
             levelFraction: level.fraction,

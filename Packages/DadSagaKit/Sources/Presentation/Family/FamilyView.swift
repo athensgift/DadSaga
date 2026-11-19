@@ -1,43 +1,32 @@
 import DesignSystem
 import SwiftUI
 
-/// "My family", shown as a sheet from home.
-public struct FamilyView: View {
-    @State private var viewModel: FamilyViewModel
-    private let onClose: () -> Void
+/// "My family", pushed from Settings.
+struct FamilyView: View {
+    @State var viewModel: FamilyViewModel
 
-    public init(viewModel: FamilyViewModel, onClose: @escaping () -> Void) {
-        _viewModel = State(initialValue: viewModel)
-        self.onClose = onClose
-    }
-
-    public var body: some View {
-        NavigationStack {
-            Group {
-                switch viewModel.state {
-                case .loading:
-                    ProgressView()
-                case .loaded(let content):
-                    form(content)
-                case .failed(let message):
-                    ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
-                }
+    var body: some View {
+        Group {
+            switch viewModel.state {
+            case .loading:
+                ProgressView()
+            case .loaded(let content):
+                form(content)
+            case .failed(let message):
+                ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(DSColor.background)
-            .navigationTitle(title)
-            .toolbarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .close, action: onClose)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(DSColor.background)
+        .navigationTitle(title)
+        .toolbarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button(role: .confirm) {
+                    Task { await viewModel.save() }
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(role: .confirm) {
-                        Task { await viewModel.save() }
-                    }
-                    .disabled(!viewModel.canSave)
-                    .accessibilityLabel(saveTitle)
-                }
+                .disabled(!viewModel.canSave)
+                .accessibilityLabel(saveTitle)
             }
         }
         .task { await viewModel.onAppear() }
@@ -70,16 +59,6 @@ public struct FamilyView: View {
                         .buttonStyle(.glass)
                         .controlSize(.large)
                 }
-                HStack {
-                    Text(content.dadSkinToneLabel)
-                    Spacer(minLength: DSSpacing.s)
-                    SkinTonePicker(selection: $viewModel.family.dadSkinTone, names: content.childEditor.skinToneNames)
-                }
-                .font(DSFont.body)
-                .foregroundStyle(DSColor.textPrimary)
-                .padding(.horizontal, DSSpacing.m)
-                .frame(minHeight: 52)
-                .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
                 if let errorMessage = viewModel.errorMessage {
                     Text(errorMessage)
                         .font(DSFont.caption)

@@ -9,6 +9,7 @@ actor StoreConnection {
         let profiles: SwiftDataProfileRepository
         let progress: SwiftDataProgressRepository
         let outfit: SwiftDataOutfitRepository
+        let eraser: SwiftDataSagaEraser
     }
 
     private static let logger = Logger(subsystem: "DadSaga", category: "store")
@@ -36,7 +37,8 @@ actor StoreConnection {
             let repositories = Repositories(
                 profiles: SwiftDataProfileRepository(modelContainer: container),
                 progress: SwiftDataProgressRepository(modelContainer: container),
-                outfit: SwiftDataOutfitRepository(modelContainer: container)
+                outfit: SwiftDataOutfitRepository(modelContainer: container),
+                eraser: SwiftDataSagaEraser(modelContainer: container)
             )
             opened = repositories
             return repositories

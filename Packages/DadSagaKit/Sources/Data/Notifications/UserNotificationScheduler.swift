@@ -41,4 +41,9 @@ public struct UserNotificationScheduler: NotificationScheduler {
             try? await center.add(request)
         }
     }
+
+    public func removeDelivered() async {
+        let shown = await center.deliveredNotifications().map(\.request.identifier).filter { $0.hasPrefix(Self.idPrefix) }
+        center.removeDeliveredNotifications(withIdentifiers: shown)
+    }
 }

@@ -9,17 +9,8 @@ public struct OnboardingContent: Equatable, Sendable {
     public let welcomeTitle: String
     public let welcomeSubtitle: String
     public let childEditor: ChildEditorLabels
-    public let dadSkinToneLabel: String
     public let continueTitle: String
     public let heroTitle: String
-    public let heroSubtitle: String
     public let finishTitle: String
-    public let heroes: [HeroOption]
-}
-
-public struct HeroOption: Equatable, Identifiable, Sendable {
-    public let id: String
-    public let title: String
-    public let tagline: String
-    public let look: HeroLook
+    public let hero: HeroPickerContent
 }

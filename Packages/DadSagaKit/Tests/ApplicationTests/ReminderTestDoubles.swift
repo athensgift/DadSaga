@@ -15,6 +15,8 @@ actor FakeNotificationScheduler: NotificationScheduler {
     let allowsWhenAsked: Bool
     private(set) var pending: [PendingReminder] = []
     private(set) var promptCount = 0
+    /// Notes already shown in Notification Center.
+    var delivered: [PendingReminder] = []
 
     init(status: NotificationAuthorization, allowsWhenAsked: Bool = true) {
         self.status = status
@@ -30,6 +32,13 @@ actor FakeNotificationScheduler: NotificationScheduler {
     }
 
     func replacePending(with reminders: [PendingReminder]) async { pending = reminders }
+    func removeDelivered() async { delivered = [] }
+
+    /// iOS showing the next waiting note.
+    func deliverNext() {
+        guard !pending.isEmpty else { return }
+        delivered.append(pending.removeFirst())
+    }
 }
 
 struct EchoReminderText: ReminderTextProvider {
@@ -52,6 +61,8 @@ actor SlowFirstScheduler: NotificationScheduler {
         if calls == 1 { try? await Task.sleep(for: .milliseconds(200)) }
         pending = reminders
     }
+
+    func removeDelivered() async {}
 }
 
 /// Takes a while to save the first change, like a slow disk.
@@ -75,5 +86,4 @@ struct UnreadableProfiles: ProfileRepository {
     struct Failure: Error {}
     func fetchProfile() async throws -> PlayerProfile? { throw Failure() }
     func save(_ profile: PlayerProfile) async throws { throw Failure() }
-    func deleteProfile() async throws { throw Failure() }
 }

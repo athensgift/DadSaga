@@ -147,6 +147,7 @@ struct CelebrationBadge: View {
 struct CelebrationOverlay: ViewModifier {
     let celebration: Celebration?
     let onFinished: () -> Void
+    @Environment(\.isHapticsEnabled) private var isHapticsEnabled
 
     func body(content: Content) -> some View {
         content
@@ -167,7 +168,9 @@ struct CelebrationOverlay: ViewModifier {
                 }
             }
             .animation(.spring(response: 0.4, dampingFraction: 0.7), value: celebration)
-            .sensoryFeedback(trigger: celebration) { _, celebration in celebration?.feedback }
+            .sensoryFeedback(trigger: celebration) { _, celebration in
+                celebration?.haptic(isEnabled: isHapticsEnabled)?.feedback
+            }
     }
 }
 
@@ -182,12 +185,13 @@ extension Celebration {
         }
     }
 
-    /// An ordinary quest gets none here: the hero's cheer already taps once.
-    var feedback: SensoryFeedback? {
-        switch highlight {
-        case .quest: nil
-        case .boss, .unlock: .impact(weight: .heavy)
-        case .moment, .levelUp: .success
+}
+
+extension CelebrationHaptic {
+    var feedback: SensoryFeedback {
+        switch self {
+        case .heavy: .impact(weight: .heavy)
+        case .success: .success
         }
     }
 }
