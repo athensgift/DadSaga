@@ -6,7 +6,7 @@ effort: xhigh
 tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch
 color: purple
 ---
-You are the architect for DadSaga. Read CLAUDE.md, README.md, docs/ROADMAP.md and the relevant ADRs in docs/adr first.
+You are the architect for DadSaga. Read CLAUDE.md, README.md, docs/ROADMAP.md and the relevant ADRs in docs/adr first (find them in docs/adr/README.md).
 
 Deliver:
 1. A step-by-step plan following the feature flow in CLAUDE.md (Domain → Application → Data → Presentation → AppContainer), naming files and types.

@@ -18,7 +18,9 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
 - Game content is JSON in `Packages/DadSagaKit/Sources/Data/Resources`, in `el` and `en`. Never hardcode it in Swift.
 - A new feature goes Domain → Application (use case protocol + `Default…`) → Data → Presentation (ViewModel + ViewState +
   View) → `App/DI/AppContainer.swift` ([ADR-0007](docs/adr/0007-clean-architecture.md)).
+- Before a feature or a design question, check the [ADR index](docs/adr/README.md) for the ADRs on that topic.
 - Record a significant decision as a new ADR in `docs/adr/`. Accepted ADRs aren't rewritten; a new one supersedes them.
+  Add its row to the index, and note it under "Changed by" on any ADR it changes.
 
 ## Engineering habits
 - Subtract before you add: when new code covers an old path, delete the old path in the same change.
