@@ -90,7 +90,7 @@ public enum DSFont {
 
 extension Color {
     /// A colour that adapts to light/dark mode, from 0xRRGGBB values.
-    init(light: UInt32, dark: UInt32) {
+    package init(light: UInt32, dark: UInt32) {
         #if canImport(UIKit)
         self.init(uiColor: UIColor { traits in
             UIColor(rgb: traits.userInterfaceStyle == .dark ? dark : light)

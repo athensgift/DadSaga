@@ -1,4 +1,5 @@
 import DesignSystem
+import HeroArt
 
 extension HeroLook {
     var avatarStyle: HeroAvatar.Style {

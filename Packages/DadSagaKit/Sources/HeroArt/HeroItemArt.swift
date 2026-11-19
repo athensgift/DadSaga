@@ -1,3 +1,4 @@
+import DesignSystem
 import SwiftUI
 
 // MARK: - Item art
@@ -197,21 +198,5 @@ struct HeroItemSteam: View {
         ForEach(offsets, id: \.self) { side in
             Capsule().fill(DSColor.textSecondary.opacity(opacity)).frame(width: 1.5, height: 5).offset(x: side, y: top)
         }
-    }
-}
-
-/// A four-pointed sparkle, marking legendary items.
-struct HeroSparkle: Shape {
-    func path(in rect: CGRect) -> Path {
-        let mid = CGPoint(x: rect.midX, y: rect.midY)
-        let rad = min(rect.width, rect.height) / 2
-        let pinch = rad * 0.28
-        var path = Path()
-        path.move(to: CGPoint(x: mid.x, y: mid.y - rad))
-        path.addQuadCurve(to: CGPoint(x: mid.x + rad, y: mid.y), control: CGPoint(x: mid.x + pinch, y: mid.y - pinch))
-        path.addQuadCurve(to: CGPoint(x: mid.x, y: mid.y + rad), control: CGPoint(x: mid.x + pinch, y: mid.y + pinch))
-        path.addQuadCurve(to: CGPoint(x: mid.x - rad, y: mid.y), control: CGPoint(x: mid.x - pinch, y: mid.y + pinch))
-        path.addQuadCurve(to: CGPoint(x: mid.x, y: mid.y - rad), control: CGPoint(x: mid.x - pinch, y: mid.y - pinch))
-        return path
     }
 }

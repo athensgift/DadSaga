@@ -38,49 +38,28 @@ public struct CaptureMomentRequest: Equatable, Sendable {
 }
 
 public struct DefaultCaptureMomentUseCase: CaptureMomentUseCase {
-    private let contentRepository: any ContentRepository
-    private let progressRepository: any ProgressRepository
-    private let photoStore: any PhotoStore
+    private let recorder: ProgressRecorder
 
     public init(
         contentRepository: any ContentRepository,
         progressRepository: any ProgressRepository,
         photoStore: any PhotoStore
     ) {
-        self.contentRepository = contentRepository
-        self.progressRepository = progressRepository
-        self.photoStore = photoStore
+        recorder = ProgressRecorder(
+            contentRepository: contentRepository, progressRepository: progressRepository, photoStore: photoStore
+        )
     }
 
     public func execute(_ request: CaptureMomentRequest, now: Date) async throws -> ProgressChange {
-        let catalog = try await contentRepository.fetchCatalog()
-        guard catalog.firsts.contains(where: { $0.id == request.firstID }) else {
-            throw MomentError.unknownFirst(request.firstID)
-        }
         guard request.date <= now else { throw MomentError.dateInFuture }
-        let events = try await progressRepository.fetchEvents()
-        let before = DadProgress(events: events, catalog: catalog)
-        guard !before.capturedFirstIDs(for: request.childID).contains(request.firstID) else {
-            throw MomentError.alreadyCaptured(request.firstID)
-        }
-        let event = try await EventRecorder(progressRepository: progressRepository, photoStore: photoStore).record(
+        let change = try await recorder.record(
             .first(id: request.firstID),
             childID: request.childID,
             date: request.date,
-            journal: JournalInput(note: request.note, photo: request.photo)
+            journal: JournalInput(note: request.note, photo: request.photo),
+            unknown: MomentError.unknownFirst(request.firstID)
         )
-        return ProgressChange(
-            before: before,
-            after: DadProgress(events: events + [event], catalog: catalog),
-            eventID: event.id
-        )
-    }
-}
-
-extension String? {
-    /// Trimmed, or `nil` when nothing is left.
-    var trimmedOrNil: String? {
-        guard let trimmed = self?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else { return nil }
-        return trimmed
+        guard change.eventID != nil else { throw MomentError.alreadyCaptured(request.firstID) }
+        return change
     }
 }

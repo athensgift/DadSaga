@@ -1,3 +1,4 @@
+import DesignSystem
 import SwiftUI
 
 /// The player's hero, drawn in code: no image assets, and every part can animate.

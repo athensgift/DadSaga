@@ -13,10 +13,7 @@ struct WardrobeViewModelTests {
     func makeSUT() -> WardrobeViewModel {
         WardrobeViewModel(
             useCases: WardrobeViewModel.UseCases(
-                getProfile: StubGetProfile(profile: HeroStub.profile),
-                loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)),
-                getProgress: progress,
-                getOutfit: outfit,
+                getWardrobe: FakeWardrobe(progress: progress, outfit: outfit),
                 setChoice: outfit
             ),
             locale: Locale(identifier: "el_GR")
@@ -84,6 +81,24 @@ struct WardrobeViewModelTests {
         #expect(loaded(sut)?.slots.first?.options.first?.isSelected == true)
     }
 
+    @Test("Given a slow save for one slot, when another slot is chosen meanwhile, then both choices stay on screen")
+    func overlappingTaps() async throws {
+        await progress.seed(times: 3)
+        let sut = makeSUT()
+        await sut.onAppear()
+        await outfit.slowNext()
+
+        let slow = Task { await sut.select(slotID: "care", optionID: "hidden") }
+        await outfit.waitUntilSlowStarted()
+        await sut.select(slotID: "play", optionID: "hidden")
+        await slow.value
+
+        let slots = try #require(loaded(sut)?.slots)
+        #expect(slots.first { $0.id == "care" }?.options.map(\.isSelected).prefix(2) == [false, true])
+        #expect(slots.first { $0.id == "play" }?.options.map(\.isSelected).prefix(2) == [false, true])
+        #expect(await outfit.stored == Outfit(choices: [.care: .hidden, .play: .hidden]))
+    }
+
     @Test("Given saving fails, when choosing, then the previous choice stays and an error shows")
     func saveFailure() async throws {
         await progress.seed(times: 3)
@@ -103,15 +118,11 @@ struct WardrobeViewModelTests {
         _ = try await outfit.execute(skill: .care, choice: .hidden)
         let home = HomeViewModel(
             useCases: HomeViewModel.UseCases(
-                getProfile: StubGetProfile(profile: HeroStub.profile),
-                loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)),
-                getAdventure: StubGetAdventure(),
-                getProgress: progress,
+                getOverview: FakeHomeOverview(profile: HeroStub.profile, progress: progress, outfit: outfit),
                 completeQuest: progress,
                 defeatBoss: progress,
                 deleteEvent: progress,
                 moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
-                getOutfit: outfit,
                 reminder: .neverOffered
             ),
             locale: Locale(identifier: "el_GR"),
@@ -127,19 +138,51 @@ struct WardrobeViewModelTests {
     }
 }
 
-actor FakeOutfit: GetOutfitUseCase, SetOutfitChoiceUseCase {
+/// The hero stub's wardrobe, read from the fake log and the fake outfit.
+struct FakeWardrobe: GetWardrobeUseCase {
+    let progress: FakeProgress
+    let outfit: FakeOutfit
+
+    func execute() async throws -> Wardrobe {
+        Wardrobe(
+            profile: HeroStub.profile,
+            gear: HeroStub.catalog.gear,
+            progress: await progress.current,
+            outfit: await outfit.stored
+        )
+    }
+}
+
+actor FakeOutfit: SetOutfitChoiceUseCase {
     private(set) var stored = Outfit()
     private var shouldFail = false
+
+    private var isSlow = false
+    private var slowStarted = false
 
     func failNext() {
         shouldFail = true
     }
 
-    func execute() async throws -> Outfit {
-        stored
+    /// The next save is stored at once but its reply comes late, after any save made meanwhile: the reply's outfit
+    /// does not have that later change.
+    func slowNext() {
+        isSlow = true
+    }
+
+    func waitUntilSlowStarted() async {
+        while !slowStarted { await Task.yield() }
     }
 
     func execute(skill: Skill, choice: OutfitChoice) async throws -> Outfit {
+        if isSlow {
+            isSlow = false
+            stored.choices[skill] = choice == .automatic ? nil : choice
+            let reply = stored
+            slowStarted = true
+            try? await Task.sleep(for: .milliseconds(200))
+            return reply
+        }
         if shouldFail {
             shouldFail = false
             throw StubError.boom

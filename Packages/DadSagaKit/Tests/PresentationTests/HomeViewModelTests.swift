@@ -324,15 +324,11 @@ func makeHomeViewModel(
 ) -> HomeViewModel {
     HomeViewModel(
         useCases: HomeViewModel.UseCases(
-            getProfile: StubGetProfile(profile: profile),
-            loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)),
-            getAdventure: StubGetAdventure(),
-            getProgress: progress,
+            getOverview: FakeHomeOverview(profile: profile, progress: progress),
             completeQuest: progress,
             defeatBoss: progress,
             deleteEvent: progress,
             moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
-            getOutfit: FakeOutfit(),
             reminder: reminder
         ),
         locale: Locale(identifier: locale),

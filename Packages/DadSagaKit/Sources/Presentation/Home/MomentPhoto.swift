@@ -21,6 +21,8 @@ struct MomentPhoto<Placeholder: View>: View {
     }
 
     var body: some View {
+        // Read here, on the main actor: the geometry closure runs off it and must not touch the view.
+        let scale = displayScale
         ZStack {
             if let image {
                 image
@@ -30,8 +32,8 @@ struct MomentPhoto<Placeholder: View>: View {
                 placeholder()
             }
         }
-        .onGeometryChange(for: Int.self) { proxy in
-            Int((max(proxy.size.width, proxy.size.height) * displayScale).rounded(.up))
+        .onGeometryChange(for: Int.self) { [scale] proxy in
+            Int((max(proxy.size.width, proxy.size.height) * scale).rounded(.up))
         } action: { maxPixelSize = $0 }
         .task(id: Request(photoID: photoID, maxPixelSize: maxPixelSize)) {
             guard let photoID else {

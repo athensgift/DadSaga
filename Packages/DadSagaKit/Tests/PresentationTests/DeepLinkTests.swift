@@ -25,7 +25,7 @@ struct DeepLinkTests {
 
         #expect(sut.selectedChildID == HeroStub.eleni.id)
         #expect(sut.selectedQuest?.id == "q1")
-        #expect(try await progress.execute().totalXP == 0)
+        #expect(await progress.current.totalXP == 0)
     }
 
     @Test("Given a quest that no longer exists, when opening it, then no sheet opens")

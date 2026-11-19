@@ -1,4 +1,5 @@
 import DesignSystem
+import HeroArt
 import SwiftUI
 
 /// Two steps in a navigation stack: the dad's children, then which hero he plays and how he looks.

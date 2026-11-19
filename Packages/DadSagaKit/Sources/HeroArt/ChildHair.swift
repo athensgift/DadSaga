@@ -1,3 +1,4 @@
+import DesignSystem
 import SwiftUI
 
 /// Hair by stage and gender, centred on the head.

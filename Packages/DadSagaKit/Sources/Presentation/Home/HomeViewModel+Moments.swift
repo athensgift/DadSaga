@@ -4,22 +4,22 @@ import Foundation
 /// Legendary moments: capture a first for the selected child, or correct one captured earlier.
 extension HomeViewModel {
     public func startCapture() {
-        guard let snapshot else { return }
+        guard let overview else { return }
         errorMessage = nil
         momentCapture = momentsFormatter.capture(
-            for: snapshot.child,
-            catalog: snapshot.catalog,
-            progress: snapshot.progress,
+            for: overview.child,
+            catalog: overview.catalog,
+            progress: overview.progress,
             now: now()
         )
     }
 
     /// Opens a captured moment to change its date, note or photo, or to delete it.
     public func editMoment(id: UUID) {
-        guard let snapshot,
-              let moment = snapshot.progress.moments(for: snapshot.child.id).first(where: { $0.eventID == id }) else { return }
+        guard let overview,
+              let moment = overview.progress.moments(for: overview.child.id).first(where: { $0.eventID == id }) else { return }
         errorMessage = nil
-        momentCapture = momentsFormatter.edit(moment, for: snapshot.child, now: now())
+        momentCapture = momentsFormatter.edit(moment, for: overview.child, now: now())
     }
 
     public func dismissCapture() {

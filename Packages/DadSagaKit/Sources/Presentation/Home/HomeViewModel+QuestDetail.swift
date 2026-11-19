@@ -29,7 +29,7 @@ extension HomeViewModel {
             guide: boss.guide.map { $0.resolved(for: locale) },
             reward: "+\(boss.xp) XP · \(boss.badge.resolved(for: locale))",
             disclaimer: strings.medicalFooter,
-            isDefeated: defeatedBossIDs.contains(boss.id),
+            isDefeated: overview?.defeatedBossIDs.contains(boss.id) == true,
             defeatedText: strings.defeatedText(for: boss),
             confirmTitle: strings.text("We made it through!"),
             journal: JournalLabels(locale: locale),
@@ -38,7 +38,7 @@ extension HomeViewModel {
     }
 
     private func lastJournal(for kind: ProgressEvent.Kind) -> LastJournal? {
-        guard let snapshot, let entry = snapshot.progress.lastJournal(for: kind, childID: snapshot.child.id) else { return nil }
+        guard let overview, let entry = overview.progress.lastJournal(for: kind, childID: overview.child.id) else { return nil }
         let day = strings.day(entry.date)
         return LastJournal(
             title: entry.note == nil

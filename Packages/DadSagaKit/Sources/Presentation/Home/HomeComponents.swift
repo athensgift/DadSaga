@@ -61,7 +61,7 @@ struct LevelPanel: View {
 /// Whose world and quests are shown, when there are several children.
 struct ChildPicker: View {
     let content: HomeContent
-    let onSelect: (UUID) -> Void
+    let onSelect: @MainActor @Sendable (UUID) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.s) {

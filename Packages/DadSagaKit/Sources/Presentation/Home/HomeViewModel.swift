@@ -35,12 +35,7 @@ public final class HomeViewModel {
     let momentsFormatter: MomentsFormatter
     let now: @Sendable () -> Date
     /// What the screen was last built from, for actions that need it (e.g. which firsts are left).
-    private(set) var snapshot: HomeSnapshot?
-    private var quests: [Quest] = []
-    private var bosses: [BossFight] = []
-    private(set) var defeatedBossIDs: Set<String> = []
-    private var gear: [GearItem] = []
-    private var outfit = Outfit()
+    private(set) var overview: HomeOverview?
     private var celebrationCount = 0
     /// Each load takes a number; only the latest one may update the screen, so an older load that finishes last
     /// (e.g. home appearing while a widget link opens another child) cannot put back what it read.
@@ -73,9 +68,10 @@ public final class HomeViewModel {
     /// Opens the sheet for a quest ("did you do it?") or a boss (survival guide).
     public func select(cardID: String) {
         errorMessage = nil
-        if let quest = quests.first(where: { $0.id == cardID }) {
+        guard let overview else { return }
+        if let quest = overview.quests.first(where: { $0.id == cardID }) {
             selectedQuest = detail(for: quest)
-        } else if let boss = bosses.first(where: { $0.id == cardID }) {
+        } else if let boss = overview.bosses.first(where: { $0.id == cardID }) {
             selectedBoss = detail(for: boss)
         }
     }
@@ -99,7 +95,7 @@ public final class HomeViewModel {
     /// Records the open boss as defeated, with the dad's optional note and photo.
     public func defeatSelectedBoss(note: String = "", photo: MomentPhotoEdit = .keep) async {
         guard let boss = selectedBoss, !boss.isDefeated, let childID = selectedChildID else { return }
-        let badge = bosses.first { $0.id == boss.id }?.badge.resolved(for: locale)
+        let badge = overview?.bosses.first { $0.id == boss.id }?.badge.resolved(for: locale)
         let journal = JournalInput(note: note, photo: photo.newData)
         await record(badge: badge) {
             try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now(), journal: journal)
@@ -129,10 +125,7 @@ public final class HomeViewModel {
                     ? strings.text("Level \(change.after.level.level)") + "!"
                     : nil,
                 badgeText: badge,
-                unlockText: GearRules
-                    .newlyEarned(gear, before: change.before.skillXP, after: change.after.skillXP)
-                    .first
-                    .map { strings.text("New: \($0.title.resolved(for: locale))") },
+                unlockText: change.newGear.first.map { strings.text("New: \($0.title.resolved(for: locale))") },
                 momentText: moment
             )
             undoOffer = change.eventID.map { makeUndoOffer(id: celebrationCount, eventID: $0) }
@@ -149,61 +142,32 @@ public final class HomeViewModel {
         loadGeneration += 1
         let generation = loadGeneration
         do {
-            guard let profile = try await useCases.getProfile.execute(), let firstChild = profile.children.first else {
+            guard let overview = try await useCases.getOverview.execute(
+                childID: selectedChildID, worldID: viewedWorldID, on: now()
+            ) else {
                 guard generation == loadGeneration else { return }
                 state = .failed(message: strings.text("No profile found."))
                 return
             }
-            let child = profile.children.first { $0.id == selectedChildID } ?? firstChild
-            let catalog = try await useCases.loadCatalog.execute()
-            let adventure = try await useCases.getAdventure.execute(
-                for: child,
-                childCount: profile.children.count,
-                on: now()
-            )
-            let progress = try await useCases.getProgress.execute()
-            let outfit = try await useCases.getOutfit.execute()
-            let offer = await makeReminderOffer(children: profile.children, progress: progress)
+            let offer = await makeReminderOffer(children: overview.profile.children, progress: overview.progress)
             guard generation == loadGeneration else { return }
             reminderOffer = offer
-            selectedChildID = child.id
-            self.outfit = outfit
-            let world = adventure.unlockedWorlds.first { $0.id == viewedWorldID } ?? adventure.currentWorld
-            if world?.id == adventure.currentWorld?.id { viewedWorldID = nil }
-            let worldID = world?.id
-            quests = world.map { UnlockRules.quests(for: $0, in: catalog, ageInMonths: adventure.ageInMonths) } ?? []
-            bosses = adventure.availableBosses.filter { $0.worldID == worldID }
-            defeatedBossIDs = progress.defeatedBossIDs(for: child.id)
-            gear = catalog.gear
-            snapshot = HomeSnapshot(
-                child: child,
-                catalog: catalog,
-                progress: progress,
-                adventure: adventure,
-                childCount: profile.children.count
-            )
-            state = .loaded(
-                makeContent(
-                    profile: profile,
-                    child: child,
-                    catalog: catalog,
-                    adventure: adventure,
-                    progress: progress
-                )
-            )
+            selectedChildID = overview.child.id
+            viewedWorldID = overview.isShowingCurrentWorld ? nil : overview.shownWorld?.id
+            self.overview = overview
+            state = .loaded(makeContent(overview))
         } catch {
             guard generation == loadGeneration else { return }
             state = .failed(message: strings.text("Content failed to load."))
         }
     }
 
-    private func makeContent(
-        profile: PlayerProfile,
-        child: Child,
-        catalog: ContentCatalog,
-        adventure: Adventure,
-        progress: DadProgress
-    ) -> HomeContent {
+    private func makeContent(_ overview: HomeOverview) -> HomeContent {
+        let profile = overview.profile
+        let child = overview.child
+        let catalog = overview.catalog
+        let adventure = overview.adventure
+        let progress = overview.progress
         let level = progress.level
         let hero = catalog.heroClasses.first { $0.id == profile.heroClassID }
         let childLine = "\(child.name) · \(strings.ageText(months: adventure.ageInMonths))"
@@ -213,9 +177,7 @@ public final class HomeViewModel {
             heroTagline: hero?.tagline.resolved(for: locale) ?? "",
             heroLook: HeroLook(heroClassID: profile.heroClassID),
             heroSkin: SkinToneChoice(profile.dadSkinTone),
-            heroGear: GearRules
-                .equipped(catalog.gear, skillXP: progress.skillXP, outfit: outfit)
-                .compactMap { HeroGearLook(look: $0.look) },
+            heroGear: overview.equippedGear.compactMap { HeroGearLook(look: $0.look) },
             medalCount: progress.allDefeatedBossIDs.count,
             companionLine: hasSiblings ? profile.children.map(\.name).joined(separator: " · ") : childLine,
             childTabs: hasSiblings ? profile.children.map { ChildTab(id: $0.id, name: $0.name) } : [],
@@ -238,22 +200,23 @@ public final class HomeViewModel {
             levelTitle: strings.text("Level \(level.level)"),
             levelFraction: level.fraction,
             xpLine: "\(level.xpIntoLevel) / \(level.xpNeededForNextLevel) XP",
-            worldTitle: shownWorld(adventure)?.title.resolved(for: locale),
-            worldTagline: shownWorld(adventure)?.tagline.resolved(for: locale),
+            worldTitle: overview.shownWorld?.title.resolved(for: locale),
+            worldTagline: overview.shownWorld?.tagline.resolved(for: locale),
             mapTitle: strings.text("World map"),
-            backToCurrentTitle: viewedWorldID == nil
+            backToCurrentTitle: overview.isShowingCurrentWorld
                 ? nil
                 : strings.text("Back to the current world"),
             emptyMessage: adventure.isBeyondContent
                 ? strings.text("Adventures for your child's age are coming soon.")
                 : nil,
-            cards: bossCards() + questCards(completions: progress.questCompletions(for: child.id)),
+            cards: bossCards(overview) + questCards(overview),
             moments: momentsFormatter.section(for: child, catalog: catalog, progress: progress)
         )
     }
 
-    private func bossCards() -> [CardModel] {
-        bosses.map { boss in
+    private func bossCards(_ overview: HomeOverview) -> [CardModel] {
+        let defeatedBossIDs = overview.defeatedBossIDs
+        return overview.bosses.map { boss in
             CardModel(
                 id: boss.id,
                 title: boss.title.resolved(for: locale),
@@ -266,8 +229,9 @@ public final class HomeViewModel {
         }
     }
 
-    private func questCards(completions: [String: Int]) -> [CardModel] {
-        quests.map { quest in
+    private func questCards(_ overview: HomeOverview) -> [CardModel] {
+        let completions = overview.progress.questCompletions(for: overview.child.id)
+        return overview.quests.map { quest in
             CardModel(
                 id: quest.id,
                 title: quest.title.resolved(for: locale),

@@ -10,14 +10,6 @@ struct ProgressUseCaseTests {
     let child = UUID()
     let photos = SpyPhotoStore()
 
-    @Test("Given no events, when getting progress, then the dad is level 1 with 0 XP")
-    func emptyProgress() async throws {
-        let sut = DefaultGetProgressUseCase(contentRepository: content, progressRepository: SpyProgressRepository())
-        let progress = try await sut.execute()
-        #expect(progress.totalXP == 0)
-        #expect(progress.level.level == 1)
-    }
-
     @Test("Given a note and a photo, when completing a quest, then both are kept on the event and are its last journal")
     func completesQuestWithJournal() async throws {
         let repository = SpyProgressRepository()
@@ -103,16 +95,18 @@ struct ProgressUseCaseTests {
         #expect(try await repository.fetchEvents().map(\.kind) == [.boss(id: "b1")])
     }
 
-    @Test("Given a boss already defeated, when defeating it again, then nothing changes and nothing is stored")
+    @Test("Given a boss already defeated, when defeating it again with a photo, then nothing changes and nothing is kept")
     func bossOnlyOnce() async throws {
         let repository = SpyProgressRepository()
         let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
         _ = try await sut.execute(bossID: "b1", childID: child, on: today, journal: .empty)
 
-        let change = try await sut.execute(bossID: "b1", childID: child, on: today, journal: .empty)
+        let change = try await sut.execute(bossID: "b1", childID: child, on: today, journal: JournalInput(photo: Data([1])))
 
         #expect(change.gainedXP == 0)
+        #expect(change.eventID == nil)
         #expect(try await repository.fetchEvents().count == 1)
+        #expect(await photos.saveCount == 0)
     }
 
     @Test("Given a boss defeated with one child, when defeating it with another, then it counts again")
@@ -127,6 +121,73 @@ struct ProgressUseCaseTests {
         #expect(try await repository.fetchEvents().count == 2)
     }
 
+    @Test("Given a quest done once, when completing it again with the same child, then it is stored and counts again")
+    func questRepeatable() async throws {
+        let repository = SpyProgressRepository()
+        let sut = DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        _ = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+
+        let change = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+
+        #expect(change.gainedXP == 20)
+        #expect(try await repository.fetchEvents().count == 2)
+    }
+
+    @Test("Given another save of the same boss landed first, when defeating it, then nothing is added and no photo is kept")
+    func bossRace() async throws {
+        let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: LosesRace(), photoStore: photos)
+
+        let change = try await sut.execute(bossID: "b1", childID: child, on: today, journal: JournalInput(photo: Data([1])))
+
+        #expect(change.eventID == nil)
+        #expect(change.gainedXP == 0)
+        #expect(await photos.stored.isEmpty)
+    }
+
+    @Test("Given storing fails, when recording a quest or a boss with a photo, then it throws and the photo is removed")
+    func failedSaveRemovesPhoto() async throws {
+        let failing = FailingUpdates(SpyProgressRepository())
+        let quest = DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: failing, photoStore: photos)
+        let boss = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: failing, photoStore: photos)
+
+        await #expect(throws: FailingUpdates.Failure.self) {
+            try await quest.execute(questID: "q1", childID: child, on: today, journal: JournalInput(photo: Data([1])))
+        }
+        await #expect(throws: FailingUpdates.Failure.self) {
+            try await boss.execute(bossID: "b1", childID: child, on: today, journal: JournalInput(photo: Data([2])))
+        }
+        #expect(await photos.saveCount == 2)
+        #expect(await photos.stored.isEmpty)
+    }
+
+    @Test("Given a quest that crosses a gear threshold, when completing it, then the change names the new gear")
+    func newGear() async throws {
+        let text = Stub.text
+        let catalog = ContentCatalog(
+            worlds: Stub.catalog.worlds,
+            quests: Stub.catalog.quests,
+            bosses: [],
+            firsts: [],
+            gear: [
+                GearItem(id: "g-cloth", skill: .care, minXP: 40, look: "burpCloth", title: text),
+                GearItem(id: "g-duck", skill: .play, minXP: 20, look: "duck", title: text)
+            ]
+        )
+        let sut = DefaultCompleteQuestUseCase(
+            contentRepository: StubContentRepository(result: .success(catalog)),
+            progressRepository: SpyProgressRepository(),
+            photoStore: photos
+        )
+
+        let first = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+        let second = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+        let third = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+
+        #expect(first.newGear.isEmpty)
+        #expect(second.newGear.map(\.id) == ["g-cloth"])
+        #expect(third.newGear.isEmpty)
+    }
+
     @Test("Given an unknown boss, when defeating it, then it throws and nothing is stored")
     func unknownBoss() async throws {
         let repository = SpyProgressRepository()
@@ -139,6 +200,16 @@ struct ProgressUseCaseTests {
     }
 }
 
+/// Shows no events, then finds the event already stored when adding: another save got there first.
+struct LosesRace: ProgressRepository {
+    func fetchEvents() async throws -> [ProgressEvent] { [] }
+    func add(_ event: ProgressEvent) async throws {}
+    func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool { false }
+    func update(_ event: ProgressEvent) async throws {}
+    func delete(id: UUID) async throws {}
+    func deleteAll() async throws {}
+}
+
 actor SpyProgressRepository: ProgressRepository {
     private var events: [ProgressEvent] = []
 
@@ -148,6 +219,12 @@ actor SpyProgressRepository: ProgressRepository {
 
     func add(_ event: ProgressEvent) async throws {
         events.append(event)
+    }
+
+    func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool {
+        guard !events.contains(where: { $0.kind == event.kind && $0.childID == event.childID }) else { return false }
+        events.append(event)
+        return true
     }
 
     func update(_ event: ProgressEvent) async throws {

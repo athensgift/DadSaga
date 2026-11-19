@@ -54,7 +54,7 @@ struct MomentUseCaseTests {
         await #expect(throws: MomentError.alreadyCaptured(firstID)) {
             try await capture.execute(request(photo: Data([9])), now: today)
         }
-        #expect(await photos.stored.isEmpty)
+        #expect(await photos.saveCount == 0)
         _ = try await capture.execute(request(child: UUID()), now: today)
         #expect(try await repository.fetchEvents().count == 2)
     }
@@ -190,6 +190,7 @@ struct FailingUpdates: ProgressRepository {
 
     func fetchEvents() async throws -> [ProgressEvent] { try await base.fetchEvents() }
     func add(_ event: ProgressEvent) async throws { throw Failure() }
+    func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool { throw Failure() }
     func update(_ event: ProgressEvent) async throws { throw Failure() }
     func delete(id: UUID) async throws { throw Failure() }
     func deleteAll() async throws { throw Failure() }
@@ -198,8 +199,11 @@ struct FailingUpdates: ProgressRepository {
 /// Keeps "photos" in memory, exactly as given.
 actor SpyPhotoStore: PhotoStore {
     private(set) var stored: [String: Data] = [:]
+    /// Every photo ever written, kept or not.
+    private(set) var saveCount = 0
 
     func save(_ imageData: Data) async throws -> String {
+        saveCount += 1
         let id = UUID().uuidString
         stored[id] = imageData
         return id

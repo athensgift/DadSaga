@@ -21,20 +21,22 @@ struct LoadContentCatalogUseCaseTests {
     }
 }
 
-@Suite("GetAdventureUseCase")
-struct GetAdventureUseCaseTests {
-    @Test("Given a 10-month-old, when executing, then the second world is current and age-appropriate quests are available")
-    func tenMonthOld() async throws {
+@Suite("Adventure")
+struct AdventureTests {
+    let utc: Calendar = {
         var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = try #require(TimeZone(identifier: "UTC"))
-        let birth = try #require(calendar.date(from: DateComponents(year: 2026, month: 1, day: 1)))
-        let today = try #require(calendar.date(from: DateComponents(year: 2026, month: 11, day: 1)))
-        let sut = DefaultGetAdventureUseCase(
-            repository: StubContentRepository(result: .success(Stub.catalog)),
-            calendar: calendar
-        )
+        calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .gmt
+        return calendar
+    }()
 
-        let adventure = try await sut.execute(for: Child(name: "Νίκος", birthDate: birth), childCount: 1, on: today)
+    @Test("Given a 10-month-old, when building the adventure, then the second world is current and has no bosses yet")
+    func tenMonthOld() throws {
+        let birth = try #require(utc.date(from: DateComponents(year: 2026, month: 1, day: 1)))
+        let today = try #require(utc.date(from: DateComponents(year: 2026, month: 11, day: 1)))
+
+        let adventure = Adventure(
+            for: Child(name: "Νίκος", birthDate: birth), childCount: 1, catalog: Stub.catalog, on: today, calendar: utc
+        )
 
         #expect(adventure.ageInMonths == 10)
         #expect(!adventure.isBeyondContent)
@@ -42,43 +44,30 @@ struct GetAdventureUseCaseTests {
         #expect(adventure.unlockedWorlds.map(\.id) == ["w1", "w2"])
         #expect(adventure.availableBosses.isEmpty)
     }
-}
 
-@Suite("GetAdventureUseCase, family size")
-struct FamilySizeAdventureTests {
-    let birth = Date(timeIntervalSince1970: 0)
-    let today = Date(timeIntervalSince1970: 14 * 31 * 86_400)
+    @Test("Given one child or two, when building the adventure, then a sibling-only boss comes only with two")
+    func familySize() {
+        let birth = Date(timeIntervalSince1970: 0)
+        let today = Date(timeIntervalSince1970: 14 * 31 * 86_400)
+        let child = Child(name: "Νίκος", birthDate: birth)
 
-    @Test("Given one child, when executing, then a sibling-only boss is not offered")
-    func oneChild() async throws {
-        let sut = DefaultGetAdventureUseCase(repository: StubContentRepository(result: .success(Stub.catalog)))
-        let adventure = try await sut.execute(for: Child(name: "Νίκος", birthDate: birth), childCount: 1, on: today)
-        #expect(adventure.availableBosses.map(\.id) == ["b1"])
+        let alone = Adventure(for: child, childCount: 1, catalog: Stub.catalog, on: today, calendar: utc)
+        let siblings = Adventure(for: child, childCount: 2, catalog: Stub.catalog, on: today, calendar: utc)
+
+        #expect(alone.availableBosses.map(\.id) == ["b1"])
+        #expect(siblings.availableBosses.map(\.id) == ["b1", "b-sibling"])
     }
 
-    @Test("Given two children, when executing, then the sibling-only boss is offered")
-    func twoChildren() async throws {
-        let sut = DefaultGetAdventureUseCase(repository: StubContentRepository(result: .success(Stub.catalog)))
-        let adventure = try await sut.execute(for: Child(name: "Νίκος", birthDate: birth), childCount: 2, on: today)
-        #expect(adventure.availableBosses.map(\.id) == ["b1", "b-sibling"])
-    }
-}
-
-@Suite("GetAdventureUseCase, older children")
-struct OlderChildAdventureTests {
-    @Test("Given a child older than every world, when executing, then nothing is offered and it is beyond content")
-    func olderThanContent() async throws {
+    @Test("Given a child older than every world, when building the adventure, then nothing is offered")
+    func olderThanContent() {
         let today = Date(timeIntervalSince1970: 1_000_000_000)
-        let sut = DefaultGetAdventureUseCase(repository: StubContentRepository(result: .success(Stub.catalog)))
+        let child = Child(name: "Άννα", birthDate: today.addingTimeInterval(-5 * 365 * 86_400))
 
-        let adventure = try await sut.execute(
-            for: Child(name: "Άννα", birthDate: today.addingTimeInterval(-5 * 365 * 86_400)),
-            childCount: 1,
-            on: today
-        )
+        let adventure = Adventure(for: child, childCount: 1, catalog: Stub.catalog, on: today, calendar: utc)
 
         #expect(adventure.isBeyondContent)
         #expect(adventure.currentWorld == nil)
+        #expect(adventure.unlockedWorlds.map(\.id) == ["w1", "w2"])
         #expect(adventure.availableBosses.isEmpty)
     }
 }

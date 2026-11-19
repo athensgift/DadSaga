@@ -22,4 +22,13 @@ public struct ContentCatalog: Hashable, Sendable {
         self.heroClasses = heroClasses.sorted { $0.order < $1.order }
         self.gear = gear
     }
+
+    /// Whether the content an event points to is in the catalog.
+    public func contains(_ kind: ProgressEvent.Kind) -> Bool {
+        switch kind {
+        case .quest(let id): quests.contains { $0.id == id }
+        case .boss(let id): bosses.contains { $0.id == id }
+        case .first(let id): firsts.contains { $0.id == id }
+        }
+    }
 }

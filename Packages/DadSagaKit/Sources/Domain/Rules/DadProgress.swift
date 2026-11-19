@@ -69,6 +69,16 @@ public struct DadProgress: Hashable, Sendable {
         journalByChild[childID]?[kind]
     }
 
+    /// Whether recording this again for the child would count for nothing: a boss already beaten or a first already
+    /// captured. Always false for a quest, which can be done again and again.
+    public func isAlreadyCounted(_ kind: ProgressEvent.Kind, for childID: UUID) -> Bool {
+        switch kind {
+        case .quest: false
+        case .boss(let id): defeatedBossIDs(for: childID).contains(id)
+        case .first(let id): capturedFirstIDs(for: childID).contains(id)
+        }
+    }
+
     public func capturedFirstIDs(for childID: UUID) -> Set<String> {
         firstsByChild[childID] ?? []
     }

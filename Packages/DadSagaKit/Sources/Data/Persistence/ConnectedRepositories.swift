@@ -16,6 +16,9 @@ struct ConnectedProgressRepository: ProgressRepository {
 
     func fetchEvents() async throws -> [ProgressEvent] { try await connection.open().progress.fetchEvents() }
     func add(_ event: ProgressEvent) async throws { try await connection.open().progress.add(event) }
+    func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool {
+        try await connection.open().progress.addUnlessRecorded(event)
+    }
     func update(_ event: ProgressEvent) async throws { try await connection.open().progress.update(event) }
     func delete(id: UUID) async throws { try await connection.open().progress.delete(id: id) }
     func deleteAll() async throws { try await connection.open().progress.deleteAll() }
@@ -25,6 +28,8 @@ struct ConnectedOutfitRepository: OutfitRepository {
     let connection: StoreConnection
 
     func fetchOutfit() async throws -> Outfit { try await connection.open().outfit.fetchOutfit() }
-    func save(_ outfit: Outfit) async throws { try await connection.open().outfit.save(outfit) }
+    func setChoice(_ choice: OutfitChoice, for skill: Skill) async throws -> Outfit {
+        try await connection.open().outfit.setChoice(choice, for: skill)
+    }
     func deleteAll() async throws { try await connection.open().outfit.deleteAll() }
 }

@@ -1,3 +1,4 @@
+import DesignSystem
 import SwiftUI
 
 /// A child companion, drawn in code like `HeroAvatar`. Four age stages, each smaller and rounder the younger the

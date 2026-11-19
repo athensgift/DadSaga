@@ -118,19 +118,30 @@ struct LocalStoreTests {
         #expect(try await sut.fetchEvents() == [quest])
     }
 
-    @Test("Given wardrobe choices, when saving and fetching, then they round-trip and deleting clears them")
+    @Test("Given wardrobe choices, when setting slots one by one, then each keeps the others and deleting clears them")
     func outfitRoundTrip() async throws {
         let sut = LocalStore.inMemory().outfit
-        let outfit = Outfit(choices: [.care: .item("g-burp-cloth"), .play: .hidden])
 
-        try await sut.save(outfit)
+        _ = try await sut.setChoice(.item("g-burp-cloth"), for: .care)
+        let outfit = try await sut.setChoice(.hidden, for: .play)
+        #expect(outfit == Outfit(choices: [.care: .item("g-burp-cloth"), .play: .hidden]))
         #expect(try await sut.fetchOutfit() == outfit)
 
-        try await sut.save(Outfit(choices: [.patience: .hidden]))
-        #expect(try await sut.fetchOutfit() == Outfit(choices: [.patience: .hidden]))
+        #expect(try await sut.setChoice(.automatic, for: .care) == Outfit(choices: [.play: .hidden]))
 
         try await sut.deleteAll()
         #expect(try await sut.fetchOutfit() == Outfit())
+    }
+
+    @Test("Given two slots changed at the same moment, when both run, then both choices are kept")
+    func outfitSlotsDoNotOverwrite() async throws {
+        let sut = LocalStore.inMemory().outfit
+
+        async let care = sut.setChoice(.hidden, for: .care)
+        async let play = sut.setChoice(.item("g-duck"), for: .play)
+        _ = try await (care, play)
+
+        #expect(try await sut.fetchOutfit() == Outfit(choices: [.care: .hidden, .play: .item("g-duck")]))
     }
 
     @Test("Given stored choice text, when decoding, then known values map and unknown ones are ignored")
@@ -150,6 +161,33 @@ struct LocalStoreTests {
         try await sut.deleteAll()
 
         #expect(try await sut.fetchEvents().isEmpty)
+    }
+
+    @Test("Given two saves of the same boss for one child at the same moment, when both run, then exactly one is stored")
+    func addUnlessRecordedIsAtomic() async throws {
+        let sut = LocalStore.inMemory().progress
+        let child = UUID()
+        let first = ProgressEvent(kind: .boss(id: "b1"), childID: child, date: birth)
+        let second = ProgressEvent(kind: .boss(id: "b1"), childID: child, date: birth)
+
+        async let addedFirst = sut.addUnlessRecorded(first)
+        async let addedSecond = sut.addUnlessRecorded(second)
+        let added = try await [addedFirst, addedSecond]
+
+        #expect(added.filter { $0 }.count == 1)
+        #expect(try await sut.fetchEvents().count == 1)
+    }
+
+    @Test("Given a boss stored for one child, when adding it for another child or as another kind, then both are stored")
+    func addUnlessRecordedIsPerChildAndKind() async throws {
+        let sut = LocalStore.inMemory().progress
+        let child = UUID()
+        try await sut.add(ProgressEvent(kind: .boss(id: "x"), childID: child, date: birth))
+
+        #expect(try await sut.addUnlessRecorded(ProgressEvent(kind: .boss(id: "x"), childID: UUID(), date: birth)))
+        #expect(try await sut.addUnlessRecorded(ProgressEvent(kind: .first(id: "x"), childID: child, date: birth)))
+        #expect(try await !sut.addUnlessRecorded(ProgressEvent(kind: .boss(id: "x"), childID: child, date: birth)))
+        #expect(try await sut.fetchEvents().count == 3)
     }
 
     @Test("Given a record of a kind this version does not know, when mapping, then it is skipped")

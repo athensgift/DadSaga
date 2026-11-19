@@ -72,7 +72,7 @@ private struct BurstFrame: View, @MainActor Animatable {
         // Alternate near and far sparkles so the burst does not read as a perfect ring.
         let reach = radius * (index.isMultiple(of: 2) ? 1 : 0.72) * progress
         let size: CGFloat = index.isMultiple(of: 2) ? 14 : 9
-        return HeroSparkle()
+        return Sparkle()
             .fill(color)
             .frame(width: size, height: size)
             .scaleEffect(0.4 + 0.8 * (1 - abs(progress - 0.4)))

@@ -29,24 +29,18 @@ struct QuestTipsTests {
     )
 
     func makeSUT() -> HomeViewModel {
-        HomeViewModel(
+        let adventure = Adventure(
+            ageInMonths: 10, currentWorld: Self.plains, unlockedWorlds: [Self.swamp, Self.plains], availableBosses: []
+        )
+        return HomeViewModel(
             useCases: HomeViewModel.UseCases(
-                getProfile: StubGetProfile(profile: HeroStub.profile),
-                loadCatalog: StubLoadCatalog(result: .success(Self.catalog)),
-                getAdventure: FixedAdventure(
-                    adventure: Adventure(
-                        ageInMonths: 10,
-                        currentWorld: Self.plains,
-                        unlockedWorlds: [Self.swamp, Self.plains],
-                        availableBosses: []
-                    )
-                ),
-                getProgress: progress,
+                getOverview: FakeHomeOverview(profile: HeroStub.profile, catalog: Self.catalog, progress: progress) { _ in
+                    adventure
+                },
                 completeQuest: progress,
                 defeatBoss: progress,
                 deleteEvent: progress,
                 moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
-                getOutfit: FakeOutfit(),
                 reminder: .neverOffered
             ),
             locale: Locale(identifier: "el_GR"),

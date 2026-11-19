@@ -8,6 +8,6 @@ let package = Package(
     platforms: [.macOS(.v26)],
     dependencies: [.package(path: "../../Packages/DadSagaKit")],
     targets: [
-        .executableTarget(name: "LaunchLogo", dependencies: [.product(name: "DesignSystem", package: "DadSagaKit")])
+        .executableTarget(name: "LaunchLogo", dependencies: [.product(name: "HeroArt", package: "DadSagaKit")])
     ]
 )

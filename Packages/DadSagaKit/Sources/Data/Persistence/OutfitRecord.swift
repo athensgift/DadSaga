@@ -7,21 +7,27 @@ import SwiftData
 @ModelActor
 actor SwiftDataOutfitRepository: OutfitRepository {
     func fetchOutfit() async throws -> Outfit {
+        try currentOutfit()
+    }
+
+    /// Synchronous inside the actor between the delete, the insert and the read.
+    func setChoice(_ choice: OutfitChoice, for skill: Skill) async throws -> Outfit {
+        let raw = skill.rawValue
+        try modelContext.delete(model: OutfitRecord.self, where: #Predicate { $0.skill == raw })
+        if let encoded = OutfitCoding.encode(choice) {
+            modelContext.insert(OutfitRecord(skill: raw, choice: encoded))
+        }
+        try modelContext.save()
+        return try currentOutfit()
+    }
+
+    private func currentOutfit() throws -> Outfit {
         var outfit = Outfit()
         for record in try modelContext.fetch(FetchDescriptor<OutfitRecord>()) {
             guard let skill = Skill(rawValue: record.skill), let choice = OutfitCoding.decode(record.choice) else { continue }
             outfit.choices[skill] = choice
         }
         return outfit
-    }
-
-    func save(_ outfit: Outfit) async throws {
-        try modelContext.delete(model: OutfitRecord.self)
-        for (skill, choice) in outfit.choices {
-            guard let encoded = OutfitCoding.encode(choice) else { continue }
-            modelContext.insert(OutfitRecord(skill: skill.rawValue, choice: encoded))
-        }
-        try modelContext.save()
     }
 
     func deleteAll() async throws {
