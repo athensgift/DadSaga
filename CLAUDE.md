@@ -11,7 +11,7 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
 ```
 - One suite: `swift test --build-system swiftbuild --filter DeepLinkTests` (from `Packages/DadSagaKit`).
 - Screen snapshots (CI runs them; after a UI change, run them, look at the new images and commit them):
-  `xcodebuild test -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2' -only-testing:DadSagaSnapshotTests`.
+  `xcodebuild test -project DadSaga.xcodeproj -scheme DadSagaSnapshots -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2'`.
   A deliberate change: delete its images in `SnapshotTests/__Snapshots__`, run twice (record, then check).
 - Accessibility audit of the main screens (UI test, about a minute; run it after UI changes):
   `xcodebuild test -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=iPhone 17 Pro,OS=26.0' -only-testing:DadSagaUITests`

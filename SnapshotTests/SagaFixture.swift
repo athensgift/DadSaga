@@ -9,7 +9,7 @@ import Presentation
 /// locale and the clock passed in instead of read from the phone.
 @MainActor
 struct SagaFixture {
-    /// 15 June 2026, noon, UTC. `ScreenSnapshotTests` draws in UTC, so days and ages never move.
+    /// 15 June 2026, noon, UTC. The `DadSagaSnapshots` scheme runs in UTC, so days and ages never move.
     nonisolated static let today = Date(timeIntervalSince1970: 1_781_524_800)
     static let child = Child(
         id: UUID(uuidString: "11111111-1111-1111-1111-111111111111") ?? UUID(),

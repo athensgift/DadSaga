@@ -21,7 +21,10 @@ the `@ModelActor` repositories run off the main thread", and the widget test ADR
    `SnapshotTests/__Snapshots__`, committed.
 2. **The screens are drawn from a fixed saga** (`SagaFixture`): the real content, a store in memory, 15 June 2026 at
    noon, a four-month-old, three quests, two firsts. View models get the locale and the clock passed in, the way
-   `AppContainer` builds them otherwise. The suite draws in UTC and loads each view model before drawing its screen.
+   `AppContainer` builds them otherwise. They run from their own scheme, `DadSagaSnapshots`, whose test action
+   launches the app with region en_US and time zone UTC: iOS formats the date picker by the simulator's region, which
+   is the Mac's (en_GR here) locally and en_US on CI. The other schemes, and Run, keep the device's. Each view model
+   is loaded before its screen is drawn.
    The images are 390 × 844 pt, whatever the simulator's size.
 3. **Hosted by the app, in its window.** Liquid Glass (buttons, the toolbar, home's cards) is drawn only in a real
    window; without a host, home and onboarding came out empty. While XCTest is injected into it, the app runs on the

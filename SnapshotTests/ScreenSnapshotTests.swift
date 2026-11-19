@@ -9,7 +9,8 @@ import UIKit
 /// shows up in review (ADR-0034). Each is drawn in Greek and light mode, in English and dark mode, and in English at
 /// the largest accessibility text size, which the accessibility audit does not check (ADR-0033).
 ///
-/// A missing reference image is recorded and the test fails once; commit the new image under `__Snapshots__`.
+/// Run from the `DadSagaSnapshots` scheme, which fixes the region (en_US) and the time zone (UTC) on every Mac and in
+/// CI. A missing reference image is recorded and the test fails once; commit the new image under `__Snapshots__`.
 /// After a deliberate change, delete the old images and run again.
 /// One case at a time: every case draws in the app's one window.
 @MainActor
@@ -30,11 +31,6 @@ struct ScreenSnapshotTests {
                 traits.displayScale = 3
             }
         }
-    }
-
-    /// Dates and ages are drawn in UTC, on every Mac and in CI, like `SagaFixture.today`.
-    init() {
-        NSTimeZone.default = TimeZone(identifier: "UTC") ?? .gmt
     }
 
     @Test("Given a new dad, when onboarding opens, then it looks as recorded", arguments: Look.allCases)
