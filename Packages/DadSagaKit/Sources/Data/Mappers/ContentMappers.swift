@@ -1,4 +1,6 @@
+import Application
 import Domain
+import Foundation
 
 extension LocalizedTextDTO {
     func toDomain() -> LocalizedText {
@@ -89,5 +91,14 @@ extension HeroClassDTO {
 extension GearItemDTO {
     func toDomain() throws -> GearItem {
         GearItem(id: id, skill: try QuestDTO.skill(skill, itemID: id), minXP: minXP, look: look, title: title.toDomain())
+    }
+}
+
+extension SoundtrackDTO {
+    func toDomain(audioURL: URL) throws -> Soundtrack {
+        guard let licence = SoundtrackLicence(rawValue: licence) else {
+            throw ContentDataError.unknownLicence(itemID: id, licence: self.licence)
+        }
+        return Soundtrack(id: id, title: title, artist: artist, licence: licence, audioURL: audioURL)
     }
 }

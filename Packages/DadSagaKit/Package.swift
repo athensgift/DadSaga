@@ -24,6 +24,7 @@ let package = Package(
         .library(name: "HeroArt", targets: ["HeroArt"]),
         .library(name: "WidgetPresentation", targets: ["WidgetPresentation"]),
         .library(name: "Localization", targets: ["Localization"]),
+        .library(name: "SagaMusic", targets: ["SagaMusic"]),
     ],
     targets: [
         // Entities + enterprise business rules. Pure Swift, depends on nothing.
@@ -47,11 +48,13 @@ let package = Package(
         .target(name: "WidgetPresentation", dependencies: ["Application", "Domain", "Localization"]),
         // UI text in one String Catalog, shared by the app's and the widget's presenters (ADR-0027). No SwiftUI.
         .target(name: "Localization", dependencies: ["Domain"], resources: [.process("Resources")]),
+        // The saga film's music and its credits, read by Data (ADR-0036 §8). Linked by the app only, never the widget.
+        .target(name: "SagaMusic", resources: [.process("Resources")]),
 
         .testTarget(name: "DomainTests", dependencies: ["Domain"]),
         .testTarget(name: "DesignSystemTests", dependencies: ["DesignSystem"]),
         .testTarget(name: "ApplicationTests", dependencies: ["Application", "Domain"]),
-        .testTarget(name: "DataTests", dependencies: ["Data", "Application", "Domain"], exclude: ["Fixtures"]),
+        .testTarget(name: "DataTests", dependencies: ["Data", "Application", "Domain", "SagaMusic"], exclude: ["Fixtures"]),
         .testTarget(name: "PresentationTests", dependencies: ["Presentation", "Application", "Domain"]),
         .testTarget(name: "LocalizationTests", dependencies: ["Localization", "Domain"]),
         .testTarget(name: "WidgetPresentationTests", dependencies: ["WidgetPresentation", "Application", "Domain"]),

@@ -10,6 +10,7 @@ included:
 excluded:
   - Packages/DadSagaKit/.build
   - Tools/LaunchLogo/.build
+  - Tools/SagaTheme/.build
 
 opt_in_rules:
   - force_unwrapping
