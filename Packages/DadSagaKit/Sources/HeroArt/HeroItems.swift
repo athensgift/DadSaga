@@ -76,10 +76,10 @@ extension View {
             self
         case .legendary:
             self
-                .shadow(color: DSColor.legendary.opacity(0.45 + 0.45 * glow), radius: 2.5 + 2 * glow)
+                .shadow(color: DSColor.heroGold.opacity(0.45 + 0.45 * glow), radius: 2.5 + 2 * glow)
                 .overlay {
                     Sparkle()
-                        .fill(DSColor.legendary)
+                        .fill(DSColor.heroGold)
                         .frame(width: 5, height: 5)
                         .scaleEffect(0.75 + 0.35 * glow)
                         .offset(x: sparkle.x, y: sparkle.y)
@@ -198,7 +198,7 @@ struct HeroHipItem: View {
 struct HeroMedals: View {
     let count: Int
 
-    private static let colors = [DSColor.legendary, DSColor.heroSteel, DSColor.boss, DSColor.accent]
+    private static let colors = [DSColor.heroGold, DSColor.heroSteel, DSColor.heroOrange, DSColor.heroBlue]
 
     var body: some View {
         ForEach(0..<min(count, Self.colors.count), id: \.self) { index in

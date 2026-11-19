@@ -67,11 +67,11 @@ struct ChildHair: View {
             case (.preschooler, .girl):
                 cap(radius: radius, depth: 0.8)
                 ForEach([-1.0, 1.0], id: \.self) { side in
-                    Circle().fill(DSColor.legendary).frame(width: 4, height: 4).offset(x: side * (radius + 1), y: -radius * 0.45)
+                    Circle().fill(DSColor.heroGold).frame(width: 4, height: 4).offset(x: side * (radius + 1), y: -radius * 0.45)
                 }
             case (.kid, .girl):
                 cap(radius: radius, depth: 0.9)
-                Capsule().fill(DSColor.boss).frame(width: 9, height: 4).offset(x: radius * 0.7, y: -radius * 0.55)
+                Capsule().fill(DSColor.heroOrange).frame(width: 9, height: 4).offset(x: radius * 0.7, y: -radius * 0.55)
             }
         }
     }
@@ -89,7 +89,7 @@ struct ChildHair: View {
             Image(systemName: "triangle.fill").rotationEffect(.degrees(-90))
         }
         .font(.system(size: 6))
-        .foregroundStyle(DSColor.boss)
+        .foregroundStyle(DSColor.heroOrange)
     }
 
     /// Hair covering the top of the head; `depth` is how far down the sides it reaches (0...1 of the radius).

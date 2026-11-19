@@ -39,6 +39,7 @@ public struct PrimaryButton: View {
         Button(action: action) {
             Text(title)
                 .font(DSFont.headline)
+                .onTintLabel()
                 .frame(maxWidth: .infinity)
         }
         .buttonStyle(.glassProminent)
@@ -131,6 +132,26 @@ public struct QuestCard: View {
     }
 }
 
+extension View {
+    /// A label on a tint fill, such as a prominent button's: `onTint` while enabled. Disabled, the system's dimmed
+    /// label on its grey fill, which a fixed colour would override.
+    public func onTintLabel() -> some View {
+        modifier(OnTintLabel())
+    }
+}
+
+private struct OnTintLabel: ViewModifier {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func body(content: Content) -> some View {
+        if isEnabled {
+            content.foregroundStyle(DSColor.onTint)
+        } else {
+            content
+        }
+    }
+}
+
 /// A card's symbol on a tinted square, growing with the text so the symbol stays inside it. Decorative: hidden from
 /// VoiceOver, since the card's text says the same.
 public struct IconTile: View {
@@ -146,7 +167,7 @@ public struct IconTile: View {
     public var body: some View {
         Image(systemName: symbol)
             .font(DSFont.tileSymbol)
-            .foregroundStyle(DSColor.heroHighlight)
+            .foregroundStyle(DSColor.onTint)
             .frame(width: size, height: size)
             .background(tint.gradient, in: RoundedRectangle(cornerRadius: DSRadius.tile, style: .continuous))
             .accessibilityHidden(true)

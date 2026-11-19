@@ -89,10 +89,10 @@ extension HeroAvatar.Style {
         switch self {
         case .hero: DSColor.heroTeal
         case .cool: DSColor.heroPurple
-        case .strong: DSColor.boss
+        case .strong: DSColor.heroOrange
         case .smart: DSColor.heroGreen
-        case .chef: DSColor.legendary
-        case .fixer: DSColor.accent
+        case .chef: DSColor.heroGold
+        case .fixer: DSColor.heroBlue
         }
     }
 
@@ -101,7 +101,7 @@ extension HeroAvatar.Style {
         switch self {
         case .hero: heroGradient(DSColor.heroTeal, DSColor.heroTealShade)
         case .cool: heroGradient(DSColor.heroPurple, DSColor.heroPurpleShade)
-        case .strong, .fixer: heroGradient(DSColor.boss, DSColor.heroCapeShade)
+        case .strong, .fixer: heroGradient(DSColor.heroOrange, DSColor.heroCapeShade)
         case .smart: heroGradient(DSColor.heroGreen, DSColor.heroGreenShade)
         case .chef: heroGradient(DSColor.heroChef, DSColor.heroChefShade)
         }
@@ -118,7 +118,7 @@ extension HeroAvatar.Style {
     /// Glove, wristband, watch or cuff at the wrist.
     var cuff: Color {
         switch self {
-        case .hero: DSColor.legendary
+        case .hero: DSColor.heroGold
         case .cool: DSColor.heroPurpleShade
         case .strong: DSColor.heroInk
         case .smart: DSColor.heroSteel
@@ -137,7 +137,7 @@ extension HeroAvatar.Style {
 
     var shoes: Color {
         switch self {
-        case .hero: DSColor.legendary
+        case .hero: DSColor.heroGold
         case .cool: DSColor.heroHighlight
         default: DSColor.heroLeather
         }

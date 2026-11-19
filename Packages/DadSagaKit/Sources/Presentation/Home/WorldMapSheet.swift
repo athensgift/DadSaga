@@ -70,7 +70,7 @@ struct WorldMapSheet: View {
                 Text(verbatim: "\(world.number)").font(DSFont.headline)
             }
         }
-        .foregroundStyle(DSColor.heroHighlight)
+        .foregroundStyle(DSColor.onTint)
         .frame(width: markerSize, height: markerSize)
         .accessibilityHidden(true)
     }

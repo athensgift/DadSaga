@@ -49,6 +49,7 @@ let package = Package(
         .target(name: "Localization", dependencies: ["Domain"], resources: [.process("Resources")]),
 
         .testTarget(name: "DomainTests", dependencies: ["Domain"]),
+        .testTarget(name: "DesignSystemTests", dependencies: ["DesignSystem"]),
         .testTarget(name: "ApplicationTests", dependencies: ["Application", "Domain"]),
         .testTarget(name: "DataTests", dependencies: ["Data", "Application", "Domain"], exclude: ["Fixtures"]),
         .testTarget(name: "PresentationTests", dependencies: ["Presentation", "Application", "Domain"]),

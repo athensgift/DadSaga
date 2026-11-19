@@ -18,6 +18,7 @@ struct ReminderOfferCard: View {
             HStack(spacing: DSSpacing.s) {
                 Button(offer.accept) { onAnswer(true) }
                     .buttonStyle(.glassProminent)
+                    .onTintLabel()
                 Button(offer.decline) { onAnswer(false) }
                     .buttonStyle(.glass)
             }
