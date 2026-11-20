@@ -3297,6 +3297,47 @@
           }
         }
       }
+    },
+    "%lld photos couldn't be opened. If they're in iCloud, try again in a moment." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld φωτογραφία δεν άνοιξε. Αν είναι στο iCloud, δοκίμασε ξανά σε λίγο."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld φωτογραφίες δεν άνοιξαν. Αν είναι στο iCloud, δοκίμασε ξανά σε λίγο."
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld photo couldn't be opened. If it's in iCloud, try again in a moment."
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld photos couldn't be opened. If they're in iCloud, try again in a moment."
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "version" : "1.0"
