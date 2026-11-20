@@ -39,6 +39,9 @@ struct WholePhoto: View {
                     .blur(radius: 24, opaque: true)
             }
             .clipped()
+            // Clipping only hides the filled copy's overflow; taps beside the frame, on the note above, say, stay
+            // theirs.
+            .contentShape(.rect)
             .overlay {
                 photo?.image
                     .resizable()

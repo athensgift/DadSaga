@@ -5,7 +5,7 @@ import SwiftUI
 typealias PhotoLoader = (_ id: String, _ maxPixelSize: Int) async -> Data?
 
 /// A photo filling its frame. Shows the placeholder until it loads, or if it is missing. Decodes it only as large as
-/// the frame, off the main actor, so a small square never holds a full photo.
+/// it fills the frame, off the main actor, so a small square never holds a full photo.
 struct SquarePhoto<Placeholder: View>: View {
     let source: PhotoSource?
     let loader: PhotoLoader
@@ -23,30 +23,39 @@ struct SquarePhoto<Placeholder: View>: View {
     var body: some View {
         // Read here, on the main actor: the geometry closure runs off it and must not touch the view.
         let scale = displayScale
-        ZStack {
-            if let image {
-                image
-                    .resizable()
-                    .scaledToFill()
-            } else {
-                placeholder()
+        // The frame is the one it is given; the photo fills it and stops at its edges, in what it draws and in what it
+        // takes taps for. Clipping alone only hides the overflow: a tap beside the frame would still open the photo.
+        Color.clear
+            .overlay {
+                Group {
+                    if let image {
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        placeholder()
+                    }
+                }
+                // Measured filled, not the frame: a photo filling a square needs its shortest side at the frame's,
+                // so its longest side, what the loader limits, runs past it. The frame first, then the photo's size.
+                .onGeometryChange(for: Int.self) { [scale] proxy in
+                    Int((max(proxy.size.width, proxy.size.height) * scale).rounded(.up))
+                } action: { maxPixelSize = $0 }
             }
-        }
-        .onGeometryChange(for: Int.self) { [scale] proxy in
-            Int((max(proxy.size.width, proxy.size.height) * scale).rounded(.up))
-        } action: { maxPixelSize = $0 }
-        .task(id: Request(source: source, maxPixelSize: maxPixelSize)) {
-            guard maxPixelSize > 0 else { return }
-            let data: Data? = switch source {
-            case .stored(let id): await loader(id, maxPixelSize)
-            case .data(let data): data
-            case nil: nil
+            .clipped()
+            .contentShape(.rect)
+            .task(id: Request(source: source, maxPixelSize: maxPixelSize)) {
+                guard maxPixelSize > 0 else { return }
+                let data: Data? = switch source {
+                case .stored(let id): await loader(id, maxPixelSize)
+                case .data(let data): data
+                case nil: nil
+                }
+                var decoded: DecodedImage?
+                if let data { decoded = await DecodedImage.decode(data, maxPixelSize: maxPixelSize) }
+                guard !Task.isCancelled else { return }
+                image = decoded?.image
             }
-            var decoded: DecodedImage?
-            if let data { decoded = await DecodedImage.decode(data, maxPixelSize: maxPixelSize) }
-            guard !Task.isCancelled else { return }
-            image = decoded?.image
-        }
     }
 }
 
