@@ -136,6 +136,8 @@ public final class HomeViewModel {
 
     /// Home's celebration and "Saved · Undo" for a quest or boss.
     private func celebrate(_ change: ProgressChange, badge: String? = nil) {
+        // A moment's celebration still waiting would only replace this newer one when the sheet closes.
+        pendingMomentCelebration = nil
         let celebration = makeCelebration(change, badge: badge)
         self.celebration = celebration
         undoOffer = change.eventID.map { makeUndoOffer(id: celebration.id, eventID: $0) }

@@ -70,6 +70,8 @@ struct MomentDetailsStep: View {
                 Button(role: .close) {
                     if hasUnsavedChanges { isConfirmingDiscard = true } else { actions.onClose() }
                 }
+                // A save under way can't be discarded: it writes everything anyway.
+                .disabled(isSaving)
             }
         }
         .modifier(UnsavedChangesGuard(

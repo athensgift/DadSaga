@@ -45,16 +45,3 @@ struct MomentSheet: View {
         }
     }
 }
-
-/// The error under a sheet's content, when saving failed.
-struct SheetError: View {
-    let message: String?
-
-    var body: some View {
-        if let message {
-            Text(message)
-                .font(DSFont.caption)
-                .foregroundStyle(DSColor.boss)
-        }
-    }
-}

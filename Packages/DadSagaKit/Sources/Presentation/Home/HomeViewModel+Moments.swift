@@ -79,7 +79,9 @@ extension HomeViewModel {
     /// A sheet has finished closing. A moment just recorded celebrates now, on home, where the dad can see it,
     /// however its sheet was closed: Save, Not now, Close or a link from outside.
     public func sheetDismissed() {
-        guard momentCapture == nil, let pending = pendingMomentCelebration else { return }
+        // Only with home in sight: a link may have opened another sheet in the moment's place.
+        guard selectedQuest == nil, selectedBoss == nil, momentCapture == nil,
+              let pending = pendingMomentCelebration else { return }
         pendingMomentCelebration = nil
         celebration = pending
     }

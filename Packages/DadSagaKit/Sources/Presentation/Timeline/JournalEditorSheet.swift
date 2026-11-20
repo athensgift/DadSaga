@@ -5,6 +5,8 @@ import SwiftUI
 struct JournalEditorSheet: View {
     let editor: JournalEditor
     let isSaving: Bool
+    /// Why the last save failed, shown in the sheet.
+    let errorMessage: String?
     let loader: PhotoLoader
     let onSave: (_ note: String, _ photos: PhotoDrafts) -> Void
     let onClose: () -> Void
@@ -15,12 +17,14 @@ struct JournalEditorSheet: View {
     init(
         editor: JournalEditor,
         isSaving: Bool,
+        errorMessage: String?,
         loader: @escaping PhotoLoader,
         onSave: @escaping (_ note: String, _ photos: PhotoDrafts) -> Void,
         onClose: @escaping () -> Void
     ) {
         self.editor = editor
         self.isSaving = isSaving
+        self.errorMessage = errorMessage
         self.loader = loader
         self.onSave = onSave
         self.onClose = onClose
@@ -39,6 +43,7 @@ struct JournalEditorSheet: View {
                 VStack(spacing: DSSpacing.m) {
                     JournalNoteField(placeholder: editor.labels.notePlaceholder, note: $note)
                     JournalPhotosField(photos: $photos, entry: editor.title, labels: editor.labels.photo, loader: loader)
+                    SheetError(message: errorMessage)
                 }
                 .frame(maxWidth: readableWidth)
                 .padding(DSSpacing.m)
@@ -53,6 +58,8 @@ struct JournalEditorSheet: View {
                     Button(role: .close) {
                         if hasUnsavedChanges { isConfirmingDiscard = true } else { onClose() }
                     }
+                    // A save under way can't be discarded: it writes everything anyway.
+                    .disabled(isSaving)
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     // Saving several photos takes a moment: the button waits, and says so.

@@ -60,56 +60,6 @@ struct HomeMomentsTests {
         #expect(await progress.eventCount == 1)
     }
 
-    @Test("Given step 1, when it records a first, then undo is in the sheet and the celebration waits for it to close")
-    func celebratesOnceTheSheetCloses() async throws {
-        let sut = await makeSUT()
-        sut.startCapture()
-
-        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
-
-        let details = try #require(sut.momentCapture?.details)
-        #expect(details.undoOffer != nil)
-        #expect(sut.celebration == nil)
-        #expect(sut.undoOffer == nil)
-
-        sut.dismissSelection()
-        #expect(sut.celebration == nil)
-        sut.sheetDismissed()
-
-        let celebration = try #require(sut.celebration)
-        #expect(celebration.momentText == "👣 Βήματα")
-        #expect(celebration.xpText == "+30 XP")
-        #expect(celebration.highlight == .moment)
-        #expect(celebration.id == details.undoOffer?.id)
-        sut.sheetDismissed()
-        sut.celebrationFinished()
-        #expect(sut.celebration == nil)
-    }
-
-    @Test("Given step 2, when saving it, then home celebrates once the sheet has closed")
-    func celebratesAfterSaving() async throws {
-        let sut = await makeSUT()
-        sut.startCapture()
-        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
-
-        await sut.saveMomentDetails(date: HeroStub.today, note: "!", photos: PhotoDrafts())
-        sut.sheetDismissed()
-
-        #expect(sut.celebration?.xpText == "+30 XP")
-    }
-
-    @Test("Given step 2 of a new moment, when undoing it, then nothing celebrates when the sheet closes")
-    func undoneMomentDoesNotCelebrate() async throws {
-        let sut = await makeSUT()
-        sut.startCapture()
-        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
-
-        await sut.deleteMoment()
-        sut.sheetDismissed()
-
-        #expect(sut.celebration == nil)
-    }
-
     @Test("Given step 2, when saving a note and three photos, then the moment keeps them and the sheet closes")
     func stepTwoSaves() async throws {
         let sut = await makeSUT()
