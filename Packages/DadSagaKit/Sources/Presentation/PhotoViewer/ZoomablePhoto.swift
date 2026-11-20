@@ -7,6 +7,8 @@ import UIKit
 /// this wraps a `UIScrollView`. It reports its zoom through `onZoomChange` and never writes a binding while updating.
 struct ZoomablePhoto: UIViewRepresentable {
     let image: CGImage?
+    /// The page shown. A page swiped away goes back to the smallest zoom, so the viewer's state stays in step.
+    let isCurrent: Bool
     /// Changes whenever VoiceOver's zoom action asks for a step in or out.
     let zoomRequest: ZoomRequest
     let onZoomChange: (_ isZoomedIn: Bool) -> Void
@@ -32,6 +34,7 @@ struct ZoomablePhoto: UIViewRepresentable {
         view.onZoomChange = onZoomChange
         view.onSwipeDown = onSwipeDown
         if view.image !== image { view.image = image }
+        if !isCurrent { view.resetZoom() }
         if view.lastZoomRequest != zoomRequest {
             let isFirst = view.lastZoomRequest == nil
             view.lastZoomRequest = zoomRequest
@@ -112,11 +115,17 @@ final class PhotoScrollView: UIScrollView, UIScrollViewDelegate, UIGestureRecogn
         contentInset = UIEdgeInsets(top: vertical, left: horizontal, bottom: vertical, right: horizontal)
     }
 
+    /// Reported on the next turn of the main actor, never while SwiftUI is updating the view.
     private func reportZoom() {
         let zoomed = zoomScale > minimumZoomScale + 0.01
         guard zoomed != isZoomedIn else { return }
         isZoomedIn = zoomed
-        onZoomChange?(zoomed)
+        Task { @MainActor [weak self] in self?.onZoomChange?(zoomed) }
+    }
+
+    func resetZoom() {
+        guard zoomScale > minimumZoomScale else { return }
+        setZoomScale(minimumZoomScale, animated: false)
     }
 
     /// One step in (to 2×, then 4×) or out, for VoiceOver's zoom action.

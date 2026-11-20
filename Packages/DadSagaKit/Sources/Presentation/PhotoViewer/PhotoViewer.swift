@@ -42,8 +42,10 @@ struct PhotoViewer: View {
                 PhotoViewerPage(
                     page: page,
                     isLoaded: abs(page.id - index) <= 1,
+                    isCurrent: page.id == index,
                     loader: loader,
-                    onZoomChange: { isZoomedIn = $0 },
+                    // Only the page shown decides whether paging is held back.
+                    onZoomChange: { zoomed in if page.id == index { isZoomedIn = zoomed } },
                     onTurn: turn,
                     onClose: onClose
                 )
@@ -97,6 +99,7 @@ struct PhotoViewer: View {
 private struct PhotoViewerPage: View {
     let page: PhotoViewerContent.Page
     let isLoaded: Bool
+    let isCurrent: Bool
     let loader: PhotoLoader
     let onZoomChange: (Bool) -> Void
     let onTurn: (Int) -> Void
@@ -106,7 +109,9 @@ private struct PhotoViewerPage: View {
     @State private var zoomRequest = ZoomablePhoto.ZoomRequest()
 
     var body: some View {
-        ZoomablePhoto(image: image, zoomRequest: zoomRequest, onZoomChange: onZoomChange, onSwipeDown: onClose)
+        ZoomablePhoto(
+            image: image, isCurrent: isCurrent, zoomRequest: zoomRequest, onZoomChange: onZoomChange, onSwipeDown: onClose
+        )
             .overlay {
                 if image == nil && isLoaded {
                     ProgressView().tint(.white)

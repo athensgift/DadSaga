@@ -38,7 +38,7 @@ struct PhotoViewerContentTests {
         #expect(labels.photoCount(2) == "2 photos")
     }
 
-    @Test("Given one photo, then there is no counter; given a page past the end, then it opens at the last")
+    @Test("Given one photo or a page past the end, when opened, then there is no counter, or it opens at the last")
     func edges() {
         let labels = PhotoViewerLabels(locale: Locale(identifier: "en_US"))
         #expect(labels.content(entry: "x", photos: [.stored("a")]).counter(at: 0) == nil)

@@ -67,7 +67,7 @@ struct QuestSheet: View {
                     .foregroundStyle(DSColor.boss)
             }
             PrimaryButton(quest.confirmTitle) { onConfirm(note, photos) }
-                .disabled(isCompleting)
+                .disabled(isCompleting || photos.isLoading)
         }
         .frame(maxWidth: .infinity)
         .padding(.top, DSSpacing.s)
@@ -143,7 +143,7 @@ struct BossSheet: View {
                     .padding(.vertical, DSSpacing.s)
             } else {
                 PrimaryButton(boss.confirmTitle) { onConfirm(note, photos) }
-                    .disabled(isCompleting)
+                    .disabled(isCompleting || photos.isLoading)
             }
         }
         .frame(maxWidth: .infinity)

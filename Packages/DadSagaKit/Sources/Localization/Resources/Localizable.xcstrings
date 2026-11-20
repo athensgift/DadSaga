@@ -495,19 +495,19 @@
         }
       }
     },
-    "Discard the photos and words you just added?" : {
+    "Discard the changes you just made?" : {
       "extractionState" : "manual",
       "localizations" : {
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Να φύγουν οι φωτογραφίες και οι σημειώσεις που πρόσθεσες;"
+            "value" : "Να φύγουν οι αλλαγές που έκανες;"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Discard the photos and words you just added?"
+            "value" : "Discard the changes you just made?"
           }
         }
       }

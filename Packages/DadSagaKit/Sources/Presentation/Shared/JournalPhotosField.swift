@@ -15,7 +15,6 @@ struct JournalPhotosField: View {
     @State private var pickedItems: [PhotosPickerItem] = []
     @State private var isShowingLibrary = false
     @State private var isShowingCamera = false
-    @State private var isLoading = false
     @State private var viewer: PhotoViewerContent?
 
     static let squareSize: CGFloat = 64
@@ -28,7 +27,9 @@ struct JournalPhotosField: View {
                 selection: $pickedItems,
                 maxSelectionCount: max(photos.remaining, 1),
                 selectionBehavior: .ordered,
-                matching: .images
+                matching: .images,
+                // A compatible JPEG or HEIC, never a RAW or ProRAW original of tens of megabytes.
+                preferredItemEncoding: .compatible
             )
             // Cancelled with the field: a sheet closed mid-load never writes into the next one.
             .task(id: pickedItems) { await load(pickedItems) }
@@ -52,7 +53,8 @@ struct JournalPhotosField: View {
                         .clipShape(RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(label(for: 0))
+                // The first square says the same and carries the actions: VoiceOver reads the cover once.
+                .accessibilityHidden(true)
                 .overlay(alignment: .bottomTrailing) { coverMenu(cover) }
                 strip
                 if photos.isFull {
@@ -61,7 +63,7 @@ struct JournalPhotosField: View {
                         .foregroundStyle(DSColor.textSecondary)
                 }
             }
-        } else if isLoading {
+        } else if photos.isLoading {
             ProgressView()
                 .frame(maxWidth: .infinity, minHeight: Self.squareSize)
         } else {
@@ -75,7 +77,7 @@ struct JournalPhotosField: View {
                 ForEach(Array(photos.items.enumerated()), id: \.element.id) { index, photo in
                     square(photo, at: index)
                 }
-                if isLoading {
+                if photos.isLoading {
                     ProgressView()
                         .frame(width: Self.squareSize, height: Self.squareSize)
                 } else if !photos.isFull {
@@ -189,8 +191,7 @@ struct JournalPhotosField: View {
     /// anything else would fail when the entry is saved.
     private func load(_ items: [PhotosPickerItem]) async {
         guard !items.isEmpty else { return }
-        isLoading = true
-        defer { isLoading = false }
+        photos.startLoading(items.count)
         let loaded = await withTaskGroup(of: (Int, Data?).self) { group in
             for (index, item) in items.enumerated() {
                 group.addTask { (index, try? await item.loadTransferable(type: Data.self)) }
@@ -201,8 +202,8 @@ struct JournalPhotosField: View {
             }
             return results
         }
-        guard !Task.isCancelled else { return }
-        photos.append(loaded.compactMap(\.self).filter(DecodedImage.isImage))
+        // Given up with the field (its sheet closed): nothing is added, and nothing waits any longer.
+        photos.finishLoading(Task.isCancelled ? [] : loaded.compactMap(\.self).filter(DecodedImage.isImage))
         pickedItems = []
     }
 

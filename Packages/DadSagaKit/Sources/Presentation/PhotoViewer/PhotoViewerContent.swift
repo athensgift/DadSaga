@@ -28,7 +28,6 @@ public struct PhotoViewerLabels: Equatable, Sendable {
     /// An entry's photos, opened at the one tapped.
     func content(entry: String, photos: [PhotoSource], startingAt index: Int = 0) -> PhotoViewerContent {
         PhotoViewerContent(
-            title: entry,
             pages: photos.enumerated().map { offset, source in
                 PhotoViewerContent.Page(
                     id: offset,
@@ -55,8 +54,6 @@ struct PhotoViewerContent: Identifiable {
 
     /// New every time it opens, so tapping another photo opens afresh.
     let id = UUID()
-    /// The entry, e.g. "👣 First steps".
-    let title: String
     let pages: [Page]
     let startIndex: Int
     let closeTitle: String

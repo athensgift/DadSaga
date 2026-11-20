@@ -52,6 +52,7 @@ struct JournalEditorSheet: View {
                         ProgressView()
                     } else {
                         Button(role: .confirm) { onSave(note, photos) }
+                            .disabled(photos.isLoading)
                             .accessibilityLabel(editor.saveTitle)
                     }
                 }

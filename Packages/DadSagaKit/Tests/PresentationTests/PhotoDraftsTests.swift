@@ -51,10 +51,37 @@ struct PhotoDraftsTests {
         #expect(drafts.items.count == 9)
     }
 
-    @Test("Given two picked photos, then each has its own id, unlike any stored one")
+    @Test("Given a stored photo, when two equal photos are picked, then each has its own id")
     func pickedIDs() {
         var drafts = PhotoDrafts(storedIDs: ["a"])
         drafts.append([Data([1]), Data([1])])
         #expect(Set(drafts.items.map(\.id)).count == 3)
+    }
+
+    @Test("Given eight photos, when three are still loading, then only two fit, it counts as changed, and finishing adds them")
+    func loading() {
+        let stored = PhotoDrafts(storedIDs: (1...8).map { "p\($0)" })
+        var drafts = stored
+
+        drafts.startLoading(3)
+
+        #expect(drafts.isLoading)
+        #expect(drafts.loadingCount == 2)
+        #expect(drafts.isFull)
+        #expect(drafts != stored)
+        drafts.finishLoading([Data([1]), Data([2]), Data([3])])
+        #expect(!drafts.isLoading)
+        #expect(drafts.items.count == 10)
+    }
+
+    @Test("Given photos loading, when the loading is given up, then nothing is added and the room comes back")
+    func loadingGivenUp() {
+        var drafts = PhotoDrafts(storedIDs: ["a"])
+        drafts.startLoading(4)
+
+        drafts.finishLoading()
+
+        #expect(drafts == PhotoDrafts(storedIDs: ["a"]))
+        #expect(drafts.remaining == 9)
     }
 }

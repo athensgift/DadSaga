@@ -19,18 +19,22 @@ extension HomeViewModel {
     /// Step 1's ✓: records the first at once, with its XP, then moves the same sheet on to step 2 with the celebration
     /// and "Saved · Undo" in it, since home is hidden behind the sheet. On failure step 1 stays, with an error.
     public func captureMoment(firstID: String, date: Date) async {
-        guard let capture = momentCapture, case .choose(let choice) = capture.step, let childID = selectedChildID,
+        guard let capture = momentCapture, case .choose(let choice) = capture.step, let child = overview?.child,
               let option = choice.options.first(where: { $0.id == firstID }) else { return }
-        let request = CaptureMomentRequest(firstID: firstID, childID: childID, date: date)
+        let request = CaptureMomentRequest(firstID: firstID, childID: child.id, date: date)
         guard let change = await record({ try await self.useCases.moments.capture.execute(request, now: self.now()) }),
               let eventID = change.eventID,
-              let overview,
-              let moment = overview.progress.moments(for: overview.child.id).first(where: { $0.eventID == eventID })
-        else { return }
+              // Closed, or closed and opened again, while it saved: the moment is kept, the sheet left as it is now.
+              momentCapture?.id == capture.id else { return }
+        // Read from the change itself, not the reloaded screen: the moment is saved even if home failed to reload.
+        guard let moment = change.after.moments(for: child.id).first(where: { $0.eventID == eventID }) else {
+            momentCapture = nil
+            return
+        }
         let celebration = makeCelebration(change, moment: "\(option.emoji) \(option.title)")
         momentCapture?.step = .details(momentsFormatter.details(
             moment,
-            for: overview.child,
+            for: child,
             now: now(),
             isNew: true,
             celebration: celebration,

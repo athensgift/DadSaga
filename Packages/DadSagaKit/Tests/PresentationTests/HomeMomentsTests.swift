@@ -60,7 +60,7 @@ struct HomeMomentsTests {
         #expect(await progress.eventCount == 1)
     }
 
-    @Test("Given step 1 records a first, then the celebration and the undo offer are in the sheet, not on home")
+    @Test("Given step 1, when it records a first, then the celebration and the undo offer are in the sheet, not on home")
     func celebratesInTheSheet() async throws {
         let sut = await makeSUT()
         sut.startCapture()
@@ -187,5 +187,80 @@ struct HomeMomentsTests {
         let sut = await makeSUT()
         sut.startCapture()
         #expect(choice(sut)?.options.isEmpty == true)
+    }
+
+    @Test("Given step 2, when saving an earlier date, then the card moves to that date")
+    func stepTwoSavesTheDate() async throws {
+        let sut = await makeSUT()
+        sut.startCapture()
+        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
+        let before = try #require(loadedMoments(sut)?.cards.first?.subtitle)
+        let lastWeek = HeroStub.today.addingTimeInterval(-7 * 86_400)
+
+        await sut.saveMomentDetails(date: lastWeek, note: "", photos: PhotoDrafts())
+
+        let after = try #require(loadedMoments(sut)?.cards.first?.subtitle)
+        #expect(after != before)
+        let editing = try #require(loadedMoments(sut)?.cards.first?.id)
+        sut.editMoment(id: editing)
+        #expect(sut.momentCapture?.details?.date == lastWeek)
+    }
+
+    @Test("Given an edited moment, when deleting it, then the card and its XP are gone and the sheet closes")
+    func deletesAnEditedMoment() async throws {
+        await progress.seedMoment(photos: [Data([1])])
+        let sut = await makeSUT()
+        sut.editMoment(id: try #require(loadedMoments(sut)?.cards.first?.id))
+
+        await sut.deleteMoment()
+
+        #expect(sut.momentCapture == nil)
+        #expect(loadedMoments(sut)?.cards.isEmpty == true)
+        guard case .loaded(let content) = sut.state else { throw StubError.boom }
+        #expect(content.xpLine == "0 / 100 XP")
+    }
+
+    @Test("Given step 2 with its undo offer, when another offer's time runs out, then this one stays")
+    func otherUndoExpiryIsIgnored() async throws {
+        let sut = await makeSUT()
+        sut.startCapture()
+        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
+        let offer = try #require(sut.momentCapture?.details?.undoOffer)
+
+        sut.momentUndoExpired(id: offer.id + 1)
+
+        #expect(sut.momentCapture?.details?.undoOffer == offer)
+    }
+
+    @Test("Given step 1 saving slowly, when the dad closes and opens a new capture meanwhile, then the new one stays at step 1")
+    func reopenedWhileSaving() async throws {
+        let sut = await makeSUT()
+        sut.startCapture()
+        await progress.slowNext()
+        let saving = Task { await sut.captureMoment(firstID: "f1", date: HeroStub.today) }
+        try await Task.sleep(for: .milliseconds(50))
+        sut.dismissSelection()
+        sut.startCapture()
+        let reopened = try #require(sut.momentCapture?.id)
+
+        await saving.value
+
+        #expect(sut.momentCapture?.id == reopened)
+        #expect(sut.momentCapture?.details == nil)
+        #expect(await progress.eventCount == 1)
+    }
+
+    @Test("Given home fails to reload, when step 1 records a first, then step 2 still opens for the saved moment")
+    func stepTwoWithoutReload() async throws {
+        let sut = await makeSUT()
+        sut.startCapture()
+        await progress.freezeOverview()
+
+        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
+
+        let details = try #require(sut.momentCapture?.details)
+        #expect(details.title == "👣 Βήματα")
+        #expect(details.isNew)
+        #expect(loadedMoments(sut)?.cards.isEmpty == true)
     }
 }

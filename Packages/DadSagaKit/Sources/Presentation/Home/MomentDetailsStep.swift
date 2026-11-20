@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Step 2: the moment's own page, for photos, a few words and the date (ADR-0042 §5). Just recorded, it celebrates
 /// and offers "Saved · Undo" here, since home is behind the sheet; opened to edit, it offers Delete instead.
-/// Closing never loses the moment: only what was added and not saved, and only after asking.
+/// Closing never loses the moment: only what was changed and not saved, and only after asking.
 struct MomentDetailsStep: View {
     let details: MomentDetails
     let errorMessage: String?
@@ -34,9 +34,9 @@ struct MomentDetailsStep: View {
         _photos = State(initialValue: PhotoDrafts(storedIDs: details.photoIDs))
     }
 
-    /// Photos or words changed and not saved yet.
+    /// Photos, words or the date changed and not saved yet, or photos still arriving from the library.
     private var hasUnsavedChanges: Bool {
-        photos != PhotoDrafts(storedIDs: details.photoIDs) || note != details.note
+        photos != PhotoDrafts(storedIDs: details.photoIDs) || note != details.note || date != details.date
     }
 
     var body: some View {
@@ -108,7 +108,7 @@ struct MomentDetailsStep: View {
         VStack(spacing: DSSpacing.s) {
             // Saving ten photos takes a second or two: the button waits, and says so.
             PrimaryButton(details.saveTitle) { actions.onSave(date, note, photos) }
-                .disabled(isSaving)
+                .disabled(isSaving || photos.isLoading)
                 .overlay(alignment: .trailing) {
                     if isSaving { ProgressView().padding(.trailing, DSSpacing.m) }
                 }
@@ -130,6 +130,8 @@ struct MomentDetailsStep: View {
             UndoBar(offer: offer, onUndo: actions.onDelete) {
                 actions.onUndoExpired(offer.id)
             }
+            // While Save runs, an Undo would be refused: it waits instead of being lost.
+            .disabled(isSaving)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
     }

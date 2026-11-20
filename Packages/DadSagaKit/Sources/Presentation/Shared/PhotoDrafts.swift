@@ -31,6 +31,9 @@ public struct PhotoDrafts: Equatable, Sendable {
     public static let limit = ProgressEvent.photoLimit
 
     public private(set) var items: [PhotoDraft]
+    /// Photos picked and still being read from the library. They hold their room, keep Save waiting, and count as
+    /// unsaved, so a Save or a close in the meantime never drops them.
+    public private(set) var loadingCount = 0
 
     /// The photos an entry already has, in its order.
     public init(storedIDs: [String] = []) {
@@ -38,7 +41,9 @@ public struct PhotoDrafts: Equatable, Sendable {
     }
 
     /// How many more fit.
-    public var remaining: Int { max(Self.limit - items.count, 0) }
+    public var remaining: Int { max(Self.limit - items.count - loadingCount, 0) }
+
+    public var isLoading: Bool { loadingCount > 0 }
 
     public var isFull: Bool { remaining == 0 }
 
@@ -47,6 +52,17 @@ public struct PhotoDrafts: Equatable, Sendable {
     /// Adds picked photos after the others, as many as fit; the rest are left out.
     public mutating func append(_ photos: [Data]) {
         items += photos.prefix(remaining).map(PhotoDraft.picked)
+    }
+
+    /// `count` picked photos are being read; their room is kept for them.
+    public mutating func startLoading(_ count: Int) {
+        loadingCount += min(max(count, 0), remaining)
+    }
+
+    /// The photos being read have arrived (those that could be read), or the reading was given up with none.
+    public mutating func finishLoading(_ photos: [Data] = []) {
+        loadingCount = 0
+        append(photos)
     }
 
     public mutating func remove(id: String) {
@@ -60,7 +76,7 @@ public struct PhotoDrafts: Equatable, Sendable {
     }
 
     /// The whole list as the entry should keep it, for editing an entry.
-    public var entryPhotos: [EntryPhoto] {
+    var entryPhotos: [EntryPhoto] {
         items.map { photo in
             switch photo.source {
             case .stored(let id): .kept(id)
@@ -70,7 +86,7 @@ public struct PhotoDrafts: Equatable, Sendable {
     }
 
     /// The picked photos alone, in order, for an entry being recorded.
-    public var pickedPhotos: [Data] {
+    var pickedPhotos: [Data] {
         items.compactMap { photo in
             if case .data(let data) = photo.source { data } else { nil }
         }
