@@ -8,15 +8,24 @@ public struct PlayerProfile: Hashable, Sendable {
     public var children: [Child]
     public var heroClassID: String
     public var dadSkinTone: SkinTone
+    /// The dad's hair, beard and glasses (ADR-0044).
+    public var dadAppearance: DadAppearance
 
     /// The child with `id`, or the first child when `id` is `nil` or no longer in the family. `nil` without children.
     public func child(_ id: UUID?) -> Child? {
         children.first { $0.id == id } ?? children.first
     }
 
-    public init(children: [Child], heroClassID: String, dadSkinTone: SkinTone = .mediumLight) {
+    /// Without a look, the dad has the standard look for his skin tone.
+    public init(
+        children: [Child],
+        heroClassID: String,
+        dadSkinTone: SkinTone = .mediumLight,
+        dadAppearance: DadAppearance? = nil
+    ) {
         self.children = children
         self.heroClassID = heroClassID
         self.dadSkinTone = dadSkinTone
+        self.dadAppearance = dadAppearance ?? .standard(for: dadSkinTone)
     }
 }

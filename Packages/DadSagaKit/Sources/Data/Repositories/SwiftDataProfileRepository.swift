@@ -11,11 +11,7 @@ actor SwiftDataProfileRepository: ProfileRepository {
         let children = try modelContext
             .fetch(FetchDescriptor<ChildRecord>(sortBy: [SortDescriptor(\.order)]))
             .map { $0.toDomain() }
-        return PlayerProfile(
-            children: children,
-            heroClassID: record.heroClassID,
-            dadSkinTone: SkinTone(rawValue: record.dadSkinTone) ?? .mediumLight
-        )
+        return record.toDomain(children: children)
     }
 
     /// Updates the stored profile and family in place: rows keep their identity, which sync will need (ADR-0026).
@@ -23,10 +19,9 @@ actor SwiftDataProfileRepository: ProfileRepository {
     func save(_ profile: PlayerProfile) async throws {
         let profiles = try modelContext.fetch(FetchDescriptor<ProfileRecord>())
         if let record = profiles.first {
-            record.heroClassID = profile.heroClassID
-            record.dadSkinTone = profile.dadSkinTone.rawValue
+            record.update(from: profile)
         } else {
-            modelContext.insert(ProfileRecord(heroClassID: profile.heroClassID, dadSkinTone: profile.dadSkinTone.rawValue))
+            modelContext.insert(ProfileRecord(profile: profile))
         }
         profiles.dropFirst().forEach(modelContext.delete)
 

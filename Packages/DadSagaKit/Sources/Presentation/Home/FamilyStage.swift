@@ -8,6 +8,7 @@ import SwiftUI
 struct FamilyStage: View {
     let heroStyle: HeroAvatar.Style
     let heroSkin: AvatarSkin
+    let heroFeatures: HeroFeatures
     let heroGear: [HeroItem]
     let medals: Int
     let heroTitle: String
@@ -38,6 +39,7 @@ struct FamilyStage: View {
                 size: heroSize,
                 cheerTrigger: cheerTrigger,
                 skin: heroSkin,
+                features: heroFeatures,
                 items: heroGear,
                 medals: medals
             )

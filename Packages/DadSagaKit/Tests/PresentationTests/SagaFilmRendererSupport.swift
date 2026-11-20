@@ -20,7 +20,7 @@ enum FilmCards {
         period: "2ος χρόνος",
         dates: "Μάρτιος 2025 – Μάρτιος 2026",
         family: SagaFilmFamily(
-            hero: .cool, heroSkin: .mediumDark, heroGear: [.burpCloth, .mug], medals: 2,
+            hero: .cool, heroSkin: .mediumDark, heroAppearance: .standard, heroGear: [.burpCloth, .mug], medals: 2,
             child: CompanionModel(
                 id: UUID(), name: "Άννα", stage: .toddler, gender: .girl, skin: .medium, traits: [.smile, .walks]
             )

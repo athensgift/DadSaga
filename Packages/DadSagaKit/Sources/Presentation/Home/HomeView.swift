@@ -7,39 +7,33 @@ import SwiftUI
 /// runs across the middle of the display, where the Duo folds like a book. Half-open like a laptop, the fold runs
 /// across instead: the hero stands above it and the adventure lies below it (ADR-0043).
 public struct HomeView: View {
-    public typealias MakeWardrobe = @MainActor () -> WardrobeViewModel
-
     @State var viewModel: HomeViewModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var width: CGFloat = 0
     @State private var fold: HorizontalFold?
-    @State var wardrobeViewModel: WardrobeViewModel?
     @State var settingsViewModel: SettingsViewModel?
     /// The film sheet, opened from the film offer.
     @State var sagaFilm: SagaFilmViewModel?
     /// A moment's photos, full screen.
     @State var photoViewer: PhotoViewerContent?
-    let makeWardrobe: MakeWardrobe
     let makeSagaFilm: SagaFilmSheet.MakeViewModel
     let settings: SettingsScreens
     let pendingLink: PendingLink?
     let onLinkHandled: @MainActor () -> Void
 
     /// - Parameters:
-    ///   - makeWardrobe, settings: build the screens behind the toolbar buttons.
+    ///   - settings: builds Settings, behind its toolbar button.
     ///   - makeSagaFilm: builds the film sheet for the film home offers.
     ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` runs once it is open.
     public init(
         viewModel: HomeViewModel,
-        makeWardrobe: @escaping MakeWardrobe,
         makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
         settings: SettingsScreens,
         pendingLink: PendingLink? = nil,
         onLinkHandled: @escaping @MainActor () -> Void = {}
     ) {
         _viewModel = State(initialValue: viewModel)
-        self.makeWardrobe = makeWardrobe
         self.makeSagaFilm = makeSagaFilm
         self.settings = settings
         self.pendingLink = pendingLink
@@ -70,7 +64,7 @@ public struct HomeView: View {
             // shifts the other, so the two-pane layouts have no bar: their title lives in the hero pane.
             .navigationBarHidden(when: arrangement.hasPanes)
             .toolbar {
-                ToolbarItem(placement: .primaryAction) { wardrobeButton }
+                ToolbarItem(placement: .primaryAction) { worldMapButton }
                 ToolbarItem(placement: .primaryAction) { settingsButton }
             }
         }
@@ -80,9 +74,6 @@ public struct HomeView: View {
             } onClose: {
                 viewModel.closeMap()
             }
-        }
-        .sheet(item: $wardrobeViewModel, onDismiss: reloadAfterSheet) { wardrobe in
-            WardrobeView(viewModel: wardrobe) { wardrobeViewModel = nil }
         }
         .sheet(item: $settingsViewModel, onDismiss: reloadAfterSheet) { settingsModel in
             SettingsView(viewModel: settingsModel, pages: settings.pages) { settingsViewModel = nil }
@@ -206,6 +197,7 @@ public struct HomeView: View {
         return FamilyStage(
             heroStyle: style,
             heroSkin: content.heroSkin.avatarSkin,
+            heroFeatures: content.heroAppearance.avatarFeatures,
             heroGear: content.heroGear.map(\.heroItem),
             medals: content.medalCount,
             heroTitle: content.heroTitle,
@@ -238,8 +230,6 @@ public struct HomeView: View {
             }
             offerCard
             WorldHeader(content: content) {
-                viewModel.openMap()
-            } onBack: {
                 Task { await viewModel.showWorld(id: nil) }
             }
             if let emptyMessage = content.emptyMessage {
@@ -355,9 +345,8 @@ extension HomeView {
     /// Closes this screen's own sheets, then lets the presenter open the link (ADR-0023).
     func openPendingLink() async {
         guard let pendingLink else { return }
-        let hadSheet = wardrobeViewModel != nil || settingsViewModel != nil || sagaFilm != nil
+        let hadSheet = settingsViewModel != nil || sagaFilm != nil
             || viewModel.worldMap != nil || photoViewer != nil
-        wardrobeViewModel = nil
         settingsViewModel = nil
         sagaFilm = nil
         photoViewer = nil

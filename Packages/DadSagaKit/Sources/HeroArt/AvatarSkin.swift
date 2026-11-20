@@ -26,13 +26,17 @@ public enum AvatarSkin: CaseIterable, Sendable {
         }
     }
 
-    /// Hair, beard and brows.
-    var hair: Color {
+    /// The hair colour that comes with this tone: the children's, and a `HeroAvatar` drawn without features
+    /// (ADR-0044).
+    var naturalHair: HeroFeatures.HairColor {
         switch self {
-        case .light, .mediumLight, .medium: DSColor.heroBeard
-        case .mediumDark, .dark: Color(light: 0x2B1E17, dark: 0x3A2A20)
+        case .light, .mediumLight, .medium: .brown
+        case .mediumDark, .dark: .black
         }
     }
+
+    /// Hair and brows of the children.
+    var hair: Color { naturalHair.color }
 
     var gradient: LinearGradient { heroGradient(base, shade) }
 }

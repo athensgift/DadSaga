@@ -22,6 +22,7 @@ extension SettingsContent {
             reminderTitle: strings.text("Weekly reminder"),
             heroSection: strings.text("Hero & family"),
             heroTitle: strings.text("Your hero"),
+            wardrobeTitle: strings.text("Wardrobe"),
             familyTitle: strings.text("My family"),
             support: supportSection(appInfo: appInfo, strings: strings),
             about: AboutSection(
