@@ -60,27 +60,6 @@ struct HomeMomentsTests {
         #expect(await progress.eventCount == 1)
     }
 
-    @Test("Given step 1, when it records a first, then the celebration and the undo offer are in the sheet, not on home")
-    func celebratesInTheSheet() async throws {
-        let sut = await makeSUT()
-        sut.startCapture()
-
-        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
-
-        let details = try #require(sut.momentCapture?.details)
-        #expect(details.celebration?.momentText == "👣 Βήματα")
-        #expect(details.celebration?.xpText == "+30 XP")
-        #expect(details.celebration?.highlight == .moment)
-        #expect(details.undoOffer?.id == details.celebration?.id)
-        #expect(sut.celebration == nil)
-        #expect(sut.undoOffer == nil)
-
-        sut.momentCelebrationFinished()
-        sut.momentUndoExpired(id: try #require(details.undoOffer?.id))
-        #expect(sut.momentCapture?.details?.celebration == nil)
-        #expect(sut.momentCapture?.details?.undoOffer == nil)
-    }
-
     @Test("Given step 2, when saving a note and three photos, then the moment keeps them and the sheet closes")
     func stepTwoSaves() async throws {
         let sut = await makeSUT()
@@ -141,7 +120,6 @@ struct HomeMomentsTests {
         let details = try #require(sut.momentCapture?.details)
         #expect(!details.isNew)
         #expect(details.heading == nil)
-        #expect(details.celebration == nil)
         #expect(details.undoOffer == nil)
         #expect(details.photoIDs == ["photo-1", "photo-2"])
         #expect(details.labels.delete == "Διαγραφή στιγμής")
@@ -149,6 +127,7 @@ struct HomeMomentsTests {
         var photos = PhotoDrafts(storedIDs: details.photoIDs)
         photos.makeCover(id: "photo-2")
         await sut.saveMomentDetails(date: HeroStub.today, note: "μετά", photos: photos)
+        sut.sheetDismissed()
 
         #expect(sut.momentCapture == nil)
         #expect(sut.celebration == nil)

@@ -8,7 +8,8 @@ extension HomeViewModel {
     public func undoLastRecord() async {
         guard !isCompleting, let offer = undoOffer else { return }
         undoOffer = nil
-        celebrationFinished()
+        // Only its own celebration: a moment's may be playing by now.
+        if celebration?.id == offer.id { celebrationFinished() }
         await perform {
             try await self.useCases.deleteEvent.execute(eventID: offer.eventID)
         }

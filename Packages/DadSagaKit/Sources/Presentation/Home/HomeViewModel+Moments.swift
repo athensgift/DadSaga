@@ -16,8 +16,9 @@ extension HomeViewModel {
         )
     }
 
-    /// Step 1's ✓: records the first at once, with its XP, then moves the same sheet on to step 2 with the celebration
-    /// and "Saved · Undo" in it, since home is hidden behind the sheet. On failure step 1 stays, with an error.
+    /// Step 1's ✓: records the first at once, with its XP, then moves the same sheet on to step 2 with "Saved · Undo"
+    /// in it. The celebration waits for the sheet to close, so the dad sees it on home. On failure step 1 stays, with
+    /// an error.
     public func captureMoment(firstID: String, date: Date) async {
         guard let capture = momentCapture, case .choose(let choice) = capture.step, let child = overview?.child,
               let option = choice.options.first(where: { $0.id == firstID }) else { return }
@@ -32,12 +33,12 @@ extension HomeViewModel {
             return
         }
         let celebration = makeCelebration(change, moment: "\(option.emoji) \(option.title)")
+        pendingMomentCelebration = celebration
         momentCapture?.step = .details(momentsFormatter.details(
             moment,
             for: child,
             now: now(),
             isNew: true,
-            celebration: celebration,
             undoOffer: makeUndoOffer(id: celebration.id, eventID: eventID)
         ))
     }
@@ -70,14 +71,19 @@ extension HomeViewModel {
         guard let details = momentCapture?.details else { return }
         await perform {
             try await self.useCases.deleteEvent.execute(eventID: details.momentID)
+            // Undone: nothing to celebrate.
+            self.pendingMomentCelebration = nil
         }
     }
 
-    /// The celebration in step 2 has played.
-    public func momentCelebrationFinished() {
-        guard var details = momentCapture?.details else { return }
-        details.celebration = nil
-        momentCapture?.step = .details(details)
+    /// A sheet has finished closing. A moment just recorded celebrates now, on home, where the dad can see it,
+    /// however its sheet was closed: Save, Not now, Close or a link from outside.
+    public func sheetDismissed() {
+        // Only with home in sight: a link may have opened another sheet in the moment's place.
+        guard selectedQuest == nil, selectedBoss == nil, momentCapture == nil,
+              let pending = pendingMomentCelebration else { return }
+        pendingMomentCelebration = nil
+        celebration = pending
     }
 
     /// The undo offer in step 2 ran out. Ignored if it is not the one shown.

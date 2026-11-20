@@ -74,6 +74,7 @@ public struct TimelineView: View {
             JournalEditorSheet(
                 editor: editor,
                 isSaving: viewModel.isSaving,
+                errorMessage: viewModel.errorMessage,
                 loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
                 onSave: { note, photos in Task { await viewModel.saveJournal(note: note, photos: photos) } },
                 onClose: { viewModel.closeJournal() }
@@ -82,7 +83,11 @@ public struct TimelineView: View {
         .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
         .alert(
             viewModel.errorMessage ?? "",
-            isPresented: Binding(get: { viewModel.errorMessage != nil }, set: { _ in viewModel.dismissError() })
+            isPresented: Binding(
+                // A failed save in the note and photos sheet is shown there instead.
+                get: { viewModel.errorMessage != nil && viewModel.journalEditor == nil },
+                set: { _ in viewModel.dismissError() }
+            )
         ) {}
     }
 

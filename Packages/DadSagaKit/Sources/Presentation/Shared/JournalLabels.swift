@@ -39,12 +39,21 @@ public struct JournalLabels: Equatable, Sendable {
     public let sectionTitle: String
     public let notePlaceholder: String
     public let photo: PhotoLabels
+    /// Closing with changes not saved: "Discard the changes you just made?", and its answers.
+    public let discardQuestion: String
+    public let save: String
+    public let discard: String
+    public let keepEditing: String
 
     init(locale: Locale) {
         let strings = Strings(locale: locale)
         sectionTitle = strings.text("Note or photos (optional)")
         notePlaceholder = strings.text("What happened? What do you want to remember?")
         photo = PhotoLabels(locale: locale)
+        discardQuestion = strings.text("Discard the changes you just made?")
+        save = strings.text("Save")
+        discard = strings.text("Discard")
+        keepEditing = strings.text("Keep editing")
     }
 }
 

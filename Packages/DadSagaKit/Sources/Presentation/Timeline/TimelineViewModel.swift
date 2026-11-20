@@ -123,10 +123,13 @@ public final class TimelineViewModel {
 
     public func closeJournal() {
         journalEditor = nil
+        // A failed save was shown in the sheet; it goes with it.
+        errorMessage = nil
     }
 
     public func saveJournal(note: String, photos: PhotoDrafts) async {
         guard let editor = journalEditor, !isSaving else { return }
+        errorMessage = nil
         isSaving = true
         defer { isSaving = false }
         do {

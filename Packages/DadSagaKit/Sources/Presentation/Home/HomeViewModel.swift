@@ -11,12 +11,14 @@ public final class HomeViewModel {
     public private(set) var state: HomeViewState = .loading
     public internal(set) var selectedQuest: QuestDetail?
     public private(set) var selectedBoss: BossDetail?
-    public private(set) var celebration: Celebration?
+    public internal(set) var celebration: Celebration?
     /// "Undo" for a few seconds after the dad records something, in case he tapped by mistake.
     public internal(set) var undoOffer: UndoOffer?
     public internal(set) var errorMessage: String?
     /// The sheet for capturing a legendary moment, while it is open.
     public internal(set) var momentCapture: MomentCapture?
+    /// A moment just recorded celebrates on home once its sheet has closed, not behind it (`sheetDismissed`).
+    var pendingMomentCelebration: Celebration?
     public internal(set) var isCompleting = false
     /// The child whose world and quests are shown. The first child until the dad picks another.
     public internal(set) var selectedChildID: UUID?
@@ -134,6 +136,8 @@ public final class HomeViewModel {
 
     /// Home's celebration and "Saved · Undo" for a quest or boss.
     private func celebrate(_ change: ProgressChange, badge: String? = nil) {
+        // A moment's celebration still waiting would only replace this newer one when the sheet closes.
+        pendingMomentCelebration = nil
         let celebration = makeCelebration(change, badge: badge)
         self.celebration = celebration
         undoOffer = change.eventID.map { makeUndoOffer(id: celebration.id, eventID: $0) }

@@ -15,7 +15,6 @@ struct MomentSheet: View {
         let onCapture: (_ firstID: String, _ date: Date) -> Void
         let onSave: (_ date: Date, _ note: String, _ photos: PhotoDrafts) -> Void
         let onDelete: () -> Void
-        let onCelebrationFinished: () -> Void
         let onUndoExpired: (_ id: Int) -> Void
         let onClose: () -> Void
     }
@@ -43,19 +42,6 @@ struct MomentSheet: View {
                 // A moment's own fields, never another's.
                 .id(details.momentID)
             }
-        }
-    }
-}
-
-/// The error under a sheet's content, when saving failed.
-struct SheetError: View {
-    let message: String?
-
-    var body: some View {
-        if let message {
-            Text(message)
-                .font(DSFont.caption)
-                .foregroundStyle(DSColor.boss)
         }
     }
 }

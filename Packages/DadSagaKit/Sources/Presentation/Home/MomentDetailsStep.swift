@@ -1,8 +1,9 @@
 import DesignSystem
 import SwiftUI
 
-/// Step 2: the moment's own page, for photos, a few words and the date (ADR-0042 §5). Just recorded, it celebrates
-/// and offers "Saved · Undo" here, since home is behind the sheet; opened to edit, it offers Delete instead.
+/// Step 2: the moment's own page, for photos, a few words and the date (ADR-0042 §5). Just recorded, it offers
+/// "Saved · Undo" here, since home is behind the sheet, and home celebrates once it closes; opened to edit, it offers
+/// Delete instead.
 /// Closing never loses the moment: only what was changed and not saved, and only after asking.
 struct MomentDetailsStep: View {
     let details: MomentDetails
@@ -60,7 +61,6 @@ struct MomentDetailsStep: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(DSColor.background)
-        .modifier(CelebrationOverlay(celebration: details.celebration, onFinished: actions.onCelebrationFinished))
         .safeAreaInset(edge: .bottom) { undoBar }
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: details.undoOffer)
         .navigationTitle(details.title)
@@ -70,14 +70,18 @@ struct MomentDetailsStep: View {
                 Button(role: .close) {
                     if hasUnsavedChanges { isConfirmingDiscard = true } else { actions.onClose() }
                 }
+                // A save under way can't be discarded: it writes everything anyway.
+                .disabled(isSaving)
             }
         }
-        // A swipe would lose what was just added; Close asks first instead.
-        .interactiveDismissDisabled(hasUnsavedChanges)
-        .confirmationDialog(details.labels.discardQuestion, isPresented: $isConfirmingDiscard, titleVisibility: .visible) {
-            Button(details.labels.discard, role: .destructive, action: actions.onClose)
-            Button(details.labels.keepEditing, role: .cancel) {}
-        }
+        .modifier(UnsavedChangesGuard(
+            hasUnsavedChanges: hasUnsavedChanges,
+            isAsking: $isConfirmingDiscard,
+            labels: details.labels.journal,
+            canSave: !isSaving && !photos.isLoading,
+            onSave: { actions.onSave(date, note, photos) },
+            onDiscard: actions.onClose
+        ))
         .confirmationDialog(details.labels.deleteConfirmation, isPresented: $isConfirmingDelete, titleVisibility: .visible) {
             Button(details.labels.delete, role: .destructive, action: actions.onDelete)
             Button(details.labels.cancel, role: .cancel) {}
