@@ -59,10 +59,15 @@ public struct PhotoDrafts: Equatable, Sendable {
         loadingCount += min(max(count, 0), remaining)
     }
 
-    /// The photos being read have arrived (those that could be read), or the reading was given up with none.
-    public mutating func finishLoading(_ photos: [Data] = []) {
+    /// The photos being read have arrived: `readable` are the ones the app can open, out of `picked`. Returns how many
+    /// were left out (couldn't be read, or didn't fit), so the field can say so instead of dropping them without a
+    /// word. Given up with the field, it ends with none and returns 0.
+    @discardableResult
+    public mutating func finishLoading(_ readable: [Data] = [], picked: Int = 0) -> Int {
         loadingCount = 0
-        append(photos)
+        let added = min(readable.count, remaining)
+        append(readable)
+        return max(picked - added, 0)
     }
 
     public mutating func remove(id: String) {

@@ -84,4 +84,45 @@ struct PhotoDraftsTests {
         #expect(drafts == PhotoDrafts(storedIDs: ["a"]))
         #expect(drafts.remaining == 4)
     }
+
+    @Test("Given three photos picked, when one can't be read, then two are added and one is reported left out")
+    func unreadPhotosAreReported() {
+        var drafts = PhotoDrafts()
+        drafts.startLoading(3)
+
+        let leftOut = drafts.finishLoading([Data([1]), Data([2])], picked: 3)
+
+        #expect(drafts.items.count == 2)
+        #expect(leftOut == 1)
+    }
+
+    @Test("Given a photo picked that can't be read, when the reading ends, then the entry is as it was: nothing to save")
+    func nothingReadableIsNoChange() {
+        var drafts = PhotoDrafts(storedIDs: ["a"])
+        drafts.startLoading(1)
+
+        let leftOut = drafts.finishLoading([], picked: 1)
+
+        #expect(leftOut == 1)
+        #expect(drafts == PhotoDrafts(storedIDs: ["a"]))
+    }
+
+    @Test("Given photos loading, when the reading is given up, then nothing is reported left out")
+    func givenUpReportsNothing() {
+        var drafts = PhotoDrafts()
+        drafts.startLoading(2)
+
+        #expect(drafts.finishLoading() == 0)
+    }
+
+    @Test("Given photos that couldn't be opened, when the field says so, then it counts them in Greek and English")
+    func couldNotOpenMessage() {
+        let greek = PhotoLabels(locale: Locale(identifier: "el_GR"))
+        let english = PhotoLabels(locale: Locale(identifier: "en_US"))
+
+        #expect(greek.couldNotOpen(1) == "1 φωτογραφία δεν άνοιξε. Αν είναι στο iCloud, δοκίμασε ξανά σε λίγο.")
+        #expect(greek.couldNotOpen(2) == "2 φωτογραφίες δεν άνοιξαν. Αν είναι στο iCloud, δοκίμασε ξανά σε λίγο.")
+        #expect(english.couldNotOpen(1) == "1 photo couldn't be opened. If it's in iCloud, try again in a moment.")
+        #expect(english.couldNotOpen(3) == "3 photos couldn't be opened. If they're in iCloud, try again in a moment.")
+    }
 }
