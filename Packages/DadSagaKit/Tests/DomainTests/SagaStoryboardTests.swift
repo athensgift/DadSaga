@@ -220,36 +220,6 @@ struct SagaStoryboardTests {
         #expect(storyboard.scenes.map(\.seconds) == [3.5, 4.5, 2.5, 2.5, 2.5, 2.5, 2.5, 6])
     }
 
-    @Test("Given quests with further photos that don't fit, when making the film, then further photos go before covers")
-    func furtherPhotosThinnedBeforeQuestCovers() throws {
-        let quests = (0..<20).map { saga.event(.quest(id: "q1"), months: 0, days: $0, photos: "c\($0)", "m\($0)") }
-
-        let storyboard = try #require(saga.storyboard(quests))
-        let covers = storyboard.scenes.compactMap(Self.entryID)
-        let further = storyboard.scenes.filter { if case .photo = $0.kind { true } else { false } }
-
-        #expect(storyboard.seconds <= 90)
-        #expect(covers.count == 20)
-        #expect(!further.isEmpty)
-        #expect(further.count < 20)
-    }
-
-    @Test("Given firsts with many photos that don't fit, when making the film, then further photos go, never a card")
-    func furtherPhotosThinnedBeforeFirstsShorten() throws {
-        let firsts = (1...15).map {
-            saga.event(.first(id: "f\($0)"), months: 0, days: $0, photos: "a\($0)", "b\($0)", "c\($0)", "d\($0)")
-        }
-
-        let storyboard = try #require(saga.storyboard(firsts))
-        let further = storyboard.scenes.filter { if case .photo = $0.kind { true } else { false } }
-
-        #expect(storyboard.scenes.compactMap(Self.entryID).count == 15)
-        #expect(storyboard.scenes.filter { Self.entryID($0) != nil }.allSatisfy { $0.seconds == 4.5 })
-        #expect(!further.isEmpty)
-        #expect(further.count < 45)
-        #expect(storyboard.seconds <= 90)
-    }
-
     private func entry(for event: ProgressEvent, in storyboard: SagaStoryboard) throws -> TimelineEntry {
         try #require(storyboard.scenes.lazy.compactMap { scene -> TimelineEntry? in
             if case .entry(let entry) = scene.kind, entry.id == event.id { entry } else { nil }

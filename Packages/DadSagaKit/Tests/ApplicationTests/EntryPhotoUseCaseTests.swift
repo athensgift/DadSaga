@@ -144,6 +144,35 @@ struct EntryPhotoUseCaseTests {
         #expect(try await repository.fetchEvents().first == event)
     }
 
+    @Test("Given the same kept id twice, when editing, then it throws unknownPhoto and nothing is written")
+    func updateRejectsDuplicateKeptID() async throws {
+        let store = SpyPhotoStore()
+        let event = try await questWithThreePhotos(store: store)
+        let cover = try #require(event.coverPhotoID)
+
+        await #expect(throws: ProgressError.unknownPhoto) {
+            try await DefaultUpdateJournalUseCase(progressRepository: repository, photoStore: store)
+                .execute(eventID: event.id, note: nil, photos: [.kept(cover), .added(Data([9])), .kept(cover)])
+        }
+
+        #expect(await store.saveCount == 3)
+        #expect(try await repository.fetchEvents().first == event)
+    }
+
+    @Test("Given the entry is deleted while it is edited, when saving new photos, then they are removed again")
+    func editRacingADeleteLeavesNoFiles() async throws {
+        let store = SpyPhotoStore()
+        let event = try await questWithThreePhotos(store: store)
+        let sut = DefaultUpdateJournalUseCase(progressRepository: DeletedBeforeUpdate(repository), photoStore: store)
+
+        await #expect(throws: ProgressError.unknownEvent) {
+            try await sut.execute(eventID: event.id, note: nil, photos: [.added(Data([9]))])
+        }
+
+        #expect(await store.saveCount == 4)
+        #expect(Set(await store.stored.keys) == Set(event.photoIDs))
+    }
+
     @Test("Given an entry with three photos, when deleting it, then every photo is removed")
     func deleteRemovesEveryPhoto() async throws {
         let store = SpyPhotoStore()
@@ -152,6 +181,23 @@ struct EntryPhotoUseCaseTests {
         try await DefaultDeleteEventUseCase(progressRepository: repository, photoStore: store).execute(eventID: event.id)
 
         #expect(await store.stored.isEmpty)
+    }
+}
+
+/// Reads from the wrapped repository; just before an update, the event is deleted, as if from another screen.
+struct DeletedBeforeUpdate: ProgressRepository {
+    let base: any ProgressRepository
+
+    init(_ base: any ProgressRepository) { self.base = base }
+
+    func fetchEvents() async throws -> [ProgressEvent] { try await base.fetchEvents() }
+    func add(_ event: ProgressEvent) async throws { try await base.add(event) }
+    func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool { try await base.addUnlessRecorded(event) }
+    func delete(id: UUID) async throws { try await base.delete(id: id) }
+
+    func update(_ event: ProgressEvent) async throws {
+        try await base.delete(id: event.id)
+        try await base.update(event)
     }
 }
 

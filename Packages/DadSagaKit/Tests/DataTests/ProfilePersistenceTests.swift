@@ -1,3 +1,4 @@
+import Application
 import Domain
 import Foundation
 import SwiftData
@@ -181,6 +182,27 @@ struct LocalStoreTests {
         #expect(try await sut.addUnlessRecorded(ProgressEvent(kind: .first(id: "x"), childID: child, date: birth)))
         #expect(try await !sut.addUnlessRecorded(ProgressEvent(kind: .boss(id: "x"), childID: child, date: birth)))
         #expect(try await sut.fetchEvents().count == 3)
+    }
+
+    @Test("Given ten photos on an entry, when saved and read back from disk, then they come back in the same order")
+    func tenPhotosKeepTheirOrder() async throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-photos-order-" + UUID().uuidString)
+        let ids = (1...ProgressEvent.photoLimit).map { "photo-\(11 - $0)" }
+        let event = ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth, photoIDs: ids)
+
+        try await LocalStore.live(in: directory).progress.add(event)
+
+        #expect(try await LocalStore.live(in: directory).progress.fetchEvents().first?.photoIDs == ids)
+    }
+
+    @Test("Given an event deleted meanwhile, when updating it, then it throws unknownEvent and nothing is added")
+    func updatingAMissingEventThrows() async throws {
+        let sut = LocalStore.inMemory().progress
+
+        await #expect(throws: ProgressError.unknownEvent) {
+            try await sut.update(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: birth))
+        }
+        #expect(try await sut.fetchEvents().isEmpty)
     }
 
     @Test("Given a record of a kind this version does not know, when mapping, then it is skipped")

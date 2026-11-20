@@ -1,5 +1,6 @@
 import Domain
 import Foundation
+import SwiftData
 import Testing
 @testable import Data
 
@@ -37,14 +38,45 @@ struct StoreMigrationTests {
         #expect(try await LocalStore.live(in: directory).progress.fetchEvents() == StoreV1Fixture.events)
     }
 
-    @Test("Given ten photos on an entry, when saved and fetched, then they come back in the same order")
-    func tenPhotosKeepTheirOrder() async throws {
-        let ids = (1...ProgressEvent.photoLimit).map { "photo-\(11 - $0)" }
-        let event = ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: .distantPast, photoIDs: ids)
-        let store = LocalStore.live(in: directory)
+    @Test("Given a store left at version 2 with one row already copied, when the app opens it, then that row is kept")
+    func resumesFromVersion2() async throws {
+        try StoreFiles.copy(from: StoreV1Fixture.directory, to: directory)
+        let quest = StoreV1Fixture.events[0].id
+        let copiedAtVersion2 = try openAtVersion2 { records in
+            var copied: [[String]] = []
+            for record in records {
+                copied.append(record.photoIDs)
+                if record.eventID == quest { record.photoIDs = ["x", "y"] }
+            }
+            return copied
+        }
+        #expect(copiedAtVersion2 == [[], [], [], []])
 
-        try await store.progress.add(event)
+        let events = try await LocalStore.live(in: directory).progress.fetchEvents()
 
-        #expect(try await LocalStore.live(in: directory).progress.fetchEvents().first?.photoIDs == ids)
+        #expect(events.map(\.photoIDs) == [["x", "y"], ["photo-boss"], ["photo-first"], []])
     }
+
+    /// Migrates the store only as far as version 2, lets `change` edit its events, saves and closes it: a launch that
+    /// stopped between the two stages. Returns what `change` returns.
+    private func openAtVersion2<T>(_ change: ([SchemaV2.ProgressEventRecord]) -> T) throws -> T {
+        let schema = Schema(versionedSchema: SchemaV2.self)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: UpToVersion2.self,
+            configurations: [
+                ModelConfiguration(schema: schema, url: directory.appending(path: "DadSaga.store"), cloudKitDatabase: .none)
+            ]
+        )
+        let context = ModelContext(container)
+        let result = change(try context.fetch(FetchDescriptor<SchemaV2.ProgressEventRecord>()))
+        try context.save()
+        return result
+    }
+}
+
+/// The real plan's first stage alone.
+private enum UpToVersion2: SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
+    static var stages: [MigrationStage] { [.lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self)] }
 }

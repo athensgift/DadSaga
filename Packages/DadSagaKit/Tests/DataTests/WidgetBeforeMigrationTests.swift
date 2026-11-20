@@ -33,14 +33,16 @@ struct WidgetBeforeMigrationTests {
         #expect(try storeContents() == before)
     }
 
-    @Test("Given the app has migrated a version 1 store, when the widget opens it, then it reads the events")
+    @Test("Given a version 1 store, when the widget fails, the app migrates and the widget asks again, then it reads it")
     func widgetReadsAfterMigration() async throws {
         try StoreFiles.copy(from: StoreV1Fixture.directory, to: directory)
-        _ = try await LocalStore.live(in: directory).progress.fetchEvents()
-
         let widget = LocalStore.live(in: directory, readOnly: true)
+        await #expect(throws: (any Error).self) { try await widget.progress.fetchEvents() }
+
+        #expect(try await LocalStore.live(in: directory).progress.fetchEvents() == StoreV1Fixture.events)
 
         #expect(try await widget.progress.fetchEvents() == StoreV1Fixture.events)
+        #expect(try await widget.profiles.fetchProfile() == StoreV1Fixture.profile)
     }
 }
 

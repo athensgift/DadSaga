@@ -227,7 +227,7 @@ actor SpyProgressRepository: ProgressRepository {
     }
 
     func update(_ event: ProgressEvent) async throws {
-        guard let index = events.firstIndex(where: { $0.id == event.id }) else { return }
+        guard let index = events.firstIndex(where: { $0.id == event.id }) else { throw ProgressError.unknownEvent }
         events[index] = event
     }
 

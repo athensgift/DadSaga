@@ -33,7 +33,7 @@ actor SwiftDataProgressRepository: ProgressRepository {
     }
 
     func update(_ event: ProgressEvent) async throws {
-        guard let record = try record(id: event.id) else { return }
+        guard let record = try record(id: event.id) else { throw ProgressError.unknownEvent }
         record.date = event.date
         record.note = event.note
         record.photoIDs = event.photoIDs

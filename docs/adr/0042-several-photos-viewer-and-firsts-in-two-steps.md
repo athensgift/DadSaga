@@ -33,10 +33,12 @@ snapshots cover the viewer and both steps of a first).
   card in the film.
 - Recording takes `JournalInput(note:photos:)`. Editing takes the whole list as it should end up, `[EntryPhoto]`, each
   `.kept(id)` or `.added(Data)`; it replaces `PhotoChange`. One shape covers adding several, removing one and choosing
-  the cover. More than ten, or a kept id the entry doesn't have, throws before anything is written.
+  the cover. More than ten, a kept id the entry doesn't have, or the same id kept twice, throws before anything is
+  written.
 - **Files** (ADR-0016, ADR-0021): new photos are written first, then the event. If a photo or the event can't be
   written, every photo written for it is deleted. Removed photos are deleted only once the event no longer points to
-  them. Deleting an entry deletes all its photos. Starting over still empties the whole folder.
+  them. Saving an entry deleted meanwhile throws, so its new photos are deleted too. Deleting an entry deletes all its
+  photos. Starting over still empties the whole folder.
 - `FilePhotoStore.thumbnail` returns the stored file itself when it is not larger than asked, so the viewer and the
   film never get a JPEG of a JPEG.
 
