@@ -21,8 +21,10 @@ extension SagaFilmSheetTests {
         SagaFilmViewModel(
             request: SagaFilmRequest(childID: childID),
             getFilm: getFilm,
+            setDates: DefaultSetSagaFilmDatesUseCase(repository: getFilm.dates),
             renderer: renderer,
             locale: Locale(identifier: locale),
+            calendar: FilmStub.calendar,
             now: now
         )
     }
@@ -60,16 +62,28 @@ extension SagaFilmSheetTests {
         return film
     }
 
-    /// Every word a film shows.
-    func words(of script: SagaFilmScript) -> [String] {
-        script.scenes.flatMap { scene -> [String] in
+    /// Every word a film shows, its dates too unless `includingDates` is false.
+    func words(of script: SagaFilmScript, includingDates: Bool = true) -> [String] {
+        let dated = { (date: String?) in includingDates ? [date ?? ""] : [] }
+        return script.scenes.flatMap { scene -> [String] in
             switch scene.card {
-            case .opening(let name, let period, _): [name, period]
+            case .opening(let name, let period, let dates, _): [name, period] + dated(dates)
             case .chapter(let heading, let title, let tagline): [heading, title, tagline]
-            case .first(let emoji, let title, let note, _): [emoji, title, note ?? ""]
-            case .boss(let badge, let title, _): [badge, title]
+            case .first(let emoji, let title, let date, let note, _): [emoji, title, note ?? ""] + dated(date)
+            case .boss(let badge, let title, let date, _): [badge, title] + dated(date)
             case .questPhoto: []
             case .credits(let credits): credits.lines.flatMap { [$0.role, $0.name] } + [credits.signature]
+            }
+        }
+    }
+
+    /// The dates a film shows, in order: the opening's span, then each first's and boss's day.
+    func dates(of script: SagaFilmScript) -> [String] {
+        script.scenes.compactMap { scene -> String? in
+            switch scene.card {
+            case .opening(_, _, let dates, _): dates
+            case .first(_, _, let date, _, _), .boss(_, _, let date, _): date
+            case .chapter, .questPhoto, .credits: nil
             }
         }
     }
@@ -77,7 +91,7 @@ extension SagaFilmSheetTests {
 
 extension SagaFilmCard {
     func isOpening(period expected: String) -> Bool {
-        if case .opening(_, let period, _) = self { period == expected } else { false }
+        if case .opening(_, let period, _, _) = self { period == expected } else { false }
     }
 }
 

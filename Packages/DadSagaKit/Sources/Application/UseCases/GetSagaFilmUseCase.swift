@@ -18,6 +18,8 @@ public struct SagaFilm: Sendable {
     /// What the hero wore then: the gear earned by then, chosen with today's wardrobe.
     public let equippedGear: [GearItem]
     public let soundtrack: Soundtrack
+    /// Whether the film shows its dates: the switch on the film sheet, remembered (ADR-0041 §5).
+    public let showsDates: Bool
 
     public var period: SagaPeriod { storyboard.period }
 
@@ -31,7 +33,8 @@ public struct SagaFilm: Sendable {
         medalCount: Int,
         childFirsts: [FirstMoment],
         equippedGear: [GearItem],
-        soundtrack: Soundtrack
+        soundtrack: Soundtrack,
+        showsDates: Bool = true
     ) {
         self.profile = profile
         self.child = child
@@ -42,6 +45,7 @@ public struct SagaFilm: Sendable {
         self.childFirsts = childFirsts
         self.equippedGear = equippedGear
         self.soundtrack = soundtrack
+        self.showsDates = showsDates
     }
 }
 
@@ -63,6 +67,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
     private let progressRepository: any ProgressRepository
     private let outfitRepository: any OutfitRepository
     private let soundtrackRepository: any SoundtrackRepository
+    private let datesRepository: any SagaFilmDatesRepository
     private let calendar: Calendar
 
     public init(
@@ -71,6 +76,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
         progressRepository: any ProgressRepository,
         outfitRepository: any OutfitRepository,
         soundtrackRepository: any SoundtrackRepository,
+        datesRepository: any SagaFilmDatesRepository,
         calendar: Calendar = .autoupdatingCurrent
     ) {
         self.contentRepository = contentRepository
@@ -78,6 +84,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
         self.progressRepository = progressRepository
         self.outfitRepository = outfitRepository
         self.soundtrackRepository = soundtrackRepository
+        self.datesRepository = datesRepository
         self.calendar = calendar
     }
 
@@ -86,6 +93,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
         async let pendingEvents = progressRepository.fetchEvents()
         async let pendingOutfit = outfitRepository.fetchOutfit()
         async let pendingSoundtracks = soundtrackRepository.fetchSoundtracks()
+        async let pendingShowsDates = datesRepository.showsDates()
         guard let profile = try await profileRepository.fetchProfile(),
               let child = profile.child(childID)
         else { return nil }
@@ -115,7 +123,8 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
             medalCount: progress.allDefeatedBossIDs.count,
             childFirsts: catalog.firsts.filter { firsts.contains($0.id) },
             equippedGear: GearRules.equipped(catalog.gear, skillXP: progress.skillXP, outfit: try await pendingOutfit),
-            soundtrack: soundtrack
+            soundtrack: soundtrack,
+            showsDates: await pendingShowsDates
         )
     }
 }

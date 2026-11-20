@@ -3,14 +3,32 @@ import Domain
 import Foundation
 import Localization
 
-/// The saga film's own words, in the user's language (ADR-0027): the name of a period and the credits. Content titles
-/// come from the JSON (ADR-0005), and names stay exactly as the dad typed them.
+/// The saga film's own words, in the user's language (ADR-0027): the name of a period, its dates and the credits.
+/// Content titles come from the JSON (ADR-0005), and names stay exactly as the dad typed them. Dates are written by
+/// Foundation in the film's locale, with the sheet's calendar and time zone (ADR-0041 §3).
 struct SagaFilmTexts {
     let strings: Strings
+    let calendar: Calendar
     var locale: Locale { strings.locale }
 
-    init(locale: Locale) {
+    init(locale: Locale, calendar: Calendar) {
         strings = Strings(locale: locale)
+        self.calendar = calendar
+    }
+
+    /// The day something happened: "March 12, 2026", "12 Μαρτίου 2026".
+    func day(_ date: Date) -> String {
+        date.formatted(Date.FormatStyle(
+            date: .long, time: .omitted, locale: locale, calendar: calendar, timeZone: calendar.timeZone
+        ))
+    }
+
+    /// The months a film covers: "March 2025 – March 2026", "March – November 2026", or one month once.
+    func span(_ span: DateInterval) -> String {
+        Date.IntervalFormatStyle(date: nil, time: nil, locale: locale, calendar: calendar, timeZone: calendar.timeZone)
+            .month(.wide)
+            .year()
+            .format(span.start..<span.end)
     }
 
     /// "Year 2", the world's title, or "The whole saga".

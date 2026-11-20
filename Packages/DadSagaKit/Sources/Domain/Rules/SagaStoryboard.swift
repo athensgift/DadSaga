@@ -40,6 +40,10 @@ public struct SagaStoryboard: Hashable, Sendable {
     public let asOf: Date
     /// The child's completed months of age at the last moment of the period, or now: how the film draws them.
     public let childAgeInMonths: Int
+    /// The days the film covers, for the opening's dates (ADR-0041 §2): from the start of its period to its last
+    /// moment, or to now while it is still going. The whole saga starts on the child's birth day, or on the first
+    /// entry's day if one is earlier.
+    public let span: DateInterval
     public let scenes: [SagaScene]
 
     public var seconds: TimeInterval {
@@ -74,10 +78,13 @@ public struct SagaStoryboard: Hashable, Sendable {
         let cutter = Cutter(shown: shown, worlds: worlds, pacing: pacing, credits: credits)
         let asOf = min(interval.end, now)
         let lastMoment = asOf == interval.end ? asOf.addingTimeInterval(-1) : asOf
+        let firstDay = entries.map(\.date).min().map(calendar.startOfDay(for:))
+        let start = min(max(interval.start, calendar.startOfDay(for: child.birthDate)), firstDay ?? .distantFuture)
         return SagaStoryboard(
             period: period,
             asOf: asOf,
             childAgeInMonths: child.sagaCompleted(.month, at: lastMoment, calendar: calendar),
+            span: DateInterval(start: start, end: max(start, lastMoment)),
             scenes: cutter.cut()
         )
     }

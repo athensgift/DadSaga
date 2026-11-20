@@ -44,5 +44,6 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0034](0034-screen-snapshots-pinned-ci-and-store-threads.md) | Screen snapshots, a pinned CI toolchain, the store's work off the main thread | testing, CI, storage, concurrency | 0035 (snapshots get the app's tint), 0036 (film sheet and card snapshots), 0038 (why onboarding's date picker differed by region and by day) |
 | [0035](0035-audit-on-ios-27-shaded-glass.md) | The audit on iOS 27.2: re-measure labels on shaded glass | accessibility, testing | |
 | [0036](0036-saga-video.md) | Saga film: drawn frame by frame on the device from the timeline, offered gently, never stored | video, media, product rules, concurrency | 0037 (one offer for the family; what the cards and the sheet show) |
-| [0037](0037-saga-film-drawing-sheet-and-offer.md) | Drawing the saga film in Presentation, its sheet, one offer card for the family | video, architecture, product rules, UI | |
+| [0037](0037-saga-film-drawing-sheet-and-offer.md) | Drawing the saga film in Presentation, its sheet, one offer card for the family | video, architecture, product rules, UI | 0041 (dates on the opening, first and boss cards, behind a switch) |
 | [0038](0038-date-picker-sized-by-its-date.md) | The date picker is as wide as the date it shows, not as today's | UI, testing, accessibility | |
+| [0041](0041-dates-in-the-saga-film.md) | Dates in the saga film, on by default, behind a switch the film sheet remembers | video, product rules, privacy, localization, UI | |

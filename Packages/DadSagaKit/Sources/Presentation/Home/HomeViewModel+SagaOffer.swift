@@ -24,7 +24,8 @@ extension HomeViewModel {
         guard let occasion = overview.sagaOffer, !answeredSagaOffers.contains(occasion.id),
               let child = overview.profile.children.first(where: { $0.id == occasion.childID })
         else { return nil }
-        let period = SagaFilmTexts(locale: locale).periodTitle(occasion.period, catalog: overview.catalog)
+        let period = SagaFilmTexts(locale: locale, calendar: .autoupdatingCurrent)
+            .periodTitle(occasion.period, catalog: overview.catalog)
         return SagaFilmOffer(
             title: strings.text("A short film?"),
             childLine: "\(child.name) · \(period)",

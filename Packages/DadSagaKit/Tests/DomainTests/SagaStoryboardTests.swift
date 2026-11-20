@@ -187,6 +187,42 @@ struct SagaStoryboardTests {
         #expect(storyboard.childAgeInMonths == 26)
     }
 
+    @Test("Given a finished year, when making its film, then it spans from the birthday to the last moment of the year")
+    func spanOfAFinishedYear() throws {
+        let storyboard = try #require(saga.storyboard([saga.event(.first(id: "f1"), months: 14)], period: .year(2)))
+        #expect(storyboard.span == DateInterval(start: saga.date(months: 12), end: saga.date(months: 24) - 1))
+    }
+
+    @Test("Given a year still going, when making its film, then it spans up to now, never later")
+    func spanOfTheCurrentYear() throws {
+        let now = saga.date(months: 26, days: 2)
+        let storyboard = try #require(SagaStoryboard.make(
+            events: [], child: saga.child, period: .year(3), catalog: saga.catalog, now: now, calendar: saga.calendar
+        ))
+        #expect(storyboard.span == DateInterval(start: saga.date(months: 24), end: now))
+    }
+
+    @Test("Given a world left behind, when making its film, then it ends at the last moment of the world")
+    func spanOfAWorldLeftBehind() throws {
+        let storyboard = try #require(saga.storyboard([], period: .world(id: "w1")))
+        #expect(storyboard.span.start == saga.date(months: 0))
+        #expect(storyboard.span.end == storyboard.asOf - 1)
+        #expect(storyboard.asOf < saga.date(months: 80))
+    }
+
+    @Test("Given the whole saga, when making its film, then it starts on the birth day and runs to now")
+    func spanOfEverything() throws {
+        let storyboard = try #require(saga.storyboard([saga.event(.first(id: "f1"), months: 3)]))
+        #expect(storyboard.span == DateInterval(start: saga.date(months: 0), end: saga.date(months: 80)))
+    }
+
+    @Test("Given an entry dated before the birth day, when making the whole saga, then the film starts on that day")
+    func spanOfEverythingWithAnEarlierEntry() throws {
+        let early = saga.event(.first(id: "f1"), months: -1, days: 0)
+        let storyboard = try #require(saga.storyboard([early]))
+        #expect(storyboard.span.start == saga.date(months: -1))
+    }
+
     @Test("Given no entries, when making the film, then it is the opening and the credits")
     func empty() throws {
         let storyboard = try #require(saga.storyboard([], period: .year(1)))
