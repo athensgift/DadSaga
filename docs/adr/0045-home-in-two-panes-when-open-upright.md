@@ -1,8 +1,9 @@
 # ADR-0045: Home in the same two panes when iPhone Duo is open and upright
 
 **Status:** Accepted (2026-11-20). The owner tried ADR-0043 on the inner display and asked for home, open and upright,
-to show "the avatar above, the rest below" instead of two columns. Changes ADR-0043 §3 (home open flat in portrait)
-and its Consequences (folding home no longer swaps columns for rows). Numbered 0045 because 0044 is taken by a branch
+to show "the avatar above, the rest below" instead of two columns. Changes ADR-0011 (two columns from 600 pt: not
+on the Duo's inner display held upright), ADR-0043 §1 (the reader can also report the fold while the device lies
+flat), §3 (home open flat in portrait) and its Consequences (folding home no longer swaps columns for rows). Numbered 0045 because 0044 is taken by a branch
 in progress.
 
 ## Context
@@ -33,8 +34,8 @@ in progress.
   home would jump when the device folds.
 
 ## Verification status
-Drawn in the iPhone Duo simulator (iOS 27.2): open and upright (two panes), folded to 90° from there (the same panes,
-nothing moves), and open on its side (two columns). Not checked: a real iPhone Duo, Split View, the accessibility text
+Drawn in the iPhone Duo simulator (iOS 27.2): open and upright (two panes), folded to 90° from there (the same panes;
+the fold's gap opens between them), and open on its side (two columns). Not checked: a real iPhone Duo, Split View, the accessibility text
 sizes, VoiceOver.
 
 ## Consequences

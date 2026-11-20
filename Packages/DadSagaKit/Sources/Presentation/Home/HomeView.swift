@@ -5,7 +5,8 @@ import SwiftUI
 /// Home: the dad's hero and progress, then what he can play today.
 /// On wide screens (iPhone Duo inner display, landscape) it splits into two equal columns, so neither column
 /// runs across the middle of the display, where the Duo folds like a book. Half-open like a laptop, the fold runs
-/// across instead: the hero stands above it and the adventure lies below it (ADR-0043).
+/// across instead: the hero stands above it and the adventure lies below it (ADR-0043), and the same two panes stay
+/// when the Duo is opened flat and held upright (ADR-0045).
 public struct HomeView: View {
     public typealias MakeWardrobe = @MainActor () -> WardrobeViewModel
 

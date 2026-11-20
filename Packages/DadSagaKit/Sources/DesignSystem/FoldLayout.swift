@@ -115,8 +115,9 @@ public enum FoldedPanes: Equatable, Sendable {
 }
 
 extension View {
-    /// Reports the fold that runs across this view, and `nil` when there is none: on a flat display, when the fold
-    /// runs down the view (half-open like a book), or before iOS 27.1. Read it on the view that places the panes,
+    /// Reports the fold that runs across this view, and `nil` when there is none: on a flat display (unless
+    /// `whileFlat`), when the fold runs down the view (the device on its side),
+    /// or before iOS 27.1. Read it on the view that places the panes,
     /// so the fold is in their coordinates.
     /// - Parameters:
     ///   - minimumAbove, minimumBelow: the least height each pane needs for the view to split at the fold.

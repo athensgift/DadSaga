@@ -17,7 +17,7 @@ enum HomeArrangement: Equatable, Sendable {
     ///   - fold: the fold that runs across home while the device is half-open, if any.
     ///   - flatFold: where the fold runs across home while the device lies flat, if it does. It splits home only
     ///     where there would otherwise be two columns.
-    static func make(width: CGFloat, fold: HorizontalFold?, flatFold: HorizontalFold? = nil) -> HomeArrangement {
+    static func make(width: CGFloat, fold: HorizontalFold?, flatFold: HorizontalFold?) -> HomeArrangement {
         if let fold { return .stacked(fold) }
         guard width >= twoColumnWidth else { return .column }
         return flatFold.map(HomeArrangement.stacked) ?? .columns
