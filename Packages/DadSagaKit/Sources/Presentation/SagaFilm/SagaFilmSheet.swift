@@ -100,7 +100,13 @@ private struct SagaFilmSheetPresenter: ViewModifier {
                 SagaFilmSheet(viewModel: viewModel) { film = nil }
             }
             .onChange(of: film?.id) {
-                if let film { presented = film }
+                guard let film else { return }
+                // A new sheet asked for while the last one is still sliding away: that one is closed here, because
+                // its dismissal would otherwise close the new one.
+                if let earlier = presented, earlier !== film {
+                    Task { await earlier.close() }
+                }
+                presented = film
             }
             // Only the background counts: the app switcher and a banner leave the app drawing (ADR-0037 §4).
             .onChange(of: scenePhase) { _, phase in
@@ -109,6 +115,8 @@ private struct SagaFilmSheetPresenter: ViewModifier {
     }
 
     private func discard() {
+        // Another sheet is already up: the one that has gone was closed when it was replaced.
+        guard film == nil else { return }
         let closed = presented
         presented = nil
         Task { await closed?.close() }
