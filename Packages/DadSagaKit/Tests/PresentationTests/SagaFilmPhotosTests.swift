@@ -19,12 +19,13 @@ struct SagaFilmPhotosTests: SagaFilmSheetTests {
         let sut = makeSUT(FakeGetSagaFilm(events: [smile]))
         await sut.onAppear()
         await sut.selectPeriod(id: "year-1")
+        await sut.setShowsDates(false)?.value
 
         await sut.makeFilm(reduceMotion: false)
 
         let script = try #require(await renderer.scripts.first)
         #expect(script.scenes.dropFirst().dropLast().map(\.card) == [
-            .first(emoji: "😊", title: "Πρώτο χαμόγελο", note: nil, photoID: "p-cover"),
+            .first(emoji: "😊", title: "Πρώτο χαμόγελο", date: nil, note: nil, photoID: "p-cover"),
             .photo(photoID: "p-two"),
             .photo(photoID: "p-three")
         ])

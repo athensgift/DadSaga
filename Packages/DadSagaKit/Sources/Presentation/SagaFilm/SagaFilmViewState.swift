@@ -46,6 +46,10 @@ public struct SagaFilmSetup: Equatable, Sendable {
     public let selectedPeriodID: String
     public let formats: [SagaFilmFormatChoice]
     public let selectedFormat: SagaFilmFormat
+    /// The "Dates in the film" switch and what dates give away (ADR-0041 §5).
+    public let datesLabel: String
+    public let datesNote: String
+    public let showsDates: Bool
     /// Why the last film wasn't finished: the dad left the app, or it failed. `nil` after a cancel.
     public let notice: String?
     /// "Make the film", or "Make it again" under a notice. `nil` when the period has nothing in it.

@@ -3263,6 +3263,40 @@
           }
         }
       }
+    },
+    "Dates in the film" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ημερομηνίες στην ταινία"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dates in the film"
+          }
+        }
+      }
+    },
+    "Dates also tell how old your child is. Turn them off for a film you'll share beyond the family." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οι ημερομηνίες δείχνουν και την ηλικία του παιδιού σου. Κλείσε τες για μια ταινία που θα μοιραστείς εκτός οικογένειας."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dates also tell how old your child is. Turn them off for a film you'll share beyond the family."
+          }
+        }
+      }
     }
   },
   "version" : "1.0"

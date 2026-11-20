@@ -56,6 +56,7 @@ public struct SagaFilmSheet: View {
                 onChild: { id in Task { await viewModel.selectChild(id: id) } },
                 onPeriod: { id in Task { await viewModel.selectPeriod(id: id) } },
                 onFormat: { viewModel.selectFormat($0) },
+                onDates: { viewModel.setShowsDates($0) },
                 onMake: { Task { await viewModel.makeFilm(reduceMotion: reduceMotion) } }
             )
         case .making(let making):
@@ -130,6 +131,7 @@ private struct SagaFilmChoices: View {
     let onChild: (UUID) -> Void
     let onPeriod: (String) -> Void
     let onFormat: (SagaFilmFormat) -> Void
+    let onDates: (Bool) -> Void
     let onMake: () -> Void
     /// Grows with the text, so at the accessibility sizes a name gets a row of its own instead of being cut short.
     @ScaledMetric(relativeTo: .subheadline) private var optionMinimumWidth: CGFloat = 120
@@ -172,6 +174,7 @@ private struct SagaFilmChoices: View {
                         }
                     }
                 }
+                datesSwitch
                 if let emptyMessage = setup.emptyMessage {
                     Text(emptyMessage)
                         .font(DSFont.body)
@@ -200,6 +203,26 @@ private struct SagaFilmChoices: View {
                 .accessibilityAddTraits(.isHeader)
             content()
         }
+    }
+
+    /// "Dates in the film", with what dates give away under it (ADR-0041 §5).
+    private var datesSwitch: some View {
+        VStack(alignment: .leading, spacing: DSSpacing.xs) {
+            Toggle(isOn: Binding(get: { setup.showsDates }, set: { onDates($0) })) {
+                Text(setup.datesLabel)
+                    .font(DSFont.body)
+                    .foregroundStyle(DSColor.textPrimary)
+            }
+            // VoiceOver reads it with the switch, as its hint, instead of as a stop of its own.
+            .accessibilityHint(setup.datesNote)
+            Text(setup.datesNote)
+                .font(DSFont.subheadline)
+                .foregroundStyle(DSColor.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .accessibilityHidden(true)
+        }
+        .padding(DSSpacing.m)
+        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
     }
 
     /// A menu, not tiles: a child of six has a dozen periods.

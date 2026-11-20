@@ -11,16 +11,18 @@ struct SagaFilmScriptBuilder {
     let texts: SagaFilmTexts
     private var locale: Locale { texts.locale }
 
-    init(locale: Locale) {
-        texts = SagaFilmTexts(locale: locale)
+    init(locale: Locale, calendar: Calendar) {
+        texts = SagaFilmTexts(locale: locale, calendar: calendar)
     }
 
-    func script(for film: SagaFilm, format: SagaFilmFormat, reduceMotion: Bool) -> SagaFilmScript {
+    func script(for film: SagaFilm, format: SagaFilmFormat, reduceMotion: Bool, showsDates: Bool) -> SagaFilmScript {
         SagaFilmScript(
             format: format,
             reduceMotion: reduceMotion,
             scenes: film.storyboard.scenes.compactMap { scene in
-                card(for: scene.kind, in: film).map { SagaFilmScene(seconds: scene.seconds, card: $0) }
+                card(for: scene.kind, in: film, showsDates: showsDates).map {
+                    SagaFilmScene(seconds: scene.seconds, card: $0)
+                }
             },
             music: film.soundtrack.audioURL,
             title: Self.fileName(for: film.child.name)
@@ -49,12 +51,13 @@ struct SagaFilmScriptBuilder {
         return trimmed.isEmpty ? nil : trimmed
     }
 
-    private func card(for kind: SagaScene.Kind, in film: SagaFilm) -> SagaFilmCard? {
+    private func card(for kind: SagaScene.Kind, in film: SagaFilm, showsDates: Bool) -> SagaFilmCard? {
         switch kind {
         case .opening:
             .opening(
                 name: film.child.name,
                 period: texts.periodTitle(film.period, catalog: film.catalog),
+                dates: showsDates ? texts.span(film.storyboard.span) : nil,
                 family: family(in: film)
             )
         case .chapter(let world, let number):
@@ -64,7 +67,7 @@ struct SagaFilmScriptBuilder {
                 tagline: world.tagline.resolved(for: locale)
             )
         case .entry(let entry):
-            card(for: entry)
+            card(for: entry, date: showsDates ? texts.day(entry.date) : nil)
         case .photo(_, let id):
             .photo(photoID: id)
         case .credits(let credits):
@@ -72,18 +75,22 @@ struct SagaFilmScriptBuilder {
         }
     }
 
-    private func card(for entry: TimelineEntry) -> SagaFilmCard? {
+    private func card(for entry: TimelineEntry, date: String?) -> SagaFilmCard? {
         switch entry.kind {
         case .first(let first):
             .first(
                 emoji: first.emoji,
                 title: first.title.resolved(for: locale),
+                date: date,
                 note: entry.note.flatMap(Self.words),
                 photoID: entry.coverPhotoID
             )
         case .boss(let boss):
             .boss(
-                badge: boss.badge.resolved(for: locale), title: boss.title.resolved(for: locale), photoID: entry.coverPhotoID
+                badge: boss.badge.resolved(for: locale),
+                title: boss.title.resolved(for: locale),
+                date: date,
+                photoID: entry.coverPhotoID
             )
         case .quest:
             // The storyboard keeps only quests with a photo; one without has nothing to show.

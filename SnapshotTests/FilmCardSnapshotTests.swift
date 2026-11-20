@@ -77,11 +77,11 @@ private extension SagaFilmCard {
     }
 
     var isFirstWithNote: Bool {
-        if case .first(_, _, let note, nil) = self { note != nil } else { false }
+        if case .first(_, _, _, let note, nil) = self { note != nil } else { false }
     }
 
     var isFirstWithPhoto: Bool {
-        if case .first(_, _, _, let photoID) = self { photoID != nil } else { false }
+        if case .first(_, _, _, _, let photoID) = self { photoID != nil } else { false }
     }
 
     var isBoss: Bool {
