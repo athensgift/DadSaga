@@ -28,13 +28,20 @@ struct SagaFilmScriptBuilder {
     }
 
     /// The child's name with what a file name can't hold replaced: "/" would start a folder, and Finder shows ":" as
-    /// one.
+    /// one. A name longer than a file name can hold is cut at a whole character: a file name is at most 255 bytes,
+    /// and a Greek letter takes two.
     static func fileName(for childName: String) -> String {
-        let name = childName
+        var name = childName
             .components(separatedBy: CharacterSet(charactersIn: "/:").union(.newlines).union(.controlCharacters))
             .joined(separator: "-")
-        return name + fileNameSuffix
+        while name.utf8.count > fileNameByteBudget {
+            name.removeLast()
+        }
+        return name.trimmingCharacters(in: .whitespaces) + fileNameSuffix
     }
+
+    /// Leaves room for the suffix, the extension and the sidecar names a writer adds while it works.
+    private static let fileNameByteBudget = 160
 
     /// A note with something in it, or `nil`.
     private static func words(_ note: String) -> String? {

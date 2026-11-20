@@ -68,6 +68,9 @@ public struct SagaFilmRenderer: SagaFilmRendering {
                     input.yield(value)
                 }
             }
+            // The encoder looks for a cancel once a frame, so one that lands while the file is being finished comes
+            // back as a film. The dad asked to stop: the film goes, as the protocol promises.
+            try Task.checkCancellation()
             input.finish()
             await shown.value
             return url

@@ -237,6 +237,21 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
         #expect(finished(sut)?.url.lastPathComponent == "Άννα-Μαρία- η μικρή – DadSaga.mp4")
     }
 
+    @Test("Given a name longer than a file name can be, when making the film, then its file name still fits and ends the same")
+    func longFileName() async throws {
+        let child = Child(id: FilmStub.anna.id, name: String(repeating: "Άννα ", count: 60), birthDate: FilmStub.birth)
+        let profile = PlayerProfile(children: [child], heroClassID: "h-cool")
+        let sut = makeSUT(FakeGetSagaFilm(profile: profile))
+        await sut.onAppear()
+
+        await sut.makeFilm(reduceMotion: false)
+
+        let name = try #require(finished(sut)?.url.lastPathComponent)
+        #expect(name.utf8.count <= 255)
+        #expect(name.hasPrefix("Άννα Άννα"))
+        #expect(name.hasSuffix(" – DadSaga.mp4"))
+    }
+
     @Test("Given Reduce Motion, when making the film, then the script asks for still photos", arguments: [true, false])
     func reduceMotion(isOn: Bool) async throws {
         let sut = makeSUT()

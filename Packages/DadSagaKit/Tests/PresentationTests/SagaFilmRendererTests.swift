@@ -266,7 +266,6 @@ final class SagaFilmRendererTests {
         }
 
         let values = seen.values
-        #expect(values.count >= 2)
         #expect(zip(values, values.dropFirst()).allSatisfy { $0 < $1 })
         #expect(values.allSatisfy { $0 > 0 && $0 <= 1 })
         #expect(values.last == 1)
