@@ -4,8 +4,8 @@ import SwiftUI
 // MARK: - Header and toolbar buttons
 
 extension HomeView {
-    /// The wide layout has no navigation bar, so its title and buttons sit at the top of the hero column.
-    func wideHeader(_ content: HomeContent) -> some View {
+    /// The two-pane layouts have no navigation bar, so their title and buttons sit at the top of the hero pane.
+    func paneHeader(_ content: HomeContent) -> some View {
         HStack {
             Text(content.heroTitle)
                 .font(DSFont.largeTitle)

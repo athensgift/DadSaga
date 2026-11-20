@@ -50,7 +50,11 @@ struct WholePhoto: View {
             // The longest side the photo can take: the width, or the height of the tallest frame.
             .onGeometryChange(for: Int.self) { [scale] proxy in
                 Int((proxy.size.width / Self.frameRatios.lowerBound * scale).rounded(.up))
-            } action: { maxPixelSize = $0 }
+            } action: { size in
+                // A frame given no room (hidden while the keyboard has its half of a folded display) asks for
+                // nothing: the photo it has stays, and comes back without loading again.
+                if size > 0 { maxPixelSize = size }
+            }
             .task(id: Request(source: source, maxPixelSize: maxPixelSize)) {
                 guard maxPixelSize > 0 else { return }
                 let data: Data? = switch source {

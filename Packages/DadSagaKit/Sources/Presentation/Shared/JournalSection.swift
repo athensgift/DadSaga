@@ -17,7 +17,9 @@ struct JournalSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.s) {
             if isOpen {
-                JournalNoteField(placeholder: labels.notePlaceholder, note: $note, fill: fill)
+                JournalNoteField(
+                    placeholder: labels.notePlaceholder, hideKeyboardTitle: labels.hideKeyboard, note: $note, fill: fill
+                )
                 JournalPhotosField(photos: $photos, entry: entry, labels: labels.photo, loader: loader)
             } else {
                 Button {
@@ -34,14 +36,20 @@ struct JournalSection: View {
     }
 }
 
-/// A few lines of the dad's own words.
+/// A few lines of the dad's own words. While he writes, it offers its sheet a way to put the keyboard away
+/// (`HideKeyboardBar`): Return starts a new line here, and a swipe down is hard to find.
 struct JournalNoteField: View {
     let placeholder: String
+    /// What the button that puts the keyboard away is called, for VoiceOver.
+    let hideKeyboardTitle: String
     @Binding var note: String
     var fill: Color = DSColor.surface
+    @FocusState private var isFocused: Bool
 
     var body: some View {
         TextField(placeholder, text: $note, axis: .vertical)
+            .focused($isFocused)
+            .focusedValue(\.hideKeyboard, HideKeyboardAction(title: hideKeyboardTitle) { isFocused = false })
             .lineLimit(2...6)
             .font(DSFont.body)
             .foregroundStyle(DSColor.textPrimary)
@@ -57,7 +65,8 @@ struct LastJournalView: View {
     let entry: String
     let viewerLabels: PhotoViewerLabels
     let loader: PhotoLoader
-    @State private var viewer: PhotoViewerContent?
+    /// The photos full screen. The sheet presents them, so they stay up when this view moves between layouts.
+    @Binding var viewer: PhotoViewerContent?
 
     var body: some View {
         HStack(alignment: .top, spacing: DSSpacing.m) {
@@ -92,7 +101,6 @@ struct LastJournalView: View {
                 Button(viewerLabels.showPhotos, action: showPhotos)
             }
         }
-        .photoViewer($viewer, loader: loader)
     }
 
     private func showPhotos() {

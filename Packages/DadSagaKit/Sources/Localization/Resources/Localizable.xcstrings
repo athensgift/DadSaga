@@ -1846,6 +1846,23 @@
         }
       }
     },
+    "Hide keyboard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Απόκρυψη πληκτρολογίου"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide keyboard"
+          }
+        }
+      }
+    },
     "I did it!" : {
       "extractionState" : "manual",
       "localizations" : {

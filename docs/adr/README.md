@@ -18,7 +18,7 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0008](0008-hero-classes-and-code-drawn-avatar.md) | Hero classes as content, a code-drawn avatar, the profile in SwiftData | hero, avatar, storage | 0010 (class list), 0026 (store fallback), 0028 (avatar target), 0029 (class look), 0044 (the dad's own hair, beard and glasses) |
 | [0009](0009-gitflow.md) | Gitflow: `feature/*` from `develop`, releases on `main` | process, git | |
 | [0010](0010-dad-archetype-heroes.md) | Heroes are dad archetypes, not fantasy classes | hero, content | 0029 (class look), 0033 (crest letter) |
-| [0011](0011-liquid-glass-and-adaptive-layout.md) | Liquid Glass, system styling, adaptive layout for iPhone Duo | UI, layout | 0030 (developer menu), 0032 (tint values), 0033 (secondary text) |
+| [0011](0011-liquid-glass-and-adaptive-layout.md) | Liquid Glass, system styling, adaptive layout for iPhone Duo | UI, layout | 0030 (developer menu), 0032 (tint values), 0033 (secondary text), 0043 (the fold read as a reserved region; panes above and below it) |
 | [0012](0012-families.md) | Up to four children, XP shared by the dad | family, model | 0023 (migration removed), 0030 (family entry) |
 | [0013](0013-child-avatars.md) | Child avatars by age stage | avatar, family | |
 | [0014](0014-hero-gear.md) | Gear earned from skills and bosses | gear, avatar | 0018 (wardrobe) |
@@ -49,5 +49,6 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0039](0039-website-motion-in-css.md) | Website motion in CSS only: reveals on scroll, a sticky header, Reduce Motion respected | website, accessibility, motion | 0040 (JavaScript after all; the mock's reveals removed) |
 | [0040](0040-website-script-tappable-family-timeline-clip.md) | The website's own script, a family that cheers when tapped, a clip of the real timeline | website, motion, accessibility | |
 | [0041](0041-dates-in-the-saga-film.md) | Dates in the saga film, on by default, behind a switch the film sheet remembers | video, product rules, privacy, localization, UI | |
-| [0042](0042-several-photos-viewer-and-firsts-in-two-steps.md) | Up to five photos on every entry, a full-screen photo viewer, firsts recorded first and filled in after | photos, storage, moments, video, accessibility, product rules | |
+| [0042](0042-several-photos-viewer-and-firsts-in-two-steps.md) | Up to five photos on every entry, a full-screen photo viewer, firsts recorded first and filled in after | photos, storage, moments, video, accessibility, product rules | 0043 (the cover above the fold in the note editor and on a first's page) |
+| [0043](0043-panes-above-and-below-the-fold.md) | Panes above and below the fold when iPhone Duo is half-open like a laptop: home, the saga film, the note editor, the quest and boss sheets, a first's page, the wardrobe, the timeline | UI, layout, video, photos | |
 | [0044](0044-dad-appearance.md) | The dad's own hair, hair colour, beard and glasses on "Your hero", stored in schema V4; the wardrobe in Settings, the world map in home's toolbar | hero, avatar, storage, content, settings, navigation, product rules | |

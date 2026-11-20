@@ -44,6 +44,8 @@ public struct JournalLabels: Equatable, Sendable {
     public let save: String
     public let discard: String
     public let keepEditing: String
+    /// The button just above the keyboard that puts it away.
+    public let hideKeyboard: String
 
     init(locale: Locale) {
         let strings = Strings(locale: locale)
@@ -54,6 +56,7 @@ public struct JournalLabels: Equatable, Sendable {
         save = strings.text("Save")
         discard = strings.text("Discard")
         keepEditing = strings.text("Keep editing")
+        hideKeyboard = strings.text("Hide keyboard")
     }
 }
 
