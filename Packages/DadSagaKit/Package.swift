@@ -9,6 +9,7 @@ import PackageDescription
 //
 //   Presentation, WidgetPresentation ─▶ Localization ─▶ Domain   (UI text, ADR-0027)
 //   Presentation ─▶ HeroArt ─▶ DesignSystem                        (drawing, ADR-0028)
+//   Presentation ─▶ FilmKit                                         (drawing the saga film, ADR-0037)
 //   FilmKit                                                         (video writing, ADR-0036; knows no game)
 //
 // The app target is the composition root: the only place that knows every layer and wires them together.
@@ -39,8 +40,11 @@ let package = Package(
             dependencies: ["Application", "Domain"],
             resources: [.process("Resources")]
         ),
-        // ViewModels (presenters) + SwiftUI views.
-        .target(name: "Presentation", dependencies: ["Application", "Domain", "DesignSystem", "HeroArt", "Localization"]),
+        // ViewModels (presenters) + SwiftUI views. They also draw the saga film, through FilmKit (ADR-0037).
+        .target(
+            name: "Presentation",
+            dependencies: ["Application", "Domain", "DesignSystem", "HeroArt", "Localization", "FilmKit"]
+        ),
         // Tokens + reusable SwiftUI components. No business knowledge.
         .target(name: "DesignSystem"),
         // The code-drawn hero and children: bodies, outfits, gear, skin tones (ADR-0008, ADR-0028). Knows how the game's
@@ -55,14 +59,20 @@ let package = Package(
         // Writes a film frame by frame from pictures, overlays and music (ADR-0036 §3). Apple frameworks only; it knows
         // nothing of the game, so its tests check frames, timing and sound, not content.
         .target(name: "FilmKit"),
+        // Reads a written film back, for the tests of FilmKit and of the saga film's renderer. Not a test target, so
+        // both can import it; no product, so the app never builds it.
+        .target(name: "FilmTestSupport", path: "Tests/FilmTestSupport"),
 
         .testTarget(name: "DomainTests", dependencies: ["Domain"]),
         .testTarget(name: "DesignSystemTests", dependencies: ["DesignSystem"]),
         .testTarget(name: "ApplicationTests", dependencies: ["Application", "Domain"]),
         .testTarget(name: "DataTests", dependencies: ["Data", "Application", "Domain", "SagaMusic"], exclude: ["Fixtures"]),
-        .testTarget(name: "PresentationTests", dependencies: ["Presentation", "Application", "Domain"]),
+        .testTarget(
+            name: "PresentationTests",
+            dependencies: ["Presentation", "Application", "Domain", "FilmTestSupport"]
+        ),
         .testTarget(name: "LocalizationTests", dependencies: ["Localization", "Domain"]),
-        .testTarget(name: "FilmKitTests", dependencies: ["FilmKit"]),
+        .testTarget(name: "FilmKitTests", dependencies: ["FilmKit", "FilmTestSupport"]),
         .testTarget(name: "WidgetPresentationTests", dependencies: ["WidgetPresentation", "Application", "Domain"]),
     ]
 )

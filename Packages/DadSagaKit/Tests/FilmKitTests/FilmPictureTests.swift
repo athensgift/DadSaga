@@ -1,4 +1,5 @@
 import FilmKit
+import FilmTestSupport
 import Foundation
 import Testing
 

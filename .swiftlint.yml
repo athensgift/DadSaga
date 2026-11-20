@@ -28,3 +28,12 @@ identifier_name:
 
 force_cast: error
 force_try: error
+
+custom_rules:
+  # ADR-0007, ADR-0037 §1: a presenter never draws. It hands display models to views and a script to the film renderer.
+  view_model_imports:
+    name: "View model imports"
+    included: "Packages/DadSagaKit/Sources/.*ViewModel.*\\.swift$"
+    regex: "^import (SwiftUI|UIKit|AVFoundation|AVKit|FilmKit|HeroArt|DesignSystem)\\b"
+    message: "A view model imports no UI, media or drawing framework (ADR-0037 §1)."
+    severity: error

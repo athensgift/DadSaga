@@ -54,10 +54,15 @@ struct FamilyStage: View {
     }
 
     private var heroSize: CGFloat {
-        let count = CGFloat(companions.count)
-        let widthPerHeroHeight = HeroAvatar.aspectRatio
-            + count * (Self.childScale * ChildAvatar.aspectRatio - Self.overlap)
         guard width > 0 else { return maxHeroSize }
+        return Self.heroSize(fitting: width, companions: companions.count, atMost: maxHeroSize)
+    }
+
+    /// The dad's height at which he and `companions` children are `width` wide, or `atMost` if that is smaller.
+    /// The saga film's opening sizes its family with this before it is drawn: a picture is laid out only once.
+    static func heroSize(fitting width: CGFloat, companions: Int, atMost maxHeroSize: CGFloat) -> CGFloat {
+        let widthPerHeroHeight = HeroAvatar.aspectRatio
+            + CGFloat(companions) * (childScale * ChildAvatar.aspectRatio - overlap)
         return min(maxHeroSize, width / widthPerHeroHeight)
     }
 

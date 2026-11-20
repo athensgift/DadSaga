@@ -1,5 +1,6 @@
 import AVFoundation
 import FilmKit
+import FilmTestSupport
 import Foundation
 import Testing
 
@@ -11,7 +12,7 @@ extension FilmKitTests {
         @Test("Given a 1 s tone under a 3 s film, when encoding, then the music loops to the film's end and no further")
         func musicLoopsToTheEnd() async throws {
             let tone = Fixture.temporaryURL(extension: "caf")
-            try Fixture.tone(seconds: 1, at: tone)
+            try FilmTone.write(seconds: 1, to: tone)
             defer { try? FileManager.default.removeItem(at: tone) }
             let timeline = FilmTimeline(
                 spec: Fixture.portrait,
@@ -32,7 +33,7 @@ extension FilmKitTests {
         @Test("Given a 3 s tone and no fade under a 1 s film, when encoding, then the music is cut at the film's end, still loud")
         func musicLongerThanTheFilm() async throws {
             let tone = Fixture.temporaryURL(extension: "caf")
-            try Fixture.tone(seconds: 3, at: tone)
+            try FilmTone.write(seconds: 3, to: tone)
             defer { try? FileManager.default.removeItem(at: tone) }
             let timeline = Fixture.solidFilm([Fixture.red], music: FilmMusic(url: tone, fadeOutSeconds: 0))
             let url = try await Fixture.encode(timeline)
@@ -50,7 +51,7 @@ extension FilmKitTests {
         @Test("Given a 1 s fade-out, when encoding, then the film's last tenth of a second is far quieter than its middle")
         func musicFadesOut() async throws {
             let tone = Fixture.temporaryURL(extension: "caf")
-            try Fixture.tone(seconds: 3, at: tone)
+            try FilmTone.write(seconds: 3, to: tone)
             defer { try? FileManager.default.removeItem(at: tone) }
             let timeline = FilmTimeline(
                 spec: Fixture.portrait,
@@ -85,7 +86,7 @@ extension FilmKitTests {
         @Test("Given a music file cut off half-way, when encoding, then it fails and leaves no file")
         func damagedMusicFails() async throws {
             let tone = Fixture.temporaryURL(extension: "caf")
-            try Fixture.tone(seconds: 2, at: tone)
+            try FilmTone.write(seconds: 2, to: tone)
             defer { try? FileManager.default.removeItem(at: tone) }
             let whole = try Data(contentsOf: tone)
             try whole.prefix(whole.count / 2).write(to: tone)
@@ -103,7 +104,7 @@ extension FilmKitTests {
         @Test("Given a tone of a fifth of a second, when encoding, then it fails as music too short to loop")
         func musicTooShortToLoop() async throws {
             let tone = Fixture.temporaryURL(extension: "caf")
-            try Fixture.tone(seconds: 0.2, at: tone)
+            try FilmTone.write(seconds: 0.2, to: tone)
             defer { try? FileManager.default.removeItem(at: tone) }
             let url = Fixture.temporaryURL()
             let timeline = FilmTimeline(spec: Fixture.portrait, clips: Fixture.solids([Fixture.red]), music: FilmMusic(url: tone))

@@ -1,5 +1,6 @@
 import AVFoundation
 import FilmKit
+import FilmTestSupport
 import Foundation
 import Synchronization
 import Testing
@@ -45,7 +46,7 @@ extension FilmKitTests {
         )
         func invalidFadeOut(seconds: Double) async throws {
             let tone = Fixture.temporaryURL(extension: "caf")
-            try Fixture.tone(seconds: 1, at: tone)
+            try FilmTone.write(seconds: 1, to: tone)
             defer { try? FileManager.default.removeItem(at: tone) }
             let music = FilmMusic(url: tone, fadeOutSeconds: seconds)
 
@@ -84,7 +85,7 @@ extension FilmKitTests {
         )
         func cancellationLeavesNoFile(withMusic: Bool) async throws {
             let tone = Fixture.temporaryURL(extension: "caf")
-            try Fixture.tone(seconds: 1, at: tone)
+            try FilmTone.write(seconds: 1, to: tone)
             defer { try? FileManager.default.removeItem(at: tone) }
             let url = Fixture.temporaryURL()
             let (started, signal) = AsyncStream<Void>.makeStream()
@@ -107,7 +108,7 @@ extension FilmKitTests {
         @Test("Given a picture that fails to load under music, when encoding, then it fails with that error and leaves no file")
         func pictureFailureStopsTheMusic() async throws {
             let tone = Fixture.temporaryURL(extension: "caf")
-            try Fixture.tone(seconds: 1, at: tone)
+            try FilmTone.write(seconds: 1, to: tone)
             defer { try? FileManager.default.removeItem(at: tone) }
             let url = Fixture.temporaryURL()
             let progress = Mutex<[Double]>([])
