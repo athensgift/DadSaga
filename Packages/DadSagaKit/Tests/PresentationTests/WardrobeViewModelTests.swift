@@ -38,6 +38,8 @@ struct WardrobeViewModelTests {
         #expect(content.title == "Ντουλάπα")
         #expect(content.heroLook == .cool)
         #expect(content.heroSkin == .mediumDark)
+        #expect(content.heroAppearance.hairColor == .black)
+        #expect(content.heroAppearance.beard == .full)
         #expect(content.gear == [.burpCloth])
         #expect(content.slots.map(\.id) == ["care", "play", "patience", "resilience"])
         let care = try #require(content.slots.first)

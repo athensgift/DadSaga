@@ -90,7 +90,7 @@ saves at once; home's toolbar).
   The Greek adjectives agree with «μαλλιά», «γένια» and «γυαλιά» (neuter plural).
 
 ### 4. How each option is drawn
-`HeroArt` gains `HeroAvatar.Features` (hair, hair colour, beard, glasses; `.standard` is today's face). `HeroAvatar`
+`HeroArt` gains `HeroFeatures` (hair, hair colour, beard, glasses; `.standard` is today's face). `HeroAvatar`
 takes it as `features:` and puts it in the environment, as it does the equipment. Positions are in `HeroFigure`'s
 design canvas.
 
@@ -111,7 +111,7 @@ design canvas.
   hard hat still sit on top of the hair. One function on `HeroAvatar.Style` decides which glasses are worn; the grid
   shows the choice on the other four heroes.
 - The children keep the hair colour of their skin tone. `AvatarSkin.hair` reads black and brown from
-  `HeroAvatar.Features.HairColor`, so each colour is defined once.
+  `HeroFeatures.HairColor`, so each colour is defined once.
 
 ### 5. One field on the profile, one port extended
 - **Domain:** `DadAppearance` (`hair`, `hairColor`, `beard`, `glasses`: nested enums with `String` raw values, and
@@ -121,7 +121,7 @@ design canvas.
 - **Application:** no new port. `UpdateHeroUseCase.execute(heroClassID:skinTone:appearance:on:)` replaces
   `execute(heroClassID:skinTone:on:)`, and `HeroChoice` adds `appearance` and `appearanceOptions`. Home, the wardrobe
   and the film already read the profile through their one query each (ADR-0028).
-- **Presentation:** `DadAppearanceChoice`, a display value mapped to `HeroAvatar.Features` in `HeroLook+Avatar.swift`:
+- **Presentation:** `DadAppearanceChoice`, a display value mapped to `HeroFeatures` in `HeroLook+Avatar.swift`:
   the same split as skin tone and gear (ADR-0029). The hero page's presenter keeps the Domain value and changes it by
   the content's option id; its rows are display models carrying the content's names.
 
@@ -169,7 +169,7 @@ image.
 | Domain | `DadAppearance` (with `Part`), `DadAppearanceOption` | `PlayerProfile.dadAppearance`, `ContentCatalog.appearanceOptions` |
 | Application | | `UpdateHeroUseCase` takes the look; `HeroChoice` carries it and its options |
 | Data | `appearance.json`, `AppearanceOptionDTO`, `SchemaV4`, the `StoreV3` fixture | the migration plan (V3 → V4), the profile record's mapping, `ContentValidator`, `ContentDataError` |
-| HeroArt | `HeroAvatar.Features` and its drawing | `HeroHead`, `HeroHeadgear` (Smart Dad's frames move to the face), `AvatarSkin.hair` |
+| HeroArt | `HeroFeatures` and its drawing | `HeroHead`, `HeroHeadgear` (Smart Dad's frames move to the face), `AvatarSkin.hair` |
 | Presentation | `DadAppearanceChoice`; `AppearanceSection`, `AppearanceRow`, `AppearanceOptionModel`; the hero page's preview | `HomeContent`, `WardrobeContent`, `SagaFilmFamily`, `FamilyStage`, `HeroPicker`; `HeroSettingsViewModel` saves at once (its ✓, `canSave` and `onSaved` go); `SettingsPages.MakeHero`; the wardrobe's toolbar button and the header's map tap go |
 | App | | `makeHeroSettingsViewModel()` without `onSaved` |
 | UITests | | the audit reaches the wardrobe through Settings |

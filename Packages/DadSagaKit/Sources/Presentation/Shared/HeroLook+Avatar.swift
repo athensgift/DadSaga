@@ -36,13 +36,13 @@ extension SkinToneChoice {
 }
 
 extension DadAppearanceChoice {
-    var avatarFeatures: HeroAvatar.Features {
-        HeroAvatar.Features(hair: hair.avatar, hairColor: hairColor.avatar, beard: beard.avatar, glasses: glasses.avatar)
+    var avatarFeatures: HeroFeatures {
+        HeroFeatures(hair: hair.avatar, hairColor: hairColor.avatar, beard: beard.avatar, glasses: glasses.avatar)
     }
 }
 
 private extension DadAppearanceChoice.Hair {
-    var avatar: HeroAvatar.Features.Hair {
+    var avatar: HeroFeatures.Hair {
         switch self {
         case .short: .short
         case .curly: .curly
@@ -53,7 +53,7 @@ private extension DadAppearanceChoice.Hair {
 }
 
 private extension DadAppearanceChoice.HairColor {
-    var avatar: HeroAvatar.Features.HairColor {
+    var avatar: HeroFeatures.HairColor {
         switch self {
         case .black: .black
         case .brown: .brown
@@ -65,7 +65,7 @@ private extension DadAppearanceChoice.HairColor {
 }
 
 private extension DadAppearanceChoice.Beard {
-    var avatar: HeroAvatar.Features.Beard {
+    var avatar: HeroFeatures.Beard {
         switch self {
         case .none: .none
         case .short: .short
@@ -75,7 +75,7 @@ private extension DadAppearanceChoice.Beard {
 }
 
 private extension DadAppearanceChoice.Glasses {
-    var avatar: HeroAvatar.Features.Glasses {
+    var avatar: HeroFeatures.Glasses {
         switch self {
         case .none: .none
         case .round: .round

@@ -129,6 +129,7 @@ struct OnboardingViewModelTests {
         let saved = await save.saved
         #expect(saved?.heroClassID == "h-cool")
         #expect(saved?.dadSkinTone == .medium)
+        #expect(saved?.dadAppearance == .standard(for: .medium))
         #expect(saved?.children.map(\.name) == ["Νίκος"])
         #expect(saved?.children.first?.gender == .girl)
         #expect(saved?.children.first?.skinTone == .dark)

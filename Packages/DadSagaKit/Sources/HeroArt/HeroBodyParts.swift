@@ -66,7 +66,7 @@ struct HeroHead: View {
     let pose: HeroPose
     let isCheering: Bool
     /// What the dad wears over his eyes once his archetype has had its say (`Style.wornGlasses`).
-    let glasses: HeroAvatar.Features.Glasses
+    let glasses: HeroFeatures.Glasses
     @Environment(\.avatarSkin) private var skin
     @Environment(\.heroFeatures) private var features
 
@@ -123,14 +123,20 @@ struct HeroHead: View {
 
     private var curlyHair: some View {
         ZStack {
-            ForEach(Array(zip([-15.0, -7.5, 0, 7.5, 15.0], [-37.0, -41.5, -43.0, -41.5, -37.0])), id: \.0) { x, y in
-                Circle().fill(hairColor).frame(width: 14, height: 14).offset(x: x, y: y)
+            ForEach(Self.curls, id: \.width) { curl in
+                Circle().fill(hairColor).frame(width: 14, height: 14).offset(curl)
             }
             ForEach([-19.5, 19.5], id: \.self) { side in
                 Circle().fill(hairColor).frame(width: 7, height: 7).offset(x: side, y: -32)
             }
         }
     }
+
+    /// Where the curls sit along the top of the head.
+    private static let curls = [
+        CGSize(width: -15, height: -37), CGSize(width: -7.5, height: -41.5), CGSize(width: 0, height: -43),
+        CGSize(width: 7.5, height: -41.5), CGSize(width: 15, height: -37)
+    ]
 
     /// No hair to speak of: a faint shadow of it and a highlight on the scalp.
     private var shavedHair: some View {

@@ -69,7 +69,9 @@ struct HeroSettingsView: View {
         .padding(.vertical, DSSpacing.s)
         .background {
             Circle()
-                .fill(RadialGradient(colors: [style.tint.opacity(0.25), .clear], center: .center, startRadius: 10, endRadius: 110))
+                .fill(
+                    RadialGradient(colors: [style.tint.opacity(0.25), .clear], center: .center, startRadius: 10, endRadius: 110)
+                )
                 .frame(width: 220, height: 220)
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.75), value: viewModel.appearance)

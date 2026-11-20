@@ -87,7 +87,7 @@ struct HeroPicker: View {
 private struct HeroOptionCard: View {
     let hero: HeroOption
     let skin: AvatarSkin
-    let features: HeroAvatar.Features
+    let features: HeroFeatures
     let isSelected: Bool
     let onSelect: () -> Void
 

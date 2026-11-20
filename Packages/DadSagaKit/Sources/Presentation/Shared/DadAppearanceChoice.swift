@@ -18,27 +18,51 @@ public struct DadAppearanceChoice: Equatable, Sendable {
 
 extension DadAppearanceChoice {
     init(_ look: DadAppearance) {
-        hair = switch look.hair {
-        case .short: .short
-        case .curly: .curly
-        case .long: .long
-        case .shaved: .shaved
+        hair = Hair(look.hair)
+        hairColor = HairColor(look.hairColor)
+        beard = Beard(look.beard)
+        glasses = Glasses(look.glasses)
+    }
+}
+
+private extension DadAppearanceChoice.Hair {
+    init(_ hair: DadAppearance.Hair) {
+        switch hair {
+        case .short: self = .short
+        case .curly: self = .curly
+        case .long: self = .long
+        case .shaved: self = .shaved
         }
-        hairColor = switch look.hairColor {
-        case .black: .black
-        case .brown: .brown
-        case .blond: .blond
-        case .red: .red
-        case .grey: .grey
+    }
+}
+
+private extension DadAppearanceChoice.HairColor {
+    init(_ color: DadAppearance.HairColor) {
+        switch color {
+        case .black: self = .black
+        case .brown: self = .brown
+        case .blond: self = .blond
+        case .red: self = .red
+        case .grey: self = .grey
         }
-        beard = switch look.beard {
-        case .none: .none
-        case .short: .short
-        case .full: .full
+    }
+}
+
+private extension DadAppearanceChoice.Beard {
+    init(_ beard: DadAppearance.Beard) {
+        switch beard {
+        case .none: self = .none
+        case .short: self = .short
+        case .full: self = .full
         }
-        glasses = switch look.glasses {
-        case .none: .none
-        case .round: .round
+    }
+}
+
+private extension DadAppearanceChoice.Glasses {
+    init(_ glasses: DadAppearance.Glasses) {
+        switch glasses {
+        case .none: self = .none
+        case .round: self = .round
         }
     }
 }

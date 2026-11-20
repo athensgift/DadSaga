@@ -54,7 +54,8 @@ struct LocalStoreTests {
                 Child(name: "Άννα", birthDate: birth.addingTimeInterval(-86_400), gender: .girl, skinTone: .dark)
             ],
             heroClassID: "h-cool",
-            dadSkinTone: .mediumDark
+            dadSkinTone: .mediumDark,
+            dadAppearance: DadAppearance(hair: .long, hairColor: .red, beard: .short, glasses: .round)
         )
 
         try await sut.save(profile)
@@ -92,6 +93,31 @@ struct LocalStoreTests {
         #expect(try await store.profiles.fetchProfile() == nil)
         #expect(try await store.progress.fetchEvents().isEmpty)
         #expect(try await store.outfit.fetchOutfit() == Outfit())
+    }
+
+    @Test("Given a dad who chose a look, when starting over and onboarding again, then the new dad has the standard look")
+    func eraseForgetsLook() async throws {
+        let store = LocalStore.inMemory()
+        try await store.profiles.save(PlayerProfile(
+            children: [Child(name: "Νίκος", birthDate: birth)], heroClassID: "h-cool",
+            dadAppearance: DadAppearance(hair: .shaved, beard: .none)
+        ))
+
+        try await store.eraser.eraseAll()
+        try await store.profiles.save(PlayerProfile(children: [Child(name: "Άννα", birthDate: birth)], heroClassID: "h-cool"))
+
+        #expect(try await store.profiles.fetchProfile()?.dadAppearance == .standard(for: .mediumLight))
+    }
+
+    @Test("Given a stored look part this version doesn't know, when reading, then that part is the standard one")
+    func unknownStoredPart() {
+        let record = ProfileRecord(
+            heroClassID: "h-cool", dadSkinTone: "dark", hairStyle: "mohawk", hairColor: "grey", beard: nil, glasses: "round"
+        )
+
+        let look = record.toDomain(children: []).dadAppearance
+
+        #expect(look == DadAppearance(hair: .short, hairColor: .grey, beard: .full, glasses: .round))
     }
 
     @Test("Given stored events, when fetching, then they come back oldest first with their ids and kinds")

@@ -1,32 +1,30 @@
 import DesignSystem
 import SwiftUI
 
-extension HeroAvatar {
-    /// The dad's own features: hair, its colour, beard and glasses (ADR-0044). `.standard` is how every dad was drawn
-    /// before he could choose.
-    public struct Features: Equatable, Sendable {
-        public enum Hair: Sendable, CaseIterable { case short, curly, long, shaved }
-        public enum HairColor: Sendable, CaseIterable { case black, brown, blond, red, grey }
-        public enum Beard: Sendable, CaseIterable { case none, short, full }
-        public enum Glasses: Sendable, CaseIterable { case none, round }
+/// The dad's own features: hair, its colour, beard and glasses (ADR-0044). `.standard` is how every dad was drawn
+/// before he could choose.
+public struct HeroFeatures: Equatable, Sendable {
+    public enum Hair: Sendable, CaseIterable { case short, curly, long, shaved }
+    public enum HairColor: Sendable, CaseIterable { case black, brown, blond, red, grey }
+    public enum Beard: Sendable, CaseIterable { case none, short, full }
+    public enum Glasses: Sendable, CaseIterable { case none, round }
 
-        public var hair: Hair
-        public var hairColor: HairColor
-        public var beard: Beard
-        public var glasses: Glasses
+    public var hair: Hair
+    public var hairColor: HairColor
+    public var beard: Beard
+    public var glasses: Glasses
 
-        public init(hair: Hair = .short, hairColor: HairColor = .brown, beard: Beard = .full, glasses: Glasses = .none) {
-            self.hair = hair
-            self.hairColor = hairColor
-            self.beard = beard
-            self.glasses = glasses
-        }
-
-        public static let standard = Features()
+    public init(hair: Hair = .short, hairColor: HairColor = .brown, beard: Beard = .full, glasses: Glasses = .none) {
+        self.hair = hair
+        self.hairColor = hairColor
+        self.beard = beard
+        self.glasses = glasses
     }
+
+    public static let standard = HeroFeatures()
 }
 
-extension HeroAvatar.Features.HairColor {
+extension HeroFeatures.HairColor {
     /// Hair, brows and beard. Fixed art colours, like the skin tones: black and brown are the two the avatars always
     /// had; blond, red and grey read on all five skin tones.
     var color: Color {
@@ -43,7 +41,7 @@ extension HeroAvatar.Features.HairColor {
 extension HeroAvatar.Style {
     /// Where the archetype meets the dad's choice, the archetype wins: Smart Dad always wears his round glasses and
     /// Cool Dad's shades cover any glasses.
-    func wornGlasses(_ choice: HeroAvatar.Features.Glasses) -> HeroAvatar.Features.Glasses {
+    func wornGlasses(_ choice: HeroFeatures.Glasses) -> HeroFeatures.Glasses {
         switch self {
         case .cool: .none
         case .smart: .round
@@ -54,5 +52,5 @@ extension HeroAvatar.Style {
 
 extension EnvironmentValues {
     /// Set by `HeroAvatar` for the parts it draws.
-    @Entry var heroFeatures = HeroAvatar.Features.standard
+    @Entry var heroFeatures = HeroFeatures.standard
 }

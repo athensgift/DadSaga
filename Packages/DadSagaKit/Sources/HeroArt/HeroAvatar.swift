@@ -13,7 +13,7 @@ public struct HeroAvatar: View {
     private let size: CGFloat
     private let cheerTrigger: Int
     private let skin: AvatarSkin
-    private let features: Features
+    private let features: HeroFeatures
     private let equipment: HeroEquipment
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.avatarsAreStill) private var isStill
@@ -33,7 +33,7 @@ public struct HeroAvatar: View {
         size: CGFloat = 200,
         cheerTrigger: Int = 0,
         skin: AvatarSkin = .mediumLight,
-        features: Features = .standard,
+        features: HeroFeatures = .standard,
         items: [HeroItem] = [],
         medals: Int = 0
     ) {
@@ -253,7 +253,7 @@ func heroGradient(_ top: Color, _ bottom: Color) -> LinearGradient {
 }
 
 #Preview("Looks") {
-    let looks: [HeroAvatar.Features] = [
+    let looks: [HeroFeatures] = [
         .standard,
         .init(hair: .curly, hairColor: .red, beard: .short, glasses: .round),
         .init(hair: .long, hairColor: .blond, beard: .none),
