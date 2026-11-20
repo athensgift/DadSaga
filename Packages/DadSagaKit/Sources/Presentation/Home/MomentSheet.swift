@@ -15,7 +15,6 @@ struct MomentSheet: View {
         let onCapture: (_ firstID: String, _ date: Date) -> Void
         let onSave: (_ date: Date, _ note: String, _ photos: PhotoDrafts) -> Void
         let onDelete: () -> Void
-        let onCelebrationFinished: () -> Void
         let onUndoExpired: (_ id: Int) -> Void
         let onClose: () -> Void
     }

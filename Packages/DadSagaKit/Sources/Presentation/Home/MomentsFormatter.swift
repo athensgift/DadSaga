@@ -38,13 +38,12 @@ struct MomentsFormatter {
         return MomentCapture(id: UUID(), title: child.name, step: .choose(choice))
     }
 
-    /// Step 2 for a moment: just recorded (`isNew`, with its celebration and undo) or opened to edit.
+    /// Step 2 for a moment: just recorded (`isNew`, with its undo) or opened to edit.
     func details(
         _ moment: CapturedMoment,
         for child: Child,
         now: Date,
         isNew: Bool,
-        celebration: Celebration? = nil,
         undoOffer: UndoOffer? = nil
     ) -> MomentDetails {
         MomentDetails(
@@ -69,7 +68,6 @@ struct MomentsFormatter {
                 deleteConfirmation: strings.text("The moment, its photos and its XP will be removed."),
                 cancel: strings.text("Cancel")
             ),
-            celebration: celebration,
             undoOffer: undoOffer
         )
     }

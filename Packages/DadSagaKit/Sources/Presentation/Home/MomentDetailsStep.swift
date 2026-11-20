@@ -1,8 +1,9 @@
 import DesignSystem
 import SwiftUI
 
-/// Step 2: the moment's own page, for photos, a few words and the date (ADR-0042 §5). Just recorded, it celebrates
-/// and offers "Saved · Undo" here, since home is behind the sheet; opened to edit, it offers Delete instead.
+/// Step 2: the moment's own page, for photos, a few words and the date (ADR-0042 §5). Just recorded, it offers
+/// "Saved · Undo" here, since home is behind the sheet, and home celebrates once it closes; opened to edit, it offers
+/// Delete instead.
 /// Closing never loses the moment: only what was changed and not saved, and only after asking.
 struct MomentDetailsStep: View {
     let details: MomentDetails
@@ -60,7 +61,6 @@ struct MomentDetailsStep: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(DSColor.background)
-        .modifier(CelebrationOverlay(celebration: details.celebration, onFinished: actions.onCelebrationFinished))
         .safeAreaInset(edge: .bottom) { undoBar }
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: details.undoOffer)
         .navigationTitle(details.title)

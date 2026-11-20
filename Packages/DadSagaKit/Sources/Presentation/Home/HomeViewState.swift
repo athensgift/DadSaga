@@ -118,8 +118,6 @@ public struct MomentDetails: Equatable, Sendable {
     public let saveTitle: String
     public let notNowTitle: String
     public let labels: MomentLabels
-    /// Shown in the sheet, since home is behind it. Only for a moment just recorded.
-    public internal(set) var celebration: Celebration?
     /// "Saved · Undo" in the sheet: undoing deletes the moment and closes the sheet.
     public internal(set) var undoOffer: UndoOffer?
 }

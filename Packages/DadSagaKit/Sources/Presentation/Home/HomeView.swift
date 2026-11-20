@@ -84,21 +84,24 @@ public struct HomeView: View {
         .onGeometryChange(for: Bool.self) { $0.size.width >= twoColumnWidth } action: { isWide = $0 }
         .task { await viewModel.onAppear() }
         .task(id: pendingLink) { await openPendingLink() }
-        .sheet(item: activeSheet) { sheet in
-            switch sheet {
-            case .quest(let quest):
-                questSheet(quest)
-            case .boss(let boss):
-                bossSheet(boss)
-            case .moment(let capture):
-                momentSheet(capture)
-            }
-        }
+        .sheet(item: activeSheet, onDismiss: viewModel.sheetDismissed, content: sheetContent)
         .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
     }
 
     private var title: String {
         if case .loaded(let content) = viewModel.state { content.heroTitle } else { "" }
+    }
+
+    @ViewBuilder
+    private func sheetContent(_ sheet: HomeSheet) -> some View {
+        switch sheet {
+        case .quest(let quest):
+            questSheet(quest)
+        case .boss(let boss):
+            bossSheet(boss)
+        case .moment(let capture):
+            momentSheet(capture)
+        }
     }
 
     private var activeSheet: Binding<HomeSheet?> {
@@ -298,7 +301,6 @@ extension HomeView {
                     Task { await viewModel.saveMomentDetails(date: date, note: note, photos: photos) }
                 },
                 onDelete: { Task { await viewModel.deleteMoment() } },
-                onCelebrationFinished: { viewModel.momentCelebrationFinished() },
                 onUndoExpired: { viewModel.momentUndoExpired(id: $0) },
                 onClose: { viewModel.dismissSelection() }
             )

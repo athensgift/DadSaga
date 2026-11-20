@@ -60,25 +60,54 @@ struct HomeMomentsTests {
         #expect(await progress.eventCount == 1)
     }
 
-    @Test("Given step 1, when it records a first, then the celebration and the undo offer are in the sheet, not on home")
-    func celebratesInTheSheet() async throws {
+    @Test("Given step 1, when it records a first, then undo is in the sheet and the celebration waits for it to close")
+    func celebratesOnceTheSheetCloses() async throws {
         let sut = await makeSUT()
         sut.startCapture()
 
         await sut.captureMoment(firstID: "f1", date: HeroStub.today)
 
         let details = try #require(sut.momentCapture?.details)
-        #expect(details.celebration?.momentText == "👣 Βήματα")
-        #expect(details.celebration?.xpText == "+30 XP")
-        #expect(details.celebration?.highlight == .moment)
-        #expect(details.undoOffer?.id == details.celebration?.id)
+        #expect(details.undoOffer != nil)
         #expect(sut.celebration == nil)
         #expect(sut.undoOffer == nil)
 
-        sut.momentCelebrationFinished()
-        sut.momentUndoExpired(id: try #require(details.undoOffer?.id))
-        #expect(sut.momentCapture?.details?.celebration == nil)
-        #expect(sut.momentCapture?.details?.undoOffer == nil)
+        sut.dismissSelection()
+        #expect(sut.celebration == nil)
+        sut.sheetDismissed()
+
+        let celebration = try #require(sut.celebration)
+        #expect(celebration.momentText == "👣 Βήματα")
+        #expect(celebration.xpText == "+30 XP")
+        #expect(celebration.highlight == .moment)
+        #expect(celebration.id == details.undoOffer?.id)
+        sut.sheetDismissed()
+        sut.celebrationFinished()
+        #expect(sut.celebration == nil)
+    }
+
+    @Test("Given step 2, when saving it, then home celebrates once the sheet has closed")
+    func celebratesAfterSaving() async throws {
+        let sut = await makeSUT()
+        sut.startCapture()
+        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
+
+        await sut.saveMomentDetails(date: HeroStub.today, note: "!", photos: PhotoDrafts())
+        sut.sheetDismissed()
+
+        #expect(sut.celebration?.xpText == "+30 XP")
+    }
+
+    @Test("Given step 2 of a new moment, when undoing it, then nothing celebrates when the sheet closes")
+    func undoneMomentDoesNotCelebrate() async throws {
+        let sut = await makeSUT()
+        sut.startCapture()
+        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
+
+        await sut.deleteMoment()
+        sut.sheetDismissed()
+
+        #expect(sut.celebration == nil)
     }
 
     @Test("Given step 2, when saving a note and three photos, then the moment keeps them and the sheet closes")
@@ -141,7 +170,6 @@ struct HomeMomentsTests {
         let details = try #require(sut.momentCapture?.details)
         #expect(!details.isNew)
         #expect(details.heading == nil)
-        #expect(details.celebration == nil)
         #expect(details.undoOffer == nil)
         #expect(details.photoIDs == ["photo-1", "photo-2"])
         #expect(details.labels.delete == "Διαγραφή στιγμής")
@@ -149,6 +177,7 @@ struct HomeMomentsTests {
         var photos = PhotoDrafts(storedIDs: details.photoIDs)
         photos.makeCover(id: "photo-2")
         await sut.saveMomentDetails(date: HeroStub.today, note: "μετά", photos: photos)
+        sut.sheetDismissed()
 
         #expect(sut.momentCapture == nil)
         #expect(sut.celebration == nil)
