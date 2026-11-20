@@ -42,8 +42,13 @@ a { color: var(--accent); }
 img { max-width: 100%; height: auto; display: block; }
 .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
 
-/* Header */
-.top { padding: 18px 0; }
+/* Header: stays at the top, over a frosted copy of the page's background. */
+.top {
+  position: sticky; top: 0; z-index: 10; padding: 14px 0;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: saturate(1.6) blur(16px); backdrop-filter: saturate(1.6) blur(16px);
+}
+section[id] { scroll-margin-top: 72px; }
 .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; color: var(--text); text-decoration: none; }
 .brand img { width: 36px; height: 36px; border-radius: 9px; }
@@ -58,7 +63,23 @@ img { max-width: 100%; height: auto; display: block; }
 .eyebrow { color: var(--accent); font-weight: 600; font-size: 15px; letter-spacing: 0.02em; margin: 0 0 12px; }
 h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 18px; }
 .lead { font-size: clamp(18px, 2.2vw, 21px); color: var(--text-2); margin: 0 0 28px; max-width: 34em; }
-.hero-art { justify-self: center; max-width: 340px; width: 100%; }
+.hero-art { justify-self: center; max-width: 300px; width: 100%; }
+
+/* The family: Super Dad and the baby, each a button that cheers when tapped, as on the app's home (ADR-0040). The
+   images are cut from one canvas by Tools/LaunchLogo, which prints these boxes. */
+.family { position: relative; aspect-ratio: 466 / 609; }
+.family .dad { left: 0.00%; top: 0.00%; width: 79.40%; }
+.family .baby { left: 69.96%; top: 62.73%; width: 30.04%; }
+.figure {
+  position: absolute; padding: 0; margin: 0; border: 0; background: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transform-origin: 50% 90%;
+}
+.figure img { width: 100%; }
+.figure .cheer { position: absolute; inset: 0; visibility: hidden; }
+.figure.cheering .rest { visibility: hidden; }
+.figure.cheering .cheer { visibility: visible; }
+.figure:focus-visible { outline: 3px solid var(--accent); outline-offset: 4px; border-radius: 16px; }
+.family-hint { text-align: center; color: var(--text-2); font-size: 14px; margin: 8px 0 0; }
 
 /* App Store button: a placeholder until the app is live, then Apple's official badge replaces it (ADR-0031). */
 .store {
@@ -95,37 +116,18 @@ h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.01em; line-height: 
 .rules strong { display: block; }
 .rules span { color: var(--text-2); }
 
-/* Timeline: an HTML mock of the app's Timeline tab (ADR-0017) inside a phone frame, no screenshot needed. */
+/* Timeline: a recording of the real Timeline tab (Tools: simulator, ADR-0040) in a phone frame. It plays only in view,
+   and not with Reduce Motion (site.js); otherwise the poster shows. */
 .timeline-section { background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--accent) 8%, transparent)); }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
 .pills { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
 .pills li { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px; font-size: 15px; font-weight: 600; }
 .phone {
-  justify-self: center; width: 100%; max-width: 340px;
-  background: var(--bg); border: 10px solid var(--text); border-radius: 44px;
-  padding: 22px 16px 18px; box-shadow: 0 24px 60px rgba(30, 40, 90, 0.18);
+  justify-self: center; width: 100%; max-width: 300px; overflow: hidden;
+  background: #F2F2F7; border: 10px solid var(--text); border-radius: 48px;
+  box-shadow: 0 24px 60px rgba(30, 40, 90, 0.18);
 }
-.tl-title { margin: 0 0 10px; font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
-.tl-chips { display: flex; gap: 6px; margin-bottom: 4px; }
-.tl-chip { font-size: 13px; padding: 4px 10px; border-radius: 999px; background: var(--surface); color: var(--text-2); }
-.tl-chip.on { background: var(--accent); color: var(--on-tint); }
-.tl-month { margin: 14px 4px 6px; font-weight: 700; font-size: 13px; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em; }
-.tl-list { list-style: none; margin: 0; padding: 0; background: var(--surface); border-radius: 16px; }
-.tl-row { display: flex; gap: 12px; align-items: flex-start; padding: 12px; }
-.tl-row + .tl-row { border-top: 1px solid var(--line); }
-.tl-text { min-width: 0; flex: 1; }
-.tl-text strong { font-size: 15px; }
-.tl-text small { margin-left: 6px; font-size: 12px; color: var(--text-2); }
-.tl-text span { display: block; font-size: 14px; color: var(--text-2); line-height: 1.4; }
-.tl-photo {
-  display: block; margin-top: 8px; height: 96px; border-radius: 12px;
-  background: url("/assets/super-dad-light.png") right -4px bottom -6px / auto 250% no-repeat,
-              linear-gradient(135deg, #FDE68A, #F59E0B);
-}
-.tl-icon { flex: none; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; color: var(--on-tint); font-size: 15px; }
-.tl-icon.quest { background: var(--accent); }
-.tl-icon.boss { background: var(--boss); }
-.tl-icon.legendary { background: var(--legendary); }
+.clip { display: block; width: 100%; height: auto; }
 
 .privacy-band { background: var(--surface); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .privacy-band .wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: center; }
@@ -152,6 +154,54 @@ footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--t
 footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
 footer nav { display: flex; gap: 18px; flex-wrap: wrap; }
 footer a { color: var(--text-2); }
+
+/* Motion (ADR-0039): CSS, apart from the family's cheer and the timeline clip (ADR-0040). Calm, never looping, and only for visitors
+   who haven't asked for reduced motion. Scroll-linked reveals need scroll-driven animations; a browser without them
+   shows everything at once, as before. Reveals animate `translate` and `opacity`; hovers use `transform`, so the two
+   never fight. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+
+  /* The hero arrives on load, a line at a time. */
+  @keyframes rise { from { opacity: 0; translate: 0 18px; } }
+  @keyframes arrive { from { opacity: 0; scale: 0.94; } }
+  .hero .eyebrow, .hero h1, .hero .lead, .hero .store, .hero .note { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .hero h1 { animation-delay: 0.08s; }
+  .hero .lead { animation-delay: 0.16s; }
+  .hero .store { animation-delay: 0.24s; }
+  .hero .note { animation-delay: 0.3s; }
+  .hero-art { animation: arrive 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both; }
+
+  /* A cheer lands with a little spring, like the app's (response 0.3, damping 0.45). */
+  @keyframes spring { 0% { scale: 1 0.94; } 35% { scale: 0.97 1.05; } 65% { scale: 1.02 0.98; } 100% { scale: 1; } }
+  .figure.cheering { animation: spring 0.45s ease-out; }
+
+  /* Cards lift a little under the pointer. */
+  @media (hover: hover) {
+    .card, .rules li { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+    .card:hover, .rules li:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(30, 40, 90, 0.12); }
+  }
+
+  @supports (animation-timeline: view()) {
+    /* Everything below the hero rises into place as it scrolls into view. */
+    @keyframes reveal { from { opacity: 0; translate: 0 28px; } }
+    section:not(.hero) h2, .section-lead, .card, .rules li, .pills li, .checks li, .phone, .privacy-band a, .cta .lead {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+    /* The second card of a row follows the first. */
+    .card:nth-child(even), .rules li:nth-child(even) { animation-range: entry 15% entry 95%; }
+
+    /* The hero art drifts slower than the page as it scrolls away. */
+    @keyframes drift { to { translate: 0 64px; } }
+    .hero-art { animation: arrive 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both, drift linear both; animation-timeline: auto, scroll(); animation-range: normal, 0 640px; }
+
+    /* The header gets its edge once the page has scrolled under it. */
+    @keyframes edge { to { box-shadow: 0 1px 0 var(--line); } }
+    .top { animation: edge linear both; animation-timeline: scroll(); animation-range: 0 48px; }
+  }
+}
 
 @media (max-width: 760px) {
   .hero { padding-top: 16px; }

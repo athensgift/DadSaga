@@ -10,11 +10,14 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ```
 - One suite: `swift test --build-system swiftbuild --filter DeepLinkTests` (from `Packages/DadSagaKit`).
-- Screen snapshots: not in CI. Run them after any UI or content change, look at the new images and commit them:
-  `xcodebuild test -project DadSaga.xcodeproj -scheme DadSagaSnapshots -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2'`.
-  A deliberate change: delete its images in `SnapshotTests/__Snapshots__`, run twice (record, then check).
-- Accessibility audit of the main screens (UI test, about a minute; run it after UI changes):
-  `xcodebuild test -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2' -only-testing:DadSagaUITests`
+- **Paused until the big features are done** (owner, 2026-11-20): screen snapshots and the accessibility audit are not
+  run during development. Once the work is close to final, run both, re-record the snapshots and look at every image,
+  and offer to put the snapshots in CI (that needs a new ADR: ADR-0034 runs them on the Mac). Until then, check a UI change by drawing it once in the simulator.
+  - Screen snapshots: `xcodebuild test -project DadSaga.xcodeproj -scheme DadSagaSnapshots -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2'`.
+    A deliberate change: delete its images in `SnapshotTests/__Snapshots__`, run twice (record, then check).
+  - Accessibility audit of the main screens (UI test, about five minutes):
+    `xcodebuild test -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2' -only-testing:DadSagaUITests`
+- While iterating, run only the suite you're changing (`--filter`); run the whole package once before the PR.
 - `DadSaga.xcodeproj`, `Info.plist` and the entitlements are generated: change `project.yml`, then `xcodegen generate`.
 
 ## Rules that aren't in the code
@@ -33,8 +36,13 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
 - Redesign, don't bolt on: for a new requirement, ask what you would have built had it been there from the start.
 
 ## Subagents
-- A new feature: `architect` plans, the main session implements, `reviewer` checks, then the PR.
+- A change across layers, or one touching persistence, sync, media or the film: `architect` plans first. A change in
+  one layer only (a UI tweak, copy) skips the plan.
+- `reviewer` checks every PR before it is opened, small ones too: it finds the most.
 - If a fix fails twice, stop and suggest `fable-hard`. It costs usage credits: never start it until the owner asks.
 
 ## Git
 Gitflow ([ADR-0009](docs/adr/0009-gitflow.md)): `feature/<name>` from `develop`, PR back into `develop`.
+- Work that touches the same files goes in one PR rather than several (e.g. the data model in one, all its UI in the next).
+- Several sessions at once: each works in its own git worktree, never in another session's checkout, which may switch
+  branch under it.

@@ -1,6 +1,6 @@
 ---
 name: reviewer
-description: Use proactively after a feature is implemented and before a PR into develop is opened. Reviews the branch diff against develop for correctness, architecture rules and ADRs. Read-only.
+description: Use proactively before every PR into develop is opened, small ones too. Reviews the branch diff against develop for correctness, architecture rules and ADRs. Read-only.
 model: opus
 effort: high
 tools: Read, Grep, Glob, Bash

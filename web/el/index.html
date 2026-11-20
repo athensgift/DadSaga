@@ -17,7 +17,7 @@
   <meta property="og:description" content="Εσύ είσαι ο ήρωας, το παιδί σου ο σύντροφός σου, και η πραγματική ζωή η περιπέτεια.">
   <meta property="og:url" content="https://dadsaga.app/el/">
   <meta property="og:image" content="https://dadsaga.app/assets/og.png">
-  <link rel="stylesheet" href="/assets/site.css?v=4">
+  <link rel="stylesheet" href="/assets/site.css?v=6">
 </head>
 <body>
   <header class="top">
@@ -44,10 +44,19 @@
           </span>
           <p class="note">Χωρίς λογαριασμό. Τα δεδομένα της οικογένειάς σου μένουν στο iPhone σου.</p>
         </div>
-        <picture class="hero-art">
-          <source srcset="/assets/super-dad-dark.png" media="(prefers-color-scheme: dark)">
-          <img src="/assets/super-dad-light.png" width="639" height="797" alt="Ο Super Dad, ένας γενειοφόρος ήρωας με κάπα, δίπλα σε ένα χαμογελαστό μωρό.">
-        </picture>
+        <div class="hero-art">
+          <div class="family" role="group" aria-label="Ο Super Dad, ένας γενειοφόρος ήρωας με κάπα, δίπλα σε ένα χαμογελαστό μωρό.">
+            <button class="figure dad" type="button" aria-label="Ο Super Dad. Πάτα τον για να πανηγυρίσει.">
+              <picture class="rest"><source srcset="/assets/family/dad-rest-dark.png" media="(prefers-color-scheme: dark)"><img src="/assets/family/dad-rest-light.png" width="370" height="609" alt=""></picture>
+              <picture class="cheer"><source srcset="/assets/family/dad-cheer-dark.png" media="(prefers-color-scheme: dark)"><img src="/assets/family/dad-cheer-light.png" width="370" height="609" alt=""></picture>
+            </button>
+            <button class="figure baby" type="button" aria-label="Το μωρό. Πάτα το για να πανηγυρίσει.">
+              <picture class="rest"><source srcset="/assets/family/baby-rest-dark.png" media="(prefers-color-scheme: dark)"><img src="/assets/family/baby-rest-light.png" width="140" height="218" alt=""></picture>
+              <picture class="cheer"><source srcset="/assets/family/baby-cheer-dark.png" media="(prefers-color-scheme: dark)"><img src="/assets/family/baby-cheer-light.png" width="140" height="218" alt=""></picture>
+            </button>
+          </div>
+          <p class="family-hint" aria-hidden="true">Πάτα τον Super Dad ή το μωρό.</p>
+        </div>
       </div>
     </section>
 
@@ -88,19 +97,8 @@
           <p class="section-lead">Κάνε μια χρονιά, έναν κόσμο ή όλη τη saga μια μικρή ταινία με μουσική, που φτιάχνεται στο iPhone σου. Το DadSaga σού προτείνει μία στα γενέθλια ή όταν ανοίγει νέος κόσμος, και δεν ξαναρωτάει.</p>
           <ul class="pills"><li>Ανά μήνα</li><li>Σημειώσεις &amp; φωτογραφίες</li><li>Ένα παιδί ή όλοι</li><li>Μια μικρή ταινία</li></ul>
         </div>
-        <div class="phone" role="img" aria-label="Παράδειγμα του χρονολογίου">
-          <p class="tl-title">Χρονολόγιο</p>
-          <div class="tl-chips"><span class="tl-chip on">Όλοι</span><span class="tl-chip">Λένα</span><span class="tl-chip">Άλεξ</span></div>
-          <p class="tl-month">Νοέμβριος 2026</p>
-          <ul class="tl-list">
-            <li class="tl-row"><span class="tl-icon legendary" aria-hidden="true">★</span><div class="tl-text"><strong>Πρώτο χαμόγελο</strong><small>Λένα</small><span>Με κοίταξε ίσια στα μάτια.</span><span class="tl-photo" aria-hidden="true"></span></div></li>
-            <li class="tl-row"><span class="tl-icon quest" aria-hidden="true">☾</span><div class="tl-text"><strong>Νυχτερινή βάρδια</strong><small>Άλεξ</small><span>Τρεις το πρωί, εμείς και το φως του ψυγείου.</span></div></li>
-            <li class="tl-row"><span class="tl-icon boss" aria-hidden="true">⚔</span><div class="tl-text"><strong>Ο Πρώτος Πυρετός</strong><small>Λένα</small><span>Μεγάλη νύχτα. Τα καταφέραμε.</span></div></li>
-          </ul>
-          <p class="tl-month">Οκτώβριος 2026</p>
-          <ul class="tl-list">
-            <li class="tl-row"><span class="tl-icon legendary" aria-hidden="true">★</span><div class="tl-text"><strong>Η πρώτη αγκαλιά</strong><small>Άλεξ</small><span>Αίθουσα τοκετού, 04:12.</span></div></li>
-          </ul>
+        <div class="phone">
+          <video class="clip" src="/assets/timeline/timeline.mp4" poster="/assets/timeline/timeline-poster.jpg" width="540" height="1174" muted loop playsinline preload="metadata" aria-label="Εγγραφή της καρτέλας Χρονολόγιο: καταχωρίσεις για τη Λένα και τον Άλεξ ανά μήνα, με σημειώσεις και φωτογραφίες, φιλτραρισμένες σε ένα παιδί και πάλι σε όλα."></video>
         </div>
       </div>
     </section>
@@ -154,5 +152,6 @@
       </nav>
     </div>
   </footer>
+  <script src="/assets/site.js?v=1" defer></script>
 </body>
 </html>

@@ -30,7 +30,8 @@ struct JournalPhotoField: View {
             .onChange(of: pickedItem) { _, item in
                 guard let item else { return }
                 Task {
-                    if let data = try? await item.loadTransferable(type: Data.self) {
+                    // Only an image the app can read: anything else would fail when the entry is saved.
+                    if let data = try? await item.loadTransferable(type: Data.self), DecodedImage.isImage(data) {
                         photo = .replace(data)
                     }
                     pickedItem = nil
@@ -51,22 +52,20 @@ struct JournalPhotoField: View {
     @ViewBuilder private var content: some View {
         switch photo {
         case .replace(let data):
-            if let image = Image(imageData: data) {
-                preview { image.resizable().scaledToFill() }
+            preview(.data(data))
+        case .keep:
+            if let storedPhotoID {
+                preview(.stored(storedPhotoID))
             } else {
                 buttons
             }
-        case .keep where storedPhotoID != nil:
-            preview { MomentPhoto(photoID: storedPhotoID, loader: loader) { DSColor.surface } }
         default:
             buttons
         }
     }
 
-    private func preview(@ViewBuilder _ image: () -> some View) -> some View {
-        image()
-            .frame(maxWidth: .infinity)
-            .frame(height: 200)
+    private func preview(_ source: WholePhoto.Source) -> some View {
+        WholePhoto(source: source, loader: loader)
             .clipShape(RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
             .overlay(alignment: .bottomTrailing) {
                 Menu {
