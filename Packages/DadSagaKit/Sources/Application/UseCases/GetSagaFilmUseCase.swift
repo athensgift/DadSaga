@@ -34,7 +34,7 @@ public struct SagaFilm: Sendable {
         childFirsts: [FirstMoment],
         equippedGear: [GearItem],
         soundtrack: Soundtrack,
-        showsDates: Bool = true
+        showsDates: Bool
     ) {
         self.profile = profile
         self.child = child

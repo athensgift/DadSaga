@@ -11,7 +11,8 @@ struct SagaFilmTexts {
     let calendar: Calendar
     var locale: Locale { strings.locale }
 
-    init(locale: Locale, calendar: Calendar) {
+    /// `calendar` writes the dates; only the period's name and the credits need none.
+    init(locale: Locale, calendar: Calendar = .autoupdatingCurrent) {
         strings = Strings(locale: locale)
         self.calendar = calendar
     }

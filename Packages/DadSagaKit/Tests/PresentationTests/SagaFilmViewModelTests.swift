@@ -121,7 +121,7 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
         let sut = makeSUT()
         await sut.onAppear()
         await sut.selectPeriod(id: "everything")
-        await sut.setShowsDates(false)
+        await sut.setShowsDates(false)?.value
 
         await sut.makeFilm(reduceMotion: false)
 
@@ -207,7 +207,7 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
         let sut = makeSUT(FakeGetSagaFilm(profile: FilmStub.family, events: FilmStub.annasSaga + [brother]), locale: locale)
         await sut.onAppear()
         await sut.selectPeriod(id: "everything")
-        await sut.setShowsDates(showsDates)
+        await sut.setShowsDates(showsDates)?.value
 
         await sut.makeFilm(reduceMotion: false)
 

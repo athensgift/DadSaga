@@ -34,7 +34,7 @@ struct SagaFilmDatesTests: SagaFilmSheetTests {
         #expect(choices(first)?.showsDates == true)
         #expect(choices(first)?.datesLabel == "Ημερομηνίες στην ταινία")
 
-        await first.setShowsDates(false)
+        await first.setShowsDates(false)?.value
         #expect(choices(first)?.showsDates == false)
         #expect(getFilm.dates.saves == [false])
 
@@ -46,5 +46,31 @@ struct SagaFilmDatesTests: SagaFilmSheetTests {
 
         await next.makeFilm(reduceMotion: false)
         #expect(dates(of: try #require(await renderer.scripts.first)).isEmpty)
+    }
+
+    @Test("Given dates turned off, when another child is chosen, then they stay off")
+    func datesSwitchKeptAcrossChildren() async throws {
+        let sut = makeSUT(FakeGetSagaFilm(profile: FilmStub.family))
+        await sut.onAppear()
+        sut.setShowsDates(false)
+
+        await sut.selectChild(id: FilmStub.niko.id)
+
+        #expect(choices(sut)?.selectedChildID == FilmStub.niko.id)
+        #expect(choices(sut)?.showsDates == false)
+    }
+
+    @Test("Given the switch turned off and on at once, when both are saved, then they are saved in order and on is kept")
+    func datesSavedInOrder() async throws {
+        let getFilm = FakeGetSagaFilm()
+        let sut = makeSUT(getFilm)
+        await sut.onAppear()
+
+        sut.setShowsDates(false)
+        await sut.setShowsDates(true)?.value
+
+        #expect(getFilm.dates.saves == [false, true])
+        #expect(await getFilm.dates.showsDates())
+        #expect(choices(sut)?.showsDates == true)
     }
 }

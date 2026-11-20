@@ -56,7 +56,7 @@ public struct SagaFilmSheet: View {
                 onChild: { id in Task { await viewModel.selectChild(id: id) } },
                 onPeriod: { id in Task { await viewModel.selectPeriod(id: id) } },
                 onFormat: { viewModel.selectFormat($0) },
-                onDates: { showsDates in Task { await viewModel.setShowsDates(showsDates) } },
+                onDates: { viewModel.setShowsDates($0) },
                 onMake: { Task { await viewModel.makeFilm(reduceMotion: reduceMotion) } }
             )
         case .making(let making):
@@ -213,10 +213,13 @@ private struct SagaFilmChoices: View {
                     .font(DSFont.body)
                     .foregroundStyle(DSColor.textPrimary)
             }
+            // VoiceOver reads it with the switch, as its hint, instead of as a stop of its own.
+            .accessibilityHint(setup.datesNote)
             Text(setup.datesNote)
                 .font(DSFont.subheadline)
                 .foregroundStyle(DSColor.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
+                .accessibilityHidden(true)
         }
         .padding(DSSpacing.m)
         .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))

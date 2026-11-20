@@ -94,9 +94,11 @@ public final class SagaFilmViewModel: Identifiable {
         showChoices(notice: nil)
     }
 
-    /// Turns the film's dates on or off, and remembers it for the next films. Returns once it is saved.
-    public func setShowsDates(_ showsDates: Bool) async {
-        guard case .ready = state, showsDates != self.showsDates else { return }
+    /// Turns the film's dates on or off at once, and remembers it for the next films. Saves run one after another,
+    /// so the newest choice is the one kept; the returned task ends once this one is saved.
+    @discardableResult
+    public func setShowsDates(_ showsDates: Bool) -> Task<Void, Never>? {
+        guard case .ready = state, showsDates != self.showsDates else { return nil }
         self.showsDates = showsDates
         showChoices(notice: nil)
         let previous = savingDates
@@ -105,7 +107,7 @@ public final class SagaFilmViewModel: Identifiable {
             await setDates.execute(showsDates: showsDates)
         }
         savingDates = saving
-        await saving.value
+        return saving
     }
 
     /// Makes the film of the choices on screen and shows it. Returns once it is made, cancelled or has failed.

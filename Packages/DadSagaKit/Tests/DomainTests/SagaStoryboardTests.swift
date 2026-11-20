@@ -210,6 +210,16 @@ struct SagaStoryboardTests {
         #expect(storyboard.asOf < saga.date(months: 80))
     }
 
+    @Test("Given the last world, which never ends, when making its film, then it runs from its first day to now")
+    func spanOfTheLastWorld() throws {
+        let open = SagaFixtures(worlds: [
+            World(id: "w1", order: 1, title: Fixtures.text, tagline: Fixtures.text, minAgeMonths: 0, maxAgeMonths: 41),
+            World(id: "w2", order: 2, title: Fixtures.text, tagline: Fixtures.text, minAgeMonths: 42, maxAgeMonths: nil)
+        ])
+        let storyboard = try #require(open.storyboard([], period: .world(id: "w2")))
+        #expect(storyboard.span == DateInterval(start: open.date(months: 42), end: open.date(months: 80)))
+    }
+
     @Test("Given the whole saga, when making its film, then it starts on the birth day and runs to now")
     func spanOfEverything() throws {
         let storyboard = try #require(saga.storyboard([saga.event(.first(id: "f1"), months: 3)]))
