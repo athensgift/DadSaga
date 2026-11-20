@@ -60,15 +60,16 @@ struct HeroPicker: View {
             VStack(spacing: 0) {
                 ForEach(looks.rows) { row in
                     if row.id != looks.rows.first?.id { Divider() }
-                    // Outside a Form a menu picker shows only its value, so the row's name is a label of its own.
-                    HStack {
-                        Text(row.title).foregroundStyle(DSColor.textPrimary)
-                        Spacer(minLength: DSSpacing.s)
+                    // Outside a Form a menu picker shows only its value, so the row's name is a label of its own;
+                    // LabeledContent reads the two together ("Beard, Full").
+                    LabeledContent {
                         Picker(row.title, selection: optionBinding(row)) {
                             ForEach(row.options) { Text($0.title).tag($0.id) }
                         }
                         .pickerStyle(.menu)
                         .labelsHidden()
+                    } label: {
+                        Text(row.title).foregroundStyle(DSColor.textPrimary)
                     }
                     .font(DSFont.body)
                     .frame(minHeight: 52)

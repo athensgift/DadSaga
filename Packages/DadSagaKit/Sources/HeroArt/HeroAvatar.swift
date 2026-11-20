@@ -25,7 +25,7 @@ public struct HeroAvatar: View {
     ///   - size: the avatar's height in points.
     ///   - cheerTrigger: change this value to make the hero cheer, as if he had been tapped.
     ///   - skin: the dad's skin tone.
-    ///   - features: the dad's hair, beard and glasses.
+    ///   - features: the dad's hair, beard and glasses; `nil` is the standard look, with the hair colour of `skin`.
     ///   - items: earned gear to draw; at most one per slot (the last one wins).
     ///   - medals: boss medals on the chest; up to four are drawn.
     public init(
@@ -33,7 +33,7 @@ public struct HeroAvatar: View {
         size: CGFloat = 200,
         cheerTrigger: Int = 0,
         skin: AvatarSkin = .mediumLight,
-        features: HeroFeatures = .standard,
+        features: HeroFeatures? = nil,
         items: [HeroItem] = [],
         medals: Int = 0
     ) {
@@ -41,7 +41,7 @@ public struct HeroAvatar: View {
         self.size = size
         self.cheerTrigger = cheerTrigger
         self.skin = skin
-        self.features = features
+        self.features = features ?? HeroFeatures(hairColor: skin.naturalHair)
         equipment = HeroEquipment(items: items, medals: medals)
     }
 

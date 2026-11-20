@@ -101,6 +101,34 @@ struct HeroSettingsViewModelTests {
         #expect(sut.errorMessage == "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.")
     }
 
+    @Test("Given a slow save that fails while a newer change waits, when both finish, then the newer one stays, unannounced")
+    func newerChangeSurvivesAFailedSave() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+        await update.delayNext()
+        await update.failNext()
+
+        async let first: Void = sut.selectOption(rowID: "hair", optionID: "short")
+        async let second: Void = sut.selectOption(rowID: "beard", optionID: "none")
+        _ = await (first, second)
+
+        #expect(sut.errorMessage == nil)
+        #expect(sut.appearance.hair == .short)
+        #expect(sut.appearance.beard == .none)
+        #expect(await update.saves.last?.appearance == DadAppearance(hair: .short, hairColor: .black, beard: .none))
+    }
+
+    @Test("Given black hair that came with the medium-dark tone, when choosing the light tone, then the hair turns brown")
+    func standardHairFollowsTheTone() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+
+        await sut.setSkinTone(.light)
+
+        #expect(sut.appearance.hairColor == .brown)
+        #expect(await update.saves.last?.appearance.hairColor == .brown)
+    }
+
     @Test("Given an option the app doesn't know, when choosing it, then nothing changes or is stored")
     func unknownOptionIgnored() async {
         let sut = makeSUT()

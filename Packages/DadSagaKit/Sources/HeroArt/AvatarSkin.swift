@@ -26,7 +26,8 @@ public enum AvatarSkin: CaseIterable, Sendable {
         }
     }
 
-    /// The hair colour that comes with this tone: the children's, and the dad's until he chooses (ADR-0044).
+    /// The hair colour that comes with this tone: the children's, and a `HeroAvatar` drawn without features
+    /// (ADR-0044).
     var naturalHair: HeroFeatures.HairColor {
         switch self {
         case .light, .mediumLight, .medium: .brown

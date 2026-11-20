@@ -23,6 +23,15 @@ struct DadAppearanceTests {
         #expect(look.choosing("round", for: .glasses) == look)
     }
 
+    @Test("Given the tone's own hair colour, when the tone changes, then the hair follows; a chosen colour stays")
+    func hairFollowsToneUntilChosen() {
+        let standard = DadAppearance.standard(for: .light)
+        #expect(standard.changingSkinTone(from: .light, to: .dark).hairColor == .black)
+
+        let red = DadAppearance(hairColor: .red)
+        #expect(red.changingSkinTone(from: .light, to: .dark) == red)
+    }
+
     @Test("Given an option a part doesn't have, when choosing it, then there is no look")
     func unknownOption() {
         #expect(DadAppearance().choosing("goatee", for: .beard) == nil)

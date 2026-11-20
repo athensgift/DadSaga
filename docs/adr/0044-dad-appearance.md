@@ -41,6 +41,9 @@ saves at once; home's toolbar).
 | Beard | none, short, full | full |
 | Glasses | none, round | none |
 
+- The hair colour follows the skin tone while it is still that tone's standard colour: changing the tone on "Your
+  hero" from medium to dark turns brown hair black, as it always did, and leaves a colour he chose as it is
+  (`DadAppearance.changingSkinTone(from:to:)`). A `HeroAvatar` drawn without features gets the hair colour of its skin.
 - The last column is exactly how the avatar draws every dad today, so no dad looks different after the update, and
   neither do the launch screen and the website.
 - The skin tone stays a field of its own: the children use the same scale (ADR-0013), and its names stay in the String

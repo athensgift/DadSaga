@@ -39,6 +39,8 @@ public final class HeroSettingsViewModel {
     /// What the store holds.
     private var stored: Selection?
     private var lastSave: Task<Void, Never>?
+    /// Counts changes, so a failed save knows whether a newer change is on its way.
+    private var generation = 0
 
     public init(
         getHeroChoice: any GetHeroChoiceUseCase,
@@ -77,7 +79,10 @@ public final class HeroSettingsViewModel {
     }
 
     public func setSkinTone(_ tone: SkinToneChoice) async {
-        await change { $0.skinTone = tone.domain }
+        await change { selection in
+            selection.appearance = selection.appearance.changingSkinTone(from: selection.skinTone, to: tone.domain)
+            selection.skinTone = tone.domain
+        }
     }
 
     /// `rowID` is a part of the look and `optionID` one of its options; anything else is ignored.
@@ -95,6 +100,8 @@ public final class HeroSettingsViewModel {
         guard changed != current else { return }
         show(changed)
         errorMessage = nil
+        generation += 1
+        let thisChange = generation
         let useCase = updateHero
         let date = now
         let save = Task { [previous = lastSave] in
@@ -105,7 +112,7 @@ public final class HeroSettingsViewModel {
                 )
                 stored = changed
             } catch {
-                guard current == changed, let stored else { return }
+                guard thisChange == generation, let stored else { return }
                 show(stored)
                 errorMessage = strings.text("Couldn't save. Please try again.")
             }

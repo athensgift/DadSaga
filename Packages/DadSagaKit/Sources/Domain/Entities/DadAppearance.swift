@@ -32,6 +32,15 @@ public struct DadAppearance: Hashable, Sendable {
         }
     }
 
+    /// This look on a dad whose skin tone changes from `old` to `new`: a hair colour that is still the old tone's
+    /// standard one follows the tone, as it did before the dad could choose; one he chose stays (ADR-0044 §1).
+    public func changingSkinTone(from old: SkinTone, to new: SkinTone) -> DadAppearance {
+        guard hairColor == Self.standard(for: old).hairColor else { return self }
+        var look = self
+        look.hairColor = Self.standard(for: new).hairColor
+        return look
+    }
+
     /// Every option of `part`, in the order the Domain knows them. The content must list exactly these.
     public static func optionIDs(for part: Part) -> [String] {
         switch part {
