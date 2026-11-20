@@ -177,7 +177,7 @@ struct SagaFilmMusicTests: SagaFilmSheetTests {
         case makingTheFilm, closing, leavingTheApp, aFilmThatCantLoad
     }
 
-    @Test("Given a track playing, when the film is made, the sheet closes, the app leaves or a film can't load, it stops",
+    @Test("Given a track playing, when the film is made, the sheet closes, the app leaves or a film can't load, then it stops",
           arguments: Interruption.allCases)
     func stops(on interruption: Interruption) async throws {
         let getFilm = FakeGetSagaFilm()

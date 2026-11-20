@@ -10,9 +10,11 @@ public struct SagaMusicPreviewer: SagaMusicPreviewing {
     public init() {}
 
     public func play(_ url: URL, seconds: Double) async {
-        guard let player = try? AVAudioPlayer(contentsOf: url) else { return }
+        // A preview stopped before it began plays nothing: playing would pause another app's audio for no sound.
+        guard !Task.isCancelled, let player = try? AVAudioPlayer(contentsOf: url) else { return }
         defer { player.stop() }
-        player.play()
+        // When it can't play (during a call, say), the button offers listening again at once instead of 20 s of silence.
+        guard player.play() else { return }
         let length = min(seconds, player.duration)
         // `try?` swallows cancellation, so check before fading: a stopped preview stops at once.
         try? await Task.sleep(for: .seconds(max(0, length - Self.fadeSeconds)))
