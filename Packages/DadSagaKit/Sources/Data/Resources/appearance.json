@@ -1,0 +1,16 @@
+[
+  { "part": "hair", "id": "short", "title": { "el": "Κοντά", "en": "Short" } },
+  { "part": "hair", "id": "curly", "title": { "el": "Σγουρά", "en": "Curly" } },
+  { "part": "hair", "id": "long", "title": { "el": "Μακριά", "en": "Long" } },
+  { "part": "hair", "id": "shaved", "title": { "el": "Ξυρισμένα", "en": "Shaved" } },
+  { "part": "hairColor", "id": "black", "title": { "el": "Μαύρα", "en": "Black" } },
+  { "part": "hairColor", "id": "brown", "title": { "el": "Καστανά", "en": "Brown" } },
+  { "part": "hairColor", "id": "blond", "title": { "el": "Ξανθά", "en": "Blond" } },
+  { "part": "hairColor", "id": "red", "title": { "el": "Κόκκινα", "en": "Red" } },
+  { "part": "hairColor", "id": "grey", "title": { "el": "Γκρίζα", "en": "Grey" } },
+  { "part": "beard", "id": "none", "title": { "el": "Καθόλου", "en": "None" } },
+  { "part": "beard", "id": "short", "title": { "el": "Κοντά", "en": "Short" } },
+  { "part": "beard", "id": "full", "title": { "el": "Γεμάτα", "en": "Full" } },
+  { "part": "glasses", "id": "none", "title": { "el": "Καθόλου", "en": "None" } },
+  { "part": "glasses", "id": "round", "title": { "el": "Στρογγυλά", "en": "Round" } }
+]

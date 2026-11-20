@@ -53,6 +53,17 @@ struct BundledContentRepositoryTests {
         }
     }
 
+    @Test("Given the bundled content, when reading the look options, then each part lists every option once, in order")
+    func appearanceOptions() async throws {
+        let catalog = try await repository.fetchCatalog()
+        for part in DadAppearance.Part.allCases {
+            let ids = catalog.appearanceOptions.filter { $0.part == part }.map(\.id)
+            #expect(ids == DadAppearance.optionIDs(for: part), "\(part)")
+        }
+        let beard = catalog.appearanceOptions.filter { $0.part == .beard }.map(\.title.el)
+        #expect(beard == ["Καθόλου", "Κοντά", "Γεμάτα"])
+    }
+
     @Test("Given the bundled content, when checking text, then nothing is empty in either language")
     func noEmptyText() async throws {
         let catalog = try await repository.fetchCatalog()
@@ -62,6 +73,7 @@ struct BundledContentRepositoryTests {
         texts += catalog.bosses.flatMap { [$0.title, $0.intro, $0.badge] + $0.guide }
         texts += catalog.firsts.map(\.title)
         texts += catalog.quests.compactMap(\.tip).flatMap { [$0.title] + $0.steps }
+        texts += catalog.appearanceOptions.map(\.title)
         for text in texts {
             #expect(!text.el.isEmpty && !text.en.isEmpty)
         }
@@ -162,6 +174,54 @@ struct ContentValidatorTests {
         )
         #expect(throws: ContentDataError.duplicateID("dup")) {
             try ContentValidator.validate(catalog)
+        }
+    }
+}
+
+@Suite("Look options content")
+struct AppearanceContentTests {
+    let text = LocalizedText(el: "x", en: "x")
+
+    /// Every option the Domain knows, as the content would list it.
+    var allOptions: [DadAppearanceOption] {
+        DadAppearance.Part.allCases.flatMap { part in
+            DadAppearance.optionIDs(for: part).map { DadAppearanceOption(part: part, id: $0, title: text) }
+        }
+    }
+
+    func validate(_ options: [DadAppearanceOption]) throws {
+        try ContentValidator.validate(ContentCatalog(worlds: [], quests: [], bosses: [], firsts: [], appearanceOptions: options))
+    }
+
+    @Test("Given an option DTO with an unknown part, when mapping, then unknownAppearanceOption is thrown")
+    func unknownPart() {
+        let dto = AppearanceOptionDTO(part: "hat", id: "cap", title: LocalizedTextDTO(el: "α", en: "a"))
+        #expect(throws: ContentDataError.unknownAppearanceOption(part: "hat", id: "cap")) { try dto.toDomain() }
+    }
+
+    @Test("Given every option once, when validating, then it passes")
+    func complete() throws {
+        try validate(allOptions)
+    }
+
+    @Test("Given a beard the app can't draw, when validating, then unknownAppearanceOption is thrown")
+    func unknownID() {
+        #expect(throws: ContentDataError.unknownAppearanceOption(part: "beard", id: "goatee")) {
+            try validate(allOptions + [DadAppearanceOption(part: .beard, id: "goatee", title: text)])
+        }
+    }
+
+    @Test("Given no name for round glasses, when validating, then missingAppearanceOption is thrown")
+    func missingID() {
+        #expect(throws: ContentDataError.missingAppearanceOption(part: "glasses", id: "round")) {
+            try validate(allOptions.filter { !($0.part == .glasses && $0.id == "round") })
+        }
+    }
+
+    @Test("Given short hair listed twice, when validating, then duplicateID is thrown for that part")
+    func repeatedID() {
+        #expect(throws: ContentDataError.duplicateID("hair.short")) {
+            try validate(allOptions + [DadAppearanceOption(part: .hair, id: "short", title: text)])
         }
     }
 }

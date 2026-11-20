@@ -135,6 +135,7 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
         #expect(dates == nil)
         #expect(drawn.hero == .cool)
         #expect(drawn.heroSkin == .mediumDark)
+        #expect(drawn.heroAppearance.hairColor == .black)
         #expect(drawn.heroGear == [.burpCloth])
         #expect(drawn.medals == 1)
         #expect(drawn.child.name == "Άννα")

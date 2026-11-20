@@ -15,18 +15,18 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0005](0005-content-as-data.md) | Game content is bilingual JSON, validated at load | content, localization | 0027 (UI strings) |
 | [0006](0006-no-pressure-game-design.md) | No pressure: XP for the dad's actions, no penalties, streaks or deadlines | product rules | 0021 (the dad may delete his own entries) |
 | [0007](0007-clean-architecture.md) | Clean Architecture: Domain, Application, Data, Presentation | architecture | 0036 (a presenter may hold a drawing protocol: the film renderer), 0046 (and one that plays sound: the music preview) |
-| [0008](0008-hero-classes-and-code-drawn-avatar.md) | Hero classes as content, a code-drawn avatar, the profile in SwiftData | hero, avatar, storage | 0010 (class list), 0026 (store fallback), 0028 (avatar target), 0029 (class look) |
+| [0008](0008-hero-classes-and-code-drawn-avatar.md) | Hero classes as content, a code-drawn avatar, the profile in SwiftData | hero, avatar, storage | 0010 (class list), 0026 (store fallback), 0028 (avatar target), 0029 (class look), 0044 (the dad's own hair, beard and glasses) |
 | [0009](0009-gitflow.md) | Gitflow: `feature/*` from `develop`, releases on `main` | process, git | |
 | [0010](0010-dad-archetype-heroes.md) | Heroes are dad archetypes, not fantasy classes | hero, content | 0029 (class look), 0033 (crest letter) |
-| [0011](0011-liquid-glass-and-adaptive-layout.md) | Liquid Glass, system styling, adaptive layout for iPhone Duo | UI, layout | 0030 (developer menu), 0032 (tint values), 0033 (secondary text), 0043 (the fold read as a reserved region; panes above and below it) |
+| [0011](0011-liquid-glass-and-adaptive-layout.md) | Liquid Glass, system styling, adaptive layout for iPhone Duo | UI, layout | 0030 (developer menu), 0032 (tint values), 0033 (secondary text), 0043 (the fold read as a reserved region; panes above and below it), 0045 (the inner display held upright is split where it folds, not in columns) |
 | [0012](0012-families.md) | Up to four children, XP shared by the dad | family, model | 0023 (migration removed), 0030 (family entry) |
 | [0013](0013-child-avatars.md) | Child avatars by age stage | avatar, family | |
 | [0014](0014-hero-gear.md) | Gear earned from skills and bosses | gear, avatar | 0018 (wardrobe) |
 | [0015](0015-legendary-moments.md) | Legendary moments are progress events with a date and a note | moments, progress | |
 | [0016](0016-moment-photos.md) | Moment photos as files on device; moments editable and deletable | moments, photos, privacy | 0021 (delete use case), 0022 (photos on every card), 0042 (up to five photos; an edit gives the whole list) |
 | [0017](0017-timeline-and-tabs.md) | A timeline tab derived from progress events | timeline, navigation | |
-| [0018](0018-wardrobe.md) | Wardrobe: choose what the hero wears per slot | gear, avatar | |
-| [0019](0019-world-map-and-older-worlds.md) | World map, replayable worlds, worlds up to age 6 | worlds, content | |
+| [0018](0018-wardrobe.md) | Wardrobe: choose what the hero wears per slot | gear, avatar | 0044 (a page in Settings, not a sheet from home) |
+| [0019](0019-world-map-and-older-worlds.md) | World map, replayable worlds, worlds up to age 6 | worlds, content | 0044 (the map opens from home's toolbar) |
 | [0020](0020-card-tips-and-evergreen-cards.md) | Card tips, evergreen cards, a sibling-only boss | content, cards | |
 | [0021](0021-undo-and-delete-entries.md) | Undo and delete the dad's own entries | progress, timeline | 0042 (a first's undo shows in its sheet) |
 | [0022](0022-journal-on-every-card.md) | A note and a photo on every card | journal, photos | 0042 (up to five photos) |
@@ -37,7 +37,7 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0027](0027-ui-string-catalog.md) | UI strings in one shared String Catalog | localization | 0030 (reset wording) |
 | [0028](0028-screen-queries-and-hero-art-target.md) | One query per screen, one way to record progress, `HeroArt` target | architecture, modules | |
 | [0029](0029-hero-look-in-content.md) | A hero class names its look in the content | hero, content | |
-| [0030](0030-settings-screen.md) | One Settings screen; "start over" for everyone | settings, privacy | 0036 (start over also forgets the film offers) |
+| [0030](0030-settings-screen.md) | One Settings screen; "start over" for everyone | settings, privacy | 0036 (start over also forgets the film offers), 0044 (a wardrobe row; "Your hero" holds the dad's look and saves at once; the map in home's toolbar) |
 | [0031](0031-website-on-cloudflare-pages.md) | Static website at dadsaga.app on Cloudflare Pages | website, privacy | 0033 (images generated), 0039 (motion in CSS, sticky header), 0040 (own script, tappable family, timeline clip) |
 | [0032](0032-contrast-of-tints.md) | Tints readable as text and as fills; the hero keeps its own colours | UI, accessibility, colour | 0033 (its open items) |
 | [0033](0033-accessibility-audit-and-secondary-text.md) | Accessibility audit of the main screens, readable secondary text, "D" on the crest | accessibility, testing, colour, hero | 0034 (snapshots at the largest text size, test data for snapshots), 0035 (audit skips, iOS 27.2), 0036 (the audit covers the film sheet), 0037 (a timeline with an entry), 0042 (the photo viewer and a first's second step) |
@@ -50,5 +50,7 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0040](0040-website-script-tappable-family-timeline-clip.md) | The website's own script, a family that cheers when tapped, a clip of the real timeline | website, motion, accessibility | |
 | [0041](0041-dates-in-the-saga-film.md) | Dates in the saga film, on by default, behind a switch the film sheet remembers | video, product rules, privacy, localization, UI | 0046 (its port also keeps the music choice) |
 | [0042](0042-several-photos-viewer-and-firsts-in-two-steps.md) | Up to five photos on every entry, a full-screen photo viewer, firsts recorded first and filled in after | photos, storage, moments, video, accessibility, product rules | 0043 (the cover above the fold in the note editor and on a first's page) |
-| [0043](0043-panes-above-and-below-the-fold.md) | Panes above and below the fold when iPhone Duo is half-open like a laptop: home, the saga film, the note editor, the quest and boss sheets, a first's page, the wardrobe, the timeline | UI, layout, video, photos | |
+| [0043](0043-panes-above-and-below-the-fold.md) | Panes above and below the fold when iPhone Duo is half-open like a laptop: home, the saga film, the note editor, the quest and boss sheets, a first's page, the wardrobe, the timeline | UI, layout, video, photos | 0045 (home open and upright uses the same two panes; the reader can report a flat fold) |
+| [0044](0044-dad-appearance.md) | The dad's own hair, hair colour, beard and glasses on "Your hero", stored in schema V4; the wardrobe in Settings, the world map in home's toolbar | hero, avatar, storage, content, settings, navigation, product rules | |
+| [0045](0045-home-in-two-panes-when-open-upright.md) | Home in the same two panes when iPhone Duo is open and upright; two columns only on its side | UI, layout | |
 | [0046](0046-choosing-the-saga-films-music.md) | The dad chooses the saga film's music from five original tracks, hears each before choosing, and the sheet remembers his choice | video, media, content, localization, product rules, UI | |

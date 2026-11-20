@@ -94,6 +94,15 @@ extension GearItemDTO {
     }
 }
 
+extension AppearanceOptionDTO {
+    func toDomain() throws -> DadAppearanceOption {
+        guard let part = DadAppearance.Part(rawValue: part) else {
+            throw ContentDataError.unknownAppearanceOption(part: self.part, id: id)
+        }
+        return DadAppearanceOption(part: part, id: id, title: title.toDomain())
+    }
+}
+
 extension SoundtrackDTO {
     func toDomain(audioURL: URL) throws -> Soundtrack {
         guard let licence = SoundtrackLicence(rawValue: licence) else {

@@ -26,6 +26,11 @@ struct FoldLayoutTests {
         #expect(fold([CGRect(x: 455, y: 0, width: 40, height: 669)], in: CGSize(width: 951, height: 669)) == nil)
     }
 
+    @Test("Given a flat display on its side, where the fold runs down with no thickness, when the view looks, then there is none")
+    func flatFoldDownTheView() {
+        #expect(fold([CGRect(x: 475, y: 0, width: 0, height: 669)], in: CGSize(width: 951, height: 669)) == nil)
+    }
+
     @Test("Given a fold reported wider than the sheet it crosses, when the sheet looks for it, then it still folds the sheet")
     func foldWiderThanTheView() {
         let found = fold([CGRect(x: -20, y: 380, width: 709, height: 30)], in: CGSize(width: 629, height: 800))

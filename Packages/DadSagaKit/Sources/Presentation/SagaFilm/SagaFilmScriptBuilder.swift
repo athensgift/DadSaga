@@ -108,6 +108,7 @@ struct SagaFilmScriptBuilder {
         return SagaFilmFamily(
             hero: HeroLook(look: hero?.look),
             heroSkin: SkinToneChoice(film.profile.dadSkinTone),
+            heroAppearance: DadAppearanceChoice(film.profile.dadAppearance),
             heroGear: film.equippedGear.compactMap { HeroGearLook(look: $0.look) },
             medals: film.medalCount,
             child: CompanionModel(

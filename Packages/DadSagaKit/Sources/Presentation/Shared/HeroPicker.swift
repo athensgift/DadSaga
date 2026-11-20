@@ -2,12 +2,17 @@ import DesignSystem
 import HeroArt
 import SwiftUI
 
-/// The dad's skin tone and a grid of heroes to choose from.
+/// The dad's skin tone, his look (on "Your hero" only) and a grid of heroes to choose from, drawn with both.
 struct HeroPicker: View {
     let content: HeroPickerContent
     @Binding var skinTone: SkinToneChoice
+    let appearance: DadAppearanceChoice
+    /// `nil` in onboarding, which asks only for the skin tone (ADR-0044 §2).
+    var looks: AppearanceSection?
     let selectedHeroID: String?
     let onSelect: (String) -> Void
+    /// A row's id and the option chosen in it.
+    var onSelectOption: (String, String) -> Void = { _, _ in }
     /// Grows with the text, so large sizes get one hero per row instead of names broken mid-word. Never below 150,
     /// which the 120pt avatar needs.
     @ScaledMetric(relativeTo: .headline) private var cardMinimumWidth: CGFloat = 150
@@ -27,21 +32,63 @@ struct HeroPicker: View {
             .padding(.horizontal, DSSpacing.m)
             .frame(minHeight: 52)
             .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+            if let looks {
+                looksSection(looks)
+            }
             let columns = [GridItem(.adaptive(minimum: max(150, cardMinimumWidth)), spacing: DSSpacing.m)]
             LazyVGrid(columns: columns, spacing: DSSpacing.m) {
                 ForEach(content.heroes) { hero in
-                    HeroOptionCard(hero: hero, skin: skinTone.avatarSkin, isSelected: hero.id == selectedHeroID) {
+                    HeroOptionCard(
+                        hero: hero,
+                        skin: skinTone.avatarSkin,
+                        features: appearance.avatarFeatures,
+                        isSelected: hero.id == selectedHeroID
+                    ) {
                         onSelect(hero.id)
                     }
                 }
             }
         }
     }
+
+    private func looksSection(_ looks: AppearanceSection) -> some View {
+        VStack(alignment: .leading, spacing: DSSpacing.s) {
+            Text(looks.title)
+                .font(DSFont.headline)
+                .foregroundStyle(DSColor.textPrimary)
+                .accessibilityAddTraits(.isHeader)
+            VStack(spacing: 0) {
+                ForEach(looks.rows) { row in
+                    if row.id != looks.rows.first?.id { Divider() }
+                    // Outside a Form a menu picker shows only its value, so the row's name is a label of its own;
+                    // LabeledContent reads the two together ("Beard, Full").
+                    LabeledContent {
+                        Picker(row.title, selection: optionBinding(row)) {
+                            ForEach(row.options) { Text($0.title).tag($0.id) }
+                        }
+                        .pickerStyle(.menu)
+                        .labelsHidden()
+                    } label: {
+                        Text(row.title).foregroundStyle(DSColor.textPrimary)
+                    }
+                    .font(DSFont.body)
+                    .frame(minHeight: 52)
+                }
+            }
+            .padding(.horizontal, DSSpacing.m)
+            .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+        }
+    }
+
+    private func optionBinding(_ row: AppearanceRow) -> Binding<String> {
+        Binding(get: { row.selectedID }, set: { onSelectOption(row.id, $0) })
+    }
 }
 
 private struct HeroOptionCard: View {
     let hero: HeroOption
     let skin: AvatarSkin
+    let features: HeroFeatures
     let isSelected: Bool
     let onSelect: () -> Void
 
@@ -52,7 +99,9 @@ private struct HeroOptionCard: View {
     var body: some View {
         Button(action: onSelect) {
             VStack(spacing: DSSpacing.s) {
-                HeroAvatar(style: hero.look.avatarStyle, size: 120, cheerTrigger: isSelected ? 1 : 0, skin: skin)
+                HeroAvatar(
+                    style: hero.look.avatarStyle, size: 120, cheerTrigger: isSelected ? 1 : 0, skin: skin, features: features
+                )
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
                 Text(hero.title)

@@ -9,6 +9,10 @@ public enum ContentDataError: Error, Equatable {
     case emptyTip(itemID: String)
     case unknownLicence(itemID: String, licence: String)
     case emptyText(itemID: String)
+    /// A look option whose part or id the app cannot draw.
+    case unknownAppearanceOption(part: String, id: String)
+    /// A look option the app can draw that the content does not name.
+    case missingAppearanceOption(part: String, id: String)
 }
 
 /// `ContentRepository` backed by the JSON bundled with the app. The catalog is loaded and validated once.
@@ -28,7 +32,9 @@ public actor BundledContentRepository: ContentRepository {
             bosses: try dataSource.decode([BossFightDTO].self, resource: "bosses").map { try $0.toDomain() },
             firsts: try dataSource.decode([FirstMomentDTO].self, resource: "firsts").map { $0.toDomain() },
             heroClasses: try dataSource.decode([HeroClassDTO].self, resource: "heroes").map { $0.toDomain() },
-            gear: try dataSource.decode([GearItemDTO].self, resource: "gear").map { try $0.toDomain() }
+            gear: try dataSource.decode([GearItemDTO].self, resource: "gear").map { try $0.toDomain() },
+            appearanceOptions: try dataSource.decode([AppearanceOptionDTO].self, resource: "appearance")
+                .map { try $0.toDomain() }
         )
         try ContentValidator.validate(catalog)
         cached = catalog

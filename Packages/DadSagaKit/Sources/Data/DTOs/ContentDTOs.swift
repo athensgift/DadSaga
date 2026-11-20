@@ -71,6 +71,13 @@ struct GearItemDTO: Decodable, Sendable {
     let title: LocalizedTextDTO
 }
 
+/// The name of one of the dad's look options (ADR-0044 §3). `id` is unique within its `part` only.
+struct AppearanceOptionDTO: Decodable, Sendable {
+    let part: String
+    let id: String
+    let title: LocalizedTextDTO
+}
+
 struct SoundtrackDTO: Decodable, Sendable {
     let id: String
     /// A file bundled next to the JSON, e.g. `saga-theme.m4a`. Names must be unique: resources are flattened.

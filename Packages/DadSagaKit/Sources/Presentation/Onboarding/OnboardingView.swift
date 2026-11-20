@@ -89,6 +89,7 @@ public struct OnboardingView: View {
                 HeroPicker(
                     content: content.hero,
                     skinTone: $viewModel.family.dadSkinTone,
+                    appearance: viewModel.dadAppearance,
                     selectedHeroID: viewModel.selectedHeroID
                 ) { viewModel.selectHero(id: $0) }
                 if let errorMessage = viewModel.errorMessage {
