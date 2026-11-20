@@ -49,17 +49,17 @@ struct SagaFilmTexts {
     }
 
     /// Roles, and only what the dad did in the period: a count of zero is left out, and with it the whole line when
-    /// there is nothing to count (ADR-0006).
-    func credits(_ credits: SagaCredits, in film: SagaFilm) -> SagaFilmCredits {
+    /// there is nothing to count (ADR-0006). The music is the track chosen, its title in the film's language (ADR-0046 §5).
+    func credits(_ credits: SagaCredits, in film: SagaFilm, music: Soundtrack) -> SagaFilmCredits {
         let hero = film.catalog.heroClasses.first { $0.id == film.profile.heroClassID }
         let done = [
             credits.questsDone > 0 ? strings.text("\(credits.questsDone) quests") : nil,
             credits.bossesBeaten > 0 ? strings.text("\(credits.bossesBeaten) bosses") : nil
         ].compactMap(\.self)
-        let music = [
-            film.soundtrack.title,
-            film.soundtrack.artist,
-            film.soundtrack.licence == .cc0 ? strings.text("Public domain (CC0)") : nil
+        let musicCredit = [
+            music.title.resolved(for: locale),
+            music.artist,
+            music.licence == .cc0 ? strings.text("Public domain (CC0)") : nil
         ].compactMap(\.self)
         return SagaFilmCredits(
             lines: [
@@ -69,7 +69,7 @@ struct SagaFilmTexts {
                     name: hero?.title.resolved(for: locale) ?? strings.text("Hero")
                 ),
                 done.isEmpty ? nil : SagaFilmCreditLine(role: strings.text("Together"), name: done.joined(separator: " · ")),
-                SagaFilmCreditLine(role: strings.text("Music"), name: music.joined(separator: " · "))
+                SagaFilmCreditLine(role: strings.text("Music"), name: musicCredit.joined(separator: " · "))
             ].compactMap(\.self),
             signature: strings.text("Made with DadSaga")
         )

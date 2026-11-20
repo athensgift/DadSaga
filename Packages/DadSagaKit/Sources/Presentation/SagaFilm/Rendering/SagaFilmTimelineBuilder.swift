@@ -55,7 +55,7 @@ struct SagaFilmTimelineBuilder {
     }
 
     /// A photo, shown whole and gliding in, then out, then in, so neighbouring photos rarely glide the same way (one
-    /// with a child always glides in, ADR-0046 §3); or
+    /// with a child always glides in, ADR-0047 §3); or
     /// black, which a card of words covers with its own ground. The glide is aimed once the photo is loaded.
     private func picture(for card: SagaFilmCard, glide: SagaFilmPhotoLoader.Glide?) -> FilmPicture {
         guard let photoID = card.photoID else { return .solid(.black) }

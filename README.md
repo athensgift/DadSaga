@@ -38,7 +38,7 @@ Packages/DadSagaKit
 ├── HeroArt                the code-drawn hero and children (ADR-0028)
 ├── DesignSystem           tokens + reusable SwiftUI components
 ├── FilmKit                writes a film frame by frame; Apple frameworks only, knows nothing of the game (ADR-0036)
-└── SagaMusic              the saga film's bundled theme and its credits, carried by the app only (ADR-0036)
+└── SagaMusic              the saga film's five bundled tracks and their credits, carried by the app only (ADR-0036, ADR-0046)
 
 Presentation ───────┐
 WidgetPresentation ─┼─▶ Application ─▶ Domain

@@ -2,7 +2,7 @@ import Domain
 import Foundation
 import Testing
 
-/// Which of an entry's further photos fill its places in the film, by the device's rating (ADR-0046 §2).
+/// Which of an entry's further photos fill its places in the film, by the device's rating (ADR-0047 §2).
 @Suite("SagaStoryboard, choosing further photos")
 struct SagaStoryboardPhotoChoiceTests {
     let saga = SagaFixtures()

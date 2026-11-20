@@ -1,6 +1,6 @@
 import Foundation
 
-/// How memorable a photo looks, as the device's own model rates it (ADR-0046 §2). It only chooses among the further
+/// How memorable a photo looks, as the device's own model rates it (ADR-0047 §2). It only chooses among the further
 /// photos of one entry, for one film: never shown, stored or compared across entries (ADR-0006).
 public struct PhotoRating: Hashable, Sendable {
     /// From -1, least memorable, to 1.
@@ -68,7 +68,7 @@ public struct PhotoFace: Hashable, Sendable {
     }
 }
 
-/// Where a saga film's camera goes in a photo, and whether it goes to a child (ADR-0046 §3).
+/// Where a saga film's camera goes in a photo, and whether it goes to a child (ADR-0047 §3).
 public struct PhotoFraming: Hashable, Sendable {
     public let region: PhotoRegion
     /// A child was found: the camera always moves in on them, never away.
@@ -80,7 +80,7 @@ public struct PhotoFraming: Hashable, Sendable {
     }
 }
 
-/// What the camera of a saga film looks at in a photo (ADR-0046 §3). Pure and deterministic.
+/// What the camera of a saga film looks at in a photo (ADR-0047 §3). Pure and deterministic.
 public enum PhotoSubject {
     /// Faces under this share of the largest one's height are in the background, and left out.
     static let backgroundShare = 1.0 / 3

@@ -31,7 +31,7 @@ struct SagaFixture {
     private let reminderSettings: any ReminderSettingsRepository
     private let preferences: any PreferencesRepository
     private let sagaOffers: any SagaOfferRepository
-    private let sagaFilmDates: any SagaFilmDatesRepository
+    private let sagaFilmChoices: any SagaFilmChoicesRepository
     private let scheduler = SilentScheduler()
 
     init(locale: Locale) {
@@ -40,7 +40,7 @@ struct SagaFixture {
         reminderSettings = UserDefaultsReminderSettingsRepository(defaults: defaults)
         preferences = UserDefaultsPreferencesRepository(defaults: defaults)
         sagaOffers = UserDefaultsSagaOfferRepository(defaults: defaults)
-        sagaFilmDates = UserDefaultsSagaFilmDatesRepository(defaults: defaults)
+        sagaFilmChoices = UserDefaultsSagaFilmChoicesRepository(defaults: defaults)
     }
 
     private var reminder: ReminderUseCases {
@@ -186,18 +186,22 @@ struct SagaFixture {
     ) -> SagaFilmViewModel {
         SagaFilmViewModel(
             request: request,
-            getFilm: DefaultGetSagaFilmUseCase(
-                contentRepository: content,
-                profileRepository: store.profiles,
-                progressRepository: store.progress,
-                outfitRepository: store.outfit,
-                soundtrackRepository: BundledSoundtrackRepository(bundle: SagaMusic.bundle),
-                datesRepository: sagaFilmDates,
-                calendar: Self.calendar
+            useCases: SagaFilmViewModel.UseCases(
+                getFilm: DefaultGetSagaFilmUseCase(
+                    contentRepository: content,
+                    profileRepository: store.profiles,
+                    progressRepository: store.progress,
+                    outfitRepository: store.outfit,
+                    soundtrackRepository: BundledSoundtrackRepository(bundle: SagaMusic.bundle),
+                    choicesRepository: sagaFilmChoices,
+                    calendar: Self.calendar
+                ),
+                setDates: DefaultSetSagaFilmDatesUseCase(repository: sagaFilmChoices),
+                setMusic: DefaultSetSagaFilmMusicUseCase(repository: sagaFilmChoices),
+                choosePhotos: KeepFilmPhotos()
             ),
-            setDates: DefaultSetSagaFilmDatesUseCase(repository: sagaFilmDates),
-            choosePhotos: KeepFilmPhotos(),
             renderer: renderer,
+            previewer: SilentMusicPreviewer(),
             locale: locale,
             calendar: Self.calendar,
             now: { Self.today }
@@ -298,6 +302,12 @@ private struct NoSchedule: ScheduleWeeklyRemindersUseCase {
     func execute(on date: Date) async {}
 }
 
+/// Plays nothing, so a snapshot never makes a sound.
+@MainActor
+private struct SilentMusicPreviewer: SagaMusicPreviewing {
+    func play(_ url: URL, seconds: Double) async {}
+}
+
 /// Makes no film: the screens that only open the film sheet never ask for one.
 struct NoFilmRenderer: SagaFilmRendering {
     func render(_ script: SagaFilmScript, progress: @escaping @MainActor @Sendable (Double) -> Void) async throws -> URL {
@@ -316,7 +326,7 @@ extension SagaFixture {
     }()
 }
 
-/// Keeps the film's photos as the sheet showed them: a snapshot never depends on Vision (ADR-0046 §8).
+/// Keeps the film's photos as the sheet showed them: a snapshot never depends on Vision (ADR-0047 §8).
 struct KeepFilmPhotos: ChooseSagaFilmPhotosUseCase {
     func execute(_ film: SagaFilm) async -> SagaFilm { film }
 }

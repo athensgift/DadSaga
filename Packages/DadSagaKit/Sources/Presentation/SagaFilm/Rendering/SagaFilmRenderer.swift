@@ -14,7 +14,7 @@ public enum SagaFilmRenderError: Error, Equatable {
 }
 
 /// Draws a saga film: its cards with SwiftUI, its photos through the photo use case with the camera on each photo's
-/// subject, and the file with `FilmKit` (ADR-0036 §3–§6, ADR-0037 §1, ADR-0046 §3).
+/// subject, and the file with `FilmKit` (ADR-0036 §3–§6, ADR-0037 §1, ADR-0047 §3).
 ///
 /// Films are written under one folder, each in a folder of its own, and never kept: the folder is emptied before
 /// every film and whenever `discardFilms()` is called.

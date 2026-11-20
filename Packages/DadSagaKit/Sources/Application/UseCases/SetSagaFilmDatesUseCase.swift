@@ -4,9 +4,9 @@ public protocol SetSagaFilmDatesUseCase: Sendable {
 }
 
 public struct DefaultSetSagaFilmDatesUseCase: SetSagaFilmDatesUseCase {
-    private let repository: any SagaFilmDatesRepository
+    private let repository: any SagaFilmChoicesRepository
 
-    public init(repository: any SagaFilmDatesRepository) {
+    public init(repository: any SagaFilmChoicesRepository) {
         self.repository = repository
     }
 

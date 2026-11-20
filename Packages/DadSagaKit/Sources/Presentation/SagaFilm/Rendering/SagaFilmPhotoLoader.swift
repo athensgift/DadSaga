@@ -11,7 +11,7 @@ struct SagaFilmPhotoLoader: Sendable {
         case inward, outward
     }
 
-    /// How close the camera may come to a photo's subject (ADR-0046 §3).
+    /// How close the camera may come to a photo's subject (ADR-0047 §3).
     static let subjectZoomLimit = 1.25
     /// Where a glide ends when the photo has no subject: a little closer, towards the upper middle, where faces
     /// usually are. Near enough to the middle that the glide never moves a photo's edge into the frame.

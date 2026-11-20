@@ -31,7 +31,7 @@ struct SagaFilmPhotosTests: SagaFilmSheetTests {
         ])
     }
 
-    @Test("Given a first with four further photos, when making the film, then its three best play (ADR-0046)")
+    @Test("Given a first with four further photos, when making the film, then its three best play (ADR-0047)")
     func bestFurtherPhotosPlay() async throws {
         let walk = ProgressEvent(
             kind: .first(id: "f-smile"), childID: FilmStub.anna.id, date: FilmStub.months(2),

@@ -15,16 +15,18 @@ struct SagaFilmScriptBuilder {
         texts = SagaFilmTexts(locale: locale, calendar: calendar)
     }
 
-    func script(for film: SagaFilm, format: SagaFilmFormat, reduceMotion: Bool, showsDates: Bool) -> SagaFilmScript {
+    func script(
+        for film: SagaFilm, format: SagaFilmFormat, reduceMotion: Bool, showsDates: Bool, music: Soundtrack
+    ) -> SagaFilmScript {
         SagaFilmScript(
             format: format,
             reduceMotion: reduceMotion,
             scenes: film.storyboard.scenes.compactMap { scene in
-                card(for: scene.kind, in: film, showsDates: showsDates).map {
+                card(for: scene.kind, in: film, showsDates: showsDates, music: music).map {
                     SagaFilmScene(seconds: scene.seconds, card: $0)
                 }
             },
-            music: film.soundtrack.audioURL,
+            music: music.audioURL,
             title: Self.fileName(for: film.child.name)
         )
     }
@@ -51,7 +53,9 @@ struct SagaFilmScriptBuilder {
         return trimmed.isEmpty ? nil : trimmed
     }
 
-    private func card(for kind: SagaScene.Kind, in film: SagaFilm, showsDates: Bool) -> SagaFilmCard? {
+    private func card(
+        for kind: SagaScene.Kind, in film: SagaFilm, showsDates: Bool, music: Soundtrack
+    ) -> SagaFilmCard? {
         switch kind {
         case .opening:
             .opening(
@@ -71,7 +75,7 @@ struct SagaFilmScriptBuilder {
         case .photo(_, let id):
             .photo(photoID: id)
         case .credits(let credits):
-            .credits(texts.credits(credits, in: film))
+            .credits(texts.credits(credits, in: film, music: music))
         }
     }
 

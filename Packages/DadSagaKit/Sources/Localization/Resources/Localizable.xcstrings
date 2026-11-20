@@ -631,6 +631,40 @@
         }
       }
     },
+    "Listen to the music" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Άκουσε τη μουσική"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Listen to the music"
+          }
+        }
+      }
+    },
+    "Stop the music" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Σταμάτα τη μουσική"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop the music"
+          }
+        }
+      }
+    },
     "Your look" : {
       "extractionState" : "manual",
       "localizations" : {

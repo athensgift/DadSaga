@@ -4,7 +4,7 @@ import SwiftUI
 import UIKit
 #endif
 
-/// The film sheet (ADR-0037 §4): the dad chooses a child, a period and a format, the film is made while he waits, and
+/// The film sheet (ADR-0037 §4): the dad chooses a child, a period, a format and the music, the film is made while he waits, and
 /// then it plays, ready to share. Present it with `sagaFilmSheet(_:)`, which also stops the film when the app leaves
 /// the screen and deletes it once the sheet has gone.
 public struct SagaFilmSheet: View {
@@ -51,11 +51,14 @@ public struct SagaFilmSheet: View {
                     .buttonStyle(.glass)
             }
         case .ready(let setup):
-            SagaFilmChoices(
+            SagaFilmChoicesView(
                 setup: setup,
                 onChild: { id in Task { await viewModel.selectChild(id: id) } },
                 onPeriod: { id in Task { await viewModel.selectPeriod(id: id) } },
                 onFormat: { viewModel.selectFormat($0) },
+                onMusic: { viewModel.selectMusic(id: $0) },
+                onListen: { viewModel.listenToMusic() },
+                onStop: { viewModel.stopMusic() },
                 onDates: { viewModel.setShowsDates($0) },
                 onMake: { Task { await viewModel.makeFilm(reduceMotion: reduceMotion) } }
             )
@@ -126,11 +129,14 @@ private struct SagaFilmSheetPresenter: ViewModifier {
 
 // MARK: - Choosing
 
-private struct SagaFilmChoices: View {
+private struct SagaFilmChoicesView: View {
     let setup: SagaFilmSetup
     let onChild: (UUID) -> Void
     let onPeriod: (String) -> Void
     let onFormat: (SagaFilmFormat) -> Void
+    let onMusic: (String) -> Void
+    let onListen: () -> Void
+    let onStop: () -> Void
     let onDates: (Bool) -> Void
     let onMake: () -> Void
     /// Grows with the text, so at the accessibility sizes a name gets a row of its own instead of being cut short.
@@ -173,6 +179,9 @@ private struct SagaFilmChoices: View {
                             }
                         }
                     }
+                }
+                choice(setup.music.label) {
+                    SagaFilmMusicRow(music: setup.music, onMusic: onMusic, onListen: onListen, onStop: onStop)
                 }
                 datesSwitch
                 if let emptyMessage = setup.emptyMessage {

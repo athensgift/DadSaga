@@ -1,7 +1,7 @@
 import Domain
 import Testing
 
-/// What the film's camera looks at in a photo (ADR-0046 §3).
+/// What the film's camera looks at in a photo (ADR-0047 §3).
 @Suite("PhotoSubject")
 struct PhotoSubjectTests {
     @Test("Given a child and an adult, when finding the subject, then it is the child's face with a margin")

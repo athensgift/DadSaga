@@ -17,6 +17,9 @@ public struct SagaFilm: Sendable {
     public let childFirsts: [FirstMoment]
     /// What the hero wore then: the gear earned by then, chosen with today's wardrobe.
     public let equippedGear: [GearItem]
+    /// Every bundled track, in order: the choices (ADR-0046 §2).
+    public let soundtracks: [Soundtrack]
+    /// The remembered one, or the first when none was chosen or it is no longer bundled (ADR-0046 §4).
     public let soundtrack: Soundtrack
     /// Whether the film shows its dates: the switch on the film sheet, remembered (ADR-0041 §5).
     public let showsDates: Bool
@@ -33,6 +36,7 @@ public struct SagaFilm: Sendable {
         medalCount: Int,
         childFirsts: [FirstMoment],
         equippedGear: [GearItem],
+        soundtracks: [Soundtrack],
         soundtrack: Soundtrack,
         showsDates: Bool
     ) {
@@ -44,6 +48,7 @@ public struct SagaFilm: Sendable {
         self.medalCount = medalCount
         self.childFirsts = childFirsts
         self.equippedGear = equippedGear
+        self.soundtracks = soundtracks
         self.soundtrack = soundtrack
         self.showsDates = showsDates
     }
@@ -67,7 +72,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
     private let progressRepository: any ProgressRepository
     private let outfitRepository: any OutfitRepository
     private let soundtrackRepository: any SoundtrackRepository
-    private let datesRepository: any SagaFilmDatesRepository
+    private let choicesRepository: any SagaFilmChoicesRepository
     private let calendar: Calendar
 
     public init(
@@ -76,7 +81,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
         progressRepository: any ProgressRepository,
         outfitRepository: any OutfitRepository,
         soundtrackRepository: any SoundtrackRepository,
-        datesRepository: any SagaFilmDatesRepository,
+        choicesRepository: any SagaFilmChoicesRepository,
         calendar: Calendar = .autoupdatingCurrent
     ) {
         self.contentRepository = contentRepository
@@ -84,7 +89,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
         self.progressRepository = progressRepository
         self.outfitRepository = outfitRepository
         self.soundtrackRepository = soundtrackRepository
-        self.datesRepository = datesRepository
+        self.choicesRepository = choicesRepository
         self.calendar = calendar
     }
 
@@ -93,11 +98,15 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
         async let pendingEvents = progressRepository.fetchEvents()
         async let pendingOutfit = outfitRepository.fetchOutfit()
         async let pendingSoundtracks = soundtrackRepository.fetchSoundtracks()
-        async let pendingShowsDates = datesRepository.showsDates()
+        async let pendingShowsDates = choicesRepository.showsDates()
+        async let pendingSoundtrackID = choicesRepository.soundtrackID()
         guard let profile = try await profileRepository.fetchProfile(),
               let child = profile.child(childID)
         else { return nil }
-        guard let soundtrack = try await pendingSoundtracks.first else { throw SagaFilmError.noSoundtrack }
+        let soundtracks = try await pendingSoundtracks
+        guard let first = soundtracks.first else { throw SagaFilmError.noSoundtrack }
+        let chosenID = await pendingSoundtrackID
+        let soundtrack = soundtracks.first { $0.id == chosenID } ?? first
         let catalog = try await pendingCatalog
         let events = try await pendingEvents
 
@@ -123,6 +132,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
             medalCount: progress.allDefeatedBossIDs.count,
             childFirsts: catalog.firsts.filter { firsts.contains($0.id) },
             equippedGear: GearRules.equipped(catalog.gear, skillXP: progress.skillXP, outfit: try await pendingOutfit),
+            soundtracks: soundtracks,
             soundtrack: soundtrack,
             showsDates: await pendingShowsDates
         )

@@ -8,7 +8,7 @@ public enum ContentDataError: Error, Equatable {
     case unknownWorld(itemID: String, worldID: String)
     case emptyTip(itemID: String)
     case unknownLicence(itemID: String, licence: String)
-    case emptyCredit(itemID: String)
+    case emptyText(itemID: String)
     /// A look option whose part or id the app cannot draw.
     case unknownAppearanceOption(part: String, id: String)
     /// A look option the app can draw that the content does not name.

@@ -7,7 +7,7 @@ import Testing
 import UniformTypeIdentifiers
 import Vision
 
-/// Vision on the device (ADR-0046). Its numbers differ by device and OS, so only their shape is checked.
+/// Vision on the device (ADR-0047). Its numbers differ by device and OS, so only their shape is checked.
 @Suite("VisionPhotoAnalyzer")
 struct VisionPhotoAnalyzerTests {
     let analyzer = VisionPhotoAnalyzer()

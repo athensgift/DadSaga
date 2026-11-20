@@ -20,7 +20,8 @@ final class AppContainer {
     private let preferencesRepository: any PreferencesRepository
     /// The dad's answers to home's film offers (ADR-0037 §5), in the app's own defaults. Starting over clears them.
     private let sagaOffers: any SagaOfferRepository
-    private let sagaFilmDates: any SagaFilmDatesRepository
+    /// What the film sheet remembers: the dates switch and the music (ADR-0041 §5, ADR-0046 §4). Starting over keeps it.
+    private let sagaFilmChoices: any SagaFilmChoicesRepository
     /// The saga film's music, from the bundle only the app carries (ADR-0036 §8).
     private lazy var soundtrackRepository: any SoundtrackRepository = BundledSoundtrackRepository(bundle: SagaMusic.bundle)
     /// Draws and writes the films, into a temporary folder it empties itself (ADR-0036 §6). One for the whole app,
@@ -29,7 +30,7 @@ final class AppContainer {
         getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore),
         findSubject: DefaultFindPhotoSubjectUseCase(analyzer: photoAnalyzer)
     )
-    /// Looks at the film's photos with Vision, on the device, while a film is made; keeps nothing (ADR-0046).
+    /// Looks at the film's photos with Vision, on the device, while a film is made; keeps nothing (ADR-0047).
     private let photoAnalyzer: any PhotoAnalyzer = VisionPhotoAnalyzer()
 
     init(data: DeviceData = .forLaunch()) {
@@ -39,7 +40,7 @@ final class AppContainer {
         notificationScheduler = data.notificationScheduler
         preferencesRepository = UserDefaultsPreferencesRepository(defaults: data.defaults)
         sagaOffers = UserDefaultsSagaOfferRepository(defaults: data.defaults)
-        sagaFilmDates = UserDefaultsSagaFilmDatesRepository(defaults: data.defaults)
+        sagaFilmChoices = UserDefaultsSagaFilmChoicesRepository(defaults: data.defaults)
     }
 
     // MARK: Use cases
@@ -183,17 +184,21 @@ final class AppContainer {
     func makeSagaFilmViewModel(request: SagaFilmRequest) -> SagaFilmViewModel {
         SagaFilmViewModel(
             request: request,
-            getFilm: DefaultGetSagaFilmUseCase(
-                contentRepository: contentRepository,
-                profileRepository: store.profiles,
-                progressRepository: store.progress,
-                outfitRepository: store.outfit,
-                soundtrackRepository: soundtrackRepository,
-                datesRepository: sagaFilmDates
+            useCases: SagaFilmViewModel.UseCases(
+                getFilm: DefaultGetSagaFilmUseCase(
+                    contentRepository: contentRepository,
+                    profileRepository: store.profiles,
+                    progressRepository: store.progress,
+                    outfitRepository: store.outfit,
+                    soundtrackRepository: soundtrackRepository,
+                    choicesRepository: sagaFilmChoices
+                ),
+                setDates: DefaultSetSagaFilmDatesUseCase(repository: sagaFilmChoices),
+                setMusic: DefaultSetSagaFilmMusicUseCase(repository: sagaFilmChoices),
+                choosePhotos: DefaultChooseSagaFilmPhotosUseCase(photoStore: photoStore, analyzer: photoAnalyzer)
             ),
-            setDates: DefaultSetSagaFilmDatesUseCase(repository: sagaFilmDates),
-            choosePhotos: DefaultChooseSagaFilmPhotosUseCase(photoStore: photoStore, analyzer: photoAnalyzer),
-            renderer: sagaFilmRenderer
+            renderer: sagaFilmRenderer,
+            previewer: SagaMusicPreviewer()
         )
     }
 
