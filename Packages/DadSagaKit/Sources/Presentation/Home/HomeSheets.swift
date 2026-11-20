@@ -17,7 +17,7 @@ struct QuestSheet: View {
 
     var body: some View {
         NavigationStack {
-            ReadAndActPanes(column: QuestColumn()) {
+            ReadAndActPanes(column: QuestColumn()) { _ in
                 RewardPill(text: quest.reward, tint: DSColor.accent)
                 Text(quest.title)
                     .font(DSFont.title)
@@ -42,7 +42,7 @@ struct QuestSheet: View {
                         .font(DSFont.subheadline)
                         .foregroundStyle(DSColor.textSecondary)
                 }
-            } acting: {
+            } acting: { _ in
                 JournalSection(
                     labels: quest.journal, note: $note, photos: $photos, entry: quest.title, loader: loader,
                     fill: DSColor.background
@@ -89,7 +89,7 @@ struct BossSheet: View {
     var body: some View {
         NavigationStack {
             // A defeated boss has nothing left to do: its guide keeps the whole sheet.
-            ReadAndActPanes(alignment: .leading, splits: !boss.isDefeated, column: BossColumn()) {
+            ReadAndActPanes(alignment: .leading, splits: !boss.isDefeated, column: BossColumn()) { _ in
                 RewardPill(text: boss.reward, tint: DSColor.boss)
                 Text(boss.intro)
                     .font(DSFont.body)
@@ -106,7 +106,7 @@ struct BossSheet: View {
                 Text(boss.disclaimer)
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)
-            } acting: {
+            } acting: { _ in
                 if !boss.isDefeated {
                     JournalSection(
                         labels: boss.journal, note: $note, photos: $photos, entry: boss.title, loader: loader,

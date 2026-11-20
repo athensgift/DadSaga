@@ -48,7 +48,7 @@ public struct WardrobeView: View {
         let style = content.heroLook.avatarStyle
         return ReadAndActPanes(
             alignment: .leading, spacing: DSSpacing.l, flatTitle: .inline, column: WardrobeColumn()
-        ) {
+        ) { _ in
             HeroAvatar(
                 style: style,
                 size: 200,
@@ -72,7 +72,7 @@ public struct WardrobeView: View {
             }
             .animation(.spring(response: 0.35, dampingFraction: 0.75), value: content.gear)
             .accessibilityHidden(true)
-        } acting: {
+        } acting: { _ in
             ForEach(content.slots) { slot in
                 slotView(slot)
             }

@@ -14,8 +14,8 @@ struct ReadAndActPanes<Reading: View, Acting: View, Column: ViewModifier>: View 
     private let splits: Bool
     private let flatTitle: ToolbarTitleDisplayMode
     private let column: Column
-    private let reading: Reading
-    private let acting: Acting
+    private let reading: (_ isSplit: Bool) -> Reading
+    private let acting: (_ isSplit: Bool) -> Acting
     @State private var foldedPanes = FoldedPanes.flat
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
@@ -25,42 +25,48 @@ struct ReadAndActPanes<Reading: View, Acting: View, Column: ViewModifier>: View 
     ///   - flatTitle: the sheet's title on a flat display. Split, it is inline: a large title collapses as a pane
     ///     scrolls and would move the fold's place in both.
     ///   - column: the column's width, padding and text alignment, applied to each pane's column.
+    ///   - reading, acting: the two parts; `isSplit` is `true` while each has a pane of its own, for a view that
+    ///     belongs to one part when split and to the other in one column (an entry's cover).
     init(
         alignment: HorizontalAlignment = .center,
         spacing: CGFloat = DSSpacing.m,
         splits: Bool = true,
         flatTitle: ToolbarTitleDisplayMode = .automatic,
         column: Column,
-        @ViewBuilder reading: () -> Reading,
-        @ViewBuilder acting: () -> Acting
+        @ViewBuilder reading: @escaping (_ isSplit: Bool) -> Reading,
+        @ViewBuilder acting: @escaping (_ isSplit: Bool) -> Acting
     ) {
         self.alignment = alignment
         self.spacing = spacing
         self.splits = splits
         self.flatTitle = flatTitle
         self.column = column
-        self.reading = reading()
-        self.acting = acting()
+        self.reading = reading
+        self.acting = acting
     }
 
     var body: some View {
         let panes = splits ? foldedPanes : .flat
-        panes.layout {
-            if panes != .flat {
+        let isSplit = panes != .flat
+        return panes.layout {
+            if isSplit {
                 ScrollView {
-                    VStack(alignment: alignment, spacing: spacing) { reading }
+                    VStack(alignment: alignment, spacing: spacing) { reading(true) }
                         .modifier(column)
                 }
                 .hiddenUpperPane(panes)
             }
-            ScrollView {
+            // Split, the doing sits at the bottom of its pane: buttons near the hands, not against the fold.
+            BottomAlignedScrollView(alignsBottom: isSplit) {
                 VStack(alignment: alignment, spacing: spacing) {
-                    if panes == .flat { reading }
-                    acting
+                    if !isSplit { reading(false) }
+                    acting(isSplit)
                 }
                 .modifier(column)
                 // Clear of the fold.
-                .padding(.top, panes == .flat ? 0 : DSSpacing.m)
+                .padding(.top, isSplit ? DSSpacing.m : 0)
+                // Clear of the button over the keyboard, which floats over the pane's bottom corner.
+                .padding(.bottom, panes == .lowerOnly ? DSSpacing.xl + DSSpacing.l : 0)
             }
             .scrollDismissesKeyboard(.interactively)
         }

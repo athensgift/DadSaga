@@ -4,7 +4,8 @@ import SwiftUI
 /// Step 2: the moment's own page, for photos, a few words and the date (ADR-0042 §5). Just recorded, it offers
 /// "Saved · Undo" here, since home is behind the sheet, and home celebrates once it closes; opened to edit, it offers
 /// Delete instead.
-/// On an iPhone Duo half-open like a laptop its cover stands above the fold (ADR-0043).
+/// On an iPhone Duo half-open like a laptop its heading, and its cover once it has one, stand above the fold, and
+/// what the dad fills in lies below it (ADR-0043).
 /// Closing never loses the moment: only what was changed and not saved, and only after asking.
 struct MomentDetailsStep: View {
     let details: MomentDetails
@@ -18,6 +19,11 @@ struct MomentDetailsStep: View {
     @State private var photos: PhotoDrafts
     @State private var isConfirmingDiscard = false
     @State private var isConfirmingDelete = false
+    /// The cover full screen, opened from above the fold.
+    @State private var coverViewer: PhotoViewerContent?
+
+    /// The cover's height above the fold, where it shares the pane with the heading.
+    private static let coverHeight: CGFloat = 200
 
     init(
         details: MomentDetails,
@@ -42,32 +48,40 @@ struct MomentDetailsStep: View {
     }
 
     var body: some View {
-        CoverAndFormPanes(
-            photos: photos, entry: details.title, labels: details.labels.journal.photo, loader: loader
-        ) { showsCover in
-            VStack(alignment: .leading, spacing: DSSpacing.m) {
-                header
-                JournalPhotosField(
-                    photos: $photos,
-                    entry: details.title,
-                    labels: details.labels.journal.photo,
-                    loader: loader,
-                    showsCover: showsCover
-                )
-                JournalNoteField(placeholder: details.notePlaceholder, note: $note)
-                DateRow(label: details.dateLabel, date: $date, range: details.earliestDate...details.latestDate)
-                    .font(DSFont.body)
-                    .foregroundStyle(DSColor.textPrimary)
-                    .padding(.horizontal, DSSpacing.m)
-                    .frame(minHeight: 50)
-                    .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
-                SheetError(message: errorMessage)
-                buttons
+        // Split, the moment's heading and its cover stand above the fold; everything to fill in lies below it.
+        ReadAndActPanes(alignment: .leading, flatTitle: .inline, column: MomentColumn()) { isSplit in
+            header
+            if isSplit, let cover = photos.items.first {
+                JournalCover(source: cover.source, loader: loader) {
+                    coverViewer = details.labels.journal.photo.viewer.content(
+                        entry: details.title, photos: photos.items.map(\.source), startingAt: 0
+                    )
+                }
+                .frame(height: Self.coverHeight)
             }
-            .frame(maxWidth: readableWidth)
-            .padding(DSSpacing.m)
-            .frame(maxWidth: .infinity)
+        } acting: { isSplit in
+            JournalPhotosField(
+                photos: $photos,
+                entry: details.title,
+                labels: details.labels.journal.photo,
+                loader: loader,
+                showsCover: !isSplit
+            )
+            JournalNoteField(
+                placeholder: details.notePlaceholder,
+                hideKeyboardTitle: details.labels.journal.hideKeyboard,
+                note: $note
+            )
+            DateRow(label: details.dateLabel, date: $date, range: details.earliestDate...details.latestDate)
+                .font(DSFont.body)
+                .foregroundStyle(DSColor.textPrimary)
+                .padding(.horizontal, DSSpacing.m)
+                .frame(minHeight: 50)
+                .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+            SheetError(message: errorMessage)
+            buttons
         }
+        .photoViewer($coverViewer, loader: loader)
         .background(DSColor.background)
         .safeAreaInset(edge: .bottom) { undoBar }
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: details.undoOffer)
@@ -146,5 +160,15 @@ struct MomentDetailsStep: View {
             .disabled(isSaving)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         }
+    }
+}
+
+/// The details page's column.
+private struct MomentColumn: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .frame(maxWidth: readableWidth)
+            .padding(DSSpacing.m)
+            .frame(maxWidth: .infinity)
     }
 }

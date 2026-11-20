@@ -43,7 +43,11 @@ struct JournalEditorSheet: View {
         NavigationStack {
             CoverAndFormPanes(photos: photos, entry: editor.title, labels: editor.labels.photo, loader: loader) { showsCover in
                 VStack(spacing: DSSpacing.m) {
-                    JournalNoteField(placeholder: editor.labels.notePlaceholder, note: $note)
+                    JournalNoteField(
+                        placeholder: editor.labels.notePlaceholder,
+                        hideKeyboardTitle: editor.labels.hideKeyboard,
+                        note: $note
+                    )
                     JournalPhotosField(
                         photos: $photos,
                         entry: editor.title,

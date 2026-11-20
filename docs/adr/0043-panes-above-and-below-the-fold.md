@@ -87,10 +87,9 @@ cover sits in the note editor and on a first's page while folded).
   - folded: the film fitted to the upper half and the controls on the lower half
 - Folding or unfolding never stops or rebuilds the player. Choosing and making are not split.
 
-### 5. The timeline's note and photos, and a first's own page
-- Both use one container, `CoverAndFormPanes`. While folded and while the entry has a photo, its cover is shown whole
-  above the fold and the rest of the form lies below it: the note, the row of squares and "+", and on a first's page
-  its heading, date and buttons too. The cover's square still carries "Make cover" and "Remove", so the upright half shows
+### 5. The timeline's note and photos
+- The editor uses `CoverAndFormPanes`. While folded and while the entry has a photo, its cover is shown whole above
+  the fold and the rest of the form lies below it: the note, the row of squares and "+". The cover's square still carries "Make cover" and "Remove", so the upright half shows
   the cover without its "…" button (changes ADR-0042 §3, while folded only).
 - With no photo the sheet stays as it is: the upper half never shows an empty frame waiting for one (ADR-0006,
   ADR-0042).
@@ -98,16 +97,25 @@ cover sits in the note editor and on a first's page while folded).
   keyboard, so what the dad writes stays in view. It comes back when the keyboard goes.
 
 ### 6. Sheets that are read, then acted on
-- The quest sheet, the boss sheet and the wardrobe use one container, `ReadAndActPanes`. Folded, what the dad reads
+- The quest sheet, the boss sheet, a first's own page and the wardrobe use one container, `ReadAndActPanes`. Folded, what the dad reads
   stands above the fold and what he does lies below it, each half scrolling on its own:
   - a quest: its reward, title, description, last note, tip and safety note above; the note, photos and "I did it"
     below
   - a boss: its reward, intro, last note, survival guide and disclaimer above; the note, photos and "We made it
     through" below. A defeated boss has nothing left to do, so its sheet is not split
+  - a first's own page: its heading above, and its cover under it once it has a photo; the photos, the note, the
+    date and the buttons below. It is split with or without a photo: the heading has the upper half, so there is
+    never an empty frame there
   - the wardrobe: the hero above, the choices below
+- **Buttons near the hands.** Below a fold, content shorter than its half sits at the bottom of it, not against the
+  fold: the lower half lies on the table and its buttons belong where the thumbs are. This holds for these sheets and
+  for the made film's controls. Content taller than the half scrolls from its top.
 - The lower half keeps its place in the view tree, so a fold keeps the note's focus and an open picker. With the
   keyboard up the lower half alone shows (§2).
 - Split, a sheet's title is inline: a large title collapses as a half scrolls and would move the fold's place.
+- **Putting the keyboard away.** The note field shows a button over the keyboard that hides it, on every device:
+  Return starts a new line in a note, and the swipe that dismisses the keyboard is hard to find, more so with the
+  keyboard on the half that lies flat.
 
 ### 7. The timeline
 - Folded, the list lies below the fold and one entry stands above it, large: its cover whole, fitted to the half's

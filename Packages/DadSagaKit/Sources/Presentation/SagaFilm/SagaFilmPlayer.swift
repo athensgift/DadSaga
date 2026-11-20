@@ -36,7 +36,8 @@ struct SagaFilmPlayer: View {
         let panes = fold.map { AnyLayout(FoldedStackLayout(fold: $0)) } ?? AnyLayout(VStackLayout(spacing: 0))
         panes {
             film
-            ScrollView {
+            // Above a fold the film has the upper half; what goes with it sits at the bottom of the lower one.
+            BottomAlignedScrollView(alignsBottom: fold != nil) {
                 VStack(spacing: DSSpacing.m) {
                     ShareLink(
                         item: SagaFilmFile(url: made.url),
