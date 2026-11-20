@@ -12,7 +12,7 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
 - One suite: `swift test --build-system swiftbuild --filter DeepLinkTests` (from `Packages/DadSagaKit`).
 - **Paused until the big features are done** (owner, 2026-11-20): screen snapshots and the accessibility audit are not
   run during development. Once the work is close to final, run both, re-record the snapshots and look at every image,
-  and offer to put the snapshots in CI (that needs a new ADR: ADR-0034 runs them on the Mac). Until then, check a UI change by drawing it once in the simulator.
+  and offer to put the snapshots in CI (that needs a new ADR: ADR-0034 runs them on the Mac). Until then, `ui-check` draws a UI change once in the simulator.
   - Screen snapshots: `xcodebuild test -project DadSaga.xcodeproj -scheme DadSagaSnapshots -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2'`.
     A deliberate change: delete its images in `SnapshotTests/__Snapshots__`, run twice (record, then check).
   - Accessibility audit of the main screens (UI test, about five minutes):
@@ -39,6 +39,8 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
 - A change across layers, or one touching persistence, sync, media or the film: `architect` plans first. A change in
   one layer only (a UI tweak, copy) skips the plan.
 - `reviewer` checks every PR before it is opened, small ones too: it finds the most.
+- `ui-check` draws every UI change in the simulator before it is called done (the iPhone Duo for the fold), and reports
+  only what it saw, so the screenshots stay out of the main session.
 - If a fix fails twice, stop and suggest `fable-hard`. It costs usage credits: never start it until the owner asks.
 
 ## Git
