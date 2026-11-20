@@ -31,7 +31,7 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0021](0021-undo-and-delete-entries.md) | Undo and delete the dad's own entries | progress, timeline | |
 | [0022](0022-journal-on-every-card.md) | A note and a photo on every card | journal, photos | |
 | [0023](0023-home-screen-widget.md) | Home-screen widget: weekly quest and latest moment | widget | 0026 (migrations), 0027 (widget strings) |
-| [0024](0024-weekly-notification.md) | One gentle weekly notification | notifications, product rules | 0030 (bell button) |
+| [0024](0024-weekly-notification.md) | One gentle weekly notification | notifications, product rules | 0030 (bell button), 0037 (the reminder card waits while a film card shows) |
 | [0025](0025-app-icon-and-launch-screen.md) | App icon in Icon Composer, native launch screen | branding | 0033 (also writes the website's images) |
 | [0026](0026-versioned-store-and-unavailable-screen.md) | Versioned store with migrations; a calm stop when it can't open | storage, errors | 0034 (widget test before V2) |
 | [0027](0027-ui-string-catalog.md) | UI strings in one shared String Catalog | localization | 0030 (reset wording) |
@@ -40,7 +40,8 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0030](0030-settings-screen.md) | One Settings screen; "start over" for everyone | settings, privacy | 0036 (start over also forgets the film offers) |
 | [0031](0031-website-on-cloudflare-pages.md) | Static website at dadsaga.app on Cloudflare Pages | website, privacy | 0033 (images generated) |
 | [0032](0032-contrast-of-tints.md) | Tints readable as text and as fills; the hero keeps its own colours | UI, accessibility, colour | 0033 (its open items) |
-| [0033](0033-accessibility-audit-and-secondary-text.md) | Accessibility audit of the main screens, readable secondary text, "D" on the crest | accessibility, testing, colour, hero | 0034 (snapshots at the largest text size, test data for snapshots), 0035 (audit skips, iOS 27.2), 0036 (the audit covers the film sheet) |
+| [0033](0033-accessibility-audit-and-secondary-text.md) | Accessibility audit of the main screens, readable secondary text, "D" on the crest | accessibility, testing, colour, hero | 0034 (snapshots at the largest text size, test data for snapshots), 0035 (audit skips, iOS 27.2), 0036 (the audit covers the film sheet), 0037 (a timeline with an entry) |
 | [0034](0034-screen-snapshots-pinned-ci-and-store-threads.md) | Screen snapshots, a pinned CI toolchain, the store's work off the main thread | testing, CI, storage, concurrency | 0035 (snapshots get the app's tint), 0036 (film sheet and card snapshots) |
 | [0035](0035-audit-on-ios-27-shaded-glass.md) | The audit on iOS 27.2: re-measure labels on shaded glass | accessibility, testing | |
-| [0036](0036-saga-video.md) | Saga film: drawn frame by frame on the device from the timeline, offered gently, never stored | video, media, product rules, concurrency | |
+| [0036](0036-saga-video.md) | Saga film: drawn frame by frame on the device from the timeline, offered gently, never stored | video, media, product rules, concurrency | 0037 (one offer for the family; what the cards and the sheet show) |
+| [0037](0037-saga-film-drawing-sheet-and-offer.md) | Drawing the saga film in Presentation, its sheet, one offer card for the family (proposed) | video, architecture, product rules, UI | |

@@ -20,6 +20,29 @@ public struct SagaFilm: Sendable {
     public let soundtrack: Soundtrack
 
     public var period: SagaPeriod { storyboard.period }
+
+    /// Public so the film sheet's tests can stand in for the use case, like `HomeOverview`'s.
+    public init(
+        profile: PlayerProfile,
+        child: Child,
+        catalog: ContentCatalog,
+        storyboard: SagaStoryboard,
+        availablePeriods: [SagaPeriod],
+        medalCount: Int,
+        childFirsts: [FirstMoment],
+        equippedGear: [GearItem],
+        soundtrack: Soundtrack
+    ) {
+        self.profile = profile
+        self.child = child
+        self.catalog = catalog
+        self.storyboard = storyboard
+        self.availablePeriods = availablePeriods
+        self.medalCount = medalCount
+        self.childFirsts = childFirsts
+        self.equippedGear = equippedGear
+        self.soundtrack = soundtrack
+    }
 }
 
 public enum SagaFilmError: Error, Equatable {

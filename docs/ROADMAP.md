@@ -42,7 +42,8 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ What goes in a film and when to offer it (Domain); the film's one query (Application)
 - ✅ An original theme made in code (`Tools/SagaTheme`), bundled in the `SagaMusic` target
 - ✅ `FilmKit`: on-device video drawn frame by frame (Core Image, `AVAssetWriter`), Ken Burns photos, cross-fades, music
-- Drawing the film: title cards per first, end "credits", Reduce Motion
+- ✅ Drawing the film (ADR-0037): an opening, a card for each first and boss, a montage of quest photos, credits; Reduce
+  Motion keeps the photos still
 - The film sheet: watch, then export/share in 9:16 and 16:9
 - Triggers: on demand; one calm card on a birthday or when the child grows into the next world (by age, never by
   quests or bosses done)

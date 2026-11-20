@@ -43,6 +43,8 @@ Packages/DadSagaKit
 Presentation ───────┐
 WidgetPresentation ─┼─▶ Application ─▶ Domain
 Data ───────────────┘
+
+Presentation ─▶ FilmKit    drawing the saga film (ADR-0037)
 ```
 
 - Swift 6 with strict concurrency, iOS 26+, Swift Testing, with a test target per layer.
