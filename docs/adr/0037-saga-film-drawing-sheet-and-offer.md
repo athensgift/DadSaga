@@ -1,9 +1,9 @@
 # ADR-0037: Drawing the saga film, its sheet, and one offer card for the family
 
-**Status:** Proposed (2026-11-20). Decided by the architect while the owner was away, to let parts 5 and 6 of Phase 3½
-go ahead; the owner accepts or changes it when reviewing them. Fills in ADR-0036 §4–§7 and §9–§10, and changes
-ADR-0024 §3 (the reminder card waits while a film card shows), ADR-0033 (the audit's timeline has an entry) and ADR-0036
-§7 (one offer for the whole family).
+**Status:** Accepted (2026-11-20). Drafted by the architect while the owner was away, to let parts 5 and 6 of Phase 3½
+go ahead; the owner read and accepted it afterwards, with the film as built. Fills in ADR-0036 §4–§7 and §9–§10, and
+changes ADR-0024 §3 (the reminder card waits while a film card shows), ADR-0033 (the audit's timeline has an entry) and
+ADR-0036 §7 (one offer for the whole family).
 
 ## Context
 - ADR-0036 says Presentation draws the film behind a `SagaFilmRendering` protocol, and that view models import neither
@@ -45,11 +45,16 @@ ADR-0024 §3 (the reminder card waits while a film card shows), ADR-0033 (the au
   DadSaga".
 - **Every photo is shown whole** (`FilmFit.fitOverBlur`) in both formats, so a crop never cuts a face.
 - A photo that can't be read leaves its scene's words over the dark background; the film is still made.
+- **Words over a photo** sit at the bottom, on a black scrim that fades in above them. The film is put together in
+  linear light, where a scrim lets more of a photo through than the same opacity does on a screen, so it is 0.84
+  opaque: white text then reaches 4.5:1 over a white photo, and a test measures it.
+- Over a photo a boss's badge name is white, like the title, and only its symbol keeps the boss colour: that colour
+  can't reach 4.5:1 on every photo. On a card of words the badge is all in the boss colour.
 
 ### 3. How it moves
 - Every scene fades in from the one before (12 frames; 9 in the quest montage); only the first starts with a cut.
 - Photos glide (Ken Burns), alternating in and out between zoom 1.0 and 1.12, towards the upper middle where faces
-  usually are. It's the same on every run, so tests and snapshots repeat.
+  usually are (the middle across, 45 % of the way down). It's the same on every run, so tests and snapshots repeat.
 - **Reduce Motion**, read when the dad makes the film, keeps the photos still. Scenes fade either way, and the cards
   never move.
 

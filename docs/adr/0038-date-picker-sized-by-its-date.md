@@ -1,6 +1,6 @@
 # ADR-0038: A date picker as wide as the date it shows
 
-**Status:** Proposed (2026-11-20). The onboarding snapshot at the largest text size failed the day after it was
+**Status:** Accepted (2026-11-20). The onboarding snapshot at the largest text size failed the day after it was
 recorded, with no change to the code; the cause was found with `fable-hard`, which the owner asked for, while the owner
 was away. Changes ADR-0034 (why onboarding's date picker differed between Macs and CI).
 
