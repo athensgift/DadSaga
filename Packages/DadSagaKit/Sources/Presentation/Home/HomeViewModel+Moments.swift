@@ -1,8 +1,10 @@
 import Application
 import Foundation
 
-/// Legendary moments: capture a first for the selected child, or correct one captured earlier.
+/// Legendary moments, in two steps (ADR-0042 §5): choosing the first records it; photos and a few words follow, if
+/// the dad likes. Editing a moment opens straight at the second step.
 extension HomeViewModel {
+    /// Opens step 1 for the selected child.
     public func startCapture() {
         guard let overview else { return }
         errorMessage = nil
@@ -14,50 +16,74 @@ extension HomeViewModel {
         )
     }
 
-    /// Opens a captured moment to change its date, note or photo, or to delete it.
+    /// Step 1's ✓: records the first at once, with its XP, then moves the same sheet on to step 2 with the celebration
+    /// and "Saved · Undo" in it, since home is hidden behind the sheet. On failure step 1 stays, with an error.
+    public func captureMoment(firstID: String, date: Date) async {
+        guard let capture = momentCapture, case .choose(let choice) = capture.step, let childID = selectedChildID,
+              let option = choice.options.first(where: { $0.id == firstID }) else { return }
+        let request = CaptureMomentRequest(firstID: firstID, childID: childID, date: date)
+        guard let change = await record({ try await self.useCases.moments.capture.execute(request, now: self.now()) }),
+              let eventID = change.eventID,
+              let overview,
+              let moment = overview.progress.moments(for: overview.child.id).first(where: { $0.eventID == eventID })
+        else { return }
+        let celebration = makeCelebration(change, moment: "\(option.emoji) \(option.title)")
+        momentCapture?.step = .details(momentsFormatter.details(
+            moment,
+            for: overview.child,
+            now: now(),
+            isNew: true,
+            celebration: celebration,
+            undoOffer: makeUndoOffer(id: celebration.id, eventID: eventID)
+        ))
+    }
+
+    /// Opens a captured moment at step 2, to change its date, note or photos, or to delete it. No celebration.
     public func editMoment(id: UUID) {
         guard let overview,
               let moment = overview.progress.moments(for: overview.child.id).first(where: { $0.eventID == id }) else { return }
         errorMessage = nil
-        momentCapture = momentsFormatter.edit(moment, for: overview.child, now: now())
+        let details = momentsFormatter.details(moment, for: overview.child, now: now(), isNew: false)
+        momentCapture = MomentCapture(id: UUID(), title: overview.child.name, step: .details(details))
     }
 
-    /// Saves the open sheet: a new moment (with XP and a celebration) or changes to an existing one.
-    public func saveMoment(firstID: String, date: Date, note: String, photo: MomentPhotoEdit = .keep) async {
-        guard let capture = momentCapture, let childID = selectedChildID else { return }
-        if let editing = capture.editing {
-            await perform {
-                try await self.useCases.moments.update.execute(
-                    momentID: editing.momentID,
-                    happenedOn: date,
-                    note: note,
-                    photos: photo.photos(keeping: editing.photoIDs),
-                    now: self.now()
-                )
-            }
-        } else if let option = capture.options.first(where: { $0.id == firstID }) {
-            let request = CaptureMomentRequest(
-                firstID: firstID,
-                childID: childID,
-                date: date,
-                note: note,
-                photos: photo.newPhotos
-            )
-            await record(badge: nil, moment: "\(option.emoji) \(option.title)") {
-                try await self.useCases.moments.capture.execute(request, now: self.now())
-            }
-        }
-    }
-
-    /// Deletes the moment being edited, with its photos and XP.
-    public func deleteMoment() async {
-        guard let editing = momentCapture?.editing else { return }
+    /// Step 2's Save: the moment's date, note and photos as the dad left them. Closes the sheet.
+    public func saveMomentDetails(date: Date, note: String, photos: PhotoDrafts) async {
+        guard let details = momentCapture?.details else { return }
         await perform {
-            try await self.useCases.deleteEvent.execute(eventID: editing.momentID)
+            try await self.useCases.moments.update.execute(
+                momentID: details.momentID,
+                happenedOn: date,
+                note: note,
+                photos: photos.entryPhotos,
+                now: self.now()
+            )
         }
     }
 
-    /// Image data for a moment's photo, or `nil` if it is gone.
+    /// Deletes the moment in step 2, with its photos and XP, and closes the sheet: Delete when editing, Undo when new.
+    public func deleteMoment() async {
+        guard let details = momentCapture?.details else { return }
+        await perform {
+            try await self.useCases.deleteEvent.execute(eventID: details.momentID)
+        }
+    }
+
+    /// The celebration in step 2 has played.
+    public func momentCelebrationFinished() {
+        guard var details = momentCapture?.details else { return }
+        details.celebration = nil
+        momentCapture?.step = .details(details)
+    }
+
+    /// The undo offer in step 2 ran out. Ignored if it is not the one shown.
+    public func momentUndoExpired(id: Int) {
+        guard var details = momentCapture?.details, details.undoOffer?.id == id else { return }
+        details.undoOffer = nil
+        momentCapture?.step = .details(details)
+    }
+
+    /// Image data for a stored photo, or `nil` if it is gone.
     public func photoData(id: String, maxPixelSize: Int) async -> Data? {
         await useCases.moments.getPhoto.execute(id: id, maxPixelSize: maxPixelSize)
     }
@@ -74,24 +100,6 @@ extension HomeViewModel {
             await reload()
         } catch {
             errorMessage = saveFailedMessage
-        }
-    }
-}
-
-extension MomentPhotoEdit {
-    /// For a new entry: the photo to store, if one was chosen.
-    var newPhotos: [Data] {
-        if case .replace(let data) = self { [data] } else { [] }
-    }
-
-    /// The entry's photos once the edit is saved. The sheet shows only the cover, so removing or replacing acts on the
-    /// cover alone and the entry's other photos stay, in their order.
-    func photos(keeping current: [String]) -> [EntryPhoto] {
-        let others = current.dropFirst().map(EntryPhoto.kept)
-        return switch self {
-        case .keep: current.map(EntryPhoto.kept)
-        case .remove: others
-        case .replace(let data): [.added(data)] + others
         }
     }
 }

@@ -45,9 +45,9 @@ struct HomeViewModelTests {
         await sut.onAppear()
         sut.select(cardID: "q1")
         #expect(sut.selectedQuest?.lastJournal == nil)
-        #expect(sut.selectedQuest?.journal.sectionTitle == "Σημείωση ή φωτογραφία (προαιρετικά)")
+        #expect(sut.selectedQuest?.journal.sectionTitle == "Σημείωση ή φωτογραφίες (προαιρετικά)")
 
-        await sut.completeSelectedQuest(note: "το λάτρεψε", photo: .keep)
+        await sut.completeSelectedQuest(note: "το λάτρεψε")
         sut.select(cardID: "q1")
 
         #expect(sut.selectedQuest?.lastJournal?.note == "το λάτρεψε")

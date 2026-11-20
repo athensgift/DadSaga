@@ -4,17 +4,10 @@ import SwiftUI
 /// A photo shown whole, never cropped: as wide as it can be, in its own shape kept between 4:5 (portrait) and 16:9
 /// (landscape). A photo taller or wider than that is fitted inside, over a blurred copy of itself.
 struct WholePhoto: View {
-    enum Source: Equatable {
-        /// A photo just picked, not stored yet.
-        case data(Data)
-        /// A photo stored on the device.
-        case stored(String)
-    }
-
     /// The shapes the frame may take, as width over height.
     static let frameRatios: ClosedRange<CGFloat> = (4.0 / 5.0)...(16.0 / 9.0)
 
-    let source: Source
+    let source: PhotoSource
     let loader: PhotoLoader
 
     @State private var photo: DecodedImage?
@@ -22,7 +15,7 @@ struct WholePhoto: View {
     @Environment(\.displayScale) private var displayScale
 
     private struct Request: Equatable {
-        let source: Source
+        let source: PhotoSource
         let maxPixelSize: Int
     }
 

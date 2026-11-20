@@ -198,58 +198,6 @@ extension CelebrationHaptic {
     }
 }
 
-/// The selected child's legendary moments: gold cards, newest first, and a button to capture one.
-struct MomentsSectionView: View {
-    let section: MomentsSection
-    let loader: PhotoLoader
-    let onAdd: () -> Void
-    let onEdit: (UUID) -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: DSSpacing.s) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(section.title)
-                    .font(DSFont.title)
-                    .foregroundStyle(DSColor.textPrimary)
-                    .accessibilityAddTraits(.isHeader)
-                Text(section.progress)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.legendary)
-                    .monospacedDigit()
-                Spacer()
-                if !section.isComplete {
-                    Button(section.addTitle, systemImage: "plus", action: onAdd)
-                        .labelStyle(.iconOnly)
-                        .buttonStyle(.glass)
-                        .tint(DSColor.legendary)
-                }
-            }
-            if section.cards.isEmpty {
-                Button(action: onAdd) {
-                    Label(section.emptyText, systemImage: "sparkles")
-                        .font(DSFont.subheadline)
-                        .foregroundStyle(DSColor.textSecondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(DSSpacing.m)
-                        .background {
-                            RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous)
-                                .strokeBorder(DSColor.legendary.opacity(0.5), style: StrokeStyle(lineWidth: 1.5, dash: [6, 4]))
-                        }
-                }
-                .buttonStyle(.plain)
-            }
-            ForEach(section.cards) { card in
-                Button {
-                    onEdit(card.id)
-                } label: {
-                    MomentCard(card: card, loader: loader)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-    }
-}
-
 /// The world's name and motto, a button to the world map, and a way back when an earlier world is shown.
 struct WorldHeader: View {
     let content: HomeContent

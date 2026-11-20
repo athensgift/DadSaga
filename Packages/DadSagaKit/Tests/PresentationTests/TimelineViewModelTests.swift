@@ -65,7 +65,8 @@ struct TimelineViewModelTests {
         #expect(february.items.map(\.title) == ["👣 Βήματα", "Αφεντικό"])
         #expect(february.items.map(\.kind) == [.moment, .boss])
         #expect(february.items.map(\.badge) == ["+30 XP", "+100 XP"])
-        #expect(february.items.first?.photoID == "p1")
+        #expect(february.items.first?.photoIDs == ["p1"])
+        #expect(february.items.first?.photoCount == "1 φωτογραφία")
         #expect(february.items.first?.subtitle.hasPrefix("Ελένη · ") == true)
         #expect(february.items.first?.subtitle.hasSuffix(" · πρώτα") == true)
         #expect(february.items.last?.subtitle.hasSuffix(" · β") == true)
@@ -129,8 +130,32 @@ struct TimelineViewModelTests {
 
         let prompt = try #require(sut.deletion)
         #expect(prompt.title == "Διαγραφή από το χρονολόγιο;")
-        #expect(prompt.message.contains("φωτογραφία"))
-        #expect(prompt.message.contains("30 XP"))
+        #expect(prompt.message.hasPrefix("Οι φωτογραφίες και η σημείωσή σου θα σβηστούν μαζί του, χωρίς επιστροφή."))
+        #expect(prompt.message.hasSuffix(" Θα αφαιρεθούν τα 30 XP."))
+    }
+
+    @Test("Given a quest with photos and a boss with a note, when asking to delete them, then both warn, in English too")
+    func warnsAboutAnyJournal() async throws {
+        let quest = ProgressEvent(kind: .quest(id: "q1"), childID: HeroStub.niko.id, date: january, photoIDs: ["a", "b"])
+        let boss = ProgressEvent(kind: .boss(id: "b1"), childID: HeroStub.niko.id, date: january, note: "δύσκολη νύχτα")
+        let sut = TimelineViewModel(
+            getProfile: StubGetProfile(profile: HeroStub.profile),
+            getTimeline: log([quest, boss]),
+            getPhoto: StubGetPhoto(),
+            deleteEvent: log([quest, boss]),
+            updateJournal: log([quest, boss]),
+            locale: Locale(identifier: "en_US"),
+            calendar: calendar
+        )
+        await sut.onAppear()
+
+        sut.requestDeletion(id: quest.id)
+        #expect(sut.deletion?.message == "Your photos and note will be deleted with it, for good. Its 20 XP will be removed.")
+        sut.requestDeletion(id: boss.id)
+        #expect(
+            sut.deletion?.message
+                == "Your photos and note will be deleted with it, for good. The badge and its 100 XP will be removed."
+        )
     }
 
     @Test("Given a quest entry, when deleting it and confirming, then it leaves the timeline")
@@ -158,25 +183,29 @@ struct TimelineViewModelTests {
         sut.editJournal(id: quest.id)
         #expect(sut.journalEditor?.title == "Αποστολή")
         #expect(sut.journalEditor?.note == "")
-        await sut.saveJournal(note: "γέλασε πολύ", photo: .keep)
+        await sut.saveJournal(note: "γέλασε πολύ", photos: PhotoDrafts())
 
         #expect(sut.journalEditor == nil)
         #expect(loadedContent(sut)?.sections.last?.items.first?.subtitle.hasSuffix(" · γέλασε πολύ") == true)
     }
 
-    @Test("Given an entry with two photos, when replacing its photo, then the cover changes and the other stays")
-    func replacingKeepsTheOtherPhoto() async throws {
+    @Test("Given an entry with two photos, when adding one and making it the cover, then it is saved first")
+    func savesArrangedPhotos() async throws {
         let quest = ProgressEvent(kind: .quest(id: "q1"), childID: HeroStub.niko.id, date: january, photoIDs: ["a", "b"])
         let sut = makeSUT(profile: HeroStub.profile, events: [quest])
         await sut.onAppear()
-        #expect(loadedContent(sut)?.sections.first?.items.first?.photoID == "a")
+        #expect(loadedContent(sut)?.sections.first?.items.first?.photoIDs == ["a", "b"])
 
         sut.editJournal(id: quest.id)
-        #expect(sut.journalEditor?.photoIDs == ["a", "b"])
-        await sut.saveJournal(note: "", photo: .replace(Data([1])))
+        var photos = PhotoDrafts(storedIDs: try #require(sut.journalEditor?.photoIDs))
+        photos.append([Data([1])])
+        photos.makeCover(id: try #require(photos.items.last?.id))
+        photos.remove(id: "b")
+        await sut.saveJournal(note: "", photos: photos)
 
         sut.editJournal(id: quest.id)
-        #expect(sut.journalEditor?.photoIDs == ["new-photo-0", "b"])
+        #expect(sut.journalEditor?.photoIDs == ["new-photo-0", "a"])
+        #expect(loadedContent(sut)?.sections.first?.items.first?.photoCount == "2 φωτογραφίες")
     }
 
     @Test("Given a boss entry with a note, when appearing, then the badge and the note are both in the subtitle")

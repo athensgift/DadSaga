@@ -19,6 +19,8 @@ public struct TimelineContent: Equatable, Sendable {
     public let emptyMessage: String
     /// "Make a film", while the timeline shows at least one entry (ADR-0037 §6).
     public let filmTitle: String?
+    /// For the rows' photos, full screen.
+    public let viewer: PhotoViewerLabels
 }
 
 public struct TimelineFilter: Equatable, Identifiable, Sendable {
@@ -47,8 +49,10 @@ public struct TimelineItem: Equatable, Identifiable, Sendable {
     public let subtitle: String
     public let badge: String
     public let symbol: String
-    /// The cover, if the entry has photos.
-    public let photoID: String?
+    /// In the dad's order; the first is the cover.
+    public let photoIDs: [String]
+    /// How many photos, for VoiceOver, e.g. "3 φωτογραφίες"; `nil` without photos.
+    public let photoCount: String?
 }
 
 /// The question asked before deleting an entry.
@@ -61,7 +65,7 @@ public struct DeletionPrompt: Equatable, Identifiable, Sendable {
     public let cancelTitle: String
 }
 
-/// An entry's note and photo, open for editing.
+/// An entry's note and photos, open for editing.
 public struct JournalEditor: Equatable, Identifiable, Sendable {
     /// The entry.
     public let id: UUID

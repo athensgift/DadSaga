@@ -45,7 +45,7 @@ extension HomeViewModel {
                 ? strings.text("Last time (\(day))")
                 : strings.text("Last time (\(day)) you wrote:"),
             note: entry.note,
-            photoID: entry.coverPhotoID
+            photoIDs: entry.photoIDs
         )
     }
 }

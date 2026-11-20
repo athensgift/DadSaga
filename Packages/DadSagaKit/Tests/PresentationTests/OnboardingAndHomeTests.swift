@@ -223,8 +223,7 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
         let event = ProgressEvent(
-            kind: .first(id: request.firstID), childID: request.childID,
-            date: request.date, note: request.note, photoIDs: request.photos.map(store)
+            kind: .first(id: request.firstID), childID: request.childID, date: request.date
         )
         events.append(event)
         return ProgressChange(

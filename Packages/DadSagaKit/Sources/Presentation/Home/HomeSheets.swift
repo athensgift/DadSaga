@@ -8,10 +8,10 @@ struct QuestSheet: View {
     let errorMessage: String?
     let isCompleting: Bool
     let loader: PhotoLoader
-    let onConfirm: (_ note: String, _ photo: MomentPhotoEdit) -> Void
+    let onConfirm: (_ note: String, _ photos: PhotoDrafts) -> Void
     let onClose: () -> Void
     @State private var note = ""
-    @State private var photo: MomentPhotoEdit = .keep
+    @State private var photos = PhotoDrafts()
 
     var body: some View {
         NavigationStack {
@@ -26,7 +26,7 @@ struct QuestSheet: View {
                         .foregroundStyle(DSColor.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                     if let last = quest.lastJournal {
-                        LastJournalView(last: last, loader: loader)
+                        LastJournalView(last: last, entry: quest.title, viewerLabels: quest.journal.photo.viewer, loader: loader)
                     }
                     if let tip = quest.tip {
                         StepsPanel(title: tip.title, steps: tip.steps, tint: DSColor.accent, fill: DSColor.accent.opacity(0.08))
@@ -38,7 +38,10 @@ struct QuestSheet: View {
                             .font(DSFont.subheadline)
                             .foregroundStyle(DSColor.textSecondary)
                     }
-                    JournalSection(labels: quest.journal, note: $note, photo: $photo, loader: loader, fill: DSColor.background)
+                    JournalSection(
+                        labels: quest.journal, note: $note, photos: $photos, entry: quest.title, loader: loader,
+                        fill: DSColor.background
+                    )
                     actions
                 }
                 .multilineTextAlignment(.center)
@@ -63,7 +66,7 @@ struct QuestSheet: View {
                     .font(DSFont.caption)
                     .foregroundStyle(DSColor.boss)
             }
-            PrimaryButton(quest.confirmTitle) { onConfirm(note, photo) }
+            PrimaryButton(quest.confirmTitle) { onConfirm(note, photos) }
                 .disabled(isCompleting)
         }
         .frame(maxWidth: .infinity)
@@ -77,10 +80,10 @@ struct BossSheet: View {
     let errorMessage: String?
     let isCompleting: Bool
     let loader: PhotoLoader
-    let onConfirm: (_ note: String, _ photo: MomentPhotoEdit) -> Void
+    let onConfirm: (_ note: String, _ photos: PhotoDrafts) -> Void
     let onClose: () -> Void
     @State private var note = ""
-    @State private var photo: MomentPhotoEdit = .keep
+    @State private var photos = PhotoDrafts()
 
     var body: some View {
         NavigationStack {
@@ -92,7 +95,7 @@ struct BossSheet: View {
                         .foregroundStyle(DSColor.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                     if let last = boss.lastJournal {
-                        LastJournalView(last: last, loader: loader)
+                        LastJournalView(last: last, entry: boss.title, viewerLabels: boss.journal.photo.viewer, loader: loader)
                     }
                     guide
                     // The same safety note as on a quest's tip: readable at a glance.
@@ -100,7 +103,10 @@ struct BossSheet: View {
                         .font(DSFont.subheadline)
                         .foregroundStyle(DSColor.textSecondary)
                     if !boss.isDefeated {
-                        JournalSection(labels: boss.journal, note: $note, photo: $photo, loader: loader, fill: DSColor.surface)
+                        JournalSection(
+                            labels: boss.journal, note: $note, photos: $photos, entry: boss.title, loader: loader,
+                            fill: DSColor.surface
+                        )
                     }
                     actions
                 }
@@ -136,7 +142,7 @@ struct BossSheet: View {
                     .foregroundStyle(DSColor.xp)
                     .padding(.vertical, DSSpacing.s)
             } else {
-                PrimaryButton(boss.confirmTitle) { onConfirm(note, photo) }
+                PrimaryButton(boss.confirmTitle) { onConfirm(note, photos) }
                     .disabled(isCompleting)
             }
         }

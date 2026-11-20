@@ -19,32 +19,48 @@ struct MomentUseCaseTests {
         DefaultCaptureMomentUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
     }
 
-    func request(child: UUID? = nil, date: Date? = nil, note: String? = nil, photos: [Data] = []) -> CaptureMomentRequest {
-        CaptureMomentRequest(firstID: firstID, childID: child ?? self.child, date: date ?? today, note: note, photos: photos)
+    var update: DefaultUpdateMomentUseCase {
+        DefaultUpdateMomentUseCase(progressRepository: repository, photoStore: photos)
     }
 
-    @Test("Given a first not yet captured, when capturing it with a past date, note and photo, then all are stored")
+    func request(child: UUID? = nil, date: Date? = nil) -> CaptureMomentRequest {
+        CaptureMomentRequest(firstID: firstID, childID: child ?? self.child, date: date ?? today)
+    }
+
+    /// A moment captured today, then given a note and photos the way the sheet's second step does.
+    func captured(note: String? = nil, photos added: [Data] = []) async throws -> ProgressEvent {
+        _ = try await capture.execute(request(), now: today)
+        let moment = try #require(try await repository.fetchEvents().first)
+        try await update.execute(
+            momentID: moment.id, happenedOn: moment.date, note: note, photos: added.map(EntryPhoto.added), now: today
+        )
+        return try #require(try await repository.fetchEvents().first)
+    }
+
+    @Test("Given a first not yet captured, when capturing it with a past date, then it is stored with its XP and nothing else")
     func captures() async throws {
         let lastWeek = today.addingTimeInterval(-7 * 86_400)
 
-        let change = try await capture.execute(request(date: lastWeek, note: "  Γέλασε! ", photos: [Data([1, 2, 3])]), now: today)
+        let change = try await capture.execute(request(date: lastWeek), now: today)
 
         #expect(change.gainedXP == 30)
         let event = try #require(try await repository.fetchEvents().first)
+        #expect(change.eventID == event.id)
         #expect(event.kind == .first(id: firstID))
         #expect(event.childID == child)
         #expect(event.date == lastWeek)
-        #expect(event.note == "Γέλασε!")
-        #expect(await photos.stored == [try #require(event.coverPhotoID): Data([1, 2, 3])])
-        #expect(change.after.moments(for: child).map(\.photoIDs) == [event.photoIDs])
-    }
-
-    @Test("Given a blank note and no photo, when capturing, then neither is stored")
-    func blankNote() async throws {
-        _ = try await capture.execute(request(note: "   "), now: today)
-        let event = try #require(try await repository.fetchEvents().first)
         #expect(event.note == nil)
         #expect(event.photoIDs.isEmpty)
+        #expect(await photos.saveCount == 0)
+    }
+
+    @Test("Given a captured first, when its second step adds a note and photos, then they are stored in order")
+    func detailsAfterCapture() async throws {
+        let event = try await captured(note: "  Γέλασε! ", photos: [Data([1, 2, 3]), Data([4])])
+
+        #expect(event.note == "Γέλασε!")
+        #expect(event.photoIDs.count == 2)
+        #expect(await photos.stored[try #require(event.coverPhotoID)] == Data([1, 2, 3]))
     }
 
     @Test("Given a first already captured for this child, when capturing again, then it throws; another child is fine")
@@ -52,9 +68,8 @@ struct MomentUseCaseTests {
         _ = try await capture.execute(request(), now: today)
 
         await #expect(throws: MomentError.alreadyCaptured(firstID)) {
-            try await capture.execute(request(photos: [Data([9])]), now: today)
+            try await capture.execute(request(), now: today)
         }
-        #expect(await photos.saveCount == 0)
         _ = try await capture.execute(request(child: UUID()), now: today)
         #expect(try await repository.fetchEvents().count == 2)
     }
@@ -73,9 +88,8 @@ struct MomentUseCaseTests {
 
     @Test("Given a moment with a photo, when replacing the photo and changing date and note, then the old photo is deleted")
     func updateReplacesPhoto() async throws {
-        _ = try await capture.execute(request(note: "πριν", photos: [Data([1])]), now: today)
-        let moment = try #require(try await repository.fetchEvents().first)
-        let sut = DefaultUpdateMomentUseCase(progressRepository: repository, photoStore: photos)
+        let moment = try await captured(note: "πριν", photos: [Data([1])])
+        let sut = update
         let yesterday = today.addingTimeInterval(-86_400)
 
         try await sut.execute(momentID: moment.id, happenedOn: yesterday, note: "μετά", photos: [.added(Data([2]))], now: today)
@@ -93,8 +107,7 @@ struct MomentUseCaseTests {
 
     @Test("Given saving fails, when replacing a moment's photo, then the new photo is removed and the old one stays")
     func failedUpdateLeavesNoPhoto() async throws {
-        _ = try await capture.execute(request(photos: [Data([1])]), now: today)
-        let moment = try #require(try await repository.fetchEvents().first)
+        let moment = try await captured(photos: [Data([1])])
         let sut = DefaultUpdateMomentUseCase(progressRepository: FailingUpdates(repository), photoStore: photos)
 
         await #expect(throws: FailingUpdates.Failure.self) {
@@ -106,8 +119,7 @@ struct MomentUseCaseTests {
 
     @Test("Given saving fails, when replacing an entry's photo from the journal, then no new photo is left behind")
     func failedJournalUpdateLeavesNoPhoto() async throws {
-        _ = try await capture.execute(request(photos: [Data([1])]), now: today)
-        let moment = try #require(try await repository.fetchEvents().first)
+        let moment = try await captured(photos: [Data([1])])
         let sut = DefaultUpdateJournalUseCase(progressRepository: FailingUpdates(repository), photoStore: photos)
 
         await #expect(throws: FailingUpdates.Failure.self) {
@@ -119,9 +131,8 @@ struct MomentUseCaseTests {
 
     @Test("Given a moment with a photo, when keeping or removing the photo, then it stays or is deleted")
     func updateKeepsOrRemovesPhoto() async throws {
-        _ = try await capture.execute(request(photos: [Data([1])]), now: today)
-        let moment = try #require(try await repository.fetchEvents().first)
-        let sut = DefaultUpdateMomentUseCase(progressRepository: repository, photoStore: photos)
+        let moment = try await captured(photos: [Data([1])])
+        let sut = update
 
         try await sut.execute(
             momentID: moment.id, happenedOn: today, note: nil, photos: moment.photoIDs.map(EntryPhoto.kept), now: today
@@ -136,8 +147,7 @@ struct MomentUseCaseTests {
 
     @Test("Given a moment, when deleting it, then the event, its photo and its XP are gone")
     func deletes() async throws {
-        _ = try await capture.execute(request(photos: [Data([1])]), now: today)
-        let moment = try #require(try await repository.fetchEvents().first)
+        let moment = try await captured(photos: [Data([1])])
 
         try await DefaultDeleteEventUseCase(progressRepository: repository, photoStore: photos).execute(eventID: moment.id)
 

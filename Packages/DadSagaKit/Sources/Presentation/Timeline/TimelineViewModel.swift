@@ -69,23 +69,16 @@ public final class TimelineViewModel {
         await getPhoto.execute(id: id, maxPixelSize: maxPixelSize)
     }
 
-    /// Asks before deleting an entry. A moment with a photo or a note says plainly that those go too.
+    /// Asks before deleting an entry. One with photos or a note says plainly that they go too, for good.
     public func requestDeletion(id: UUID) {
         guard let entry = entries.first(where: { $0.id == id }) else { return }
         errorMessage = nil
-        let message: String
-        switch entry.kind {
-        case .first where !entry.photoIDs.isEmpty || entry.note != nil:
-            message = strings.text(
-                """
-                Your photo and note will be deleted with it, for good. Its \(entry.xp) XP will be removed too.
-                """
-            )
-        case .boss:
-            message = strings.text("The badge and its \(entry.xp) XP will be removed.")
-        default:
-            message = strings.text("Its \(entry.xp) XP will be removed.")
-        }
+        let isBoss = if case .boss = entry.kind { true } else { false }
+        let xp = isBoss
+            ? strings.text("The badge and its \(entry.xp) XP will be removed.")
+            : strings.text("Its \(entry.xp) XP will be removed.")
+        let hasJournal = !entry.photoIDs.isEmpty || entry.note != nil
+        let message = hasJournal ? strings.text("Your photos and note will be deleted with it, for good.") + " " + xp : xp
         deletion = DeletionPrompt(
             id: id,
             title: strings.text("Delete from the timeline?"),
@@ -114,7 +107,7 @@ public final class TimelineViewModel {
         }
     }
 
-    /// Opens the note and photo of an entry, to add, change or remove them.
+    /// Opens the note and photos of an entry, to add, change or remove them.
     public func editJournal(id: UUID) {
         guard let entry = entries.first(where: { $0.id == id }) else { return }
         errorMessage = nil
@@ -132,12 +125,12 @@ public final class TimelineViewModel {
         journalEditor = nil
     }
 
-    public func saveJournal(note: String, photo: MomentPhotoEdit) async {
+    public func saveJournal(note: String, photos: PhotoDrafts) async {
         guard let editor = journalEditor, !isSaving else { return }
         isSaving = true
         defer { isSaving = false }
         do {
-            try await updateJournal.execute(eventID: editor.id, note: note, photos: photo.photos(keeping: editor.photoIDs))
+            try await updateJournal.execute(eventID: editor.id, note: note, photos: photos.entryPhotos)
             journalEditor = nil
             await onAppear()
         } catch {
@@ -152,7 +145,7 @@ public final class TimelineViewModel {
 
     /// The labels of the row's actions.
     public var editTitle: String {
-        strings.text("Note and photo")
+        strings.text("Note and photos")
     }
 
     /// The label of the row's delete action.
@@ -175,7 +168,8 @@ public final class TimelineViewModel {
             sections: sections(for: shown, showChild: hasSiblings && selectedFilter == nil),
             emptyTitle: strings.text("No memories yet"),
             emptyMessage: strings.text("Everything you do with your kids will gather here."),
-            filmTitle: shown.isEmpty ? nil : strings.text("Make a film")
+            filmTitle: shown.isEmpty ? nil : strings.text("Make a film"),
+            viewer: PhotoViewerLabels(locale: locale)
         )
     }
 
@@ -220,7 +214,8 @@ public final class TimelineViewModel {
             subtitle: [child, day, detail].compactMap(\.self).joined(separator: " · "),
             badge: "+\(entry.xp) XP",
             symbol: symbol,
-            photoID: entry.coverPhotoID
+            photoIDs: entry.photoIDs,
+            photoCount: PhotoViewerLabels(locale: locale).photoCount(entry.photoIDs.count)
         )
     }
 
