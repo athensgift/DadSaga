@@ -36,8 +36,13 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
 - Redesign, don't bolt on: for a new requirement, ask what you would have built had it been there from the start.
 
 ## Subagents
-- A new feature: `architect` plans, the main session implements, `reviewer` checks, then the PR.
+- A change across layers, or one touching persistence, sync, media or the film: `architect` plans first. A change in
+  one layer only (a UI tweak, copy) skips the plan.
+- `reviewer` checks every PR before it is opened, small ones too: it finds the most.
 - If a fix fails twice, stop and suggest `fable-hard`. It costs usage credits: never start it until the owner asks.
 
 ## Git
 Gitflow ([ADR-0009](docs/adr/0009-gitflow.md)): `feature/<name>` from `develop`, PR back into `develop`.
+- Work that touches the same files goes in one PR rather than several (e.g. the data model in one, all its UI in the next).
+- Several sessions at once: each works in its own git worktree, never in another session's checkout, which may switch
+  branch under it.
