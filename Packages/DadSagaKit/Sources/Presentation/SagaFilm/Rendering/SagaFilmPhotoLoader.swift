@@ -12,7 +12,7 @@ struct SagaFilmPhotoLoader: Sendable {
     }
 
     /// How close the camera may come to a photo's subject (ADR-0047 §3).
-    static let subjectZoomLimit = 1.25
+    static let subjectZoomLimit = 1.4
     /// Where a glide ends when the photo has no subject: a little closer, towards the upper middle, where faces
     /// usually are. Near enough to the middle that the glide never moves a photo's edge into the frame.
     static let closeUp = FilmCamera(zoom: 1.12, centerX: 0.5, centerY: 0.45)

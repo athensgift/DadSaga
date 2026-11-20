@@ -2,7 +2,7 @@
 
 **Status:** Proposed (2026-11-20). The owner asked for Apple's on-device Vision to choose an entry's further photos
 for the film and to keep faces in view; drafted by the architect. The owner then chose both halves, and for the
-framing: the children before the adults, and a close-up on them of at most 1.25, always zooming in on a child (§3).
+framing: the children before the adults, and a close-up on them of at most 1.4, always zooming in on a child (§3).
 Changes ADR-0042 §6 (which of an entry's further photos fill its places in the film), ADR-0037 §3 (where a photo's
 glide goes, and how close it gets), and ADR-0036 §3 and §5 (`FilmKit` aims a camera at a part of a picture; the film's
 photos are looked at while the film is made).
@@ -77,8 +77,8 @@ photos are looked at while the film is made).
   its size, leaving out faces less than a third of the tallest one's height (people in the background). With no face
   classed as a child, all the faces, by the same rule, so a misclassified child is framed as with plain face
   detection. With no face, the union of the attention-based salient objects; otherwise none.
-- **The close-up is on the subject, at most 1.25.** The close end of a glide is the closest camera on the subject,
-  capped at 1.25 (`SagaFilmPhotoLoader.subjectZoomLimit`), never below 1. The subject stays whole: when it is too large
+- **The close-up is on the subject, at most 1.4.** The close end of a glide is the closest camera on the subject,
+  capped at 1.4 (`SagaFilmPhotoLoader.subjectZoomLimit`), never below 1. The subject stays whole: when it is too large
   for the cap, the zoom is lower, never the subject cut. Without a subject, today's 1.12 towards today's fixed point.
   Zoom 1 still shows the whole photo.
 - **A child is always zoomed in on.** Glides alternate in and out as before, except that a photo where a child is found
@@ -93,7 +93,7 @@ photos are looked at while the film is made).
 - **The motion comes with the photo.** A clip's photo loader returns a `FilmPhoto`: the image and, optionally, the
   motion that replaces the clip's own, since the camera can only be aimed once the photo is known.
 - Reduce Motion keeps photos still, as before, and the subject is not looked for.
-- Not done: cropping a photo to fill the frame around its subject. The owner chose the close-up capped at 1.25
+- Not done: cropping a photo to fill the frame around its subject. The owner chose the close-up capped at 1.4
   instead, so ADR-0037 §2 holds: every photo is shown whole at zoom 1.
 
 ### 4. When: while the film is made, quickly, and never stored
@@ -158,7 +158,7 @@ photos are looked at while the film is made).
   scenes and seconds don't change; the cover is never replaced; no ratings, equal ratings or one unrated photo give
   today's storyboard. The subject: the children's faces and not the adults' when both are there; all faces when
   none is a child; small faces left out; saliency without faces; none without either; always inside the photo.
-- **FilmKit:** the closest camera on a small focus stops at 1.25, on it; a focus larger than the close-up lowers the
+- **FilmKit:** the closest camera on a small focus stops at 1.4, on it; a focus larger than the close-up lowers the
   zoom and stays whole; a focus at a picture's edge keeps the edge out of the frame; a picture narrower than the frame
   stays in the middle; a photo that brings its own motion moves the clip by it.
 - **Application:** with a fake analyser, the best further photos fill an entry's places and only its candidates are
@@ -167,14 +167,14 @@ photos are looked at while the film is made).
 - **Data:** Vision's box from the lower left maps to the same box from the top left; bytes that aren't an image give
   empty answers; on a generated image, whatever Vision answers stays in range. No test expects Vision's numbers.
 - **Presentation:** the film made by the sheet plays an entry's best further photos; a photo with a subject glides to
-  it at 1.25; one without glides as today; under Reduce Motion it stays still.
+  it at 1.4; one without glides as today; under Reduce Motion it stays still.
 - Every test of the film, and the snapshots, use a fake analyser or none: Vision's output never decides whether a test
   passes. No snapshot image changes (the cards have no camera).
 
 ## Consequences
 - A film leans towards the dad's most memorable photos of each entry, and his fifth photo can now be in it. It is never
   longer, and never has fewer photos, than before.
-- The camera goes to the children and closer than before, up to 1.25, and a face that Vision finds is never cut. A
+- The camera goes to the children and closer than before, up to 1.4, and a face that Vision finds is never cut. A
   face it misses is framed as today; a child it takes for an adult is framed with the others.
 - How well `ClassifyImageRequest` tells a child's face crop from an adult's is not known: it is checked on the owner's
   own photos on a device, with the timing, before this ADR is accepted.

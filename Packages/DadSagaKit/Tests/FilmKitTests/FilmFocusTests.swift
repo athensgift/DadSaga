@@ -15,12 +15,12 @@ extension FilmKitTests {
         func smallFocusCapped() {
             let focus = FilmRegion(left: 0.4, top: 0.3, width: 0.1, height: 0.1)
 
-            let camera = FilmCamera.closest(on: focus, pictureSize: square, spec: wide, fit: .fitOverBlur, maxZoom: 1.25)
+            let camera = FilmCamera.closest(on: focus, pictureSize: square, spec: wide, fit: .fitOverBlur, maxZoom: 1.4)
 
             // The square photo is narrower than the wide frame: it stays in the middle across. Down, the camera goes
             // as high as it can without the photo's top edge coming into the frame.
-            #expect(camera.zoom == 1.25)
-            #expect(camera.centerX == 0.5 && abs(camera.centerY - 0.4) < 1e-9)
+            #expect(camera.zoom == 1.4)
+            #expect(camera.centerX == 0.5 && abs(camera.centerY - 0.5 / 1.4) < 1e-9)
         }
 
         @Test("Given a focus taller than the close-up shows, when finding the camera, then the zoom is lowered to fit it")
@@ -29,10 +29,10 @@ extension FilmKitTests {
             let photo = CGSize(width: 2000, height: 1000)
             let focus = FilmRegion(left: 0.3, top: 0.02, width: 0.2, height: 0.95)
 
-            let camera = FilmCamera.closest(on: focus, pictureSize: photo, spec: wide, fit: .fitOverBlur, maxZoom: 1.25)
+            let camera = FilmCamera.closest(on: focus, pictureSize: photo, spec: wide, fit: .fitOverBlur, maxZoom: 1.4)
             let seenDown = 1080.0 / (1000 * 0.96) / camera.zoom
 
-            #expect(camera.zoom > 1 && camera.zoom < 1.25)
+            #expect(camera.zoom > 1 && camera.zoom < 1.4)
             #expect(camera.centerY - seenDown / 2 <= focus.top + 1e-9)
             #expect(camera.centerY + seenDown / 2 >= focus.top + focus.height - 1e-9)
         }
@@ -43,10 +43,10 @@ extension FilmKitTests {
             let photo = CGSize(width: 1920, height: 1080)
             let focus = FilmRegion(left: 0.9, top: 0.9, width: 0.08, height: 0.08)
 
-            let camera = FilmCamera.closest(on: focus, pictureSize: photo, spec: wide, fit: .fitOverBlur, maxZoom: 1.25)
+            let camera = FilmCamera.closest(on: focus, pictureSize: photo, spec: wide, fit: .fitOverBlur, maxZoom: 1.4)
             let half = 1 / camera.zoom / 2
 
-            #expect(camera.zoom == 1.25)
+            #expect(camera.zoom == 1.4)
             #expect(abs(camera.centerX - (1 - half)) < 1e-9 && abs(camera.centerY - (1 - half)) < 1e-9)
             #expect(camera.centerX + half >= focus.left + focus.width)
         }
@@ -56,11 +56,11 @@ extension FilmKitTests {
             let tall = CGSize(width: 600, height: 1200)
             let focus = FilmRegion(left: 0.05, top: 0.2, width: 0.1, height: 0.1)
 
-            let camera = FilmCamera.closest(on: focus, pictureSize: tall, spec: wide, fit: .fitOverBlur, maxZoom: 1.25)
+            let camera = FilmCamera.closest(on: focus, pictureSize: tall, spec: wide, fit: .fitOverBlur, maxZoom: 1.4)
 
             // The photo is half as wide as the frame shows across, even zoomed in: it stays in the middle across.
             #expect(camera.centerX == 0.5)
-            #expect(abs(camera.centerY - 0.4) < 1e-9)
+            #expect(abs(camera.centerY - 0.5 / 1.4) < 1e-9)
         }
 
         @Test("Given a photo whose loader brings its own motion, when encoding, then the clip moves by it")

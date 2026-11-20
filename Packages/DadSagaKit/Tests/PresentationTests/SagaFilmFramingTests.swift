@@ -5,7 +5,7 @@ import Foundation
 @testable import Presentation
 import Testing
 
-/// The film's camera on each photo's subject: the children first, at most 1.25 (ADR-0047 §3).
+/// The film's camera on each photo's subject: the children first, at most 1.4 (ADR-0047 §3).
 @Suite("Saga film: framing a photo")
 struct SagaFilmFramingTests {
     let spec = FilmSpec(width: 180, height: 320)
@@ -17,7 +17,7 @@ struct SagaFilmFramingTests {
         return SagaFilmPhotoLoader(getPhoto: StubPhotos(["p": photo]), findSubject: FixedPhotoSubject(subject: subject))
     }
 
-    @Test("Given a photo of a child, when its turn is to glide out, then it glides in on the child at 1.25")
+    @Test("Given a photo of a child, when its turn is to glide out, then it glides in on the child at 1.4")
     func childAlwaysGlidesIn() async throws {
         let photo = try await loader(subject: PhotoFraming(region: small, showsChild: true))
             .photo(id: "p", spec: spec, glide: .outward)
@@ -27,8 +27,8 @@ struct SagaFilmFramingTests {
             return
         }
         #expect(start == FilmCamera())
-        #expect(end.zoom == 1.25)
-        #expect(abs(end.centerX - 0.4) < 1e-9 && abs(end.centerY - 0.4) < 1e-9)
+        #expect(end.zoom == 1.4)
+        #expect(abs(end.centerX - 0.5 / 1.4) < 1e-9 && abs(end.centerY - 0.5 / 1.4) < 1e-9)
     }
 
     @Test("Given a photo of adults only, when its turn is to glide out, then it glides out from their faces")
@@ -40,7 +40,7 @@ struct SagaFilmFramingTests {
             Issue.record("The photo should glide")
             return
         }
-        #expect(start.zoom == 1.25 && abs(start.centerX - 0.4) < 1e-9)
+        #expect(start.zoom == 1.4 && abs(start.centerX - 0.5 / 1.4) < 1e-9)
         #expect(end == FilmCamera())
     }
 
