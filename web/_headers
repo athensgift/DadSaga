@@ -4,5 +4,5 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   # no-transform keeps Cloudflare's Email Address Obfuscation from rewriting the mailto links into a script the CSP blocks.
   Cache-Control: no-transform
-  Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self'; script-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
+  Content-Security-Policy: default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'
 
