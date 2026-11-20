@@ -149,6 +149,7 @@ public struct HomeView: View {
             FamilyStage(
                 heroStyle: style,
                 heroSkin: content.heroSkin.avatarSkin,
+                heroFeatures: content.heroAppearance.avatarFeatures,
                 heroGear: content.heroGear.map(\.heroItem),
                 medals: content.medalCount,
                 heroTitle: content.heroTitle,

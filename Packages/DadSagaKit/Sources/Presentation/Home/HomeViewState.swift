@@ -12,6 +12,7 @@ public struct HomeContent: Equatable, Sendable {
     public let heroTagline: String
     public let heroLook: HeroLook
     public let heroSkin: SkinToneChoice
+    public let heroAppearance: DadAppearanceChoice
     /// Earned gear, one per skill at most.
     public let heroGear: [HeroGearLook]
     /// Bosses defeated with any child: one medal each.

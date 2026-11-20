@@ -133,7 +133,7 @@ public struct SettingsView: View {
     private func heroSection(_ content: SettingsContent) -> some View {
         Section {
             row(content.heroTitle, systemImage: "figure.fencing") {
-                page = .hero(pages.makeHero { page = nil })
+                page = .hero(pages.makeHero())
             }
             row(content.wardrobeTitle, systemImage: "tshirt") {
                 page = .wardrobe(pages.makeWardrobe())

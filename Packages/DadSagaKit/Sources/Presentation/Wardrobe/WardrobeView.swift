@@ -42,6 +42,7 @@ public struct WardrobeView: View {
                     style: style,
                     size: 200,
                     skin: content.heroSkin.avatarSkin,
+                    features: content.heroAppearance.avatarFeatures,
                     items: content.gear.map(\.heroItem),
                     medals: content.medalCount
                 )

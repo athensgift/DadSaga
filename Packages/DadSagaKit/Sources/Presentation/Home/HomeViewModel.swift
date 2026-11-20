@@ -205,6 +205,7 @@ public final class HomeViewModel {
             heroTagline: hero?.tagline.resolved(for: locale) ?? "",
             heroLook: HeroLook(look: hero?.look),
             heroSkin: SkinToneChoice(profile.dadSkinTone),
+            heroAppearance: DadAppearanceChoice(profile.dadAppearance),
             heroGear: overview.equippedGear.compactMap { HeroGearLook(look: $0.look) },
             medalCount: progress.allDefeatedBossIDs.count,
             companionLine: hasSiblings ? profile.children.map(\.name).joined(separator: " · ") : childLine,

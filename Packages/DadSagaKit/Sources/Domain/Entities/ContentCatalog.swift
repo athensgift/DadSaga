@@ -1,4 +1,5 @@
-/// All game content: worlds, quests, boss fights, legendary moments, hero classes and hero gear.
+/// All game content: worlds, quests, boss fights, legendary moments, hero classes, hero gear and the names of the
+/// dad's look options.
 public struct ContentCatalog: Hashable, Sendable {
     public let worlds: [World]
     public let quests: [Quest]
@@ -6,6 +7,8 @@ public struct ContentCatalog: Hashable, Sendable {
     public let firsts: [FirstMoment]
     public let heroClasses: [HeroClass]
     public let gear: [GearItem]
+    /// In the order the menus show them.
+    public let appearanceOptions: [DadAppearanceOption]
 
     public init(
         worlds: [World],
@@ -13,7 +16,8 @@ public struct ContentCatalog: Hashable, Sendable {
         bosses: [BossFight],
         firsts: [FirstMoment],
         heroClasses: [HeroClass] = [],
-        gear: [GearItem] = []
+        gear: [GearItem] = [],
+        appearanceOptions: [DadAppearanceOption] = []
     ) {
         self.worlds = worlds.sorted { $0.order < $1.order }
         self.quests = quests
@@ -21,6 +25,7 @@ public struct ContentCatalog: Hashable, Sendable {
         self.firsts = firsts.sorted { $0.order < $1.order }
         self.heroClasses = heroClasses.sorted { $0.order < $1.order }
         self.gear = gear
+        self.appearanceOptions = appearanceOptions
     }
 
     /// Whether the content an event points to is in the catalog.

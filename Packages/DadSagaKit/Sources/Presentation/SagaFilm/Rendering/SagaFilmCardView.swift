@@ -76,6 +76,7 @@ struct SagaFilmCardView: View {
             FamilyStage(
                 heroStyle: family.hero.avatarStyle,
                 heroSkin: family.heroSkin.avatarSkin,
+                heroFeatures: family.heroAppearance.avatarFeatures,
                 heroGear: family.heroGear.map(\.heroItem),
                 medals: family.medals,
                 heroTitle: "",

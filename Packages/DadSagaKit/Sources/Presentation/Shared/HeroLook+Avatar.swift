@@ -35,6 +35,54 @@ extension SkinToneChoice {
     }
 }
 
+extension DadAppearanceChoice {
+    var avatarFeatures: HeroAvatar.Features {
+        HeroAvatar.Features(hair: hair.avatar, hairColor: hairColor.avatar, beard: beard.avatar, glasses: glasses.avatar)
+    }
+}
+
+private extension DadAppearanceChoice.Hair {
+    var avatar: HeroAvatar.Features.Hair {
+        switch self {
+        case .short: .short
+        case .curly: .curly
+        case .long: .long
+        case .shaved: .shaved
+        }
+    }
+}
+
+private extension DadAppearanceChoice.HairColor {
+    var avatar: HeroAvatar.Features.HairColor {
+        switch self {
+        case .black: .black
+        case .brown: .brown
+        case .blond: .blond
+        case .red: .red
+        case .grey: .grey
+        }
+    }
+}
+
+private extension DadAppearanceChoice.Beard {
+    var avatar: HeroAvatar.Features.Beard {
+        switch self {
+        case .none: .none
+        case .short: .short
+        case .full: .full
+        }
+    }
+}
+
+private extension DadAppearanceChoice.Glasses {
+    var avatar: HeroAvatar.Features.Glasses {
+        switch self {
+        case .none: .none
+        case .round: .round
+        }
+    }
+}
+
 extension CompanionStage {
     var avatarStage: ChildAvatar.Stage {
         switch self {

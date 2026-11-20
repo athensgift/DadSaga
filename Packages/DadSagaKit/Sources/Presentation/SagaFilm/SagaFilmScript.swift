@@ -75,6 +75,8 @@ public enum SagaFilmCard: Equatable, Sendable {
 public struct SagaFilmFamily: Equatable, Sendable {
     public let hero: HeroLook
     public let heroSkin: SkinToneChoice
+    /// As the dad looks now: the film keeps no history of his look (ADR-0044 §7).
+    public let heroAppearance: DadAppearanceChoice
     public let heroGear: [HeroGearLook]
     public let medals: Int
     public let child: CompanionModel

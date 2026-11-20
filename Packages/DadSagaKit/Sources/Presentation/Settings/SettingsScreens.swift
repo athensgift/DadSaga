@@ -14,7 +14,7 @@ public struct SettingsActions {
 
 /// Builds the pages pushed from Settings. Each page's presenter is built once, when its row is tapped.
 public struct SettingsPages {
-    public typealias MakeHero = @MainActor (_ onSaved: @escaping @MainActor () -> Void) -> HeroSettingsViewModel
+    public typealias MakeHero = @MainActor () -> HeroSettingsViewModel
     public typealias MakeFamily = @MainActor (_ onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel
     public typealias MakeReminder = @MainActor () -> ReminderSettingsViewModel
     public typealias MakeWardrobe = @MainActor () -> WardrobeViewModel

@@ -226,13 +226,12 @@ struct SagaFixture {
 
     var settingsPages: SettingsPages {
         SettingsPages(
-            makeHero: { onSaved in
+            makeHero: {
                 HeroSettingsViewModel(
                     getHeroChoice: DefaultGetHeroChoiceUseCase(contentRepository: content, profileRepository: store.profiles),
                     updateHero: DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: store.profiles),
                     locale: locale,
-                    now: Self.today,
-                    onSaved: onSaved
+                    now: Self.today
                 )
             },
             makeWardrobe: { wardrobe() },

@@ -13,6 +13,7 @@ public struct HeroAvatar: View {
     private let size: CGFloat
     private let cheerTrigger: Int
     private let skin: AvatarSkin
+    private let features: Features
     private let equipment: HeroEquipment
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.avatarsAreStill) private var isStill
@@ -24,6 +25,7 @@ public struct HeroAvatar: View {
     ///   - size: the avatar's height in points.
     ///   - cheerTrigger: change this value to make the hero cheer, as if he had been tapped.
     ///   - skin: the dad's skin tone.
+    ///   - features: the dad's hair, beard and glasses.
     ///   - items: earned gear to draw; at most one per slot (the last one wins).
     ///   - medals: boss medals on the chest; up to four are drawn.
     public init(
@@ -31,6 +33,7 @@ public struct HeroAvatar: View {
         size: CGFloat = 200,
         cheerTrigger: Int = 0,
         skin: AvatarSkin = .mediumLight,
+        features: Features = .standard,
         items: [HeroItem] = [],
         medals: Int = 0
     ) {
@@ -38,6 +41,7 @@ public struct HeroAvatar: View {
         self.size = size
         self.cheerTrigger = cheerTrigger
         self.skin = skin
+        self.features = features
         equipment = HeroEquipment(items: items, medals: medals)
     }
 
@@ -50,6 +54,7 @@ public struct HeroAvatar: View {
             )
         }
         .environment(\.avatarSkin, skin)
+        .environment(\.heroFeatures, features)
         .environment(\.heroEquipment, equipment)
         .scaleEffect(size / HeroFigure.designSize.height)
         .frame(width: size * HeroFigure.designSize.width / HeroFigure.designSize.height, height: size)
@@ -185,6 +190,7 @@ struct HeroFigure: View {
     let pose: HeroPose
     let isCheering: Bool
     @Environment(\.heroEquipment) private var equipment
+    @Environment(\.heroFeatures) private var features
 
     /// Super Dad hovers above the ground instead of standing on it.
     private var hover: CGFloat { style == .hero ? pose.bob - 6 : 0 }
@@ -221,7 +227,7 @@ struct HeroFigure: View {
                 if let item = equipment.item(in: .shoulder) {
                     HeroShoulderItem(item: item, glow: pose.glow)
                 }
-                HeroHead(pose: pose, isCheering: isCheering)
+                HeroHead(pose: pose, isCheering: isCheering, glasses: style.wornGlasses(features.glasses))
                 HeroHeadgear(style: style, pose: pose)
             }
             .offset(y: 12 + pose.bob + hover + (isCheering ? -18 : 0))
@@ -240,6 +246,24 @@ func heroGradient(_ top: Color, _ bottom: Color) -> LinearGradient {
     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3)) {
         ForEach(HeroAvatar.Style.allCases, id: \.self) { style in
             HeroAvatar(style: style, size: 170)
+        }
+    }
+    .padding()
+    .background(DSColor.background)
+}
+
+#Preview("Looks") {
+    let looks: [HeroAvatar.Features] = [
+        .standard,
+        .init(hair: .curly, hairColor: .red, beard: .short, glasses: .round),
+        .init(hair: .long, hairColor: .blond, beard: .none),
+        .init(hair: .shaved, hairColor: .grey, beard: .full, glasses: .round),
+        .init(hair: .short, hairColor: .black, beard: .none, glasses: .round),
+        .init(hair: .curly, hairColor: .brown, beard: .full)
+    ]
+    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3)) {
+        ForEach(Array(zip(HeroAvatar.Style.allCases, looks)), id: \.0) { style, look in
+            HeroAvatar(style: style, size: 170, skin: .medium, features: look)
         }
     }
     .padding()

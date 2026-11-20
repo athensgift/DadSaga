@@ -115,21 +115,20 @@ final class AppContainer {
 
     var settingsPages: SettingsPages {
         SettingsPages(
-            makeHero: { [unowned self] in makeHeroSettingsViewModel(onSaved: $0) },
+            makeHero: { [unowned self] in makeHeroSettingsViewModel() },
             makeWardrobe: { [unowned self] in makeWardrobeViewModel() },
             makeFamily: { [unowned self] in makeFamilyViewModel(onSaved: $0) },
             makeReminder: { [unowned self] in makeReminderSettingsViewModel() }
         )
     }
 
-    func makeHeroSettingsViewModel(onSaved: @escaping @MainActor () -> Void) -> HeroSettingsViewModel {
+    func makeHeroSettingsViewModel() -> HeroSettingsViewModel {
         HeroSettingsViewModel(
             getHeroChoice: DefaultGetHeroChoiceUseCase(
                 contentRepository: contentRepository,
                 profileRepository: store.profiles
             ),
-            updateHero: DefaultUpdateHeroUseCase(contentRepository: contentRepository, profileRepository: store.profiles),
-            onSaved: onSaved
+            updateHero: DefaultUpdateHeroUseCase(contentRepository: contentRepository, profileRepository: store.profiles)
         )
     }
 

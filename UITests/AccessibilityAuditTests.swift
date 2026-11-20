@@ -42,12 +42,15 @@ final class AccessibilityAuditTests: XCTestCase {
         tap(app.buttons["I did it!"])
         sleep(1)
 
-        app.navigationBars.buttons["Wardrobe"].tap()
-        audit("Wardrobe")
-        close()
-
         app.navigationBars.buttons["Settings"].tap()
         audit("Settings")
+        // Your hero and the wardrobe are pages inside Settings (ADR-0044).
+        tap(app.buttons["Your hero"])
+        audit("Your hero")
+        back()
+        tap(app.buttons["Wardrobe"])
+        audit("Wardrobe")
+        back()
         close()
 
         // Home scrolled down for the quest, which shrinks the tab bar to its current tab.
@@ -134,6 +137,12 @@ final class AccessibilityAuditTests: XCTestCase {
         let grabber = close.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0))
             .withOffset(CGVector(dx: 120, dy: -8))
         grabber.press(forDuration: 0.1, thenDragTo: app.windows.firstMatch.coordinate(withNormalizedOffset: .zero))
+        sleep(1)
+    }
+
+    /// The back button of a page pushed inside a sheet.
+    private func back() {
+        app.navigationBars.buttons.element(boundBy: 0).tap()
         sleep(1)
     }
 

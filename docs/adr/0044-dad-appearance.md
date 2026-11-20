@@ -115,7 +115,7 @@ design canvas.
 
 ### 5. One field on the profile, one port extended
 - **Domain:** `DadAppearance` (`hair`, `hairColor`, `beard`, `glasses`: nested enums with `String` raw values, and
-  `Part`), with `DadAppearance.standard(for: SkinTone)`; `AppearanceOption` (`part`, `id`, `title`).
+  `Part`), with `DadAppearance.standard(for: SkinTone)`; `DadAppearanceOption` (`part`, `id`, `title`).
   `PlayerProfile.dadAppearance`: a profile made with only a skin tone has the standard look for it.
   `ContentCatalog.appearanceOptions`.
 - **Application:** no new port. `UpdateHeroUseCase.execute(heroClassID:skinTone:appearance:on:)` replaces
@@ -166,7 +166,7 @@ image.
 
 | Layer | Adds | Changes or removes |
 |---|---|---|
-| Domain | `DadAppearance` (with `Part`), `AppearanceOption` | `PlayerProfile.dadAppearance`, `ContentCatalog.appearanceOptions` |
+| Domain | `DadAppearance` (with `Part`), `DadAppearanceOption` | `PlayerProfile.dadAppearance`, `ContentCatalog.appearanceOptions` |
 | Application | | `UpdateHeroUseCase` takes the look; `HeroChoice` carries it and its options |
 | Data | `appearance.json`, `AppearanceOptionDTO`, `SchemaV4`, the `StoreV3` fixture | the migration plan (V3 → V4), the profile record's mapping, `ContentValidator`, `ContentDataError` |
 | HeroArt | `HeroAvatar.Features` and its drawing | `HeroHead`, `HeroHeadgear` (Smart Dad's frames move to the face), `AvatarSkin.hair` |

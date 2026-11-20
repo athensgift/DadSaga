@@ -139,8 +139,10 @@ struct EditProfileUseCaseTests {
             HeroClass(id: "h1", order: 1, title: text, tagline: text, look: "hero"),
             HeroClass(id: "h2", order: 2, title: text, tagline: text, look: "chef")
         ],
-        gear: [GearItem(id: "cloth", skill: .care, minXP: 20, look: "burpCloth", title: text)]
+        gear: [GearItem(id: "cloth", skill: .care, minXP: 20, look: "burpCloth", title: text)],
+        appearanceOptions: [DadAppearanceOption(part: .beard, id: "none", title: text)]
     )))
+    let shavedNoBeard = DadAppearance(hair: .shaved, hairColor: .grey, beard: .none, glasses: .round)
 
     func stored(_ profiles: SpyProfileRepository) async throws -> PlayerProfile {
         let profile = PlayerProfile(children: [anna, nikos], heroClassID: "h1", dadSkinTone: .light)
@@ -148,17 +150,18 @@ struct EditProfileUseCaseTests {
         return profile
     }
 
-    @Test("Given a family of two, when changing the hero and skin tone, then the same children stay with their ids")
+    @Test("Given a family of two, when changing the hero, tone and look, then all three are stored and the children stay")
     func changesHero() async throws {
         let profiles = SpyProfileRepository()
         _ = try await stored(profiles)
 
         try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
-            .execute(heroClassID: "h2", skinTone: .dark, on: today)
+            .execute(heroClassID: "h2", skinTone: .dark, appearance: shavedNoBeard, on: today)
 
         let profile = try #require(try await profiles.fetchProfile())
         #expect(profile.heroClassID == "h2")
         #expect(profile.dadSkinTone == .dark)
+        #expect(profile.dadAppearance == shavedNoBeard)
         #expect(profile.children.map(\.id) == [anna.id, nikos.id])
     }
 
@@ -169,21 +172,25 @@ struct EditProfileUseCaseTests {
 
         await #expect(throws: ProfileValidationError.unknownHeroClass("nope")) {
             try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
-                .execute(heroClassID: "nope", skinTone: .dark, on: today)
+                .execute(heroClassID: "nope", skinTone: .dark, appearance: shavedNoBeard, on: today)
         }
         #expect(try await profiles.fetchProfile() == before)
     }
 
-    @Test("Given the hero h1 with a light tone, when updating the children, then the hero and tone are kept")
+    @Test("Given the hero h1 with a light tone and a look, when updating the children, then hero, tone and look are kept")
     func changesFamily() async throws {
         let profiles = SpyProfileRepository()
         _ = try await stored(profiles)
+        try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
+            .execute(heroClassID: "h1", skinTone: .light, appearance: shavedNoBeard, on: today)
 
         try await DefaultUpdateFamilyUseCase(contentRepository: content, profileRepository: profiles)
             .execute(children: [anna], on: today)
 
         let profile = try #require(try await profiles.fetchProfile())
-        #expect(profile == PlayerProfile(children: [anna], heroClassID: "h1", dadSkinTone: .light))
+        #expect(profile == PlayerProfile(
+            children: [anna], heroClassID: "h1", dadSkinTone: .light, dadAppearance: shavedNoBeard
+        ))
     }
 
     @Test("Given no profile, when editing either part, then it throws noProfile")
@@ -191,7 +198,7 @@ struct EditProfileUseCaseTests {
         let profiles = SpyProfileRepository()
         await #expect(throws: ProfileEditError.noProfile) {
             try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
-                .execute(heroClassID: "h1", skinTone: .dark, on: today)
+                .execute(heroClassID: "h1", skinTone: .dark, appearance: shavedNoBeard, on: today)
         }
         await #expect(throws: ProfileEditError.noProfile) {
             try await DefaultUpdateFamilyUseCase(contentRepository: content, profileRepository: profiles)
@@ -199,7 +206,7 @@ struct EditProfileUseCaseTests {
         }
     }
 
-    @Test("Given earned gear and a chosen outfit, when changing the hero, then the wardrobe and XP stay the same")
+    @Test("Given earned gear and a chosen outfit, when changing the hero and look, then the wardrobe and XP stay the same")
     func heroChangeKeepsWardrobe() async throws {
         let profiles = SpyProfileRepository()
         _ = try await stored(profiles)
@@ -213,7 +220,7 @@ struct EditProfileUseCaseTests {
         let before = try await wardrobe.execute()
 
         try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
-            .execute(heroClassID: "h2", skinTone: .dark, on: today)
+            .execute(heroClassID: "h2", skinTone: .dark, appearance: shavedNoBeard, on: today)
 
         let after = try await wardrobe.execute()
         #expect(after.outfit == before.outfit)
@@ -222,7 +229,7 @@ struct EditProfileUseCaseTests {
         #expect(try await progress.fetchEvents().count == 1)
     }
 
-    @Test("Given a stored profile, when reading the hero choice, then it has the classes, the id and the tone")
+    @Test("Given a stored profile, when reading the hero choice, then it has the classes, the id, the tone and the look")
     func heroChoice() async throws {
         let profiles = SpyProfileRepository()
         _ = try await stored(profiles)
@@ -232,6 +239,8 @@ struct EditProfileUseCaseTests {
         #expect(choice.heroClasses.map(\.id) == ["h1", "h2"])
         #expect(choice.heroClassID == "h1")
         #expect(choice.skinTone == .light)
+        #expect(choice.appearance == .standard(for: .light))
+        #expect(choice.appearanceOptions.map(\.id) == ["none"])
         #expect(try await DefaultGetHeroChoiceUseCase(
             contentRepository: content, profileRepository: SpyProfileRepository()
         ).execute() == nil)
