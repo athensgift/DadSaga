@@ -75,7 +75,7 @@ public struct TimelineView: View {
                 onSave: { note, photo in Task { await viewModel.saveJournal(note: note, photo: photo) } },
                 onClose: { viewModel.closeJournal() }
             )
-            .presentationDetents([.medium, .large])
+            .presentationDetents([.large])
         }
         .alert(
             viewModel.errorMessage ?? "",
