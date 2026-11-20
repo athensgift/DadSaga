@@ -14,6 +14,7 @@ struct DadSagaApp: App {
         let container = AppContainer()
         self.container = container
         rootViewModel = container.makeRootViewModel()
+        container.discardLeftoverFilms()
     }
 
     var body: some Scene {
@@ -24,6 +25,7 @@ struct DadSagaApp: App {
                 makeHome: { container.makeHomeViewModel() },
                 makeTimeline: { container.makeTimelineViewModel() },
                 makeWardrobe: { container.makeWardrobeViewModel() },
+                makeSagaFilm: { container.makeSagaFilmViewModel(request: $0) },
                 makeSettings: { container.makeSettingsViewModel(preferences: $0, actions: $1) },
                 settingsPages: container.settingsPages,
                 incomingURL: NotificationInbox.shared.url,

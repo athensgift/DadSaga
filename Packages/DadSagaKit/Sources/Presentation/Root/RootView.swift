@@ -18,6 +18,7 @@ public struct RootView: View {
     private let makeHome: MakeHome
     private let makeTimeline: MakeTimeline
     private let makeWardrobe: HomeView.MakeWardrobe
+    private let makeSagaFilm: SagaFilmSheet.MakeViewModel
     private let makeSettings: MakeSettings
     private let settingsPages: SettingsPages
     private let incomingURL: URL?
@@ -32,6 +33,7 @@ public struct RootView: View {
         makeHome: @escaping MakeHome,
         makeTimeline: @escaping MakeTimeline,
         makeWardrobe: @escaping HomeView.MakeWardrobe,
+        makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
         makeSettings: @escaping MakeSettings,
         settingsPages: SettingsPages,
         incomingURL: URL? = nil,
@@ -42,6 +44,7 @@ public struct RootView: View {
         self.makeHome = makeHome
         self.makeTimeline = makeTimeline
         self.makeWardrobe = makeWardrobe
+        self.makeSagaFilm = makeSagaFilm
         self.makeSettings = makeSettings
         self.settingsPages = settingsPages
         self.incomingURL = incomingURL
@@ -71,11 +74,16 @@ public struct RootView: View {
                         home: HomeView(
                             viewModel: home,
                             makeWardrobe: makeWardrobe,
+                            makeSagaFilm: makeSagaFilm,
                             settings: settingsScreens,
                             pendingLink: viewModel.pendingLink,
                             onLinkHandled: { viewModel.linkHandled() }
                         ),
-                        timeline: TimelineView(viewModel: timeline, isOpeningLink: viewModel.pendingLink != nil)
+                        timeline: TimelineView(
+                            viewModel: timeline,
+                            makeSagaFilm: makeSagaFilm,
+                            isOpeningLink: viewModel.pendingLink != nil
+                        )
                     )
                     .transition(.opacity)
                 } else {

@@ -18,6 +18,14 @@ public struct SagaOccasion: Hashable, Identifiable, Sendable {
     /// What the film offered for this occasion tells.
     public let period: SagaPeriod
 
+    public init(id: String, kind: Kind, childID: UUID, date: Date, period: SagaPeriod) {
+        self.id = id
+        self.kind = kind
+        self.childID = childID
+        self.date = date
+        self.period = period
+    }
+
     /// On the same day, leaving a world comes before a birthday: its film tells the longer story.
     fileprivate var rank: Int {
         switch kind {
@@ -58,6 +66,25 @@ public enum SagaOccasions {
             .max { ($0.date, $0.rank) < ($1.date, $1.rank) }
         guard let newest, !answered.contains(newest.id) else { return nil }
         return newest
+    }
+
+    /// The one occasion to offer a family on `now` (ADR-0037 §5): the newest of any child. On the same day children go
+    /// in family order, so twins are offered one after the other. An older occasion never takes the place of an
+    /// answered one, whichever child it belongs to.
+    public static func latest(
+        forFamily children: [Child],
+        events: [ProgressEvent],
+        catalog: ContentCatalog,
+        on now: Date,
+        answered: Set<String> = [],
+        calendar: Calendar = .autoupdatingCurrent,
+        windowDays: Int = windowDays
+    ) -> SagaOccasion? {
+        let newest = children.compactMap {
+            latest(for: $0, events: events, catalog: catalog, on: now, calendar: calendar, windowDays: windowDays)
+        }
+        guard let date = newest.map(\.date).max() else { return nil }
+        return newest.first { $0.date == date && !answered.contains($0.id) }
     }
 
     /// Every birthday so far, and the end of every world.

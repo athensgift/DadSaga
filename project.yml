@@ -39,6 +39,9 @@ targets:
         product: Presentation
       - package: DadSagaKit
         product: DesignSystem
+      # The saga film's music (ADR-0036 §8): the app only, never the widget.
+      - package: DadSagaKit
+        product: SagaMusic
       - target: DadSagaWidget
     entitlements:
       path: App/DadSaga.entitlements
@@ -67,6 +70,8 @@ targets:
           UIImageName: LaunchLogo
           UIImageRespectsSafeAreaInsets: true
         NSCameraUsageDescription: Take a photo for a legendary moment. Photos stay on this device.
+        # The share sheet's "Save Video" for a saga film (ADR-0036 §6).
+        NSPhotoLibraryAddUsageDescription: Save your saga film to Photos.
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft
