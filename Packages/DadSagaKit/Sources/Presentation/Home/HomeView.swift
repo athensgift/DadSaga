@@ -4,12 +4,16 @@ import SwiftUI
 
 /// Home: the dad's hero and progress, then what he can play today.
 /// On wide screens (iPhone Duo inner display, landscape) it splits into two equal columns, so neither column
-/// runs across the middle of the display, where the Duo folds.
+/// runs across the middle of the display, where the Duo folds like a book. Half-open like a laptop, the fold runs
+/// across instead: the hero stands above it and the adventure lies below it (ADR-0043).
 public struct HomeView: View {
     public typealias MakeWardrobe = @MainActor () -> WardrobeViewModel
 
     @State var viewModel: HomeViewModel
-    @State private var isWide = false
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var width: CGFloat = 0
+    @State private var fold: HorizontalFold?
     @State var wardrobeViewModel: WardrobeViewModel?
     @State var settingsViewModel: SettingsViewModel?
     /// The film sheet, opened from the film offer.
@@ -55,13 +59,16 @@ public struct HomeView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Read where the panes are placed, so the fold is in their coordinates.
+            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+            .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum) { fold = $0 }
             .background(DSColor.background)
             .safeAreaInset(edge: .bottom) { undoBar }
             .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
             .navigationTitle(title)
-            // Two columns scroll separately. A navigation bar collapses or hides with whichever column scrolls and
-            // shifts the other, so the wide layout has no bar: its title lives in the hero column.
-            .navigationBarHidden(when: isWide)
+            // Two panes scroll separately. A navigation bar collapses or hides with whichever pane scrolls and
+            // shifts the other, so the two-pane layouts have no bar: their title lives in the hero pane.
+            .navigationBarHidden(when: arrangement.hasPanes)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) { wardrobeButton }
                 ToolbarItem(placement: .primaryAction) { settingsButton }
@@ -81,7 +88,6 @@ public struct HomeView: View {
             SettingsView(viewModel: settingsModel, pages: settings.pages) { settingsViewModel = nil }
         }
         .sagaFilmSheet($sagaFilm)
-        .onGeometryChange(for: Bool.self) { $0.size.width >= twoColumnWidth } action: { isWide = $0 }
         .task { await viewModel.onAppear() }
         .task(id: pendingLink) { await openPendingLink() }
         .sheet(item: activeSheet, onDismiss: viewModel.sheetDismissed, content: sheetContent)
@@ -119,16 +125,25 @@ public struct HomeView: View {
         Binding(get: { viewModel.worldMap }, set: { if $0 == nil { viewModel.closeMap() } })
     }
 
+    private var arrangement: HomeArrangement {
+        HomeArrangement.make(width: width, fold: fold)
+    }
+
     @ViewBuilder
     private func loaded(_ content: HomeContent) -> some View {
-        if isWide {
-            HStack(alignment: .top, spacing: 0) {
+        if arrangement.hasPanes {
+            // The same two scroll views side by side or above and below the fold, so folding keeps where each
+            // was scrolled to and a celebration in flight.
+            let panes = arrangement.fold.map { AnyLayout(FoldedStackLayout(fold: $0)) }
+                ?? AnyLayout(HStackLayout(alignment: .top, spacing: 0))
+            panes {
                 ScrollView { heroPanel(content).padding(DSSpacing.l) }
                     .frame(maxWidth: .infinity)
                     .modifier(celebrationOverlay)
                 ScrollView { adventure(content).padding(DSSpacing.l) }
                     .frame(maxWidth: .infinity)
             }
+            .animation(reduceMotion ? nil : .smooth, value: arrangement)
         } else {
             ScrollView {
                 VStack(spacing: DSSpacing.l) {
@@ -144,61 +159,76 @@ public struct HomeView: View {
     }
 
     /// Fixed over the scroll view, not scrolled with the hero, so a dad who completes a card further down still sees it.
-    /// On wide screens it stays in the hero column, away from the Duo's fold.
+    /// With two panes it stays in the hero's, away from the Duo's fold.
     private var celebrationOverlay: CelebrationOverlay {
         CelebrationOverlay(celebration: viewModel.celebration) { viewModel.celebrationFinished() }
     }
 
     private func heroPanel(_ content: HomeContent) -> some View {
-        let style = content.heroLook.avatarStyle
+        // Above a fold the pane is wider than tall: the hero stands beside his lines and level, unless the text
+        // is too large for half the width.
+        let isBeside = arrangement.fold != nil && !dynamicTypeSize.isAccessibilitySize
+        let stageAndLevel = isBeside
+            ? AnyLayout(HStackLayout(spacing: DSSpacing.l))
+            : AnyLayout(VStackLayout(spacing: DSSpacing.m))
         return VStack(spacing: DSSpacing.m) {
-            if isWide {
-                wideHeader(content)
+            if arrangement.hasPanes {
+                paneHeader(content)
             }
-            FamilyStage(
-                heroStyle: style,
-                heroSkin: content.heroSkin.avatarSkin,
-                heroGear: content.heroGear.map(\.heroItem),
-                medals: content.medalCount,
-                heroTitle: content.heroTitle,
-                companions: content.companions,
-                selectedChildID: content.selectedChildID,
-                maxHeroSize: isWide ? 260 : 210,
-                cheerTrigger: viewModel.celebration?.id ?? 0
-            ) { id in
-                Task { await viewModel.selectChild(id: id) }
-            }
-            .padding(.top, DSSpacing.xl)
-            .background {
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [style.tint.opacity(0.28), style.tint.opacity(0)],
-                            center: .center,
-                            startRadius: 10,
-                            endRadius: 150
-                        )
+            stageAndLevel {
+                heroStage(content)
+                VStack(spacing: DSSpacing.m) {
+                    VStack(spacing: DSSpacing.xs) {
+                        // Text in the primary colour: several hero colours are below 3:1 as text (ADR-0033).
+                        Text(content.companionLine)
+                            .font(DSFont.headline)
+                            .foregroundStyle(DSColor.textPrimary)
+                        Text(content.heroTagline)
+                            .font(DSFont.subheadline)
+                            .foregroundStyle(DSColor.textSecondary)
+                    }
+                    .multilineTextAlignment(.center)
+                    LevelPanel(
+                        title: content.levelTitle,
+                        xpLine: content.xpLine,
+                        fraction: content.levelFraction,
+                        levelUpID: viewModel.celebration.flatMap { $0.highlight == .levelUp ? $0.id : nil }
                     )
-                    .frame(width: 300, height: 300)
+                }
             }
-            VStack(spacing: DSSpacing.xs) {
-                // Text in the primary colour: several hero colours are below 3:1 as text (ADR-0033).
-                Text(content.companionLine)
-                    .font(DSFont.headline)
-                    .foregroundStyle(DSColor.textPrimary)
-                Text(content.heroTagline)
-                    .font(DSFont.subheadline)
-                    .foregroundStyle(DSColor.textSecondary)
-            }
-            .multilineTextAlignment(.center)
-            LevelPanel(
-                title: content.levelTitle,
-                xpLine: content.xpLine,
-                fraction: content.levelFraction,
-                levelUpID: viewModel.celebration.flatMap { $0.highlight == .levelUp ? $0.id : nil }
-            )
         }
         .frame(maxWidth: .infinity)
+    }
+
+    /// The dad and his children, on the glow of his colour.
+    private func heroStage(_ content: HomeContent) -> some View {
+        let style = content.heroLook.avatarStyle
+        return FamilyStage(
+            heroStyle: style,
+            heroSkin: content.heroSkin.avatarSkin,
+            heroGear: content.heroGear.map(\.heroItem),
+            medals: content.medalCount,
+            heroTitle: content.heroTitle,
+            companions: content.companions,
+            selectedChildID: content.selectedChildID,
+            maxHeroSize: arrangement.maxHeroSize,
+            cheerTrigger: viewModel.celebration?.id ?? 0
+        ) { id in
+            Task { await viewModel.selectChild(id: id) }
+        }
+        .padding(.top, DSSpacing.xl)
+        .background {
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [style.tint.opacity(0.28), style.tint.opacity(0)],
+                        center: .center,
+                        startRadius: 10,
+                        endRadius: 150
+                    )
+                )
+                .frame(width: 300, height: 300)
+        }
     }
 
     private func adventure(_ content: HomeContent) -> some View {

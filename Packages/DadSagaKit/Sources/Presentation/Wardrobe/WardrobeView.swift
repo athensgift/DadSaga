@@ -2,7 +2,8 @@ import DesignSystem
 import HeroArt
 import SwiftUI
 
-/// The wardrobe, as a sheet from home: the hero on top, updated live, and a row of choices per slot.
+/// The wardrobe, as a sheet from home: the hero on top, updated live, and a row of choices per slot. On an iPhone Duo
+/// half-open like a laptop the hero stands above the fold and the choices lie below it (ADR-0043).
 public struct WardrobeView: View {
     @State private var viewModel: WardrobeViewModel
     private let onClose: () -> Void
@@ -45,46 +46,44 @@ public struct WardrobeView: View {
 
     private func loaded(_ content: WardrobeContent) -> some View {
         let style = content.heroLook.avatarStyle
-        return ScrollView {
-            VStack(alignment: .leading, spacing: DSSpacing.l) {
-                HeroAvatar(
-                    style: style,
-                    size: 200,
-                    skin: content.heroSkin.avatarSkin,
-                    items: content.gear.map(\.heroItem),
-                    medals: content.medalCount
-                )
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, DSSpacing.s)
-                .background {
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [style.tint.opacity(0.25), .clear],
-                                center: .center,
-                                startRadius: 10,
-                                endRadius: 130
-                            )
-                        )
-                        .frame(width: 260, height: 260)
-                }
-                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: content.gear)
-                .accessibilityHidden(true)
-                ForEach(content.slots) { slot in
-                    slotView(slot)
-                }
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .font(DSFont.caption)
-                        .foregroundStyle(DSColor.boss)
-                }
-                Text(content.footnote)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.textSecondary)
-            }
-            .frame(maxWidth: readableWidth)
-            .padding(DSSpacing.m)
+        return ReadAndActPanes(
+            alignment: .leading, spacing: DSSpacing.l, flatTitle: .inline, column: WardrobeColumn()
+        ) { _ in
+            HeroAvatar(
+                style: style,
+                size: 200,
+                skin: content.heroSkin.avatarSkin,
+                items: content.gear.map(\.heroItem),
+                medals: content.medalCount
+            )
             .frame(maxWidth: .infinity)
+            .padding(.vertical, DSSpacing.s)
+            .background {
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [style.tint.opacity(0.25), .clear],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 130
+                        )
+                    )
+                    .frame(width: 260, height: 260)
+            }
+            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: content.gear)
+            .accessibilityHidden(true)
+        } acting: { _ in
+            ForEach(content.slots) { slot in
+                slotView(slot)
+            }
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .font(DSFont.caption)
+                    .foregroundStyle(DSColor.boss)
+            }
+            Text(content.footnote)
+                .font(DSFont.caption)
+                .foregroundStyle(DSColor.textSecondary)
         }
     }
 
@@ -156,5 +155,15 @@ public struct WardrobeView: View {
         .disabled(option.isLocked)
         .accessibilityAddTraits(option.isSelected ? .isSelected : [])
         .animation(.easeOut(duration: 0.15), value: option.isSelected)
+    }
+}
+
+/// The wardrobe's column.
+private struct WardrobeColumn: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .frame(maxWidth: readableWidth)
+            .padding(DSSpacing.m)
+            .frame(maxWidth: .infinity)
     }
 }

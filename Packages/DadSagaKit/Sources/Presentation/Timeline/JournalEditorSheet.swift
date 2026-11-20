@@ -1,7 +1,9 @@
 import DesignSystem
 import SwiftUI
 
-/// Adds, changes or removes the note and photos on a timeline entry.
+/// Adds, changes or removes the note and photos on a timeline entry. On an iPhone Duo half-open like a laptop, the
+/// cover photo stands above the fold and the note and the other photos lie below it (ADR-0043). An entry with no
+/// photo stays as it is: nothing asks for one.
 struct JournalEditorSheet: View {
     let editor: JournalEditor
     let isSaving: Bool
@@ -39,17 +41,26 @@ struct JournalEditorSheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
+            CoverAndFormPanes(photos: photos, entry: editor.title, labels: editor.labels.photo, loader: loader) { showsCover in
                 VStack(spacing: DSSpacing.m) {
-                    JournalNoteField(placeholder: editor.labels.notePlaceholder, note: $note)
-                    JournalPhotosField(photos: $photos, entry: editor.title, labels: editor.labels.photo, loader: loader)
+                    JournalNoteField(
+                        placeholder: editor.labels.notePlaceholder,
+                        hideKeyboardTitle: editor.labels.hideKeyboard,
+                        note: $note
+                    )
+                    JournalPhotosField(
+                        photos: $photos,
+                        entry: editor.title,
+                        labels: editor.labels.photo,
+                        loader: loader,
+                        showsCover: showsCover
+                    )
                     SheetError(message: errorMessage)
                 }
                 .frame(maxWidth: readableWidth)
                 .padding(DSSpacing.m)
                 .frame(maxWidth: .infinity)
             }
-            .scrollDismissesKeyboard(.interactively)
             .background(DSColor.background)
             .navigationTitle(editor.title)
             .toolbarTitleDisplayMode(.inline)
