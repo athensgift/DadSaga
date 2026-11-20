@@ -88,55 +88,70 @@ public final class HomeViewModel {
         errorMessage = nil
     }
 
-    /// Records the open quest, with the dad's optional note and photo.
-    public func completeSelectedQuest(note: String = "", photo: MomentPhotoEdit = .keep) async {
+    /// Records the open quest, with the dad's optional note and photos.
+    public func completeSelectedQuest(note: String = "", photos: PhotoDrafts = PhotoDrafts()) async {
         guard let quest = selectedQuest, let childID = selectedChildID else { return }
-        let journal = JournalInput(note: note, photos: photo.newPhotos)
-        await record(badge: nil) {
+        let journal = JournalInput(note: note, photos: photos.pickedPhotos)
+        guard let change = await record({
             try await self.useCases.completeQuest.execute(questID: quest.id, childID: childID, on: self.now(), journal: journal)
-        }
+        }) else { return }
+        selectedQuest = nil
+        celebrate(change)
     }
 
-    /// Records the open boss as defeated, with the dad's optional note and photo.
-    public func defeatSelectedBoss(note: String = "", photo: MomentPhotoEdit = .keep) async {
+    /// Records the open boss as defeated, with the dad's optional note and photos.
+    public func defeatSelectedBoss(note: String = "", photos: PhotoDrafts = PhotoDrafts()) async {
         guard let boss = selectedBoss, !boss.isDefeated, let childID = selectedChildID else { return }
         let badge = overview?.bosses.first { $0.id == boss.id }?.badge.resolved(for: locale)
-        let journal = JournalInput(note: note, photos: photo.newPhotos)
-        await record(badge: badge) {
+        let journal = JournalInput(note: note, photos: photos.pickedPhotos)
+        guard let change = await record({
             try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now(), journal: journal)
-        }
+        }) else { return }
+        selectedBoss = nil
+        celebrate(change, badge: badge)
     }
 
     public func celebrationFinished() {
         celebration = nil
     }
 
-    /// Runs a progress action, then refreshes the screen and celebrates what it gained.
-    func record(badge: String?, moment: String? = nil, _ action: () async throws -> ProgressChange) async {
-        guard !isCompleting else { return }
+    /// Runs a progress action and refreshes the screen. Returns what it changed, or `nil` after showing an error.
+    /// It closes nothing: each caller decides what the dad sees next.
+    func record(_ action: () async throws -> ProgressChange) async -> ProgressChange? {
+        guard !isCompleting else { return nil }
         isCompleting = true
         defer { isCompleting = false }
         do {
             let change = try await action()
-            selectedQuest = nil
-            selectedBoss = nil
-            momentCapture = nil
+            errorMessage = nil
             await load()
-            celebrationCount += 1
-            celebration = Celebration(
-                id: celebrationCount,
-                xpText: "+\(change.gainedXP) XP",
-                levelUpText: change.leveledUp
-                    ? strings.text("Level \(change.after.level.level)") + "!"
-                    : nil,
-                badgeText: badge,
-                unlockText: change.newGear.first.map { strings.text("New: \($0.title.resolved(for: locale))") },
-                momentText: moment
-            )
-            undoOffer = change.eventID.map { makeUndoOffer(id: celebrationCount, eventID: $0) }
+            return change
         } catch {
             errorMessage = saveFailedMessage
+            return nil
         }
+    }
+
+    /// Home's celebration and "Saved · Undo" for a quest or boss.
+    private func celebrate(_ change: ProgressChange, badge: String? = nil) {
+        let celebration = makeCelebration(change, badge: badge)
+        self.celebration = celebration
+        undoOffer = change.eventID.map { makeUndoOffer(id: celebration.id, eventID: $0) }
+    }
+
+    /// What a change gained, as a celebration with a new id.
+    func makeCelebration(_ change: ProgressChange, badge: String? = nil, moment: String? = nil) -> Celebration {
+        celebrationCount += 1
+        return Celebration(
+            id: celebrationCount,
+            xpText: "+\(change.gainedXP) XP",
+            levelUpText: change.leveledUp
+                ? strings.text("Level \(change.after.level.level)") + "!"
+                : nil,
+            badgeText: badge,
+            unlockText: change.newGear.first.map { strings.text("New: \($0.title.resolved(for: locale))") },
+            momentText: moment
+        )
     }
 
     var saveFailedMessage: String {

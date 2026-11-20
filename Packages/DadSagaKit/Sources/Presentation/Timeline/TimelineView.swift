@@ -7,13 +7,15 @@ public struct TimelineView: View {
     @State private var viewModel: TimelineViewModel
     /// The film sheet, opened from the toolbar.
     @State private var sagaFilm: SagaFilmViewModel?
+    /// An entry's photos, full screen.
+    @State private var photoViewer: PhotoViewerContent?
     private let makeSagaFilm: SagaFilmSheet.MakeViewModel
     private let isOpeningLink: Bool
 
     /// - Parameters:
     ///   - makeSagaFilm: builds the film sheet behind "Make a film".
-    ///   - isOpeningLink: a link from outside the app (the widget) is opening on another tab; the journal editor and
-    ///     the film sheet close so they do not cover that screen.
+    ///   - isOpeningLink: a link from outside the app (the widget) is opening on another tab; the journal editor, the
+    ///     film sheet and the photo viewer close so they do not cover that screen.
     public init(
         viewModel: TimelineViewModel,
         makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
@@ -66,16 +68,18 @@ public struct TimelineView: View {
             guard opening else { return }
             viewModel.closeJournal()
             sagaFilm = nil
+            photoViewer = nil
         }
         .sheet(item: Binding(get: { viewModel.journalEditor }, set: { if $0 == nil { viewModel.closeJournal() } })) { editor in
             JournalEditorSheet(
                 editor: editor,
                 isSaving: viewModel.isSaving,
                 loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
-                onSave: { note, photo in Task { await viewModel.saveJournal(note: note, photo: photo) } },
+                onSave: { note, photos in Task { await viewModel.saveJournal(note: note, photos: photos) } },
                 onClose: { viewModel.closeJournal() }
             )
         }
+        .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
         .alert(
             viewModel.errorMessage ?? "",
             isPresented: Binding(get: { viewModel.errorMessage != nil }, set: { _ in viewModel.dismissError() })
@@ -116,7 +120,8 @@ public struct TimelineView: View {
                 ForEach(Array(content.sections.enumerated()), id: \.element.id) { index, section in
                     MonthNode(title: section.title, isFirst: index == 0)
                     ForEach(section.items) { item in
-                        row(item, isLast: index == content.sections.count - 1 && item.id == section.items.last?.id)
+                        let isLast = index == content.sections.count - 1 && item.id == section.items.last?.id
+                        row(item, isLast: isLast, content: content)
                     }
                 }
             }
@@ -129,14 +134,21 @@ public struct TimelineView: View {
 }
 
 private extension TimelineView {
-    /// A row that opens its note and photo when tapped, and can be deleted from its context menu.
-    func row(_ item: TimelineItem, isLast: Bool) -> some View {
-        Button {
-            viewModel.editJournal(id: item.id)
-        } label: {
-            TimelineRow(item: item, isLast: isLast) { await viewModel.photoData(id: $0, maxPixelSize: $1) }
-        }
-        .buttonStyle(.plain)
+    /// A row that opens its note and photos when tapped, and can be deleted from its context menu. Its photo, a
+    /// separate button, shows the photos full screen.
+    func row(_ item: TimelineItem, isLast: Bool, content: TimelineContent) -> some View {
+        TimelineRow(
+            item: item,
+            isLast: isLast,
+            showPhotosTitle: content.viewer.showPhotos,
+            loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
+            deleteTitle: viewModel.deleteTitle,
+            onOpen: { viewModel.editJournal(id: item.id) },
+            onShowPhotos: {
+                photoViewer = content.viewer.content(entry: item.title, photos: item.photoIDs.map(PhotoSource.stored))
+            },
+            onDelete: { viewModel.requestDeletion(id: item.id) }
+        )
         .contextMenu {
             Button(viewModel.editTitle, systemImage: "square.and.pencil") {
                 viewModel.editJournal(id: item.id)
@@ -144,9 +156,6 @@ private extension TimelineView {
             Button(viewModel.deleteTitle, systemImage: "trash", role: .destructive) {
                 viewModel.requestDeletion(id: item.id)
             }
-        }
-        .accessibilityAction(named: viewModel.deleteTitle) {
-            viewModel.requestDeletion(id: item.id)
         }
     }
 }
@@ -205,7 +214,12 @@ private struct MonthNode: View {
 private struct TimelineRow: View {
     let item: TimelineItem
     let isLast: Bool
+    let showPhotosTitle: String
     let loader: PhotoLoader
+    let deleteTitle: String
+    let onOpen: () -> Void
+    let onShowPhotos: () -> Void
+    let onDelete: () -> Void
     @ScaledMetric(relativeTo: .subheadline) private var railWidth: CGFloat = TimelineRail.width
 
     private var tint: Color {
@@ -232,25 +246,41 @@ private struct TimelineRow: View {
         .background(alignment: .leading) { RailLine(endsHere: isLast) }
     }
 
+    /// The card is the row's button; its photo sits over it as a button of its own (ADR-0042 §4).
     private var card: some View {
-        AdaptiveStack(alignment: .top, spacing: DSSpacing.m) {
-            if item.photoID != nil {
-                MomentPhoto(photoID: item.photoID, loader: loader) { tint.opacity(0.2) }
-                    .frame(width: 64, height: 64)
-                    .clipShape(RoundedRectangle(cornerRadius: DSRadius.tile, style: .continuous))
-                    .accessibilityHidden(true)
+        Button(action: onOpen) {
+            AdaptiveStack(alignment: .top, spacing: DSSpacing.m) {
+                if !item.photoIDs.isEmpty {
+                    ThumbnailSlot()
+                }
+                VStack(alignment: .leading, spacing: DSSpacing.xs) {
+                    CardTitle(item.title, badge: item.badge, tint: tint)
+                    Text(item.subtitle)
+                        .font(DSFont.subheadline)
+                        .foregroundStyle(DSColor.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
-            VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                CardTitle(item.title, badge: item.badge, tint: tint)
-                Text(item.subtitle)
-                    .font(DSFont.subheadline)
-                    .foregroundStyle(DSColor.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(DSSpacing.m)
+            .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(DSSpacing.m)
-        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+        .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
+        .accessibilityValue(item.photoCount ?? "")
+        .accessibilityActions {
+            if !item.photoIDs.isEmpty {
+                Button(showPhotosTitle, action: onShowPhotos)
+            }
+            Button(deleteTitle, action: onDelete)
+        }
+        .thumbnail {
+            Button(action: onShowPhotos) {
+                PhotoThumbnail(photoIDs: item.photoIDs, loader: loader, placeholder: tint.opacity(0.2))
+            }
+            .buttonStyle(.plain)
+            .accessibilityHidden(true)
+        }
     }
 }

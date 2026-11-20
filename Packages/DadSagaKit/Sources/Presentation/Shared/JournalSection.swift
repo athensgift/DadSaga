@@ -1,12 +1,14 @@
 import DesignSystem
 import SwiftUI
 
-/// The optional note and photo on a card's sheet. Folded away until the dad asks for it, so it never feels like a
+/// The optional note and photos on a card's sheet. Folded away until the dad asks for it, so it never feels like a
 /// form he has to fill in.
 struct JournalSection: View {
     let labels: JournalLabels
     @Binding var note: String
-    @Binding var photo: MomentPhotoEdit
+    @Binding var photos: PhotoDrafts
+    /// The card's title, for VoiceOver in the photo viewer.
+    let entry: String
     let loader: PhotoLoader
     /// The note field's background: it must differ from the sheet's.
     let fill: Color
@@ -16,7 +18,7 @@ struct JournalSection: View {
         VStack(alignment: .leading, spacing: DSSpacing.s) {
             if isOpen {
                 JournalNoteField(placeholder: labels.notePlaceholder, note: $note, fill: fill)
-                JournalPhotoField(photo: $photo, storedPhotoID: nil, labels: labels.photo, loader: loader)
+                JournalPhotosField(photos: $photos, entry: entry, labels: labels.photo, loader: loader)
             } else {
                 Button {
                     withAnimation(.easeOut(duration: 0.2)) { isOpen = true }
@@ -48,18 +50,23 @@ struct JournalNoteField: View {
     }
 }
 
-/// "Last time you wrote: …", with the photo if there was one.
+/// "Last time you wrote: …", with the photos if there were any: a tap on the thumbnail shows them full screen.
 struct LastJournalView: View {
     let last: LastJournal
+    /// The card's title, for VoiceOver in the photo viewer.
+    let entry: String
+    let viewerLabels: PhotoViewerLabels
     let loader: PhotoLoader
+    @State private var viewer: PhotoViewerContent?
 
     var body: some View {
         HStack(alignment: .top, spacing: DSSpacing.m) {
-            if last.photoID != nil {
-                MomentPhoto(photoID: last.photoID, loader: loader) { DSColor.surface }
-                    .frame(width: 56, height: 56)
-                    .clipShape(RoundedRectangle(cornerRadius: DSRadius.tile, style: .continuous))
-                    .accessibilityHidden(true)
+            if !last.photoIDs.isEmpty {
+                Button(action: showPhotos) {
+                    PhotoThumbnail(photoIDs: last.photoIDs, loader: loader, size: 56, placeholder: DSColor.surface)
+                }
+                .buttonStyle(.plain)
+                .accessibilityHidden(true)
             }
             VStack(alignment: .leading, spacing: DSSpacing.xs) {
                 Text(last.title)
@@ -79,5 +86,16 @@ struct LastJournalView: View {
         .padding(DSSpacing.m)
         .background(DSColor.legendary.opacity(0.1), in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
         .accessibilityElement(children: .combine)
+        .accessibilityValue(viewerLabels.photoCount(last.photoIDs.count) ?? "")
+        .accessibilityActions {
+            if !last.photoIDs.isEmpty {
+                Button(viewerLabels.showPhotos, action: showPhotos)
+            }
+        }
+        .photoViewer($viewer, loader: loader)
+    }
+
+    private func showPhotos() {
+        viewer = viewerLabels.content(entry: entry, photos: last.photoIDs.map(PhotoSource.stored))
     }
 }

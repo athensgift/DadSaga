@@ -1,21 +1,21 @@
 import DesignSystem
 import SwiftUI
 
-/// Adds, changes or removes the note and photo on a timeline entry.
+/// Adds, changes or removes the note and photos on a timeline entry.
 struct JournalEditorSheet: View {
     let editor: JournalEditor
     let isSaving: Bool
     let loader: PhotoLoader
-    let onSave: (_ note: String, _ photo: MomentPhotoEdit) -> Void
+    let onSave: (_ note: String, _ photos: PhotoDrafts) -> Void
     let onClose: () -> Void
     @State private var note: String
-    @State private var photo: MomentPhotoEdit = .keep
+    @State private var photos: PhotoDrafts
 
     init(
         editor: JournalEditor,
         isSaving: Bool,
         loader: @escaping PhotoLoader,
-        onSave: @escaping (_ note: String, _ photo: MomentPhotoEdit) -> Void,
+        onSave: @escaping (_ note: String, _ photos: PhotoDrafts) -> Void,
         onClose: @escaping () -> Void
     ) {
         self.editor = editor
@@ -24,6 +24,7 @@ struct JournalEditorSheet: View {
         self.onSave = onSave
         self.onClose = onClose
         _note = State(initialValue: editor.note)
+        _photos = State(initialValue: PhotoDrafts(storedIDs: editor.photoIDs))
     }
 
     var body: some View {
@@ -31,9 +32,7 @@ struct JournalEditorSheet: View {
             ScrollView {
                 VStack(spacing: DSSpacing.m) {
                     JournalNoteField(placeholder: editor.labels.notePlaceholder, note: $note)
-                    JournalPhotoField(
-                        photo: $photo, storedPhotoID: editor.photoIDs.first, labels: editor.labels.photo, loader: loader
-                    )
+                    JournalPhotosField(photos: $photos, entry: editor.title, labels: editor.labels.photo, loader: loader)
                 }
                 .frame(maxWidth: readableWidth)
                 .padding(DSSpacing.m)
@@ -48,9 +47,14 @@ struct JournalEditorSheet: View {
                     Button(role: .close, action: onClose)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(role: .confirm) { onSave(note, photo) }
-                        .disabled(isSaving)
-                        .accessibilityLabel(editor.saveTitle)
+                    // Saving several photos takes a moment: the button waits, and says so.
+                    if isSaving {
+                        ProgressView()
+                    } else {
+                        Button(role: .confirm) { onSave(note, photos) }
+                            .disabled(photos.isLoading)
+                            .accessibilityLabel(editor.saveTitle)
+                    }
                 }
             }
         }

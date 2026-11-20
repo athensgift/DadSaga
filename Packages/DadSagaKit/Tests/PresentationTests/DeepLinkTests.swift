@@ -52,13 +52,14 @@ struct DeepLinkTests {
     func momentLink() async throws {
         let sut = await makeSUT(profile: HeroStub.profile)
         sut.startCapture()
-        await sut.saveMoment(firstID: "f1", date: HeroStub.today, note: "Τρία βήματα!")
+        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
+        await sut.saveMomentDetails(date: HeroStub.today, note: "Τρία βήματα!", photos: PhotoDrafts())
         guard case .loaded(let content) = sut.state else { throw StubLinkError.notLoaded }
         let card = try #require(content.moments.cards.first)
         sut.dismissSelection()
 
         await sut.open(.moment(eventID: card.id, childID: HeroStub.niko.id))
-        #expect(sut.momentCapture?.editing?.note == "Τρία βήματα!")
+        #expect(sut.momentCapture?.details?.note == "Τρία βήματα!")
 
         await sut.open(.moment(eventID: UUID(), childID: HeroStub.niko.id))
         #expect(sut.momentCapture == nil)

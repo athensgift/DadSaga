@@ -184,10 +184,10 @@ struct LocalStoreTests {
         #expect(try await sut.fetchEvents().count == 3)
     }
 
-    @Test("Given ten photos on an entry, when saved and read back from disk, then they come back in the same order")
-    func tenPhotosKeepTheirOrder() async throws {
+    @Test("Given the most photos an entry keeps, when saved and read back from disk, then they come back in the same order")
+    func photosKeepTheirOrder() async throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-photos-order-" + UUID().uuidString)
-        let ids = (1...ProgressEvent.photoLimit).map { "photo-\(11 - $0)" }
+        let ids = (1...ProgressEvent.photoLimit).map { "photo-\(ProgressEvent.photoLimit + 1 - $0)" }
         let event = ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth, photoIDs: ids)
 
         try await LocalStore.live(in: directory).progress.add(event)

@@ -1,141 +1,61 @@
 import DesignSystem
 import SwiftUI
 
-/// Capture a legendary moment, or edit one: which first, when it happened, a few words and a photo.
+/// A legendary moment's sheet: step 1 to choose the first and when, step 2 for photos and a few words (ADR-0042 §5).
+/// One sheet for both, so moving on never closes and reopens it.
 struct MomentSheet: View {
     let capture: MomentCapture
     let errorMessage: String?
     let isSaving: Bool
     let loader: PhotoLoader
-    let onSave: (_ firstID: String, _ date: Date, _ note: String, _ photo: MomentPhotoEdit) -> Void
-    let onDelete: () -> Void
-    let onClose: () -> Void
+    let actions: Actions
 
-    @State private var selectedID: String?
-    @State private var date: Date
-    @State private var note: String
-    @State private var photo: MomentPhotoEdit = .keep
-    @State private var isConfirmingDelete = false
-
-    init(
-        capture: MomentCapture,
-        errorMessage: String?,
-        isSaving: Bool,
-        loader: @escaping PhotoLoader,
-        onSave: @escaping (_ firstID: String, _ date: Date, _ note: String, _ photo: MomentPhotoEdit) -> Void,
-        onDelete: @escaping () -> Void,
-        onClose: @escaping () -> Void
-    ) {
-        self.capture = capture
-        self.errorMessage = errorMessage
-        self.isSaving = isSaving
-        self.loader = loader
-        self.onSave = onSave
-        self.onDelete = onDelete
-        self.onClose = onClose
-        _date = State(initialValue: capture.editing?.date ?? capture.latestDate)
-        _note = State(initialValue: capture.editing?.note ?? "")
-        // When editing there is only one first, and it is the moment's own.
-        _selectedID = State(initialValue: capture.editing == nil ? nil : capture.options.first?.id)
+    /// What the sheet asks home to do.
+    struct Actions {
+        let onCapture: (_ firstID: String, _ date: Date) -> Void
+        let onSave: (_ date: Date, _ note: String, _ photos: PhotoDrafts) -> Void
+        let onDelete: () -> Void
+        let onCelebrationFinished: () -> Void
+        let onUndoExpired: (_ id: Int) -> Void
+        let onClose: () -> Void
     }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: DSSpacing.m) {
-                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: DSSpacing.s)], spacing: DSSpacing.s) {
-                        ForEach(capture.options) { option in
-                            optionButton(option)
-                        }
-                    }
-                    JournalPhotoField(
-                        photo: $photo,
-                        storedPhotoID: capture.editing?.photoIDs.first,
-                        labels: capture.labels.photo,
-                        loader: loader
-                    )
-                    details
-                    if let errorMessage {
-                        Text(errorMessage)
-                            .font(DSFont.caption)
-                            .foregroundStyle(DSColor.boss)
-                    }
-                    if capture.editing != nil {
-                        Button(capture.labels.delete, systemImage: "trash", role: .destructive) { isConfirmingDelete = true }
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, DSSpacing.s)
-                    }
-                }
-                .frame(maxWidth: readableWidth)
-                .padding(DSSpacing.m)
-                .frame(maxWidth: .infinity)
-            }
-            .scrollDismissesKeyboard(.interactively)
-            .background(DSColor.background)
-            .navigationTitle(capture.title)
-            .toolbarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .close, action: onClose)
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(role: .confirm) {
-                        if let selectedID { onSave(selectedID, date, note, photo) }
-                    }
-                    .disabled(selectedID == nil || isSaving)
-                    .accessibilityLabel(capture.saveTitle)
-                }
-            }
-            .confirmationDialog(capture.labels.deleteConfirmation, isPresented: $isConfirmingDelete, titleVisibility: .visible) {
-                Button(capture.labels.delete, role: .destructive, action: onDelete)
-                Button(capture.labels.cancel, role: .cancel) {}
+            switch capture.step {
+            case .choose(let choice):
+                MomentChoiceStep(
+                    title: capture.title,
+                    choice: choice,
+                    errorMessage: errorMessage,
+                    isSaving: isSaving,
+                    onCapture: actions.onCapture,
+                    onClose: actions.onClose
+                )
+            case .details(let details):
+                MomentDetailsStep(
+                    details: details,
+                    errorMessage: errorMessage,
+                    isSaving: isSaving,
+                    loader: loader,
+                    actions: actions
+                )
+                // A moment's own fields, never another's.
+                .id(details.momentID)
             }
         }
     }
+}
 
-    // MARK: Details
+/// The error under a sheet's content, when saving failed.
+struct SheetError: View {
+    let message: String?
 
-    private var details: some View {
-        VStack(spacing: 0) {
-            DateRow(label: capture.dateLabel, date: $date, range: capture.earliestDate...capture.latestDate)
-                .padding(.horizontal, DSSpacing.m)
-            .frame(minHeight: 50)
-            Divider().padding(.leading, DSSpacing.m)
-            TextField(capture.notePlaceholder, text: $note, axis: .vertical)
-                .lineLimit(2...5)
-                .padding(DSSpacing.m)
+    var body: some View {
+        if let message {
+            Text(message)
+                .font(DSFont.caption)
+                .foregroundStyle(DSColor.boss)
         }
-        .font(DSFont.body)
-        .foregroundStyle(DSColor.textPrimary)
-        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
-    }
-
-    private func optionButton(_ option: MomentOption) -> some View {
-        let isSelected = option.id == selectedID
-        let shape = RoundedRectangle(cornerRadius: DSRadius.tile + 4, style: .continuous)
-        return Button {
-            selectedID = option.id
-        } label: {
-            VStack(spacing: DSSpacing.xs) {
-                Text(option.emoji).font(DSFont.emoji)
-                Text(option.title)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.textPrimary)
-                    .multilineTextAlignment(.center)
-                    .lineLimit(2, reservesSpace: true)
-                Text(option.reward)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.legendary)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, DSSpacing.s)
-            .padding(.horizontal, DSSpacing.xs)
-            .background(DSColor.surface, in: shape)
-            .overlay { shape.strokeBorder(DSColor.legendary, lineWidth: isSelected ? 2.5 : 0) }
-            .contentShape(shape)
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-        .animation(.easeOut(duration: 0.15), value: isSelected)
     }
 }

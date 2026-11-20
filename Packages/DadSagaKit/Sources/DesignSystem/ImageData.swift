@@ -5,6 +5,8 @@ import SwiftUI
 /// It is decorative to VoiceOver; the control around it says what it is.
 public struct DecodedImage {
     public let image: Image
+    /// The same picture, for UIKit (the full-screen viewer's zooming).
+    public let cgImage: CGImage
     public let aspectRatio: CGFloat
 
     /// Decodes `data` (JPEG, HEIC, PNG…) off the calling actor, no larger than `maxPixelSize` on its longest side,
@@ -13,10 +15,7 @@ public struct DecodedImage {
         guard let cgImage = await downsample(data, maxPixelSize: max(maxPixelSize, 1)), cgImage.height > 0 else {
             return nil
         }
-        return DecodedImage(
-            image: Image(decorative: cgImage, scale: 1),
-            aspectRatio: CGFloat(cgImage.width) / CGFloat(cgImage.height)
-        )
+        return DecodedImage(cgImage: cgImage)
     }
 
     /// Whether `data` is an image this can decode, without decoding it.
@@ -25,9 +24,10 @@ public struct DecodedImage {
         return CGImageSourceGetType(source) != nil && CGImageSourceGetCount(source) > 0
     }
 
-    private init(image: Image, aspectRatio: CGFloat) {
-        self.image = image
-        self.aspectRatio = aspectRatio
+    private init(cgImage: CGImage) {
+        image = Image(decorative: cgImage, scale: 1)
+        self.cgImage = cgImage
+        aspectRatio = CGFloat(cgImage.width) / CGFloat(cgImage.height)
     }
 
     @concurrent

@@ -195,37 +195,46 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
 
     private var isSlow = false
 
-    /// The next quest takes a while to save, like a slow disk.
+    /// The next quest or moment takes a while to save, like a slow disk.
     func slowNext() {
         isSlow = true
     }
 
+    /// Set while home's overview shows an older log, as if reloading it failed.
+    private var frozen: [ProgressEvent]?
+    func freezeOverview() {
+        frozen = events
+    }
+
     /// The log as the dad's progress, read against the hero stub catalog.
     var current: DadProgress {
-        DadProgress(events: events, catalog: HeroStub.catalog)
+        DadProgress(events: frozen ?? events, catalog: HeroStub.catalog)
     }
+
+    /// The photos each quest or boss was recorded with.
+    private(set) var recordedPhotos: [[Data]] = []
 
     func execute(questID: String, childID: UUID, on date: Date, journal: JournalInput) async throws -> ProgressChange {
         if isSlow {
             isSlow = false
             try? await Task.sleep(for: .milliseconds(200))
         }
+        recordedPhotos.append(journal.photos)
         return try record(.quest(id: questID), childID: childID, on: date, note: journal.note)
     }
 
     func execute(bossID: String, childID: UUID, on date: Date, journal: JournalInput) async throws -> ProgressChange {
-        try record(.boss(id: bossID), childID: childID, on: date, note: journal.note)
+        recordedPhotos.append(journal.photos)
+        return try record(.boss(id: bossID), childID: childID, on: date, note: journal.note)
     }
 
     private var photos: [String: Data] = [:]
 
     func execute(_ request: CaptureMomentRequest, now: Date) async throws -> ProgressChange {
+        if isSlow { isSlow = false; try? await Task.sleep(for: .milliseconds(200)) }
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        let event = ProgressEvent(
-            kind: .first(id: request.firstID), childID: request.childID,
-            date: request.date, note: request.note, photoIDs: request.photos.map(store)
-        )
+        let event = ProgressEvent(kind: .first(id: request.firstID), childID: request.childID, date: request.date)
         events.append(event)
         return ProgressChange(
             before: before,

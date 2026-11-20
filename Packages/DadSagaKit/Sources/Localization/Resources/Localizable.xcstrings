@@ -100,6 +100,47 @@
         }
       }
     },
+    "%lld photos" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld φωτογραφία"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld φωτογραφίες"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld photo"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "%lld photos"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "%lld quests" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -233,6 +274,23 @@
         }
       }
     },
+    "Add photos" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Πρόσθεσε φωτογραφίες"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add photos"
+          }
+        }
+      }
+    },
     "Appearance" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -246,6 +304,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Appearance"
+          }
+        }
+      }
+    },
+    "Close" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Κλείσιμο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
           }
         }
       }
@@ -297,6 +372,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Couldn't delete. Nothing was changed. Please try again."
+          }
+        }
+      }
+    },
+    "Cover" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εξώφυλλο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cover"
           }
         }
       }
@@ -386,6 +478,40 @@
         }
       }
     },
+    "Discard" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Να φύγουν"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discard"
+          }
+        }
+      }
+    },
+    "Discard the changes you just made?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Να φύγουν οι αλλαγές που έκανες;"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discard the changes you just made?"
+          }
+        }
+      }
+    },
     "Everything will be deleted from this iPhone: your family and hero, every quest, boss and moment with their notes and photos, your wardrobe and the weekly reminder. This can't be undone." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -454,6 +580,23 @@
         }
       }
     },
+    "Keep editing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Συνέχισε"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep editing"
+          }
+        }
+      }
+    },
     "Language" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -505,6 +648,40 @@
         }
       }
     },
+    "Make cover" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Κάν' την εξώφυλλο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make cover"
+          }
+        }
+      }
+    },
+    "Next, if you like: photos or a few words." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μετά, αν θες, φωτογραφίες ή δυο λόγια."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Next, if you like: photos or a few words."
+          }
+        }
+      }
+    },
     "Not now" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -522,6 +699,40 @@
         }
       }
     },
+    "Note and photos" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Σημείωση και φωτογραφίες"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Note and photos"
+          }
+        }
+      }
+    },
+    "Note or photos (optional)" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Σημείωση ή φωτογραφίες (προαιρετικά)"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Note or photos (optional)"
+          }
+        }
+      }
+    },
     "OK" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -535,6 +746,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "OK"
+          }
+        }
+      }
+    },
+    "Photo %lld of %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Φωτογραφία %lld από %lld"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photo %lld of %lld"
+          }
+        }
+      }
+    },
+    "Photos or a few words, now or whenever you like." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Φωτογραφίες ή δυο λόγια, τώρα ή όποτε θέλεις."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos or a few words, now or whenever you like."
           }
         }
       }
@@ -590,6 +835,40 @@
         }
       }
     },
+    "Remove" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αφαίρεση"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove"
+          }
+        }
+      }
+    },
+    "Saved! Want to keep something more?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αποθηκεύτηκε! Θες να κρατήσεις κάτι ακόμα;"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved! Want to keep something more?"
+          }
+        }
+      }
+    },
     "Settings" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -603,6 +882,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Settings"
+          }
+        }
+      }
+    },
+    "Show photos" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δες τις φωτογραφίες"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show photos"
           }
         }
       }
@@ -676,6 +972,40 @@
         }
       }
     },
+    "The moment, its photos and its XP will be removed." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η στιγμή, οι φωτογραφίες της και τα XP της θα σβηστούν."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The moment, its photos and its XP will be removed."
+          }
+        }
+      }
+    },
+    "Up to %lld photos on each entry." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ως %lld φωτογραφίες σε κάθε καταχώριση."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Up to %lld photos on each entry."
+          }
+        }
+      }
+    },
     "Version" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -706,6 +1036,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your hero"
+          }
+        }
+      }
+    },
+    "Your photos and note will be deleted with it, for good." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οι φωτογραφίες και η σημείωσή σου θα σβηστούν μαζί του, χωρίς επιστροφή."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your photos and note will be deleted with it, for good."
           }
         }
       }
@@ -774,23 +1121,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Add a child"
-          }
-        }
-      }
-    },
-    "Add a photo" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Πρόσθεσε φωτογραφία"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add a photo"
           }
         }
       }
@@ -978,23 +1308,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Child"
-          }
-        }
-      }
-    },
-    "Choose another" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Άλλη φωτογραφία"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose another"
           }
         }
       }
@@ -1805,40 +2118,6 @@
         }
       }
     },
-    "Note and photo" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Σημείωση και φωτογραφία"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Note and photo"
-          }
-        }
-      }
-    },
-    "Note or photo (optional)" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Σημείωση ή φωτογραφία (προαιρετικά)"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Note or photo (optional)"
-          }
-        }
-      }
-    },
     "Nothing" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1988,23 +2267,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Remove child"
-          }
-        }
-      }
-    },
-    "Remove photo" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Αφαίρεση φωτογραφίας"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Remove photo"
           }
         }
       }
@@ -2175,23 +2437,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The best one"
-          }
-        }
-      }
-    },
-    "The moment, its photo and its XP will be removed." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Η στιγμή, η φωτογραφία της και τα XP της θα σβηστούν."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The moment, its photo and its XP will be removed."
           }
         }
       }
@@ -2573,23 +2818,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your family failed to load."
-          }
-        }
-      }
-    },
-    "Your photo and note will be deleted with it, for good. Its %lld XP will be removed too." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Η φωτογραφία και η σημείωσή σου θα σβηστούν μαζί του, χωρίς επιστροφή. Θα αφαιρεθούν και τα %lld XP."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your photo and note will be deleted with it, for good. Its %lld XP will be removed too."
           }
         }
       }

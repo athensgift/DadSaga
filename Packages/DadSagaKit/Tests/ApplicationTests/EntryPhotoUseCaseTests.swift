@@ -41,7 +41,7 @@ struct EntryPhotoUseCaseTests {
         #expect(event.coverPhotoID == event.photoIDs.first)
     }
 
-    @Test("Given eleven photos, when recording, then it throws and nothing is written")
+    @Test("Given one photo more than the limit, when recording, then it throws and nothing is written")
     func tooManyWhenRecording() async throws {
         let store = SpyPhotoStore()
 
@@ -126,7 +126,7 @@ struct EntryPhotoUseCaseTests {
         #expect(try await repository.fetchEvents().first?.photoIDs == event.photoIDs)
     }
 
-    @Test("Given a kept id the entry doesn't have, or eleven photos, when editing, then it throws and nothing is written")
+    @Test("Given a kept id the entry lacks, or one photo over the limit, when editing, then it throws and nothing is written")
     func updateRejectsUnknownOrTooMany() async throws {
         let store = SpyPhotoStore()
         let event = try await questWithThreePhotos(store: store)

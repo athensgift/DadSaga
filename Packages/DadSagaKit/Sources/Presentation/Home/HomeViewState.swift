@@ -57,38 +57,82 @@ public struct MomentsSection: Equatable, Sendable {
     public let emptyText: String
     /// Every first is already captured for this child.
     public let isComplete: Bool
+    /// For the cards' photos, full screen.
+    public let viewer: PhotoViewerLabels
 }
 
-/// The sheet for capturing a legendary moment for the selected child.
+/// The sheet for a legendary moment of the selected child, in two steps (ADR-0042 §5): choose the first and when it
+/// happened, which records it at once; then, if the dad likes, photos and a few words. Editing opens at the second.
 public struct MomentCapture: Equatable, Identifiable, Sendable {
+    public enum Step: Equatable, Sendable {
+        case choose(MomentChoice)
+        case details(MomentDetails)
+    }
+
+    /// The same through both steps, so the sheet stays open while it moves on.
     public let id: UUID
+    /// The child's name.
     public let title: String
-    /// The firsts to choose from. When editing, only the moment's own first.
+    public internal(set) var step: Step
+
+    /// The second step, once there.
+    public var details: MomentDetails? {
+        if case .details(let details) = step { details } else { nil }
+    }
+}
+
+/// Step 1: which first, and when.
+public struct MomentChoice: Equatable, Sendable {
+    /// The firsts not captured yet for this child.
     public let options: [MomentOption]
+    public let dateLabel: String
+    public let earliestDate: Date
+    public let latestDate: Date
+    /// "Next, if you like: photos or a few words."
+    public let nextLine: String
+    /// The ✓ button, for VoiceOver.
+    public let saveTitle: String
+}
+
+/// Step 2: the moment's own page, to add photos and a few words or change the date.
+public struct MomentDetails: Equatable, Sendable {
+    public let momentID: UUID
+    /// Emoji and name, e.g. "👣 Πρώτα βήματα".
+    public let title: String
+    /// e.g. "+30 XP".
+    public let reward: String
+    /// Just recorded: it says so, offers "Not now", and celebrates. Otherwise it was opened to edit, with Delete.
+    public let isNew: Bool
+    /// "Saved! Want to keep something more?", for a new moment.
+    public let heading: String?
+    /// "Photos or a few words, now or whenever you like.", for a new moment.
+    public let line: String?
+    public let date: Date
+    public let note: String
+    /// In the dad's order; the first is the cover.
+    public let photoIDs: [String]
     public let dateLabel: String
     public let earliestDate: Date
     public let latestDate: Date
     public let notePlaceholder: String
     public let saveTitle: String
-    public let labels: MomentPhotoLabels
-    /// Set when an existing moment is being edited rather than a new one captured.
-    public let editing: MomentEditing?
+    public let notNowTitle: String
+    public let labels: MomentLabels
+    /// Shown in the sheet, since home is behind it. Only for a moment just recorded.
+    public internal(set) var celebration: Celebration?
+    /// "Saved · Undo" in the sheet: undoing deletes the moment and closes the sheet.
+    public internal(set) var undoOffer: UndoOffer?
 }
 
-/// The current values of a moment being edited.
-public struct MomentEditing: Equatable, Sendable {
-    public let momentID: UUID
-    public let date: Date
-    public let note: String
-    /// In the dad's order; the first is the cover.
-    public let photoIDs: [String]
-}
-
-public struct MomentPhotoLabels: Equatable, Sendable {
-    public let photo: PhotoLabels
+public struct MomentLabels: Equatable, Sendable {
+    public let journal: JournalLabels
     public let delete: String
     public let deleteConfirmation: String
     public let cancel: String
+    /// "Discard the changes you just made?"
+    public let discardQuestion: String
+    public let discard: String
+    public let keepEditing: String
 }
 
 /// A captured moment as a gold card.
@@ -99,15 +143,10 @@ public struct MomentCardModel: Equatable, Identifiable, Sendable {
     /// Date and note.
     public let subtitle: String
     public let badge: String
-    /// The cover, if the moment has photos.
-    public let photoID: String?
-}
-
-/// What the dad did with the photo while capturing or editing a moment.
-public enum MomentPhotoEdit: Equatable, Sendable {
-    case keep
-    case remove
-    case replace(Data)
+    /// In the dad's order; the first is the cover.
+    public let photoIDs: [String]
+    /// How many photos, for VoiceOver, e.g. "3 φωτογραφίες"; `nil` without photos.
+    public let photoCount: String?
 }
 
 public struct MomentOption: Equatable, Identifiable, Sendable {

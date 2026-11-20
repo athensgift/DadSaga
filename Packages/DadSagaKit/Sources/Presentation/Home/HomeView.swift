@@ -14,6 +14,8 @@ public struct HomeView: View {
     @State var settingsViewModel: SettingsViewModel?
     /// The film sheet, opened from the film offer.
     @State var sagaFilm: SagaFilmViewModel?
+    /// A moment's photos, full screen.
+    @State var photoViewer: PhotoViewerContent?
     let makeWardrobe: MakeWardrobe
     let makeSagaFilm: SagaFilmSheet.MakeViewModel
     let settings: SettingsScreens
@@ -89,19 +91,10 @@ public struct HomeView: View {
             case .boss(let boss):
                 bossSheet(boss)
             case .moment(let capture):
-                MomentSheet(
-                    capture: capture,
-                    errorMessage: viewModel.errorMessage,
-                    isSaving: viewModel.isCompleting,
-                    loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
-                    onSave: { id, date, note, photo in
-                        Task { await viewModel.saveMoment(firstID: id, date: date, note: note, photo: photo) }
-                    },
-                    onDelete: { Task { await viewModel.deleteMoment() } },
-                    onClose: { viewModel.dismissSelection() }
-                )
+                momentSheet(capture)
             }
         }
+        .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
     }
 
     private var title: String {
@@ -241,7 +234,12 @@ public struct HomeView: View {
                 section: content.moments,
                 loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
                 onAdd: { viewModel.startCapture() },
-                onEdit: { viewModel.editMoment(id: $0) }
+                onEdit: { viewModel.editMoment(id: $0) },
+                onShowPhotos: { card in
+                    photoViewer = content.moments.viewer.content(
+                        entry: card.title, photos: card.photoIDs.map(PhotoSource.stored)
+                    )
+                }
             )
                 .padding(.top, DSSpacing.l)
         }
@@ -283,8 +281,27 @@ extension HomeView {
             errorMessage: viewModel.errorMessage,
             isCompleting: viewModel.isCompleting,
             loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
-            onConfirm: { note, photo in Task { await viewModel.completeSelectedQuest(note: note, photo: photo) } },
+            onConfirm: { note, photos in Task { await viewModel.completeSelectedQuest(note: note, photos: photos) } },
             onClose: { viewModel.dismissSelection() }
+        )
+    }
+
+    func momentSheet(_ capture: MomentCapture) -> some View {
+        MomentSheet(
+            capture: capture,
+            errorMessage: viewModel.errorMessage,
+            isSaving: viewModel.isCompleting,
+            loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
+            actions: MomentSheet.Actions(
+                onCapture: { id, date in Task { await viewModel.captureMoment(firstID: id, date: date) } },
+                onSave: { date, note, photos in
+                    Task { await viewModel.saveMomentDetails(date: date, note: note, photos: photos) }
+                },
+                onDelete: { Task { await viewModel.deleteMoment() } },
+                onCelebrationFinished: { viewModel.momentCelebrationFinished() },
+                onUndoExpired: { viewModel.momentUndoExpired(id: $0) },
+                onClose: { viewModel.dismissSelection() }
+            )
         )
     }
 
@@ -294,7 +311,7 @@ extension HomeView {
             errorMessage: viewModel.errorMessage,
             isCompleting: viewModel.isCompleting,
             loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
-            onConfirm: { note, photo in Task { await viewModel.defeatSelectedBoss(note: note, photo: photo) } },
+            onConfirm: { note, photos in Task { await viewModel.defeatSelectedBoss(note: note, photos: photos) } },
             onClose: { viewModel.dismissSelection() }
         )
     }
@@ -307,10 +324,11 @@ extension HomeView {
     func openPendingLink() async {
         guard let pendingLink else { return }
         let hadSheet = wardrobeViewModel != nil || settingsViewModel != nil || sagaFilm != nil
-            || viewModel.worldMap != nil
+            || viewModel.worldMap != nil || photoViewer != nil
         wardrobeViewModel = nil
         settingsViewModel = nil
         sagaFilm = nil
+        photoViewer = nil
         viewModel.closeMap()
         // A new sheet cannot appear while the old one is still sliding away.
         if hadSheet { try? await Task.sleep(for: .milliseconds(450)) }

@@ -65,30 +65,15 @@ struct SagaFixture {
                 questID: id, childID: Self.child.id, on: Self.day(daysAgo), journal: JournalInput(note: note)
             )
         }
-        let moment = DefaultCaptureMomentUseCase(
-            contentRepository: content, progressRepository: store.progress, photoStore: photos
-        )
-        _ = try await moment.execute(
-            CaptureMomentRequest(firstID: "f-first-hold", childID: Self.child.id, date: Self.day(30)), now: Self.today
-        )
-        _ = try await moment.execute(
-            CaptureMomentRequest(firstID: "f-smile", childID: Self.child.id, date: Self.day(3), note: "At 6 a.m., for me"),
-            now: Self.today
-        )
+        try await captureMoment("f-first-hold", daysAgo: 30)
+        try await captureMoment("f-smile", daysAgo: 3, note: "At 6 a.m., for me")
         return self
     }
 
     /// The saga of `played()`, with more for a film to show: a first with a photo and a boss beaten.
     func filmed() async throws -> SagaFixture {
         _ = try await played()
-        let moment = DefaultCaptureMomentUseCase(
-            contentRepository: content, progressRepository: store.progress, photoStore: photos
-        )
-        _ = try await moment.execute(
-            CaptureMomentRequest(firstID: "f-laugh", childID: Self.child.id, date: Self.day(12),
-                                 photos: Self.photo().map { [$0] } ?? []),
-            now: Self.today
-        )
+        try await captureMoment("f-laugh", daysAgo: 12, photos: Self.photo().map { [$0] } ?? [])
         let boss = DefaultDefeatBossUseCase(
             contentRepository: content, progressRepository: store.progress, photoStore: photos
         )
@@ -126,6 +111,17 @@ struct SagaFixture {
     }
 
     static func day(_ daysAgo: Double) -> Date { today.addingTimeInterval(-daysAgo * 86_400) }
+
+    /// A first recorded the way the app does it: chosen and dated, then given its note and photos (ADR-0042 §5).
+    private func captureMoment(_ firstID: String, daysAgo: Double, note: String? = nil, photos added: [Data] = []) async throws {
+        let change = try await DefaultCaptureMomentUseCase(
+            contentRepository: content, progressRepository: store.progress, photoStore: photos
+        ).execute(CaptureMomentRequest(firstID: firstID, childID: Self.child.id, date: Self.day(daysAgo)), now: Self.today)
+        guard let id = change.eventID, note != nil || !added.isEmpty else { return }
+        try await DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photos).execute(
+            momentID: id, happenedOn: Self.day(daysAgo), note: note, photos: added.map(EntryPhoto.added), now: Self.today
+        )
+    }
 
     /// A photo made here, so no real one is kept in the repository: a plain warm picture, taller than wide.
     private static func photo() -> Data? {

@@ -28,7 +28,7 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
     public let photoIDs: [String]
 
     /// The most photos an entry keeps (ADR-0042).
-    public static let photoLimit = 10
+    public static let photoLimit = 5
 
     /// The photo shown wherever the entry has one picture: thumbnails, the widget, the film's cards.
     public var coverPhotoID: String? { photoIDs.first }

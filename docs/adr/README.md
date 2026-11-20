@@ -23,13 +23,13 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0013](0013-child-avatars.md) | Child avatars by age stage | avatar, family | |
 | [0014](0014-hero-gear.md) | Gear earned from skills and bosses | gear, avatar | 0018 (wardrobe) |
 | [0015](0015-legendary-moments.md) | Legendary moments are progress events with a date and a note | moments, progress | |
-| [0016](0016-moment-photos.md) | Moment photos as files on device; moments editable and deletable | moments, photos, privacy | 0021 (delete use case), 0022 (photos on every card), 0042 (up to ten photos; an edit gives the whole list) |
+| [0016](0016-moment-photos.md) | Moment photos as files on device; moments editable and deletable | moments, photos, privacy | 0021 (delete use case), 0022 (photos on every card), 0042 (up to five photos; an edit gives the whole list) |
 | [0017](0017-timeline-and-tabs.md) | A timeline tab derived from progress events | timeline, navigation | |
 | [0018](0018-wardrobe.md) | Wardrobe: choose what the hero wears per slot | gear, avatar | |
 | [0019](0019-world-map-and-older-worlds.md) | World map, replayable worlds, worlds up to age 6 | worlds, content | |
 | [0020](0020-card-tips-and-evergreen-cards.md) | Card tips, evergreen cards, a sibling-only boss | content, cards | |
 | [0021](0021-undo-and-delete-entries.md) | Undo and delete the dad's own entries | progress, timeline | 0042 (a first's undo shows in its sheet) |
-| [0022](0022-journal-on-every-card.md) | A note and a photo on every card | journal, photos | 0042 (up to ten photos) |
+| [0022](0022-journal-on-every-card.md) | A note and a photo on every card | journal, photos | 0042 (up to five photos) |
 | [0023](0023-home-screen-widget.md) | Home-screen widget: weekly quest and latest moment | widget | 0026 (migrations), 0027 (widget strings) |
 | [0024](0024-weekly-notification.md) | One gentle weekly notification | notifications, product rules | 0030 (bell button), 0037 (the reminder card waits while a film card shows) |
 | [0025](0025-app-icon-and-launch-screen.md) | App icon in Icon Composer, native launch screen | branding | 0033 (also writes the website's images) |
@@ -49,4 +49,4 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0039](0039-website-motion-in-css.md) | Website motion in CSS only: reveals on scroll, a sticky header, Reduce Motion respected | website, accessibility, motion | 0040 (JavaScript after all; the mock's reveals removed) |
 | [0040](0040-website-script-tappable-family-timeline-clip.md) | The website's own script, a family that cheers when tapped, a clip of the real timeline | website, motion, accessibility | |
 | [0041](0041-dates-in-the-saga-film.md) | Dates in the saga film, on by default, behind a switch the film sheet remembers | video, product rules, privacy, localization, UI | |
-| [0042](0042-several-photos-viewer-and-firsts-in-two-steps.md) | Up to ten photos on every entry, a full-screen photo viewer, firsts recorded first and filled in after | photos, storage, moments, video, accessibility, product rules | |
+| [0042](0042-several-photos-viewer-and-firsts-in-two-steps.md) | Up to five photos on every entry, a full-screen photo viewer, firsts recorded first and filled in after | photos, storage, moments, video, accessibility, product rules | |
