@@ -28,8 +28,9 @@ enum ContentValidator {
         var seen: Set<String> = []
         for track in soundtracks {
             guard seen.insert(track.id).inserted else { throw ContentDataError.duplicateID(track.id) }
-            let credit = [track.title, track.artist].map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-            guard !credit.contains(where: \.isEmpty) else { throw ContentDataError.emptyCredit(itemID: track.id) }
+            let texts = [track.title.el, track.title.en, track.mood.el, track.mood.en, track.artist]
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            guard !texts.contains(where: \.isEmpty) else { throw ContentDataError.emptyText(itemID: track.id) }
         }
     }
 }

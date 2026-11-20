@@ -99,6 +99,8 @@ extension SoundtrackDTO {
         guard let licence = SoundtrackLicence(rawValue: licence) else {
             throw ContentDataError.unknownLicence(itemID: id, licence: self.licence)
         }
-        return Soundtrack(id: id, title: title, artist: artist, licence: licence, audioURL: audioURL)
+        return Soundtrack(
+            id: id, title: title.toDomain(), mood: mood.toDomain(), artist: artist, licence: licence, audioURL: audioURL
+        )
     }
 }

@@ -24,9 +24,23 @@ enum FilmStub {
     static let family = PlayerProfile(children: [anna, niko], heroClassID: "h-cool", dadSkinTone: .mediumDark)
 
     static let theme = Soundtrack(
-        id: "theme", title: "Saga Theme", artist: "DadSaga", licence: .original,
+        id: "theme",
+        title: LocalizedText(el: "Το θέμα της ιστορίας", en: "Saga Theme"),
+        mood: LocalizedText(el: "Απαλό και αισιόδοξο", en: "Gentle and hopeful"),
+        artist: "DadSaga",
+        licence: .original,
         audioURL: URL(filePath: "/music/saga-theme.m4a")
     )
+    static let lullaby = Soundtrack(
+        id: "lullaby",
+        title: LocalizedText(el: "Νανούρισμα για μουσικό κουτί", en: "Music Box Lullaby"),
+        mood: LocalizedText(el: "Τρυφερό και αργό, για ήσυχες στιγμές", en: "Tender and slow, for quiet moments"),
+        artist: "DadSaga",
+        licence: .original,
+        audioURL: URL(filePath: "/music/music-box-lullaby.m4a")
+    )
+    /// The bundled tracks, in order: the first is the default.
+    static let music = [theme, lullaby]
 
     static let catalog = ContentCatalog(
         worlds: [
@@ -77,29 +91,43 @@ enum FilmStub {
     ]
 }
 
-/// The film's query from stubs. The scenes, the periods on offer and the default period come from the real Domain
-/// rules, so the sheet's tests follow the same rules as the app.
-/// The film dates switch in memory, shared by the fake query and the sheet's set use case: on until set.
-final class FakeSagaFilmDates: SagaFilmDatesRepository, Sendable {
-    private let stored = Mutex<Bool?>(nil)
+/// What the film sheet remembers, in memory, shared by the fake query and the sheet's set use cases: dates on and no
+/// track until set.
+final class FakeSagaFilmChoices: SagaFilmChoicesRepository, Sendable {
+    enum Save: Equatable, Sendable {
+        case dates(Bool)
+        case music(String)
+    }
+
+    private let storedShowsDates = Mutex<Bool?>(nil)
+    private let storedSoundtrackID = Mutex<String?>(nil)
     /// Every value saved, in order.
-    private let saved = Mutex<[Bool]>([])
+    private let saved = Mutex<[Save]>([])
 
-    var saves: [Bool] { saved.withLock(\.self) }
+    var saves: [Save] { saved.withLock(\.self) }
 
-    func showsDates() async -> Bool { stored.withLock { $0 ?? true } }
+    func showsDates() async -> Bool { storedShowsDates.withLock { $0 ?? true } }
 
     func setShowsDates(_ showsDates: Bool) async {
-        stored.withLock { $0 = showsDates }
-        saved.withLock { $0.append(showsDates) }
+        storedShowsDates.withLock { $0 = showsDates }
+        saved.withLock { $0.append(.dates(showsDates)) }
+    }
+
+    func soundtrackID() async -> String? { storedSoundtrackID.withLock(\.self) }
+
+    func setSoundtrackID(_ id: String) async {
+        storedSoundtrackID.withLock { $0 = id }
+        saved.withLock { $0.append(.music(id)) }
     }
 }
 
+/// The film's query from stubs. The scenes, the periods on offer and the default period come from the real Domain
+/// rules, so the sheet's tests follow the same rules as the app.
 actor FakeGetSagaFilm: GetSagaFilmUseCase {
-    nonisolated let dates: FakeSagaFilmDates
+    nonisolated let choices: FakeSagaFilmChoices
     private let profile: PlayerProfile?
     private let events: [ProgressEvent]
-    private var soundtrack: Soundtrack?
+    private var soundtracks: [Soundtrack]
     /// The period of every film asked for; `nil` leaves it to the day.
     private(set) var asked: [SagaPeriod?] = []
     /// Yields when a held answer has been asked for.
@@ -110,11 +138,11 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
     private let releaseSignal: AsyncStream<Void>.Continuation
 
     init(profile: PlayerProfile? = FilmStub.profile, events: [ProgressEvent] = FilmStub.annasSaga,
-         soundtrack: Soundtrack? = FilmStub.theme, dates: FakeSagaFilmDates = FakeSagaFilmDates()) {
-        self.dates = dates
+         soundtracks: [Soundtrack] = FilmStub.music, choices: FakeSagaFilmChoices = FakeSagaFilmChoices()) {
+        self.choices = choices
         self.profile = profile
         self.events = events
-        self.soundtrack = soundtrack
+        self.soundtracks = soundtracks
         (reached, reachedSignal) = AsyncStream.makeStream()
         (release, releaseSignal) = AsyncStream.makeStream()
     }
@@ -128,8 +156,8 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
         releaseSignal.yield()
     }
 
-    func bundle(_ soundtrack: Soundtrack) {
-        self.soundtrack = soundtrack
+    func bundle(_ soundtracks: [Soundtrack]) {
+        self.soundtracks = soundtracks
     }
 
     func execute(childID: UUID?, period: SagaPeriod?, on date: Date) async throws -> SagaFilm? {
@@ -141,7 +169,10 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
             _ = await waiting.next()
         }
         guard let profile, let child = profile.child(childID) else { return nil }
-        guard let soundtrack else { throw SagaFilmError.noSoundtrack }
+        // The remembered track, or the first, like the real query.
+        guard let first = soundtracks.first else { throw SagaFilmError.noSoundtrack }
+        let chosenID = await choices.soundtrackID()
+        let soundtrack = soundtracks.first { $0.id == chosenID } ?? first
         let catalog = FilmStub.catalog
         let calendar = FilmStub.calendar
         let chosen = period
@@ -164,8 +195,9 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
             medalCount: progress.allDefeatedBossIDs.count,
             childFirsts: catalog.firsts.filter { firsts.contains($0.id) },
             equippedGear: catalog.gear.filter { (progress.skillXP[$0.skill] ?? 0) >= $0.minXP },
+            soundtracks: soundtracks,
             soundtrack: soundtrack,
-            showsDates: await dates.showsDates()
+            showsDates: await choices.showsDates()
         )
     }
 }
@@ -240,5 +272,49 @@ actor FakeFilmRenderer: SagaFilmRendering {
 
     func discardFilms() async {
         try? FileManager.default.removeItem(at: folder)
+    }
+}
+
+/// Stands in for the music player: it keeps what it is asked to play, and each play sounds until the test finishes it
+/// or its task is cancelled, like a preview stopped by the sheet.
+@MainActor
+final class FakeMusicPreviewer: SagaMusicPreviewing {
+    /// Every track asked for, in order.
+    private(set) var played: [URL] = []
+    /// The track sounding now, if any.
+    private(set) var sounding: URL?
+    /// Yields each track as it starts.
+    nonisolated let started: AsyncStream<URL>
+    /// Yields each track once its play has returned, finished or stopped.
+    nonisolated let returned: AsyncStream<URL>
+    private var current: (number: Int, end: AsyncStream<Void>.Continuation)?
+    private let startedSignal: AsyncStream<URL>.Continuation
+    private let returnedSignal: AsyncStream<URL>.Continuation
+
+    init() {
+        (started, startedSignal) = AsyncStream.makeStream()
+        (returned, returnedSignal) = AsyncStream.makeStream()
+    }
+
+    /// The track sounding now plays to its end.
+    func finish() {
+        current?.end.finish()
+    }
+
+    func play(_ url: URL, seconds: Double) async {
+        played.append(url)
+        let number = played.count
+        let (end, endSignal) = AsyncStream<Void>.makeStream()
+        current = (number, endSignal)
+        sounding = url
+        startedSignal.yield(url)
+        // Ends when the test finishes it, or with `nil` when the task is cancelled.
+        var waiting = end.makeAsyncIterator()
+        _ = await waiting.next()
+        if current?.number == number {
+            current = nil
+            sounding = nil
+        }
+        returnedSignal.yield(url)
     }
 }

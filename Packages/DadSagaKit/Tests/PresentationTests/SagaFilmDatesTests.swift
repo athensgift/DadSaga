@@ -36,7 +36,7 @@ struct SagaFilmDatesTests: SagaFilmSheetTests {
 
         await first.setShowsDates(false)?.value
         #expect(choices(first)?.showsDates == false)
-        #expect(getFilm.dates.saves == [false])
+        #expect(getFilm.choices.saves == [.dates(false)])
 
         let next = makeSUT(getFilm)
         await next.onAppear()
@@ -69,8 +69,8 @@ struct SagaFilmDatesTests: SagaFilmSheetTests {
         sut.setShowsDates(false)
         await sut.setShowsDates(true)?.value
 
-        #expect(getFilm.dates.saves == [false, true])
-        #expect(await getFilm.dates.showsDates())
+        #expect(getFilm.choices.saves == [.dates(false), .dates(true)])
+        #expect(await getFilm.choices.showsDates())
         #expect(choices(sut)?.showsDates == true)
     }
 }

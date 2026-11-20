@@ -102,14 +102,14 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
 
     @Test("Given no bundled music, when the sheet opens, then it says so calmly, and trying again loads the choices")
     func noMusic() async throws {
-        let getFilm = FakeGetSagaFilm(soundtrack: nil)
+        let getFilm = FakeGetSagaFilm(soundtracks: [])
         let sut = makeSUT(getFilm)
         await sut.onAppear()
 
         let notice = SagaFilmNotice(message: "Η ταινία δεν μπορεί να φτιαχτεί τώρα.", actionTitle: "Δοκίμασε ξανά")
         #expect(sut.state == .unavailable(notice))
 
-        await getFilm.bundle(FilmStub.theme)
+        await getFilm.bundle([FilmStub.theme])
         await sut.reload()
         #expect(choices(sut)?.selectedPeriodID == "year-2")
     }
@@ -153,7 +153,7 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
                     SagaFilmCreditLine(role: "Πρωταγωνιστεί", name: "Άννα"),
                     SagaFilmCreditLine(role: "Ο ήρωας", name: "Cool Μπαμπάς"),
                     SagaFilmCreditLine(role: "Μαζί", name: "4 αποστολές · 1 αφεντικό"),
-                    SagaFilmCreditLine(role: "Μουσική", name: "Saga Theme · DadSaga")
+                    SagaFilmCreditLine(role: "Μουσική", name: "Το θέμα της ιστορίας · DadSaga")
                 ],
                 signature: "Φτιαγμένο με το DadSaga"
             ))
@@ -183,10 +183,16 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
 
     @Test("Given a public-domain track, when making the film, then the credits say so after its title and artist")
     func creditsOfAPublicDomainTrack() async throws {
+        // A CC0 track keeps its own title, the same in both languages.
         let track = Soundtrack(
-            id: "cc0", title: "Lullaby", artist: "A. Composer", licence: .cc0, audioURL: FilmStub.theme.audioURL
+            id: "cc0",
+            title: LocalizedText(el: "Lullaby", en: "Lullaby"),
+            mood: LocalizedText(el: "Ήρεμο", en: "Calm"),
+            artist: "A. Composer",
+            licence: .cc0,
+            audioURL: FilmStub.theme.audioURL
         )
-        let sut = makeSUT(FakeGetSagaFilm(soundtrack: track))
+        let sut = makeSUT(FakeGetSagaFilm(soundtracks: [track]))
         await sut.onAppear()
 
         await sut.makeFilm(reduceMotion: false)

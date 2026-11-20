@@ -8,7 +8,7 @@ public enum ContentDataError: Error, Equatable {
     case unknownWorld(itemID: String, worldID: String)
     case emptyTip(itemID: String)
     case unknownLicence(itemID: String, licence: String)
-    case emptyCredit(itemID: String)
+    case emptyText(itemID: String)
 }
 
 /// `ContentRepository` backed by the JSON bundled with the app. The catalog is loaded and validated once.

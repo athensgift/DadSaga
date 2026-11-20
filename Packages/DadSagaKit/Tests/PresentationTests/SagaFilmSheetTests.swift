@@ -16,13 +16,18 @@ extension SagaFilmSheetTests {
         _ getFilm: FakeGetSagaFilm = FakeGetSagaFilm(),
         childID: UUID? = nil,
         locale: String = "el_GR",
+        previewer: FakeMusicPreviewer = FakeMusicPreviewer(),
         now: @escaping @Sendable () -> Date = { FilmStub.today }
     ) -> SagaFilmViewModel {
         SagaFilmViewModel(
             request: SagaFilmRequest(childID: childID),
-            getFilm: getFilm,
-            setDates: DefaultSetSagaFilmDatesUseCase(repository: getFilm.dates),
+            useCases: SagaFilmViewModel.UseCases(
+                getFilm: getFilm,
+                setDates: DefaultSetSagaFilmDatesUseCase(repository: getFilm.choices),
+                setMusic: DefaultSetSagaFilmMusicUseCase(repository: getFilm.choices)
+            ),
             renderer: renderer,
+            previewer: previewer,
             locale: Locale(identifier: locale),
             calendar: FilmStub.calendar,
             now: now
