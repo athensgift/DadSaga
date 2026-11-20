@@ -2,6 +2,7 @@ import Application
 import Domain
 import Foundation
 import Presentation
+import Synchronization
 
 /// A saga for the film sheet's tests: Anna, two years and five days old, with a first year in the cave and a second
 /// in the plains, and her baby brother with nothing yet.
@@ -78,7 +79,24 @@ enum FilmStub {
 
 /// The film's query from stubs. The scenes, the periods on offer and the default period come from the real Domain
 /// rules, so the sheet's tests follow the same rules as the app.
+/// The film dates switch in memory, shared by the fake query and the sheet's set use case: on until set.
+final class FakeSagaFilmDates: SagaFilmDatesRepository, Sendable {
+    private let stored = Mutex<Bool?>(nil)
+    /// Every value saved, in order.
+    private let saved = Mutex<[Bool]>([])
+
+    var saves: [Bool] { saved.withLock(\.self) }
+
+    func showsDates() async -> Bool { stored.withLock { $0 ?? true } }
+
+    func setShowsDates(_ showsDates: Bool) async {
+        stored.withLock { $0 = showsDates }
+        saved.withLock { $0.append(showsDates) }
+    }
+}
+
 actor FakeGetSagaFilm: GetSagaFilmUseCase {
+    nonisolated let dates: FakeSagaFilmDates
     private let profile: PlayerProfile?
     private let events: [ProgressEvent]
     private var soundtrack: Soundtrack?
@@ -92,7 +110,8 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
     private let releaseSignal: AsyncStream<Void>.Continuation
 
     init(profile: PlayerProfile? = FilmStub.profile, events: [ProgressEvent] = FilmStub.annasSaga,
-         soundtrack: Soundtrack? = FilmStub.theme) {
+         soundtrack: Soundtrack? = FilmStub.theme, dates: FakeSagaFilmDates = FakeSagaFilmDates()) {
+        self.dates = dates
         self.profile = profile
         self.events = events
         self.soundtrack = soundtrack
@@ -145,7 +164,8 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
             medalCount: progress.allDefeatedBossIDs.count,
             childFirsts: catalog.firsts.filter { firsts.contains($0.id) },
             equippedGear: catalog.gear.filter { (progress.skillXP[$0.skill] ?? 0) >= $0.minXP },
-            soundtrack: soundtrack
+            soundtrack: soundtrack,
+            showsDates: await dates.showsDates()
         )
     }
 }

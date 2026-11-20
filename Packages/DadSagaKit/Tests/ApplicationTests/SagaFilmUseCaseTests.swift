@@ -45,6 +45,8 @@ struct SagaFilmUseCaseTests {
         return calendar.date(byAdding: .day, value: days, to: month) ?? .distantPast
     }
 
+    let dates = InMemorySagaFilmDatesRepository()
+
     func sut(soundtracks: [Soundtrack] = [Self.music]) -> DefaultGetSagaFilmUseCase {
         DefaultGetSagaFilmUseCase(
             contentRepository: StubContentRepository(result: .success(Self.catalog)),
@@ -52,6 +54,7 @@ struct SagaFilmUseCaseTests {
             progressRepository: progress,
             outfitRepository: SpyOutfitRepository(),
             soundtrackRepository: StubSoundtrackRepository(soundtracks: soundtracks),
+            datesRepository: dates,
             calendar: calendar
         )
     }
@@ -62,6 +65,16 @@ struct SagaFilmUseCaseTests {
 
     func record(_ kind: ProgressEvent.Kind, months: Int, child: Child? = nil) async throws {
         try await progress.add(ProgressEvent(kind: kind, childID: (child ?? anna).id, date: date(months: months)))
+    }
+
+    @Test("Given nothing stored, when reading the film, then it shows its dates; once turned off, it doesn't")
+    func datesSwitch() async throws {
+        try await family()
+        #expect(try await #require(sut().execute(childID: nil, period: nil, on: date(months: 26))).showsDates)
+
+        await DefaultSetSagaFilmDatesUseCase(repository: dates).execute(showsDates: false)
+
+        #expect(try await !#require(sut().execute(childID: nil, period: nil, on: date(months: 26))).showsDates)
     }
 
     @Test("Given no family yet, when reading the film, then there is none")
@@ -176,4 +189,13 @@ struct StubSoundtrackRepository: SoundtrackRepository {
     func fetchSoundtracks() async throws -> [Soundtrack] {
         soundtracks
     }
+}
+
+/// The film dates switch in memory: on until set.
+final class InMemorySagaFilmDatesRepository: SagaFilmDatesRepository, @unchecked Sendable {
+    private let lock = NSLock()
+    private var stored: Bool?
+
+    func showsDates() async -> Bool { lock.withLock { stored ?? true } }
+    func setShowsDates(_ showsDates: Bool) async { lock.withLock { stored = showsDates } }
 }

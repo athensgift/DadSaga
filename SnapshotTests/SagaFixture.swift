@@ -31,6 +31,7 @@ struct SagaFixture {
     private let reminderSettings: any ReminderSettingsRepository
     private let preferences: any PreferencesRepository
     private let sagaOffers: any SagaOfferRepository
+    private let sagaFilmDates: any SagaFilmDatesRepository
     private let scheduler = SilentScheduler()
 
     init(locale: Locale) {
@@ -39,6 +40,7 @@ struct SagaFixture {
         reminderSettings = UserDefaultsReminderSettingsRepository(defaults: defaults)
         preferences = UserDefaultsPreferencesRepository(defaults: defaults)
         sagaOffers = UserDefaultsSagaOfferRepository(defaults: defaults)
+        sagaFilmDates = UserDefaultsSagaFilmDatesRepository(defaults: defaults)
     }
 
     private var reminder: ReminderUseCases {
@@ -193,10 +195,14 @@ struct SagaFixture {
                 profileRepository: store.profiles,
                 progressRepository: store.progress,
                 outfitRepository: store.outfit,
-                soundtrackRepository: BundledSoundtrackRepository(bundle: SagaMusic.bundle)
+                soundtrackRepository: BundledSoundtrackRepository(bundle: SagaMusic.bundle),
+                datesRepository: sagaFilmDates,
+                calendar: Self.calendar
             ),
+            setDates: DefaultSetSagaFilmDatesUseCase(repository: sagaFilmDates),
             renderer: renderer,
             locale: locale,
+            calendar: Self.calendar,
             now: { Self.today }
         )
     }
@@ -302,4 +308,13 @@ struct NoFilmRenderer: SagaFilmRendering {
     }
 
     func discardFilms() async {}
+}
+
+extension SagaFixture {
+    /// Gregorian in UTC, so the film's dates read the same on every Mac (ADR-0041 §3).
+    static let calendar: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+        return calendar
+    }()
 }

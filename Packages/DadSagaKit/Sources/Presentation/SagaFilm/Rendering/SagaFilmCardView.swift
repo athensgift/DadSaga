@@ -31,28 +31,34 @@ struct SagaFilmCardView: View {
 
     @ViewBuilder private var words: some View {
         switch card {
-        case .opening(let name, let period, let family):
-            opening(name: name, period: period, family: family)
+        case .opening(let name, let period, let dates, let family):
+            opening(name: name, period: period, dates: dates, family: family)
         case .chapter(let heading, let title, let tagline):
             VStack(spacing: gap * 1.5) {
                 line(heading, font: DSFilm.headline(side), color: DSFilm.secondaryText)
                 line(title, font: DSFilm.title(side))
                 line(tagline, font: DSFilm.body(side), color: DSFilm.secondaryText, lines: 2)
             }
-        case .first(let emoji, let title, let note, _):
+        case .first(let emoji, let title, let date, let note, _):
             VStack(spacing: gap * 2) {
                 Text(emoji).font(DSFilm.emoji(side))
-                line(title, font: DSFilm.title(side), color: DSFilm.legendary, lines: 2)
+                VStack(spacing: gap * 0.5) {
+                    dateLine(date, color: DSFilm.secondaryText)
+                    line(title, font: DSFilm.title(side), color: DSFilm.legendary, lines: 2)
+                }
                 if let note {
                     line(note, font: DSFilm.body(side), lines: 2)
                 }
             }
-        case .boss(let badge, let title, _):
+        case .boss(let badge, let title, let date, _):
             VStack(spacing: gap * 2) {
                 Image(systemName: "flame.fill")
                     .font(DSFilm.emoji(side))
                     .foregroundStyle(DSFilm.boss)
-                line(title, font: DSFilm.title(side), lines: 2)
+                VStack(spacing: gap * 0.5) {
+                    dateLine(date, color: DSFilm.secondaryText)
+                    line(title, font: DSFilm.title(side), lines: 2)
+                }
                 line(badge, font: DSFilm.headline(side), color: DSFilm.boss)
             }
         case .credits(let credits):
@@ -63,7 +69,7 @@ struct SagaFilmCardView: View {
     }
 
     /// The hero next to the child, as home draws them, over the child's name and the film's period.
-    private func opening(name: String, period: String, family: SagaFilmFamily) -> some View {
+    private func opening(name: String, period: String, dates: String?, family: SagaFilmFamily) -> some View {
         let width = canvas.width - margins.leading - margins.trailing
         let height = canvas.height - margins.top - margins.bottom
         return VStack(spacing: gap * 3) {
@@ -82,6 +88,7 @@ struct SagaFilmCardView: View {
             VStack(spacing: gap) {
                 line(name, font: DSFilm.title(side))
                 line(period, font: DSFilm.headline(side), color: DSFilm.legendary)
+                dateLine(dates, color: DSFilm.secondaryText)
             }
         }
     }
@@ -106,12 +113,15 @@ struct SagaFilmCardView: View {
         let fade = gap * 6
         return VStack(alignment: .leading, spacing: gap) {
             switch card {
-            case .first(let emoji, let title, let note, _):
+            case .first(let emoji, let title, let date, let note, _):
+                // Over a photo the date is white like the title: grey can't reach 4.5:1 through the scrim (ADR-0041 §4).
+                dateLine(date, color: DSFilm.text, alignment: .leading)
                 line("\(emoji) \(title)", font: DSFilm.title(side), lines: 2, alignment: .leading)
                 if let note {
                     line(note, font: DSFilm.body(side), lines: 2, alignment: .leading)
                 }
-            case .boss(let badge, let title, _):
+            case .boss(let badge, let title, let date, _):
+                dateLine(date, color: DSFilm.text, alignment: .leading)
                 line(title, font: DSFilm.title(side), lines: 2, alignment: .leading)
                 // Over a photo the badge's name is white like the title: the boss colour can't stay readable on every
                 // photo, so only the flame carries it.
@@ -134,6 +144,14 @@ struct SagaFilmCardView: View {
                     .frame(height: fade)
                 DSFilm.scrim
             }
+        }
+    }
+
+    /// A card's date, when the film shows dates: one line in the caption style, right above the title (ADR-0041 §4).
+    @ViewBuilder
+    private func dateLine(_ date: String?, color: Color, alignment: TextAlignment = .center) -> some View {
+        if let date {
+            line(date, font: DSFilm.caption(side), color: color, alignment: alignment)
         }
     }
 

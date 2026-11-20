@@ -20,6 +20,7 @@ final class AppContainer {
     private let preferencesRepository: any PreferencesRepository
     /// The dad's answers to home's film offers (ADR-0037 §5), in the app's own defaults. Starting over clears them.
     private let sagaOffers: any SagaOfferRepository
+    private let sagaFilmDates: any SagaFilmDatesRepository
     /// The saga film's music, from the bundle only the app carries (ADR-0036 §8).
     private lazy var soundtrackRepository: any SoundtrackRepository = BundledSoundtrackRepository(bundle: SagaMusic.bundle)
     /// Draws and writes the films, into a temporary folder it empties itself (ADR-0036 §6). One for the whole app,
@@ -35,6 +36,7 @@ final class AppContainer {
         notificationScheduler = data.notificationScheduler
         preferencesRepository = UserDefaultsPreferencesRepository(defaults: data.defaults)
         sagaOffers = UserDefaultsSagaOfferRepository(defaults: data.defaults)
+        sagaFilmDates = UserDefaultsSagaFilmDatesRepository(defaults: data.defaults)
     }
 
     // MARK: Use cases
@@ -183,8 +185,10 @@ final class AppContainer {
                 profileRepository: store.profiles,
                 progressRepository: store.progress,
                 outfitRepository: store.outfit,
-                soundtrackRepository: soundtrackRepository
+                soundtrackRepository: soundtrackRepository,
+                datesRepository: sagaFilmDates
             ),
+            setDates: DefaultSetSagaFilmDatesUseCase(repository: sagaFilmDates),
             renderer: sagaFilmRenderer
         )
     }
