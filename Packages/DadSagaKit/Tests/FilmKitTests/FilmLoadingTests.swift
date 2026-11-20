@@ -22,7 +22,11 @@ extension FilmKitTests {
                 }
             }
             let clips = (0..<4).map { index in
-                FilmClip(frames: 10, picture: .image(noting("photo \(index)", photo)), overlay: noting("card \(index)", card))
+                FilmClip(
+                    frames: 10,
+                    picture: .image { [load = noting("photo \(index)", photo)] in FilmPhoto(try await load()) },
+                    overlay: noting("card \(index)", card)
+                )
             }
             let url = Fixture.temporaryURL()
             try await encoder.encode(FilmTimeline(spec: Fixture.portrait, clips: clips), to: url) { _ in
@@ -63,7 +67,7 @@ extension FilmKitTests {
             let clips = (0..<8).map { index in
                 FilmClip(
                     frames: 12,
-                    picture: .image { try ledger.image(width: 64, height: 64) },
+                    picture: .image { FilmPhoto(try ledger.image(width: 64, height: 64)) },
                     overlay: { try ledger.image(width: 180, height: 320) },
                     transitionIn: index == 0 ? .cut : .crossfade(frames: 6)
                 )

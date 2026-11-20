@@ -30,4 +30,44 @@ struct SagaFilmPhotosTests: SagaFilmSheetTests {
             .photo(photoID: "p-three")
         ])
     }
+
+    @Test("Given a first with four further photos, when making the film, then its three best play (ADR-0044)")
+    func bestFurtherPhotosPlay() async throws {
+        let walk = ProgressEvent(
+            kind: .first(id: "f-smile"), childID: FilmStub.anna.id, date: FilmStub.months(2),
+            photoIDs: ["p-cover", "p-a", "p-b", "p-c", "p-d"]
+        )
+        let choose = DefaultChooseSagaFilmPhotosUseCase(
+            photoStore: IDPhotoStore(),
+            analyzer: ScoreByID(scores: ["p-a": -0.8, "p-b": 0.5, "p-c": 0.1, "p-d": 0.9])
+        )
+        let sut = makeSUT(FakeGetSagaFilm(events: [walk]), choosePhotos: choose)
+        await sut.onAppear()
+        await sut.selectPeriod(id: "year-1")
+
+        await sut.makeFilm(reduceMotion: false)
+
+        let script = try #require(await renderer.scripts.first)
+        #expect(script.scenes.compactMap { if case .photo(let id) = $0.card { id } else { nil } } == ["p-b", "p-c", "p-d"])
+    }
+}
+
+/// Every id is a photo whose bytes are its id.
+private struct IDPhotoStore: PhotoStore {
+    func save(_ imageData: Data) async throws -> String { "" }
+    func thumbnail(id: String, maxPixelSize: Int) async -> Data? { Data(id.utf8) }
+    func delete(id: String) async {}
+    func deleteAll() async {}
+}
+
+/// Rates a photo by its id.
+private struct ScoreByID: PhotoAnalyzer {
+    let scores: [String: Double]
+
+    func rating(of imageData: Data) async -> PhotoRating? {
+        String(bytes: imageData, encoding: .utf8).flatMap { scores[$0] }.map { PhotoRating(score: $0, isUtility: false) }
+    }
+
+    func faces(in imageData: Data) async -> [PhotoFace] { [] }
+    func salientObjects(in imageData: Data) async -> [PhotoRegion] { [] }
 }

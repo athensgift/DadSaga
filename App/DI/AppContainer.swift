@@ -26,8 +26,11 @@ final class AppContainer {
     /// Draws and writes the films, into a temporary folder it empties itself (ADR-0036 §6). One for the whole app,
     /// so every sheet and the launch clean-up share that folder.
     private lazy var sagaFilmRenderer: any SagaFilmRendering = SagaFilmRenderer(
-        getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
+        getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore),
+        findSubject: DefaultFindPhotoSubjectUseCase(analyzer: photoAnalyzer)
     )
+    /// Looks at the film's photos with Vision, on the device, while a film is made; keeps nothing (ADR-0044).
+    private let photoAnalyzer: any PhotoAnalyzer = VisionPhotoAnalyzer()
 
     init(data: DeviceData = .forLaunch()) {
         store = data.store
@@ -189,6 +192,7 @@ final class AppContainer {
                 datesRepository: sagaFilmDates
             ),
             setDates: DefaultSetSagaFilmDatesUseCase(repository: sagaFilmDates),
+            choosePhotos: DefaultChooseSagaFilmPhotosUseCase(photoStore: photoStore, analyzer: photoAnalyzer),
             renderer: sagaFilmRenderer
         )
     }

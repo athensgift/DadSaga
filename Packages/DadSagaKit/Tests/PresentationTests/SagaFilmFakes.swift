@@ -242,3 +242,15 @@ actor FakeFilmRenderer: SagaFilmRendering {
         try? FileManager.default.removeItem(at: folder)
     }
 }
+
+/// Keeps the film's photos as the sheet showed them.
+struct KeepFilmPhotos: ChooseSagaFilmPhotosUseCase {
+    func execute(_ film: SagaFilm) async -> SagaFilm { film }
+}
+
+/// Finds the same subject in every photo, or none.
+struct FixedPhotoSubject: FindPhotoSubjectUseCase {
+    var subject: PhotoFraming?
+
+    func execute(photo imageData: Data) async -> PhotoFraming? { subject }
+}

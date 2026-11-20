@@ -18,6 +18,7 @@ public final class SagaFilmViewModel: Identifiable {
     private var request: SagaFilmRequest
     private let getFilm: any GetSagaFilmUseCase
     private let setDates: any SetSagaFilmDatesUseCase
+    private let choosePhotos: any ChooseSagaFilmPhotosUseCase
     private let renderer: any SagaFilmRendering
     private let locale: Locale
     private let calendar: Calendar
@@ -33,7 +34,7 @@ public final class SagaFilmViewModel: Identifiable {
     private var savingDates: Task<Void, Never>?
     /// Why the last film wasn't finished, shown over the choices until the dad changes one or makes it again.
     private var notice: String?
-    private var filmTask: Task<URL, any Error>?
+    private var filmTask: Task<(url: URL, script: SagaFilmScript), any Error>?
     /// Counts the films started, so progress and results of an earlier one are never shown for a later one.
     private var generation = 0
     /// Counts the films asked for, so only the newest answer is shown, and none once a film is being made.
@@ -49,6 +50,7 @@ public final class SagaFilmViewModel: Identifiable {
         request: SagaFilmRequest,
         getFilm: any GetSagaFilmUseCase,
         setDates: any SetSagaFilmDatesUseCase,
+        choosePhotos: any ChooseSagaFilmPhotosUseCase,
         renderer: any SagaFilmRendering,
         locale: Locale = .current,
         calendar: Calendar = .autoupdatingCurrent,
@@ -57,6 +59,7 @@ public final class SagaFilmViewModel: Identifiable {
         self.request = request
         self.getFilm = getFilm
         self.setDates = setDates
+        self.choosePhotos = choosePhotos
         self.renderer = renderer
         self.locale = locale
         self.calendar = calendar
@@ -120,14 +123,19 @@ public final class SagaFilmViewModel: Identifiable {
         // A choice still loading no longer counts: the film is of the choices on screen.
         loads += 1
         leftTheApp = false
-        let script = SagaFilmScriptBuilder(locale: locale, calendar: calendar).script(
-            for: film, format: format, reduceMotion: reduceMotion, showsDates: showsDates ?? film.showsDates
-        )
+        let builder = SagaFilmScriptBuilder(locale: locale, calendar: calendar)
+        let format = format
+        let showsDates = showsDates ?? film.showsDates
         state = .making(making(progress: 0))
-        let task = Task { [renderer, weak self] in
-            try await renderer.render(script) { [weak self] value in
+        // The further photos are chosen first, only as the film is made (ADR-0044 §4); the sheet showed the same
+        // scenes, so nothing on it changes.
+        let task = Task { [choosePhotos, renderer, weak self] in
+            let chosen = await choosePhotos.execute(film)
+            let script = builder.script(for: chosen, format: format, reduceMotion: reduceMotion, showsDates: showsDates)
+            let url = try await renderer.render(script) { [weak self] value in
                 self?.show(progress: value, of: current)
             }
+            return (url: url, script: script)
         }
         filmTask = task
         let result = await task.result
@@ -135,12 +143,12 @@ public final class SagaFilmViewModel: Identifiable {
         guard generation == current else { return }
         filmTask = nil
         switch result {
-        case .success(let url):
+        case .success(let made):
             state = .made(
                 SagaFilmMade(
-                    url: url,
-                    title: script.title,
-                    format: script.format,
+                    url: made.url,
+                    title: made.script.title,
+                    format: made.script.format,
                     shareTitle: strings.text("Share or save"),
                     note: keepingNote,
                     anotherTitle: strings.text("Make another")

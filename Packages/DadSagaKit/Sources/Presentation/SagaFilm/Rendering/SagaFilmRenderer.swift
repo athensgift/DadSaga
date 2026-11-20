@@ -13,13 +13,13 @@ public enum SagaFilmRenderError: Error, Equatable {
     case pictureNotDrawn
 }
 
-/// Draws a saga film: its cards with SwiftUI, its photos through the photo use case, and the file with `FilmKit`
-/// (ADR-0036 §3–§6, ADR-0037 §1).
+/// Draws a saga film: its cards with SwiftUI, its photos through the photo use case with the camera on each photo's
+/// subject, and the file with `FilmKit` (ADR-0036 §3–§6, ADR-0037 §1, ADR-0044 §3).
 ///
 /// Films are written under one folder, each in a folder of its own, and never kept: the folder is emptied before
 /// every film and whenever `discardFilms()` is called.
 public struct SagaFilmRenderer: SagaFilmRendering {
-    private let getPhoto: any GetPhotoUseCase
+    private let photos: SagaFilmPhotoLoader
     private let directory: URL
     /// The film's size as a share of 1080 × 1920 or 1920 × 1080. Only tests make smaller films.
     private let pixelScale: Double
@@ -27,13 +27,14 @@ public struct SagaFilmRenderer: SagaFilmRendering {
     /// - Parameter directory: where films are written; everything in it is deleted with them.
     public init(
         getPhoto: any GetPhotoUseCase,
+        findSubject: any FindPhotoSubjectUseCase,
         directory: URL = FileManager.default.temporaryDirectory.appending(path: "SagaFilms", directoryHint: .isDirectory)
     ) {
-        self.init(getPhoto: getPhoto, directory: directory, pixelScale: 1)
+        self.init(getPhoto: getPhoto, findSubject: findSubject, directory: directory, pixelScale: 1)
     }
 
-    init(getPhoto: any GetPhotoUseCase, directory: URL, pixelScale: Double) {
-        self.getPhoto = getPhoto
+    init(getPhoto: any GetPhotoUseCase, findSubject: any FindPhotoSubjectUseCase, directory: URL, pixelScale: Double) {
+        self.photos = SagaFilmPhotoLoader(getPhoto: getPhoto, findSubject: findSubject)
         self.directory = directory
         self.pixelScale = pixelScale
     }
@@ -56,7 +57,7 @@ public struct SagaFilmRenderer: SagaFilmRendering {
         let percent = Mutex(-1)
         do {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-            let builder = SagaFilmTimelineBuilder(spec: spec(for: script.format), photos: SagaFilmPhotoLoader(getPhoto: getPhoto))
+            let builder = SagaFilmTimelineBuilder(spec: spec(for: script.format), photos: photos)
             try await FilmEncoder().encode(builder.timeline(for: script), to: url) { value in
                 let whole = Int(value * 100)
                 let isNew = percent.withLock { last in

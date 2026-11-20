@@ -15,6 +15,7 @@ extension SagaFilmSheetTests {
     func makeSUT(
         _ getFilm: FakeGetSagaFilm = FakeGetSagaFilm(),
         childID: UUID? = nil,
+        choosePhotos: any ChooseSagaFilmPhotosUseCase = KeepFilmPhotos(),
         locale: String = "el_GR",
         now: @escaping @Sendable () -> Date = { FilmStub.today }
     ) -> SagaFilmViewModel {
@@ -22,6 +23,7 @@ extension SagaFilmSheetTests {
             request: SagaFilmRequest(childID: childID),
             getFilm: getFilm,
             setDates: DefaultSetSagaFilmDatesUseCase(repository: getFilm.dates),
+            choosePhotos: choosePhotos,
             renderer: renderer,
             locale: Locale(identifier: locale),
             calendar: FilmStub.calendar,

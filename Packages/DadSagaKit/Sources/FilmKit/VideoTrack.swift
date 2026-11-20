@@ -23,7 +23,11 @@ enum VideoTrack {
         var images = try await load(clips.first)
         for (index, clip) in clips.enumerated() {
             async let upcoming = load(clips.dropFirst(index + 1).first)
-            let shot = compositor.shot(of: clip, picture: images?.picture, overlay: images?.overlay)
+            let shot = compositor.shot(
+                of: clip.moving(images?.picture?.motion ?? clip.motion),
+                picture: images?.picture?.image,
+                overlay: images?.overlay
+            )
             for local in 0..<clip.frames {
                 try Task.checkCancellation()
                 let fade = local < clip.fadeFrames ? lastFrame.map { earlier in
@@ -48,14 +52,14 @@ enum VideoTrack {
     }
 
     private struct Images: Sendable {
-        let picture: CGImage?
+        let picture: FilmPhoto?
         let overlay: CGImage?
     }
 
     private static func load(_ clip: FilmClip?) async throws -> Images? {
         guard let clip else { return nil }
         async let overlay = clip.overlay?()
-        var picture: CGImage?
+        var picture: FilmPhoto?
         if case .image(let loader) = clip.picture {
             picture = try await loader()
         }
