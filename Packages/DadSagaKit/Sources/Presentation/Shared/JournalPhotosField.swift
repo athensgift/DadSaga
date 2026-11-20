@@ -11,6 +11,8 @@ struct JournalPhotosField: View {
     let entry: String
     let labels: PhotoLabels
     let loader: PhotoLoader
+    /// `false` while the cover is drawn elsewhere: above the fold of a half-open iPhone Duo (ADR-0043).
+    var showsCover = true
 
     @State private var pickedItems: [PhotosPickerItem] = []
     @State private var isShowingLibrary = false
@@ -56,14 +58,10 @@ struct JournalPhotosField: View {
     @ViewBuilder private var content: some View {
         if let cover = photos.items.first {
             VStack(alignment: .leading, spacing: DSSpacing.s) {
-                Button { open(at: 0) } label: {
-                    WholePhoto(source: cover.source, loader: loader)
-                        .clipShape(RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+                if showsCover {
+                    JournalCover(source: cover.source, loader: loader) { open(at: 0) }
+                        .overlay(alignment: .bottomTrailing) { coverMenu(cover) }
                 }
-                .buttonStyle(.plain)
-                // The first square says the same and carries the actions: VoiceOver reads the cover once.
-                .accessibilityHidden(true)
-                .overlay(alignment: .bottomTrailing) { coverMenu(cover) }
                 strip
                 if photos.isFull {
                     Text(labels.limitReached)
