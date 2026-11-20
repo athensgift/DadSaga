@@ -14,6 +14,8 @@ public struct HomeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var width: CGFloat = 0
     @State private var fold: HorizontalFold?
+    /// Where the fold runs across home, also while the device lies flat.
+    @State private var flatFold: HorizontalFold?
     @State var wardrobeViewModel: WardrobeViewModel?
     @State var settingsViewModel: SettingsViewModel?
     /// The film sheet, opened from the film offer.
@@ -62,6 +64,9 @@ public struct HomeView: View {
             // Read where the panes are placed, so the fold is in their coordinates.
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
             .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum) { fold = $0 }
+            .onHorizontalFoldChange(
+                minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum, whileFlat: true
+            ) { flatFold = $0 }
             .background(DSColor.background)
             .safeAreaInset(edge: .bottom) { undoBar }
             .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
@@ -126,7 +131,7 @@ public struct HomeView: View {
     }
 
     private var arrangement: HomeArrangement {
-        HomeArrangement.make(width: width, fold: fold)
+        HomeArrangement.make(width: width, fold: fold, flatFold: flatFold)
     }
 
     @ViewBuilder

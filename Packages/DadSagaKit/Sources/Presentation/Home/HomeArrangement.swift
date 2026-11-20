@@ -5,17 +5,22 @@ import SwiftUI
 enum HomeArrangement: Equatable, Sendable {
     /// One scrolling column: iPhones in portrait, the iPhone Duo's cover display.
     case column
-    /// Two columns side by side: wide and flat, or half-open like a book, where the fold runs between them.
+    /// Two columns side by side: wide with the fold running down (iPhone Duo on its side, flat or half-open like a
+    /// book, where it runs between them), or wide with no fold at all.
     case columns
-    /// The hero above the fold and the adventure below it: half-open like a laptop.
+    /// The hero above the fold and the adventure below it: the iPhone Duo held upright, half-open like a laptop or
+    /// open flat, where the fold has no thickness (ADR-0045).
     case stacked(HorizontalFold)
 
     /// - Parameters:
     ///   - width: the width home has.
-    ///   - fold: the fold that runs across home, if any.
-    static func make(width: CGFloat, fold: HorizontalFold?) -> HomeArrangement {
+    ///   - fold: the fold that runs across home while the device is half-open, if any.
+    ///   - flatFold: where the fold runs across home while the device lies flat, if it does. It splits home only
+    ///     where there would otherwise be two columns.
+    static func make(width: CGFloat, fold: HorizontalFold?, flatFold: HorizontalFold? = nil) -> HomeArrangement {
         if let fold { return .stacked(fold) }
-        return width >= twoColumnWidth ? .columns : .column
+        guard width >= twoColumnWidth else { return .column }
+        return flatFold.map(HomeArrangement.stacked) ?? .columns
     }
 
     /// Two panes that scroll separately.

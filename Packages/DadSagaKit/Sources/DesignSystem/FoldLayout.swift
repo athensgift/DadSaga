@@ -120,10 +120,24 @@ extension View {
     /// so the fold is in their coordinates.
     /// - Parameters:
     ///   - minimumAbove, minimumBelow: the least height each pane needs for the view to split at the fold.
+    ///   - whileFlat: also report where the fold is while the device lies flat, with no thickness: for a screen
+    ///     that keeps the same two panes open and half-open, so folding only opens a gap between them.
     public func onHorizontalFoldChange(
-        minimumAbove: CGFloat, minimumBelow: CGFloat, _ action: @escaping (HorizontalFold?) -> Void
+        minimumAbove: CGFloat,
+        minimumBelow: CGFloat,
+        whileFlat: Bool = false,
+        _ action: @escaping (HorizontalFold?) -> Void
     ) -> some View {
-        onFoldGeometryChange(minimumAbove: minimumAbove, minimumBelow: minimumBelow) { action($0.fold) }
+        onGeometryChange(for: HorizontalFold?.self) { proxy in
+            HorizontalFold.across(
+                proxy.size,
+                divisions: proxy.divisions(whileFlat: whileFlat),
+                minimumAbove: minimumAbove,
+                minimumBelow: minimumBelow
+            )
+        } action: { fold in
+            action(fold)
+        }
     }
 
     /// Like `onHorizontalFoldChange`, with the view's size from the same layout pass: for a view that has to tell
@@ -134,7 +148,10 @@ extension View {
         onGeometryChange(for: FoldGeometry.self) { proxy in
             FoldGeometry(
                 fold: HorizontalFold.across(
-                    proxy.size, divisions: proxy.activeDivisions, minimumAbove: minimumAbove, minimumBelow: minimumBelow
+                    proxy.size,
+                    divisions: proxy.divisions(whileFlat: false),
+                    minimumAbove: minimumAbove,
+                    minimumBelow: minimumBelow
                 ),
                 size: proxy.size
             )
@@ -145,11 +162,12 @@ extension View {
 }
 
 extension GeometryProxy {
-    /// The display's folds while the device is half-open, in the view's coordinates. The only availability check
-    /// of the fold layouts: `macOS` is named because the package also builds there to run its tests.
-    fileprivate var activeDivisions: [CGRect] {
+    /// The display's folds in the view's coordinates: while the device is half-open, or also while it lies flat,
+    /// where a fold has no thickness. The only availability check of the fold layouts: `macOS` is named because the
+    /// package also builds there to run its tests.
+    fileprivate func divisions(whileFlat: Bool) -> [CGRect] {
         if #available(iOS 27.1, macOS 27.1, *) {
-            reservedRegions(kind: .division).map(\.frame)
+            reservedRegions(kind: .division, options: whileFlat ? .includeInactive : []).map(\.frame)
         } else {
             []
         }
