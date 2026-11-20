@@ -1,9 +1,10 @@
 # ADR-0043: Panes above and below the fold when iPhone Duo is half-open like a laptop
 
-**Status:** Accepted (2026-11-20). The owner asked for a dedicated layout on three screens when iPhone Duo is half-open
-and held upright: home, the saga film and the timeline's note and photos sheet. Changes
-ADR-0011 (the fold is read as a reserved region, not through the hinge; its note that CI builds with the iOS 26 SDK
-has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in the note editor while folded).
+**Status:** Accepted (2026-11-20). The owner asked for a dedicated layout when iPhone Duo is half-open and held
+upright: first on home, the saga film and the timeline's note and photos sheet, then on the quest and boss sheets, a
+first's page, the wardrobe and the timeline. Changes ADR-0011 (the fold is read as a reserved region, not through the
+hinge; its note that CI builds with the iOS 26 SDK has been out of date since ADR-0034) and ADR-0042 §3 (where the
+cover sits in the note editor and on a first's page while folded).
 
 ## Context
 - The Duo's inner display is 669 × 951 pt. Opened like a book (landscape), the fold runs down the middle, and home's
@@ -37,10 +38,13 @@ has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in t
 ### 1. The fold is geometry, read where content is placed
 - **`HorizontalFold`** (DesignSystem) is where a fold runs across a view: the end of the upper pane and the start of
   the lower one, in the view's own coordinates.
-- **One pure rule** finds it, `HorizontalFold.across(size, divisions:, minimumPaneHeight:)`. A fold is the first
-  division that runs across the view once clamped to it and spans its width. It must also leave at least the minimum
-  above and below it. Otherwise nothing is folded.
-- **One reader**, `onHorizontalFoldChange(minimumPaneHeight:_:)`, maps the view's active divisions through the rule. It
+- **One pure rule** finds it, `HorizontalFold.across(size, divisions:, minimumAbove:, minimumBelow:)`. A fold is the
+  first division that runs across the view once clamped to it and spans its width. It must also leave at least
+  `minimumAbove` above it and `minimumBelow` below it. Otherwise nothing is folded. The upper minimum is 200 pt. A
+  lower pane that only scrolls (home, the timeline, the film's controls) needs 120 pt, so a bar that comes and goes
+  at the bottom, like home's undo bar, doesn't unfold the screen; a lower pane with a form needs 160 pt, more at
+  larger text sizes.
+- **One reader**, `onHorizontalFoldChange(minimumAbove:minimumBelow:_:)`, maps the view's active divisions through the rule. It
   holds the feature's only `#available(iOS 27.1, macOS 27.1, *)`; before iOS 27.1 nothing is ever folded. Each screen
   reads its own container: no value is handed down from the root, since the fold's place in a sheet, under a bar or in
   Split View differs from its place on the display.
@@ -50,14 +54,20 @@ has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in t
 ### 2. One layout, two arrangements, the same views
 - **`FoldedStackLayout`** (DesignSystem) places two views: the first above the fold, the second below it, each the full
   width. The fold's band stays empty.
-- Each screen switches with `AnyLayout` between its flat layout and this one, around the same views. Nothing on screen
-  is rebuilt when the device folds or unfolds (except home in a window narrower than 600 pt, whose single column is
-  a different view from the two panes):
+- Each screen switches with `AnyLayout` between its flat layout and this one, around the same views. What holds
+  state is never rebuilt when the device folds or unfolds:
   - scroll positions
   - the playing film
   - a picker that is open
   - photos still loading
   - the note field's focus
+- What is only read is a different view in each layout where the flat layout is one scrolling column: a sheet's
+  reading part (§6), the cover in a form (§5), and home's single column in a window narrower than 600 pt. Nothing
+  they present is theirs: a photo viewer opened from them belongs to the sheet and stays up.
+- **The keyboard.** In a sheet with a form, the keyboard takes the room below the fold and the fold is lost, as it
+  is when the device opens flat. `FoldedPanes` tells them apart: shorter at the same width since the sheet was last
+  split means the keyboard. Then the lower part alone shows above the keyboard, where it was, and the upper part
+  stays in the tree, unseen, until the keyboard goes. Nothing moves under the dad's cursor.
 - The switch animates, and is a cut with Reduce Motion.
 
 ### 3. Home
@@ -78,14 +88,14 @@ has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in t
 - Folding or unfolding never stops or rebuilds the player. Choosing and making are not split.
 
 ### 5. The timeline's note and photos, and a first's own page
-- Both use one container, `CoverAndFormPanes`. While folded and while the entry has a photo, its cover is shown whole above the fold. The note, the row of squares,
-  "+" and the notes go below it. The cover's square still carries "Make cover" and "Remove", so the upright half shows
+- Both use one container, `CoverAndFormPanes`. While folded and while the entry has a photo, its cover is shown whole
+  above the fold and the rest of the form lies below it: the note, the row of squares and "+", and on a first's page
+  its heading, date and buttons too. The cover's square still carries "Make cover" and "Remove", so the upright half shows
   the cover without its "…" button (changes ADR-0042 §3, while folded only).
 - With no photo the sheet stays as it is: the upper half never shows an empty frame waiting for one (ADR-0006,
   ADR-0042).
-- While the keyboard leaves no room below the fold, the photo gives way and the note fills the space above the
+- While the keyboard leaves no room below the fold, the photo gives way and the form fills the space above the
   keyboard, so what the dad writes stays in view. It comes back when the keyboard goes.
-- The lower half's minimum grows with the text size; the upper half's does not.
 
 ### 6. Sheets that are read, then acted on
 - The quest sheet, the boss sheet and the wardrobe use one container, `ReadAndActPanes`. Folded, what the dad reads
@@ -96,11 +106,12 @@ has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in t
     through" below. A defeated boss has nothing left to do, so its sheet is not split
   - the wardrobe: the hero above, the choices below
 - The lower half keeps its place in the view tree, so a fold keeps the note's focus and an open picker. With the
-  keyboard up the sheet is one column again.
+  keyboard up the lower half alone shows (§2).
+- Split, a sheet's title is inline: a large title collapses as a half scrolls and would move the fold's place.
 
 ### 7. The timeline
-- Folded, the list lies below the fold and one entry stands above it, large: its cover whole, its title and words,
-  and a button into its note and photos. It is the entry the dad tapped, or the newest while he has tapped none or
+- Folded, the list lies below the fold and one entry stands above it, large: its cover whole, fitted to the half's
+  height, its title and words, and a button into its note and photos. It is the entry the dad tapped, or the newest while he has tapped none or
   the one he tapped is gone. Its row is marked in the list (and is "selected" for VoiceOver).
 - So below a fold a tap on a row shows the entry above instead of opening its note and photos; those open from the
   button above, or from the row's menu as before. On a flat display a tap opens them, as before.
@@ -116,7 +127,8 @@ has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in t
 - The photo viewer.
 
 ### 9. Tests
-- `FoldLayoutTests` (DesignSystem): the rule and the panes' frames.
+- `FoldLayoutTests` and `FoldedPanesTests` (DesignSystem): the rule, the panes' frames, and the keyboard told from
+  unfolding.
 - `HomeArrangementTests`, `SagaFilmPlayerLayoutTests`, `CoverAboveFoldTests` and `TimelinePreviewTests`
   (Presentation).
 - The reader, the sheets and the keyboard can only be seen in the simulator. Each screen is drawn there once, folded
@@ -134,8 +146,8 @@ has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in t
 - **A reader per screen:** three copies of the same rule.
 
 ## Consequences
-- On a half-open Duo the screens the dad looks at stand up and the ones he touches lie on the table. On every other
-  iPhone, and before iOS 27.1, home and the editor look as before. The film's controls now scroll under the film
+- On a half-open Duo what the dad looks at stands up and what he touches lies on the table. On every other iPhone,
+  and before iOS 27.1, every screen but the film looks as before. The film's controls now scroll under the film
   instead of the film scrolling away.
 - Folding home from flat swaps its columns for rows: a large change, which the HIG advises against, made at the owner's
   request.

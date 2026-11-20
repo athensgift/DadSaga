@@ -123,6 +123,8 @@ public struct TimelineView: View {
                     onShowPhotos: { showPhotos(of: previewed, content: content) },
                     onEdit: { viewModel.editJournal(id: previewed.id) }
                 )
+                // A new entry is a new view: its photo never shows under another entry's title while it loads.
+                .id(previewed.id)
             }
             list(content, previewedID: previewed?.id)
         }

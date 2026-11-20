@@ -28,30 +28,39 @@ struct TimelinePreview: View {
     let onShowPhotos: () -> Void
     let onEdit: () -> Void
 
+    /// The cover's height where the pane scrolls: at text sizes too large for the pane.
+    private static let scrollingCoverHeight: CGFloat = 200
+
     var body: some View {
-        // Scrolls only when the text is too large for the pane.
-        ScrollView {
-            AdaptiveStack(alignment: .center, spacing: DSSpacing.l) {
-                if let cover = item.photoIDs.first {
-                    JournalCover(source: .stored(cover), loader: loader, onOpen: onShowPhotos)
-                        .frame(maxWidth: .infinity)
-                }
-                VStack(alignment: .leading, spacing: DSSpacing.s) {
-                    CardTitle(item.title, badge: item.badge, tint: item.kind.tint)
-                    Text(item.subtitle)
-                        .font(DSFont.body)
-                        .foregroundStyle(DSColor.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                    Button(editTitle, systemImage: "square.and.pencil", action: onEdit)
-                        .buttonStyle(.glass)
-                        .padding(.top, DSSpacing.s)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-            .frame(maxWidth: item.photoIDs.isEmpty ? readableWidth : .infinity)
-            .padding(DSSpacing.m)
-            .frame(maxWidth: .infinity)
+        // The cover takes the pane's height, so it shows whole whatever its shape. Only when the words are too
+        // large for the pane does it scroll, with a smaller cover.
+        ViewThatFits(in: .vertical) {
+            content(coverHeight: nil)
+            ScrollView { content(coverHeight: Self.scrollingCoverHeight) }
         }
-        .scrollBounceBehavior(.basedOnSize)
+    }
+
+    private func content(coverHeight: CGFloat?) -> some View {
+        AdaptiveStack(alignment: .center, spacing: DSSpacing.l) {
+            if let cover = item.photoIDs.first {
+                JournalCover(source: .stored(cover), loader: loader, onOpen: onShowPhotos)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: coverHeight)
+            }
+            VStack(alignment: .leading, spacing: DSSpacing.s) {
+                CardTitle(item.title, badge: item.badge, tint: item.kind.tint)
+                Text(item.subtitle)
+                    .font(DSFont.body)
+                    .foregroundStyle(DSColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button(editTitle, systemImage: "square.and.pencil", action: onEdit)
+                    .buttonStyle(.glass)
+                    .padding(.top, DSSpacing.s)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxWidth: item.photoIDs.isEmpty ? readableWidth : .infinity)
+        .padding(DSSpacing.m)
+        .frame(maxWidth: .infinity)
     }
 }

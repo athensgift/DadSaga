@@ -46,42 +46,44 @@ public struct WardrobeView: View {
 
     private func loaded(_ content: WardrobeContent) -> some View {
         let style = content.heroLook.avatarStyle
-        return ReadAndActPanes(alignment: .leading, spacing: DSSpacing.l, column: WardrobeColumn()) {
-                HeroAvatar(
-                    style: style,
-                    size: 200,
-                    skin: content.heroSkin.avatarSkin,
-                    items: content.gear.map(\.heroItem),
-                    medals: content.medalCount
-                )
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, DSSpacing.s)
-                .background {
-                    Circle()
-                        .fill(
-                            RadialGradient(
-                                colors: [style.tint.opacity(0.25), .clear],
-                                center: .center,
-                                startRadius: 10,
-                                endRadius: 130
-                            )
+        return ReadAndActPanes(
+            alignment: .leading, spacing: DSSpacing.l, flatTitle: .inline, column: WardrobeColumn()
+        ) {
+            HeroAvatar(
+                style: style,
+                size: 200,
+                skin: content.heroSkin.avatarSkin,
+                items: content.gear.map(\.heroItem),
+                medals: content.medalCount
+            )
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, DSSpacing.s)
+            .background {
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [style.tint.opacity(0.25), .clear],
+                            center: .center,
+                            startRadius: 10,
+                            endRadius: 130
                         )
-                        .frame(width: 260, height: 260)
-                }
-                .animation(.spring(response: 0.35, dampingFraction: 0.75), value: content.gear)
-                .accessibilityHidden(true)
+                    )
+                    .frame(width: 260, height: 260)
+            }
+            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: content.gear)
+            .accessibilityHidden(true)
         } acting: {
-                ForEach(content.slots) { slot in
-                    slotView(slot)
-                }
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .font(DSFont.caption)
-                        .foregroundStyle(DSColor.boss)
-                }
-                Text(content.footnote)
+            ForEach(content.slots) { slot in
+                slotView(slot)
+            }
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
                     .font(DSFont.caption)
-                    .foregroundStyle(DSColor.textSecondary)
+                    .foregroundStyle(DSColor.boss)
+            }
+            Text(content.footnote)
+                .font(DSFont.caption)
+                .foregroundStyle(DSColor.textSecondary)
         }
     }
 

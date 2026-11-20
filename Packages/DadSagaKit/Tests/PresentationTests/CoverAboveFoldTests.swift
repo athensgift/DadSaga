@@ -4,21 +4,26 @@ import Testing
 
 @Suite("Cover above the fold")
 struct CoverAboveFoldTests {
-    private let fold = HorizontalFold(top: 400, bottom: 430)
+    private let split = FoldedPanes.split(HorizontalFold(top: 400, bottom: 430))
 
-    @Test("Given photos on a half-open iPhone Duo, when the sheet is laid out, then the cover stands above the fold")
+    @Test("Given photos on a half-open iPhone Duo, when the sheet is laid out, then the cover has the upper pane")
     func coverAboveTheFold() {
         let photos = PhotoDrafts(storedIDs: ["cover", "second"])
-        #expect(photos.cover(above: fold)?.source == .stored("cover"))
+        #expect(photos.cover(for: split)?.source == .stored("cover"))
     }
 
     @Test("Given no photo on a half-open iPhone Duo, when the sheet is laid out, then nothing waits above the fold")
     func noPhotoNothingAbove() {
-        #expect(PhotoDrafts().cover(above: fold) == nil)
+        #expect(PhotoDrafts().cover(for: split) == nil)
     }
 
-    @Test("Given no fold across the sheet, when it is laid out, then the cover stays in the form")
+    @Test("Given a flat display, when the sheet is laid out, then the cover stays in the form")
     func flatKeepsTheCoverInTheForm() {
-        #expect(PhotoDrafts(storedIDs: ["cover"]).cover(above: nil) == nil)
+        #expect(PhotoDrafts(storedIDs: ["cover"]).cover(for: .flat) == nil)
+    }
+
+    @Test("Given the keyboard over the lower half, when the sheet is laid out, then the cover is not moved into the form")
+    func keyboardKeepsTheCoverOutOfTheForm() {
+        #expect(PhotoDrafts(storedIDs: ["cover"]).cover(for: .lowerOnly)?.source == .stored("cover"))
     }
 }

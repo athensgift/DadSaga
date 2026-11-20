@@ -65,6 +65,55 @@ public struct FoldedStackLayout: Layout {
     }
 }
 
+/// Its second view fills the container and its first gets no room: what a view split at a fold becomes while the
+/// keyboard covers the lower half. The first view stays in the tree, so it is the same view when the keyboard goes.
+/// Hide it (opacity, accessibility) while this layout is in use.
+public struct LowerPaneLayout: Layout {
+    public init() {}
+
+    public func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        proposal.replacingUnspecifiedDimensions()
+    }
+
+    public func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        subviews.first?.place(at: bounds.origin, proposal: .zero)
+        subviews.dropFirst().first?.place(at: bounds.origin, proposal: ProposedViewSize(bounds.size))
+    }
+}
+
+/// A view's size and the fold across it, read in one layout pass.
+public struct FoldGeometry: Equatable, Sendable {
+    public let fold: HorizontalFold?
+    public let size: CGSize
+
+    public init(fold: HorizontalFold?, size: CGSize) {
+        self.fold = fold
+        self.size = size
+    }
+}
+
+/// How a view that splits at a fold shows its two parts.
+public enum FoldedPanes: Equatable, Sendable {
+    /// No fold: one column.
+    case flat
+    /// The first part above the fold, the second below it.
+    case split(HorizontalFold)
+    /// Split, but the keyboard has taken the room below the fold: only the second part shows, above the keyboard.
+    case lowerOnly
+
+    /// What the view shows after its geometry changed.
+    ///
+    /// Losing the fold has two causes that look alike from inside the view. If the view got shorter at the same
+    /// width since it was last split, the keyboard came up: the second part alone stays, where the dad is typing.
+    /// Otherwise the device was opened flat or turned.
+    public func next(_ geometry: FoldGeometry, sizeWhenSplit: CGSize) -> FoldedPanes {
+        if let fold = geometry.fold { return .split(fold) }
+        guard self != .flat else { return .flat }
+        let isSameWidth = abs(geometry.size.width - sizeWhenSplit.width) < 1
+        return isSameWidth && geometry.size.height < sizeWhenSplit.height - 1 ? .lowerOnly : .flat
+    }
+}
+
 extension View {
     /// Reports the fold that runs across this view, and `nil` when there is none: on a flat display, when the fold
     /// runs down the view (half-open like a book), or before iOS 27.1. Read it on the view that places the panes,
@@ -74,12 +123,23 @@ extension View {
     public func onHorizontalFoldChange(
         minimumAbove: CGFloat, minimumBelow: CGFloat, _ action: @escaping (HorizontalFold?) -> Void
     ) -> some View {
-        onGeometryChange(for: HorizontalFold?.self) { proxy in
-            HorizontalFold.across(
-                proxy.size, divisions: proxy.activeDivisions, minimumAbove: minimumAbove, minimumBelow: minimumBelow
+        onFoldGeometryChange(minimumAbove: minimumAbove, minimumBelow: minimumBelow) { action($0.fold) }
+    }
+
+    /// Like `onHorizontalFoldChange`, with the view's size from the same layout pass: for a view that has to tell
+    /// the keyboard from the device unfolding (`FoldedPanes`). It also reports a change of size alone.
+    public func onFoldGeometryChange(
+        minimumAbove: CGFloat, minimumBelow: CGFloat, _ action: @escaping (FoldGeometry) -> Void
+    ) -> some View {
+        onGeometryChange(for: FoldGeometry.self) { proxy in
+            FoldGeometry(
+                fold: HorizontalFold.across(
+                    proxy.size, divisions: proxy.activeDivisions, minimumAbove: minimumAbove, minimumBelow: minimumBelow
+                ),
+                size: proxy.size
             )
-        } action: { fold in
-            action(fold)
+        } action: { geometry in
+            action(geometry)
         }
     }
 }

@@ -12,37 +12,42 @@ struct QuestSheet: View {
     let onClose: () -> Void
     @State private var note = ""
     @State private var photos = PhotoDrafts()
+    /// The last note's photos, full screen.
+    @State private var lastViewer: PhotoViewerContent?
 
     var body: some View {
         NavigationStack {
             ReadAndActPanes(column: QuestColumn()) {
-                    RewardPill(text: quest.reward, tint: DSColor.accent)
-                    Text(quest.title)
-                        .font(DSFont.title)
-                        .foregroundStyle(DSColor.textPrimary)
-                    Text(quest.description)
-                        .font(DSFont.body)
-                        .foregroundStyle(DSColor.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                    if let last = quest.lastJournal {
-                        LastJournalView(last: last, entry: quest.title, viewerLabels: quest.journal.photo.viewer, loader: loader)
-                    }
-                    if let tip = quest.tip {
-                        StepsPanel(title: tip.title, steps: tip.steps, tint: DSColor.accent, fill: DSColor.accent.opacity(0.08))
-                            .multilineTextAlignment(.leading)
-                    }
-                    if let footer = quest.footer {
-                        // A safety note: big enough to read at a glance, not fine print.
-                        Text(footer)
-                            .font(DSFont.subheadline)
-                            .foregroundStyle(DSColor.textSecondary)
-                    }
-            } acting: {
-                    JournalSection(
-                        labels: quest.journal, note: $note, photos: $photos, entry: quest.title, loader: loader,
-                        fill: DSColor.background
+                RewardPill(text: quest.reward, tint: DSColor.accent)
+                Text(quest.title)
+                    .font(DSFont.title)
+                    .foregroundStyle(DSColor.textPrimary)
+                Text(quest.description)
+                    .font(DSFont.body)
+                    .foregroundStyle(DSColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let last = quest.lastJournal {
+                    LastJournalView(
+                        last: last, entry: quest.title, viewerLabels: quest.journal.photo.viewer, loader: loader,
+                        viewer: $lastViewer
                     )
-                    actions
+                }
+                if let tip = quest.tip {
+                    StepsPanel(title: tip.title, steps: tip.steps, tint: DSColor.accent, fill: DSColor.accent.opacity(0.08))
+                        .multilineTextAlignment(.leading)
+                }
+                if let footer = quest.footer {
+                    // A safety note: big enough to read at a glance, not fine print.
+                    Text(footer)
+                        .font(DSFont.subheadline)
+                        .foregroundStyle(DSColor.textSecondary)
+                }
+            } acting: {
+                JournalSection(
+                    labels: quest.journal, note: $note, photos: $photos, entry: quest.title, loader: loader,
+                    fill: DSColor.background
+                )
+                actions
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -50,6 +55,7 @@ struct QuestSheet: View {
                 }
             }
         }
+        .photoViewer($lastViewer, loader: loader)
     }
 
     private var actions: some View {
@@ -77,32 +83,37 @@ struct BossSheet: View {
     let onClose: () -> Void
     @State private var note = ""
     @State private var photos = PhotoDrafts()
+    /// The last note's photos, full screen.
+    @State private var lastViewer: PhotoViewerContent?
 
     var body: some View {
         NavigationStack {
             // A defeated boss has nothing left to do: its guide keeps the whole sheet.
             ReadAndActPanes(alignment: .leading, splits: !boss.isDefeated, column: BossColumn()) {
-                    RewardPill(text: boss.reward, tint: DSColor.boss)
-                    Text(boss.intro)
-                        .font(DSFont.body)
-                        .foregroundStyle(DSColor.textSecondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                    if let last = boss.lastJournal {
-                        LastJournalView(last: last, entry: boss.title, viewerLabels: boss.journal.photo.viewer, loader: loader)
-                    }
-                    guide
-                    // The same safety note as on a quest's tip: readable at a glance.
-                    Text(boss.disclaimer)
-                        .font(DSFont.subheadline)
-                        .foregroundStyle(DSColor.textSecondary)
+                RewardPill(text: boss.reward, tint: DSColor.boss)
+                Text(boss.intro)
+                    .font(DSFont.body)
+                    .foregroundStyle(DSColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let last = boss.lastJournal {
+                    LastJournalView(
+                        last: last, entry: boss.title, viewerLabels: boss.journal.photo.viewer, loader: loader,
+                        viewer: $lastViewer
+                    )
+                }
+                guide
+                // The same safety note as on a quest's tip: readable at a glance.
+                Text(boss.disclaimer)
+                    .font(DSFont.subheadline)
+                    .foregroundStyle(DSColor.textSecondary)
             } acting: {
-                    if !boss.isDefeated {
-                        JournalSection(
-                            labels: boss.journal, note: $note, photos: $photos, entry: boss.title, loader: loader,
-                            fill: DSColor.surface
-                        )
-                    }
-                    actions
+                if !boss.isDefeated {
+                    JournalSection(
+                        labels: boss.journal, note: $note, photos: $photos, entry: boss.title, loader: loader,
+                        fill: DSColor.surface
+                    )
+                }
+                actions
             }
             .background(DSColor.background)
             .navigationTitle(boss.title)
@@ -112,6 +123,7 @@ struct BossSheet: View {
                 }
             }
         }
+        .photoViewer($lastViewer, loader: loader)
     }
 
     private var guide: some View {

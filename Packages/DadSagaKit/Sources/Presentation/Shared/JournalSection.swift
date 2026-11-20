@@ -57,7 +57,8 @@ struct LastJournalView: View {
     let entry: String
     let viewerLabels: PhotoViewerLabels
     let loader: PhotoLoader
-    @State private var viewer: PhotoViewerContent?
+    /// The photos full screen. The sheet presents them, so they stay up when this view moves between layouts.
+    @Binding var viewer: PhotoViewerContent?
 
     var body: some View {
         HStack(alignment: .top, spacing: DSSpacing.m) {
@@ -92,7 +93,6 @@ struct LastJournalView: View {
                 Button(viewerLabels.showPhotos, action: showPhotos)
             }
         }
-        .photoViewer($viewer, loader: loader)
     }
 
     private func showPhotos() {

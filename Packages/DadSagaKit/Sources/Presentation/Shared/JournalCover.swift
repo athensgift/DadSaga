@@ -20,53 +20,50 @@ struct JournalCover: View {
 }
 
 extension PhotoDrafts {
-    /// The photo that stands above a fold: the cover, while a fold runs across the sheet. An entry with no photo has
-    /// none, so the upper half never shows an empty frame waiting for one (ADR-0006, ADR-0042).
-    func cover(above fold: HorizontalFold?) -> PhotoDraft? {
-        fold == nil ? nil : items.first
+    /// The photo that has the upper pane of a sheet split at a fold: the cover. An entry with no photo has none, so
+    /// the upper half never shows an empty frame waiting for one (ADR-0006, ADR-0042); nor has a flat sheet.
+    func cover(for panes: FoldedPanes) -> PhotoDraft? {
+        panes == .flat ? nil : items.first
     }
 }
 
 /// A sheet's form for an entry with photos. On an iPhone Duo half-open like a laptop, the cover stands above the
 /// fold and the form lies below it (ADR-0043); everywhere else, and for an entry with no photo, it is the form alone.
 ///
-/// The form keeps its place in the view tree in both layouts, so a fold keeps the note's focus, an open picker and
-/// photos still loading. With the keyboard up there is no room below the fold: the cover gives way, and what the dad
-/// writes stays in view above the keyboard.
+/// The form keeps its place in the view tree in every layout, so a fold keeps the note's focus, an open picker and
+/// photos still loading. With the keyboard up there is no room below the fold: the form alone shows above the
+/// keyboard, where it was, and the cover comes back when the keyboard goes.
 struct CoverAndFormPanes<Form: View>: View {
     let photos: PhotoDrafts
     /// The entry, for VoiceOver in the viewer.
     let entry: String
     let labels: PhotoLabels
     let loader: PhotoLoader
-    /// The form's column; `showsCover` is `false` while the cover is drawn above the fold.
+    /// The form's column; `showsCover` is `false` while the cover has the upper pane.
     @ViewBuilder let form: (_ showsCover: Bool) -> Form
 
-    @State private var fold: HorizontalFold?
+    @State private var foldedPanes = FoldedPanes.flat
     /// The cover full screen, opened from above the fold.
     @State private var viewer: PhotoViewerContent?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// The least room the form needs below the fold, more at larger text sizes.
-    @ScaledMetric(relativeTo: .body) private var minimumBelow: CGFloat = 160
 
     var body: some View {
-        let cover = photos.cover(above: fold)
-        let panes = (cover == nil ? nil : fold).map { AnyLayout(FoldedStackLayout(fold: $0)) }
-            ?? AnyLayout(VStackLayout(spacing: 0))
-        panes {
+        let cover = photos.cover(for: foldedPanes)
+        let panes = cover == nil ? FoldedPanes.flat : foldedPanes
+        panes.layout {
             if let cover {
                 JournalCover(source: cover.source, loader: loader) {
                     viewer = labels.viewer.content(entry: entry, photos: photos.items.map(\.source), startingAt: 0)
                 }
                 .padding(DSSpacing.m)
+                .hiddenUpperPane(panes)
             }
             ScrollView { form(cover == nil) }
                 .scrollDismissesKeyboard(.interactively)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        // Read where the panes are placed, so the fold is in their coordinates.
-        .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: minimumBelow) { fold = $0 }
-        .animation(reduceMotion ? nil : .smooth, value: cover?.id)
+        .modifier(FoldedPanesReader(panes: $foldedPanes))
+        .animation(reduceMotion ? nil : .smooth, value: panes)
         .photoViewer($viewer, loader: loader)
     }
 }
