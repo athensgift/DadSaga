@@ -65,13 +65,12 @@ struct ReadAndActPanes<Reading: View, Acting: View, Column: ViewModifier>: View 
                 .modifier(column)
                 // Clear of the fold.
                 .padding(.top, isSplit ? DSSpacing.m : 0)
-                // Clear of the button over the keyboard, which floats over the pane's bottom corner.
-                .padding(.bottom, panes == .lowerOnly ? DSSpacing.xl + DSSpacing.l : 0)
             }
             .scrollDismissesKeyboard(.interactively)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .modifier(FoldedPanesReader(panes: $foldedPanes))
+        .modifier(HideKeyboardBar())
         .toolbarTitleDisplayMode(panes == .flat ? flatTitle : .inline)
         .animation(reduceMotion ? nil : .smooth, value: panes)
     }

@@ -36,11 +36,11 @@ struct JournalSection: View {
     }
 }
 
-/// A few lines of the dad's own words. While he writes, a button over the keyboard puts it away: Return starts a
-/// new line here, and a swipe down is hard to find.
+/// A few lines of the dad's own words. While he writes, it offers its sheet a way to put the keyboard away
+/// (`HideKeyboardBar`): Return starts a new line here, and a swipe down is hard to find.
 struct JournalNoteField: View {
     let placeholder: String
-    /// What the button over the keyboard is called, for VoiceOver.
+    /// What the button that puts the keyboard away is called, for VoiceOver.
     let hideKeyboardTitle: String
     @Binding var note: String
     var fill: Color = DSColor.surface
@@ -49,21 +49,12 @@ struct JournalNoteField: View {
     var body: some View {
         TextField(placeholder, text: $note, axis: .vertical)
             .focused($isFocused)
+            .focusedValue(\.hideKeyboard, HideKeyboardAction(title: hideKeyboardTitle) { isFocused = false })
             .lineLimit(2...6)
             .font(DSFont.body)
             .foregroundStyle(DSColor.textPrimary)
             .padding(DSSpacing.m)
             .background(fill, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
-            .toolbar {
-                // Only from the field being written in: another field on the screen adds no second button.
-                if isFocused {
-                    ToolbarItemGroup(placement: .keyboard) {
-                        Spacer()
-                        Button(hideKeyboardTitle, systemImage: "keyboard.chevron.compact.down") { isFocused = false }
-                            .labelStyle(.iconOnly)
-                    }
-                }
-            }
     }
 }
 

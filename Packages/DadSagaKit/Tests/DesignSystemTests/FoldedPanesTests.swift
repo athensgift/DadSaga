@@ -42,6 +42,17 @@ struct FoldedPanesTests {
         #expect(FoldedPanes.lowerOnly.next(geometry(nil), sizeWhenSplit: sheet) == .flat)
     }
 
+    @Test("Given the keyboard over the lower half, when the device is turned on its side, then the sheet is one column")
+    func turnedWhileTyping() {
+        let onItsSide = geometry(nil, height: 300, width: 951)
+        #expect(FoldedPanes.lowerOnly.next(onItsSide, sizeWhenSplit: sheet) == .flat)
+    }
+
+    @Test("Given the keyboard over the lower half, when the keyboard grows a row, then the lower part alone stays")
+    func keyboardChangesHeight() {
+        #expect(FoldedPanes.lowerOnly.next(geometry(nil, height: 380), sizeWhenSplit: sheet) == .lowerOnly)
+    }
+
     @Test("Given a flat sheet, when the keyboard comes up, then it stays one column")
     func keyboardOnAFlatSheet() {
         #expect(FoldedPanes.flat.next(geometry(nil, height: 420), sizeWhenSplit: .zero) == .flat)

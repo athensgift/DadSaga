@@ -44,7 +44,8 @@ cover sits in the note editor and on a first's page while folded).
   lower pane that only scrolls (home, the timeline, the film's controls) needs 120 pt, so a bar that comes and goes
   at the bottom, like home's undo bar, doesn't unfold the screen; a lower pane with a form needs 160 pt, more at
   larger text sizes.
-- **One reader**, `onHorizontalFoldChange(minimumAbove:minimumBelow:_:)`, maps the view's active divisions through the rule. It
+- **One reader**, `onFoldGeometryChange(minimumAbove:minimumBelow:_:)`, which also reports the view's size, and
+  `onHorizontalFoldChange` for the screens that only need the fold. It maps the view's active divisions through the rule. It
   holds the feature's only `#available(iOS 27.1, macOS 27.1, *)`; before iOS 27.1 nothing is ever folded. Each screen
   reads its own container: no value is handed down from the root, since the fold's place in a sheet, under a bar or in
   Split View differs from its place on the display.
@@ -113,9 +114,12 @@ cover sits in the note editor and on a first's page while folded).
 - The lower half keeps its place in the view tree, so a fold keeps the note's focus and an open picker. With the
   keyboard up the lower half alone shows (§2).
 - Split, a sheet's title is inline: a large title collapses as a half scrolls and would move the fold's place.
-- **Putting the keyboard away.** The note field shows a button over the keyboard that hides it, on every device:
-  Return starts a new line in a note, and the swipe that dismisses the keyboard is hard to find, more so with the
-  keyboard on the half that lies flat.
+- **Putting the keyboard away.** While a note is being written, a button just above the keyboard hides it, on every
+  device: Return starts a new line in a note, and the swipe that dismisses the keyboard is hard to find, more so with
+  the keyboard on the half that lies flat. The note field offers the action to its sheet as a focused value, and the
+  sheet shows the button in a bottom safe-area inset (`HideKeyboardBar`), so the line being written stays above it.
+  The system's own bar over the keyboard floats over the content on iOS 27 and covered the end of that line; a
+  button inside the field ended up under the keyboard.
 
 ### 7. The timeline
 - Folded, the list lies below the fold and one entry stands above it, large: its cover whole, fitted to the half's
@@ -155,7 +159,8 @@ cover sits in the note editor and on a first's page while folded).
 
 ## Consequences
 - On a half-open Duo what the dad looks at stands up and what he touches lies on the table. On every other iPhone,
-  and before iOS 27.1, every screen but the film looks as before. The film's controls now scroll under the film
+  and before iOS 27.1, every screen but the film looks as before; the note field gains its hide-keyboard button
+  everywhere. The film's controls now scroll under the film
   instead of the film scrolling away.
 - Folding home from flat swaps its columns for rows: a large change, which the HIG advises against, made at the owner's
   request.

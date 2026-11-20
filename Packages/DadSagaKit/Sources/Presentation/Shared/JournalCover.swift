@@ -63,6 +63,7 @@ struct CoverAndFormPanes<Form: View>: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .modifier(FoldedPanesReader(panes: $foldedPanes))
+        .modifier(HideKeyboardBar())
         .animation(reduceMotion ? nil : .smooth, value: panes)
         .photoViewer($viewer, loader: loader)
     }
