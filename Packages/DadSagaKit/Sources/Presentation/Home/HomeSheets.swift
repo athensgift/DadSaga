@@ -15,8 +15,7 @@ struct QuestSheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: DSSpacing.m) {
+            ReadAndActPanes(column: QuestColumn()) {
                     RewardPill(text: quest.reward, tint: DSColor.accent)
                     Text(quest.title)
                         .font(DSFont.title)
@@ -38,19 +37,13 @@ struct QuestSheet: View {
                             .font(DSFont.subheadline)
                             .foregroundStyle(DSColor.textSecondary)
                     }
+            } acting: {
                     JournalSection(
                         labels: quest.journal, note: $note, photos: $photos, entry: quest.title, loader: loader,
                         fill: DSColor.background
                     )
                     actions
-                }
-                .multilineTextAlignment(.center)
-                .frame(maxWidth: readableWidth)
-                .padding(.horizontal, DSSpacing.l)
-                .padding(.bottom, DSSpacing.m)
-                .frame(maxWidth: .infinity)
             }
-            .scrollDismissesKeyboard(.interactively)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(role: .close, action: onClose)
@@ -87,8 +80,8 @@ struct BossSheet: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: DSSpacing.m) {
+            // A defeated boss has nothing left to do: its guide keeps the whole sheet.
+            ReadAndActPanes(alignment: .leading, splits: !boss.isDefeated, column: BossColumn()) {
                     RewardPill(text: boss.reward, tint: DSColor.boss)
                     Text(boss.intro)
                         .font(DSFont.body)
@@ -102,6 +95,7 @@ struct BossSheet: View {
                     Text(boss.disclaimer)
                         .font(DSFont.subheadline)
                         .foregroundStyle(DSColor.textSecondary)
+            } acting: {
                     if !boss.isDefeated {
                         JournalSection(
                             labels: boss.journal, note: $note, photos: $photos, entry: boss.title, loader: loader,
@@ -109,14 +103,9 @@ struct BossSheet: View {
                         )
                     }
                     actions
-                }
-                .frame(maxWidth: readableWidth, alignment: .leading)
-                .padding(DSSpacing.m)
-                .frame(maxWidth: .infinity)
             }
             .background(DSColor.background)
             .navigationTitle(boss.title)
-            .scrollDismissesKeyboard(.interactively)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(role: .close, action: onClose)
@@ -148,6 +137,28 @@ struct BossSheet: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.top, DSSpacing.s)
+    }
+}
+
+/// The quest sheet's column: centred, with wide margins.
+private struct QuestColumn: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .multilineTextAlignment(.center)
+            .frame(maxWidth: readableWidth)
+            .padding(.horizontal, DSSpacing.l)
+            .padding(.bottom, DSSpacing.m)
+            .frame(maxWidth: .infinity)
+    }
+}
+
+/// The boss sheet's column: leading, like the guide it holds.
+private struct BossColumn: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .frame(maxWidth: readableWidth, alignment: .leading)
+            .padding(DSSpacing.m)
+            .frame(maxWidth: .infinity)
     }
 }
 

@@ -66,7 +66,7 @@ struct SagaFilmPlayer: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         // Read where the panes are placed, so the fold is in their coordinates.
         .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
-        .onHorizontalFoldChange(minimumPaneHeight: foldPaneMinimum) { fold = $0 }
+        .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum) { fold = $0 }
         .animation(reduceMotion ? nil : .smooth, value: fold)
         .task(id: made.url) {
             let player = AVPlayer(url: made.url)

@@ -51,7 +51,8 @@ has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in t
 - **`FoldedStackLayout`** (DesignSystem) places two views: the first above the fold, the second below it, each the full
   width. The fold's band stays empty.
 - Each screen switches with `AnyLayout` between its flat layout and this one, around the same views. Nothing on screen
-  is rebuilt when the device folds or unfolds:
+  is rebuilt when the device folds or unfolds (except home in a window narrower than 600 pt, whose single column is
+  a different view from the two panes):
   - scroll positions
   - the playing film
   - a picker that is open
@@ -76,27 +77,38 @@ has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in t
   - folded: the film fitted to the upper half and the controls on the lower half
 - Folding or unfolding never stops or rebuilds the player. Choosing and making are not split.
 
-### 5. The timeline's note and photos
-- While folded and while the entry has a photo, its cover is shown whole above the fold. The note, the row of squares,
+### 5. The timeline's note and photos, and a first's own page
+- Both use one container, `CoverAndFormPanes`. While folded and while the entry has a photo, its cover is shown whole above the fold. The note, the row of squares,
   "+" and the notes go below it. The cover's square still carries "Make cover" and "Remove", so the upright half shows
   the cover without its "…" button (changes ADR-0042 §3, while folded only).
 - With no photo the sheet stays as it is: the upper half never shows an empty frame waiting for one (ADR-0006,
   ADR-0042).
 - While the keyboard leaves no room below the fold, the photo gives way and the note fills the space above the
   keyboard, so what the dad writes stays in view. It comes back when the keyboard goes.
-- The lower half's minimum grows with the text size.
+- The lower half's minimum grows with the text size; the upper half's does not.
 
-### 6. What stays as it is
+### 6. Sheets that are read, then acted on
+- The quest sheet, the boss sheet and the wardrobe use one container, `ReadAndActPanes`. Folded, what the dad reads
+  stands above the fold and what he does lies below it, each half scrolling on its own:
+  - a quest: its reward, title, description, last note, tip and safety note above; the note, photos and "I did it"
+    below
+  - a boss: its reward, intro, last note, survival guide and disclaimer above; the note, photos and "We made it
+    through" below. A defeated boss has nothing left to do, so its sheet is not split
+  - the wardrobe: the hero above, the choices below
+- The lower half keeps its place in the view tree, so a fold keeps the note's focus and an open picker. With the
+  keyboard up the sheet is one column again.
+
+### 7. What stays as it is
 - The book pose (two columns, as in ADR-0011).
 - The cover display.
-- Every other sheet, including a first's step 2.
+- The lists and forms: the timeline, settings and their pages, onboarding, a first's choice, the world map.
 - The timeline list. Apple: scrolling content need not avoid the fold.
 - The film's choices.
 - The photo viewer.
 
-### 7. Tests
+### 8. Tests
 - `FoldLayoutTests` (DesignSystem): the rule and the panes' frames.
-- `HomeArrangementTests` and `SagaFilmPlayerLayoutTests` (Presentation).
+- `HomeArrangementTests`, `SagaFilmPlayerLayoutTests` and `CoverAboveFoldTests` (Presentation).
 - The reader, the sheets and the keyboard can only be seen in the simulator. Each screen is drawn there once, folded
   and unfolded, with the hinge moved mid-use.
 - The snapshots can't draw a fold, so they have no folded images.
@@ -124,6 +136,7 @@ has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in t
 
 ## Verification status
 Drawn once in the iPhone Duo simulator (iOS 27.2), half-open at 90° in portrait: home, the note editor with and
-without a photo and with the keyboard up, and the made film; the film sheet also unfolded while open. Not checked:
+without a photo and with the keyboard up, the made film, a quest sheet and the wardrobe; the film sheet also unfolded
+while open. Not checked: the boss sheet and a first's own page (they share the containers of the sheets that were),
 a real iPhone Duo, Split View, the accessibility text sizes, VoiceOver, and that a film in mid-play carries on
 without a break when the device folds.

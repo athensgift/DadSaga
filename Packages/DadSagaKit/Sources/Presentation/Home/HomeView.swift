@@ -61,7 +61,7 @@ public struct HomeView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             // Read where the panes are placed, so the fold is in their coordinates.
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
-            .onHorizontalFoldChange(minimumPaneHeight: foldPaneMinimum) { fold = $0 }
+            .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum) { fold = $0 }
             .background(DSColor.background)
             .safeAreaInset(edge: .bottom) { undoBar }
             .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)

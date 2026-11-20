@@ -6,8 +6,8 @@ import Testing
 struct FoldLayoutTests {
     private let screen = CGSize(width: 669, height: 880)
 
-    private func fold(_ divisions: [CGRect], in size: CGSize? = nil, minimum: CGFloat = 200) -> HorizontalFold? {
-        HorizontalFold.across(size ?? screen, divisions: divisions, minimumPaneHeight: minimum)
+    private func fold(_ divisions: [CGRect], in size: CGSize? = nil, below: CGFloat = 200) -> HorizontalFold? {
+        HorizontalFold.across(size ?? screen, divisions: divisions, minimumAbove: 200, minimumBelow: below)
     }
 
     @Test("Given a flat display, when the view looks for a fold, then there is none")
@@ -40,6 +40,22 @@ struct FoldLayoutTests {
     @Test("Given a short sheet that starts just above the fold, when it looks for a fold, then there is none")
     func noRoomAbove() {
         #expect(fold([CGRect(x: 0, y: 90, width: 669, height: 40)]) == nil)
+    }
+
+    @Test("Given a pane below that needs little room, when the keyboard leaves that much, then the view still folds")
+    func littleRoomNeededBelow() {
+        let found = fold([CGRect(x: 0, y: 420, width: 669, height: 40)], in: CGSize(width: 669, height: 600), below: 120)
+        #expect(found == HorizontalFold(top: 420, bottom: 460))
+    }
+
+    @Test("Given a fold with no thickness, when the view looks for it, then both panes meet at it")
+    func foldWithNoThickness() {
+        #expect(fold([CGRect(x: 0, y: 440, width: 669, height: 0)]) == HorizontalFold(top: 440, bottom: 440))
+    }
+
+    @Test("Given a fold that stops short of the view's edge, when the view looks for a fold across it, then there is none")
+    func foldNotSpanningTheWidth() {
+        #expect(fold([CGRect(x: 0, y: 420, width: 400, height: 40)]) == nil)
     }
 
     @Test("Given a fold outside the view, when the view looks for a fold, then there is none")

@@ -14,17 +14,17 @@ public struct HorizontalFold: Equatable, Sendable {
     }
 
     /// The fold that runs across a view of this size, or `nil` when none does or when it leaves less than
-    /// `minimumPaneHeight` above or below it (a short sheet, the keyboard over the lower half).
+    /// `minimumAbove` above it (a short sheet) or `minimumBelow` below it (the keyboard over the lower half).
     /// - Parameter divisions: the display's active folds, in the view's coordinates. They may reach past the view.
     public static func across(
-        _ size: CGSize, divisions: [CGRect], minimumPaneHeight: CGFloat
+        _ size: CGSize, divisions: [CGRect], minimumAbove: CGFloat, minimumBelow: CGFloat
     ) -> HorizontalFold? {
         let bounds = CGRect(origin: .zero, size: size)
         for division in divisions {
             let part = division.intersection(bounds)
             guard !part.isNull, part.width > part.height else { continue }
             guard part.minX <= 0.5, part.maxX >= size.width - 0.5 else { continue }
-            guard part.minY >= minimumPaneHeight, size.height - part.maxY >= minimumPaneHeight else { continue }
+            guard part.minY >= minimumAbove, size.height - part.maxY >= minimumBelow else { continue }
             return HorizontalFold(top: part.minY, bottom: part.maxY)
         }
         return nil
@@ -32,6 +32,7 @@ public struct HorizontalFold: Equatable, Sendable {
 }
 
 /// Its first view above the fold and its second below it, each as wide as the container; nothing in the fold.
+/// It places two views: give it exactly two.
 /// Switch to it with `AnyLayout` around the same views, so they keep their state when the device folds.
 public struct FoldedStackLayout: Layout {
     private let fold: HorizontalFold
@@ -68,11 +69,15 @@ extension View {
     /// Reports the fold that runs across this view, and `nil` when there is none: on a flat display, when the fold
     /// runs down the view (half-open like a book), or before iOS 27.1. Read it on the view that places the panes,
     /// so the fold is in their coordinates.
+    /// - Parameters:
+    ///   - minimumAbove, minimumBelow: the least height each pane needs for the view to split at the fold.
     public func onHorizontalFoldChange(
-        minimumPaneHeight: CGFloat, _ action: @escaping (HorizontalFold?) -> Void
+        minimumAbove: CGFloat, minimumBelow: CGFloat, _ action: @escaping (HorizontalFold?) -> Void
     ) -> some View {
         onGeometryChange(for: HorizontalFold?.self) { proxy in
-            HorizontalFold.across(proxy.size, divisions: proxy.activeDivisions, minimumPaneHeight: minimumPaneHeight)
+            HorizontalFold.across(
+                proxy.size, divisions: proxy.activeDivisions, minimumAbove: minimumAbove, minimumBelow: minimumBelow
+            )
         } action: { fold in
             action(fold)
         }

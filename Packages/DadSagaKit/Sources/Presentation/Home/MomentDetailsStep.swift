@@ -4,6 +4,7 @@ import SwiftUI
 /// Step 2: the moment's own page, for photos, a few words and the date (ADR-0042 §5). Just recorded, it offers
 /// "Saved · Undo" here, since home is behind the sheet, and home celebrates once it closes; opened to edit, it offers
 /// Delete instead.
+/// On an iPhone Duo half-open like a laptop its cover stands above the fold (ADR-0043).
 /// Closing never loses the moment: only what was changed and not saved, and only after asking.
 struct MomentDetailsStep: View {
     let details: MomentDetails
@@ -41,10 +42,18 @@ struct MomentDetailsStep: View {
     }
 
     var body: some View {
-        ScrollView {
+        CoverAndFormPanes(
+            photos: photos, entry: details.title, labels: details.labels.journal.photo, loader: loader
+        ) { showsCover in
             VStack(alignment: .leading, spacing: DSSpacing.m) {
                 header
-                JournalPhotosField(photos: $photos, entry: details.title, labels: details.labels.journal.photo, loader: loader)
+                JournalPhotosField(
+                    photos: $photos,
+                    entry: details.title,
+                    labels: details.labels.journal.photo,
+                    loader: loader,
+                    showsCover: showsCover
+                )
                 JournalNoteField(placeholder: details.notePlaceholder, note: $note)
                 DateRow(label: details.dateLabel, date: $date, range: details.earliestDate...details.latestDate)
                     .font(DSFont.body)
@@ -59,7 +68,6 @@ struct MomentDetailsStep: View {
             .padding(DSSpacing.m)
             .frame(maxWidth: .infinity)
         }
-        .scrollDismissesKeyboard(.interactively)
         .background(DSColor.background)
         .safeAreaInset(edge: .bottom) { undoBar }
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: details.undoOffer)

@@ -15,13 +15,6 @@ struct JournalEditorSheet: View {
     @State private var note: String
     @State private var photos: PhotoDrafts
     @State private var isConfirmingDiscard = false
-    @State private var fold: HorizontalFold?
-    /// The cover full screen, opened from above the fold.
-    @State private var coverViewer: PhotoViewerContent?
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// The least room the note needs below the fold, more at larger text sizes. With the keyboard up there is less
-    /// than that, so the cover gives way and the note is read above the keyboard.
-    @ScaledMetric(relativeTo: .body) private var minimumPaneHeight: CGFloat = 160
 
     init(
         editor: JournalEditor,
@@ -47,44 +40,23 @@ struct JournalEditorSheet: View {
     }
 
     var body: some View {
-        // The cover, while a fold runs across the sheet.
-        let coverOnTop = fold == nil ? nil : photos.items.first
-        let panes = (coverOnTop == nil ? nil : fold).map { AnyLayout(FoldedStackLayout(fold: $0)) }
-            ?? AnyLayout(VStackLayout(spacing: 0))
-        return NavigationStack {
-            // The same form in both layouts, so a fold keeps the note's focus, an open picker and loading photos.
-            panes {
-                if let coverOnTop {
-                    JournalCover(source: coverOnTop.source, loader: loader) {
-                        coverViewer = editor.labels.photo.viewer.content(
-                            entry: editor.title, photos: photos.items.map(\.source), startingAt: 0
-                        )
-                    }
-                    .padding(DSSpacing.m)
+        NavigationStack {
+            CoverAndFormPanes(photos: photos, entry: editor.title, labels: editor.labels.photo, loader: loader) { showsCover in
+                VStack(spacing: DSSpacing.m) {
+                    JournalNoteField(placeholder: editor.labels.notePlaceholder, note: $note)
+                    JournalPhotosField(
+                        photos: $photos,
+                        entry: editor.title,
+                        labels: editor.labels.photo,
+                        loader: loader,
+                        showsCover: showsCover
+                    )
+                    SheetError(message: errorMessage)
                 }
-                ScrollView {
-                    VStack(spacing: DSSpacing.m) {
-                        JournalNoteField(placeholder: editor.labels.notePlaceholder, note: $note)
-                        JournalPhotosField(
-                            photos: $photos,
-                            entry: editor.title,
-                            labels: editor.labels.photo,
-                            loader: loader,
-                            showsCover: coverOnTop == nil
-                        )
-                        SheetError(message: errorMessage)
-                    }
-                    .frame(maxWidth: readableWidth)
-                    .padding(DSSpacing.m)
-                    .frame(maxWidth: .infinity)
-                }
-                .scrollDismissesKeyboard(.interactively)
+                .frame(maxWidth: readableWidth)
+                .padding(DSSpacing.m)
+                .frame(maxWidth: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            // Read where the panes are placed, so the fold is in their coordinates.
-            .onHorizontalFoldChange(minimumPaneHeight: minimumPaneHeight) { fold = $0 }
-            .animation(reduceMotion ? nil : .smooth, value: coverOnTop?.id)
-            .photoViewer($coverViewer, loader: loader)
             .background(DSColor.background)
             .navigationTitle(editor.title)
             .toolbarTitleDisplayMode(.inline)

@@ -2,7 +2,8 @@ import DesignSystem
 import HeroArt
 import SwiftUI
 
-/// The wardrobe, as a sheet from home: the hero on top, updated live, and a row of choices per slot.
+/// The wardrobe, as a sheet from home: the hero on top, updated live, and a row of choices per slot. On an iPhone Duo
+/// half-open like a laptop the hero stands above the fold and the choices lie below it (ADR-0043).
 public struct WardrobeView: View {
     @State private var viewModel: WardrobeViewModel
     private let onClose: () -> Void
@@ -45,8 +46,7 @@ public struct WardrobeView: View {
 
     private func loaded(_ content: WardrobeContent) -> some View {
         let style = content.heroLook.avatarStyle
-        return ScrollView {
-            VStack(alignment: .leading, spacing: DSSpacing.l) {
+        return ReadAndActPanes(alignment: .leading, spacing: DSSpacing.l, column: WardrobeColumn()) {
                 HeroAvatar(
                     style: style,
                     size: 200,
@@ -70,6 +70,7 @@ public struct WardrobeView: View {
                 }
                 .animation(.spring(response: 0.35, dampingFraction: 0.75), value: content.gear)
                 .accessibilityHidden(true)
+        } acting: {
                 ForEach(content.slots) { slot in
                     slotView(slot)
                 }
@@ -81,10 +82,6 @@ public struct WardrobeView: View {
                 Text(content.footnote)
                     .font(DSFont.caption)
                     .foregroundStyle(DSColor.textSecondary)
-            }
-            .frame(maxWidth: readableWidth)
-            .padding(DSSpacing.m)
-            .frame(maxWidth: .infinity)
         }
     }
 
@@ -156,5 +153,15 @@ public struct WardrobeView: View {
         .disabled(option.isLocked)
         .accessibilityAddTraits(option.isSelected ? .isSelected : [])
         .animation(.easeOut(duration: 0.15), value: option.isSelected)
+    }
+}
+
+/// The wardrobe's column.
+private struct WardrobeColumn: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .frame(maxWidth: readableWidth)
+            .padding(DSSpacing.m)
+            .frame(maxWidth: .infinity)
     }
 }

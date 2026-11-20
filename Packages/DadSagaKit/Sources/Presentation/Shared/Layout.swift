@@ -7,8 +7,12 @@ let readableWidth: CGFloat = 560
 /// on large iPhones).
 let twoColumnWidth: CGFloat = 600
 
-/// The least height a pane above or below a fold needs for a screen to split at the fold (ADR-0043).
+/// The least height a pane above a fold needs for a screen to split at the fold (ADR-0043).
 let foldPaneMinimum: CGFloat = 200
+
+/// The least height a scrolling pane below a fold needs: little, so a bar that comes and goes at the bottom (home's
+/// undo bar) doesn't unfold the screen.
+let foldScrollingPaneMinimum: CGFloat = 120
 
 extension View {
     /// Hides the navigation bar on iOS. A no-op on macOS, where the package is only built to run its tests.
