@@ -5,7 +5,7 @@ import Foundation
 @testable import Presentation
 import Testing
 
-/// The film's camera on each photo's subject: the children first, at most 1.25 (ADR-0044 §3).
+/// The film's camera on each photo's subject: the children first, at most 1.25 (ADR-0046 §3).
 @Suite("Saga film: framing a photo")
 struct SagaFilmFramingTests {
     let spec = FilmSpec(width: 180, height: 320)

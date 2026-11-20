@@ -3,7 +3,7 @@ import Domain
 import Foundation
 import Testing
 
-/// Choosing a film's further photos and finding what its camera looks at (ADR-0044).
+/// Choosing a film's further photos and finding what its camera looks at (ADR-0046).
 @Suite("Saga film photos")
 struct SagaFilmPhotosUseCaseTests {
     let film = SagaFilmUseCaseTests()

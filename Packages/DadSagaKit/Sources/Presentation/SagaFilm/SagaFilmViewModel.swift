@@ -127,7 +127,7 @@ public final class SagaFilmViewModel: Identifiable {
         let format = format
         let showsDates = showsDates ?? film.showsDates
         state = .making(making(progress: 0))
-        // The further photos are chosen first, only as the film is made (ADR-0044 §4); the sheet showed the same
+        // The further photos are chosen first, only as the film is made (ADR-0046 §4); the sheet showed the same
         // scenes, so nothing on it changes.
         let task = Task { [choosePhotos, renderer, weak self] in
             let chosen = await choosePhotos.execute(film)

@@ -198,25 +198,18 @@ extension CelebrationHaptic {
     }
 }
 
-/// The world's name and motto, a button to the world map, and a way back when an earlier world is shown.
+/// The world's name and motto, and a way back when an earlier world is shown. The world map is in the toolbar.
 struct WorldHeader: View {
     let content: HomeContent
-    let onMap: () -> Void
     let onBack: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.xs) {
-            HStack(alignment: .firstTextBaseline) {
-                if let worldTitle = content.worldTitle {
-                    Text(worldTitle)
-                        .font(DSFont.title)
-                        .foregroundStyle(DSColor.textPrimary)
-                        .accessibilityAddTraits(.isHeader)
-                }
-                Spacer(minLength: DSSpacing.s)
-                Button(content.mapTitle, systemImage: "map", action: onMap)
-                    .labelStyle(.iconOnly)
-                    .buttonStyle(.glass)
+            if let worldTitle = content.worldTitle {
+                Text(worldTitle)
+                    .font(DSFont.title)
+                    .foregroundStyle(DSColor.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
             }
             if let worldTagline = content.worldTagline {
                 Text(worldTagline)

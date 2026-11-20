@@ -45,6 +45,10 @@ struct SettingsViewModelTests {
         #expect(content.title == "Ρυθμίσεις")
         #expect(content.languageValue == "Ελληνικά")
         #expect(content.appearanceOptions.map(\.title) == ["Αυτόματα", "Ανοιχτή", "Σκούρα"])
+        #expect(
+            [content.heroTitle, content.wardrobeTitle, content.familyTitle]
+                == ["Ο ήρωάς σου", "Ντουλάπα", "Η οικογένειά μου"]
+        )
         #expect(content.about.versionValue == "0.1.0 (1)")
     }
 

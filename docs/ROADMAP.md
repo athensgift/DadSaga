@@ -26,7 +26,7 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ Snapshot / UI tests: the accessibility audit (ADR-0033) and screen snapshots (ADR-0034), both run on the Mac
 - ✅ iPhone Duo half-open like a laptop: home, the saga film, the note editor, the quest and boss sheets, a first's
   page, the wardrobe and the timeline put what the dad looks at above the fold and what he touches below it
-  (ADR-0043). Still to
+  (ADR-0043); open and upright, home keeps those two panes (ADR-0045). Still to
   check on a real iPhone Duo, and in Split View, at the accessibility text sizes and with VoiceOver
 
 ### Open items from the 2026-11 architecture review

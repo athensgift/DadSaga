@@ -219,7 +219,7 @@ private struct Cutter {
     }
 }
 
-/// An entry with more further photos than places in its film (ADR-0044 §2): the photos the device may choose among.
+/// An entry with more further photos than places in its film (ADR-0046 §2): the photos the device may choose among.
 public struct SagaPhotoChoice: Hashable, Sendable {
     public let entryID: UUID
     /// The entry's further photos, in the dad's order.

@@ -21,6 +21,11 @@ public final class OnboardingViewModel {
     /// A child cannot be born in the future.
     public let latestBirthDate: Date
 
+    /// The look the profile is created with: the standard one for the chosen skin tone (ADR-0044 §2).
+    public var dadAppearance: DadAppearanceChoice {
+        DadAppearanceChoice(.standard(for: family.dadSkinTone.domain))
+    }
+
     public var canContinue: Bool {
         family.isComplete
     }

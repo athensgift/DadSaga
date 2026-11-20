@@ -1,7 +1,7 @@
 import Domain
 import Foundation
 
-/// Chooses which of an entry's further photos fill its places in a film, by the device's rating (ADR-0044 §2). Run
+/// Chooses which of an entry's further photos fill its places in a film, by the device's rating (ADR-0046 §2). Run
 /// as the film is made, never by the film sheet's query; only the photos that can change the film are looked at.
 public protocol ChooseSagaFilmPhotosUseCase: Sendable {
     /// The same film, its further photos chosen. When the task is cancelled, or nothing can be rated, the film as given.
@@ -50,7 +50,7 @@ public struct DefaultChooseSagaFilmPhotosUseCase: ChooseSagaFilmPhotosUseCase {
     }
 }
 
-/// What a film's camera looks at in a photo (ADR-0044 §3): the children, else every face, else what draws the eye.
+/// What a film's camera looks at in a photo (ADR-0046 §3): the children, else every face, else what draws the eye.
 public protocol FindPhotoSubjectUseCase: Sendable {
     /// `nil` when nothing was found: the film then moves as it always has.
     func execute(photo imageData: Data) async -> PhotoFraming?

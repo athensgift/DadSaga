@@ -1,7 +1,7 @@
 import Domain
 import Foundation
 
-/// Port for looking at a photo on the device (ADR-0044): nothing it finds is stored, shown or sent. Each answer is
+/// Port for looking at a photo on the device (ADR-0046): nothing it finds is stored, shown or sent. Each answer is
 /// empty, or `nil`, when the device can't tell; it never throws.
 public protocol PhotoAnalyzer: Sendable {
     /// How memorable the photo looks.

@@ -4,7 +4,7 @@ import Domain
 import Foundation
 import Vision
 
-/// Looks at photos with Apple's Vision, on the device (ADR-0044). The only file that imports Vision. Each request is
+/// Looks at photos with Apple's Vision, on the device (ADR-0046). The only file that imports Vision. Each request is
 /// performed on its own, so one the device can't run leaves only its own answer empty.
 public struct VisionPhotoAnalyzer: PhotoAnalyzer {
     /// A face's crop for telling a child from an adult: its box grown by this share of its size on every side, so the

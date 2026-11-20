@@ -83,7 +83,7 @@ public struct FilmRegion: Hashable, Sendable {
 }
 
 public extension FilmCamera {
-    /// The closest camera on `focus`, up to `maxZoom`, that keeps all of it in the frame (ADR-0044 §3): the zoom is
+    /// The closest camera on `focus`, up to `maxZoom`, that keeps all of it in the frame (ADR-0046 §3): the zoom is
     /// lowered until it fits, never below 1. Centred on the focus as far as the picture allows: on a side the picture
     /// fills, its edge never comes into the frame; on a side it doesn't, the picture stays in the middle, whole.
     ///

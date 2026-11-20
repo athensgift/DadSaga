@@ -29,7 +29,7 @@ final class AppContainer {
         getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore),
         findSubject: DefaultFindPhotoSubjectUseCase(analyzer: photoAnalyzer)
     )
-    /// Looks at the film's photos with Vision, on the device, while a film is made; keeps nothing (ADR-0044).
+    /// Looks at the film's photos with Vision, on the device, while a film is made; keeps nothing (ADR-0046).
     private let photoAnalyzer: any PhotoAnalyzer = VisionPhotoAnalyzer()
 
     init(data: DeviceData = .forLaunch()) {
@@ -118,20 +118,20 @@ final class AppContainer {
 
     var settingsPages: SettingsPages {
         SettingsPages(
-            makeHero: { [unowned self] in makeHeroSettingsViewModel(onSaved: $0) },
+            makeHero: { [unowned self] in makeHeroSettingsViewModel() },
+            makeWardrobe: { [unowned self] in makeWardrobeViewModel() },
             makeFamily: { [unowned self] in makeFamilyViewModel(onSaved: $0) },
             makeReminder: { [unowned self] in makeReminderSettingsViewModel() }
         )
     }
 
-    func makeHeroSettingsViewModel(onSaved: @escaping @MainActor () -> Void) -> HeroSettingsViewModel {
+    func makeHeroSettingsViewModel() -> HeroSettingsViewModel {
         HeroSettingsViewModel(
             getHeroChoice: DefaultGetHeroChoiceUseCase(
                 contentRepository: contentRepository,
                 profileRepository: store.profiles
             ),
-            updateHero: DefaultUpdateHeroUseCase(contentRepository: contentRepository, profileRepository: store.profiles),
-            onSaved: onSaved
+            updateHero: DefaultUpdateHeroUseCase(contentRepository: contentRepository, profileRepository: store.profiles)
         )
     }
 

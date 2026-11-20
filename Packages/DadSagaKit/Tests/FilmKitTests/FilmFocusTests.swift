@@ -5,7 +5,7 @@ import Foundation
 import Testing
 
 extension FilmKitTests {
-    /// The closest camera that keeps a part of a photo whole (ADR-0044 §3).
+    /// The closest camera that keeps a part of a photo whole (ADR-0046 §3).
     @Suite("Focus")
     struct FocusTests {
         let wide = FilmSpec(width: 1920, height: 1080)

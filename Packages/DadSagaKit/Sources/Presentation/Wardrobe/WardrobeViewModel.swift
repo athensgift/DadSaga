@@ -78,6 +78,7 @@ public final class WardrobeViewModel {
                 title: strings.text("Wardrobe"),
                 heroLook: HeroLook(look: wardrobe.hero?.look),
                 heroSkin: SkinToneChoice(profile?.dadSkinTone ?? .mediumLight),
+                heroAppearance: profile.map { DadAppearanceChoice($0.dadAppearance) } ?? .standard,
                 gear: wardrobe.equipped.compactMap { HeroGearLook(look: $0.look) },
                 medalCount: wardrobe.progress.allDefeatedBossIDs.count,
                 slots: Skill.allCases.map { slot(for: $0, in: wardrobe) },
@@ -134,9 +135,6 @@ public final class WardrobeViewModel {
     private var strings: Strings { Strings(locale: locale) }
 }
 
-/// Identified by object, so home can present it with `sheet(item:)`.
-extension WardrobeViewModel: Identifiable {}
-
 public enum WardrobeViewState: Equatable, Sendable {
     case loading
     case loaded(WardrobeContent)
@@ -147,6 +145,7 @@ public struct WardrobeContent: Equatable, Sendable {
     public let title: String
     public let heroLook: HeroLook
     public let heroSkin: SkinToneChoice
+    public let heroAppearance: DadAppearanceChoice
     /// What the hero wears with the current choices.
     public let gear: [HeroGearLook]
     public let medalCount: Int

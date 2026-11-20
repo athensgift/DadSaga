@@ -1,4 +1,4 @@
-# ADR-0044: Choosing and framing the saga film's photos with Vision, on the device, as the film is made
+# ADR-0046: Choosing and framing the saga film's photos with Vision, on the device, as the film is made
 
 **Status:** Proposed (2026-11-20). The owner asked for Apple's on-device Vision to choose an entry's further photos
 for the film and to keep faces in view; drafted by the architect. The owner then chose both halves, and for the

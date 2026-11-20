@@ -227,15 +227,15 @@ struct SagaFixture {
 
     var settingsPages: SettingsPages {
         SettingsPages(
-            makeHero: { onSaved in
+            makeHero: {
                 HeroSettingsViewModel(
                     getHeroChoice: DefaultGetHeroChoiceUseCase(contentRepository: content, profileRepository: store.profiles),
                     updateHero: DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: store.profiles),
                     locale: locale,
-                    now: Self.today,
-                    onSaved: onSaved
+                    now: Self.today
                 )
             },
+            makeWardrobe: { wardrobe() },
             makeFamily: { onSaved in
                 FamilyViewModel(
                     getProfile: DefaultGetProfileUseCase(repository: store.profiles),
@@ -316,7 +316,7 @@ extension SagaFixture {
     }()
 }
 
-/// Keeps the film's photos as the sheet showed them: a snapshot never depends on Vision (ADR-0044 §8).
+/// Keeps the film's photos as the sheet showed them: a snapshot never depends on Vision (ADR-0046 §8).
 struct KeepFilmPhotos: ChooseSagaFilmPhotosUseCase {
     func execute(_ film: SagaFilm) async -> SagaFilm { film }
 }

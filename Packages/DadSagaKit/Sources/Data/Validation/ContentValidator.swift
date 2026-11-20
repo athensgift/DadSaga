@@ -22,6 +22,27 @@ enum ContentValidator {
         for quest in catalog.quests where quest.tip?.steps.isEmpty == true {
             throw ContentDataError.emptyTip(itemID: quest.id)
         }
+        try validateAppearance(catalog.appearanceOptions)
+    }
+
+    /// Each part names every option the app can draw, once, and nothing else (ADR-0044 §3). Ids are unique within
+    /// their part only, so they stay out of the catalog-wide check above.
+    private static func validateAppearance(_ options: [DadAppearanceOption]) throws {
+        for part in DadAppearance.Part.allCases {
+            let known = DadAppearance.optionIDs(for: part)
+            var seen: Set<String> = []
+            for option in options where option.part == part {
+                guard known.contains(option.id) else {
+                    throw ContentDataError.unknownAppearanceOption(part: part.rawValue, id: option.id)
+                }
+                guard seen.insert(option.id).inserted else {
+                    throw ContentDataError.duplicateID("\(part.rawValue).\(option.id)")
+                }
+            }
+            if let missing = known.first(where: { !seen.contains($0) }) {
+                throw ContentDataError.missingAppearanceOption(part: part.rawValue, id: missing)
+            }
+        }
     }
 
     static func validate(_ soundtracks: [Soundtrack]) throws {
