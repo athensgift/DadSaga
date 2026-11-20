@@ -235,6 +235,7 @@ struct SagaFixture {
                     onSaved: onSaved
                 )
             },
+            makeWardrobe: { wardrobe() },
             makeFamily: { onSaved in
                 FamilyViewModel(
                     getProfile: DefaultGetProfileUseCase(repository: store.profiles),

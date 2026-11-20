@@ -2,40 +2,31 @@ import DesignSystem
 import HeroArt
 import SwiftUI
 
-/// The wardrobe, as a sheet from home: the hero on top, updated live, and a row of choices per slot.
+/// The wardrobe, pushed from Settings (ADR-0044): the hero on top, updated live, and a row of choices per slot.
 public struct WardrobeView: View {
     @State private var viewModel: WardrobeViewModel
-    private let onClose: () -> Void
     /// Grows with the text, so at the accessibility sizes an item gets a row of its own instead of a name cut short.
     @ScaledMetric(relativeTo: .subheadline) private var optionMinimumWidth: CGFloat = 120
 
-    public init(viewModel: WardrobeViewModel, onClose: @escaping () -> Void) {
+    public init(viewModel: WardrobeViewModel) {
         _viewModel = State(initialValue: viewModel)
-        self.onClose = onClose
     }
 
     public var body: some View {
-        NavigationStack {
-            Group {
-                switch viewModel.state {
-                case .loading:
-                    ProgressView()
-                case .loaded(let content):
-                    loaded(content)
-                case .failed(let message):
-                    ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
-                }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(DSColor.background)
-            .navigationTitle(title)
-            .toolbarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .close, action: onClose)
-                }
+        Group {
+            switch viewModel.state {
+            case .loading:
+                ProgressView()
+            case .loaded(let content):
+                loaded(content)
+            case .failed(let message):
+                ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(DSColor.background)
+        .navigationTitle(title)
+        .toolbarTitleDisplayMode(.inline)
         .task { await viewModel.onAppear() }
     }
 

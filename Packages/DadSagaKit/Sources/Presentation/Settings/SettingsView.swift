@@ -4,7 +4,7 @@ import SwiftUI
 import UIKit
 #endif
 
-/// Settings, as a sheet from home (ADR-0030). The weekly reminder, hero and family are pushed inside it.
+/// Settings, as a sheet from home (ADR-0030). The weekly reminder, hero, wardrobe and family are pushed inside it.
 public struct SettingsView: View {
     @State private var viewModel: SettingsViewModel
     @State private var page: SettingsPage?
@@ -33,6 +33,7 @@ public struct SettingsView: View {
                 .navigationDestination(item: $page) { page in
                     switch page {
                     case .hero(let hero): HeroSettingsView(viewModel: hero)
+                    case .wardrobe(let wardrobe): WardrobeView(viewModel: wardrobe)
                     case .family(let family): FamilyView(viewModel: family)
                     case .reminder(let reminder): ReminderSettingsView(viewModel: reminder)
                     }
@@ -134,6 +135,9 @@ public struct SettingsView: View {
             row(content.heroTitle, systemImage: "figure.fencing") {
                 page = .hero(pages.makeHero { page = nil })
             }
+            row(content.wardrobeTitle, systemImage: "tshirt") {
+                page = .wardrobe(pages.makeWardrobe())
+            }
             row(content.familyTitle, systemImage: "person.2") {
                 page = .family(pages.makeFamily { page = nil })
             }
@@ -228,12 +232,14 @@ public struct SettingsView: View {
 /// A page pushed from Settings, holding the presenter built when its row was tapped.
 private enum SettingsPage: Hashable {
     case hero(HeroSettingsViewModel)
+    case wardrobe(WardrobeViewModel)
     case family(FamilyViewModel)
     case reminder(ReminderSettingsViewModel)
 
     private var object: AnyObject {
         switch self {
         case .hero(let model): model
+        case .wardrobe(let model): model
         case .family(let model): model
         case .reminder(let model): model
         }

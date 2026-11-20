@@ -24,7 +24,6 @@ struct DadSagaApp: App {
                 makeOnboarding: { container.makeOnboardingViewModel(onFinished: $0) },
                 makeHome: { container.makeHomeViewModel() },
                 makeTimeline: { container.makeTimelineViewModel() },
-                makeWardrobe: { container.makeWardrobeViewModel() },
                 makeSagaFilm: { container.makeSagaFilmViewModel(request: $0) },
                 makeSettings: { container.makeSettingsViewModel(preferences: $0, actions: $1) },
                 settingsPages: container.settingsPages,

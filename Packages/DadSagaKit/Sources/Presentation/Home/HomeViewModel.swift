@@ -222,7 +222,6 @@ public final class HomeViewModel {
             selectedChildID: child.id,
             selectedChildLine: hasSiblings ? childLine : nil,
             familyTitle: strings.text("My family"),
-            wardrobeTitle: strings.text("Wardrobe"),
             settingsTitle: strings.text("Settings"),
             level: level.level,
             levelTitle: strings.text("Level \(level.level)"),

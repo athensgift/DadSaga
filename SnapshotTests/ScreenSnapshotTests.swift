@@ -49,7 +49,6 @@ struct ScreenSnapshotTests {
         await viewModel.onAppear()
         let view = HomeView(
             viewModel: viewModel,
-            makeWardrobe: { saga.wardrobe() },
             makeSagaFilm: { saga.sagaFilm(request: $0) },
             settings: saga.settingsScreens
         )
@@ -63,7 +62,6 @@ struct ScreenSnapshotTests {
         await viewModel.onAppear()
         let view = HomeView(
             viewModel: viewModel,
-            makeWardrobe: { saga.wardrobe() },
             makeSagaFilm: { saga.sagaFilm(request: $0) },
             settings: saga.settingsScreens
         )
@@ -74,7 +72,7 @@ struct ScreenSnapshotTests {
     func wardrobe(look: Look) async throws {
         let viewModel = try await SagaFixture(locale: look.locale).played().wardrobe()
         await viewModel.onAppear()
-        verify(WardrobeView(viewModel: viewModel, onClose: {}), look: look, named: "wardrobe")
+        verify(NavigationStack { WardrobeView(viewModel: viewModel) }, look: look, named: "wardrobe")
     }
 
     @Test("Given a few weeks of play, when the timeline opens, then it looks as recorded", arguments: Look.allCases)

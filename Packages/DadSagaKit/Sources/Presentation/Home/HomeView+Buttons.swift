@@ -12,7 +12,7 @@ extension HomeView {
                 .foregroundStyle(DSColor.textPrimary)
                 .accessibilityAddTraits(.isHeader)
             Spacer()
-            wardrobeButton
+            worldMapButton
                 .labelStyle(.iconOnly)
                 .buttonStyle(.glass)
             settingsButton
@@ -21,16 +21,16 @@ extension HomeView {
         }
     }
 
-    var wardrobeButton: some View {
+    var worldMapButton: some View {
         Button {
-            wardrobeViewModel = makeWardrobe()
+            viewModel.openMap()
         } label: {
-            Label(wardrobeTitle, systemImage: "tshirt")
+            Label(worldMapTitle, systemImage: "map")
         }
     }
 
-    var wardrobeTitle: String {
-        if case .loaded(let content) = viewModel.state { content.wardrobeTitle } else { "" }
+    var worldMapTitle: String {
+        if case .loaded(let content) = viewModel.state { content.mapTitle } else { "" }
     }
 
     var settingsButton: some View {

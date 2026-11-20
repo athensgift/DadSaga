@@ -26,7 +26,6 @@ public struct HomeContent: Equatable, Sendable {
     /// Name and age of the selected child, shown above their quests when there are several children.
     public let selectedChildLine: String?
     public let familyTitle: String
-    public let wardrobeTitle: String
     public let settingsTitle: String
     public let level: Int
     /// e.g. "Επίπεδο 2".

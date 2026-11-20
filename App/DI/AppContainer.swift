@@ -116,6 +116,7 @@ final class AppContainer {
     var settingsPages: SettingsPages {
         SettingsPages(
             makeHero: { [unowned self] in makeHeroSettingsViewModel(onSaved: $0) },
+            makeWardrobe: { [unowned self] in makeWardrobeViewModel() },
             makeFamily: { [unowned self] in makeFamilyViewModel(onSaved: $0) },
             makeReminder: { [unowned self] in makeReminderSettingsViewModel() }
         )

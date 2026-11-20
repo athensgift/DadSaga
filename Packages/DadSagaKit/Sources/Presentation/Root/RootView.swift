@@ -17,7 +17,6 @@ public struct RootView: View {
     private let makeOnboarding: MakeOnboarding
     private let makeHome: MakeHome
     private let makeTimeline: MakeTimeline
-    private let makeWardrobe: HomeView.MakeWardrobe
     private let makeSagaFilm: SagaFilmSheet.MakeViewModel
     private let makeSettings: MakeSettings
     private let settingsPages: SettingsPages
@@ -32,7 +31,6 @@ public struct RootView: View {
         makeOnboarding: @escaping MakeOnboarding,
         makeHome: @escaping MakeHome,
         makeTimeline: @escaping MakeTimeline,
-        makeWardrobe: @escaping HomeView.MakeWardrobe,
         makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
         makeSettings: @escaping MakeSettings,
         settingsPages: SettingsPages,
@@ -43,7 +41,6 @@ public struct RootView: View {
         self.makeOnboarding = makeOnboarding
         self.makeHome = makeHome
         self.makeTimeline = makeTimeline
-        self.makeWardrobe = makeWardrobe
         self.makeSagaFilm = makeSagaFilm
         self.makeSettings = makeSettings
         self.settingsPages = settingsPages
@@ -73,7 +70,6 @@ public struct RootView: View {
                         selection: $viewModel.selectedTab,
                         home: HomeView(
                             viewModel: home,
-                            makeWardrobe: makeWardrobe,
                             makeSagaFilm: makeSagaFilm,
                             settings: settingsScreens,
                             pendingLink: viewModel.pendingLink,

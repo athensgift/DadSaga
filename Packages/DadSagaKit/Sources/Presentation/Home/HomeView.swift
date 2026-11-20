@@ -6,36 +6,30 @@ import SwiftUI
 /// On wide screens (iPhone Duo inner display, landscape) it splits into two equal columns, so neither column
 /// runs across the middle of the display, where the Duo folds.
 public struct HomeView: View {
-    public typealias MakeWardrobe = @MainActor () -> WardrobeViewModel
-
     @State var viewModel: HomeViewModel
     @State private var isWide = false
-    @State var wardrobeViewModel: WardrobeViewModel?
     @State var settingsViewModel: SettingsViewModel?
     /// The film sheet, opened from the film offer.
     @State var sagaFilm: SagaFilmViewModel?
     /// A moment's photos, full screen.
     @State var photoViewer: PhotoViewerContent?
-    let makeWardrobe: MakeWardrobe
     let makeSagaFilm: SagaFilmSheet.MakeViewModel
     let settings: SettingsScreens
     let pendingLink: PendingLink?
     let onLinkHandled: @MainActor () -> Void
 
     /// - Parameters:
-    ///   - makeWardrobe, settings: build the screens behind the toolbar buttons.
+    ///   - settings: builds Settings, behind its toolbar button.
     ///   - makeSagaFilm: builds the film sheet for the film home offers.
     ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` runs once it is open.
     public init(
         viewModel: HomeViewModel,
-        makeWardrobe: @escaping MakeWardrobe,
         makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
         settings: SettingsScreens,
         pendingLink: PendingLink? = nil,
         onLinkHandled: @escaping @MainActor () -> Void = {}
     ) {
         _viewModel = State(initialValue: viewModel)
-        self.makeWardrobe = makeWardrobe
         self.makeSagaFilm = makeSagaFilm
         self.settings = settings
         self.pendingLink = pendingLink
@@ -63,7 +57,7 @@ public struct HomeView: View {
             // shifts the other, so the wide layout has no bar: its title lives in the hero column.
             .navigationBarHidden(when: isWide)
             .toolbar {
-                ToolbarItem(placement: .primaryAction) { wardrobeButton }
+                ToolbarItem(placement: .primaryAction) { worldMapButton }
                 ToolbarItem(placement: .primaryAction) { settingsButton }
             }
         }
@@ -73,9 +67,6 @@ public struct HomeView: View {
             } onClose: {
                 viewModel.closeMap()
             }
-        }
-        .sheet(item: $wardrobeViewModel, onDismiss: reloadAfterSheet) { wardrobe in
-            WardrobeView(viewModel: wardrobe) { wardrobeViewModel = nil }
         }
         .sheet(item: $settingsViewModel, onDismiss: reloadAfterSheet) { settingsModel in
             SettingsView(viewModel: settingsModel, pages: settings.pages) { settingsViewModel = nil }
@@ -208,8 +199,6 @@ public struct HomeView: View {
             }
             offerCard
             WorldHeader(content: content) {
-                viewModel.openMap()
-            } onBack: {
                 Task { await viewModel.showWorld(id: nil) }
             }
             if let emptyMessage = content.emptyMessage {
@@ -325,9 +314,8 @@ extension HomeView {
     /// Closes this screen's own sheets, then lets the presenter open the link (ADR-0023).
     func openPendingLink() async {
         guard let pendingLink else { return }
-        let hadSheet = wardrobeViewModel != nil || settingsViewModel != nil || sagaFilm != nil
+        let hadSheet = settingsViewModel != nil || sagaFilm != nil
             || viewModel.worldMap != nil || photoViewer != nil
-        wardrobeViewModel = nil
         settingsViewModel = nil
         sagaFilm = nil
         photoViewer = nil

@@ -135,7 +135,6 @@ struct WardrobeViewModelTests {
             return
         }
         #expect(content.heroGear.isEmpty)
-        #expect(content.wardrobeTitle == "Ντουλάπα")
     }
 }
 
