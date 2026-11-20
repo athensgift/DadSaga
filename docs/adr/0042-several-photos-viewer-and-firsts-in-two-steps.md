@@ -113,7 +113,7 @@ snapshots cover the viewer and both steps of a first).
   | Step 2 title | Αποθηκεύτηκε! Θες να κρατήσεις κάτι ακόμα; | Saved! Want to keep something more? |
   | Step 2 line | Φωτογραφίες ή δυο λόγια, τώρα ή όποτε θέλεις. | Photos or a few words, now or whenever you like. |
   | Buttons | Αποθήκευση · Όχι τώρα | Save · Not now |
-  | Discard | Να φύγουν οι φωτογραφίες και οι σημειώσεις που πρόσθεσες; · Να φύγουν · Συνέχισε | Discard the photos and words you just added? · Discard · Keep editing |
+  | Discard | Να φύγουν οι αλλαγές που έκανες; · Να φύγουν · Συνέχισε | Discard the changes you just made? · Discard · Keep editing |
   | At five | Ως 5 φωτογραφίες σε κάθε καταχώριση. | Up to 5 photos on each entry. |
   | Viewer | Φωτογραφία 2 από 5 · Κλείσιμο · Δες τις φωτογραφίες | Photo 2 of 5 · Close · Show photos |
   | Thumbnail | Κάν' την εξώφυλλο · Αφαίρεση | Make cover · Remove |
