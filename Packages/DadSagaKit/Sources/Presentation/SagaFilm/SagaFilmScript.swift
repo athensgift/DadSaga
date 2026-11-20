@@ -48,13 +48,14 @@ public struct SagaFilmScene: Equatable, Sendable {
     public let card: SagaFilmCard
 }
 
-/// What one scene shows. No dates, no ages and no XP on any of them (ADR-0037 §2, ADR-0006).
+/// What one scene shows. No ages and no XP on any of them (ADR-0037 §2, ADR-0006). Dates, already written, only on
+/// the opening, a first and a boss, and only while the film's dates switch is on (ADR-0041); `nil` otherwise.
 public enum SagaFilmCard: Equatable, Sendable {
-    case opening(name: String, period: String, family: SagaFilmFamily)
+    case opening(name: String, period: String, dates: String?, family: SagaFilmFamily)
     case chapter(heading: String, title: String, tagline: String)
     /// A first: its words, over its photo if it has one.
-    case first(emoji: String, title: String, note: String?, photoID: String?)
-    case boss(badge: String, title: String, photoID: String?)
+    case first(emoji: String, title: String, date: String?, note: String?, photoID: String?)
+    case boss(badge: String, title: String, date: String?, photoID: String?)
     /// A quest's photo on its own, without words.
     case questPhoto(photoID: String)
     case credits(SagaFilmCredits)
@@ -62,7 +63,7 @@ public enum SagaFilmCard: Equatable, Sendable {
     /// The photo the card is drawn over, if any.
     var photoID: String? {
         switch self {
-        case .first(_, _, _, let photoID), .boss(_, _, let photoID): photoID
+        case .first(_, _, _, _, let photoID), .boss(_, _, _, let photoID): photoID
         case .questPhoto(let photoID): photoID
         case .opening, .chapter, .credits: nil
         }

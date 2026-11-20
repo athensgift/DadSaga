@@ -18,6 +18,7 @@ enum FilmCards {
     static let opening = SagaFilmCard.opening(
         name: "Άννα",
         period: "2ος χρόνος",
+        dates: "Μάρτιος 2025 – Μάρτιος 2026",
         family: SagaFilmFamily(
             hero: .cool, heroSkin: .mediumDark, heroGear: [.burpCloth, .mug], medals: 2,
             child: CompanionModel(
@@ -39,7 +40,9 @@ enum FilmCards {
     )
 
     static func first(photoID: String? = nil) -> SagaFilmCard {
-        .first(emoji: "😊", title: "Πρώτο χαμόγελο", note: "Χαμογέλασε στον παππού", photoID: photoID)
+        .first(
+            emoji: "😊", title: "Πρώτο χαμόγελο", date: "12 Μαρτίου 2026", note: "Χαμογέλασε στον παππού", photoID: photoID
+        )
     }
 }
 

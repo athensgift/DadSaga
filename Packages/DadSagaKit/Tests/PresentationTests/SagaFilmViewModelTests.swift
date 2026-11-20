@@ -121,16 +121,18 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
         let sut = makeSUT()
         await sut.onAppear()
         await sut.selectPeriod(id: "everything")
+        await sut.setShowsDates(false)?.value
 
         await sut.makeFilm(reduceMotion: false)
 
         let script = try #require(await renderer.scripts.first)
-        guard case .opening(let name, let period, let drawn) = script.scenes.first?.card else {
+        guard case .opening(let name, let period, let dates, let drawn) = script.scenes.first?.card else {
             Issue.record("Expected an opening, got \(String(describing: script.scenes.first))")
             return
         }
         #expect(name == "Άννα")
         #expect(period == "Όλη η ιστορία")
+        #expect(dates == nil)
         #expect(drawn.hero == .cool)
         #expect(drawn.heroSkin == .mediumDark)
         #expect(drawn.heroGear == [.burpCloth])
@@ -140,11 +142,11 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
         #expect(drawn.child.traits == [.smile, .walks])
         #expect(script.scenes.dropFirst().map(\.card) == [
             .chapter(heading: "Κεφάλαιο 1", title: "Σπηλιά", tagline: "Οι πρώτες μέρες"),
-            .first(emoji: "😊", title: "Πρώτο χαμόγελο", note: "Χαμογέλασε στον παππού", photoID: "p-smile"),
+            .first(emoji: "😊", title: "Πρώτο χαμόγελο", date: nil, note: "Χαμογέλασε στον παππού", photoID: "p-smile"),
             .questPhoto(photoID: "p-walk-1"),
-            .boss(badge: "Πυρετομάχος", title: "Πρώτος πυρετός", photoID: nil),
+            .boss(badge: "Πυρετομάχος", title: "Πρώτος πυρετός", date: nil, photoID: nil),
             .chapter(heading: "Κεφάλαιο 2", title: "Πεδιάδες", tagline: "Όλα κινούνται"),
-            .first(emoji: "👣", title: "Πρώτα βήματα", note: nil, photoID: nil),
+            .first(emoji: "👣", title: "Πρώτα βήματα", date: nil, note: nil, photoID: nil),
             .questPhoto(photoID: "p-walk-2"),
             .credits(SagaFilmCredits(
                 lines: [
@@ -197,18 +199,23 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
     }
 
     @Test(
-        "Given a saga with XP, levels, ages and dates, and a sibling, when making the film, then none of them is in it",
-        arguments: ["el_GR", "en_US"]
+        "Given XP, levels, ages and a sibling, when making the film, then none is in it, and dates only in their place",
+        arguments: ["el_GR", "en_US"], [true, false]
     )
-    func noPressureInTheFilm(locale: String) async throws {
+    func noPressureInTheFilm(locale: String, showsDates: Bool) async throws {
         let brother = ProgressEvent(kind: .first(id: "f-smile"), childID: FilmStub.niko.id, date: FilmStub.today, note: "Νίκος")
         let sut = makeSUT(FakeGetSagaFilm(profile: FilmStub.family, events: FilmStub.annasSaga + [brother]), locale: locale)
         await sut.onAppear()
         await sut.selectPeriod(id: "everything")
+        await sut.setShowsDates(showsDates)?.value
 
         await sut.makeFilm(reduceMotion: false)
 
-        let words = words(of: try #require(await renderer.scripts.first))
+        let script = try #require(await renderer.scripts.first)
+        // The opening, two firsts and a boss of Anna's; her brother's first isn't in her film.
+        #expect(dates(of: script).count == (showsDates ? 4 : 0))
+        // Dates are only in a card's date field (ADR-0041); every other word stays free of them.
+        let words = words(of: script, includingDates: false)
         #expect(words.count > 20)
         let months = ["el_GR", "en_US"].flatMap { identifier -> [String] in
             let formatter = DateFormatter()

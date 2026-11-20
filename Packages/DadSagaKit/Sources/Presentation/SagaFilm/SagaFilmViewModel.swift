@@ -17,13 +17,20 @@ public final class SagaFilmViewModel: Identifiable {
     /// The film last asked for, so "Try again" asks for the same one.
     private var request: SagaFilmRequest
     private let getFilm: any GetSagaFilmUseCase
+    private let setDates: any SetSagaFilmDatesUseCase
     private let renderer: any SagaFilmRendering
     private let locale: Locale
+    private let calendar: Calendar
     private let now: @Sendable () -> Date
 
     /// What the choices are about; `nil` until it has loaded.
     private var film: SagaFilm?
     private var format = SagaFilmFormat.vertical
+    /// The dates switch: taken from the first film loaded, then the sheet's own, so another child or period doesn't
+    /// reset it (ADR-0041 §5). `nil` until a film has loaded.
+    private var showsDates: Bool?
+    /// The last save of the switch, so saves run one after another and the newest wins.
+    private var savingDates: Task<Void, Never>?
     /// Why the last film wasn't finished, shown over the choices until the dad changes one or makes it again.
     private var notice: String?
     private var filmTask: Task<URL, any Error>?
@@ -41,14 +48,18 @@ public final class SagaFilmViewModel: Identifiable {
     public init(
         request: SagaFilmRequest,
         getFilm: any GetSagaFilmUseCase,
+        setDates: any SetSagaFilmDatesUseCase,
         renderer: any SagaFilmRendering,
         locale: Locale = .current,
+        calendar: Calendar = .autoupdatingCurrent,
         now: @escaping @Sendable () -> Date = { .now }
     ) {
         self.request = request
         self.getFilm = getFilm
+        self.setDates = setDates
         self.renderer = renderer
         self.locale = locale
+        self.calendar = calendar
         self.now = now
     }
 
@@ -83,6 +94,22 @@ public final class SagaFilmViewModel: Identifiable {
         showChoices(notice: nil)
     }
 
+    /// Turns the film's dates on or off at once, and remembers it for the next films. Saves run one after another,
+    /// so the newest choice is the one kept; the returned task ends once this one is saved.
+    @discardableResult
+    public func setShowsDates(_ showsDates: Bool) -> Task<Void, Never>? {
+        guard case .ready = state, showsDates != self.showsDates else { return nil }
+        self.showsDates = showsDates
+        showChoices(notice: nil)
+        let previous = savingDates
+        let saving = Task { [setDates] in
+            await previous?.value
+            await setDates.execute(showsDates: showsDates)
+        }
+        savingDates = saving
+        return saving
+    }
+
     /// Makes the film of the choices on screen and shows it. Returns once it is made, cancelled or has failed.
     ///
     /// - Parameter reduceMotion: the system's Reduce Motion as it is now; the film keeps its photos still (ADR-0036 §9).
@@ -93,7 +120,9 @@ public final class SagaFilmViewModel: Identifiable {
         // A choice still loading no longer counts: the film is of the choices on screen.
         loads += 1
         leftTheApp = false
-        let script = SagaFilmScriptBuilder(locale: locale).script(for: film, format: format, reduceMotion: reduceMotion)
+        let script = SagaFilmScriptBuilder(locale: locale, calendar: calendar).script(
+            for: film, format: format, reduceMotion: reduceMotion, showsDates: showsDates ?? film.showsDates
+        )
         state = .making(making(progress: 0))
         let task = Task { [renderer, weak self] in
             try await renderer.render(script) { [weak self] value in
@@ -191,6 +220,7 @@ public final class SagaFilmViewModel: Identifiable {
         guard current == loads else { return }
         guard let film else { return showUnavailable() }
         self.film = film
+        if showsDates == nil { showsDates = film.showsDates }
         showChoices(notice: nil)
     }
 
@@ -227,7 +257,7 @@ public final class SagaFilmViewModel: Identifiable {
     }
 
     private func setup(for film: SagaFilm) -> SagaFilmSetup {
-        let texts = SagaFilmTexts(locale: locale)
+        let texts = SagaFilmTexts(locale: locale, calendar: calendar)
         let children = film.profile.children
         let hasSomething = film.hasSomethingToShow
         return SagaFilmSetup(
@@ -246,6 +276,11 @@ public final class SagaFilmViewModel: Identifiable {
                 SagaFilmFormatChoice(id: .wide, title: strings.text("Wide"), symbol: "rectangle")
             ],
             selectedFormat: format,
+            datesLabel: strings.text("Dates in the film"),
+            datesNote: strings.text(
+                "Dates also tell how old your child is. Turn them off for a film you'll share beyond the family."
+            ),
+            showsDates: showsDates ?? film.showsDates,
             notice: notice,
             makeTitle: hasSomething ? strings.text(notice == nil ? "Make the film" : "Make it again") : nil,
             emptyMessage: hasSomething
