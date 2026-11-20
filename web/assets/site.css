@@ -42,8 +42,13 @@ a { color: var(--accent); }
 img { max-width: 100%; height: auto; display: block; }
 .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
 
-/* Header */
-.top { padding: 18px 0; }
+/* Header: stays at the top, over a frosted copy of the page's background. */
+.top {
+  position: sticky; top: 0; z-index: 10; padding: 14px 0;
+  background: color-mix(in srgb, var(--bg) 82%, transparent);
+  -webkit-backdrop-filter: saturate(1.6) blur(16px); backdrop-filter: saturate(1.6) blur(16px);
+}
+section[id] { scroll-margin-top: 72px; }
 .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; color: var(--text); text-decoration: none; }
 .brand img { width: 36px; height: 36px; border-radius: 9px; }
@@ -152,6 +157,56 @@ footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--t
 footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
 footer nav { display: flex; gap: 18px; flex-wrap: wrap; }
 footer a { color: var(--text-2); }
+
+/* Motion (ADR-0039): CSS only, so the site keeps no JavaScript (ADR-0031). Calm, never looping, and only for visitors
+   who haven't asked for reduced motion. Scroll-linked reveals need scroll-driven animations; a browser without them
+   shows everything at once, as before. Reveals animate `translate` and `opacity`; hovers use `transform`, so the two
+   never fight. */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+
+  /* The hero arrives on load, a line at a time. */
+  @keyframes rise { from { opacity: 0; translate: 0 18px; } }
+  @keyframes arrive { from { opacity: 0; scale: 0.94; } }
+  .hero .eyebrow, .hero h1, .hero .lead, .hero .store, .hero .note { animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+  .hero h1 { animation-delay: 0.08s; }
+  .hero .lead { animation-delay: 0.16s; }
+  .hero .store { animation-delay: 0.24s; }
+  .hero .note { animation-delay: 0.3s; }
+  .hero-art { animation: arrive 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both; }
+
+  /* Cards lift a little under the pointer. */
+  @media (hover: hover) {
+    .card, .rules li { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+    .card:hover, .rules li:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(30, 40, 90, 0.12); }
+  }
+
+  @supports (animation-timeline: view()) {
+    /* Everything below the hero rises into place as it scrolls into view. */
+    @keyframes reveal { from { opacity: 0; translate: 0 28px; } }
+    section:not(.hero) h2, .section-lead, .card, .rules li, .pills li, .checks li, .phone, .privacy-band a, .cta .lead {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+    /* The second card of a row follows the first. */
+    .card:nth-child(even), .rules li:nth-child(even) { animation-range: entry 15% entry 95%; }
+
+    /* The timeline fills in as if the entries were being logged, each icon popping in. */
+    @keyframes log { from { opacity: 0; translate: -16px 0; } }
+    @keyframes pop { 0% { scale: 0.4; } 70% { scale: 1.12; } 100% { scale: 1; } }
+    .tl-row { animation: log linear both; animation-timeline: view(); animation-range: entry 20% cover 30%; }
+    .tl-icon { animation: pop linear both; animation-timeline: view(); animation-range: entry 40% cover 32%; }
+
+    /* The hero art drifts slower than the page as it scrolls away. */
+    @keyframes drift { to { translate: 0 64px; } }
+    .hero-art { animation: arrive 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) 0.1s both, drift linear both; animation-timeline: auto, scroll(); animation-range: normal, 0 640px; }
+
+    /* The header gets its edge once the page has scrolled under it. */
+    @keyframes edge { to { box-shadow: 0 1px 0 var(--line); } }
+    .top { animation: edge linear both; animation-timeline: scroll(); animation-range: 0 48px; }
+  }
+}
 
 @media (max-width: 760px) {
   .hero { padding-top: 16px; }
