@@ -12,7 +12,7 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
 - One suite: `swift test --build-system swiftbuild --filter DeepLinkTests` (from `Packages/DadSagaKit`).
 - **Paused until the big features are done** (owner, 2026-11-20): screen snapshots and the accessibility audit are not
   run during development. Once the work is close to final, run both, re-record the snapshots and look at every image,
-  then put the snapshots back in CI. Until then, check a UI change by drawing it once in the simulator.
+  and offer to put the snapshots in CI (that needs a new ADR: ADR-0034 runs them on the Mac). Until then, check a UI change by drawing it once in the simulator.
   - Screen snapshots: `xcodebuild test -project DadSaga.xcodeproj -scheme DadSagaSnapshots -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2'`.
     A deliberate change: delete its images in `SnapshotTests/__Snapshots__`, run twice (record, then check).
   - Accessibility audit of the main screens (UI test, about five minutes):

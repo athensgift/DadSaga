@@ -30,7 +30,8 @@ struct JournalPhotoField: View {
             .onChange(of: pickedItem) { _, item in
                 guard let item else { return }
                 Task {
-                    if let data = try? await item.loadTransferable(type: Data.self) {
+                    // Only an image the app can read: anything else would fail when the entry is saved.
+                    if let data = try? await item.loadTransferable(type: Data.self), DecodedImage.isImage(data) {
                         photo = .replace(data)
                     }
                     pickedItem = nil

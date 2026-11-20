@@ -286,7 +286,6 @@ extension HomeView {
             onConfirm: { note, photo in Task { await viewModel.completeSelectedQuest(note: note, photo: photo) } },
             onClose: { viewModel.dismissSelection() }
         )
-        .presentationDetents([.large])
     }
 
     func bossSheet(_ boss: BossDetail) -> some View {

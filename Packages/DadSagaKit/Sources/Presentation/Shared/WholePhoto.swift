@@ -26,15 +26,16 @@ struct WholePhoto: View {
         let maxPixelSize: Int
     }
 
-    private var frameRatio: CGFloat {
-        guard let photo else { return 4.0 / 3.0 }
-        return min(max(photo.aspectRatio, Self.frameRatios.lowerBound), Self.frameRatios.upperBound)
+    /// The frame for a photo of this shape; 4:3 until the photo has loaded.
+    static func frameRatio(for aspectRatio: CGFloat?) -> CGFloat {
+        guard let aspectRatio else { return 4.0 / 3.0 }
+        return min(max(aspectRatio, frameRatios.lowerBound), frameRatios.upperBound)
     }
 
     var body: some View {
         let scale = displayScale
         Color.clear
-            .aspectRatio(frameRatio, contentMode: .fit)
+            .aspectRatio(Self.frameRatio(for: photo?.aspectRatio), contentMode: .fit)
             .frame(maxWidth: .infinity)
             .background(DSColor.surface)
             // Two overlays, not one: together, the filled copy would size the stack and the fitted photo with it.
@@ -55,13 +56,16 @@ struct WholePhoto: View {
                 Int((proxy.size.width / Self.frameRatios.lowerBound * scale).rounded(.up))
             } action: { maxPixelSize = $0 }
             .task(id: Request(source: source, maxPixelSize: maxPixelSize)) {
-                switch source {
-                case .data(let data):
-                    photo = DecodedImage(data: data)
-                case .stored(let id):
-                    guard maxPixelSize > 0 else { return }
-                    photo = await loader(id, maxPixelSize).flatMap(DecodedImage.init(data:))
+                guard maxPixelSize > 0 else { return }
+                let data: Data? = switch source {
+                case .data(let data): data
+                case .stored(let id): await loader(id, maxPixelSize)
                 }
+                var decoded: DecodedImage?
+                if let data { decoded = await DecodedImage.decode(data, maxPixelSize: maxPixelSize) }
+                // A newer request (another size or photo) has started: its result wins.
+                guard !Task.isCancelled else { return }
+                photo = decoded
             }
     }
 }
