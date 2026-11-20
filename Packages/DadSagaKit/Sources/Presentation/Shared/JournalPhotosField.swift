@@ -62,12 +62,26 @@ struct JournalPhotosField: View {
                         .font(DSFont.caption)
                         .foregroundStyle(DSColor.textSecondary)
                 }
+                unreadNote
             }
         } else if photos.isLoading {
             ProgressView()
                 .frame(maxWidth: .infinity, minHeight: Self.squareSize)
         } else {
-            addButtons
+            VStack(alignment: .leading, spacing: DSSpacing.s) {
+                addButtons
+                unreadNote
+            }
+        }
+    }
+
+    /// Says how many picked photos couldn't be opened, and what to try, instead of leaving them out without a word.
+    @ViewBuilder private var unreadNote: some View {
+        if photos.unreadCount > 0 {
+            Label(labels.couldNotOpen(photos.unreadCount), systemImage: "exclamationmark.triangle")
+                .font(DSFont.caption)
+                .foregroundStyle(DSColor.textSecondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -203,7 +217,13 @@ struct JournalPhotosField: View {
             return results
         }
         // Given up with the field (its sheet closed): nothing is added, and nothing waits any longer.
-        photos.finishLoading(Task.isCancelled ? [] : loaded.compactMap(\.self).filter(DecodedImage.isImage))
+        guard !Task.isCancelled else {
+            photos.finishLoading()
+            pickedItems = []
+            return
+        }
+        let readable = loaded.compactMap(\.self).filter(DecodedImage.isImage)
+        photos.finishLoading(readable, unread: items.count - readable.count)
         pickedItems = []
     }
 

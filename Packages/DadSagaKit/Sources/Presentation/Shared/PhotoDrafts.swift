@@ -34,6 +34,9 @@ public struct PhotoDrafts: Equatable, Sendable {
     /// Photos picked and still being read from the library. They hold their room, keep Save waiting, and count as
     /// unsaved, so a Save or a close in the meantime never drops them.
     public private(set) var loadingCount = 0
+    /// Photos the last pick couldn't read (still in iCloud, a format the app can't open), so the field can say so
+    /// instead of leaving them out without a word. Cleared by the next change.
+    public private(set) var unreadCount = 0
 
     /// The photos an entry already has, in its order.
     public init(storedIDs: [String] = []) {
@@ -52,27 +55,33 @@ public struct PhotoDrafts: Equatable, Sendable {
     /// Adds picked photos after the others, as many as fit; the rest are left out.
     public mutating func append(_ photos: [Data]) {
         items += photos.prefix(remaining).map(PhotoDraft.picked)
+        unreadCount = 0
     }
 
     /// `count` picked photos are being read; their room is kept for them.
     public mutating func startLoading(_ count: Int) {
         loadingCount += min(max(count, 0), remaining)
+        unreadCount = 0
     }
 
-    /// The photos being read have arrived (those that could be read), or the reading was given up with none.
-    public mutating func finishLoading(_ photos: [Data] = []) {
+    /// The photos being read have arrived: those that could be read, and how many couldn't. Given up with the field,
+    /// it ends with none and nothing to report.
+    public mutating func finishLoading(_ photos: [Data] = [], unread: Int = 0) {
         loadingCount = 0
         append(photos)
+        unreadCount = max(unread, 0)
     }
 
     public mutating func remove(id: String) {
         items.removeAll { $0.id == id }
+        unreadCount = 0
     }
 
     /// Moves the photo first; the others keep their order.
     public mutating func makeCover(id: String) {
         guard let index = items.firstIndex(where: { $0.id == id }), index > 0 else { return }
         items.insert(items.remove(at: index), at: 0)
+        unreadCount = 0
     }
 
     /// The whole list as the entry should keep it, for editing an entry.

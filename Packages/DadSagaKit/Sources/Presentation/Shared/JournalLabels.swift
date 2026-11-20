@@ -13,8 +13,10 @@ public struct PhotoLabels: Equatable, Sendable {
     /// The one plain line once an entry holds as many as it can (`ProgressEvent.photoLimit`).
     public let limitReached: String
     public let viewer: PhotoViewerLabels
+    private let locale: Locale
 
     init(locale: Locale) {
+        self.locale = locale
         let strings = Strings(locale: locale)
         addPhotos = strings.text("Add photos")
         takePhoto = strings.text("Take a photo")
@@ -23,6 +25,11 @@ public struct PhotoLabels: Equatable, Sendable {
         remove = strings.text("Remove")
         limitReached = strings.text("Up to \(ProgressEvent.photoLimit) photos on each entry.")
         viewer = PhotoViewerLabels(locale: locale)
+    }
+
+    /// "2 photos couldn't be opened. If they're in iCloud, try again in a moment."
+    public func couldNotOpen(_ count: Int) -> String {
+        Strings(locale: locale).text("\(count) photos couldn't be opened. If they're in iCloud, try again in a moment.")
     }
 }
 
