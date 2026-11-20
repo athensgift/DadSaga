@@ -10,11 +10,14 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ```
 - One suite: `swift test --build-system swiftbuild --filter DeepLinkTests` (from `Packages/DadSagaKit`).
-- Screen snapshots: not in CI. Run them after any UI or content change, look at the new images and commit them:
-  `xcodebuild test -project DadSaga.xcodeproj -scheme DadSagaSnapshots -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2'`.
-  A deliberate change: delete its images in `SnapshotTests/__Snapshots__`, run twice (record, then check).
-- Accessibility audit of the main screens (UI test, about a minute; run it after UI changes):
-  `xcodebuild test -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2' -only-testing:DadSagaUITests`
+- **Paused until the big features are done** (owner, 2026-11-20): screen snapshots and the accessibility audit are not
+  run during development. Once the work is close to final, run both, re-record the snapshots and look at every image,
+  then put the snapshots back in CI. Until then, check a UI change by drawing it once in the simulator.
+  - Screen snapshots: `xcodebuild test -project DadSaga.xcodeproj -scheme DadSagaSnapshots -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2'`.
+    A deliberate change: delete its images in `SnapshotTests/__Snapshots__`, run twice (record, then check).
+  - Accessibility audit of the main screens (UI test, about five minutes):
+    `xcodebuild test -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.2' -only-testing:DadSagaUITests`
+- While iterating, run only the suite you're changing (`--filter`); run the whole package once before the PR.
 - `DadSaga.xcodeproj`, `Info.plist` and the entitlements are generated: change `project.yml`, then `xcodegen generate`.
 
 ## Rules that aren't in the code
