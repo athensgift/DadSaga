@@ -34,7 +34,6 @@ public struct SagaFilmFormatChoice: Equatable, Identifiable, Sendable {
 }
 
 public struct SagaFilmSetup: Equatable, Sendable {
-    public let title: String
     public let childLabel: String
     public let periodLabel: String
     public let formatLabel: String
@@ -68,6 +67,8 @@ public struct SagaFilmMaking: Equatable, Sendable {
 public struct SagaFilmMade: Equatable, Sendable {
     /// The film's temporary file, to play and to share.
     public let url: URL
+    /// The film's name as the share sheet shows it, e.g. "Άννα – DadSaga".
+    public let title: String
     public let format: SagaFilmFormat
     public let shareTitle: String
     public let note: String

@@ -87,3 +87,11 @@ struct UnreadableProfiles: ProfileRepository {
     func fetchProfile() async throws -> PlayerProfile? { throw Failure() }
     func save(_ profile: PlayerProfile) async throws { throw Failure() }
 }
+
+actor FakeSagaOffers: SagaOfferRepository {
+    private(set) var answered: Set<String> = []
+
+    func answeredOccasionIDs() async -> Set<String> { answered }
+    func markAnswered(_ occasionID: String) async { answered.insert(occasionID) }
+    func deleteAll() async { answered = [] }
+}

@@ -59,6 +59,7 @@ struct SagaFilmMakingTests: SagaFilmSheetTests {
         let made = try #require(finished(sut))
         #expect(renderer.films.map(\.path) == [made.url.resolvingSymlinksInPath().path])
         #expect(made.url.lastPathComponent == "Άννα – DadSaga.mp4")
+        #expect(made.title == "Άννα – DadSaga")
         #expect(made.format == .vertical)
         #expect(made.shareTitle == "Μοιράσου ή αποθήκευσε")
         #expect(made.anotherTitle == "Φτιάξε άλλη")
@@ -132,6 +133,50 @@ struct SagaFilmMakingTests: SagaFilmSheetTests {
         sut.selectFormat(.wide)
         #expect(choices(sut)?.notice == nil)
         #expect(choices(sut)?.makeTitle == "Φτιάξε την ταινία")
+    }
+
+    @Test("Given the film fails as the dad leaves, when the app is in the background a moment later, then it says he left")
+    func failingJustBeforeTheBackground() async throws {
+        let clock = FilmClock()
+        let sut = makeSUT(now: { clock.now })
+        await sut.onAppear()
+        // iOS refused the encoder its drawing before the sheet heard that the app had left.
+        await renderer.end(.failure)
+        await sut.makeFilm(reduceMotion: false)
+
+        clock.advance(seconds: 0.5)
+        sut.appWentToBackground()
+
+        let setup = try #require(choices(sut))
+        #expect(setup.notice == "Η ταινία σταμάτησε όταν βγήκες από το DadSaga.")
+        #expect(setup.makeTitle == "Φτιάξ' την ξανά")
+    }
+
+    @Test("Given a film that failed a while ago, when the dad leaves the app, then the choices still say it wasn't made")
+    func failingLongBeforeTheBackground() async throws {
+        let clock = FilmClock()
+        let sut = makeSUT(now: { clock.now })
+        await sut.onAppear()
+        await renderer.end(.failure)
+        await sut.makeFilm(reduceMotion: false)
+
+        clock.advance(seconds: 60)
+        sut.appWentToBackground()
+
+        #expect(choices(sut)?.notice == "Δεν φτιάχτηκε η ταινία. Δοκίμασε ξανά.")
+    }
+
+    @Test("Given a failed film and then another choice, when the app goes to the background, then no notice comes back")
+    func choosingAfterAFailure() async throws {
+        let sut = makeSUT()
+        await sut.onAppear()
+        await renderer.end(.failure)
+        await sut.makeFilm(reduceMotion: false)
+        sut.selectFormat(.wide)
+
+        sut.appWentToBackground()
+
+        #expect(choices(sut)?.notice == nil)
     }
 
     // MARK: Leaving

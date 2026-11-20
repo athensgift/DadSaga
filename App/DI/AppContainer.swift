@@ -1,6 +1,7 @@
 import Application
 import Data
 import Presentation
+import SagaMusic
 import UIKit
 
 /// Composition root: the only place that knows concrete types from every layer and wires them together.
@@ -17,6 +18,15 @@ final class AppContainer {
     private let notificationScheduler: any NotificationScheduler
     /// Light/dark and haptics (ADR-0030), in the app's own defaults: they belong to the phone, not to the saga.
     private let preferencesRepository: any PreferencesRepository
+    /// The dad's answers to home's film offers (ADR-0037 §5), in the app's own defaults. Starting over clears them.
+    private let sagaOffers: any SagaOfferRepository
+    /// The saga film's music, from the bundle only the app carries (ADR-0036 §8).
+    private lazy var soundtrackRepository: any SoundtrackRepository = BundledSoundtrackRepository(bundle: SagaMusic.bundle)
+    /// Draws and writes the films, into a temporary folder it empties itself (ADR-0036 §6). One for the whole app,
+    /// so every sheet and the launch clean-up share that folder.
+    private lazy var sagaFilmRenderer: any SagaFilmRendering = SagaFilmRenderer(
+        getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
+    )
 
     init(data: DeviceData = .forLaunch()) {
         store = data.store
@@ -24,6 +34,7 @@ final class AppContainer {
         reminderSettings = UserDefaultsReminderSettingsRepository(defaults: data.defaults)
         notificationScheduler = data.notificationScheduler
         preferencesRepository = UserDefaultsPreferencesRepository(defaults: data.defaults)
+        sagaOffers = UserDefaultsSagaOfferRepository(defaults: data.defaults)
     }
 
     // MARK: Use cases
@@ -89,6 +100,7 @@ final class AppContainer {
                     eraser: store.eraser,
                     photoStore: photoStore,
                     reminderSettings: reminderSettings,
+                    sagaOffers: sagaOffers,
                     schedule: scheduleWeeklyReminders,
                     notificationScheduler: notificationScheduler
                 )
@@ -134,7 +146,8 @@ final class AppContainer {
                     contentRepository: contentRepository,
                     profileRepository: store.profiles,
                     progressRepository: store.progress,
-                    outfitRepository: store.outfit
+                    outfitRepository: store.outfit,
+                    sagaOfferRepository: sagaOffers
                 ),
                 completeQuest: DefaultCompleteQuestUseCase(
                     contentRepository: contentRepository,
@@ -156,9 +169,30 @@ final class AppContainer {
                     update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
                 ),
-                reminder: reminderUseCases
+                reminder: reminderUseCases,
+                answerSagaOffer: DefaultAnswerSagaOfferUseCase(repository: sagaOffers)
             )
         )
+    }
+
+    func makeSagaFilmViewModel(request: SagaFilmRequest) -> SagaFilmViewModel {
+        SagaFilmViewModel(
+            request: request,
+            getFilm: DefaultGetSagaFilmUseCase(
+                contentRepository: contentRepository,
+                profileRepository: store.profiles,
+                progressRepository: store.progress,
+                outfitRepository: store.outfit,
+                soundtrackRepository: soundtrackRepository
+            ),
+            renderer: sagaFilmRenderer
+        )
+    }
+
+    /// Deletes the films a crash or a kill left in the temporary folder (ADR-0037 §4). Run once, at launch.
+    func discardLeftoverFilms() {
+        let renderer = sagaFilmRenderer
+        Task { await renderer.discardFilms() }
     }
 
     func makeReminderSettingsViewModel() -> ReminderSettingsViewModel {

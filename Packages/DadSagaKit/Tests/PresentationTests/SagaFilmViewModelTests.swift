@@ -19,7 +19,7 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
         await english.onAppear()
 
         let setup = try #require(choices(greek))
-        #expect(setup.title == "Ταινία της ιστορίας")
+        #expect(greek.title == "Ταινία της ιστορίας")
         #expect(setup.periods.map(\.title) == ["1ος χρόνος", "2ος χρόνος", "Σπηλιά", "Πεδιάδες", "Όλη η ιστορία"])
         #expect(setup.periods.map(\.id) == ["year-1", "year-2", "world-w1", "world-w2", "everything"])
         #expect(setup.selectedPeriodID == "year-2")

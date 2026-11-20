@@ -55,12 +55,16 @@ ADR-0024 §3 (the reminder card waits while a film card shows), ADR-0033 (the au
 
 ### 4. The film sheet
 - The dad chooses a child (only with siblings), a period (`SagaFilm.availablePeriods`) and a format (vertical by
-  default, or wide), then makes the film. A period with nothing in it has no make button. A calm line explains
-  instead, and never says what the dad didn't do.
+  default, or wide), then makes the film. The child and the format are tiles like the wardrobe's, which grow with the
+  text size; the period is a menu, since a child of six has a dozen. A period with nothing in it has no make button.
+  A calm line explains instead, and never says what the dad didn't do.
 - **While making:** a progress bar and Cancel. Swiping the sheet down is disabled, and the screen stays awake
   (`UIApplication.isIdleTimerDisabled`, reset afterwards). Close cancels.
 - **Leaving the app** (`scenePhase == .background`; `.inactive` does not count) cancels. The sheet returns to the
-  choices, says the film stopped when the dad left DadSaga, and offers "Make it again".
+  choices, says the film stopped when the dad left DadSaga, and offers "Make it again". iOS can stop the drawing a
+  moment before the sheet hears that the app left, so a film that failed up to 3 seconds before the background event
+  gets the same words, not "Couldn't make the film". The screen that presents the sheet reads the scene phase, not the
+  sheet itself.
 - **Made:** the film plays at once in `VideoPlayer`, with the default audio session, so the silent switch is respected.
   Sharing is offered only on this screen, next to the playing film, with no "watch to the end" gate. The shared item is
   a `Transferable` with `FileRepresentation(exportedContentType: .mpeg4Movie)`, so Photos' "Save Video", Messages and
@@ -91,8 +95,9 @@ ADR-0024 §3 (the reminder card waits while a film card shows), ADR-0033 (the au
   | Buttons | Φτιάξε την ταινία · Όχι τώρα | Make the film · Not now |
 
 ### 6. The timeline
-A "Make a film" button in the timeline's toolbar, shown whenever the timeline has an entry. It opens the sheet for the
-child the timeline is filtered to, or for the first child.
+A "Make a film" button in the timeline's toolbar, shown whenever the timeline shows an entry: not when it is empty, and
+not while it is filtered to a child with nothing yet. It opens the sheet for the child the timeline is filtered to, or
+for the first child.
 
 ### 7. Tests
 - The renderer's tests encode real films at a sixth of the size, through an internal initialiser. One test at full size

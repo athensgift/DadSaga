@@ -72,6 +72,37 @@ struct TimelineViewModelTests {
         #expect(content.sections.last?.items.map(\.kind) == [.quest])
     }
 
+    @Test("Given no entries, when the timeline opens, then there is no film to make")
+    func noFilmForAnEmptyTimeline() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: [])
+        await sut.onAppear()
+        #expect(try #require(loadedContent(sut)).filmTitle == nil)
+    }
+
+    @Test("Given the timeline of everyone, when making a film, then it is the first child's; filtered, that child's")
+    func filmOfTheFilteredChild() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        #expect(try #require(loadedContent(sut)).filmTitle == "Φτιάξε ταινία")
+        #expect(sut.filmRequest == SagaFilmRequest())
+
+        sut.select(filter: HeroStub.eleni.id)
+
+        #expect(sut.filmRequest == SagaFilmRequest(childID: HeroStub.eleni.id))
+        #expect(try #require(loadedContent(sut)).filmTitle == "Φτιάξε ταινία")
+    }
+
+    @Test("Given a child with no entry, when the timeline is filtered to them, then there is no film to make")
+    func noFilmForAnEmptyFilter() async throws {
+        let onlyNiko = familyEvents.filter { $0.childID == HeroStub.niko.id }
+        let sut = makeSUT(profile: HeroStub.family, events: onlyNiko)
+        await sut.onAppear()
+
+        sut.select(filter: HeroStub.eleni.id)
+
+        #expect(try #require(loadedContent(sut)).filmTitle == nil)
+    }
+
     @Test("Given two children, when filtering by one, then only their events show, without their name")
     func filters() async throws {
         let sut = makeSUT(profile: HeroStub.family, events: familyEvents)

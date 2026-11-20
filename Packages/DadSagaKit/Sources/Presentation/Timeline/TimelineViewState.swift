@@ -17,6 +17,8 @@ public struct TimelineContent: Equatable, Sendable {
     public let sections: [TimelineSection]
     public let emptyTitle: String
     public let emptyMessage: String
+    /// "Make a film", while the timeline shows at least one entry (ADR-0037 §6).
+    public let filmTitle: String?
 }
 
 public struct TimelineFilter: Equatable, Identifiable, Sendable {

@@ -1,8 +1,10 @@
 import XCTest
 
 /// Runs Xcode's accessibility audit on the main screens (onboarding, home, the world map, a quest, the wardrobe,
-/// settings and the empty timeline): VoiceOver labels and traits, contrast, hit regions (ADR-0033).
-/// The app starts on data of its own (`DeviceData`), empty, so each run begins in onboarding.
+/// settings, the timeline with an entry, and the film sheet before and after a film is made): VoiceOver labels and
+/// traits, contrast, hit regions (ADR-0033, ADR-0037 §7).
+/// The app starts on data of its own (`DeviceData`), empty, so each run begins in onboarding. It completes the quest
+/// it opens, so the timeline has an entry and a film can be made of it.
 @MainActor
 final class AccessibilityAuditTests: XCTestCase {
     private var app: XCUIApplication!
@@ -37,7 +39,8 @@ final class AccessibilityAuditTests: XCTestCase {
         tap(app.scrollViews.buttons.matching(NSPredicate(format: "label CONTAINS 'XP'")).firstMatch)
         expandSheet()
         audit("Quest")
-        close()
+        tap(app.buttons["I did it!"])
+        sleep(1)
 
         app.navigationBars.buttons["Wardrobe"].tap()
         audit("Wardrobe")
@@ -51,6 +54,15 @@ final class AccessibilityAuditTests: XCTestCase {
         for _ in 0..<4 { app.swipeDown() }
         app.tabBars.buttons["Timeline"].firstMatch.tap()
         audit("Timeline")
+
+        tap(app.buttons["Make a film"].firstMatch)
+        XCTAssertTrue(app.buttons["Make the film"].waitForExistence(timeout: 10), "the film sheet did not open")
+        audit("Film")
+        tap(app.buttons["Make the film"])
+        // A real film, drawn and encoded by the simulator.
+        XCTAssertTrue(app.buttons["Share or save"].waitForExistence(timeout: 90), "the film was not made")
+        audit("Film made")
+        close()
     }
 
     // MARK: The audit

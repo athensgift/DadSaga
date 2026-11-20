@@ -38,13 +38,21 @@ struct HomeOverviewUseCaseTests {
     let profiles = SpyProfileRepository()
     let progress = SpyProgressRepository()
     let outfit = SpyOutfitRepository()
+    let offers = FakeSagaOffers()
+    static let utc: Calendar = {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
+        return calendar
+    }()
 
     var sut: DefaultGetHomeOverviewUseCase {
         DefaultGetHomeOverviewUseCase(
             contentRepository: StubContentRepository(result: .success(Self.catalog)),
             profileRepository: profiles,
             progressRepository: progress,
-            outfitRepository: outfit
+            outfitRepository: outfit,
+            sagaOfferRepository: offers,
+            calendar: Self.utc
         )
     }
 
@@ -160,5 +168,74 @@ struct HomeOverviewUseCaseTests {
         let overview = try #require(try await sut.execute(childID: nil, worldID: nil, on: today))
         #expect(overview.progress.totalXP == 0)
         #expect(overview.progress.level.level == 1)
+    }
+
+    // MARK: The film offer
+
+    /// Turned one `days` ago.
+    func oneYearOld(for days: Double, name: String = "Άννα") -> Child {
+        Child(name: name, birthDate: today.addingTimeInterval(-(365 + days) * 86_400))
+    }
+
+    func quest(with child: Child, daysAgo: Double) -> ProgressEvent {
+        ProgressEvent(kind: .quest(id: "q-swamp"), childID: child.id, date: today.addingTimeInterval(-daysAgo * 86_400))
+    }
+
+    @Test("Given a first birthday five days ago and a quest in that year, when reading home, then its film is offered")
+    func offersTheBirthdayFilm() async throws {
+        let anna = oneYearOld(for: 5)
+        try await family([anna])
+        try await progress.add(quest(with: anna, daysAgo: 100))
+
+        let offer = try #require(try await sut.execute(childID: nil, worldID: nil, on: today)?.sagaOffer)
+
+        #expect(offer.childID == anna.id)
+        #expect(offer.kind == .birthday(years: 1))
+        #expect(offer.period == .year(1))
+    }
+
+    @Test("Given home shows the baby, when his sister had a birthday five days ago, then her film is offered all the same")
+    func offersForTheWholeFamily() async throws {
+        let baby = baby
+        let anna = oneYearOld(for: 5)
+        try await family([baby, anna])
+        try await progress.add(quest(with: anna, daysAgo: 100))
+
+        let overview = try #require(try await sut.execute(childID: baby.id, worldID: nil, on: today))
+
+        #expect(overview.child == baby)
+        #expect(overview.sagaOffer?.childID == anna.id)
+    }
+
+    @Test("Given the offer, when the dad answers it, then home no longer offers it")
+    func answeredOfferIsGone() async throws {
+        let anna = oneYearOld(for: 5)
+        try await family([anna])
+        try await progress.add(quest(with: anna, daysAgo: 100))
+        let offer = try #require(try await sut.execute(childID: nil, worldID: nil, on: today)?.sagaOffer)
+
+        await DefaultAnswerSagaOfferUseCase(repository: offers).execute(occasionID: offer.id)
+
+        let overview = try #require(try await sut.execute(childID: nil, worldID: nil, on: today))
+        #expect(overview.sagaOffer == nil)
+    }
+
+    @Test("Given a birthday with nothing done in that year, or one 31 days ago, when reading home, then no film is offered")
+    func noOfferForAnEmptyOrOldOccasion() async throws {
+        let anna = oneYearOld(for: 5)
+        try await family([anna])
+        let empty = try #require(try await sut.execute(childID: nil, worldID: nil, on: today))
+        #expect(empty.sagaOffer == nil)
+
+        // Done after the birthday: it belongs to the second year.
+        try await progress.add(quest(with: anna, daysAgo: 2))
+        let later = try #require(try await sut.execute(childID: nil, worldID: nil, on: today))
+        #expect(later.sagaOffer == nil)
+
+        let older = oneYearOld(for: 31, name: "Νίκος")
+        try await family([older])
+        try await progress.add(quest(with: older, daysAgo: 100))
+        let late = try #require(try await sut.execute(childID: nil, worldID: nil, on: today))
+        #expect(late.sagaOffer == nil)
     }
 }

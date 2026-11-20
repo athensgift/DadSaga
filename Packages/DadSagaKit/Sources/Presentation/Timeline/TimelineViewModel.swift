@@ -150,6 +150,11 @@ public final class TimelineViewModel {
         }
     }
 
+    /// The film "Make a film" opens: the child the timeline is filtered to, or the first child's (ADR-0037 §6).
+    public var filmRequest: SagaFilmRequest {
+        SagaFilmRequest(childID: selectedFilter)
+    }
+
     /// The labels of the row's actions.
     public var editTitle: String {
         strings.text("Note and photo")
@@ -174,7 +179,8 @@ public final class TimelineViewModel {
             selectedFilter: selectedFilter,
             sections: sections(for: shown, showChild: hasSiblings && selectedFilter == nil),
             emptyTitle: strings.text("No memories yet"),
-            emptyMessage: strings.text("Everything you do with your kids will gather here.")
+            emptyMessage: strings.text("Everything you do with your kids will gather here."),
+            filmTitle: shown.isEmpty ? nil : strings.text("Make a film")
         )
     }
 

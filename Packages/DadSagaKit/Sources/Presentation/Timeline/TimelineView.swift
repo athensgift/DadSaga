@@ -5,12 +5,22 @@ import SwiftUI
 /// chronology line, and each month is a node on that line.
 public struct TimelineView: View {
     @State private var viewModel: TimelineViewModel
+    /// The film sheet, opened from the toolbar.
+    @State private var sagaFilm: SagaFilmViewModel?
+    private let makeSagaFilm: SagaFilmSheet.MakeViewModel
     private let isOpeningLink: Bool
 
-    /// - Parameter isOpeningLink: a link from outside the app (the widget) is opening on another tab; the journal
-    ///   editor closes so it does not cover that screen.
-    public init(viewModel: TimelineViewModel, isOpeningLink: Bool = false) {
+    /// - Parameters:
+    ///   - makeSagaFilm: builds the film sheet behind "Make a film".
+    ///   - isOpeningLink: a link from outside the app (the widget) is opening on another tab; the journal editor and
+    ///     the film sheet close so they do not cover that screen.
+    public init(
+        viewModel: TimelineViewModel,
+        makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
+        isOpeningLink: Bool = false
+    ) {
         _viewModel = State(initialValue: viewModel)
+        self.makeSagaFilm = makeSagaFilm
         self.isOpeningLink = isOpeningLink
     }
 
@@ -29,7 +39,15 @@ public struct TimelineView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(DSColor.background)
             .navigationTitle(title)
+            .toolbar {
+                if let filmTitle {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button(filmTitle, systemImage: "film") { sagaFilm = makeSagaFilm(viewModel.filmRequest) }
+                    }
+                }
+            }
         }
+        .sagaFilmSheet($sagaFilm)
         .task { await viewModel.onAppear() }
         .confirmationDialog(
             viewModel.deletion?.title ?? "",
@@ -45,7 +63,9 @@ public struct TimelineView: View {
             Text(prompt.message)
         }
         .onChange(of: isOpeningLink) { _, opening in
-            if opening { viewModel.closeJournal() }
+            guard opening else { return }
+            viewModel.closeJournal()
+            sagaFilm = nil
         }
         .sheet(item: Binding(get: { viewModel.journalEditor }, set: { if $0 == nil { viewModel.closeJournal() } })) { editor in
             JournalEditorSheet(
@@ -65,6 +85,10 @@ public struct TimelineView: View {
 
     private var title: String {
         if case .loaded(let content) = viewModel.state { content.title } else { "" }
+    }
+
+    private var filmTitle: String? {
+        if case .loaded(let content) = viewModel.state { content.filmTitle } else { nil }
     }
 
     private func loaded(_ content: TimelineContent) -> some View {
