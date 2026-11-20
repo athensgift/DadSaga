@@ -16,15 +16,19 @@ public final class SagaFilmViewModel: Identifiable {
         let getFilm: any GetSagaFilmUseCase
         let setDates: any SetSagaFilmDatesUseCase
         let setMusic: any SetSagaFilmMusicUseCase
+        /// Chooses the film's further photos as it is made (ADR-0047 §2).
+        let choosePhotos: any ChooseSagaFilmPhotosUseCase
 
         public init(
             getFilm: any GetSagaFilmUseCase,
             setDates: any SetSagaFilmDatesUseCase,
-            setMusic: any SetSagaFilmMusicUseCase
+            setMusic: any SetSagaFilmMusicUseCase,
+            choosePhotos: any ChooseSagaFilmPhotosUseCase
         ) {
             self.getFilm = getFilm
             self.setDates = setDates
             self.setMusic = setMusic
+            self.choosePhotos = choosePhotos
         }
     }
 
@@ -57,7 +61,7 @@ public final class SagaFilmViewModel: Identifiable {
     private var listens = 0
     /// Why the last film wasn't finished, shown over the choices until the dad changes one or makes it again.
     private var notice: String?
-    private var filmTask: Task<URL, any Error>?
+    private var filmTask: Task<(url: URL, script: SagaFilmScript), any Error>?
     /// Counts the films started, so progress and results of an earlier one are never shown for a later one.
     private var generation = 0
     /// Counts the films asked for, so only the newest answer is shown, and none once a film is being made.
@@ -141,18 +145,24 @@ public final class SagaFilmViewModel: Identifiable {
         loads += 1
         leftTheApp = false
         stopListening()
-        let script = SagaFilmScriptBuilder(locale: locale, calendar: calendar).script(
-            for: film,
-            format: format,
-            reduceMotion: reduceMotion,
-            showsDates: showsDates ?? film.showsDates,
-            music: music ?? film.soundtrack
-        )
+        let builder = SagaFilmScriptBuilder(locale: locale, calendar: calendar)
+        let format = format
+        let showsDates = showsDates ?? film.showsDates
+        let music = music ?? film.soundtrack
         state = .making(making(progress: 0))
-        let task = Task { [renderer, weak self] in
-            try await renderer.render(script) { [weak self] value in
+        // The further photos are chosen first, only as the film is made (ADR-0047 §4); the sheet showed the same
+        // scenes, so nothing on it changes.
+        let task = Task { [choosePhotos = useCases.choosePhotos, renderer, weak self] in
+            let chosen = await choosePhotos.execute(film)
+            // A cancel while choosing returns the film unchanged: stop here, before the renderer starts.
+            try Task.checkCancellation()
+            let script = builder.script(
+                for: chosen, format: format, reduceMotion: reduceMotion, showsDates: showsDates, music: music
+            )
+            let url = try await renderer.render(script) { [weak self] value in
                 self?.show(progress: value, of: current)
             }
+            return (url: url, script: script)
         }
         filmTask = task
         let result = await task.result
@@ -160,12 +170,12 @@ public final class SagaFilmViewModel: Identifiable {
         guard generation == current else { return }
         filmTask = nil
         switch result {
-        case .success(let url):
+        case .success(let made):
             state = .made(
                 SagaFilmMade(
-                    url: url,
-                    title: script.title,
-                    format: script.format,
+                    url: made.url,
+                    title: made.script.title,
+                    format: made.script.format,
                     shareTitle: strings.text("Share or save"),
                     note: setupBuilder.keepingNote,
                     anotherTitle: strings.text("Make another")

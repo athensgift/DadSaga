@@ -32,7 +32,7 @@ final class SagaFilmRendererTests {
         arguments: [SagaFilmFormat.vertical, .wide]
     )
     func fullSize(format: SagaFilmFormat) async throws {
-        let renderer = SagaFilmRenderer(getPhoto: StubPhotos(), directory: directory)
+        let renderer = SagaFilmRenderer(getPhoto: StubPhotos(), findSubject: FixedPhotoSubject(), directory: directory)
         let scenes = [scene(FilmCards.chapter, seconds: 0.5), scene(FilmCards.credits, seconds: 0.5)]
 
         let url = try await renderer.render(script(scenes, format: format)) { _ in }
@@ -275,7 +275,7 @@ final class SagaFilmRendererTests {
 
     /// A renderer of films a sixth of the size: 180 × 320 or 320 × 180.
     func small(_ photos: StubPhotos = StubPhotos()) -> SagaFilmRenderer {
-        SagaFilmRenderer(getPhoto: photos, directory: directory, pixelScale: 1.0 / 6)
+        SagaFilmRenderer(getPhoto: photos, findSubject: FixedPhotoSubject(), directory: directory, pixelScale: 1.0 / 6)
     }
 
     func scene(_ card: SagaFilmCard, seconds: Double) -> SagaFilmScene {

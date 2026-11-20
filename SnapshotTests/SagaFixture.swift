@@ -197,7 +197,8 @@ struct SagaFixture {
                     calendar: Self.calendar
                 ),
                 setDates: DefaultSetSagaFilmDatesUseCase(repository: sagaFilmChoices),
-                setMusic: DefaultSetSagaFilmMusicUseCase(repository: sagaFilmChoices)
+                setMusic: DefaultSetSagaFilmMusicUseCase(repository: sagaFilmChoices),
+                choosePhotos: KeepFilmPhotos()
             ),
             renderer: renderer,
             previewer: SilentMusicPreviewer(),
@@ -323,4 +324,9 @@ extension SagaFixture {
         calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
         return calendar
     }()
+}
+
+/// Keeps the film's photos as the sheet showed them: a snapshot never depends on Vision (ADR-0047 §8).
+struct KeepFilmPhotos: ChooseSagaFilmPhotosUseCase {
+    func execute(_ film: SagaFilm) async -> SagaFilm { film }
 }

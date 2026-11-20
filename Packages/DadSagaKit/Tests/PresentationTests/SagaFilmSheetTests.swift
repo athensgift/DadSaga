@@ -15,6 +15,7 @@ extension SagaFilmSheetTests {
     func makeSUT(
         _ getFilm: FakeGetSagaFilm = FakeGetSagaFilm(),
         childID: UUID? = nil,
+        choosePhotos: any ChooseSagaFilmPhotosUseCase = KeepFilmPhotos(),
         locale: String = "el_GR",
         previewer: FakeMusicPreviewer = FakeMusicPreviewer(),
         now: @escaping @Sendable () -> Date = { FilmStub.today }
@@ -24,7 +25,8 @@ extension SagaFilmSheetTests {
             useCases: SagaFilmViewModel.UseCases(
                 getFilm: getFilm,
                 setDates: DefaultSetSagaFilmDatesUseCase(repository: getFilm.choices),
-                setMusic: DefaultSetSagaFilmMusicUseCase(repository: getFilm.choices)
+                setMusic: DefaultSetSagaFilmMusicUseCase(repository: getFilm.choices),
+                choosePhotos: choosePhotos
             ),
             renderer: renderer,
             previewer: previewer,

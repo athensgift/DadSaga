@@ -9,9 +9,6 @@ struct SagaFilmTimelineBuilder {
     static let fadeFrames = 12
     /// The same between two photos alone, where the montage moves faster.
     static let montageFadeFrames = 9
-    /// Where a photo's glide ends: a little closer, towards the upper middle, where faces usually are. Near enough
-    /// to the middle that the glide never moves a photo's edge into the frame.
-    static let closeUp = FilmCamera(zoom: 1.12, centerX: 0.5, centerY: 0.45)
     static let musicFadeOutSeconds = 3.0
 
     let spec: FilmSpec
@@ -23,19 +20,18 @@ struct SagaFilmTimelineBuilder {
         var previous: SagaFilmCard?
         for scene in script.scenes {
             let card = scene.card
-            var motion = FilmMotion.still
+            var glide: SagaFilmPhotoLoader.Glide?
             if card.photoID != nil {
                 if !script.reduceMotion {
-                    motion = glide(isInward: photoScenes.isMultiple(of: 2))
+                    glide = photoScenes.isMultiple(of: 2) ? .inward : .outward
                 }
                 photoScenes += 1
             }
             clips.append(
                 FilmClip(
                     frames: max(1, Int((scene.seconds * Double(spec.framesPerSecond)).rounded())),
-                    picture: picture(for: card),
+                    picture: picture(for: card, glide: glide),
                     fit: .fitOverBlur,
-                    motion: motion,
                     overlay: overlay(for: card),
                     transitionIn: transition(from: previous, to: card)
                 )
@@ -49,13 +45,6 @@ struct SagaFilmTimelineBuilder {
         )
     }
 
-    /// In, then out, then in: neighbouring photos never glide the same way.
-    private func glide(isInward: Bool) -> FilmMotion {
-        isInward
-            ? .kenBurns(start: FilmCamera(), end: Self.closeUp)
-            : .kenBurns(start: Self.closeUp, end: FilmCamera())
-    }
-
     /// The card, drawn on the main actor when the encoder is about to need it. A photo alone has none.
     private func overlay(for card: SagaFilmCard) -> FilmImageLoader? {
         guard !card.isPhotoAlone else { return nil }
@@ -65,11 +54,13 @@ struct SagaFilmTimelineBuilder {
         }
     }
 
-    /// A photo, shown whole; or black, which a card of words covers with its own ground.
-    private func picture(for card: SagaFilmCard) -> FilmPicture {
+    /// A photo, shown whole and gliding in, then out, then in, so neighbouring photos rarely glide the same way (one
+    /// with a child always glides in, ADR-0047 §3); or black, which a card of words covers with its own ground. The
+    /// glide is aimed once the photo is loaded.
+    private func picture(for card: SagaFilmCard, glide: SagaFilmPhotoLoader.Glide?) -> FilmPicture {
         guard let photoID = card.photoID else { return .solid(.black) }
         return .image { [photos, spec] in
-            try await photos.image(id: photoID, spec: spec)
+            try await photos.photo(id: photoID, spec: spec, glide: glide)
         }
     }
 

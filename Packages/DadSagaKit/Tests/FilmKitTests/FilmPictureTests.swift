@@ -26,7 +26,9 @@ extension FilmKitTests {
         func tonesSurvive() async throws {
             let photo = try Fixture.image(width: 180, height: 320) { _, _ in Fixture.Paint(red: 128, green: 128, blue: 128) }
             let grey = FilmColor(red: 128.0 / 255, green: 128.0 / 255, blue: 128.0 / 255)
-            let clips = [FilmClip(frames: 15, picture: .solid(grey)), FilmClip(frames: 15, picture: .image { photo })]
+            let clips = [
+                FilmClip(frames: 15, picture: .solid(grey)), FilmClip(frames: 15, picture: .image { FilmPhoto(photo) })
+            ]
             let url = try await Fixture.encode(FilmTimeline(spec: Fixture.portrait, clips: clips))
             defer { try? FileManager.default.removeItem(at: url) }
 
@@ -125,7 +127,7 @@ extension FilmKitTests {
             let glide = horizontal
                 ? FilmMotion.kenBurns(start: FilmCamera(zoom: 1.5, centerX: 0.3), end: FilmCamera(zoom: 1.5, centerX: 0.7))
                 : FilmMotion.kenBurns(start: FilmCamera(zoom: 1.5, centerY: 0.3), end: FilmCamera(zoom: 1.5, centerY: 0.7))
-            let clip = FilmClip(frames: 30, picture: .image { gradient }, motion: glide)
+            let clip = FilmClip(frames: 30, picture: .image { FilmPhoto(gradient) }, motion: glide)
             let url = try await Fixture.encode(FilmTimeline(spec: Fixture.landscape, clips: [clip]))
             defer { try? FileManager.default.removeItem(at: url) }
 
@@ -142,7 +144,7 @@ extension FilmKitTests {
             let gradient = try Fixture.image(width: 400, height: 400) { column, _ in
                 Fixture.Paint(red: UInt8(column * 255 / 399), blue: UInt8(255 - column * 255 / 399))
             }
-            let clip = FilmClip(frames: 30, picture: .image { gradient })
+            let clip = FilmClip(frames: 30, picture: .image { FilmPhoto(gradient) })
             let url = try await Fixture.encode(FilmTimeline(spec: Fixture.landscape, clips: [clip]))
             defer { try? FileManager.default.removeItem(at: url) }
 
@@ -157,7 +159,7 @@ extension FilmKitTests {
             let photo = try Fixture.image(width: 100, height: 300) { _, row in
                 row < 150 ? Fixture.Paint(red: 255) : Fixture.Paint(blue: 255)
             }
-            let clip = FilmClip(frames: 15, picture: .image { photo }, fit: .fitOverBlur)
+            let clip = FilmClip(frames: 15, picture: .image { FilmPhoto(photo) }, fit: .fitOverBlur)
             let url = try await Fixture.encode(FilmTimeline(spec: Fixture.landscape, clips: [clip]))
             defer { try? FileManager.default.removeItem(at: url) }
 

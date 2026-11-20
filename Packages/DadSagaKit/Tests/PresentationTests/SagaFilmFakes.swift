@@ -275,6 +275,18 @@ actor FakeFilmRenderer: SagaFilmRendering {
     }
 }
 
+/// Keeps the film's photos as the sheet showed them.
+struct KeepFilmPhotos: ChooseSagaFilmPhotosUseCase {
+    func execute(_ film: SagaFilm) async -> SagaFilm { film }
+}
+
+/// Finds the same subject in every photo, or none.
+struct FixedPhotoSubject: FindPhotoSubjectUseCase {
+    var subject: PhotoFraming?
+
+    func execute(photo imageData: Data) async -> PhotoFraming? { subject }
+}
+
 /// Stands in for the music player: it keeps what it is asked to play, and each play sounds until the test finishes it
 /// or its task is cancelled, like a preview stopped by the sheet.
 @MainActor
