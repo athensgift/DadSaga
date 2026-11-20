@@ -50,6 +50,33 @@ struct SagaFilmPhotosTests: SagaFilmSheetTests {
         let script = try #require(await renderer.scripts.first)
         #expect(script.scenes.compactMap { if case .photo(let id) = $0.card { id } else { nil } } == ["p-b", "p-c", "p-d"])
     }
+
+    @Test("Given the photos still being chosen, when the dad cancels, then the choices come back and no film is drawn")
+    func cancelWhileChoosing() async throws {
+        let chooser = ChoosesUntilCancelled()
+        let sut = makeSUT(choosePhotos: chooser)
+        await sut.onAppear()
+        let film = Task { await sut.makeFilm(reduceMotion: false) }
+        var started = chooser.started.stream.makeAsyncIterator()
+        _ = await started.next()
+
+        sut.cancel()
+        await film.value
+
+        #expect(choices(sut)?.notice == nil)
+        #expect(await renderer.scripts.isEmpty)
+    }
+}
+
+/// Keeps choosing until its task is cancelled, then returns the film as given, as the real chooser does.
+private struct ChoosesUntilCancelled: ChooseSagaFilmPhotosUseCase {
+    let started = AsyncStream<Void>.makeStream()
+
+    func execute(_ film: SagaFilm) async -> SagaFilm {
+        started.continuation.yield()
+        try? await Task.sleep(for: .seconds(60))
+        return film
+    }
 }
 
 /// Every id is a photo whose bytes are its id.

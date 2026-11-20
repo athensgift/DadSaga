@@ -54,6 +54,8 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   into the next world (by age, never by quests or bosses done), with the weekly reminder card waiting behind it
 - The dad chooses the film's music (ADR-0046): five original tracks with a mood line each, in el and en; a 20-second
   preview before choosing, never on its own; the last choice remembered
+- Vision on the device chooses and frames the film's photos (ADR-0047): an entry's best further photos, not the first
+  ones; the glide aims at the children's faces before the adults', closing in on them up to 1.4
 - Still to check on an iPhone, not automatable: a 90-second film (time, memory, heat), leaving the app and locking the
   screen mid-film, "Save Video" asking for Photos in el and en, Messages and AirDrop, VoiceOver on the sheet
 

@@ -73,9 +73,10 @@ photos are looked at while the film is made).
   (its box grown by half its size on every side, as the request's region of interest, so nothing is cropped or copied),
   and is a **child** when `baby` + `child` outscores `adult` + `teen`. Only an age group, for one photo, for one film:
   never who the person is.
-- **The subject** (Domain, `PhotoSubject.region`): the children's faces as one region, each grown by about a third of
-  its size, leaving out faces less than a third of the tallest one's height (people in the background). With no face
-  classed as a child, all the faces, by the same rule, so a misclassified child is framed as with plain face
+- **The subject** (Domain, `PhotoSubject.framing`): first, faces less than a third of the tallest face's height, of
+  all the faces found, are left out (people in the background, a child's face too, so a stranger's child behind a
+  selfie never draws the camera). Of the faces left, the children's as one region, each grown by about a third of its
+  size; with none of them classed as a child, all of them, so a misclassified child is framed as with plain face
   detection. With no face, the union of the attention-based salient objects; otherwise none.
 - **The close-up is on the subject, at most 1.4.** The close end of a glide is the closest camera on the subject,
   capped at 1.4 (`SagaFilmPhotoLoader.subjectZoomLimit`), never below 1. The subject stays whole: when it is too large
@@ -88,7 +89,8 @@ photos are looked at while the film is made).
 - **`FilmKit` knows the geometry, not the faces.** `FilmCamera.closest(on:pictureSize:spec:fit:maxZoom:)` takes a
   `FilmRegion` (unit coordinates from the top left) and returns that camera. Along a side the picture fills, the camera
   moves towards the focus only as far as keeps the picture's edge out of the frame; along a side it doesn't fill (a
-  portrait photo across a wide film), the picture stays in the middle, as today. `FilmKit` still knows no faces and no
+  portrait photo across a wide film), the picture stays in the middle, as today, until the zoom makes it overflow, and
+  then moves only within that overflow. `FilmKit` still knows no faces and no
   game (ADR-0036 §3).
 - **The motion comes with the photo.** A clip's photo loader returns a `FilmPhoto`: the image and, optionally, the
   motion that replaces the clip's own, since the camera can only be aimed once the photo is known.
@@ -135,7 +137,8 @@ photos are looked at while the film is made).
 
 ### 6. When Vision can't
 - Each request is performed on its own, so one that fails doesn't take the others with it. A failure, a request this
-  device doesn't support, or a photo that can't be read leaves that part empty; nothing is thrown but a cancel.
+  device doesn't support, or a photo that can't be read leaves that part empty. Nothing is thrown: a cancel returns the film, or the answer, unchanged, and the view model
+  checks for it before rendering.
 - No rating: the entry keeps today's photos. No subject: today's camera. A request that answers the same for every
   photo, as in the Simulator, ties them all, and ties keep today's photos. **Without Vision, a film is exactly today's
   film.**

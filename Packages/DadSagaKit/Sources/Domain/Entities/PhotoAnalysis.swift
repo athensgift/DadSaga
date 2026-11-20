@@ -82,29 +82,28 @@ public struct PhotoFraming: Hashable, Sendable {
 
 /// What the camera of a saga film looks at in a photo (ADR-0047 §3). Pure and deterministic.
 public enum PhotoSubject {
-    /// Faces under this share of the largest one's height are in the background, and left out.
+    /// Faces under this share of the tallest face's height, of all the faces found, are in the background, and left
+    /// out, a child's too.
     static let backgroundShare = 1.0 / 3
     /// How much a face grows on every side: hair, chin and a little air around it.
     static let faceMargin = 0.35
 
     /// The children's faces as one region; all faces when none looks like a child; the salient objects when there is
-    /// no face; `nil` when there is neither.
+    /// no face; `nil` when there is neither. Faces in the background count for neither.
     public static func region(faces: [PhotoFace], salientObjects: [PhotoRegion]) -> PhotoRegion? {
-        let children = faces.filter { $0.isChild == true }
-        let pool = (children.isEmpty ? faces : children).map(\.region)
-        if let tallest = pool.map(\.height).max() {
-            return pool
-                .filter { $0.height >= tallest * backgroundShare }
-                .map { $0.grown(by: faceMargin) }
-                .reduce(nil) { $0?.union($1) ?? $1 }
-        }
-        return salientObjects.reduce(nil) { $0?.union($1) ?? $1 }
+        framing(faces: faces, salientObjects: salientObjects)?.region
     }
 
-    /// The subject's region, and whether any face in it looks like a child's; `nil` when there is no subject.
+    /// The subject's region, and whether it is a child's; `nil` when there is no subject.
     public static func framing(faces: [PhotoFace], salientObjects: [PhotoRegion]) -> PhotoFraming? {
-        region(faces: faces, salientObjects: salientObjects).map {
-            PhotoFraming(region: $0, showsChild: faces.contains { $0.isChild == true })
+        let tallest = faces.map(\.region.height).max() ?? 0
+        let near = faces.filter { $0.region.height >= tallest * backgroundShare }
+        let children = near.filter { $0.isChild == true }
+        let pool = children.isEmpty ? near : children
+        let subject = pool.map { $0.region.grown(by: faceMargin) }.reduce(nil) { $0?.union($1) ?? $1 }
+        if let subject {
+            return PhotoFraming(region: subject, showsChild: !children.isEmpty)
         }
+        return salientObjects.reduce(nil) { $0?.union($1) ?? $1 }.map { PhotoFraming(region: $0, showsChild: false) }
     }
 }

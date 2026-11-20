@@ -154,6 +154,8 @@ public final class SagaFilmViewModel: Identifiable {
         // scenes, so nothing on it changes.
         let task = Task { [choosePhotos = useCases.choosePhotos, renderer, weak self] in
             let chosen = await choosePhotos.execute(film)
+            // A cancel while choosing returns the film unchanged: stop here, before the renderer starts.
+            try Task.checkCancellation()
             let script = builder.script(
                 for: chosen, format: format, reduceMotion: reduceMotion, showsDates: showsDates, music: music
             )

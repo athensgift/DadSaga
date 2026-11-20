@@ -58,6 +58,25 @@ struct PhotoSubjectTests {
         #expect(subject.right < far.left)
     }
 
+    @Test("Given two adults up close and a small child in the background, when framing, then the camera stays on the adults")
+    func backgroundChildLeftOut() throws {
+        let dad = PhotoRegion(left: 0.1, top: 0.2, width: 0.3, height: 0.4)
+        let mum = PhotoRegion(left: 0.5, top: 0.2, width: 0.3, height: 0.4)
+        let stranger = PhotoRegion(left: 0.94, top: 0.7, width: 0.05, height: 0.05)
+
+        let framing = try #require(PhotoSubject.framing(
+            faces: [
+                PhotoFace(region: dad, isChild: false),
+                PhotoFace(region: mum, isChild: false),
+                PhotoFace(region: stranger, isChild: true)
+            ],
+            salientObjects: []
+        ))
+
+        #expect(framing.region.right < stranger.left)
+        #expect(!framing.showsChild)
+    }
+
     @Test("Given no face, when finding the subject, then it is the salient objects; with neither, none")
     func salientWithoutFaces() {
         let ball = PhotoRegion(left: 0.2, top: 0.5, width: 0.1, height: 0.1)
