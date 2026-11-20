@@ -228,6 +228,7 @@ struct SagaFixture {
                     getHeroChoice: DefaultGetHeroChoiceUseCase(contentRepository: content, profileRepository: store.profiles),
                     updateHero: DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: store.profiles),
                     locale: locale,
+                    now: Self.today,
                     onSaved: onSaved
                 )
             },
@@ -236,10 +237,11 @@ struct SagaFixture {
                     getProfile: DefaultGetProfileUseCase(repository: store.profiles),
                     updateFamily: DefaultUpdateFamilyUseCase(contentRepository: content, profileRepository: store.profiles),
                     locale: locale,
+                    now: Self.today,
                     onSaved: onSaved
                 )
             },
-            makeReminder: { ReminderSettingsViewModel(useCases: reminder, locale: locale) }
+            makeReminder: { ReminderSettingsViewModel(useCases: reminder, locale: locale, now: { Self.today }) }
         )
     }
 
