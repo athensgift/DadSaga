@@ -5,18 +5,26 @@ import SwiftUI
 
 /// Super Dad with a smiling baby, laid out like the home screen's family (child canvas at 0.62 of the dad's height),
 /// a little closer together so the pair reads as one picture.
+/// The website draws each figure on its own, at rest or cheering, in the same place: `showsHero`/`showsChild` hide the
+/// other figure without moving anything, and `headroom` leaves space above for raised arms.
 struct LaunchFamily: View {
     let heroHeight: CGFloat
+    var showsHero = true
+    var showsChild = true
+    var heroCheers = false
+    var childCheers = false
+    var headroom: CGFloat = 0
 
     var body: some View {
         let childHeight = heroHeight * 0.62
         HStack(alignment: .bottom, spacing: -heroHeight * 0.24) {
-            HeroFigure(style: .hero, pose: .rest, isCheering: false)
+            HeroFigure(style: .hero, pose: .rest, isCheering: heroCheers)
                 .environment(\.avatarSkin, .mediumLight)
                 .scaleEffect(heroHeight / HeroFigure.designSize.height)
                 .frame(width: heroHeight * HeroAvatar.aspectRatio, height: heroHeight)
+                .opacity(showsHero ? 1 : 0)
                 .zIndex(1)
-            ChildFigure(stage: .baby, gender: .boy, traits: .smile, pose: .rest, isCheering: false)
+            ChildFigure(stage: .baby, gender: .boy, traits: .smile, pose: .rest, isCheering: childCheers)
                 .environment(\.avatarSkin, .mediumLight)
                 .scaleEffect(childHeight / ChildFigure.designSize.height)
                 .frame(width: childHeight * ChildAvatar.aspectRatio, height: childHeight)
@@ -24,12 +32,19 @@ struct LaunchFamily: View {
                     .bottom,
                     HeroAvatar.groundInset(forSize: heroHeight) - ChildAvatar.groundInset(forSize: childHeight)
                 )
+                .opacity(showsChild ? 1 : 0)
         }
+        .padding(.top, headroom)
     }
 }
 
 /// Crops transparent margins so the launch screen centres on the figures themselves.
 func trimmed(_ image: CGImage) -> CGImage? {
+    opaqueBounds(of: image).flatMap { image.cropping(to: $0) }
+}
+
+/// The smallest rectangle holding every visible pixel, in the image's pixels (origin at the top left).
+func opaqueBounds(of image: CGImage) -> CGRect? {
     let width = image.width, height = image.height
     guard let space = CGColorSpace(name: CGColorSpace.sRGB),
           let context = CGContext(
@@ -46,7 +61,7 @@ func trimmed(_ image: CGImage) -> CGImage? {
         }
     }
     guard maxX >= minX else { return nil }
-    return image.cropping(to: CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1))
+    return CGRect(x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1)
 }
 
 /// Renders the family in one colour scheme, trimmed to the figures.
@@ -88,7 +103,56 @@ func write(_ image: CGImage, to path: String) {
     print("Wrote \(path) (\(image.width)×\(image.height))")
 }
 
-/// The launch screen (ADR-0025) and the website (ADR-0031) show the same family, so one run writes both.
+/// The website's family (ADR-0040): each figure at rest and cheering, as the app draws them when tapped. All eight
+/// images come from one canvas; each figure is cropped to the box that holds both its poses, so swapping rest for cheer
+/// moves nothing. Prints each figure's box as a share of the whole family, for `site.css`.
+@MainActor
+func writeWebFamily(scheme: ColorScheme, name: String) {
+    let heroHeight: CGFloat = 340, scale: CGFloat = 2
+    func render(_ family: LaunchFamily) -> CGImage {
+        let renderer = ImageRenderer(content: family.environment(\.colorScheme, scheme))
+        renderer.scale = scale
+        guard let image = renderer.cgImage else { fatalError("Could not render the family") }
+        return image
+    }
+    let headroom = heroHeight * 0.3
+    /// One figure on the website, drawn at rest and cheering.
+    struct Figure { let file: String; let rest: CGImage; let cheer: CGImage }
+    let figures = [
+        Figure(file: "dad",
+               rest: render(LaunchFamily(heroHeight: heroHeight, showsChild: false, headroom: headroom)),
+               cheer: render(LaunchFamily(heroHeight: heroHeight, showsChild: false, heroCheers: true,
+                                          headroom: headroom))),
+        Figure(file: "baby",
+               rest: render(LaunchFamily(heroHeight: heroHeight, showsHero: false, headroom: headroom)),
+               cheer: render(LaunchFamily(heroHeight: heroHeight, showsHero: false, childCheers: true,
+                                          headroom: headroom)))
+    ]
+    let boxes = figures.map { figure -> CGRect in
+        guard let rest = opaqueBounds(of: figure.rest), let cheer = opaqueBounds(of: figure.cheer) else {
+            fatalError("Nothing drawn for \(figure.file)")
+        }
+        return rest.union(cheer)
+    }
+    let family = boxes.dropFirst().reduce(boxes[0]) { $0.union($1) }
+    for (figure, box) in zip(figures, boxes) {
+        for (pose, image) in [("rest", figure.rest), ("cheer", figure.cheer)] {
+            guard let cropped = image.cropping(to: box) else { fatalError("Could not crop \(figure.file)") }
+            write(cropped, to: "web/assets/family/\(figure.file)-\(pose)-\(name).png")
+        }
+        if name == "light" {
+            func percent(_ value: CGFloat, of whole: CGFloat) -> String { String(format: "%.2f%%", value / whole * 100) }
+            print(".family .\(figure.file) { left: \(percent(box.minX - family.minX, of: family.width)); "
+                + "top: \(percent(box.minY - family.minY, of: family.height)); "
+                + "width: \(percent(box.width, of: family.width)); }")
+        }
+    }
+    if name == "light" {
+        print(".family { aspect-ratio: \(Int(family.width)) / \(Int(family.height)); }")
+    }
+}
+
+/// The launch screen (ADR-0025) and the website (ADR-0031, ADR-0040) show the same family, so one run writes both.
 let launchImages = "App/Resources/Assets.xcassets/LaunchLogo.imageset"
 /// One rendering pass per launch appearance: the asset name suffix and the colour scheme to draw in.
 let appearances: [(name: String, scheme: ColorScheme)] = [("light", .light), ("dark", .dark)]
@@ -98,10 +162,8 @@ for entry in appearances {
             for scale in [2, 3] {
                 let image = renderFamily(heroHeight: 340, scale: CGFloat(scale), scheme: entry.scheme)
                 write(image, to: "\(launchImages)/LaunchLogo-\(entry.name)@\(scale)x.png")
-                if scale == 3 {
-                    write(image, to: "web/assets/super-dad-\(entry.name).png")
-                }
             }
+            writeWebFamily(scheme: entry.scheme, name: entry.name)
             if entry.scheme == .light {
                 // 1200×630, the size link previews expect, on the light background (`DSColor.background`).
                 let figures = renderFamily(heroHeight: 340, scale: 4, scheme: .light)

@@ -16,7 +16,7 @@
   <meta property="og:description" content="You're the hero, your kid is your companion, and real life is the campaign.">
   <meta property="og:url" content="https://dadsaga.app/">
   <meta property="og:image" content="https://dadsaga.app/assets/og.png">
-  <link rel="stylesheet" href="/assets/site.css?v=5">
+  <link rel="stylesheet" href="/assets/site.css?v=6">
 </head>
 <body>
   <header class="top">
@@ -43,10 +43,19 @@
           </span>
           <p class="note">No account. Your family's data stays on your iPhone.</p>
         </div>
-        <picture class="hero-art">
-          <source srcset="/assets/super-dad-dark.png" media="(prefers-color-scheme: dark)">
-          <img src="/assets/super-dad-light.png" width="639" height="797" alt="Super Dad, a bearded hero in a cape, next to a smiling baby.">
-        </picture>
+        <div class="hero-art">
+          <div class="family" role="group" aria-label="Super Dad, a bearded hero in a cape, next to a smiling baby.">
+            <button class="figure dad" type="button" aria-label="Super Dad. Tap him to cheer.">
+              <picture class="rest"><source srcset="/assets/family/dad-rest-dark.png" media="(prefers-color-scheme: dark)"><img src="/assets/family/dad-rest-light.png" width="370" height="609" alt=""></picture>
+              <picture class="cheer"><source srcset="/assets/family/dad-cheer-dark.png" media="(prefers-color-scheme: dark)"><img src="/assets/family/dad-cheer-light.png" width="370" height="609" alt=""></picture>
+            </button>
+            <button class="figure baby" type="button" aria-label="The baby. Tap to cheer.">
+              <picture class="rest"><source srcset="/assets/family/baby-rest-dark.png" media="(prefers-color-scheme: dark)"><img src="/assets/family/baby-rest-light.png" width="140" height="218" alt=""></picture>
+              <picture class="cheer"><source srcset="/assets/family/baby-cheer-dark.png" media="(prefers-color-scheme: dark)"><img src="/assets/family/baby-cheer-light.png" width="140" height="218" alt=""></picture>
+            </button>
+          </div>
+          <p class="family-hint" aria-hidden="true">Tap Super Dad or the baby.</p>
+        </div>
       </div>
     </section>
 
@@ -87,19 +96,8 @@
           <p class="section-lead">Turn a year, a world or the whole saga into a short film with music, made on your iPhone. DadSaga offers one on a birthday or when a new world opens, and never asks twice.</p>
           <ul class="pills"><li>By month</li><li>Notes &amp; photos</li><li>One child or everyone</li><li>A short film</li></ul>
         </div>
-        <div class="phone" role="img" aria-label="Example of the Timeline tab">
-          <p class="tl-title">Timeline</p>
-          <div class="tl-chips"><span class="tl-chip on">Everyone</span><span class="tl-chip">Lena</span><span class="tl-chip">Alex</span></div>
-          <p class="tl-month">November 2026</p>
-          <ul class="tl-list">
-            <li class="tl-row"><span class="tl-icon legendary" aria-hidden="true">★</span><div class="tl-text"><strong>First smile</strong><small>Lena</small><span>She looked straight at me.</span><span class="tl-photo" aria-hidden="true"></span></div></li>
-            <li class="tl-row"><span class="tl-icon quest" aria-hidden="true">☾</span><div class="tl-text"><strong>Night shift</strong><small>Alex</small><span>3 a.m., just us and the fridge light.</span></div></li>
-            <li class="tl-row"><span class="tl-icon boss" aria-hidden="true">⚔</span><div class="tl-text"><strong>The First Fever</strong><small>Lena</small><span>A long night. We got through it.</span></div></li>
-          </ul>
-          <p class="tl-month">October 2026</p>
-          <ul class="tl-list">
-            <li class="tl-row"><span class="tl-icon legendary" aria-hidden="true">★</span><div class="tl-text"><strong>The first time I held you</strong><small>Alex</small><span>Delivery room, 04:12.</span></div></li>
-          </ul>
+        <div class="phone">
+          <video class="clip" src="/assets/timeline/timeline.mp4" poster="/assets/timeline/timeline-poster.jpg" width="540" height="1174" muted loop playsinline preload="metadata" aria-label="A recording of the Timeline tab: entries for Lena and Alex grouped by month, with notes and photos, filtered to one child and back to both."></video>
         </div>
       </div>
     </section>
@@ -153,5 +151,6 @@
       </nav>
     </div>
   </footer>
+  <script src="/assets/site.js?v=1" defer></script>
 </body>
 </html>
