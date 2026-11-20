@@ -72,12 +72,14 @@ struct MomentDetailsStep: View {
                 }
             }
         }
-        // A swipe would lose what was just added; Close asks first instead.
-        .interactiveDismissDisabled(hasUnsavedChanges)
-        .confirmationDialog(details.labels.discardQuestion, isPresented: $isConfirmingDiscard, titleVisibility: .visible) {
-            Button(details.labels.discard, role: .destructive, action: actions.onClose)
-            Button(details.labels.keepEditing, role: .cancel) {}
-        }
+        .modifier(UnsavedChangesGuard(
+            hasUnsavedChanges: hasUnsavedChanges,
+            isAsking: $isConfirmingDiscard,
+            labels: details.labels.journal,
+            canSave: !isSaving && !photos.isLoading,
+            onSave: { actions.onSave(date, note, photos) },
+            onDiscard: actions.onClose
+        ))
         .confirmationDialog(details.labels.deleteConfirmation, isPresented: $isConfirmingDelete, titleVisibility: .visible) {
             Button(details.labels.delete, role: .destructive, action: actions.onDelete)
             Button(details.labels.cancel, role: .cancel) {}

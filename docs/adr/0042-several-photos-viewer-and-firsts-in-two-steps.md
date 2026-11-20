@@ -100,8 +100,11 @@ snapshots cover the viewer and both steps of a first).
 - **Step 2, in the same sheet:** the moment's page: its title and reward, "Saved! Want to keep something more?",
   photos, a note, the date (still editable), Save and Not now. The celebration and the undo bar show in the sheet,
   since home is behind it; Undo deletes the moment and closes the sheet.
-- **Closing never loses the moment.** While photos or words have been added and not saved, the sheet can't be swiped
-  away, "Not now" is hidden, and Close asks before discarding them.
+- **Closing never loses the moment.** While photos, words or the date have changed and not been saved, the sheet can't
+  be swiped away, "Not now" is hidden, and Close asks: Save, Discard or Keep editing.
+- **The timeline's note and photos sheet does the same** (owner, after trying it on a device): a swipe can't close it
+  with changes not saved, and Close asks the same question. Photos are not saved as they are picked: the dad can still
+  change his mind, and nothing is written until he says so.
 - Editing a first opens straight at step 2, with Save and Delete (ADR-0016) and no celebration.
 - Recording a first takes only the first, the child and the date (`CaptureMomentRequest`); step 2 saves through
   `UpdateMomentUseCase`.

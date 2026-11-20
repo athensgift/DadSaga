@@ -10,6 +10,7 @@ struct JournalEditorSheet: View {
     let onClose: () -> Void
     @State private var note: String
     @State private var photos: PhotoDrafts
+    @State private var isConfirmingDiscard = false
 
     init(
         editor: JournalEditor,
@@ -25,6 +26,11 @@ struct JournalEditorSheet: View {
         self.onClose = onClose
         _note = State(initialValue: editor.note)
         _photos = State(initialValue: PhotoDrafts(storedIDs: editor.photoIDs))
+    }
+
+    /// The note or the photos changed and not saved yet, or photos still arriving from the library.
+    private var hasUnsavedChanges: Bool {
+        note != editor.note || photos != PhotoDrafts(storedIDs: editor.photoIDs)
     }
 
     var body: some View {
@@ -44,7 +50,9 @@ struct JournalEditorSheet: View {
             .toolbarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .close, action: onClose)
+                    Button(role: .close) {
+                        if hasUnsavedChanges { isConfirmingDiscard = true } else { onClose() }
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     // Saving several photos takes a moment: the button waits, and says so.
@@ -57,6 +65,14 @@ struct JournalEditorSheet: View {
                     }
                 }
             }
+            .modifier(UnsavedChangesGuard(
+                hasUnsavedChanges: hasUnsavedChanges,
+                isAsking: $isConfirmingDiscard,
+                labels: editor.labels,
+                canSave: !isSaving && !photos.isLoading,
+                onSave: { onSave(note, photos) },
+                onDiscard: onClose
+            ))
         }
     }
 }

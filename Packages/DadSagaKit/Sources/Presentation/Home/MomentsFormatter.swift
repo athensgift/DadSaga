@@ -67,10 +67,7 @@ struct MomentsFormatter {
                 journal: JournalLabels(locale: locale),
                 delete: strings.text("Delete moment"),
                 deleteConfirmation: strings.text("The moment, its photos and its XP will be removed."),
-                cancel: strings.text("Cancel"),
-                discardQuestion: strings.text("Discard the changes you just made?"),
-                discard: strings.text("Discard"),
-                keepEditing: strings.text("Keep editing")
+                cancel: strings.text("Cancel")
             ),
             celebration: celebration,
             undoOffer: undoOffer

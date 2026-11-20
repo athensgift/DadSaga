@@ -129,10 +129,6 @@ public struct MomentLabels: Equatable, Sendable {
     public let delete: String
     public let deleteConfirmation: String
     public let cancel: String
-    /// "Discard the changes you just made?"
-    public let discardQuestion: String
-    public let discard: String
-    public let keepEditing: String
 }
 
 /// A captured moment as a gold card.
