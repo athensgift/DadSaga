@@ -98,17 +98,27 @@ has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in t
 - The lower half keeps its place in the view tree, so a fold keeps the note's focus and an open picker. With the
   keyboard up the sheet is one column again.
 
-### 7. What stays as it is
+### 7. The timeline
+- Folded, the list lies below the fold and one entry stands above it, large: its cover whole, its title and words,
+  and a button into its note and photos. It is the entry the dad tapped, or the newest while he has tapped none or
+  the one he tapped is gone. Its row is marked in the list (and is "selected" for VoiceOver).
+- So below a fold a tap on a row shows the entry above instead of opening its note and photos; those open from the
+  button above, or from the row's menu as before. On a flat display a tap opens them, as before.
+- Which entry is previewed is the view's own state: it is not stored and the view model does not know it.
+- An empty timeline is not split. Folded, the title is inline: a large title collapses as the list scrolls and would
+  move the fold's place in both halves.
+
+### 8. What stays as it is
 - The book pose (two columns, as in ADR-0011).
 - The cover display.
-- The lists and forms: the timeline, settings and their pages, onboarding, a first's choice, the world map.
-- The timeline list. Apple: scrolling content need not avoid the fold.
-- The film's choices.
+- The lists and forms: settings and their pages, onboarding, a first's choice, the world map, the film's choices.
+  Apple: scrolling content need not avoid the fold.
 - The photo viewer.
 
-### 8. Tests
+### 9. Tests
 - `FoldLayoutTests` (DesignSystem): the rule and the panes' frames.
-- `HomeArrangementTests`, `SagaFilmPlayerLayoutTests` and `CoverAboveFoldTests` (Presentation).
+- `HomeArrangementTests`, `SagaFilmPlayerLayoutTests`, `CoverAboveFoldTests` and `TimelinePreviewTests`
+  (Presentation).
 - The reader, the sheets and the keyboard can only be seen in the simulator. Each screen is drawn there once, folded
   and unfolded, with the hinge moved mid-use.
 - The snapshots can't draw a fold, so they have no folded images.
@@ -136,7 +146,7 @@ has been out of date since ADR-0034) and ADR-0042 §3 (where the cover sits in t
 
 ## Verification status
 Drawn once in the iPhone Duo simulator (iOS 27.2), half-open at 90° in portrait: home, the note editor with and
-without a photo and with the keyboard up, the made film, a quest sheet and the wardrobe; the film sheet also unfolded
-while open. Not checked: the boss sheet and a first's own page (they share the containers of the sheets that were),
+without a photo and with the keyboard up, the made film, a quest sheet, the wardrobe and the timeline with one entry; the film
+sheet also unfolded while open. Not checked: tapping between several entries on the folded timeline, the boss sheet and a first's own page (they share the containers of the sheets that were),
 a real iPhone Duo, Split View, the accessibility text sizes, VoiceOver, and that a film in mid-play carries on
 without a break when the device folds.

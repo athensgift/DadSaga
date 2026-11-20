@@ -2,13 +2,18 @@ import DesignSystem
 import SwiftUI
 
 /// The family's history, newest first, for everyone or one child: entries hang off a vertical
-/// chronology line, and each month is a node on that line.
+/// chronology line, and each month is a node on that line. On an iPhone Duo half-open like a laptop the list lies
+/// below the fold and the entry the dad taps stands above it, large (ADR-0043).
 public struct TimelineView: View {
     @State private var viewModel: TimelineViewModel
     /// The film sheet, opened from the toolbar.
     @State private var sagaFilm: SagaFilmViewModel?
     /// An entry's photos, full screen.
     @State private var photoViewer: PhotoViewerContent?
+    @State private var fold: HorizontalFold?
+    /// The entry the dad tapped while the list was below a fold.
+    @State private var previewedID: UUID?
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let makeSagaFilm: SagaFilmSheet.MakeViewModel
     private let isOpeningLink: Bool
 
@@ -39,8 +44,12 @@ public struct TimelineView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Read where the panes are placed, so the fold is in their coordinates.
+            .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum) { fold = $0 }
             .background(DSColor.background)
             .navigationTitle(title)
+            // A large title collapses as the list scrolls and would move the fold's place in both panes.
+            .toolbarTitleDisplayMode(fold == nil ? .automatic : .inline)
             .toolbar {
                 if let filmTitle {
                     ToolbarItem(placement: .primaryAction) {
@@ -100,6 +109,31 @@ public struct TimelineView: View {
     }
 
     private func loaded(_ content: TimelineContent) -> some View {
+        // The entry above the fold; none on a flat display or an empty timeline.
+        let previewed = fold == nil ? nil : content.previewed(id: previewedID)
+        let panes = (previewed == nil ? nil : fold).map { AnyLayout(FoldedStackLayout(fold: $0)) }
+            ?? AnyLayout(VStackLayout(spacing: 0))
+        // The same list in both layouts, so a fold keeps where it was scrolled to.
+        return panes {
+            if let previewed {
+                TimelinePreview(
+                    item: previewed,
+                    editTitle: viewModel.editTitle,
+                    loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
+                    onShowPhotos: { showPhotos(of: previewed, content: content) },
+                    onEdit: { viewModel.editJournal(id: previewed.id) }
+                )
+            }
+            list(content, previewedID: previewed?.id)
+        }
+        .animation(reduceMotion ? nil : .smooth, value: previewed?.id)
+    }
+
+    private func showPhotos(of item: TimelineItem, content: TimelineContent) {
+        photoViewer = content.viewer.content(entry: item.title, photos: item.photoIDs.map(PhotoSource.stored))
+    }
+
+    private func list(_ content: TimelineContent, previewedID: UUID?) -> some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
                 if !content.filters.isEmpty {
@@ -126,7 +160,7 @@ public struct TimelineView: View {
                     MonthNode(title: section.title, isFirst: index == 0)
                     ForEach(section.items) { item in
                         let isLast = index == content.sections.count - 1 && item.id == section.items.last?.id
-                        row(item, isLast: isLast, content: content)
+                        row(item, isLast: isLast, content: content, previewedID: previewedID)
                     }
                 }
             }
@@ -140,18 +174,20 @@ public struct TimelineView: View {
 
 private extension TimelineView {
     /// A row that opens its note and photos when tapped, and can be deleted from its context menu. Its photo, a
-    /// separate button, shows the photos full screen.
-    func row(_ item: TimelineItem, isLast: Bool, content: TimelineContent) -> some View {
+    /// separate button, shows the photos full screen. Below a fold a tap shows the entry above it instead
+    /// (`previewedID` is the entry there now); its note and photos open from there, or from the row's menu.
+    func row(_ item: TimelineItem, isLast: Bool, content: TimelineContent, previewedID: UUID?) -> some View {
         TimelineRow(
             item: item,
             isLast: isLast,
+            isPreviewed: item.id == previewedID,
             showPhotosTitle: content.viewer.showPhotos,
             loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
             deleteTitle: viewModel.deleteTitle,
-            onOpen: { viewModel.editJournal(id: item.id) },
-            onShowPhotos: {
-                photoViewer = content.viewer.content(entry: item.title, photos: item.photoIDs.map(PhotoSource.stored))
+            onOpen: {
+                if previewedID == nil { viewModel.editJournal(id: item.id) } else { self.previewedID = item.id }
             },
+            onShowPhotos: { showPhotos(of: item, content: content) },
             onDelete: { viewModel.requestDeletion(id: item.id) }
         )
         .contextMenu {
@@ -219,6 +255,8 @@ private struct MonthNode: View {
 private struct TimelineRow: View {
     let item: TimelineItem
     let isLast: Bool
+    /// Shown above the fold right now: the row is marked.
+    let isPreviewed: Bool
     let showPhotosTitle: String
     let loader: PhotoLoader
     let deleteTitle: String
@@ -227,13 +265,7 @@ private struct TimelineRow: View {
     let onDelete: () -> Void
     @ScaledMetric(relativeTo: .subheadline) private var railWidth: CGFloat = TimelineRail.width
 
-    private var tint: Color {
-        switch item.kind {
-        case .quest: DSColor.accent
-        case .boss: DSColor.boss
-        case .moment: DSColor.legendary
-        }
-    }
+    private var tint: Color { item.kind.tint }
 
     var body: some View {
         HStack(alignment: .top, spacing: DSSpacing.m) {
@@ -269,10 +301,16 @@ private struct TimelineRow: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(DSSpacing.m)
             .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+            .overlay {
+                if isPreviewed {
+                    RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous).strokeBorder(tint, lineWidth: 2)
+                }
+            }
             .contentShape(RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(isPreviewed ? .isSelected : [])
         .accessibilityValue(item.photoCount ?? "")
         .accessibilityActions {
             if !item.photoIDs.isEmpty {
