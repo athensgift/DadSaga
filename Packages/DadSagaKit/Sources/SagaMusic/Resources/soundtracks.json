@@ -2,9 +2,46 @@
   {
     "id": "saga-theme",
     "file": "saga-theme.m4a",
-    "title": "Saga Theme",
+    "title": { "el": "Το θέμα της ιστορίας", "en": "Saga Theme" },
+    "mood": { "el": "Απαλό και αισιόδοξο", "en": "Gentle and hopeful" },
     "artist": "DadSaga",
     "licence": "original",
-    "source": "Tools/SagaTheme"
+    "source": "Tools/SagaMusic"
+  },
+  {
+    "id": "candles-and-confetti",
+    "file": "candles-and-confetti.m4a",
+    "title": { "el": "Κεράκια και κομφετί", "en": "Candles and Confetti" },
+    "mood": { "el": "Παιχνιδιάρικο και ζωηρό, για γενέθλια", "en": "Playful and bouncy, for birthdays" },
+    "artist": "DadSaga",
+    "licence": "original",
+    "source": "Tools/SagaMusic"
+  },
+  {
+    "id": "music-box-lullaby",
+    "file": "music-box-lullaby.m4a",
+    "title": { "el": "Νανούρισμα για μουσικό κουτί", "en": "Music Box Lullaby" },
+    "mood": { "el": "Τρυφερό και αργό, για ήσυχες στιγμές", "en": "Tender and slow, for quiet moments" },
+    "artist": "DadSaga",
+    "licence": "original",
+    "source": "Tools/SagaMusic"
+  },
+  {
+    "id": "great-adventure",
+    "file": "great-adventure.m4a",
+    "title": { "el": "Η μεγάλη περιπέτεια", "en": "The Great Adventure" },
+    "mood": { "el": "Τολμηρό και ηρωικό, με τύμπανα", "en": "Bold and heroic, with drums" },
+    "artist": "DadSaga",
+    "licence": "original",
+    "source": "Tools/SagaMusic"
+  },
+  {
+    "id": "like-yesterday",
+    "file": "like-yesterday.m4a",
+    "title": { "el": "Σαν χθες", "en": "Like Yesterday" },
+    "mood": { "el": "Ζεστό και νοσταλγικό, με κιθάρα", "en": "Warm and nostalgic, on guitar" },
+    "artist": "DadSaga",
+    "licence": "original",
+    "source": "Tools/SagaMusic"
   }
 ]

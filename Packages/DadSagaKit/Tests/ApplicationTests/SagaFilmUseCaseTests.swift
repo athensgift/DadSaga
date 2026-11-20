@@ -22,7 +22,20 @@ struct SagaFilmUseCaseTests {
         ]
     )
     static let music = Soundtrack(
-        id: "theme", title: "Theme", artist: "Dad", licence: .original, audioURL: URL(fileURLWithPath: "/theme.m4a")
+        id: "theme",
+        title: LocalizedText(el: "Θέμα", en: "Theme"),
+        mood: LocalizedText(el: "Απαλό", en: "Gentle"),
+        artist: "Dad",
+        licence: .original,
+        audioURL: URL(fileURLWithPath: "/theme.m4a")
+    )
+    static let lullaby = Soundtrack(
+        id: "lullaby",
+        title: LocalizedText(el: "Νανούρισμα", en: "Lullaby"),
+        mood: LocalizedText(el: "Αργό", en: "Slow"),
+        artist: "Dad",
+        licence: .original,
+        audioURL: URL(fileURLWithPath: "/lullaby.m4a")
     )
 
     let calendar: Calendar
@@ -45,16 +58,16 @@ struct SagaFilmUseCaseTests {
         return calendar.date(byAdding: .day, value: days, to: month) ?? .distantPast
     }
 
-    let dates = InMemorySagaFilmDatesRepository()
+    let choices = InMemorySagaFilmChoicesRepository()
 
-    func sut(soundtracks: [Soundtrack] = [Self.music]) -> DefaultGetSagaFilmUseCase {
+    func sut(soundtracks: [Soundtrack] = [Self.music, Self.lullaby]) -> DefaultGetSagaFilmUseCase {
         DefaultGetSagaFilmUseCase(
             contentRepository: StubContentRepository(result: .success(Self.catalog)),
             profileRepository: profiles,
             progressRepository: progress,
             outfitRepository: SpyOutfitRepository(),
             soundtrackRepository: StubSoundtrackRepository(soundtracks: soundtracks),
-            datesRepository: dates,
+            choicesRepository: choices,
             calendar: calendar
         )
     }
@@ -72,9 +85,39 @@ struct SagaFilmUseCaseTests {
         try await family()
         #expect(try await #require(sut().execute(childID: nil, period: nil, on: date(months: 26))).showsDates)
 
-        await DefaultSetSagaFilmDatesUseCase(repository: dates).execute(showsDates: false)
+        await DefaultSetSagaFilmDatesUseCase(repository: choices).execute(showsDates: false)
 
         #expect(try await !#require(sut().execute(childID: nil, period: nil, on: date(months: 26))).showsDates)
+    }
+
+    @Test("Given no track chosen, when reading the film, then it offers every track in order and has the first")
+    func firstTrackByDefault() async throws {
+        try await family()
+
+        let film = try #require(try await sut().execute(childID: nil, period: nil, on: date(months: 26)))
+
+        #expect(film.soundtracks == [Self.music, Self.lullaby])
+        #expect(film.soundtrack == Self.music)
+    }
+
+    @Test("Given a track chosen, when reading the film, then it is the film's music")
+    func chosenTrack() async throws {
+        try await family()
+
+        await DefaultSetSagaFilmMusicUseCase(repository: choices).execute(soundtrackID: "lullaby")
+
+        let film = try #require(try await sut().execute(childID: nil, period: nil, on: date(months: 26)))
+        #expect(film.soundtrack == Self.lullaby)
+    }
+
+    @Test("Given a chosen track no longer bundled, when reading the film, then it has the first")
+    func chosenTrackGone() async throws {
+        try await family()
+
+        await DefaultSetSagaFilmMusicUseCase(repository: choices).execute(soundtrackID: "gone")
+
+        let film = try #require(try await sut().execute(childID: nil, period: nil, on: date(months: 26)))
+        #expect(film.soundtrack == Self.music)
     }
 
     @Test("Given no family yet, when reading the film, then there is none")
@@ -191,11 +234,14 @@ struct StubSoundtrackRepository: SoundtrackRepository {
     }
 }
 
-/// The film dates switch in memory: on until set.
-final class InMemorySagaFilmDatesRepository: SagaFilmDatesRepository, @unchecked Sendable {
+/// What the film sheet remembers, in memory: dates on and no track until set.
+final class InMemorySagaFilmChoicesRepository: SagaFilmChoicesRepository, @unchecked Sendable {
     private let lock = NSLock()
-    private var stored: Bool?
+    private var storedShowsDates: Bool?
+    private var storedSoundtrackID: String?
 
-    func showsDates() async -> Bool { lock.withLock { stored ?? true } }
-    func setShowsDates(_ showsDates: Bool) async { lock.withLock { stored = showsDates } }
+    func showsDates() async -> Bool { lock.withLock { storedShowsDates ?? true } }
+    func setShowsDates(_ showsDates: Bool) async { lock.withLock { storedShowsDates = showsDates } }
+    func soundtrackID() async -> String? { lock.withLock { storedSoundtrackID } }
+    func setSoundtrackID(_ id: String) async { lock.withLock { storedSoundtrackID = id } }
 }

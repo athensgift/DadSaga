@@ -33,6 +33,25 @@ public struct SagaFilmFormatChoice: Equatable, Identifiable, Sendable {
     public let symbol: String
 }
 
+public struct SagaFilmMusicChoice: Equatable, Identifiable, Sendable {
+    public let id: String
+    public let title: String
+    /// How it sounds, under its title.
+    public let mood: String
+}
+
+public struct SagaFilmMusicSetup: Equatable, Sendable {
+    /// "Music".
+    public let label: String
+    /// Every track, in order.
+    public let choices: [SagaFilmMusicChoice]
+    public let selectedID: String
+    /// Whether the chosen track is playing now: the button shows stop, and doesn't start a media session.
+    public let isPlaying: Bool
+    /// "Listen to the music" or "Stop the music": the button's accessibility label.
+    public let actionTitle: String
+}
+
 public struct SagaFilmSetup: Equatable, Sendable {
     public let childLabel: String
     public let periodLabel: String
@@ -46,6 +65,8 @@ public struct SagaFilmSetup: Equatable, Sendable {
     public let selectedPeriodID: String
     public let formats: [SagaFilmFormatChoice]
     public let selectedFormat: SagaFilmFormat
+    /// The film's music and the button that plays it first (ADR-0046 §2, §3).
+    public let music: SagaFilmMusicSetup
     /// The "Dates in the film" switch and what dates give away (ADR-0041 §5).
     public let datesLabel: String
     public let datesNote: String

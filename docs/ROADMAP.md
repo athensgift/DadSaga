@@ -44,7 +44,7 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 
 ## Phase 3½: Saga video (ADR-0036) ✅
 - ✅ What goes in a film and when to offer it (Domain); the film's one query (Application)
-- ✅ An original theme made in code (`Tools/SagaTheme`), bundled in the `SagaMusic` target
+- ✅ An original theme made in code (`Tools/SagaMusic`), bundled in the `SagaMusic` target
 - ✅ `FilmKit`: on-device video drawn frame by frame (Core Image, `AVAssetWriter`), Ken Burns photos, cross-fades, music
 - ✅ Drawing the film (ADR-0037): an opening, a card for each first and boss, a montage of quest photos, credits; Reduce
   Motion keeps the photos still
@@ -52,6 +52,8 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   never kept, and leaving the app stops it
 - ✅ Triggers: on demand from the timeline; on home, one calm card for the family on a birthday or when a child grows
   into the next world (by age, never by quests or bosses done), with the weekly reminder card waiting behind it
+- The dad chooses the film's music (ADR-0046): five original tracks with a mood line each, in el and en; a 20-second
+  preview before choosing, never on its own; the last choice remembered
 - Still to check on an iPhone, not automatable: a 90-second film (time, memory, heat), leaving the app and locking the
   screen mid-film, "Save Video" asking for Photos in el and en, Messages and AirDrop, VoiceOver on the sheet
 

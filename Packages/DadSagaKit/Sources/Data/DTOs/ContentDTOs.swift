@@ -82,8 +82,10 @@ struct SoundtrackDTO: Decodable, Sendable {
     let id: String
     /// A file bundled next to the JSON, e.g. `saga-theme.m4a`. Names must be unique: resources are flattened.
     let file: String
-    /// The track's own name and its artist's, credited as they are in every language: proper nouns, not UI text.
-    let title: String
+    /// In Greek and English like all content (ADR-0005, ADR-0046 §1); the artist is one name.
+    let title: LocalizedTextDTO
+    /// How it sounds, shown under the title on the film sheet.
+    let mood: LocalizedTextDTO
     let artist: String
     let licence: String
     /// Where it came from: a tool in this repository, or the page its licence was taken from.
