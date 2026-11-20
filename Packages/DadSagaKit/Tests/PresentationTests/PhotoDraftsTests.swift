@@ -85,31 +85,34 @@ struct PhotoDraftsTests {
         #expect(drafts.remaining == 4)
     }
 
-    @Test("Given three photos picked, when one can't be read, then two are added and the one is reported until the next change")
+    @Test("Given three photos picked, when one can't be read, then two are added and one is reported left out")
     func unreadPhotosAreReported() {
         var drafts = PhotoDrafts()
         drafts.startLoading(3)
 
-        drafts.finishLoading([Data([1]), Data([2])], unread: 1)
+        let leftOut = drafts.finishLoading([Data([1]), Data([2])], picked: 3)
 
         #expect(drafts.items.count == 2)
-        #expect(drafts.unreadCount == 1)
-        drafts.startLoading(1)
-        #expect(drafts.unreadCount == 0)
+        #expect(leftOut == 1)
     }
 
-    @Test("Given an unread photo reported, when a photo is removed or made the cover, then the report goes")
-    func unreadReportClearsOnChange() throws {
-        var drafts = PhotoDrafts(storedIDs: ["a", "b"])
-        drafts.finishLoading(unread: 2)
-        #expect(drafts.unreadCount == 2)
+    @Test("Given a photo picked that can't be read, when the reading ends, then the entry is as it was: nothing to save")
+    func nothingReadableIsNoChange() {
+        var drafts = PhotoDrafts(storedIDs: ["a"])
+        drafts.startLoading(1)
 
-        drafts.makeCover(id: try #require(drafts.items.last?.id))
-        #expect(drafts.unreadCount == 0)
+        let leftOut = drafts.finishLoading([], picked: 1)
 
-        drafts.finishLoading(unread: 1)
-        drafts.remove(id: try #require(drafts.items.first?.id))
-        #expect(drafts.unreadCount == 0)
+        #expect(leftOut == 1)
+        #expect(drafts == PhotoDrafts(storedIDs: ["a"]))
+    }
+
+    @Test("Given photos loading, when the reading is given up, then nothing is reported left out")
+    func givenUpReportsNothing() {
+        var drafts = PhotoDrafts()
+        drafts.startLoading(2)
+
+        #expect(drafts.finishLoading() == 0)
     }
 
     @Test("Given photos that couldn't be opened, when the field says so, then it counts them in Greek and English")

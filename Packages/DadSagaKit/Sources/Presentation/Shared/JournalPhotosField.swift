@@ -16,6 +16,9 @@ struct JournalPhotosField: View {
     @State private var isShowingLibrary = false
     @State private var isShowingCamera = false
     @State private var viewer: PhotoViewerContent?
+    /// Picked photos the last pick couldn't open. A note for the dad, not part of the entry: it never counts as a
+    /// change to save, and it goes with the dad's next change to the photos (`change`).
+    @State private var unreadCount = 0
 
     static let squareSize: CGFloat = 64
 
@@ -34,10 +37,15 @@ struct JournalPhotosField: View {
             // Cancelled with the field: a sheet closed mid-load never writes into the next one.
             .task(id: pickedItems) { await load(pickedItems) }
             .photoViewer($viewer, loader: loader)
+            .onChange(of: unreadCount) { _, unread in
+                // Focus goes back to the field when the picker closes; VoiceOver hears the note as it appears.
+                guard unread > 0 else { return }
+                AccessibilityNotification.Announcement(labels.couldNotOpen(unread)).post()
+            }
             #if os(iOS)
             .fullScreenCover(isPresented: $isShowingCamera) {
                 CameraPicker { data in
-                    if let data { photos.append([data]) }
+                    if let data { change { $0.append([data]) } }
                     isShowingCamera = false
                 }
                 .ignoresSafeArea()
@@ -77,8 +85,8 @@ struct JournalPhotosField: View {
 
     /// Says how many picked photos couldn't be opened, and what to try, instead of leaving them out without a word.
     @ViewBuilder private var unreadNote: some View {
-        if photos.unreadCount > 0 {
-            Label(labels.couldNotOpen(photos.unreadCount), systemImage: "exclamationmark.triangle")
+        if unreadCount > 0 {
+            Label(labels.couldNotOpen(unreadCount), systemImage: "exclamationmark.triangle")
                 .font(DSFont.caption)
                 .foregroundStyle(DSColor.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -125,23 +133,23 @@ struct JournalPhotosField: View {
         .buttonStyle(.plain)
         .contextMenu {
             if !isCover {
-                Button(labels.makeCover, systemImage: "star") { photos.makeCover(id: photo.id) }
+                Button(labels.makeCover, systemImage: "star") { change { $0.makeCover(id: photo.id) } }
             }
-            Button(labels.remove, systemImage: "trash", role: .destructive) { photos.remove(id: photo.id) }
+            Button(labels.remove, systemImage: "trash", role: .destructive) { change { $0.remove(id: photo.id) } }
         }
         .accessibilityLabel(isCover ? label(for: index) + ", " + labels.cover : label(for: index))
         .accessibilityActions {
             if !isCover {
-                Button(labels.makeCover) { photos.makeCover(id: photo.id) }
+                Button(labels.makeCover) { change { $0.makeCover(id: photo.id) } }
             }
-            Button(labels.remove) { photos.remove(id: photo.id) }
+            Button(labels.remove) { change { $0.remove(id: photo.id) } }
         }
     }
 
     /// A visible way to remove the cover, as the field had before; the squares' menus hold the same and more.
     private func coverMenu(_ cover: PhotoDraft) -> some View {
         Menu {
-            Button(labels.remove, systemImage: "trash", role: .destructive) { photos.remove(id: cover.id) }
+            Button(labels.remove, systemImage: "trash", role: .destructive) { change { $0.remove(id: cover.id) } }
         } label: {
             Label(labels.remove, systemImage: "ellipsis")
                 .labelStyle(.iconOnly)
@@ -193,6 +201,12 @@ struct JournalPhotosField: View {
         .controlSize(.large)
     }
 
+    /// A change the dad makes to the photos; the note about photos that couldn't be opened goes with it.
+    private func change(_ edit: (inout PhotoDrafts) -> Void) {
+        unreadCount = 0
+        edit(&photos)
+    }
+
     private func label(for index: Int) -> String {
         labels.viewer.photoLabel(number: index + 1, of: photos.items.count, entry: entry)
     }
@@ -205,7 +219,7 @@ struct JournalPhotosField: View {
     /// anything else would fail when the entry is saved.
     private func load(_ items: [PhotosPickerItem]) async {
         guard !items.isEmpty else { return }
-        photos.startLoading(items.count)
+        change { $0.startLoading(items.count) }
         let loaded = await withTaskGroup(of: (Int, Data?).self) { group in
             for (index, item) in items.enumerated() {
                 group.addTask { (index, try? await item.loadTransferable(type: Data.self)) }
@@ -223,7 +237,7 @@ struct JournalPhotosField: View {
             return
         }
         let readable = loaded.compactMap(\.self).filter(DecodedImage.isImage)
-        photos.finishLoading(readable, unread: items.count - readable.count)
+        unreadCount = photos.finishLoading(readable, picked: items.count)
         pickedItems = []
     }
 
