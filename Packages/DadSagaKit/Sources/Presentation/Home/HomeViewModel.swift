@@ -22,7 +22,12 @@ public final class HomeViewModel {
     public internal(set) var selectedChildID: UUID?
     /// The world map, while it is open.
     public internal(set) var worldMap: WorldMapContent?
-    /// The offer of a weekly reminder, until the dad answers it.
+    /// The offer of a saga film, until the dad answers it (ADR-0037 §5).
+    public internal(set) var sagaOffer: SagaFilmOffer?
+    /// The film offers the dad answered in this session.
+    var answeredSagaOffers: Set<String> = []
+    /// The offer of a weekly reminder, until the dad answers it. It waits while a film is offered: home shows one
+    /// offer at a time.
     public internal(set) var reminderOffer: ReminderOffer?
     /// The dad answered the reminder offer in this session.
     var reminderAnswered = false
@@ -149,9 +154,13 @@ public final class HomeViewModel {
                 state = .failed(message: strings.text("No profile found."))
                 return
             }
-            let offer = await makeReminderOffer(children: overview.profile.children, progress: overview.progress)
+            let sagaOffer = makeSagaOffer(overview)
+            let reminderOffer = sagaOffer == nil
+                ? await makeReminderOffer(children: overview.profile.children, progress: overview.progress)
+                : nil
             guard generation == loadGeneration else { return }
-            reminderOffer = offer
+            self.sagaOffer = sagaOffer
+            self.reminderOffer = reminderOffer
             selectedChildID = overview.child.id
             viewedWorldID = overview.isShowingCurrentWorld ? nil : overview.shownWorld?.id
             self.overview = overview

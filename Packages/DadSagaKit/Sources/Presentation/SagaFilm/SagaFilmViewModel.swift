@@ -11,6 +11,8 @@ import Observation
 @Observable
 public final class SagaFilmViewModel: Identifiable {
     public private(set) var state: SagaFilmViewState = .loading
+    /// The sheet's title, whatever it shows.
+    public var title: String { strings.text("Saga film") }
 
     /// The film last asked for, so "Try again" asks for the same one.
     private var request: SagaFilmRequest
@@ -30,6 +32,11 @@ public final class SagaFilmViewModel: Identifiable {
     /// Counts the films asked for, so only the newest answer is shown, and none once a film is being made.
     private var loads = 0
     private var leftTheApp = false
+    /// When the last film failed for a reason the sheet didn't know, while the choices still say so.
+    private var failedAt: Date?
+    /// iOS stops an app's drawing as it leaves the screen, so a film can fail a moment before the sheet hears that
+    /// the app left. For this long after a failure, the app going to the background still explains it.
+    private static let leavingGrace: TimeInterval = 3
 
     public init(
         request: SagaFilmRequest,
@@ -103,6 +110,7 @@ public final class SagaFilmViewModel: Identifiable {
             state = .made(
                 SagaFilmMade(
                     url: url,
+                    title: script.title,
                     format: script.format,
                     shareTitle: strings.text("Share or save"),
                     note: keepingNote,
@@ -110,11 +118,12 @@ public final class SagaFilmViewModel: Identifiable {
                 )
             )
         case .failure where leftTheApp:
-            showChoices(notice: strings.text("The film stopped when you left DadSaga."))
+            showChoices(notice: leftNotice)
         case .failure(let error) where error is CancellationError:
             showChoices(notice: nil)
         case .failure:
             showChoices(notice: strings.text("Couldn't make the film. Please try again."))
+            failedAt = now()
         }
     }
 
@@ -125,9 +134,16 @@ public final class SagaFilmViewModel: Identifiable {
 
     /// iOS doesn't draw for an app in the background, so the film stops; the choices then say why (ADR-0036 §10).
     public func appWentToBackground() {
-        guard case .making = state else { return }
-        leftTheApp = true
-        filmTask?.cancel()
+        switch state {
+        case .making:
+            leftTheApp = true
+            filmTask?.cancel()
+        case .ready:
+            guard let failedAt, now().timeIntervalSince(failedAt) <= Self.leavingGrace else { return }
+            showChoices(notice: leftNotice)
+        case .loading, .unavailable, .made:
+            break
+        }
     }
 
     /// From the finished film back to the choices. The film isn't kept.
@@ -159,6 +175,10 @@ public final class SagaFilmViewModel: Identifiable {
 
     private var strings: Strings { Strings(locale: locale) }
 
+    private var leftNotice: String {
+        strings.text("The film stopped when you left DadSaga.")
+    }
+
     private var keepingNote: String {
         strings.text("Made on this iPhone from your photos and notes. It isn't kept: share it or save it to Photos.")
     }
@@ -185,6 +205,7 @@ public final class SagaFilmViewModel: Identifiable {
 
     private func showChoices(notice: String?) {
         self.notice = notice
+        failedAt = nil
         guard let film else { return }
         state = .ready(setup(for: film))
     }
@@ -210,7 +231,6 @@ public final class SagaFilmViewModel: Identifiable {
         let children = film.profile.children
         let hasSomething = film.hasSomethingToShow
         return SagaFilmSetup(
-            title: strings.text("Saga film"),
             childLabel: strings.text("Child"),
             periodLabel: strings.text("Period"),
             formatLabel: strings.text("Format"),

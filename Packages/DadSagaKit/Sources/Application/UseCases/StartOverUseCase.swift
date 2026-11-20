@@ -1,7 +1,7 @@
 import Foundation
 
-/// Deletes the whole saga (profile, progress, wardrobe, photos, reminder and its pending notifications) so the app starts
-/// again from onboarding. Only the dad's own choice in Settings runs it (ADR-0030).
+/// Deletes the whole saga (profile, progress, wardrobe, photos, reminder and its pending notifications, and the answers
+/// to the film offers) so the app starts again from onboarding. Only the dad's own choice in Settings runs it (ADR-0030).
 public protocol StartOverUseCase: Sendable {
     func execute(on date: Date) async throws
 }
@@ -10,6 +10,7 @@ public struct DefaultStartOverUseCase: StartOverUseCase {
     private let eraser: any SagaEraser
     private let photoStore: any PhotoStore
     private let reminderSettings: any ReminderSettingsRepository
+    private let sagaOffers: any SagaOfferRepository
     private let schedule: any ScheduleWeeklyRemindersUseCase
     private let notificationScheduler: any NotificationScheduler
 
@@ -19,12 +20,14 @@ public struct DefaultStartOverUseCase: StartOverUseCase {
         eraser: any SagaEraser,
         photoStore: any PhotoStore,
         reminderSettings: any ReminderSettingsRepository,
+        sagaOffers: any SagaOfferRepository,
         schedule: any ScheduleWeeklyRemindersUseCase,
         notificationScheduler: any NotificationScheduler
     ) {
         self.eraser = eraser
         self.photoStore = photoStore
         self.reminderSettings = reminderSettings
+        self.sagaOffers = sagaOffers
         self.schedule = schedule
         self.notificationScheduler = notificationScheduler
     }
@@ -33,6 +36,8 @@ public struct DefaultStartOverUseCase: StartOverUseCase {
     public func execute(on date: Date) async throws {
         try await eraser.eraseAll()
         await reminderSettings.deleteAll()
+        // The answers were about the saga that is gone (ADR-0036 §7).
+        await sagaOffers.deleteAll()
         // Finds the reminder off and clears what is waiting.
         await schedule.execute(on: date)
         // Notes already shown name the children and link to them.

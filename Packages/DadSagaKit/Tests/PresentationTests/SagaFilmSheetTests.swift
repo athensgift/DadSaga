@@ -2,6 +2,7 @@ import Application
 import Domain
 import Foundation
 @testable import Presentation
+import Synchronization
 import Testing
 
 /// What both suites of the film sheet's tests share: a sheet over the fake renderer, and its state by name.
@@ -14,14 +15,15 @@ extension SagaFilmSheetTests {
     func makeSUT(
         _ getFilm: FakeGetSagaFilm = FakeGetSagaFilm(),
         childID: UUID? = nil,
-        locale: String = "el_GR"
+        locale: String = "el_GR",
+        now: @escaping @Sendable () -> Date = { FilmStub.today }
     ) -> SagaFilmViewModel {
         SagaFilmViewModel(
             request: SagaFilmRequest(childID: childID),
             getFilm: getFilm,
             renderer: renderer,
             locale: Locale(identifier: locale),
-            now: { FilmStub.today }
+            now: now
         )
     }
 
@@ -76,5 +78,16 @@ extension SagaFilmSheetTests {
 extension SagaFilmCard {
     func isOpening(period expected: String) -> Bool {
         if case .opening(_, let period, _) = self { period == expected } else { false }
+    }
+}
+
+/// A clock the test moves by hand.
+final class FilmClock: Sendable {
+    private let time = Mutex(FilmStub.today)
+
+    var now: Date { time.withLock(\.self) }
+
+    func advance(seconds: Double) {
+        time.withLock { $0 += seconds }
     }
 }

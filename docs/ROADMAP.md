@@ -38,15 +38,18 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 
 *Demonstrates:* platform depth and product quality.
 
-## Phase 3½: Saga video (ADR-0036)
+## Phase 3½: Saga video (ADR-0036) ✅
 - ✅ What goes in a film and when to offer it (Domain); the film's one query (Application)
 - ✅ An original theme made in code (`Tools/SagaTheme`), bundled in the `SagaMusic` target
 - ✅ `FilmKit`: on-device video drawn frame by frame (Core Image, `AVAssetWriter`), Ken Burns photos, cross-fades, music
 - ✅ Drawing the film (ADR-0037): an opening, a card for each first and boss, a montage of quest photos, credits; Reduce
   Motion keeps the photos still
-- The film sheet: watch, then export/share in 9:16 and 16:9
-- Triggers: on demand; one calm card on a birthday or when the child grows into the next world (by age, never by
-  quests or bosses done)
+- ✅ The film sheet (ADR-0037): choose a child, a period and 9:16 or 16:9, watch the film, then share or save it; it is
+  never kept, and leaving the app stops it
+- ✅ Triggers: on demand from the timeline; on home, one calm card for the family on a birthday or when a child grows
+  into the next world (by age, never by quests or bosses done), with the weekly reminder card waiting behind it
+- Still to check on an iPhone, not automatable: a 90-second film (time, memory, heat), leaving the app and locking the
+  screen mid-film, "Save Video" asking for Photos in el and en, Messages and AirDrop, VoiceOver on the sheet
 
 *Demonstrates:* media composition, which few mobile engineers have done.
 

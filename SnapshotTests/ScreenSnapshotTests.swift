@@ -6,9 +6,10 @@ import SwiftUI
 import Testing
 import UIKit
 
-/// The main screens (onboarding, home, the wardrobe, the timeline, settings) as images, so a change to how one looks
-/// shows up in review (ADR-0034). Each is drawn in Greek and light mode, in English and dark mode, and in English at
-/// the largest accessibility text size, which the accessibility audit does not check (ADR-0033).
+/// The main screens (onboarding, home with and without the film offer, the wardrobe, the timeline, settings and the
+/// film sheet) as images, so a change to how one looks shows up in review (ADR-0034). Each is drawn in Greek and
+/// light mode, in English and dark mode, and in English at the largest accessibility text size, which the
+/// accessibility audit does not check (ADR-0033).
 ///
 /// Run from the `DadSagaSnapshots` scheme, which fixes the region (en_US) and the time zone (UTC) on every Mac and in
 /// CI. A missing reference image is recorded and the test fails once; commit the new image under `__Snapshots__`.
@@ -49,9 +50,24 @@ struct ScreenSnapshotTests {
         let view = HomeView(
             viewModel: viewModel,
             makeWardrobe: { saga.wardrobe() },
+            makeSagaFilm: { saga.sagaFilm(request: $0) },
             settings: saga.settingsScreens
         )
         verify(view, look: look, named: "home")
+    }
+
+    @Test("Given a first birthday five days ago, when home opens, then it offers the film as recorded", arguments: Look.allCases)
+    func homeFilmOffer(look: Look) async throws {
+        let saga = try await SagaFixture(locale: look.locale).birthday()
+        let viewModel = saga.home()
+        await viewModel.onAppear()
+        let view = HomeView(
+            viewModel: viewModel,
+            makeWardrobe: { saga.wardrobe() },
+            makeSagaFilm: { saga.sagaFilm(request: $0) },
+            settings: saga.settingsScreens
+        )
+        verify(view, look: look, named: "home-film-offer")
     }
 
     @Test("Given a few weeks of play, when the wardrobe opens, then it looks as recorded", arguments: Look.allCases)
@@ -63,9 +79,34 @@ struct ScreenSnapshotTests {
 
     @Test("Given a few weeks of play, when the timeline opens, then it looks as recorded", arguments: Look.allCases)
     func timeline(look: Look) async throws {
-        let viewModel = try await SagaFixture(locale: look.locale).played().timeline()
+        let saga = try await SagaFixture(locale: look.locale).played()
+        let viewModel = saga.timeline()
         await viewModel.onAppear()
-        verify(TimelineView(viewModel: viewModel), look: look, named: "timeline")
+        let view = TimelineView(viewModel: viewModel, makeSagaFilm: { saga.sagaFilm(request: $0) })
+        verify(view, look: look, named: "timeline")
+    }
+
+    @Test("Given two children and a birthday, when the film sheet opens, then it looks as recorded", arguments: Look.allCases)
+    func filmSheet(look: Look) async throws {
+        let viewModel = try await SagaFixture(locale: look.locale).birthday().sagaFilm()
+        await viewModel.onAppear()
+        verify(SagaFilmSheet(viewModel: viewModel, onClose: {}), look: look, named: "film-sheet")
+    }
+
+    /// The finished film is not drawn here: `VideoPlayer` is composited by Core Animation (ADR-0037 §7).
+    @Test("Given a film 40 % made, when the film sheet shows it, then it looks as recorded", arguments: Look.allCases)
+    func filmSheetMaking(look: Look) async throws {
+        let viewModel = try await SagaFixture(locale: look.locale).birthday().sagaFilm(renderer: StalledFilmRenderer())
+        await viewModel.onAppear()
+        let making = Task { await viewModel.makeFilm(reduceMotion: false) }
+        while !viewModel.isMaking(atLeast: 0.4) {
+            try await Task.sleep(for: .milliseconds(10))
+        }
+
+        verify(SagaFilmSheet(viewModel: viewModel, onClose: {}), look: look, named: "film-sheet-making")
+
+        viewModel.cancel()
+        await making.value
     }
 
     @Test("Given a few weeks of play, when settings open, then they look as recorded", arguments: Look.allCases)
@@ -93,6 +134,23 @@ struct ScreenSnapshotTests {
             named: look.rawValue,
             fileID: fileID, file: file, testName: name, line: line, column: column
         )
+    }
+}
+
+/// Reports 40 % and then waits until the film is cancelled, so the sheet can be drawn while a film is being made.
+private struct StalledFilmRenderer: SagaFilmRendering {
+    func render(_ script: SagaFilmScript, progress: @escaping @MainActor @Sendable (Double) -> Void) async throws -> URL {
+        await progress(0.4)
+        try await Task.sleep(for: .seconds(600))
+        throw CancellationError()
+    }
+
+    func discardFilms() async {}
+}
+
+private extension SagaFilmViewModel {
+    func isMaking(atLeast progress: Double) -> Bool {
+        if case .making(let making) = state { making.progress >= progress } else { false }
     }
 }
 

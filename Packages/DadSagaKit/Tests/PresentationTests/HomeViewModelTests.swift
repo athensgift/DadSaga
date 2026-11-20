@@ -329,16 +329,18 @@ func makeHomeViewModel(
     profile: PlayerProfile?,
     progress: FakeProgress,
     locale: String = "el_GR",
-    reminder: ReminderUseCases = .neverOffered
+    reminder: ReminderUseCases = .neverOffered,
+    film: FakeFilmOffers = FakeFilmOffers()
 ) -> HomeViewModel {
     HomeViewModel(
         useCases: HomeViewModel.UseCases(
-            getOverview: FakeHomeOverview(profile: profile, progress: progress),
+            getOverview: FakeHomeOverview(profile: profile, progress: progress, film: film),
             completeQuest: progress,
             defeatBoss: progress,
             deleteEvent: progress,
             moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
-            reminder: reminder
+            reminder: reminder,
+            answerSagaOffer: film
         ),
         locale: Locale(identifier: locale),
         now: { HeroStub.today }

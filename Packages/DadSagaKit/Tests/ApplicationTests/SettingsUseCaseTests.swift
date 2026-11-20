@@ -9,11 +9,47 @@ extension WeeklyReminderUseCaseTests {
         eraser: SpySagaEraser,
         photos: SpyPhotoStore,
         schedule: any ScheduleWeeklyRemindersUseCase,
-        scheduler: any NotificationScheduler
+        scheduler: any NotificationScheduler,
+        offers: FakeSagaOffers = FakeSagaOffers()
     ) -> DefaultStartOverUseCase {
         DefaultStartOverUseCase(
-            eraser: eraser, photoStore: photos, reminderSettings: settings, schedule: schedule, notificationScheduler: scheduler
+            eraser: eraser, photoStore: photos, reminderSettings: settings, sagaOffers: offers, schedule: schedule,
+            notificationScheduler: scheduler
         )
+    }
+
+    @Test("Given film offers the dad answered, when starting over, then none is remembered")
+    func startOverForgetsFilmOffers() async throws {
+        try await onboard([lena])
+        let scheduler = FakeNotificationScheduler(status: .allowed)
+        let offers = FakeSagaOffers()
+        let answer = DefaultAnswerSagaOfferUseCase(repository: offers)
+        await answer.execute(occasionID: "lena/birthday/1")
+        await answer.execute(occasionID: "lena/world/w1")
+
+        try await startOver(
+            eraser: SpySagaEraser(), photos: SpyPhotoStore(), schedule: schedule(scheduler), scheduler: scheduler,
+            offers: offers
+        ).execute(on: today)
+
+        #expect(await offers.answeredOccasionIDs().isEmpty)
+    }
+
+    @Test("Given the store cannot be erased, when starting over, then the answered film offers stay answered")
+    func failedEraseKeepsFilmOffers() async throws {
+        try await onboard([lena])
+        let scheduler = FakeNotificationScheduler(status: .allowed)
+        let offers = FakeSagaOffers()
+        await DefaultAnswerSagaOfferUseCase(repository: offers).execute(occasionID: "lena/birthday/1")
+
+        await #expect(throws: SpySagaEraser.Failure.self) {
+            try await startOver(
+                eraser: SpySagaEraser(fails: true), photos: SpyPhotoStore(), schedule: schedule(scheduler),
+                scheduler: scheduler, offers: offers
+            ).execute(on: today)
+        }
+
+        #expect(await offers.answeredOccasionIDs() == ["lena/birthday/1"])
     }
 
     @Test("Given photos, a reminder, waiting notes and one already shown, when starting over, then all of it is gone")

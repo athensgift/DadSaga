@@ -12,23 +12,29 @@ public struct HomeView: View {
     @State private var isWide = false
     @State var wardrobeViewModel: WardrobeViewModel?
     @State var settingsViewModel: SettingsViewModel?
+    /// The film sheet, opened from the film offer.
+    @State var sagaFilm: SagaFilmViewModel?
     let makeWardrobe: MakeWardrobe
+    let makeSagaFilm: SagaFilmSheet.MakeViewModel
     let settings: SettingsScreens
     let pendingLink: PendingLink?
     let onLinkHandled: @MainActor () -> Void
 
     /// - Parameters:
     ///   - makeWardrobe, settings: build the screens behind the toolbar buttons.
+    ///   - makeSagaFilm: builds the film sheet for the film home offers.
     ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` runs once it is open.
     public init(
         viewModel: HomeViewModel,
         makeWardrobe: @escaping MakeWardrobe,
+        makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
         settings: SettingsScreens,
         pendingLink: PendingLink? = nil,
         onLinkHandled: @escaping @MainActor () -> Void = {}
     ) {
         _viewModel = State(initialValue: viewModel)
         self.makeWardrobe = makeWardrobe
+        self.makeSagaFilm = makeSagaFilm
         self.settings = settings
         self.pendingLink = pendingLink
         self.onLinkHandled = onLinkHandled
@@ -72,6 +78,7 @@ public struct HomeView: View {
         .sheet(item: $settingsViewModel, onDismiss: reloadAfterSheet) { settingsModel in
             SettingsView(viewModel: settingsModel, pages: settings.pages) { settingsViewModel = nil }
         }
+        .sagaFilmSheet($sagaFilm)
         .onGeometryChange(for: Bool.self) { $0.size.width >= twoColumnWidth } action: { isWide = $0 }
         .task { await viewModel.onAppear() }
         .task(id: pendingLink) { await openPendingLink() }
@@ -203,12 +210,7 @@ public struct HomeView: View {
             if !content.childTabs.isEmpty {
                 ChildPicker(content: content) { id in Task { await viewModel.selectChild(id: id) } }
             }
-            if let offer = viewModel.reminderOffer {
-                ReminderOfferCard(offer: offer) { accept in
-                    Task { await viewModel.answerReminderOffer(accept: accept) }
-                }
-                .transition(.opacity.combined(with: .scale(scale: 0.95)))
-            }
+            offerCard
             WorldHeader(content: content) {
                 viewModel.openMap()
             } onBack: {
@@ -244,6 +246,7 @@ public struct HomeView: View {
                 .padding(.top, DSSpacing.l)
         }
         .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.reminderOffer)
+        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.sagaOffer)
     }
 }
 
@@ -304,9 +307,11 @@ extension HomeView {
     /// Closes this screen's own sheets, then lets the presenter open the link (ADR-0023).
     func openPendingLink() async {
         guard let pendingLink else { return }
-        let hadSheet = wardrobeViewModel != nil || settingsViewModel != nil || viewModel.worldMap != nil
+        let hadSheet = wardrobeViewModel != nil || settingsViewModel != nil || sagaFilm != nil
+            || viewModel.worldMap != nil
         wardrobeViewModel = nil
         settingsViewModel = nil
+        sagaFilm = nil
         viewModel.closeMap()
         // A new sheet cannot appear while the old one is still sliding away.
         if hadSheet { try? await Task.sleep(for: .milliseconds(450)) }

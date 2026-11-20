@@ -3,10 +3,13 @@ import Data
 import Domain
 import Foundation
 import Presentation
+import SagaMusic
+import UIKit
 
 /// One dad's saga, the same on every run: a fixed day, a four-month-old, three quests and two firsts, in a
 /// store in memory, with the app's real content. The screens are built the way `AppContainer` builds them, with the
-/// locale and the clock passed in instead of read from the phone.
+/// locale and the clock passed in instead of read from the phone. `birthday()` and `filmed()` are other sagas, for
+/// the film offer and the film's cards.
 @MainActor
 struct SagaFixture {
     /// 15 June 2026, noon, UTC. The `DadSagaSnapshots` scheme runs in UTC, so days and ages never move.
@@ -27,6 +30,7 @@ struct SagaFixture {
     )
     private let reminderSettings: any ReminderSettingsRepository
     private let preferences: any PreferencesRepository
+    private let sagaOffers: any SagaOfferRepository
     private let scheduler = SilentScheduler()
 
     init(locale: Locale) {
@@ -34,6 +38,7 @@ struct SagaFixture {
         let defaults = UserDefaults(suiteName: "dadsaga.snapshots." + UUID().uuidString) ?? .standard
         reminderSettings = UserDefaultsReminderSettingsRepository(defaults: defaults)
         preferences = UserDefaultsPreferencesRepository(defaults: defaults)
+        sagaOffers = UserDefaultsSagaOfferRepository(defaults: defaults)
     }
 
     private var reminder: ReminderUseCases {
@@ -71,7 +76,66 @@ struct SagaFixture {
         return self
     }
 
+    /// The saga of `played()`, with more for a film to show: a first with a photo and a boss beaten.
+    func filmed() async throws -> SagaFixture {
+        _ = try await played()
+        let moment = DefaultCaptureMomentUseCase(
+            contentRepository: content, progressRepository: store.progress, photoStore: photos
+        )
+        _ = try await moment.execute(
+            CaptureMomentRequest(firstID: "f-laugh", childID: Self.child.id, date: Self.day(12), photo: Self.photo()),
+            now: Self.today
+        )
+        let boss = DefaultDefeatBossUseCase(
+            contentRepository: content, progressRepository: store.progress, photoStore: photos
+        )
+        _ = try await boss.execute(
+            bossID: "b-w1-first-fever", childID: Self.child.id, on: Self.day(15), journal: JournalInput()
+        )
+        return self
+    }
+
+    /// Another family: Alex turned one five days ago and has a baby sister. Something was done in his first year, so
+    /// home offers its film (ADR-0037 §5).
+    func birthday() async throws -> SagaFixture {
+        let alex = Child(
+            id: Self.child.id, name: "Alex", birthDate: Self.day(370), gender: .boy, skinTone: .medium
+        )
+        let maya = Child(
+            id: UUID(uuidString: "22222222-2222-2222-2222-222222222222") ?? UUID(),
+            name: "Maya",
+            birthDate: Self.day(60),
+            gender: .girl,
+            skinTone: .mediumDark
+        )
+        let profile = PlayerProfile(children: [alex, maya], heroClassID: "h-super", dadSkinTone: .mediumLight)
+        try await DefaultSaveProfileUseCase(contentRepository: content, profileRepository: store.profiles)
+            .execute(profile, on: Self.day(30))
+        _ = try await DefaultCompleteQuestUseCase(
+            contentRepository: content, progressRepository: store.progress, photoStore: photos
+        ).execute(
+            questID: "q-w2-book-hero", childID: alex.id, on: Self.day(20), journal: JournalInput(note: "The bear book, twice")
+        )
+        _ = try await DefaultCaptureMomentUseCase(
+            contentRepository: content, progressRepository: store.progress, photoStore: photos
+        ).execute(CaptureMomentRequest(firstID: "f-first-word", childID: alex.id, date: Self.day(45)), now: Self.today)
+        return self
+    }
+
     static func day(_ daysAgo: Double) -> Date { today.addingTimeInterval(-daysAgo * 86_400) }
+
+    /// A photo made here, so no real one is kept in the repository: a plain warm picture, taller than wide.
+    private static func photo() -> Data? {
+        let size = CGSize(width: 600, height: 800)
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        return UIGraphicsImageRenderer(size: size, format: format).image { context in
+            UIColor(red: 0.93, green: 0.72, blue: 0.45, alpha: 1).setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            UIColor(red: 0.98, green: 0.9, blue: 0.7, alpha: 1).setFill()
+            context.cgContext.fillEllipse(in: CGRect(x: 150, y: 200, width: 300, height: 300))
+        }.jpegData(compressionQuality: 0.8)
+    }
 
     // MARK: Screens
 
@@ -92,7 +156,8 @@ struct SagaFixture {
                     contentRepository: content,
                     profileRepository: store.profiles,
                     progressRepository: store.progress,
-                    outfitRepository: store.outfit
+                    outfitRepository: store.outfit,
+                    sagaOfferRepository: sagaOffers
                 ),
                 completeQuest: DefaultCompleteQuestUseCase(
                     contentRepository: content, progressRepository: store.progress, photoStore: photos
@@ -108,8 +173,28 @@ struct SagaFixture {
                     update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photos),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photos)
                 ),
-                reminder: reminder
+                reminder: reminder,
+                answerSagaOffer: DefaultAnswerSagaOfferUseCase(repository: sagaOffers)
             ),
+            locale: locale,
+            now: { Self.today }
+        )
+    }
+
+    /// The film sheet over `renderer`, which stands in for the real one: a snapshot needs no film written.
+    func sagaFilm(
+        request: SagaFilmRequest = SagaFilmRequest(), renderer: any SagaFilmRendering = NoFilmRenderer()
+    ) -> SagaFilmViewModel {
+        SagaFilmViewModel(
+            request: request,
+            getFilm: DefaultGetSagaFilmUseCase(
+                contentRepository: content,
+                profileRepository: store.profiles,
+                progressRepository: store.progress,
+                outfitRepository: store.outfit,
+                soundtrackRepository: BundledSoundtrackRepository(bundle: SagaMusic.bundle)
+            ),
+            renderer: renderer,
             locale: locale,
             now: { Self.today }
         )
@@ -123,6 +208,7 @@ struct SagaFixture {
                     eraser: store.eraser,
                     photoStore: photos,
                     reminderSettings: reminderSettings,
+                    sagaOffers: sagaOffers,
                     schedule: NoSchedule(),
                     notificationScheduler: scheduler
                 )
@@ -204,4 +290,13 @@ private struct SilentScheduler: NotificationScheduler {
 
 private struct NoSchedule: ScheduleWeeklyRemindersUseCase {
     func execute(on date: Date) async {}
+}
+
+/// Makes no film: the screens that only open the film sheet never ask for one.
+struct NoFilmRenderer: SagaFilmRendering {
+    func render(_ script: SagaFilmScript, progress: @escaping @MainActor @Sendable (Double) -> Void) async throws -> URL {
+        throw CancellationError()
+    }
+
+    func discardFilms() async {}
 }

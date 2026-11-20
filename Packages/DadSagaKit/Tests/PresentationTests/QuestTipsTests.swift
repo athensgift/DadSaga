@@ -41,7 +41,8 @@ struct QuestTipsTests {
                 defeatBoss: progress,
                 deleteEvent: progress,
                 moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
-                reminder: .neverOffered
+                reminder: .neverOffered,
+                answerSagaOffer: FakeFilmOffers()
             ),
             locale: Locale(identifier: "el_GR"),
             now: { HeroStub.today }

@@ -123,4 +123,66 @@ struct SagaOccasionTests {
         #expect(birthday.id != world.id)
         #expect(birthday.childID == saga.child.id)
     }
+
+    // MARK: A family
+
+    /// Νίκος is born `days` after Άννα.
+    func brother(bornDaysLater days: Int) -> Child {
+        Child(name: "Νίκος", birthDate: saga.date(months: 0, days: days))
+    }
+
+    func familyOccasion(
+        _ children: [Child], _ events: [ProgressEvent], months: Int, days: Int = 0, answered: Set<String> = []
+    ) -> SagaOccasion? {
+        SagaOccasions.latest(
+            forFamily: children, events: events, catalog: saga.catalog, on: saga.date(months: months, days: days),
+            answered: answered, calendar: saga.calendar
+        )
+    }
+
+    @Test("Given Anna's birthday today and Niko's ten days ago, when home looks, then Anna's is offered")
+    func newestOfTheFamily() {
+        let niko = brother(bornDaysLater: -10)
+        let events = [saga.event(.quest(id: "q1"), months: 18), saga.event(.quest(id: "q1"), months: 18, child: niko)]
+
+        let occasion = familyOccasion([niko, saga.child], events, months: 24)
+
+        #expect(occasion?.childID == saga.child.id)
+        #expect(occasion?.kind == .birthday(years: 2))
+    }
+
+    @Test("Given the dad answered Anna's newer occasion, when Niko's older one still shows, then nothing is offered")
+    func anOlderSiblingOccasionNeverReplaces() throws {
+        let niko = brother(bornDaysLater: -10)
+        let events = [saga.event(.quest(id: "q1"), months: 18), saga.event(.quest(id: "q1"), months: 18, child: niko)]
+        let annas = try #require(familyOccasion([niko, saga.child], events, months: 24))
+
+        #expect(familyOccasion([niko, saga.child], events, months: 24, answered: [annas.id]) == nil)
+    }
+
+    @Test("Given twins with a birthday today, when the first twin's is answered, then the second's shows; then none")
+    func twins() throws {
+        let twin = saga.sibling
+        let events = [saga.event(.quest(id: "q1"), months: 18), saga.event(.first(id: "f1"), months: 20, child: twin)]
+        let family = [saga.child, twin]
+
+        let first = try #require(familyOccasion(family, events, months: 24, days: 3))
+        #expect(first.childID == saga.child.id)
+
+        let second = try #require(familyOccasion(family, events, months: 24, days: 3, answered: [first.id]))
+        #expect(second.childID == twin.id)
+        #expect(second.kind == .birthday(years: 2))
+
+        #expect(familyOccasion(family, events, months: 24, days: 3, answered: [first.id, second.id]) == nil)
+    }
+
+    @Test("Given a birthday today for a child with nothing in that year, when home looks, then a sibling's older one shows")
+    func emptyPeriodsDoNotCount() {
+        let niko = brother(bornDaysLater: -10)
+        let events = [saga.event(.quest(id: "q1"), months: 18, child: niko)]
+
+        #expect(familyOccasion([saga.child, niko], events, months: 24)?.childID == niko.id)
+        #expect(familyOccasion([saga.child], events, months: 24) == nil)
+        #expect(familyOccasion([], events, months: 24) == nil)
+    }
 }
