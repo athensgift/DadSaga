@@ -5,13 +5,16 @@ import SwiftUI
 /// Home: the dad's hero and progress, then what he can play today.
 /// On wide screens (iPhone Duo inner display, landscape) it splits into two equal columns, so neither column
 /// runs across the middle of the display, where the Duo folds like a book. Half-open like a laptop, the fold runs
-/// across instead: the hero stands above it and the adventure lies below it (ADR-0043).
+/// across instead: the hero stands above it and the adventure lies below it (ADR-0043), and the same two panes stay
+/// when the Duo is opened flat and held upright (ADR-0045).
 public struct HomeView: View {
     @State var viewModel: HomeViewModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var width: CGFloat = 0
     @State private var fold: HorizontalFold?
+    /// Where the fold runs across home, also while the device lies flat.
+    @State private var flatFold: HorizontalFold?
     @State var settingsViewModel: SettingsViewModel?
     /// The film sheet, opened from the film offer.
     @State var sagaFilm: SagaFilmViewModel?
@@ -56,6 +59,9 @@ public struct HomeView: View {
             // Read where the panes are placed, so the fold is in their coordinates.
             .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
             .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum) { fold = $0 }
+            .onHorizontalFoldChange(
+                minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum, whileFlat: true
+            ) { flatFold = $0 }
             .background(DSColor.background)
             .safeAreaInset(edge: .bottom) { undoBar }
             .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
@@ -117,7 +123,7 @@ public struct HomeView: View {
     }
 
     private var arrangement: HomeArrangement {
-        HomeArrangement.make(width: width, fold: fold)
+        HomeArrangement.make(width: width, fold: fold, flatFold: flatFold)
     }
 
     @ViewBuilder
