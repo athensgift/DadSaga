@@ -1,8 +1,8 @@
 import XCTest
 
-/// Runs Xcode's accessibility audit on the main screens (onboarding, home, the world map, a quest, the wardrobe,
-/// settings, the timeline with an entry, and the film sheet before and after a film is made): VoiceOver labels and
-/// traits, contrast, hit regions (ADR-0033, ADR-0037 §7).
+/// Runs Xcode's accessibility audit on the main screens (onboarding, home, the world map, a quest, settings,
+/// "Your hero", the wardrobe, the timeline with an entry, and the film sheet before and after a film is made):
+/// VoiceOver labels and traits, contrast, hit regions (ADR-0033, ADR-0037 §7, ADR-0044).
 /// The app starts on data of its own (`DeviceData`), empty, so each run begins in onboarding. It completes the quest
 /// it opens, so the timeline has an entry and a film can be made of it.
 @MainActor
@@ -42,12 +42,15 @@ final class AccessibilityAuditTests: XCTestCase {
         tap(app.buttons["I did it!"])
         sleep(1)
 
-        app.navigationBars.buttons["Wardrobe"].tap()
-        audit("Wardrobe")
-        close()
-
         app.navigationBars.buttons["Settings"].tap()
         audit("Settings")
+        // Your hero and the wardrobe are pages inside Settings (ADR-0044).
+        tap(app.buttons["Your hero"])
+        audit("Your hero")
+        back(from: "Your hero")
+        tap(app.buttons["Wardrobe"])
+        audit("Wardrobe")
+        back(from: "Wardrobe")
         close()
 
         // Home scrolled down for the quest, which shrinks the tab bar to its current tab.
@@ -134,6 +137,12 @@ final class AccessibilityAuditTests: XCTestCase {
         let grabber = close.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0))
             .withOffset(CGVector(dx: 120, dy: -8))
         grabber.press(forDuration: 0.1, thenDragTo: app.windows.firstMatch.coordinate(withNormalizedOffset: .zero))
+        sleep(1)
+    }
+
+    /// The back button of a page pushed inside a sheet, found in that page's own bar: home's bar is underneath.
+    private func back(from title: String) {
+        app.navigationBars[title].buttons.firstMatch.tap()
         sleep(1)
     }
 

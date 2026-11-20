@@ -3,8 +3,7 @@
 **Status:** Accepted (2026-11-20). The owner tried ADR-0043 on the inner display and asked for home, open and upright,
 to show "the avatar above, the rest below" instead of two columns. Changes ADR-0011 (two columns from 600 pt: not
 on the Duo's inner display held upright), ADR-0043 §1 (the reader can also report the fold while the device lies
-flat), §3 (home open flat in portrait) and its Consequences (folding home no longer swaps columns for rows). Numbered 0045 because 0044 is taken by a branch
-in progress.
+flat), §3 (home open flat in portrait) and its Consequences (folding home no longer swaps columns for rows).
 
 ## Context
 - ADR-0043 gave home two panes above and below the fold while the Duo is half-open like a laptop, and kept ADR-0011's

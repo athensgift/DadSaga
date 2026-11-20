@@ -6,14 +6,14 @@ import SwiftUI
 struct HeroHeadgear: View {
     let style: HeroAvatar.Style
     let pose: HeroPose
-    @Environment(\.avatarSkin) private var skin
+    @Environment(\.heroFeatures) private var features
 
     var body: some View {
         switch style {
-        case .hero: quiff
+        case .hero: if features.hair != .shaved { quiff }
         case .cool: capAndShades
         case .strong: headband
-        case .smart: glassesAndIdea
+        case .smart: idea
         case .chef: toque
         case .fixer: hardHat
         }
@@ -21,7 +21,7 @@ struct HeroHeadgear: View {
 
     private var quiff: some View {
         Ellipse()
-            .fill(skin.hair)
+            .fill(features.hairColor.color)
             .frame(width: 20, height: 11)
             .rotationEffect(.degrees(-18 + pose.sway * 0.5))
             .offset(x: 5, y: -51)
@@ -62,19 +62,14 @@ struct HeroHeadgear: View {
         }
     }
 
-    private var glassesAndIdea: some View {
-        ZStack {
-            ForEach([-8.0, 8.0], id: \.self) { side in
-                Circle().stroke(DSColor.heroInk, lineWidth: 1.8).frame(width: 13, height: 13).offset(x: side, y: -28)
-            }
-            Rectangle().fill(DSColor.heroInk).frame(width: 4, height: 1.8).offset(y: -28)
-            Image(systemName: "lightbulb.fill")
-                .font(.system(size: 15))
-                .foregroundStyle(DSColor.heroGold)
-                .opacity(0.35 + 0.65 * pose.glow)
-                .shadow(color: DSColor.heroGold.opacity(0.8 * pose.glow), radius: 6 * pose.glow)
-                .offset(y: -66)
-        }
+    /// Smart Dad's glasses are on his face (`HeroHead`); the bulb is his own.
+    private var idea: some View {
+        Image(systemName: "lightbulb.fill")
+            .font(.system(size: 15))
+            .foregroundStyle(DSColor.heroGold)
+            .opacity(0.35 + 0.65 * pose.glow)
+            .shadow(color: DSColor.heroGold.opacity(0.8 * pose.glow), radius: 6 * pose.glow)
+            .offset(y: -66)
     }
 
     private var toque: some View {

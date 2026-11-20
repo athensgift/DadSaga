@@ -12,6 +12,7 @@ public struct HomeContent: Equatable, Sendable {
     public let heroTagline: String
     public let heroLook: HeroLook
     public let heroSkin: SkinToneChoice
+    public let heroAppearance: DadAppearanceChoice
     /// Earned gear, one per skill at most.
     public let heroGear: [HeroGearLook]
     /// Bosses defeated with any child: one medal each.
@@ -26,7 +27,6 @@ public struct HomeContent: Equatable, Sendable {
     /// Name and age of the selected child, shown above their quests when there are several children.
     public let selectedChildLine: String?
     public let familyTitle: String
-    public let wardrobeTitle: String
     public let settingsTitle: String
     public let level: Int
     /// e.g. "Επίπεδο 2".

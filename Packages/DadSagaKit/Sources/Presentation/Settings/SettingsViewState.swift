@@ -13,6 +13,7 @@ public struct SettingsContent: Equatable, Sendable {
     public let reminderTitle: String
     public let heroSection: String
     public let heroTitle: String
+    public let wardrobeTitle: String
     public let familyTitle: String
     /// `nil` when none of its rows can be offered yet.
     public let support: SupportSection?

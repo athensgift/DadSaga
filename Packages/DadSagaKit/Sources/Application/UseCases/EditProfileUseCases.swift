@@ -6,10 +6,10 @@ public enum ProfileEditError: Error, Equatable {
     case noProfile
 }
 
-/// Changes the dad's hero and skin tone. Progress and wardrobe are untouched: a class is only an identity and a look
-/// (ADR-0008, ADR-0030).
+/// Changes the dad's hero, skin tone and look. Progress and wardrobe are untouched: a class is only an identity and a
+/// look (ADR-0008, ADR-0030, ADR-0044).
 public protocol UpdateHeroUseCase: Sendable {
-    func execute(heroClassID: String, skinTone: SkinTone, on date: Date) async throws
+    func execute(heroClassID: String, skinTone: SkinTone, appearance: DadAppearance, on date: Date) async throws
 }
 
 /// Changes the children and keeps the dad's hero.
@@ -24,10 +24,11 @@ public struct DefaultUpdateHeroUseCase: UpdateHeroUseCase {
         editor = ProfileEditor(contentRepository: contentRepository, profileRepository: profileRepository)
     }
 
-    public func execute(heroClassID: String, skinTone: SkinTone, on date: Date) async throws {
+    public func execute(heroClassID: String, skinTone: SkinTone, appearance: DadAppearance, on date: Date) async throws {
         try await editor.edit(on: date) { profile in
             profile.heroClassID = heroClassID
             profile.dadSkinTone = skinTone
+            profile.dadAppearance = appearance
         }
     }
 }
