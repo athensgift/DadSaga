@@ -44,7 +44,7 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 
 ## Phase 3½: Saga video (ADR-0036) ✅
 - ✅ What goes in a film and when to offer it (Domain); the film's one query (Application)
-- ✅ An original theme made in code (`Tools/SagaTheme`), bundled in the `SagaMusic` target
+- ✅ An original theme made in code (`Tools/SagaMusic`), bundled in the `SagaMusic` target
 - ✅ `FilmKit`: on-device video drawn frame by frame (Core Image, `AVAssetWriter`), Ken Burns photos, cross-fades, music
 - ✅ Drawing the film (ADR-0037): an opening, a card for each first and boss, a montage of quest photos, credits; Reduce
   Motion keeps the photos still
