@@ -75,7 +75,7 @@ public final class TimelineViewModel {
         errorMessage = nil
         let message: String
         switch entry.kind {
-        case .first where entry.photoID != nil || entry.note != nil:
+        case .first where !entry.photoIDs.isEmpty || entry.note != nil:
             message = strings.text(
                 """
                 Your photo and note will be deleted with it, for good. Its \(entry.xp) XP will be removed too.
@@ -122,7 +122,7 @@ public final class TimelineViewModel {
             id: id,
             title: title(of: entry),
             note: entry.note ?? "",
-            photoID: entry.photoID,
+            photoIDs: entry.photoIDs,
             labels: JournalLabels(locale: locale),
             saveTitle: strings.text("Save")
         )
@@ -136,13 +136,8 @@ public final class TimelineViewModel {
         guard let editor = journalEditor, !isSaving else { return }
         isSaving = true
         defer { isSaving = false }
-        let change: PhotoChange = switch photo {
-        case .keep: .keep
-        case .remove: .remove
-        case .replace(let data): .replace(data)
-        }
         do {
-            try await updateJournal.execute(eventID: editor.id, note: note, photo: change)
+            try await updateJournal.execute(eventID: editor.id, note: note, photos: photo.photos(keeping: editor.photoIDs))
             journalEditor = nil
             await onAppear()
         } catch {
@@ -225,7 +220,7 @@ public final class TimelineViewModel {
             subtitle: [child, day, detail].compactMap(\.self).joined(separator: " · "),
             badge: "+\(entry.xp) XP",
             symbol: symbol,
-            photoID: entry.photoID
+            photoID: entry.coverPhotoID
         )
     }
 

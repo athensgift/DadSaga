@@ -23,26 +23,27 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0013](0013-child-avatars.md) | Child avatars by age stage | avatar, family | |
 | [0014](0014-hero-gear.md) | Gear earned from skills and bosses | gear, avatar | 0018 (wardrobe) |
 | [0015](0015-legendary-moments.md) | Legendary moments are progress events with a date and a note | moments, progress | |
-| [0016](0016-moment-photos.md) | Moment photos as files on device; moments editable and deletable | moments, photos, privacy | 0021 (delete use case), 0022 (photos on every card) |
+| [0016](0016-moment-photos.md) | Moment photos as files on device; moments editable and deletable | moments, photos, privacy | 0021 (delete use case), 0022 (photos on every card), 0042 (up to ten photos; an edit gives the whole list) |
 | [0017](0017-timeline-and-tabs.md) | A timeline tab derived from progress events | timeline, navigation | |
 | [0018](0018-wardrobe.md) | Wardrobe: choose what the hero wears per slot | gear, avatar | |
 | [0019](0019-world-map-and-older-worlds.md) | World map, replayable worlds, worlds up to age 6 | worlds, content | |
 | [0020](0020-card-tips-and-evergreen-cards.md) | Card tips, evergreen cards, a sibling-only boss | content, cards | |
-| [0021](0021-undo-and-delete-entries.md) | Undo and delete the dad's own entries | progress, timeline | |
-| [0022](0022-journal-on-every-card.md) | A note and a photo on every card | journal, photos | |
+| [0021](0021-undo-and-delete-entries.md) | Undo and delete the dad's own entries | progress, timeline | 0042 (a first's undo shows in its sheet) |
+| [0022](0022-journal-on-every-card.md) | A note and a photo on every card | journal, photos | 0042 (up to ten photos) |
 | [0023](0023-home-screen-widget.md) | Home-screen widget: weekly quest and latest moment | widget | 0026 (migrations), 0027 (widget strings) |
 | [0024](0024-weekly-notification.md) | One gentle weekly notification | notifications, product rules | 0030 (bell button), 0037 (the reminder card waits while a film card shows) |
 | [0025](0025-app-icon-and-launch-screen.md) | App icon in Icon Composer, native launch screen | branding | 0033 (also writes the website's images) |
-| [0026](0026-versioned-store-and-unavailable-screen.md) | Versioned store with migrations; a calm stop when it can't open | storage, errors | 0034 (widget test before V2) |
+| [0026](0026-versioned-store-and-unavailable-screen.md) | Versioned store with migrations; a calm stop when it can't open | storage, errors | 0034 (widget test before V2), 0042 (V2 and V3 are for photos; `childID` waits for sync) |
 | [0027](0027-ui-string-catalog.md) | UI strings in one shared String Catalog | localization | 0030 (reset wording) |
 | [0028](0028-screen-queries-and-hero-art-target.md) | One query per screen, one way to record progress, `HeroArt` target | architecture, modules | |
 | [0029](0029-hero-look-in-content.md) | A hero class names its look in the content | hero, content | |
 | [0030](0030-settings-screen.md) | One Settings screen; "start over" for everyone | settings, privacy | 0036 (start over also forgets the film offers) |
 | [0031](0031-website-on-cloudflare-pages.md) | Static website at dadsaga.app on Cloudflare Pages | website, privacy | 0033 (images generated) |
 | [0032](0032-contrast-of-tints.md) | Tints readable as text and as fills; the hero keeps its own colours | UI, accessibility, colour | 0033 (its open items) |
-| [0033](0033-accessibility-audit-and-secondary-text.md) | Accessibility audit of the main screens, readable secondary text, "D" on the crest | accessibility, testing, colour, hero | 0034 (snapshots at the largest text size, test data for snapshots), 0035 (audit skips, iOS 27.2), 0036 (the audit covers the film sheet), 0037 (a timeline with an entry) |
-| [0034](0034-screen-snapshots-pinned-ci-and-store-threads.md) | Screen snapshots, a pinned CI toolchain, the store's work off the main thread | testing, CI, storage, concurrency | 0035 (snapshots get the app's tint), 0036 (film sheet and card snapshots), 0038 (why onboarding's date picker differed by region and by day) |
+| [0033](0033-accessibility-audit-and-secondary-text.md) | Accessibility audit of the main screens, readable secondary text, "D" on the crest | accessibility, testing, colour, hero | 0034 (snapshots at the largest text size, test data for snapshots), 0035 (audit skips, iOS 27.2), 0036 (the audit covers the film sheet), 0037 (a timeline with an entry), 0042 (the photo viewer and a first's second step) |
+| [0034](0034-screen-snapshots-pinned-ci-and-store-threads.md) | Screen snapshots, a pinned CI toolchain, the store's work off the main thread | testing, CI, storage, concurrency | 0035 (snapshots get the app's tint), 0036 (film sheet and card snapshots), 0038 (why onboarding's date picker differed by region and by day), 0042 (a first's two steps, the viewer, the timeline with photos) |
 | [0035](0035-audit-on-ios-27-shaded-glass.md) | The audit on iOS 27.2: re-measure labels on shaded glass | accessibility, testing | |
-| [0036](0036-saga-video.md) | Saga film: drawn frame by frame on the device from the timeline, offered gently, never stored | video, media, product rules, concurrency | 0037 (one offer for the family; what the cards and the sheet show) |
-| [0037](0037-saga-film-drawing-sheet-and-offer.md) | Drawing the saga film in Presentation, its sheet, one offer card for the family | video, architecture, product rules, UI | |
+| [0036](0036-saga-video.md) | Saga film: drawn frame by frame on the device from the timeline, offered gently, never stored | video, media, product rules, concurrency | 0037 (one offer for the family; what the cards and the sheet show), 0042 (an entry's further photos, thinned first) |
+| [0037](0037-saga-film-drawing-sheet-and-offer.md) | Drawing the saga film in Presentation, its sheet, one offer card for the family | video, architecture, product rules, UI | 0042 (photos alone include further photos) |
 | [0038](0038-date-picker-sized-by-its-date.md) | The date picker is as wide as the date it shows, not as today's | UI, testing, accessibility | |
+| [0042](0042-several-photos-viewer-and-firsts-in-two-steps.md) | Up to ten photos on every entry, a full-screen photo viewer, firsts recorded first and filled in after | photos, storage, moments, video, accessibility, product rules | |

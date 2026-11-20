@@ -31,7 +31,7 @@ extension HomeViewModel {
                     momentID: editing.momentID,
                     happenedOn: date,
                     note: note,
-                    photo: photo.change,
+                    photos: photo.photos(keeping: editing.photoIDs),
                     now: self.now()
                 )
             }
@@ -41,7 +41,7 @@ extension HomeViewModel {
                 childID: childID,
                 date: date,
                 note: note,
-                photo: photo.newData
+                photos: photo.newPhotos
             )
             await record(badge: nil, moment: "\(option.emoji) \(option.title)") {
                 try await self.useCases.moments.capture.execute(request, now: self.now())
@@ -49,7 +49,7 @@ extension HomeViewModel {
         }
     }
 
-    /// Deletes the moment being edited, with its photo and XP.
+    /// Deletes the moment being edited, with its photos and XP.
     public func deleteMoment() async {
         guard let editing = momentCapture?.editing else { return }
         await perform {
@@ -78,19 +78,20 @@ extension HomeViewModel {
     }
 }
 
-private extension MomentPhotoEdit {
-    var change: PhotoChange {
-        switch self {
-        case .keep: .keep
-        case .remove: .remove
-        case .replace(let data): .replace(data)
-        }
-    }
-}
-
 extension MomentPhotoEdit {
     /// For a new entry: the photo to store, if one was chosen.
-    var newData: Data? {
-        if case .replace(let data) = self { data } else { nil }
+    var newPhotos: [Data] {
+        if case .replace(let data) = self { [data] } else { [] }
+    }
+
+    /// The entry's photos once the edit is saved. The sheet shows only the cover, so removing or replacing acts on the
+    /// cover alone and the entry's other photos stay, in their order.
+    func photos(keeping current: [String]) -> [EntryPhoto] {
+        let others = current.dropFirst().map(EntryPhoto.kept)
+        return switch self {
+        case .keep: current.map(EntryPhoto.kept)
+        case .remove: others
+        case .replace(let data): [.added(data)] + others
+        }
     }
 }

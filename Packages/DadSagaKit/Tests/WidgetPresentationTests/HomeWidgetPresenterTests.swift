@@ -36,7 +36,7 @@ struct HomeWidgetPresenterTests {
                            title: LocalizedText(el: "Πρώτα βήματα", en: "First steps"), xp: 30, companionTrait: nil),
         date: Date(timeIntervalSince1970: 1_780_000_000),
         note: "Ιδιωτικό σημείωμα",
-        photoID: "p1"
+        photoIDs: ["p1"]
     )
 
     func highlights(

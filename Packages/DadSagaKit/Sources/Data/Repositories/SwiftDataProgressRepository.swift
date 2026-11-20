@@ -36,7 +36,7 @@ actor SwiftDataProgressRepository: ProgressRepository {
         guard let record = try record(id: event.id) else { return }
         record.date = event.date
         record.note = event.note
-        record.photoID = event.photoID
+        record.photoIDs = event.photoIDs
         record.childID = event.childID
         try modelContext.save()
     }

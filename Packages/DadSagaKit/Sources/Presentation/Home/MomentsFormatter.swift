@@ -35,7 +35,9 @@ struct MomentsFormatter {
         sheet(
             for: child,
             options: [moment.first],
-            editing: MomentEditing(momentID: moment.eventID, date: moment.date, note: moment.note ?? "", photoID: moment.photoID),
+            editing: MomentEditing(
+                momentID: moment.eventID, date: moment.date, note: moment.note ?? "", photoIDs: moment.photoIDs
+            ),
             now: now
         )
     }
@@ -84,7 +86,7 @@ struct MomentsFormatter {
             title: "\(moment.first.emoji) \(moment.first.title.resolved(for: locale))",
             subtitle: [date, moment.note].compactMap(\.self).joined(separator: " · "),
             badge: "+\(moment.first.xp) XP",
-            photoID: moment.photoID
+            photoID: moment.coverPhotoID
         )
     }
 }

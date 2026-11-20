@@ -14,15 +14,16 @@ actor StoreConnection {
 
     private static let logger = Logger(subsystem: "DadSaga", category: "store")
 
+    /// The version the app reads and writes; older stores reach it through `DadSagaMigrationPlan`.
+    static var schema: Schema { Schema(versionedSchema: CurrentSchema.self) }
+
     private let configuration: ModelConfiguration
-    private let versions: StoreVersions
     /// Created before opening an on-disk store.
     private let directory: URL?
     private var opened: Repositories?
 
-    init(configuration: ModelConfiguration, versions: StoreVersions, directory: URL?) {
+    init(configuration: ModelConfiguration, directory: URL?) {
         self.configuration = configuration
-        self.versions = versions
         self.directory = directory
     }
 
@@ -32,8 +33,8 @@ actor StoreConnection {
         do {
             if let directory { try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true) }
             let container = try ModelContainer(
-                for: versions.current,
-                migrationPlan: versions.migrationPlan,
+                for: Self.schema,
+                migrationPlan: DadSagaMigrationPlan.self,
                 configurations: [configuration]
             )
             let repositories = Repositories(
@@ -48,16 +49,5 @@ actor StoreConnection {
             Self.logger.error("The store could not be opened: \(String(describing: error), privacy: .public)")
             throw error
         }
-    }
-}
-
-/// The version a store is opened at and how older ones reach it. The app's is `.dadSaga`; tests pass versions that do
-/// not exist yet, to check what happens before they ship (ADR-0026).
-struct StoreVersions: Sendable {
-    let current: Schema
-    let migrationPlan: any SchemaMigrationPlan.Type
-
-    static var dadSaga: StoreVersions {
-        StoreVersions(current: Schema(versionedSchema: CurrentSchema.self), migrationPlan: DadSagaMigrationPlan.self)
     }
 }

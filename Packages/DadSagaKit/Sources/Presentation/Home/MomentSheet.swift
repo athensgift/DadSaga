@@ -50,7 +50,7 @@ struct MomentSheet: View {
                     }
                     JournalPhotoField(
                         photo: $photo,
-                        storedPhotoID: capture.editing?.photoID,
+                        storedPhotoID: capture.editing?.photoIDs.first,
                         labels: capture.labels.photo,
                         loader: loader
                     )

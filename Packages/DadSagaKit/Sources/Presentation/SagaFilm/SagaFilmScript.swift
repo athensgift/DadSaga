@@ -52,18 +52,19 @@ public struct SagaFilmScene: Equatable, Sendable {
 public enum SagaFilmCard: Equatable, Sendable {
     case opening(name: String, period: String, family: SagaFilmFamily)
     case chapter(heading: String, title: String, tagline: String)
-    /// A first: its words, over its photo if it has one.
+    /// A first: its words, over its cover if it has photos.
     case first(emoji: String, title: String, note: String?, photoID: String?)
+    /// A boss: its badge and title, over its cover if it has photos.
     case boss(badge: String, title: String, photoID: String?)
-    /// A quest's photo on its own, without words.
-    case questPhoto(photoID: String)
+    /// A photo on its own, without words: a quest's cover, or one of an entry's further photos (ADR-0042 §6).
+    case photo(photoID: String)
     case credits(SagaFilmCredits)
 
     /// The photo the card is drawn over, if any.
     var photoID: String? {
         switch self {
         case .first(_, _, _, let photoID), .boss(_, _, let photoID): photoID
-        case .questPhoto(let photoID): photoID
+        case .photo(let photoID): photoID
         case .opening, .chapter, .credits: nil
         }
     }

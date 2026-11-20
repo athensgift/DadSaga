@@ -222,14 +222,9 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
     func execute(_ request: CaptureMomentRequest, now: Date) async throws -> ProgressChange {
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        var photoID: String?
-        if let photo = request.photo {
-            photoID = "photo-\(photos.count + 1)"
-            photos[photoID ?? ""] = photo
-        }
         let event = ProgressEvent(
             kind: .first(id: request.firstID), childID: request.childID,
-            date: request.date, note: request.note, photoID: photoID
+            date: request.date, note: request.note, photoIDs: request.photos.map(store)
         )
         events.append(event)
         return ProgressChange(
@@ -240,21 +235,32 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         )
     }
 
-    func execute(momentID: UUID, happenedOn date: Date, note: String?, photo: PhotoChange, now: Date) async throws {
+    func execute(momentID: UUID, happenedOn date: Date, note: String?, photos: [EntryPhoto], now: Date) async throws {
         if shouldFail { throw StubError.boom }
         guard let index = events.firstIndex(where: { $0.id == momentID }) else { return }
         let old = events[index]
-        var photoID = old.photoID
-        switch photo {
-        case .keep: break
-        case .remove: photoID = nil
-        case .replace(let data):
-            photoID = "photo-\(photos.count + 1)"
-            photos[photoID ?? ""] = data
+        let photoIDs = photos.map { photo in
+            switch photo {
+            case .kept(let id): id
+            case .added(let data): store(data)
+            }
         }
         events[index] = ProgressEvent(
-            id: old.id, kind: old.kind, childID: old.childID, date: date, note: note, photoID: photoID
+            id: old.id, kind: old.kind, childID: old.childID, date: date, note: note, photoIDs: photoIDs
         )
+    }
+
+    /// A moment of the first `HeroStub.niko` can capture, already holding these photos.
+    func seedMoment(photos: [Data]) {
+        events.append(ProgressEvent(
+            kind: .first(id: "f1"), childID: HeroStub.niko.id, date: HeroStub.today, photoIDs: photos.map(store)
+        ))
+    }
+
+    private func store(_ data: Data) -> String {
+        let id = "photo-\(self.photos.count + 1)"
+        self.photos[id] = data
+        return id
     }
 
     func execute(eventID: UUID) async throws {

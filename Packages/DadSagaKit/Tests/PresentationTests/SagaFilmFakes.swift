@@ -66,12 +66,12 @@ enum FilmStub {
     /// neither note nor photo, and two walks (one with a photo).
     static let annasSaga: [ProgressEvent] = [
         ProgressEvent(kind: .first(id: "f-smile"), childID: anna.id, date: months(2),
-                      note: "Χαμογέλασε στον παππού", photoID: "p-smile"),
-        ProgressEvent(kind: .quest(id: "q1"), childID: anna.id, date: months(3), photoID: "p-walk-1"),
+                      note: "Χαμογέλασε στον παππού", photoIDs: ["p-smile"]),
+        ProgressEvent(kind: .quest(id: "q1"), childID: anna.id, date: months(3), photoIDs: ["p-walk-1"]),
         ProgressEvent(kind: .quest(id: "q1"), childID: anna.id, date: months(4)),
         ProgressEvent(kind: .boss(id: "b1"), childID: anna.id, date: months(6)),
         ProgressEvent(kind: .first(id: "f-steps"), childID: anna.id, date: months(14)),
-        ProgressEvent(kind: .quest(id: "q1"), childID: anna.id, date: months(15), photoID: "p-walk-2"),
+        ProgressEvent(kind: .quest(id: "q1"), childID: anna.id, date: months(15), photoIDs: ["p-walk-2"]),
         ProgressEvent(kind: .quest(id: "q1"), childID: anna.id, date: months(20))
     ]
 }

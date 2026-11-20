@@ -40,7 +40,7 @@ struct TimelineViewModelTests {
         [
             ProgressEvent(kind: .quest(id: "q1"), childID: HeroStub.niko.id, date: january),
             ProgressEvent(kind: .boss(id: "b1"), childID: HeroStub.niko.id, date: february.addingTimeInterval(-86_400)),
-            ProgressEvent(kind: .first(id: "f1"), childID: HeroStub.eleni.id, date: february, note: "πρώτα", photoID: "p1")
+            ProgressEvent(kind: .first(id: "f1"), childID: HeroStub.eleni.id, date: february, note: "πρώτα", photoIDs: ["p1"])
         ]
     }
 
@@ -164,6 +164,21 @@ struct TimelineViewModelTests {
         #expect(loadedContent(sut)?.sections.last?.items.first?.subtitle.hasSuffix(" · γέλασε πολύ") == true)
     }
 
+    @Test("Given an entry with two photos, when replacing its photo, then the cover changes and the other stays")
+    func replacingKeepsTheOtherPhoto() async throws {
+        let quest = ProgressEvent(kind: .quest(id: "q1"), childID: HeroStub.niko.id, date: january, photoIDs: ["a", "b"])
+        let sut = makeSUT(profile: HeroStub.profile, events: [quest])
+        await sut.onAppear()
+        #expect(loadedContent(sut)?.sections.first?.items.first?.photoID == "a")
+
+        sut.editJournal(id: quest.id)
+        #expect(sut.journalEditor?.photoIDs == ["a", "b"])
+        await sut.saveJournal(note: "", photo: .replace(Data([1])))
+
+        sut.editJournal(id: quest.id)
+        #expect(sut.journalEditor?.photoIDs == ["new-photo-0", "b"])
+    }
+
     @Test("Given a boss entry with a note, when appearing, then the badge and the note are both in the subtitle")
     func bossNote() async throws {
         let events = [ProgressEvent(kind: .boss(id: "b1"), childID: HeroStub.niko.id, date: january, note: "δύσκολη νύχτα")]
@@ -245,16 +260,17 @@ actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseC
         events.removeAll { $0.id == eventID }
     }
 
-    func execute(eventID: UUID, note: String?, photo: PhotoChange) async throws {
+    func execute(eventID: UUID, note: String?, photos: [EntryPhoto]) async throws {
         guard let index = events.firstIndex(where: { $0.id == eventID }) else { return }
         let old = events[index]
-        let photoID: String? = switch photo {
-        case .keep: old.photoID
-        case .remove: nil
-        case .replace: "new-photo"
+        let photoIDs = photos.enumerated().map { index, photo in
+            switch photo {
+            case .kept(let id): id
+            case .added: "new-photo-\(index)"
+            }
         }
         events[index] = ProgressEvent(
-            id: old.id, kind: old.kind, childID: old.childID, date: old.date, note: note, photoID: photoID
+            id: old.id, kind: old.kind, childID: old.childID, date: old.date, note: note, photoIDs: photoIDs
         )
     }
 }

@@ -109,13 +109,13 @@ struct LocalStoreTests {
     func progressUpdateAndDelete() async throws {
         let sut = LocalStore.inMemory().progress
         let quest = ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: birth)
-        let moment = ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth, note: "πριν", photoID: "p1")
+        let moment = ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth, note: "πριν", photoIDs: ["p1"])
         try await sut.add(quest)
         try await sut.add(moment)
 
         let changed = ProgressEvent(
             id: moment.id, kind: moment.kind, childID: moment.childID,
-            date: birth.addingTimeInterval(60), note: "μετά", photoID: nil
+            date: birth.addingTimeInterval(60), note: "μετά", photoIDs: ["p2", "p1"]
         )
         try await sut.update(changed)
         #expect(try await sut.fetchEvents() == [quest, changed])

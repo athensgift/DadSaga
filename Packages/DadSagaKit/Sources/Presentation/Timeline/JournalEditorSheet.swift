@@ -31,7 +31,9 @@ struct JournalEditorSheet: View {
             ScrollView {
                 VStack(spacing: DSSpacing.m) {
                     JournalNoteField(placeholder: editor.labels.notePlaceholder, note: $note)
-                    JournalPhotoField(photo: $photo, storedPhotoID: editor.photoID, labels: editor.labels.photo, loader: loader)
+                    JournalPhotoField(
+                        photo: $photo, storedPhotoID: editor.photoIDs.first, labels: editor.labels.photo, loader: loader
+                    )
                 }
                 .frame(maxWidth: readableWidth)
                 .padding(DSSpacing.m)

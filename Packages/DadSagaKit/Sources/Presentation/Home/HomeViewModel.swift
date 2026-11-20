@@ -91,7 +91,7 @@ public final class HomeViewModel {
     /// Records the open quest, with the dad's optional note and photo.
     public func completeSelectedQuest(note: String = "", photo: MomentPhotoEdit = .keep) async {
         guard let quest = selectedQuest, let childID = selectedChildID else { return }
-        let journal = JournalInput(note: note, photo: photo.newData)
+        let journal = JournalInput(note: note, photos: photo.newPhotos)
         await record(badge: nil) {
             try await self.useCases.completeQuest.execute(questID: quest.id, childID: childID, on: self.now(), journal: journal)
         }
@@ -101,7 +101,7 @@ public final class HomeViewModel {
     public func defeatSelectedBoss(note: String = "", photo: MomentPhotoEdit = .keep) async {
         guard let boss = selectedBoss, !boss.isDefeated, let childID = selectedChildID else { return }
         let badge = overview?.bosses.first { $0.id == boss.id }?.badge.resolved(for: locale)
-        let journal = JournalInput(note: note, photo: photo.newData)
+        let journal = JournalInput(note: note, photos: photo.newPhotos)
         await record(badge: badge) {
             try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now(), journal: journal)
         }

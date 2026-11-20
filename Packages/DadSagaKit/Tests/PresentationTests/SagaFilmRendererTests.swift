@@ -124,7 +124,7 @@ final class SagaFilmRendererTests {
         let photos = StubPhotos(["p-broken": data].compactMapValues(\.self))
         let scenes = [
             scene(FilmCards.first(photoID: "p-broken"), seconds: 0.5),
-            scene(.questPhoto(photoID: "p-broken"), seconds: 0.5)
+            scene(.photo(photoID: "p-broken"), seconds: 0.5)
         ]
 
         let url = try await small(photos).render(script(scenes)) { _ in }
@@ -144,7 +144,7 @@ final class SagaFilmRendererTests {
         let photos = StubPhotos(["p-ramp": try TestPhoto.jpeg { column, _ in
             TestPhoto.Paint(red: UInt8(min(255, column * 255 / 27)))
         }])
-        let scenes = [scene(.questPhoto(photoID: "p-ramp"), seconds: 1)]
+        let scenes = [scene(.photo(photoID: "p-ramp"), seconds: 1)]
 
         let url = try await small(photos).render(script(scenes, reduceMotion: reduceMotion)) { _ in }
 
@@ -160,7 +160,7 @@ final class SagaFilmRendererTests {
     @Test("Given a photo after a card, when its scene starts, then it fades in over twelve frames")
     func scenesFadeIn() async throws {
         let photos = StubPhotos(["p-red": try TestPhoto.jpeg { _, _ in .red }])
-        let scenes = [scene(FilmCards.chapter, seconds: 1), scene(.questPhoto(photoID: "p-red"), seconds: 1)]
+        let scenes = [scene(FilmCards.chapter, seconds: 1), scene(.photo(photoID: "p-red"), seconds: 1)]
 
         let url = try await small(photos).render(script(scenes, reduceMotion: true)) { _ in }
 
@@ -178,7 +178,7 @@ final class SagaFilmRendererTests {
             "p-red": try TestPhoto.jpeg { _, _ in .red },
             "p-blue": try TestPhoto.jpeg { _, _ in .blue }
         ])
-        let scenes = [scene(.questPhoto(photoID: "p-red"), seconds: 1), scene(.questPhoto(photoID: "p-blue"), seconds: 1)]
+        let scenes = [scene(.photo(photoID: "p-red"), seconds: 1), scene(.photo(photoID: "p-blue"), seconds: 1)]
 
         let url = try await small(photos).render(script(scenes, reduceMotion: true)) { _ in }
 

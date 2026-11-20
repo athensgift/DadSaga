@@ -80,7 +80,8 @@ public struct MomentEditing: Equatable, Sendable {
     public let momentID: UUID
     public let date: Date
     public let note: String
-    public let photoID: String?
+    /// In the dad's order; the first is the cover.
+    public let photoIDs: [String]
 }
 
 public struct MomentPhotoLabels: Equatable, Sendable {
@@ -98,6 +99,7 @@ public struct MomentCardModel: Equatable, Identifiable, Sendable {
     /// Date and note.
     public let subtitle: String
     public let badge: String
+    /// The cover, if the moment has photos.
     public let photoID: String?
 }
 

@@ -16,12 +16,12 @@ struct ProgressUseCaseTests {
         let sut = DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
 
         let change = try await sut.execute(
-            questID: "q1", childID: child, on: today, journal: JournalInput(note: "  first bath!  ", photo: Data([1]))
+            questID: "q1", childID: child, on: today, journal: JournalInput(note: "  first bath!  ", photos: [Data([1])])
         )
 
         let event = try #require(try await repository.fetchEvents().first)
         #expect(event.note == "first bath!")
-        #expect(event.photoID != nil)
+        #expect(event.photoIDs.count == 1)
         #expect(await photos.stored.count == 1)
         #expect(change.after.lastJournal(for: .quest(id: "q1"), childID: child)?.note == "first bath!")
         #expect(change.after.lastJournal(for: .quest(id: "q1"), childID: UUID()) == nil)
@@ -31,15 +31,15 @@ struct ProgressUseCaseTests {
     func updatesJournal() async throws {
         let repository = SpyProgressRepository()
         _ = try await DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
-            .execute(questID: "q1", childID: child, on: today, journal: JournalInput(note: "a", photo: Data([1])))
+            .execute(questID: "q1", childID: child, on: today, journal: JournalInput(note: "a", photos: [Data([1])]))
         let event = try #require(try await repository.fetchEvents().first)
 
         try await DefaultUpdateJournalUseCase(progressRepository: repository, photoStore: photos)
-            .execute(eventID: event.id, note: "b", photo: .remove)
+            .execute(eventID: event.id, note: "b", photos: [])
 
         let updated = try #require(try await repository.fetchEvents().first)
         #expect(updated.note == "b")
-        #expect(updated.photoID == nil)
+        #expect(updated.photoIDs.isEmpty)
         #expect(updated.date == event.date)
         #expect(await photos.stored.isEmpty)
     }
@@ -101,7 +101,7 @@ struct ProgressUseCaseTests {
         let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
         _ = try await sut.execute(bossID: "b1", childID: child, on: today, journal: .empty)
 
-        let change = try await sut.execute(bossID: "b1", childID: child, on: today, journal: JournalInput(photo: Data([1])))
+        let change = try await sut.execute(bossID: "b1", childID: child, on: today, journal: JournalInput(photos: [Data([1])]))
 
         #expect(change.gainedXP == 0)
         #expect(change.eventID == nil)
@@ -137,7 +137,7 @@ struct ProgressUseCaseTests {
     func bossRace() async throws {
         let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: LosesRace(), photoStore: photos)
 
-        let change = try await sut.execute(bossID: "b1", childID: child, on: today, journal: JournalInput(photo: Data([1])))
+        let change = try await sut.execute(bossID: "b1", childID: child, on: today, journal: JournalInput(photos: [Data([1])]))
 
         #expect(change.eventID == nil)
         #expect(change.gainedXP == 0)
@@ -151,10 +151,10 @@ struct ProgressUseCaseTests {
         let boss = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: failing, photoStore: photos)
 
         await #expect(throws: FailingUpdates.Failure.self) {
-            try await quest.execute(questID: "q1", childID: child, on: today, journal: JournalInput(photo: Data([1])))
+            try await quest.execute(questID: "q1", childID: child, on: today, journal: JournalInput(photos: [Data([1])]))
         }
         await #expect(throws: FailingUpdates.Failure.self) {
-            try await boss.execute(bossID: "b1", childID: child, on: today, journal: JournalInput(photo: Data([2])))
+            try await boss.execute(bossID: "b1", childID: child, on: today, journal: JournalInput(photos: [Data([2])]))
         }
         #expect(await photos.saveCount == 2)
         #expect(await photos.stored.isEmpty)

@@ -68,7 +68,7 @@ extension SagaFilmSheetTests {
             case .chapter(let heading, let title, let tagline): [heading, title, tagline]
             case .first(let emoji, let title, let note, _): [emoji, title, note ?? ""]
             case .boss(let badge, let title, _): [badge, title]
-            case .questPhoto: []
+            case .photo: []
             case .credits(let credits): credits.lines.flatMap { [$0.role, $0.name] } + [credits.signature]
             }
         }

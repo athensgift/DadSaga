@@ -7,16 +7,17 @@ struct TimelineTests {
     let anna = UUID()
     let niko = UUID()
 
-    func event(_ kind: ProgressEvent.Kind, child: UUID, at seconds: TimeInterval, note: String? = nil, photo: String? = nil)
-        -> ProgressEvent {
-        ProgressEvent(kind: kind, childID: child, date: Date(timeIntervalSince1970: seconds), note: note, photoID: photo)
+    func event(
+        _ kind: ProgressEvent.Kind, child: UUID, at seconds: TimeInterval, note: String? = nil, photos: [String] = []
+    ) -> ProgressEvent {
+        ProgressEvent(kind: kind, childID: child, date: Date(timeIntervalSince1970: seconds), note: note, photoIDs: photos)
     }
 
     @Test("Given quests, bosses and firsts, when building, then they come newest first with their details")
     func newestFirst() {
         let events = [
             event(.quest(id: "q1"), child: anna, at: 1),
-            event(.first(id: "f1"), child: niko, at: 3, note: "χαμόγελο", photo: "p1"),
+            event(.first(id: "f1"), child: niko, at: 3, note: "χαμόγελο", photos: ["p1", "p2"]),
             event(.boss(id: "b1"), child: anna, at: 2)
         ]
 
@@ -26,7 +27,8 @@ struct TimelineTests {
         #expect(entries.map(\.xp) == [30, 100, 20])
         #expect(entries.first?.childID == niko)
         #expect(entries.first?.note == "χαμόγελο")
-        #expect(entries.first?.photoID == "p1")
+        #expect(entries.first?.photoIDs == ["p1", "p2"])
+        #expect(entries.first?.coverPhotoID == "p1")
     }
 
     @Test("Given a boss twice for one child and once for another, when building, then it shows once per child")

@@ -24,8 +24,14 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
     public let date: Date
     /// The dad's own words, for firsts.
     public let note: String?
-    /// Identifier of a photo kept on the device, for firsts.
-    public let photoID: String?
+    /// Photos kept on the device, in the dad's order; the first is the cover (ADR-0042). At most `photoLimit`.
+    public let photoIDs: [String]
+
+    /// The most photos an entry keeps (ADR-0042).
+    public static let photoLimit = 10
+
+    /// The photo shown wherever the entry has one picture: thumbnails, the widget, the film's cards.
+    public var coverPhotoID: String? { photoIDs.first }
 
     public init(
         id: UUID = UUID(),
@@ -33,13 +39,13 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
         childID: UUID,
         date: Date,
         note: String? = nil,
-        photoID: String? = nil
+        photoIDs: [String] = []
     ) {
         self.id = id
         self.kind = kind
         self.childID = childID
         self.date = date
         self.note = note
-        self.photoID = photoID
+        self.photoIDs = photoIDs
     }
 }

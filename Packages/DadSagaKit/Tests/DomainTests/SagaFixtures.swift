@@ -50,9 +50,9 @@ struct SagaFixtures {
         months: Int,
         days: Int = 0,
         child: Child? = nil,
-        photo: String? = nil
+        photos: String...
     ) -> ProgressEvent {
-        ProgressEvent(kind: kind, childID: (child ?? self.child).id, date: date(months: months, days: days), photoID: photo)
+        ProgressEvent(kind: kind, childID: (child ?? self.child).id, date: date(months: months, days: days), photoIDs: photos)
     }
 
     func storyboard(_ events: [ProgressEvent], period: SagaPeriod = .everything) -> SagaStoryboard? {

@@ -15,7 +15,7 @@ extension ProgressEventRecord {
             childID: event.childID,
             date: event.date,
             note: event.note,
-            photoID: event.photoID
+            photoIDs: event.photoIDs
         )
     }
 
@@ -30,6 +30,6 @@ extension ProgressEventRecord {
         case "first": eventKind = .first(id: contentID)
         default: return nil
         }
-        return ProgressEvent(id: eventID, kind: eventKind, childID: childID, date: date, note: note, photoID: photoID)
+        return ProgressEvent(id: eventID, kind: eventKind, childID: childID, date: date, note: note, photoIDs: photoIDs)
     }
 }

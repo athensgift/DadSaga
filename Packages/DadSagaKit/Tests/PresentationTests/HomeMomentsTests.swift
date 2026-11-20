@@ -72,7 +72,7 @@ struct HomeMomentsTests {
 
         sut.editMoment(id: card.id)
         #expect(sut.momentCapture?.editing?.note == "πριν")
-        #expect(sut.momentCapture?.editing?.photoID == card.photoID)
+        #expect(sut.momentCapture?.editing?.photoIDs == [card.photoID].compactMap(\.self))
         #expect(sut.momentCapture?.options.map(\.id) == ["f1"])
         await sut.saveMoment(firstID: "f1", date: HeroStub.today, note: "μετά", photo: .remove)
 
@@ -110,6 +110,34 @@ struct HomeMomentsTests {
         #expect(after.moments.cards.isEmpty)
         #expect(after.xpLine == "0 / 100 XP")
         #expect(after.companions.first?.traits.isEmpty == true)
+    }
+
+    @Test("Given a moment with three photos, when replacing its photo, then only the cover changes and the rest stay")
+    func replacingKeepsTheOtherPhotos() async throws {
+        await progress.seedMoment(photos: [Data([1]), Data([2]), Data([3])])
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        let id = try #require(loadedMoments(sut)?.cards.first?.id)
+        sut.editMoment(id: id)
+        #expect(sut.momentCapture?.editing?.photoIDs == ["photo-1", "photo-2", "photo-3"])
+        #expect(loadedMoments(sut)?.cards.first?.photoID == "photo-1")
+
+        await sut.saveMoment(firstID: "f1", date: HeroStub.today, note: "", photo: .replace(Data([4])))
+        sut.editMoment(id: id)
+        #expect(sut.momentCapture?.editing?.photoIDs == ["photo-4", "photo-2", "photo-3"])
+
+        await sut.saveMoment(firstID: "f1", date: HeroStub.today, note: "", photo: .remove)
+        sut.editMoment(id: id)
+        #expect(sut.momentCapture?.editing?.photoIDs == ["photo-2", "photo-3"])
+
+        await sut.saveMoment(firstID: "f1", date: HeroStub.today, note: "", photo: .keep)
+        sut.editMoment(id: id)
+        #expect(sut.momentCapture?.editing?.photoIDs == ["photo-2", "photo-3"])
+    }
+
+    private func loadedMoments(_ sut: HomeViewModel) -> MomentsSection? {
+        guard case .loaded(let content) = sut.state else { return nil }
+        return content.moments
     }
 
     @Test("Given saving fails, when editing a moment, then the sheet stays open with an error")

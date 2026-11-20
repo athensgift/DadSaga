@@ -34,5 +34,6 @@ public struct LastJournal: Equatable, Sendable {
     /// e.g. "Την προηγούμενη φορά (3 Νοε) έγραψες:".
     public let title: String
     public let note: String?
+    /// The cover, if it had photos.
     public let photoID: String?
 }

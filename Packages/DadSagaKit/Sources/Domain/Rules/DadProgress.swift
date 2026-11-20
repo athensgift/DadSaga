@@ -45,12 +45,14 @@ public struct DadProgress: Hashable, Sendable {
                 eventKind = .first(id: first.id)
                 firstsByChild[entry.childID, default: []].insert(first.id)
                 momentsByChild[entry.childID, default: []].append(
-                    CapturedMoment(eventID: entry.id, first: first, date: entry.date, note: entry.note, photoID: entry.photoID)
+                    CapturedMoment(
+                        eventID: entry.id, first: first, date: entry.date, note: entry.note, photoIDs: entry.photoIDs
+                    )
                 )
             }
-            if entry.note != nil || entry.photoID != nil {
+            if entry.note != nil || !entry.photoIDs.isEmpty {
                 journalByChild[entry.childID, default: [:]][eventKind] = JournalEntry(
-                    eventID: entry.id, date: entry.date, note: entry.note, photoID: entry.photoID
+                    eventID: entry.id, date: entry.date, note: entry.note, photoIDs: entry.photoIDs
                 )
             }
         }
@@ -128,30 +130,35 @@ public struct CapturedMoment: Hashable, Identifiable, Sendable {
     public let first: FirstMoment
     public let date: Date
     public let note: String?
-    public let photoID: String?
+    /// In the dad's order; the first is the cover.
+    public let photoIDs: [String]
 
     public var id: UUID { eventID }
+    public var coverPhotoID: String? { photoIDs.first }
 
-    public init(eventID: UUID, first: FirstMoment, date: Date, note: String?, photoID: String?) {
+    public init(eventID: UUID, first: FirstMoment, date: Date, note: String?, photoIDs: [String]) {
         self.eventID = eventID
         self.first = first
         self.date = date
         self.note = note
-        self.photoID = photoID
+        self.photoIDs = photoIDs
     }
 }
 
-/// What the dad wrote or photographed when he completed something.
+/// What the dad wrote or photographed when he completed something: a note, photos, or both.
 public struct JournalEntry: Hashable, Sendable {
     public let eventID: UUID
     public let date: Date
     public let note: String?
-    public let photoID: String?
+    /// In the dad's order; the first is the cover.
+    public let photoIDs: [String]
 
-    public init(eventID: UUID, date: Date, note: String?, photoID: String?) {
+    public var coverPhotoID: String? { photoIDs.first }
+
+    public init(eventID: UUID, date: Date, note: String?, photoIDs: [String]) {
         self.eventID = eventID
         self.date = date
         self.note = note
-        self.photoID = photoID
+        self.photoIDs = photoIDs
     }
 }
