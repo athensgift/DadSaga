@@ -19,7 +19,7 @@ enum StoreFixture {
         ProgressEvent(id: id("A0000000-0000-0000-0000-000000000002"), kind: .boss(id: "b-night"), childID: nikos.id,
                       date: Date(timeIntervalSince1970: 1_760_100_000)),
         ProgressEvent(id: id("A0000000-0000-0000-0000-000000000003"), kind: .first(id: "f-steps"), childID: lena.id,
-                      date: Date(timeIntervalSince1970: 1_760_200_000), note: "Τρία βήματα!", photoID: "photo-1")
+                      date: Date(timeIntervalSince1970: 1_760_200_000), note: "Τρία βήματα!", photoIDs: ["photo-1"])
     ]
     static let outfit = Outfit(choices: [.care: .item("cloth"), .play: .hidden])
 

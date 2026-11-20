@@ -85,7 +85,8 @@ struct SagaFixture {
             contentRepository: content, progressRepository: store.progress, photoStore: photos
         )
         _ = try await moment.execute(
-            CaptureMomentRequest(firstID: "f-laugh", childID: Self.child.id, date: Self.day(12), photo: Self.photo()),
+            CaptureMomentRequest(firstID: "f-laugh", childID: Self.child.id, date: Self.day(12),
+                                 photos: Self.photo().map { [$0] } ?? []),
             now: Self.today
         )
         let boss = DefaultDefeatBossUseCase(

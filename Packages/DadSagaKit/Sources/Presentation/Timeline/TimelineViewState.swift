@@ -47,6 +47,7 @@ public struct TimelineItem: Equatable, Identifiable, Sendable {
     public let subtitle: String
     public let badge: String
     public let symbol: String
+    /// The cover, if the entry has photos.
     public let photoID: String?
 }
 
@@ -66,7 +67,8 @@ public struct JournalEditor: Equatable, Identifiable, Sendable {
     public let id: UUID
     public let title: String
     public let note: String
-    public let photoID: String?
+    /// In the dad's order; the first is the cover.
+    public let photoIDs: [String]
     public let labels: JournalLabels
     public let saveTitle: String
 }

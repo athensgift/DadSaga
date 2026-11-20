@@ -88,4 +88,15 @@ struct FilePhotoStoreTests {
         #expect(max(size.width, size.height) == 300)
         #expect(await sut.thumbnail(id: UUID().uuidString, maxPixelSize: 300) == nil)
     }
+
+    @Test("Given a stored photo no larger than asked, when asking for a thumbnail, then the stored file comes back as is")
+    func smallPhotoIsNotReencoded() async throws {
+        let sut = FilePhotoStore(directory: directory, maxPixelSize: 400)
+        let id = try await sut.save(try png(width: 1200, height: 900))
+        let stored = try Data(contentsOf: directory.appending(path: id + ".jpg"))
+
+        #expect(await sut.thumbnail(id: id, maxPixelSize: 400) == stored)
+        #expect(await sut.thumbnail(id: id, maxPixelSize: 2048) == stored)
+        #expect(try pixelSize(of: try #require(await sut.thumbnail(id: id, maxPixelSize: 200))).width == 200)
+    }
 }

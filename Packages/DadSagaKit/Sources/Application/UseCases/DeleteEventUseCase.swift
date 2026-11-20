@@ -1,7 +1,7 @@
 import Domain
 import Foundation
 
-/// Removes something the dad recorded (a quest, a boss or a moment), with its photo and the XP it gave.
+/// Removes something the dad recorded (a quest, a boss or a moment), with its photos and the XP it gave.
 /// Used for undoing a tap made by mistake and for deleting an entry from the timeline. This is the dad correcting his
 /// own log, not the game taking something away (ADR-0006, ADR-0021): levels, gear and badges follow from the events,
 /// so they go back to what they would be without this one.
@@ -23,7 +23,7 @@ public struct DefaultDeleteEventUseCase: DeleteEventUseCase {
             throw ProgressError.unknownEvent
         }
         try await progressRepository.delete(id: eventID)
-        if let photoID = event.photoID {
+        for photoID in event.photoIDs {
             await photoStore.delete(id: photoID)
         }
     }

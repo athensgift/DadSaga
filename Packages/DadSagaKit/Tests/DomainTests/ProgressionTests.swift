@@ -85,6 +85,25 @@ struct DadProgressTests {
         #expect(moments.map(\.note) == [nil, "πρώτο"])
     }
 
+    @Test("Given a first with three photos, when listing moments, then it carries them in order with the first as cover")
+    func momentCarriesPhotos() {
+        let event = ProgressEvent(
+            kind: .first(id: "f1"), childID: Fixtures.child, date: .distantPast, photoIDs: ["c", "a", "b"]
+        )
+        let moment = DadProgress(events: [event], catalog: catalog).moments(for: Fixtures.child).first
+        #expect(moment?.photoIDs == ["c", "a", "b"])
+        #expect(moment?.coverPhotoID == "c")
+    }
+
+    @Test("Given a quest with photos and no note, when asking for the last journal, then the photos make one")
+    func photosAloneMakeAJournalEntry() {
+        let event = ProgressEvent(kind: .quest(id: "q1"), childID: Fixtures.child, date: .distantPast, photoIDs: ["a", "b"])
+        let progress = DadProgress(events: [event, Fixtures.event(.quest(id: "q2"))], catalog: catalog)
+
+        #expect(progress.lastJournal(for: .quest(id: "q1"), childID: Fixtures.child)?.photoIDs == ["a", "b"])
+        #expect(progress.lastJournal(for: .quest(id: "q2"), childID: Fixtures.child) == nil)
+    }
+
     @Test("Given a boss defeated twice, when aggregating, then XP is counted once")
     func bossCountsOnce() {
         let events = [Fixtures.event(.boss(id: "b1")), Fixtures.event(.boss(id: "b1"))]

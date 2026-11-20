@@ -14,7 +14,10 @@ public struct TimelineEntry: Hashable, Identifiable, Sendable {
     public let childID: UUID
     public let date: Date
     public let note: String?
-    public let photoID: String?
+    /// In the dad's order; the first is the cover.
+    public let photoIDs: [String]
+
+    public var coverPhotoID: String? { photoIDs.first }
 
     public var xp: Int {
         switch kind {
@@ -66,7 +69,7 @@ public enum Timeline {
                     childID: event.childID,
                     date: event.date,
                     note: event.note,
-                    photoID: event.photoID
+                    photoIDs: event.photoIDs
                 )
             )
         }

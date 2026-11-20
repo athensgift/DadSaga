@@ -123,13 +123,14 @@ struct WeeklyHighlightsUseCaseTests {
         #expect(highlights?.latestMoment?.first.id == "f2")
     }
 
-    @Test("Given a moment with a photo, when a thumbnail is asked for, then only the thumbnail is loaded")
+    @Test("Given a moment with two photos, when a thumbnail is asked for, then only the cover's thumbnail is loaded")
     func photoThumbnail() async throws {
         try await onboard([toddler])
-        let photoID = try await photos.save(Data("jpeg".utf8))
-        try await progress.add(
-            ProgressEvent(kind: .first(id: "f1"), childID: toddler.id, date: Self.date(2026, 6, 1), photoID: photoID)
-        )
+        let cover = try await photos.save(Data("jpeg".utf8))
+        let other = try await photos.save(Data("other".utf8))
+        try await progress.add(ProgressEvent(
+            kind: .first(id: "f1"), childID: toddler.id, date: Self.date(2026, 6, 1), photoIDs: [cover, other]
+        ))
 
         let withPhoto = try await sut.execute(childID: toddler.id, on: today, photoMaxPixelSize: 600)
         let without = try await sut.execute(childID: toddler.id, on: today, photoMaxPixelSize: nil)
@@ -142,7 +143,7 @@ struct WeeklyHighlightsUseCaseTests {
     func missingPhoto() async throws {
         try await onboard([toddler])
         try await progress.add(
-            ProgressEvent(kind: .first(id: "f1"), childID: toddler.id, date: Self.date(2026, 6, 1), photoID: "gone")
+            ProgressEvent(kind: .first(id: "f1"), childID: toddler.id, date: Self.date(2026, 6, 1), photoIDs: ["gone"])
         )
 
         let highlights = try await sut.execute(childID: toddler.id, on: today, photoMaxPixelSize: 600)

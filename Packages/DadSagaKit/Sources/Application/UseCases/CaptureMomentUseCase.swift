@@ -8,13 +8,6 @@ public enum MomentError: Error, Equatable {
     case unknownMoment
 }
 
-/// What to do with a moment's photo when saving it.
-public enum PhotoChange: Equatable, Sendable {
-    case keep
-    case remove
-    case replace(Data)
-}
-
 /// Records a legendary moment (a first) for one child. Each first counts once per child and gives its XP then.
 /// The date is when it happened, so a dad can catch up on firsts from before he had the app.
 public protocol CaptureMomentUseCase: Sendable {
@@ -26,14 +19,15 @@ public struct CaptureMomentRequest: Equatable, Sendable {
     public let childID: UUID
     public let date: Date
     public let note: String?
-    public let photo: Data?
+    /// In the dad's order; the first is the cover.
+    public let photos: [Data]
 
-    public init(firstID: String, childID: UUID, date: Date, note: String? = nil, photo: Data? = nil) {
+    public init(firstID: String, childID: UUID, date: Date, note: String? = nil, photos: [Data] = []) {
         self.firstID = firstID
         self.childID = childID
         self.date = date
         self.note = note
-        self.photo = photo
+        self.photos = photos
     }
 }
 
@@ -56,7 +50,7 @@ public struct DefaultCaptureMomentUseCase: CaptureMomentUseCase {
             .first(id: request.firstID),
             childID: request.childID,
             date: request.date,
-            journal: JournalInput(note: request.note, photo: request.photo),
+            journal: JournalInput(note: request.note, photos: request.photos),
             unknown: MomentError.unknownFirst(request.firstID)
         )
         guard change.eventID != nil else { throw MomentError.alreadyCaptured(request.firstID) }

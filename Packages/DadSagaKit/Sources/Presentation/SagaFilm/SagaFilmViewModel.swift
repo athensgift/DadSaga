@@ -303,7 +303,7 @@ private extension SagaFilm {
     var hasSomethingToShow: Bool {
         storyboard.scenes.contains { scene in
             switch scene.kind {
-            case .entry: true
+            case .entry, .photo: true
             case .credits(let credits): credits.questsDone > 0 || credits.bossesBeaten > 0
             case .opening, .chapter: false
             }

@@ -143,11 +143,11 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
         #expect(script.scenes.dropFirst().map(\.card) == [
             .chapter(heading: "Κεφάλαιο 1", title: "Σπηλιά", tagline: "Οι πρώτες μέρες"),
             .first(emoji: "😊", title: "Πρώτο χαμόγελο", date: nil, note: "Χαμογέλασε στον παππού", photoID: "p-smile"),
-            .questPhoto(photoID: "p-walk-1"),
+            .photo(photoID: "p-walk-1"),
             .boss(badge: "Πυρετομάχος", title: "Πρώτος πυρετός", date: nil, photoID: nil),
             .chapter(heading: "Κεφάλαιο 2", title: "Πεδιάδες", tagline: "Όλα κινούνται"),
             .first(emoji: "👣", title: "Πρώτα βήματα", date: nil, note: nil, photoID: nil),
-            .questPhoto(photoID: "p-walk-2"),
+            .photo(photoID: "p-walk-2"),
             .credits(SagaFilmCredits(
                 lines: [
                     SagaFilmCreditLine(role: "Πρωταγωνιστεί", name: "Άννα"),

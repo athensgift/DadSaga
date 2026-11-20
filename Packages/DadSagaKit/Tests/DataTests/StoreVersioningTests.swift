@@ -12,20 +12,14 @@ struct StoreVersioningTests {
 
     /// A copy of the store written before versioned schemas: opening writes to it, so the original never is.
     func copyFixture() throws {
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        for name in ["DadSaga.store", "DadSaga.store-wal", "DadSaga.store-shm"] {
-            try FileManager.default.copyItem(
-                at: StoreFixture.directory.appending(path: name),
-                to: directory.appending(path: name)
-            )
-        }
+        try StoreFiles.copy(from: StoreFixture.directory, to: directory)
     }
 
     /// Writes rows straight into a store, bypassing the repositories, then closes it.
     func writeRows(_ insert: (ModelContext) -> Void) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let container = try ModelContainer(
-            for: Schema(versionedSchema: SchemaV1.self),
+            for: Schema(versionedSchema: CurrentSchema.self),
             migrationPlan: DadSagaMigrationPlan.self,
             configurations: [ModelConfiguration(url: storeURL, cloudKitDatabase: .none)]
         )
@@ -44,9 +38,10 @@ struct StoreVersioningTests {
         #expect(try await store.outfit.fetchOutfit() == StoreFixture.outfit)
     }
 
-    @Test("Given a store written before versioned schemas, when the widget opens it read-only, then it reads the same")
+    @Test("Given a store from before versioned schemas the app has opened, when the widget opens it, then it reads the same")
     func widgetOpensOldStore() async throws {
         try copyFixture()
+        _ = try await LocalStore.live(in: directory).progress.fetchEvents()
         let widget = LocalStore.live(in: directory, readOnly: true)
 
         #expect(try await widget.profiles.fetchProfile()?.children == StoreFixture.profile.children)
@@ -82,7 +77,7 @@ struct StoreVersioningTests {
         try writeRows { context in
             context.insert(ProgressEventRecord(event: kept))
             context.insert(ProgressEventRecord(
-                eventID: UUID(), kind: "quest", contentID: "q1", childID: nil, date: .now, note: nil, photoID: nil
+                eventID: UUID(), kind: "quest", contentID: "q1", childID: nil, date: .now, note: nil, photoIDs: []
             ))
         }
 

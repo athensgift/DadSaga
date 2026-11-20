@@ -68,6 +68,8 @@ struct SagaFilmScriptBuilder {
             )
         case .entry(let entry):
             card(for: entry, date: showsDates ? texts.day(entry.date) : nil)
+        case .photo(_, let id):
+            .photo(photoID: id)
         case .credits(let credits):
             .credits(texts.credits(credits, in: film))
         }
@@ -81,18 +83,18 @@ struct SagaFilmScriptBuilder {
                 title: first.title.resolved(for: locale),
                 date: date,
                 note: entry.note.flatMap(Self.words),
-                photoID: entry.photoID
+                photoID: entry.coverPhotoID
             )
         case .boss(let boss):
             .boss(
                 badge: boss.badge.resolved(for: locale),
                 title: boss.title.resolved(for: locale),
                 date: date,
-                photoID: entry.photoID
+                photoID: entry.coverPhotoID
             )
         case .quest:
             // The storyboard keeps only quests with a photo; one without has nothing to show.
-            entry.photoID.map { .questPhoto(photoID: $0) }
+            entry.coverPhotoID.map { .photo(photoID: $0) }
         }
     }
 

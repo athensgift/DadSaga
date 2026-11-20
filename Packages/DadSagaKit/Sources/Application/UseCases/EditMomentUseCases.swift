@@ -1,9 +1,10 @@
 import Domain
 import Foundation
 
-/// Corrects a captured moment: when it happened, the note and the photo. The first and the child stay the same.
+/// Corrects a captured moment: when it happened, the note and the photos. The first and the child stay the same.
 public protocol UpdateMomentUseCase: Sendable {
-    func execute(momentID: UUID, happenedOn date: Date, note: String?, photo: PhotoChange, now: Date) async throws
+    /// - Parameter photos: every photo the moment keeps, in order (see `EntryPhoto`).
+    func execute(momentID: UUID, happenedOn date: Date, note: String?, photos: [EntryPhoto], now: Date) async throws
 }
 
 public struct DefaultUpdateMomentUseCase: UpdateMomentUseCase {
@@ -15,16 +16,18 @@ public struct DefaultUpdateMomentUseCase: UpdateMomentUseCase {
         self.photoStore = photoStore
     }
 
-    public func execute(momentID: UUID, happenedOn date: Date, note: String?, photo: PhotoChange, now: Date) async throws {
+    public func execute(
+        momentID: UUID, happenedOn date: Date, note: String?, photos: [EntryPhoto], now: Date
+    ) async throws {
         guard let event = try await progressRepository.fetchEvents().first(where: { $0.id == momentID }),
               case .first = event.kind else { throw MomentError.unknownMoment }
         guard date <= now else { throw MomentError.dateInFuture }
         try await EventRecorder(progressRepository: progressRepository, photoStore: photoStore)
-            .update(event, date: date, note: note, photo: photo)
+            .update(event, date: date, note: note, photos: photos)
     }
 }
 
-/// A moment's photo, decoded only as large as it is shown, so a small row never holds a full photo in memory.
+/// An entry's photo, decoded only as large as it is shown, so a small row never holds a full photo in memory.
 public protocol GetPhotoUseCase: Sendable {
     /// - Parameter maxPixelSize: the longest side, in pixels, the photo is shown at.
     func execute(id: String, maxPixelSize: Int) async -> Data?

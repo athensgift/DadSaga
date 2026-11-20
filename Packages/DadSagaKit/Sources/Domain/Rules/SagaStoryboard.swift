@@ -18,8 +18,10 @@ public struct SagaScene: Hashable, Sendable {
         /// The child's world changed, by age. Numbered from 1 within the film; only in a film that spans two or more
         /// worlds.
         case chapter(World, number: Int)
-        /// A first, a boss, or a quest with a photo.
+        /// A first, a boss, or a quest with a photo: drawn over the entry's cover, if it has one.
         case entry(TimelineEntry)
+        /// One of the entry's further photos, alone and without words, right after the entry's own scene (ADR-0042 §6).
+        case photo(TimelineEntry, id: String)
         case credits(SagaCredits)
     }
 
@@ -30,9 +32,11 @@ public struct SagaScene: Hashable, Sendable {
 /// The scenes of a saga film, oldest first (ADR-0036). Pure and deterministic.
 ///
 /// Built from the timeline's counted entries, so the film never disagrees with the timeline or the dad's XP. Quests
-/// without a photo are left out; every first is kept. A film over `SagaPacing.maxSeconds` loses, each evenly and
-/// keeping the first and the last, quest photos, then bosses without a photo, then bosses with one. Only then do
-/// firsts get shorter, down to `firstFloor`; firsts alone can take a film past its length.
+/// without a photo are left out; every first is kept. An entry's scene is followed by up to
+/// `SagaPacing.morePhotosPerEntry` of its further photos, in the dad's order. A film over `SagaPacing.maxSeconds`
+/// loses, each evenly and keeping the first and the last, further photos, then quests, then bosses without a photo,
+/// then bosses with one. Only then do firsts get shorter, down to `firstFloor`; firsts alone can take a film past its
+/// length.
 public struct SagaStoryboard: Hashable, Sendable {
     public let period: SagaPeriod
     /// The moment the film tells the saga as of: the end of its period, or now if the period is still going. The
@@ -69,7 +73,7 @@ public struct SagaStoryboard: Hashable, Sendable {
             questsDone: entries.count { if case .quest = $0.kind { true } else { false } },
             bossesBeaten: entries.count { if case .boss = $0.kind { true } else { false } }
         )
-        let shown = entries.filter { if case .quest = $0.kind { $0.photoID != nil } else { true } }
+        let shown = entries.filter { if case .quest = $0.kind { !$0.photoIDs.isEmpty } else { true } }
         let worlds = Dictionary(uniqueKeysWithValues: shown.compactMap { entry in
             UnlockRules.currentWorld(
                 in: catalog, ageInMonths: child.sagaCompleted(.month, at: entry.date, calendar: calendar)
@@ -92,6 +96,13 @@ public struct SagaStoryboard: Hashable, Sendable {
 
 /// Fits a film's entries into its length.
 private struct Cutter {
+    /// One scene the cutter may leave out: an entry's own scene, or one of its further photos.
+    struct Shot: Hashable {
+        let entryID: UUID
+        /// `nil` for the entry's own scene.
+        let photoID: String?
+    }
+
     let shown: [TimelineEntry]
     /// The child's world at each entry, by age.
     let worlds: [UUID: World]
@@ -99,25 +110,35 @@ private struct Cutter {
     let credits: SagaCredits
 
     func cut() -> [SagaScene] {
-        let tiers: [[TimelineEntry]] = [
-            shown.filter { if case .quest = $0.kind { true } else { false } },
-            shown.filter { if case .boss = $0.kind { $0.photoID == nil } else { false } },
-            shown.filter { if case .boss = $0.kind { $0.photoID != nil } else { false } }
+        let entries = { (include: (TimelineEntry) -> Bool) in
+            shown.filter(include).map { Shot(entryID: $0.id, photoID: nil) }
+        }
+        let tiers: [[Shot]] = [
+            shown.flatMap { entry in morePhotos(of: entry).map { Shot(entryID: entry.id, photoID: $0) } },
+            entries { if case .quest = $0.kind { true } else { false } },
+            entries { if case .boss = $0.kind { $0.photoIDs.isEmpty } else { false } },
+            entries { if case .boss = $0.kind { !$0.photoIDs.isEmpty } else { false } }
         ]
-        var dropped: Set<UUID> = []
+        var dropped: Set<Shot> = []
         for tier in tiers {
             let scenes = { (keep: Int) in compose(dropping: dropped.union(Self.dropped(from: tier, keeping: keep))) }
             if let keep = Self.largest(upTo: tier.count, where: { Self.seconds(of: scenes($0)) <= pacing.maxSeconds }) {
                 return scenes(keep)
             }
-            dropped.formUnion(tier.map(\.id))
+            dropped.formUnion(tier)
         }
         return shortenFirsts(compose(dropping: dropped))
     }
 
-    /// The opening, the entries with a chapter card at each change of world, and the credits.
-    private func compose(dropping dropped: Set<UUID>) -> [SagaScene] {
-        let kept = shown.filter { !dropped.contains($0.id) }
+    /// The further photos that may follow the entry's scene.
+    private func morePhotos(of entry: TimelineEntry) -> [String] {
+        Array(entry.photoIDs.dropFirst().prefix(pacing.morePhotosPerEntry))
+    }
+
+    /// The opening, the entries with a chapter card at each change of world and their further photos, and the credits.
+    /// An entry left out takes its further photos with it.
+    private func compose(dropping dropped: Set<Shot>) -> [SagaScene] {
+        let kept = shown.filter { !dropped.contains(Shot(entryID: $0.id, photoID: nil)) }
         let hasChapters = Set(kept.compactMap { worlds[$0.id]?.id }).count > 1
         var scenes = [SagaScene(kind: .opening, seconds: pacing.opening)]
         var worldID: String?
@@ -129,6 +150,9 @@ private struct Cutter {
                 scenes.append(SagaScene(kind: .chapter(world, number: chapter), seconds: pacing.chapter))
             }
             scenes.append(SagaScene(kind: .entry(entry), seconds: seconds(of: entry)))
+            for photoID in morePhotos(of: entry) where !dropped.contains(Shot(entryID: entry.id, photoID: photoID)) {
+                scenes.append(SagaScene(kind: .photo(entry, id: photoID), seconds: pacing.photo))
+            }
         }
         scenes.append(SagaScene(kind: .credits(credits), seconds: pacing.credits))
         return scenes
@@ -136,9 +160,9 @@ private struct Cutter {
 
     private func seconds(of entry: TimelineEntry) -> TimeInterval {
         switch entry.kind {
-        case .quest: pacing.questPhoto
+        case .quest: pacing.photo
         case .boss: pacing.boss
-        case .first: entry.photoID == nil ? pacing.firstWithoutPhoto : pacing.firstWithPhoto
+        case .first: entry.photoIDs.isEmpty ? pacing.firstWithoutPhoto : pacing.firstWithPhoto
         }
     }
 
@@ -179,16 +203,15 @@ private struct Cutter {
         return fitting
     }
 
-    /// The ids left out when keeping `keep` of `items`, spread evenly, the first and the last kept.
-    private static func dropped(from items: [TimelineEntry], keeping keep: Int) -> Set<UUID> {
+    /// The shots left out when keeping `keep` of `items`, spread evenly, the first and the last kept.
+    private static func dropped(from items: [Shot], keeping keep: Int) -> Set<Shot> {
         guard keep < items.count else { return [] }
         let kept: [Int] = switch keep {
         case ..<1: []
         case 1: [0]
         default: (0..<keep).map { Int((Double($0) * Double(items.count - 1) / Double(keep - 1)).rounded()) }
         }
-        let keptIDs = Set(kept.map { items[$0].id })
-        return Set(items.map(\.id)).subtracting(keptIDs)
+        return Set(items).subtracting(kept.map { items[$0] })
     }
 
     private static func seconds(of scenes: [SagaScene]) -> TimeInterval {

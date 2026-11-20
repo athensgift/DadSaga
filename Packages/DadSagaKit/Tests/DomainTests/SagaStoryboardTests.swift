@@ -8,7 +8,7 @@ struct SagaStoryboardTests {
 
     @Test("Given entries in two worlds, when making the film, then scenes run oldest first with a chapter per world")
     func oldestFirstWithChapters() throws {
-        let questPhoto = saga.event(.quest(id: "q1"), months: 2, photo: "p1")
+        let questPhoto = saga.event(.quest(id: "q1"), months: 2, photos: "p1")
         let first = saga.event(.first(id: "f1"), months: 5)
         let boss = saga.event(.boss(id: "b1"), months: 10)
         let events = [boss, first, saga.event(.quest(id: "q1"), months: 3), questPhoto]
@@ -29,7 +29,7 @@ struct SagaStoryboardTests {
 
     @Test("Given entries of another child, for removed content and outside the year, when making it, then they are left out")
     func onlyThisChildAndPeriod() throws {
-        let kept = saga.event(.first(id: "f1"), months: 11, photo: "p")
+        let kept = saga.event(.first(id: "f1"), months: 11, photos: "p")
         let events = [
             kept,
             saga.event(.first(id: "f2"), months: 4, child: saga.sibling),
@@ -46,7 +46,7 @@ struct SagaStoryboardTests {
 
     @Test("Given 200 quest photos, when making the film, then it fits in 90 seconds and keeps the first and last")
     func questPhotosThinned() throws {
-        let events = (0..<200).map { saga.event(.quest(id: "q1"), months: 0, days: $0, photo: "p\($0)") }
+        let events = (0..<200).map { saga.event(.quest(id: "q1"), months: 0, days: $0, photos: "p\($0)") }
 
         let storyboard = try #require(saga.storyboard(events))
         let shown = storyboard.scenes.compactMap(Self.entryID)
@@ -61,8 +61,8 @@ struct SagaStoryboardTests {
     @Test("Given too many bosses without a photo, when making the film, then quest photos go first, then some bosses")
     func quietBossesThinnedAfterQuestPhotos() throws {
         let bosses = (1...30).map { saga.event(.boss(id: "b\($0)"), months: 1, days: $0) }
-        let photoBoss = saga.event(.boss(id: "b40"), months: 3, photo: "p")
-        let quest = saga.event(.quest(id: "q1"), months: 2, photo: "q")
+        let photoBoss = saga.event(.boss(id: "b40"), months: 3, photos: "p")
+        let quest = saga.event(.quest(id: "q1"), months: 2, photos: "q")
 
         let storyboard = try #require(saga.storyboard(bosses + [photoBoss, quest]))
         let shown = storyboard.scenes.compactMap(Self.entryID)
@@ -76,8 +76,8 @@ struct SagaStoryboardTests {
 
     @Test("Given 24 firsts with photos, when making the film, then every one is kept, each at least 3 seconds")
     func everyFirstKept() throws {
-        let firsts = (1...24).map { saga.event(.first(id: "f\($0)"), months: 0, days: $0 * 7, photo: "p\($0)") }
-        let quest = saga.event(.quest(id: "q1"), months: 1, photo: "q")
+        let firsts = (1...24).map { saga.event(.first(id: "f\($0)"), months: 0, days: $0 * 7, photos: "p\($0)") }
+        let quest = saga.event(.quest(id: "q1"), months: 1, photos: "q")
 
         let storyboard = try #require(saga.storyboard(firsts + [quest]))
         let firstScenes = storyboard.scenes.filter { Self.entryID($0).map(Set(firsts.map(\.id)).contains) ?? false }
@@ -100,8 +100,8 @@ struct SagaStoryboardTests {
 
     @Test("Given many bosses with photos, when making the film, then some go before any first gets shorter")
     func photoBossesThinnedBeforeFirsts() throws {
-        let bosses = (1...30).map { saga.event(.boss(id: "b\($0)"), months: 1, days: $0, photo: "b\($0)") }
-        let first = saga.event(.first(id: "f1"), months: 3, photo: "f")
+        let bosses = (1...30).map { saga.event(.boss(id: "b\($0)"), months: 1, days: $0, photos: "b\($0)") }
+        let first = saga.event(.first(id: "f1"), months: 3, photos: "f")
 
         let storyboard = try #require(saga.storyboard(bosses + [first]))
         let shown = storyboard.scenes.compactMap(Self.entryID)
@@ -115,7 +115,7 @@ struct SagaStoryboardTests {
 
     @Test("Given 100 quest photos, when they are thinned, then the ones kept are spread evenly")
     func thinnedEvenly() throws {
-        let events = (0..<100).map { saga.event(.quest(id: "q1"), months: 0, days: $0, photo: "p\($0)") }
+        let events = (0..<100).map { saga.event(.quest(id: "q1"), months: 0, days: $0, photos: "p\($0)") }
         let index = Dictionary(uniqueKeysWithValues: events.enumerated().map { ($1.id, $0) })
 
         let storyboard = try #require(saga.storyboard(events))
@@ -128,7 +128,7 @@ struct SagaStoryboardTests {
 
     @Test("Given firsts with and without photos that don't fit, when making the film, then the time left is shared")
     func firstsShareTheTimeLeft() throws {
-        let withPhoto = (1...14).map { saga.event(.first(id: "f\($0)"), months: 0, days: $0, photo: "p\($0)") }
+        let withPhoto = (1...14).map { saga.event(.first(id: "f\($0)"), months: 0, days: $0, photos: "p\($0)") }
         let without = (15...20).map { saga.event(.first(id: "f\($0)"), months: 0, days: $0) }
 
         let storyboard = try #require(saga.storyboard(withPhoto + without))
@@ -144,7 +144,7 @@ struct SagaStoryboardTests {
 
     @Test("Given 5,000 quest photos and 30 firsts, when making the film, then it is made in well under a second")
     func manyEntriesAreFast() throws {
-        let quests = (0..<5_000).map { saga.event(.quest(id: "q1"), months: 0, days: $0 / 3, photo: "p\($0)") }
+        let quests = (0..<5_000).map { saga.event(.quest(id: "q1"), months: 0, days: $0 / 3, photos: "p\($0)") }
         let firsts = (1...30).map { saga.event(.first(id: "f\($0)"), months: 2, days: $0) }
 
         let clock = ContinuousClock()
@@ -242,6 +242,28 @@ struct SagaStoryboardTests {
     @Test("Given a period that hasn't started, when making the film, then there is none")
     func notStarted() {
         #expect(saga.storyboard([], period: .year(9)) == nil)
+    }
+
+    @Test("Given a first with five photos, when making the film, then its card is followed by three more, in order")
+    func furtherPhotosFollowTheEntry() throws {
+        let first = saga.event(.first(id: "f1"), months: 2, photos: "p1", "p2", "p3", "p4", "p5")
+        let quest = saga.event(.quest(id: "q1"), months: 3, photos: "q1", "q2")
+
+        let storyboard = try #require(saga.storyboard([first, quest]))
+        let firstEntry = try entry(for: first, in: storyboard)
+        let questEntry = try entry(for: quest, in: storyboard)
+
+        #expect(storyboard.scenes.map(\.kind) == [
+            .opening,
+            .entry(firstEntry),
+            .photo(firstEntry, id: "p2"),
+            .photo(firstEntry, id: "p3"),
+            .photo(firstEntry, id: "p4"),
+            .entry(questEntry),
+            .photo(questEntry, id: "q2"),
+            .credits(SagaCredits(questsDone: 1, bossesBeaten: 0))
+        ])
+        #expect(storyboard.scenes.map(\.seconds) == [3.5, 4.5, 2.5, 2.5, 2.5, 2.5, 2.5, 6])
     }
 
     private func entry(for event: ProgressEvent, in storyboard: SagaStoryboard) throws -> TimelineEntry {

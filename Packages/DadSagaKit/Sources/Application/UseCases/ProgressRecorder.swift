@@ -26,10 +26,14 @@ public enum ProgressError: Error, Equatable {
     case unknownQuest(String)
     case unknownBoss(String)
     case unknownEvent
+    /// More than `ProgressEvent.photoLimit` photos on one entry.
+    case tooManyPhotos
+    /// An edit kept a photo the entry doesn't have.
+    case unknownPhoto
 }
 
 /// The one way a quest, a boss or a first is recorded: check the content exists, store the event with the dad's note
-/// and photo, and say what it changed. A boss or a first counts once per child; when the child already has it, nothing
+/// and photos, and say what it changed. A boss or a first counts once per child; when the child already has it, nothing
 /// is stored and the change has no `eventID`.
 struct ProgressRecorder {
     let contentRepository: any ContentRepository

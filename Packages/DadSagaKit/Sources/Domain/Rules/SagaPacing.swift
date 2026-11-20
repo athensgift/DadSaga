@@ -7,7 +7,10 @@ public struct SagaPacing: Hashable, Sendable {
     public var firstWithPhoto: TimeInterval
     public var firstWithoutPhoto: TimeInterval
     public var boss: TimeInterval
-    public var questPhoto: TimeInterval
+    /// A photo alone: a quest's cover, or one of an entry's further photos (ADR-0042 §6).
+    public var photo: TimeInterval
+    /// How many of an entry's further photos, after its cover, follow its scene.
+    public var morePhotosPerEntry: Int
     public var credits: TimeInterval
     /// The film's target length. Only firsts that no longer fit at `firstFloor` can take it past this.
     public var maxSeconds: TimeInterval
@@ -20,7 +23,8 @@ public struct SagaPacing: Hashable, Sendable {
         firstWithPhoto: TimeInterval = 4.5,
         firstWithoutPhoto: TimeInterval = 3,
         boss: TimeInterval = 3.5,
-        questPhoto: TimeInterval = 2.5,
+        photo: TimeInterval = 2.5,
+        morePhotosPerEntry: Int = 3,
         credits: TimeInterval = 6,
         maxSeconds: TimeInterval = 90,
         firstFloor: TimeInterval = 3
@@ -30,7 +34,8 @@ public struct SagaPacing: Hashable, Sendable {
         self.firstWithPhoto = firstWithPhoto
         self.firstWithoutPhoto = firstWithoutPhoto
         self.boss = boss
-        self.questPhoto = questPhoto
+        self.photo = photo
+        self.morePhotosPerEntry = morePhotosPerEntry
         self.credits = credits
         self.maxSeconds = maxSeconds
         self.firstFloor = firstFloor

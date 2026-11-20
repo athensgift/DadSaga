@@ -1,21 +1,23 @@
 import Domain
 import Foundation
 
-/// A note and a photo the dad may leave when he completes something. Both optional; never asked for.
+/// A note and photos the dad may leave when he completes something. All optional; never asked for.
 public struct JournalInput: Equatable, Sendable {
     public let note: String?
-    public let photo: Data?
+    /// In the dad's order; the first is the cover. At most `ProgressEvent.photoLimit`.
+    public let photos: [Data]
 
     public static let empty = JournalInput()
 
-    public init(note: String? = nil, photo: Data? = nil) {
+    public init(note: String? = nil, photos: [Data] = []) {
         self.note = note
-        self.photo = photo
+        self.photos = photos
     }
 }
 
-/// Stores the photo, then the event; if the event can't be stored, the new photo is removed again so nothing is
-/// orphaned. An old photo is removed only once the event no longer points to it.
+/// Stores new photos first, then the event; if a photo or the event can't be stored, every photo stored for it is
+/// removed again so nothing is orphaned. A removed photo is deleted only once the event no longer points to it
+/// (ADR-0042 §1).
 struct EventRecorder {
     let progressRepository: any ProgressRepository
     let photoStore: any PhotoStore
@@ -23,11 +25,11 @@ struct EventRecorder {
     /// Stores the event with the journal. A boss or a first that this child already has is not stored again: then the
     /// result is `nil` and no photo is kept.
     func record(_ kind: ProgressEvent.Kind, childID: UUID, date: Date, journal: JournalInput) async throws -> ProgressEvent? {
-        var photoID: String?
-        if let photo = journal.photo {
-            photoID = try await photoStore.save(photo)
-        }
-        let event = ProgressEvent(kind: kind, childID: childID, date: date, note: journal.note.trimmedOrNil, photoID: photoID)
+        guard journal.photos.count <= ProgressEvent.photoLimit else { throw ProgressError.tooManyPhotos }
+        let photoIDs = try await save(journal.photos)
+        let event = ProgressEvent(
+            kind: kind, childID: childID, date: date, note: journal.note.trimmedOrNil, photoIDs: photoIDs
+        )
         let added: Bool
         do {
             if kind.countsOncePerChild {
@@ -37,45 +39,74 @@ struct EventRecorder {
                 added = true
             }
         } catch {
-            if let photoID { await photoStore.delete(id: photoID) }
+            await delete(photoIDs)
             throw error
         }
         guard added else {
-            if let photoID { await photoStore.delete(id: photoID) }
+            await delete(photoIDs)
             return nil
         }
         return event
     }
 
-    /// Saves `event` with a new date, note and photo. Its id, what it was and the child stay the same.
-    func update(_ event: ProgressEvent, date: Date, note: String?, photo: PhotoChange) async throws {
-        var photoID = event.photoID
-        var newPhotoID: String?
-        switch photo {
-        case .keep: break
-        case .remove: photoID = nil
-        case .replace(let data):
-            newPhotoID = try await photoStore.save(data)
-            photoID = newPhotoID
+    /// Saves `event` with a new date, note and photos. Its id, what it was and the child stay the same.
+    /// - Parameter photos: every photo it keeps, in order. More than `ProgressEvent.photoLimit`, or a kept id the event
+    ///   doesn't have, throws before anything is written.
+    func update(_ event: ProgressEvent, date: Date, note: String?, photos: [EntryPhoto]) async throws {
+        guard photos.count <= ProgressEvent.photoLimit else { throw ProgressError.tooManyPhotos }
+        let keptIDs = photos.compactMap { if case .kept(let id) = $0 { id } else { nil } }
+        guard Set(keptIDs).count == keptIDs.count, Set(keptIDs).isSubset(of: event.photoIDs) else {
+            throw ProgressError.unknownPhoto
         }
-        let updated = ProgressEvent(
-            id: event.id, kind: event.kind, childID: event.childID, date: date, note: note.trimmedOrNil, photoID: photoID
-        )
+        var addedIDs: [String] = []
+        var photoIDs: [String] = []
         do {
-            try await progressRepository.update(updated)
+            for photo in photos {
+                switch photo {
+                case .kept(let id):
+                    photoIDs.append(id)
+                case .added(let data):
+                    let id = try await photoStore.save(data)
+                    addedIDs.append(id)
+                    photoIDs.append(id)
+                }
+            }
+            try await progressRepository.update(ProgressEvent(
+                id: event.id, kind: event.kind, childID: event.childID, date: date, note: note.trimmedOrNil,
+                photoIDs: photoIDs
+            ))
         } catch {
-            if let newPhotoID { await photoStore.delete(id: newPhotoID) }
+            await delete(addedIDs)
             throw error
         }
-        if let old = event.photoID, old != photoID {
-            await photoStore.delete(id: old)
+        await delete(event.photoIDs.filter { !photoIDs.contains($0) })
+    }
+
+    /// Stores the photos in order. If one can't be stored, the ones already stored are removed again.
+    private func save(_ photos: [Data]) async throws -> [String] {
+        var ids: [String] = []
+        do {
+            for photo in photos {
+                ids.append(try await photoStore.save(photo))
+            }
+        } catch {
+            await delete(ids)
+            throw error
+        }
+        return ids
+    }
+
+    private func delete(_ ids: [String]) async {
+        for id in ids {
+            await photoStore.delete(id: id)
         }
     }
 }
 
-/// Adds, changes or removes the note and photo on any entry (quest, boss or moment). The date and what it was stay.
+/// Adds, changes or removes the note and photos on any entry (quest, boss or moment). The date and what it was stay.
 public protocol UpdateJournalUseCase: Sendable {
-    func execute(eventID: UUID, note: String?, photo: PhotoChange) async throws
+    /// - Parameter photos: every photo the entry keeps, in order (see `EntryPhoto`).
+    func execute(eventID: UUID, note: String?, photos: [EntryPhoto]) async throws
 }
 
 public struct DefaultUpdateJournalUseCase: UpdateJournalUseCase {
@@ -87,11 +118,11 @@ public struct DefaultUpdateJournalUseCase: UpdateJournalUseCase {
         self.photoStore = photoStore
     }
 
-    public func execute(eventID: UUID, note: String?, photo: PhotoChange) async throws {
+    public func execute(eventID: UUID, note: String?, photos: [EntryPhoto]) async throws {
         guard let event = try await progressRepository.fetchEvents().first(where: { $0.id == eventID }) else {
             throw ProgressError.unknownEvent
         }
         try await EventRecorder(progressRepository: progressRepository, photoStore: photoStore)
-            .update(event, date: event.date, note: note, photo: photo)
+            .update(event, date: event.date, note: note, photos: photos)
     }
 }

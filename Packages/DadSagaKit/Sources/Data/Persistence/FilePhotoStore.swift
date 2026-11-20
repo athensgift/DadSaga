@@ -35,10 +35,23 @@ public actor FilePhotoStore: PhotoStore {
         return id
     }
 
-    /// Decodes only a downscaled image straight from the file, so the full photo never sits in memory.
+    /// Decodes only a downscaled image straight from the file, so the full photo never sits in memory. A stored photo
+    /// no larger than asked is returned as it is, never as a JPEG of a JPEG (ADR-0042 §1).
     public func thumbnail(id: String, maxPixelSize: Int) async -> Data? {
-        guard let source = CGImageSourceCreateWithURL(url(for: id) as CFURL, nil) else { return nil }
+        let file = url(for: id)
+        guard let source = CGImageSourceCreateWithURL(file as CFURL, nil) else { return nil }
+        if let side = Self.longestSide(of: source), side <= maxPixelSize {
+            return try? Data(contentsOf: file)
+        }
         return try? Self.downscaledJPEG(from: source, maxPixelSize: maxPixelSize)
+    }
+
+    /// Read from the file's header, without decoding it. Stored photos are already upright (`save`).
+    private static func longestSide(of source: CGImageSource) -> Int? {
+        guard let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
+              let width = properties[kCGImagePropertyPixelWidth] as? Int,
+              let height = properties[kCGImagePropertyPixelHeight] as? Int else { return nil }
+        return max(width, height)
     }
 
     public func delete(id: String) async {

@@ -71,7 +71,7 @@ extension SagaFilmSheetTests {
             case .chapter(let heading, let title, let tagline): [heading, title, tagline]
             case .first(let emoji, let title, let date, let note, _): [emoji, title, note ?? ""] + dated(date)
             case .boss(let badge, let title, let date, _): [badge, title] + dated(date)
-            case .questPhoto: []
+            case .photo: []
             case .credits(let credits): credits.lines.flatMap { [$0.role, $0.name] } + [credits.signature]
             }
         }
@@ -83,7 +83,7 @@ extension SagaFilmSheetTests {
             switch scene.card {
             case .opening(_, _, let dates, _): dates
             case .first(_, _, let date, _, _), .boss(_, _, let date, _): date
-            case .chapter, .questPhoto, .credits: nil
+            case .chapter, .photo, .credits: nil
             }
         }
     }

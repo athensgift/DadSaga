@@ -63,7 +63,7 @@ struct SagaFilmCardView: View {
             }
         case .credits(let credits):
             self.credits(credits)
-        case .questPhoto:
+        case .photo:
             EmptyView()
         }
     }
@@ -131,7 +131,7 @@ struct SagaFilmCardView: View {
                         .foregroundStyle(DSFilm.boss)
                     line(badge, font: DSFilm.headline(side), alignment: .leading)
                 }
-            case .opening, .chapter, .questPhoto, .credits:
+            case .opening, .chapter, .photo, .credits:
                 EmptyView()
             }
         }

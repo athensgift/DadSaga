@@ -7,7 +7,7 @@ import Foundation
 struct SagaFilmTimelineBuilder {
     /// How many frames a scene takes to fade in from the one before.
     static let fadeFrames = 12
-    /// The same between two quest photos, where the montage moves faster.
+    /// The same between two photos alone, where the montage moves faster.
     static let montageFadeFrames = 9
     /// Where a photo's glide ends: a little closer, towards the upper middle, where faces usually are. Near enough
     /// to the middle that the glide never moves a photo's edge into the frame.
@@ -56,7 +56,7 @@ struct SagaFilmTimelineBuilder {
             : .kenBurns(start: Self.closeUp, end: FilmCamera())
     }
 
-    /// The card, drawn on the main actor when the encoder is about to need it. A quest's photo has none.
+    /// The card, drawn on the main actor when the encoder is about to need it. A photo alone has none.
     private func overlay(for card: SagaFilmCard) -> FilmImageLoader? {
         guard !card.isPhotoAlone else { return nil }
         let pixelSize = CGSize(width: spec.width, height: spec.height)
@@ -80,8 +80,8 @@ struct SagaFilmTimelineBuilder {
 }
 
 private extension SagaFilmCard {
-    /// A quest's photo: nothing is drawn over it.
+    /// A photo alone: nothing is drawn over it.
     var isPhotoAlone: Bool {
-        if case .questPhoto = self { true } else { false }
+        if case .photo = self { true } else { false }
     }
 }

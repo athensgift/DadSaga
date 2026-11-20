@@ -16,7 +16,7 @@ public struct WeeklyHighlights: Hashable, Sendable {
     public let childCount: Int
     public let quest: QuestSlot
     public let latestMoment: CapturedMoment?
-    /// A small copy of the moment's photo, only when one was asked for and exists.
+    /// A small copy of the moment's cover photo, only when one was asked for and exists.
     public let momentPhoto: Data?
     /// The start of the next week, when the quest changes.
     public let validUntil: Date
@@ -74,7 +74,7 @@ public struct DefaultGetWeeklyHighlightsUseCase: GetWeeklyHighlightsUseCase {
         let week = WeeklyQuest.week(containing: date, calendar: calendar)
         let moment = DadProgress(events: events, catalog: catalog).moments(for: child.id).first
         var photo: Data?
-        if let maxPixelSize = photoMaxPixelSize, let photoID = moment?.photoID {
+        if let maxPixelSize = photoMaxPixelSize, let photoID = moment?.coverPhotoID {
             photo = await photoStore.thumbnail(id: photoID, maxPixelSize: maxPixelSize)
         }
         return WeeklyHighlights(

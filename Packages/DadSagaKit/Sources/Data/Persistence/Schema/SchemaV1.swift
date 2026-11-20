@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 /// The stored shape since ADR-0023, frozen as version 1 (ADR-0026). A released version is never edited: a change to a
-/// stored property is a new `SchemaV2` with a stage in `DadSagaMigrationPlan`.
+/// stored property is a new version with a stage in `DadSagaMigrationPlan`.
 enum SchemaV1: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
 
