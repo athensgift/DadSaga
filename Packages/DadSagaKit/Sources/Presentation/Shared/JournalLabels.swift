@@ -10,7 +10,7 @@ public struct PhotoLabels: Equatable, Sendable {
     public let cover: String
     public let makeCover: String
     public let remove: String
-    /// The one plain line once an entry holds ten.
+    /// The one plain line once an entry holds as many as it can (`ProgressEvent.photoLimit`).
     public let limitReached: String
     public let viewer: PhotoViewerLabels
 

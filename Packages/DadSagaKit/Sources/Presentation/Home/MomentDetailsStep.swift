@@ -106,7 +106,7 @@ struct MomentDetailsStep: View {
 
     private var buttons: some View {
         VStack(spacing: DSSpacing.s) {
-            // Saving ten photos takes a second or two: the button waits, and says so.
+            // Saving several photos takes a moment: the button waits, and says so.
             PrimaryButton(details.saveTitle) { actions.onSave(date, note, photos) }
                 .disabled(isSaving || photos.isLoading)
                 .overlay(alignment: .trailing) {

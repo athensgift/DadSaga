@@ -10,17 +10,17 @@ struct PhotoDraftsTests {
         let drafts = PhotoDrafts(storedIDs: ["a", "b"])
         #expect(drafts.entryPhotos == [.kept("a"), .kept("b")])
         #expect(drafts.pickedPhotos.isEmpty)
-        #expect(drafts.remaining == 8)
+        #expect(drafts.remaining == 3)
         #expect(!drafts.isFull)
     }
 
-    @Test("Given eight photos, when three more are picked, then two are added after them and the field is full")
+    @Test("Given three photos, when three more are picked, then two are added after them and the field is full")
     func appendsWithinTheLimit() {
-        var drafts = PhotoDrafts(storedIDs: (1...8).map { "p\($0)" })
+        var drafts = PhotoDrafts(storedIDs: (1...3).map { "p\($0)" })
 
         drafts.append([Data([1]), Data([2]), Data([3])])
 
-        #expect(drafts.items.count == 10)
+        #expect(drafts.items.count == 5)
         #expect(drafts.isFull)
         #expect(drafts.remaining == 0)
         #expect(drafts.entryPhotos.suffix(2) == [.added(Data([1])), .added(Data([2]))])
@@ -42,13 +42,13 @@ struct PhotoDraftsTests {
 
     @Test("Given a full field, when removing one, then there is room for one more and the rest stay in order")
     func removes() {
-        var drafts = PhotoDrafts(storedIDs: (1...10).map { "p\($0)" })
+        var drafts = PhotoDrafts(storedIDs: (1...5).map { "p\($0)" })
 
         drafts.remove(id: "p1")
 
         #expect(drafts.remaining == 1)
         #expect(drafts.entryPhotos.first == .kept("p2"))
-        #expect(drafts.items.count == 9)
+        #expect(drafts.items.count == 4)
     }
 
     @Test("Given a stored photo, when two equal photos are picked, then each has its own id")
@@ -58,9 +58,9 @@ struct PhotoDraftsTests {
         #expect(Set(drafts.items.map(\.id)).count == 3)
     }
 
-    @Test("Given eight photos, when three are still loading, then only two fit, it counts as changed, and finishing adds them")
+    @Test("Given three photos, when three are still loading, then only two fit, it counts as changed, and finishing adds them")
     func loading() {
-        let stored = PhotoDrafts(storedIDs: (1...8).map { "p\($0)" })
+        let stored = PhotoDrafts(storedIDs: (1...3).map { "p\($0)" })
         var drafts = stored
 
         drafts.startLoading(3)
@@ -71,7 +71,7 @@ struct PhotoDraftsTests {
         #expect(drafts != stored)
         drafts.finishLoading([Data([1]), Data([2]), Data([3])])
         #expect(!drafts.isLoading)
-        #expect(drafts.items.count == 10)
+        #expect(drafts.items.count == 5)
     }
 
     @Test("Given photos loading, when the loading is given up, then nothing is added and the room comes back")
@@ -82,6 +82,6 @@ struct PhotoDraftsTests {
         drafts.finishLoading()
 
         #expect(drafts == PhotoDrafts(storedIDs: ["a"]))
-        #expect(drafts.remaining == 9)
+        #expect(drafts.remaining == 4)
     }
 }

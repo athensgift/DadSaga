@@ -1,7 +1,7 @@
-# ADR-0042: Up to ten photos on every entry, a full-screen viewer, and firsts in two steps
+# ADR-0042: Up to five photos on every entry, a full-screen viewer, and firsts in two steps
 
 **Status:** Proposed (2026-11-20). The owner approved the three changes and asked for the design; drafted by the
-architect. Changes ADR-0016 and ADR-0022 (an entry keeps up to ten photos), ADR-0021 §3 (a first's undo shows in its
+architect. Changes ADR-0016 and ADR-0022 (an entry keeps up to five photos), ADR-0021 §3 (a first's undo shows in its
 sheet), ADR-0026 §4 (the first new schema versions are for photos; the non-optional `childID` waits for sync),
 ADR-0036 §1–§2 and ADR-0037 §2 (an entry's further photos in the film), ADR-0033 and ADR-0034 (the audit and the
 snapshots cover the viewer and both steps of a first).
@@ -25,15 +25,15 @@ snapshots cover the viewer and both steps of a first).
 
 ## Decision
 
-### 1. Up to ten photos on every entry, in the dad's order
-- `ProgressEvent.photoIDs: [String]` replaces `photoID`; `ProgressEvent.photoLimit` is 10. `TimelineEntry`,
-  `CapturedMoment` and `JournalEntry` follow. Ten is enough for a day and keeps the files modest (at most 2048 px,
+### 1. Up to five photos on every entry, in the dad's order
+- `ProgressEvent.photoIDs: [String]` replaces `photoID`; `ProgressEvent.photoLimit` is 5 (the owner's choice: enough for one moment). `TimelineEntry`,
+  `CapturedMoment` and `JournalEntry` follow. Five is enough for a moment and keeps the files modest (at most 2048 px,
   about 1 MB each, ADR-0016).
 - **The first photo is the cover:** the one on every square thumbnail, on the widget, and behind a first's or a boss's
   card in the film.
 - Recording takes `JournalInput(note:photos:)`. Editing takes the whole list as it should end up, `[EntryPhoto]`, each
   `.kept(id)` or `.added(Data)`; it replaces `PhotoChange`. One shape covers adding several, removing one and choosing
-  the cover. More than ten, a kept id the entry doesn't have, or the same id kept twice, throws before anything is
+  the cover. More than five, a kept id the entry doesn't have, or the same id kept twice, throws before anything is
   written.
 - **Files** (ADR-0016, ADR-0021): new photos are written first, then the event. If a photo or the event can't be
   written, every photo written for it is deleted. Removed photos are deleted only once the event no longer points to
@@ -73,7 +73,7 @@ snapshots cover the viewer and both steps of a first).
 - **Each thumbnail:** a tap opens it full screen; its menu, and the same accessibility actions, offer "Make cover"
   (moves it first) and "Remove". There is no drag to reorder: the only order the app uses is the cover, and the picker
   already numbers the rest.
-- At ten the add buttons go, and one plain line says ten is the most an entry keeps.
+- At five the add buttons go, and one plain line says five is the most an entry keeps.
 - Picked photos stay as they came until Save. Previews decode them only as large as they are shown, off the main
   actor.
 
@@ -114,7 +114,7 @@ snapshots cover the viewer and both steps of a first).
   | Step 2 line | Φωτογραφίες ή δυο λόγια, τώρα ή όποτε θέλεις. | Photos or a few words, now or whenever you like. |
   | Buttons | Αποθήκευση · Όχι τώρα | Save · Not now |
   | Discard | Να φύγουν οι φωτογραφίες και οι σημειώσεις που πρόσθεσες; · Να φύγουν · Συνέχισε | Discard the photos and words you just added? · Discard · Keep editing |
-  | At ten | Ως 10 φωτογραφίες σε κάθε καταχώριση. | Up to 10 photos on each entry. |
+  | At five | Ως 5 φωτογραφίες σε κάθε καταχώριση. | Up to 5 photos on each entry. |
   | Viewer | Φωτογραφία 2 από 5 · Κλείσιμο · Δες τις φωτογραφίες | Photo 2 of 5 · Close · Show photos |
   | Thumbnail | Κάν' την εξώφυλλο · Αφαίρεση | Make cover · Remove |
 
@@ -142,7 +142,7 @@ They are paused while this is built and run once at the end:
   binary files.
 - A film with many photos shows more of them without growing past 90 seconds; a dad who adds photos to one entry sees
   at most four of them in a film.
-- Ten photos are written one after another when saved (a second or two on a phone); the button waits meanwhile.
+- Five photos are written one after another when saved (about a second on a phone); the button waits meanwhile.
 - A first is recorded before its photos and note, so the timeline, the widget and the film may hold a first without
   them, as they could before.
 - The viewer is the app's first `UIScrollView` and its second `UIViewRepresentable` (after the camera); both stay in

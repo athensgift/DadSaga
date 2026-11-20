@@ -47,7 +47,7 @@ struct JournalEditorSheet: View {
                     Button(role: .close, action: onClose)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    // Saving ten photos takes a second or two: the button waits, and says so.
+                    // Saving several photos takes a moment: the button waits, and says so.
                     if isSaving {
                         ProgressView()
                     } else {
