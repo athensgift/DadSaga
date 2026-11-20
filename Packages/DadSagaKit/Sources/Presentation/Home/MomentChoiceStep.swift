@@ -2,7 +2,8 @@ import DesignSystem
 import SwiftUI
 
 /// Step 1 of a new moment: the grid of firsts and when it happened. ✓ records it at once (ADR-0042 §5). The date is
-/// asked here, not later: it decides where the moment lands in the timeline and the film.
+/// asked here, not later: it decides where the moment lands in the timeline and the film. It and the line about step 2
+/// sit above the grid, which runs past the screen.
 struct MomentChoiceStep: View {
     /// The child's name.
     let title: String
@@ -35,11 +36,6 @@ struct MomentChoiceStep: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: DSSpacing.m) {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: DSSpacing.s)], spacing: DSSpacing.s) {
-                    ForEach(choice.options) { option in
-                        optionButton(option)
-                    }
-                }
                 DateRow(label: choice.dateLabel, date: $date, range: choice.earliestDate...choice.latestDate)
                     .font(DSFont.body)
                     .foregroundStyle(DSColor.textPrimary)
@@ -50,6 +46,11 @@ struct MomentChoiceStep: View {
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: DSSpacing.s)], spacing: DSSpacing.s) {
+                    ForEach(choice.options) { option in
+                        optionButton(option)
+                    }
+                }
                 SheetError(message: errorMessage)
             }
             .frame(maxWidth: readableWidth)

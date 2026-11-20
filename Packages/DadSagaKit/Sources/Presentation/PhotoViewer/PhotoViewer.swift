@@ -78,8 +78,9 @@ struct PhotoViewer: View {
             Button(content.closeTitle, systemImage: "xmark", action: onClose)
                 .labelStyle(.iconOnly)
                 .font(DSFont.headline)
-                .frame(minWidth: 32, minHeight: 32)
                 .buttonStyle(.glass)
+                .buttonBorderShape(.circle)
+                .controlSize(.large)
         }
         .padding(.horizontal, DSSpacing.m)
         .padding(.top, DSSpacing.s)
