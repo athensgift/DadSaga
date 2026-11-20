@@ -45,7 +45,9 @@ struct MomentPhoto<Placeholder: View>: View {
                 image = nil
                 return
             }
-            image = Image(imageData: data)
+            let decoded = await DecodedImage.decode(data, maxPixelSize: maxPixelSize)
+            guard !Task.isCancelled else { return }
+            image = decoded?.image
         }
     }
 }
