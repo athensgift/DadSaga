@@ -63,6 +63,7 @@ section[id] { scroll-margin-top: 72px; }
 .eyebrow { color: var(--accent); font-weight: 600; font-size: 15px; letter-spacing: 0.02em; margin: 0 0 12px; }
 h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 18px; }
 .lead { font-size: clamp(18px, 2.2vw, 21px); color: var(--text-2); margin: 0 0 28px; max-width: 34em; }
+.nowrap { white-space: nowrap; }
 .hero-art { justify-self: center; max-width: 300px; width: 100%; }
 
 /* The family: Super Dad and the baby, each a button that cheers when tapped, as on the app's home (ADR-0040). The
@@ -118,6 +119,8 @@ h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.01em; line-height: 
 
 /* Timeline: a recording of the real Timeline tab (Tools: simulator, ADR-0040) in a phone frame. It plays only in view,
    and not with Reduce Motion (site.js); otherwise the poster shows. */
+/* Before the birth (ADR-0053's world 0): the home page's cards again, with a note under them. */
+.before-section .note { margin-top: 20px; max-width: 46em; }
 .timeline-section { background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--accent) 8%, transparent)); }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
 .pills { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
