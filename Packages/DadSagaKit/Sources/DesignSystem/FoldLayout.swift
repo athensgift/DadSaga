@@ -29,6 +29,21 @@ public struct HorizontalFold: Equatable, Sendable {
         }
         return nil
     }
+
+    /// The folds to look for: the active ones while the device is half-open; otherwise, `whileFlat`, every fold
+    /// drawn as the line down its middle. The system reports a fold that lies flat with the hinge's thickness, but
+    /// there is nothing to keep clear on a flat display: two panes split there meet at the line (ADR-0045).
+    /// - Parameters:
+    ///   - active: the folds of a partly open device.
+    ///   - all: the folds also while the device lies flat (`.includeInactive`).
+    public static func divisions(active: [CGRect], all: [CGRect], whileFlat: Bool) -> [CGRect] {
+        guard whileFlat, active.isEmpty else { return active }
+        return all.map { region in
+            region.width >= region.height
+                ? CGRect(x: region.minX, y: region.midY, width: region.width, height: 0)
+                : CGRect(x: region.midX, y: region.minY, width: 0, height: region.height)
+        }
+    }
 }
 
 /// Its first view above the fold and its second below it, each as wide as the container; nothing in the fold.
@@ -164,11 +179,15 @@ extension View {
 
 extension GeometryProxy {
     /// The display's folds in the view's coordinates: while the device is half-open, or also while it lies flat,
-    /// where a fold has no thickness. The only availability check of the fold layouts: `macOS` is named because the
+    /// as a line with no thickness. The only availability check of the fold layouts: `macOS` is named because the
     /// package also builds there to run its tests.
     fileprivate func divisions(whileFlat: Bool) -> [CGRect] {
         if #available(iOS 27.1, macOS 27.1, *) {
-            reservedRegions(kind: .division, options: whileFlat ? .includeInactive : []).map(\.frame)
+            HorizontalFold.divisions(
+                active: reservedRegions(kind: .division).map(\.frame),
+                all: whileFlat ? reservedRegions(kind: .division, options: .includeInactive).map(\.frame) : [],
+                whileFlat: whileFlat
+            )
         } else {
             []
         }

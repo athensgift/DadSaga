@@ -58,6 +58,33 @@ struct FoldLayoutTests {
         #expect(fold([CGRect(x: 0, y: 440, width: 669, height: 0)]) == HorizontalFold(top: 440, bottom: 440))
     }
 
+    @Test("Given the iPhone Duo open flat and upright, when home looks for its fold, then the panes meet at the hinge's middle")
+    func flatFoldHasNoThickness() {
+        let hinge = CGRect(x: 0, y: 420, width: 669, height: 40)
+        let divisions = HorizontalFold.divisions(active: [], all: [hinge], whileFlat: true)
+        #expect(fold(divisions) == HorizontalFold(top: 440, bottom: 440))
+    }
+
+    @Test("Given the iPhone Duo half-open, when home looks for where it folds, then the hinge's whole gap is kept clear")
+    func halfOpenFoldKeepsItsGap() {
+        let hinge = CGRect(x: 0, y: 420, width: 669, height: 40)
+        let divisions = HorizontalFold.divisions(active: [hinge], all: [hinge], whileFlat: true)
+        #expect(fold(divisions) == HorizontalFold(top: 420, bottom: 460))
+    }
+
+    @Test("Given the iPhone Duo open flat on its side, when home looks for a fold across it, then there is none")
+    func flatFoldDownTheViewStaysDown() {
+        let hinge = CGRect(x: 455, y: 0, width: 40, height: 669)
+        let divisions = HorizontalFold.divisions(active: [], all: [hinge], whileFlat: true)
+        #expect(fold(divisions, in: CGSize(width: 951, height: 669)) == nil)
+    }
+
+    @Test("Given a screen that splits only while half-open, when the device lies flat, then there is no fold")
+    func flatWithoutAskingForIt() {
+        let hinge = CGRect(x: 0, y: 420, width: 669, height: 40)
+        #expect(HorizontalFold.divisions(active: [], all: [hinge], whileFlat: false).isEmpty)
+    }
+
     @Test("Given a fold that stops short of the view's edge, when the view looks for a fold across it, then there is none")
     func foldNotSpanningTheWidth() {
         #expect(fold([CGRect(x: 0, y: 420, width: 400, height: 40)]) == nil)

@@ -57,13 +57,19 @@ struct HomeArrangementTests {
     @Test("Given a tall pane above the fold, when the hero is sized, then he is as big as in the two columns")
     func heroInATallPane() {
         let tall = HomeArrangement.stacked(HorizontalFold(top: 520, bottom: 550))
-        #expect(tall.maxHeroSize == HomeArrangement.columns.maxHeroSize)
+        #expect(tall.maxHeroSize(headerHeight: 52) == HomeArrangement.columns.maxHeroSize(headerHeight: 52))
+    }
+
+    @Test("Given the iPhone Duo open upright, when the hero is sized, then he fills what the header leaves above the fold")
+    func heroReachesTheFold() {
+        let open = HomeArrangement.stacked(HorizontalFold(top: 393.5, bottom: 393.5))
+        let hero = open.maxHeroSize(headerHeight: 52)
+        #expect(hero == 393.5 - 52 - HomeArrangement.paneSpacing)
+        #expect(open.maxHeroSize(headerHeight: 80) == hero - 28)
     }
 
     @Test("Given a short pane above the fold, when the hero is sized, then he shrinks but stays recognisable")
     func heroInAShortPane() {
-        let short = HomeArrangement.stacked(HorizontalFold(top: 360, bottom: 390))
-        #expect(short.maxHeroSize == 180)
-        #expect(HomeArrangement.stacked(HorizontalFold(top: 210, bottom: 240)).maxHeroSize == 120)
+        #expect(HomeArrangement.stacked(HorizontalFold(top: 210, bottom: 240)).maxHeroSize(headerHeight: 52) == 120)
     }
 }

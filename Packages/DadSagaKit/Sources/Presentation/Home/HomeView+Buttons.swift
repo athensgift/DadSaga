@@ -19,6 +19,7 @@ extension HomeView {
                 .labelStyle(.iconOnly)
                 .buttonStyle(.glass)
         }
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { paneHeaderHeight = $0 }
     }
 
     var worldMapButton: some View {

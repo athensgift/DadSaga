@@ -30,17 +30,22 @@ enum HomeArrangement: Equatable, Sendable {
         if case .stacked(let fold) = self { fold } else { nil }
     }
 
-    /// The tallest the hero is drawn. Above a fold he stands beside his level, in what the header leaves of the
-    /// upper pane.
-    var maxHeroSize: CGFloat {
+    /// The tallest the hero is drawn. Above a fold he stands beside his level, in what the pane's header leaves of
+    /// the upper pane, so the stage reaches down to the fold.
+    /// - Parameter headerHeight: the height the pane's header is drawn at (its title and buttons).
+    func maxHeroSize(headerHeight: CGFloat) -> CGFloat {
         switch self {
         case .column: 210
         case .columns: Self.widestHero
-        case .stacked(let fold): min(Self.widestHero, max(120, fold.top - Self.headerAndPadding))
+        case .stacked(let fold):
+            min(Self.widestHero, max(Self.smallestHero, fold.top - headerHeight - Self.paneSpacing))
         }
     }
 
     private static let widestHero: CGFloat = 260
-    /// The pane's header, its padding and the space above the stage.
-    private static let headerAndPadding: CGFloat = 180
+    /// Smaller than this the hero is hard to recognise: the pane scrolls instead.
+    private static let smallestHero: CGFloat = 120
+    /// What the upper pane spends besides its header and the hero: its padding above and below, the space under
+    /// the header and the space above the stage.
+    static let paneSpacing: CGFloat = DSSpacing.l * 2 + DSSpacing.m + DSSpacing.xl
 }

@@ -22,6 +22,8 @@ public struct HomeView: View {
     @State private var fold: HorizontalFold?
     /// Where the fold runs across home, also while the device lies flat.
     @State private var flatFold: HorizontalFold?
+    /// The two-pane header's height, so the hero takes what is left above the fold.
+    @State var paneHeaderHeight: CGFloat = 0
     @State var settingsViewModel: SettingsViewModel?
     /// The film sheet, opened from the film offer.
     @State var sagaFilm: SagaFilmViewModel?
@@ -226,7 +228,7 @@ public struct HomeView: View {
             heroTitle: content.heroTitle,
             companions: content.companions,
             selectedChildID: content.selectedChildID,
-            maxHeroSize: arrangement.maxHeroSize,
+            maxHeroSize: arrangement.maxHeroSize(headerHeight: paneHeaderHeight),
             cheerTrigger: viewModel.celebration?.id ?? 0
         ) { id in
             Task { await viewModel.selectChild(id: id) }
