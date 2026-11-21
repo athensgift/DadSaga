@@ -13,7 +13,8 @@ The checklist for a TestFlight build and an App Store release. The decisions beh
       Store Connect. Verification can take weeks: start early.
 - [ ] Privacy label: "Data Not Collected". It must match `web/privacy` and the privacy manifests.
 - [ ] Age rating: "Medical/Treatment Information" is **Infrequent**.
-- [ ] Accessibility Nutrition Labels: don't claim "Sufficient Contrast" while the dark-mode gap of ADR-0030 is open.
+- [ ] Accessibility Nutrition Labels: claim only what has been checked on every screen, in light and dark (the
+      accessibility audit, ADR-0033); "Sufficient Contrast" only once dark mode has been checked too.
 - [ ] App Store text says "from birth" until the world before birth exists.
 - [ ] Privacy policy URL `https://dadsaga.app/privacy/`, support URL `https://dadsaga.app/support/`.
 
