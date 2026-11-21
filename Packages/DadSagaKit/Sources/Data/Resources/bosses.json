@@ -143,8 +143,8 @@
         "en": "If there are two of you, swap shifts before you're both spent, not after."
       },
       {
-        "el": "Αν το κλάμα ακούγεται διαφορετικό, αν έχει πυρετό, δεν τρώει ή κάτι σε ανησυχεί, πάρε τον παιδίατρο.",
-        "en": "If the cry sounds different, if there's a fever, they won't feed or something worries you, call your paediatrician."
+        "el": "Αν το κλάμα ακούγεται διαφορετικό, αν έχει πυρετό, δεν τρώει ή κάτι σε ανησυχεί, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν είναι χαλαρό σαν πανί, ξυπνά δύσκολα, δυσκολεύεται να αναπνεύσει ή γίνεται μπλε ή γκρι, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+        "en": "If the cry sounds different, they have a fever, won't feed or something worries you, call the doctor now, and the emergency number if they tell you to or if you can't reach them. If they're floppy, hard to wake, struggle to breathe or turn blue or grey, call the emergency number."
       }
     ],
     "badge": {
@@ -188,12 +188,12 @@
         "en": "Offer feeds or fluids often. Don't bundle them up, and don't strip them off to cool them."
       },
       {
-        "el": "Κοίτα το παιδί, όχι μόνο τον αριθμό: πίνει; σε κοιτάζει; ξυπνάει εύκολα; Αν όχι, πάρε τηλέφωνο.",
-        "en": "Watch the child, not just the number: are they drinking? looking at you? easy to wake? If not, call."
+        "el": "Κοίτα το παιδί, όχι μόνο τον αριθμό: πίνει; σε κοιτάζει; Αν πίνει πολύ λιγότερο ή δεν είναι ο εαυτός του, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+        "en": "Watch the child, not just the number: are they drinking? looking at you? If they're drinking much less or don't seem themselves, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
       },
       {
-        "el": "Αν δυσκολεύεται να αναπνεύσει ή έχει σπασμούς, κάλεσε τον αριθμό έκτακτης ανάγκης.",
-        "en": "If they struggle to breathe or have a seizure, call the emergency number."
+        "el": "Κάλεσε τον αριθμό έκτακτης ανάγκης αν ξυπνά δύσκολα, δυσκολεύεται να αναπνεύσει ή έχει σπασμούς, αν το δέρμα, τα χείλη ή η γλώσσα γίνουν μπλε, γκρι ή με κηλίδες, ή αν έχει εξάνθημα που δεν σβήνει όταν το πιέζεις με ένα ποτήρι.",
+        "en": "Call the emergency number if they're hard to wake, struggle to breathe or have a seizure, if their skin, lips or tongue turn blue, grey or blotchy, or if they have a rash that doesn't fade when you press a glass against it."
       }
     ],
     "badge": {
@@ -451,8 +451,8 @@
         "en": "If you feel you might lose control: put the baby down on their back in the cot, leave the room and call someone to come over. If the baby is in danger right now, call the emergency number."
       },
       {
-        "el": "Αν μεγαλώνετε μαζί το μωρό, έχε τον νου σου και στον άνθρωπό σου. Αν δεις τα ίδια σημάδια, πες το με αγάπη. Αν ξαφνικά μοιάζει μπερδεμένος, λέει πράγματα που δεν βγάζουν νόημα ή δεν κοιμάται καθόλου, ζητήστε ιατρική βοήθεια την ίδια μέρα· αν κάποιος κινδυνεύει τώρα, κάλεσε τον αριθμό έκτακτης ανάγκης.",
-        "en": "If you're raising the baby with someone, look out for them too. If you see the same signs, say so with love. If they suddenly seem confused, say things that make no sense or don't sleep at all, get medical help that same day; if anyone is in danger right now, call the emergency number."
+        "el": "Αν μεγαλώνετε μαζί το μωρό, έχε τον νου σου και στον άνθρωπό σου. Αν δεις τα ίδια σημάδια, πες το με αγάπη. Αν ξαφνικά μοιάζει μπερδεμένος, λέει πράγματα που δεν βγάζουν νόημα ή δεν κοιμάται καθόλου, ζητήστε ιατρική βοήθεια τώρα· αν κάποιος κινδυνεύει τώρα, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+        "en": "If you're raising the baby with someone, look out for them too. If you see the same signs, say so with love. If they suddenly seem confused, say things that make no sense or don't sleep at all, get medical help now; if anyone is in danger right now, call the emergency number."
       }
     ],
     "badge": {
@@ -496,8 +496,8 @@
         "en": "As soon as they look like they're trying to roll, the swaddling stops."
       },
       {
-        "el": "Αυτό που θέλει προσοχή είναι να σε πάρει ο ύπνος μαζί του στον καναπέ ή στην πολυθρόνα. Αν κλείνουν τα μάτια σου, πρώτα το μωρό στην κούνια. Για το κοινό κρεβάτι οι φορείς διαφωνούν· συμφωνούν ότι ποτέ αν κάποιος στο κρεβάτι καπνίζει, ήπιε αλκοόλ ή πήρε φάρμακα που φέρνουν υπνηλία, και ποτέ με μωρό που γεννήθηκε πρόωρα ή με χαμηλό βάρος.",
-        "en": "The one to watch for is falling asleep with them on the sofa or in an armchair. If your eyes are closing, baby in the cot first. On sharing a bed the health bodies disagree; they agree it's never if anyone in the bed smokes, has drunk alcohol or taken medicines that make them drowsy, and never with a baby born premature or at a low birth weight."
+        "el": "Αυτό που θέλει προσοχή είναι να σε πάρει ο ύπνος μαζί του στον καναπέ ή στην πολυθρόνα. Αν κλείνουν τα μάτια σου, πρώτα το μωρό στην κούνια. Για το κοινό κρεβάτι οι φορείς διαφωνούν· συμφωνούν ότι ποτέ αν κάποιος στο κρεβάτι καπνίζει, ήπιε αλκοόλ ή πήρε φάρμακα ή ουσίες που φέρνουν υπνηλία, και ποτέ με μωρό που γεννήθηκε πρόωρα ή με χαμηλό βάρος.",
+        "en": "The one to watch for is falling asleep with them on the sofa or in an armchair. If your eyes are closing, baby in the cot first. On sharing a bed the health bodies disagree; they agree it's never if anyone in the bed smokes, has drunk alcohol or taken medicines or drugs that make them drowsy, and never with a baby born premature or at a low birth weight."
       },
       {
         "el": "Μοιράστε τη νύχτα σε βάρδιες, ώστε ο καθένας να έχει λίγες συνεχόμενες ώρες. Αν είσαι μόνος, ζήτα από κάποιον ένα πρωινό για να κοιμηθείς. Δεν είναι πολυτέλεια.",
@@ -586,16 +586,16 @@
         "en": "Spoon or pieces they pick up themselves: both are fine, and so is a mix. Anything you hand them should squash between your fingers."
       },
       {
-        "el": "Όχι μέλι πριν τον πρώτο χρόνο. Όχι ολόκληροι ξηροί καρποί πριν τα πέντε. Σταφύλια και ντοματίνια κομμένα στα τέσσερα, κατά μήκος.",
-        "en": "No honey before their first birthday. No whole nuts before five. Grapes and cherry tomatoes cut into quarters, lengthways."
+        "el": "Όχι μέλι πριν τον πρώτο χρόνο. Ολόκληροι ξηροί καρποί όχι ακόμα. Ως ποια ηλικία διαφέρει ανά χώρα: ρώτα τον γιατρό του παιδιού. Σταφύλια και ντοματίνια κομμένα στα τέσσερα, κατά μήκος.",
+        "en": "No honey before their first birthday. No whole nuts yet. Until what age differs by country: ask your child's doctor. Grapes and cherry tomatoes cut into quarters, lengthways."
       },
       {
         "el": "Τα συχνά αλλεργιογόνα, όπως το αυγό και το αράπικο φιστίκι, δεν χρειάζεται να τα αναβάλλεις. Ρώτα τον γιατρό του πώς να τα δώσεις. Αν έχει έκζεμα ή έχει ήδη αντιδράσει σε κάποια τροφή, ρώτα τον πριν τα δοκιμάσετε.",
         "en": "Common allergens such as egg and peanut don't need to be put off. Ask their doctor how to offer them. If they have eczema or have already reacted to a food, ask before you try them."
       },
       {
-        "el": "Λίγη κοκκινίλα μόνο γύρω από το στόμα συνήθως είναι ερεθισμός από την επαφή. Εξάνθημα στο σώμα, πρήξιμο στα χείλη ή στο πρόσωπο, ή εμετός μετά από καινούργια τροφή: σταμάτα την και πάρε τώρα τον γιατρό του, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν πρηστεί η γλώσσα, αναπνέει με δυσκολία ή με θόρυβο, ή γίνει χλωμό και χαλαρό, κάλεσε τον αριθμό έκτακτης ανάγκης.",
-        "en": "A little redness just around the mouth is usually irritation from contact. A rash on the body, swollen lips or face, or vomiting after a new food: stop that food and call their doctor now, and the emergency number if they tell you to or if you can't reach them. If their tongue swells, their breathing is difficult or noisy, or they turn pale and floppy, call the emergency number."
+        "el": "Λίγη κοκκινίλα μόνο γύρω από το στόμα συνήθως είναι ερεθισμός από την επαφή. Εξάνθημα στο σώμα, πρήξιμο στα χείλη ή στο πρόσωπο, ή εμετός μετά από καινούργια τροφή: σταμάτα την και πάρε τώρα τον γιατρό του, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν πρηστεί η γλώσσα ή ο λαιμός, αναπνέει με δυσκολία ή με θόρυβο, σφυρίζει ή βήχει συνέχεια, βραχνιάσει η φωνή ή το κλάμα του, ή γίνει χλωμό και χαλαρό, κάλεσε τον αριθμό έκτακτης ανάγκης και κράτα το ξαπλωμένο, όχι όρθιο.",
+        "en": "A little redness just around the mouth is usually irritation from contact. A rash on the body, swollen lips or face, or vomiting after a new food: stop that food and call their doctor now, and the emergency number if they tell you to or if you can't reach them. If their tongue or throat swells, their breathing is difficult or noisy, they wheeze or keep coughing, their voice or cry turns hoarse, or they turn pale and floppy, call the emergency number and keep them lying flat, not upright."
       },
       {
         "el": "Πάντα καθιστό και πάντα μαζί σου. Αν γυρίσει το κεφάλι, το γεύμα τελείωσε. Εσύ προσφέρεις, εκείνο αποφασίζει πόσο.",
@@ -672,16 +672,16 @@
         "en": "Most falls are just a fright. Look at your child first: if they're having a seizure, won't wake or can't stay awake, call the emergency number."
       },
       {
-        "el": "Κάλεσε επίσης τον αριθμό έκτακτης ανάγκης αν έχασε τις αισθήσεις του, έστω και για λίγο, ή αν μετά το χτύπημα τρέχει διαυγές υγρό από τη μύτη ή το αυτί ή αίμα από το αυτί.",
-        "en": "Also call the emergency number if they were knocked out, even briefly, or if after the knock clear fluid runs from the nose or an ear, or an ear bleeds."
+        "el": "Κάλεσε επίσης τον αριθμό έκτακτης ανάγκης αν έχασε τις αισθήσεις του, έστω και για λίγο, ή αν μετά το χτύπημα τρέχει διαυγές υγρό από τη μύτη ή το αυτί, αίμα από το αυτί, βγει μελανιά πίσω από το αυτί ή γύρω από το μάτι χωρίς να χτύπησε εκεί, ή αν το κεφάλι έχει βαθούλωμα.",
+        "en": "Also call the emergency number if they were knocked out, even briefly, or if after the knock clear fluid runs from the nose or an ear, an ear bleeds, a bruise appears behind an ear or around an eye that wasn't hit, or there's a dent in the head."
       },
       {
         "el": "Αν είναι κάτω του ενός έτους και έχει μελανιά, πρήξιμο ή μεγάλο κόψιμο στο κεφάλι, ή αν έπεσε από ύψος γύρω στο ένα μέτρο και πάνω ή από πέντε σκαλιά και πάνω, πάρε τώρα τον γιατρό του, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
         "en": "If they're under one and have a bruise, swelling or a large cut on the head, or if they fell from about a metre or more, or down five or more stairs, call their doctor now, and the emergency number if they tell you to or if you can't reach them."
       },
       {
-        "el": "Το ίδιο αν δεν περπατά, δεν σε κοιτά ή δεν φέρεται όπως πριν, αν βγει μελανιά πίσω από το αυτί ή γύρω από το μάτι χωρίς να χτύπησε εκεί, ή αν το κεφάλι έχει βαθούλωμα.",
-        "en": "The same if they aren't walking, looking at you or behaving the way they did, if a bruise appears behind an ear or around an eye that wasn't hit, or if there's a dent in the head."
+        "el": "Το ίδιο αν δεν περπατά, δεν σε κοιτά ή δεν φέρεται όπως πριν.",
+        "en": "The same if they aren't walking, looking at you or behaving the way they did."
       },
       {
         "el": "Το ίδιο αν έκανε εμετό, αν ζαλίζεται, αν κλαίει και δεν ηρεμεί, ή αν απλώς κάτι δεν σου αρέσει. Κανείς δεν θα σε πει υπερβολικό.",
@@ -741,15 +741,15 @@
         "en": "Count the wet nappies. Far fewer than usual, crying without tears, a dry mouth, sunken eyes or a sunken soft spot on the head: a doctor sees them today."
       },
       {
-        "el": "Πάρε γιατρό την ίδια μέρα και αν δεν κρατά καθόλου υγρά, αν σταμάτησε να πίνει, αν δεις αίμα στην πάνα, ή αν δεν βελτιώνεται. Όσο πιο μικρό το μωρό, τόσο πιο γρήγορα παίρνεις τηλέφωνο.",
-        "en": "Also call a doctor the same day if they keep no fluids down, stop drinking, you see blood in the nappy, or it isn't getting better. The younger the baby, the sooner you call."
+        "el": "Πάρε γιατρό την ίδια μέρα και αν δεν κρατά καθόλου υγρά, αν σταμάτησε να πίνει ή αν δεν βελτιώνεται. Αν δεις αίμα στην πάνα, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Όσο πιο μικρό το μωρό, τόσο πιο γρήγορα παίρνεις τηλέφωνο.",
+        "en": "Also call a doctor the same day if they keep no fluids down, stop drinking, or it isn't getting better. If you see blood in the nappy, call the doctor now, and the emergency number if they tell you to or if you can't reach them. The younger the baby, the sooner you call."
       },
       {
-        "el": "Αν κάνει πράσινο εμετό ή εμετό με αίμα, αν πονά πολύ δυνατά στην κοιλιά, ή αν είναι πολύ χλωμό, πάρε τώρα τον γιατρό, χωρίς να περιμένεις, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
-        "en": "If they bring up green vomit or vomit with blood, have severe tummy pain, or look very pale, call the doctor now, without waiting, and the emergency number if they tell you to or if you can't reach them."
+        "el": "Αν κάνει πράσινο εμετό ή εμετό με αίμα, ή έχει ξαφνικό, πολύ δυνατό πόνο στην κοιλιά, πήγαινέ το τώρα στα επείγοντα ή κάλεσε τον αριθμό έκτακτης ανάγκης. Αν είναι πολύ χλωμό, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+        "en": "If they bring up green vomit or vomit with blood, or have sudden, severe tummy pain, go to the emergency department now or call the emergency number. If they look very pale, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
       },
       {
-        "el": "Κάλεσε τον αριθμό έκτακτης ανάγκης αν δυσκολεύεται πολύ να αναπνεύσει, αν τα χείλη ή το δέρμα του γίνουν γκρίζα ή μπλε, ή αν είναι νωθρό και δεν ξυπνά.",
+        "el": "Κάλεσε τον αριθμό έκτακτης ανάγκης αν δυσκολεύεται να αναπνεύσει, αν τα χείλη ή το δέρμα του γίνουν γκρίζα ή μπλε, ή αν είναι χαλαρό σαν πανί και δεν ξυπνά.",
         "en": "Call the emergency number if they struggle to breathe, their lips or skin turn grey or blue, or they're floppy and won't wake."
       },
       {
@@ -778,7 +778,7 @@
     },
     "guide": [
       {
-        "el": "Σπασμοί με πυρετό: σφίγγεται, τινάζεται, γυρίζουν τα μάτια του και δεν σου απαντά. Ξάπλωσέ το στο πλάι, σε ασφαλές σημείο. Τίποτα στο στόμα του, μην το κρατάς ακίνητο, και κοίτα το ρολόι.",
+        "el": "Σπασμοί με πυρετό: σφίγγεται, τινάζεται, γυρίζουν τα μάτια του και δεν αντιδρά. Ξάπλωσέ το στο πλάι, σε ασφαλές σημείο. Τίποτα στο στόμα του, μην το κρατάς ακίνητο, και κοίτα το ρολόι.",
         "en": "A seizure with a fever: they stiffen, jerk, their eyes roll and they don't respond. Lay them on their side, somewhere safe. Nothing in their mouth, don't hold them still, and look at the clock."
       },
       {
@@ -892,7 +892,7 @@
         "en": "No cough or cold syrups and no decongestants for a child this small, “herbal” or homeopathic ones included, unless their doctor says so. They don't cure it faster, and at this age they aren't safe."
       },
       {
-        "el": "Κοίτα την αναπνοή, όχι τον βήχα. Κάλεσε τον αριθμό έκτακτης ανάγκης αν παλεύει για κάθε ανάσα (το δέρμα ρουφιέται κάτω από τα πλευρά, βογκάει), αν κάνει παύσεις στην ανάσα, ή αν τα χείλη του γίνουν μπλε ή γκρίζα. Αν απλώς αναπνέει πιο γρήγορα από το συνηθισμένο, πάρε τώρα τον γιατρό του, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+        "el": "Κοίτα την αναπνοή, όχι τον βήχα. Κάλεσε τον αριθμό έκτακτης ανάγκης αν παλεύει για κάθε ανάσα (το δέρμα ρουφιέται κάτω από τα πλευρά, βγάζει ένα γρύλισμα σε κάθε εκπνοή), αν κάνει παύσεις στην ανάσα, ή αν τα χείλη του γίνουν μπλε ή γκρίζα. Αν απλώς αναπνέει πιο γρήγορα από το συνηθισμένο, πάρε τώρα τον γιατρό του, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
         "en": "Watch the breathing, not the cough. Call the emergency number if they're fighting for every breath (skin sucking in under the ribs, grunting), pause between breaths, or their lips turn blue or grey. If they're just breathing faster than usual, call their doctor now, and the emergency number if they tell you to or if you can't reach them."
       },
       {

@@ -676,8 +676,8 @@
           "en": "Nobody smokes in the home, in the car or near the baby. An open window isn't enough."
         },
         {
-          "el": "Ποτέ ύπνος μαζί του σε καναπέ ή πολυθρόνα. Και ποτέ στο ίδιο κρεβάτι αν εσύ ή όποιος άλλος κοιμάται εκεί έχει πιει, καπνίζει ή παίρνει φάρμακα που φέρνουν υπνηλία.",
-          "en": "Never sleep with them on a sofa or in an armchair. And never in the same bed if you or anyone else sleeping there has been drinking, smokes or takes medicine that makes them drowsy."
+          "el": "Ποτέ ύπνος μαζί του σε καναπέ ή πολυθρόνα. Και ποτέ στο ίδιο κρεβάτι αν εσύ ή όποιος άλλος κοιμάται εκεί έχει πιει, καπνίζει ή παίρνει φάρμακα ή ουσίες που φέρνουν υπνηλία, ή αν το μωρό γεννήθηκε πρόωρα ή μικρό.",
+          "en": "Never sleep with them on a sofa or in an armchair. And never in the same bed if you or anyone else sleeping there has been drinking, smokes or takes medicines or drugs that make them drowsy, or if the baby was born early or small."
         }
       ],
       "medical": true
@@ -815,6 +815,10 @@
         {
           "el": "Πλύνε τα χέρια σου. Μπιμπερό και θηλή καθαρά, και αποστειρωμένα όπως συνιστούν στη χώρα σου για την ηλικία του.",
           "en": "Wash your hands. Bottle and teat clean, and sterilised the way your country advises for their age."
+        },
+        {
+          "el": "Ποιο νερό και πόσο ζεστό διαφέρει από χώρα σε χώρα: σε πολλές είναι φρεσκοβρασμένο νερό που κρύωσε όχι πάνω από 30 λεπτά. Ακολούθησε το κουτί και τις οδηγίες της χώρας σου, ιδίως για μωρό κάτω των 2 μηνών ή πρόωρο.",
+          "en": "Which water, and how hot, differs by country: in many it's freshly boiled water left to cool for no more than 30 minutes. Follow the tin and your country's advice, especially for a baby under 2 months or born early."
         },
         {
           "el": "Πρώτα το νερό, μετά η σκόνη, με τη μεζούρα του ίδιου κουτιού, ίσια και όχι πατημένη. Ποτέ παραπάνω σκόνη και ποτέ παραπάνω νερό.",
@@ -1078,8 +1082,8 @@
           "en": "The cord stump: clean and dry, with the nappy folded below it. It drops off by itself, you don't pull it. If the skin around it goes red, it smells or oozes, tell the midwife or doctor the same day. If it bleeds and doesn't stop, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
         },
         {
-          "el": "Γιατρός ή μαία την ίδια μέρα αν τα κόπρανα είναι ωχρά ή λευκά ή έχουν αίμα. Μετά τις πρώτες δύο μέρες, αν περάσουν 12 ώρες χωρίς βρεγμένη πάνα, πάρε τώρα τον γιατρό, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
-          "en": "Doctor or midwife the same day if the poo is pale or white or has blood in it. After the first two days, if 12 hours pass without a wet nappy, call the doctor now, whatever the hour, and the emergency number if they tell you to or if you can't reach them."
+          "el": "Γιατρός ή μαία την ίδια μέρα αν τα κόπρανα είναι ωχρά ή λευκά ή έχουν αίμα. Μετά τις πρώτες δύο μέρες, αν περάσουν 6 ώρες χωρίς βρεγμένη πάνα, πάρε τώρα τον γιατρό, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+          "en": "Doctor or midwife the same day if the poo is pale or white or has blood in it. After the first two days, if 6 hours pass without a wet nappy, call the doctor now, whatever the hour, and the emergency number if they tell you to or if you can't reach them."
         }
       ],
       "medical": true
@@ -2014,8 +2018,8 @@
           "en": "No honey before their first birthday."
         },
         {
-          "el": "Σταφύλια και ντοματίνια κομμένα στα τέσσερα, κατά μήκος. Όχι ολόκληροι ξηροί καρποί πριν τα πέντε.",
-          "en": "Grapes and cherry tomatoes cut into quarters, lengthways. No whole nuts before the age of five."
+          "el": "Σταφύλια και ντοματίνια κομμένα στα τέσσερα, κατά μήκος. Ολόκληροι ξηροί καρποί όχι ακόμα. Ως ποια ηλικία διαφέρει ανά χώρα: ρώτα τον γιατρό του παιδιού.",
+          "en": "Grapes and cherry tomatoes cut into quarters, lengthways. No whole nuts yet. Until what age differs by country: ask your child's doctor."
         }
       ],
       "medical": true
