@@ -4,22 +4,32 @@ import SwiftUI
 // MARK: - Header and toolbar buttons
 
 extension HomeView {
-    /// The two-pane layouts have no navigation bar, so their title and buttons sit at the top of the hero pane.
+    /// The two-pane layouts have no navigation bar, so their title sits at the top of the hero pane.
     func paneHeader(_ content: HomeContent) -> some View {
-        HStack {
-            Text(content.heroTitle)
-                .font(DSFont.largeTitle)
-                .foregroundStyle(DSColor.textPrimary)
-                .accessibilityAddTraits(.isHeader)
-            Spacer()
-            worldMapButton
-                .labelStyle(.iconOnly)
-                .buttonStyle(.glass)
-            settingsButton
-                .labelStyle(.iconOnly)
-                .buttonStyle(.glass)
+        Text(content.heroTitle)
+            .font(DSFont.largeTitle)
+            .foregroundStyle(DSColor.textPrimary)
+            .accessibilityAddTraits(.isHeader)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { paneHeaderHeight = $0 }
+    }
+
+    /// The map and Settings in the two-pane layouts: by the tab bar, at the trailing edge, as they are in the side
+    /// bar the system draws on the Duo's cover display (ADR-0056).
+    /// Room under the adventure's last card for the map and Settings over it.
+    static let paneButtonsClearance: CGFloat = 72
+
+    var paneButtons: some View {
+        GlassEffectContainer(spacing: DSSpacing.s) {
+            HStack(spacing: DSSpacing.s) {
+                worldMapButton
+                settingsButton
+            }
+            .labelStyle(.iconOnly)
+            .buttonStyle(.glass)
+            .controlSize(.large)
         }
-        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { paneHeaderHeight = $0 }
+        .padding(DSSpacing.m)
     }
 
     var worldMapButton: some View {

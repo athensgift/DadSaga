@@ -32,7 +32,7 @@ public struct HorizontalFold: Equatable, Sendable {
 
     /// The folds to look for: the active ones while the device is half-open; otherwise, `whileFlat`, every fold
     /// drawn as the line down its middle. The system reports a fold that lies flat with the hinge's thickness, but
-    /// there is nothing to keep clear on a flat display: two panes split there meet at the line (ADR-0045).
+    /// there is nothing to keep clear on a flat display: two panes split there meet at the line (ADR-0045, ADR-0056).
     /// - Parameters:
     ///   - active: the folds of a partly open device.
     ///   - all: the folds also while the device lies flat (`.includeInactive`).

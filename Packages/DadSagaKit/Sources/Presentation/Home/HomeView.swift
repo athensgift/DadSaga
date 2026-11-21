@@ -155,8 +155,12 @@ public struct HomeView: View {
                     .frame(maxWidth: .infinity)
                     .modifier(celebrationOverlay)
                 ScrollView { adventure(content).padding(DSSpacing.l) }
+                    // The last card scrolls clear of the map and Settings.
+                    .contentMargins(.bottom, Self.paneButtonsClearance, for: .scrollContent)
                     .frame(maxWidth: .infinity)
             }
+            // Over the adventure's pane, just above the tab bar: within the dad's reach, wherever home is scrolled.
+            .overlay(alignment: .bottomTrailing) { paneButtons }
             .motion(.smooth, value: arrangement)
         } else {
             ScrollView {
