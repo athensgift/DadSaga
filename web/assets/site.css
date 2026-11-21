@@ -53,7 +53,7 @@ section[id] { scroll-margin-top: 72px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 19px; color: var(--text); text-decoration: none; }
 .brand img { width: 36px; height: 36px; border-radius: 9px; }
 .nav { display: flex; gap: 18px; align-items: center; font-size: 15px; }
-.nav a { color: var(--text-2); text-decoration: none; }
+.nav a { color: var(--text-2); text-decoration: none; white-space: nowrap; }
 .nav a:hover { color: var(--text); }
 .nav .lang { border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; }
 
@@ -63,6 +63,7 @@ section[id] { scroll-margin-top: 72px; }
 .eyebrow { color: var(--accent); font-weight: 600; font-size: 15px; letter-spacing: 0.02em; margin: 0 0 12px; }
 h1 { font-size: clamp(36px, 6vw, 60px); line-height: 1.05; letter-spacing: -0.02em; margin: 0 0 18px; }
 .lead { font-size: clamp(18px, 2.2vw, 21px); color: var(--text-2); margin: 0 0 28px; max-width: 34em; }
+.nowrap { white-space: nowrap; }
 .hero-art { justify-self: center; max-width: 300px; width: 100%; }
 
 /* The family: Super Dad and the baby, each a button that cheers when tapped, as on the app's home (ADR-0040). The
@@ -115,6 +116,10 @@ h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.01em; line-height: 
 }
 .rules strong { display: block; }
 .rules span { color: var(--text-2); }
+
+/* Before the birth (ADR-0053's world 0): the home page's cards again, with a note under them. */
+.before-section { background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--legendary) 7%, transparent) 50%, transparent); }
+.before-section .note { margin-top: 20px; max-width: 46em; }
 
 /* Timeline: a recording of the real Timeline tab (Tools: simulator, ADR-0040) in a phone frame. It plays only in view,
    and not with Reduce Motion (site.js); otherwise the poster shows. */
