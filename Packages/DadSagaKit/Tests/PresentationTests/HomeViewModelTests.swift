@@ -60,7 +60,7 @@ struct HomeViewModelTests {
         await sut.onAppear()
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
-        #expect(sut.undoOffer?.message == "Καταγράφηκε")
+        #expect(sut.undoOffer?.message == "Αποθηκεύτηκε")
         #expect(sut.undoOffer?.actionTitle == "Αναίρεση")
 
         await sut.undoLastRecord()
