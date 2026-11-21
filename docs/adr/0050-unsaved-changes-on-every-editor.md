@@ -48,6 +48,7 @@ which buttons the question offers, its Greek "Keep editing") and ADR-0023 (when 
 - No counter of sheet changes is needed to tell which sheet a save belongs to: only one can be open while it saves.
 - A waiting link is silent: nothing says the open editor is holding it. The dad stays where he is, on either tab, and
   the link opens the moment he saves, records or discards.
-- "My family" always draws its own back button, which asks only when there is something to lose. The system's button
-  and its swipe are hidden on that screen even with nothing changed: swapping the two as the first letter was typed
-  left a moment where the system's button was under the dad's finger and went back without asking.
+- "My family" keeps the system's back button and its swipe while nothing has changed, and swaps in its own back
+  button, which asks first, once there is something to lose. The owner chose this to keep the swipe. The cost: right as
+  the first letter is typed, a quick tap can still reach the system's button and go back without asking. The change is
+  then one letter.

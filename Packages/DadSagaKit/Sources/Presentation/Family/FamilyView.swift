@@ -22,15 +22,15 @@ struct FamilyView: View {
         .background(DSColor.background)
         .navigationTitle(title)
         .toolbarTitleDisplayMode(.inline)
-        // The system's back button and its swipe would drop unsaved changes, so one back button of our own is always
-        // there, asking first only when there is something to lose. Swapping the two as the first letter is typed left a
-        // moment where the system's button was still under the dad's finger and left without asking.
-        .navigationBarBackButtonHidden(true)
+        // With nothing to lose, the system's back button and its swipe stay (the owner's choice). Once there is, they
+        // would drop the changes, so our own back button takes their place and asks first (ADR-0050).
+        .navigationBarBackButtonHidden(viewModel.hasUnsavedChanges)
         .toolbar {
-            // There while loading or after a failed load too: the system's button is hidden on every state.
-            ToolbarItem(placement: .cancellationAction) {
-                Button(viewModel.backTitle, systemImage: "chevron.backward", action: goBack)
-                    .disabled(viewModel.isSaving)
+            if viewModel.hasUnsavedChanges {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(viewModel.backTitle, systemImage: "chevron.backward", action: goBack)
+                        .disabled(viewModel.isSaving)
+                }
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(role: .confirm) {
