@@ -11,27 +11,27 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0001](0001-record-architecture-decisions.md) | Record significant decisions as ADRs | process | |
 | [0002](0002-swiftui-ios26-swift6.md) | SwiftUI, iOS 26+, Swift 6 strict concurrency, Swift Testing | stack | |
 | [0003](0003-modular-spm-and-xcodegen.md) | One SwiftPM package with a target per layer; project from XcodeGen | build, modules | |
-| [0004](0004-offline-first-on-device-data.md) | All child data on device: no account, backend or analytics SDK | privacy, storage, sync | |
+| [0004](0004-offline-first-on-device-data.md) | All child data on device: no account, backend or analytics SDK | privacy, storage, sync | 0051 (a privacy manifest, kept in step with the privacy pages) |
 | [0005](0005-content-as-data.md) | Game content is bilingual JSON, validated at load | content, localization | 0027 (UI strings), 0048 (an id that has shipped never goes; renames keep it in `formerIDs`) |
 | [0006](0006-no-pressure-game-design.md) | No pressure: XP for the dad's actions, no penalties, streaks or deadlines | product rules | 0021 (the dad may delete his own entries) |
-| [0007](0007-clean-architecture.md) | Clean Architecture: Domain, Application, Data, Presentation | architecture | 0036 (a presenter may hold a drawing protocol: the film renderer), 0046 (and one that plays sound: the music preview) |
+| [0007](0007-clean-architecture.md) | Clean Architecture: Domain, Application, Data, Presentation | architecture | 0027 (`Presentation` and `WidgetPresentation` also import `Localization`), 0036 (a presenter may hold a drawing protocol: the film renderer), 0046 (and one that plays sound: the music preview) |
 | [0008](0008-hero-classes-and-code-drawn-avatar.md) | Hero classes as content, a code-drawn avatar, the profile in SwiftData | hero, avatar, storage | 0010 (class list), 0026 (store fallback), 0028 (avatar target), 0029 (class look), 0044 (the dad's own hair, beard and glasses) |
-| [0009](0009-gitflow.md) | Gitflow: `feature/*` from `develop`, releases on `main` | process, git | |
+| [0009](0009-gitflow.md) | Gitflow: `feature/*` from `develop`, releases on `main` | process, git | 0051 (how versions and builds are numbered, signed and uploaded) |
 | [0010](0010-dad-archetype-heroes.md) | Heroes are dad archetypes, not fantasy classes | hero, content | 0029 (class look), 0033 (crest letter) |
 | [0011](0011-liquid-glass-and-adaptive-layout.md) | Liquid Glass, system styling, adaptive layout for iPhone Duo | UI, layout | 0030 (developer menu), 0032 (tint values), 0033 (secondary text), 0043 (the fold read as a reserved region; panes above and below it), 0045 (the inner display held upright is split where it folds, not in columns) |
 | [0012](0012-families.md) | Up to four children, XP shared by the dad | family, model | 0023 (migration removed), 0030 (family entry) |
 | [0013](0013-child-avatars.md) | Child avatars by age stage | avatar, family | |
 | [0014](0014-hero-gear.md) | Gear earned from skills and bosses | gear, avatar | 0018 (wardrobe) |
-| [0015](0015-legendary-moments.md) | Legendary moments are progress events with a date and a note | moments, progress | |
-| [0016](0016-moment-photos.md) | Moment photos as files on device; moments editable and deletable | moments, photos, privacy | 0021 (delete use case), 0022 (photos on every card), 0042 (up to five photos; an edit gives the whole list) |
-| [0017](0017-timeline-and-tabs.md) | A timeline tab derived from progress events | timeline, navigation | |
-| [0018](0018-wardrobe.md) | Wardrobe: choose what the hero wears per slot | gear, avatar | 0044 (a page in Settings, not a sheet from home) |
-| [0019](0019-world-map-and-older-worlds.md) | World map, replayable worlds, worlds up to age 6 | worlds, content | 0044 (the map opens from home's toolbar) |
-| [0020](0020-card-tips-and-evergreen-cards.md) | Card tips, evergreen cards, a sibling-only boss | content, cards | |
+| [0015](0015-legendary-moments.md) | Legendary moments are progress events with a date and a note | moments, progress | 0020 (home shows the number captured, without the total) |
+| [0016](0016-moment-photos.md) | Moment photos as files on device; moments editable and deletable | moments, photos, privacy | 0021 (delete use case), 0022 (photos on every card), 0023 (photos move to the App Group container), 0042 (up to five photos; an edit gives the whole list) |
+| [0017](0017-timeline-and-tabs.md) | A timeline tab derived from progress events | timeline, navigation | 0021 (entries deleted from the timeline), 0022 (a row opens its note and photo for editing) |
+| [0018](0018-wardrobe.md) | Wardrobe: choose what the hero wears per slot | gear, avatar | 0030 (reset wording), 0044 (a page in Settings, not a sheet from home) |
+| [0019](0019-world-map-and-older-worlds.md) | World map, replayable worlds, worlds up to age 6 | worlds, content | 0020 (map counts without totals; an evergreen quest counts only in its home world), 0044 (the map opens from home's toolbar) |
+| [0020](0020-card-tips-and-evergreen-cards.md) | Card tips, evergreen cards, a sibling-only boss | content, cards | 0028 (shown quests and bosses come from `GetHomeOverviewUseCase`; `GetAdventureUseCase` removed) |
 | [0021](0021-undo-and-delete-entries.md) | Undo and delete the dad's own entries | progress, timeline | 0042 (a first's undo shows in its sheet) |
 | [0022](0022-journal-on-every-card.md) | A note and a photo on every card | journal, photos | 0042 (up to five photos) |
 | [0023](0023-home-screen-widget.md) | Home-screen widget: weekly quest and latest moment | widget | 0026 (migrations), 0027 (widget strings), 0048 (no fallback folder in a release build), 0050 (a link waits while something saves or an editor holds unsaved changes) |
-| [0024](0024-weekly-notification.md) | One gentle weekly notification | notifications, product rules | 0030 (bell button), 0037 (the reminder card waits while a film card shows) |
+| [0024](0024-weekly-notification.md) | One gentle weekly notification | notifications, product rules | 0030 (bell button, reset wording), 0037 (the reminder card waits while a film card shows) |
 | [0025](0025-app-icon-and-launch-screen.md) | App icon in Icon Composer, native launch screen | branding | 0033 (also writes the website's images) |
 | [0026](0026-versioned-store-and-unavailable-screen.md) | Versioned store with migrations; a calm stop when it can't open | storage, errors | 0034 (widget test before V2), 0042 (V2 and V3 are for photos; `childID` waits for sync), 0048 (the folder is found when the store opens; V5 stores birth days) |
 | [0027](0027-ui-string-catalog.md) | UI strings in one shared String Catalog | localization | 0030 (reset wording) |
@@ -58,3 +58,4 @@ A new ADR adds its row here, and adds itself to **Changed by** on every ADR it s
 | [0048](0048-data-before-testflight.md) | Before TestFlight: a failed save rolls back; a birth date is a day, with one Gregorian age rule (schema V5); no silent new store in release; shipped content ids never go (`formerIDs`); orphan photos swept at launch | storage, errors, content, photos, product rules, concurrency | |
 | [0049](0049-appearance-on-the-window.md) | The Appearance choice is set on the window's `overrideUserInterfaceStyle`, so open sheets follow it, Automatic included | settings, UI | |
 | [0050](0050-unsaved-changes-on-every-editor.md) | Every editor keeps unsaved changes, a link waits for them, and the question never records | UI, product rules, widget | |
+| [0051](0051-signing-versioning-and-privacy-manifest.md) | Release: privacy manifests, no export compliance question, versions and build numbers on the release branch, archived from the Mac; CI builds Release and the test targets | release, privacy, CI, process | |

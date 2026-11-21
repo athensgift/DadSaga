@@ -1,6 +1,6 @@
 # ADR-0047: Choosing and framing the saga film's photos with Vision, on the device, as the film is made
 
-**Status:** Proposed (2026-11-20). The owner asked for Apple's on-device Vision to choose an entry's further photos
+**Status:** Accepted (2026-11-21; proposed 2026-11-20, implemented and merged). The owner asked for Apple's on-device Vision to choose an entry's further photos
 for the film and to keep faces in view; drafted by the architect. The owner then chose both halves, and for the
 framing: the children before the adults, and a close-up on them of at most 1.4, always zooming in on a child (§3).
 Changes ADR-0042 §6 (which of an entry's further photos fill its places in the film), ADR-0037 §3 (where a photo's

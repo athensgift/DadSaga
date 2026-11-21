@@ -8,6 +8,11 @@ on:
 permissions:
   contents: read
 
+# A newer push to the same branch or PR stops the run it replaces.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-test:
     # Pinned to the Mac's Xcode, so an image update never changes the toolchain under us (ADR-0034). The screen
@@ -15,7 +20,7 @@ jobs:
     runs-on: xcode-27
     # A run takes about 7 minutes. A test parked in a wait it can't cancel (a stalled AVAssetWriter, ADR-0036) outlives
     # Swift Testing's time limit, so the job stops here instead of after GitHub's six hours.
-    timeout-minutes: 25
+    timeout-minutes: 30
     env:
       DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
     steps:
@@ -39,5 +44,30 @@ jobs:
           xcodebuild build \
             -project DadSaga.xcodeproj \
             -scheme DadSaga \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
+
+      # The code outside `#if DEBUG` is what ships, so it is compiled here too (ADR-0051).
+      - name: Build app (Release)
+        run: |
+          xcodebuild build \
+            -project DadSaga.xcodeproj \
+            -scheme DadSaga \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO
+
+      # The UI tests and the screen snapshots run on the Mac (ADR-0034); here they are only compiled, so they never
+      # fall behind the app.
+      - name: Build UI tests and snapshots
+        run: |
+          xcodebuild build-for-testing \
+            -project DadSaga.xcodeproj \
+            -scheme DadSaga \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
+          xcodebuild build-for-testing \
+            -project DadSaga.xcodeproj \
+            -scheme DadSagaSnapshots \
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO
