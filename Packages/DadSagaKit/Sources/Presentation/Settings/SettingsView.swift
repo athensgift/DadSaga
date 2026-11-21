@@ -39,8 +39,6 @@ public struct SettingsView: View {
                     }
                 }
         }
-        // A sheet keeps its own look; it follows the dad's choice together with the window behind it.
-        .preferredColorScheme(viewModel.preferences.appearance.colorScheme)
     }
 
     private func form(_ content: SettingsContent) -> some View {
