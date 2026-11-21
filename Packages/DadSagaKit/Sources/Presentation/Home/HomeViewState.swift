@@ -53,7 +53,7 @@ public struct HomeContent: Equatable, Sendable {
 
 /// "When life changes" and its bosses. It opens on a tap and shows no count.
 public struct SituationalCards: Equatable, Identifiable, Sendable {
-    /// The child, the world and the load it was read in: a new id starts the row closed.
+    /// The child, the world and the visit: a new id starts the row closed (ADR-0053 §5).
     public let id: String
     public let title: String
     public let cards: [CardModel]

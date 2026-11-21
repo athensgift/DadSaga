@@ -137,13 +137,34 @@ struct BeforeBirthPresentationTests {
         #expect(content.cards.map(\.id) == ["b-w1-fever", "b-w1-double", "q-w1-feed", "q-w1-date"])
         #expect(content.situational?.title == "When life changes")
         #expect(content.situational?.cards.map(\.id) == ["b-w1-move"])
-        let firstID = try #require(content.situational?.id)
-        #expect(firstID.contains("/w1/"))
-        await sut.reload()
-        #expect(try self.content(sut).situational?.id != firstID, "a new load closes the row again")
 
         sut.select(cardID: "b-w1-move")
         #expect(sut.selectedBoss?.id == "b-w1-move")
+    }
+
+    @Test("Given the open row, when home reloads after a save, then it stays; opened again, another world or child, it closes")
+    func situationalRowStaysOpenThroughASave() async throws {
+        let second = Child(name: "Ελένη", birthDay: CalendarDay(HarbourStub.today, in: .gmt).adding(months: -1))
+        let sut = home(profile([HarbourStub.born, second]))
+        let rowID = { try self.content(sut).situational?.id }
+        await sut.onAppear()
+        let opened = try rowID()
+
+        await sut.reload()
+        await sut.appBecameActive()
+        #expect(try rowID() == opened, "a save or coming back reloads home without closing the row")
+
+        await sut.onAppear()
+        let reopened = try rowID()
+        #expect(reopened != opened)
+
+        await sut.showWorld(id: "w0")
+        await sut.showWorld(id: nil)
+        let back = try rowID()
+        #expect(back != reopened)
+
+        await sut.selectChild(id: second.id)
+        #expect(try rowID() != back)
     }
 
     @Test("Given a dad without a partner, when home loads, then the partner cards are not there")

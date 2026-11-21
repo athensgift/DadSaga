@@ -17,12 +17,12 @@ extension HomeViewModel {
         }
     }
 
-    /// "When life changes", after the cards; `nil` when the world has none. Its id is new on every load, so the row is
-    /// closed each time home loads (ADR-0053 §5).
-    func situationalCards(_ overview: HomeOverview, load: Int) -> SituationalCards? {
+    /// "When life changes", after the cards; `nil` when the world has none. Its id changes only when home is opened or
+    /// shows another child or world, so the row starts closed then and stays open through a save (ADR-0053 §5).
+    func situationalCards(_ overview: HomeOverview) -> SituationalCards? {
         guard !overview.situationalBosses.isEmpty, let world = overview.shownWorld else { return nil }
         return SituationalCards(
-            id: "\(overview.child.id.uuidString)/\(world.id)/\(load)",
+            id: "\(overview.child.id.uuidString)/\(world.id)/\(situationalVisit)",
             title: strings.text("When life changes"),
             cards: bossCards(overview.situationalBosses, overview: overview)
         )

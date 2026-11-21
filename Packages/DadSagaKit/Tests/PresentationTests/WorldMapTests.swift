@@ -26,7 +26,7 @@ struct WorldMapTests {
     )
 
     /// A child of `months` whose current world is the latest one unlocked.
-    func makeSUT(ageInMonths months: Int, profile: PlayerProfile = HeroStub.profile) -> HomeViewModel {
+    func makeSUT(months: Int, profile: PlayerProfile = HeroStub.profile) -> HomeViewModel {
         let unlocked = UnlockRules.unlockedWorlds(in: Self.catalog, age: .months(months))
         let adventure = Adventure(
             age: .months(months), family: .everyone, currentWorld: unlocked.last, unlockedWorlds: unlocked
@@ -56,7 +56,7 @@ struct WorldMapTests {
 
     @Test("Given a 10-month-old, when opening the map, then worlds show status, age ranges, progress and unlock time")
     func opensMap() async throws {
-        let sut = makeSUT(ageInMonths: 10)
+        let sut = makeSUT(months: 10)
         await sut.onAppear()
 
         sut.openMap()
@@ -74,7 +74,7 @@ struct WorldMapTests {
 
     @Test("Given an earlier world, when showing it, then home shows its quests with a way back, until going back")
     func showsEarlierWorld() async throws {
-        let sut = makeSUT(ageInMonths: 10)
+        let sut = makeSUT(months: 10)
         await sut.onAppear()
         #expect(loaded(sut)?.cards.map(\.id) == ["q2"])
         sut.openMap()
@@ -101,7 +101,7 @@ struct WorldMapTests {
 
     @Test("Given a locked world, when trying to show it, then nothing changes")
     func lockedWorld() async throws {
-        let sut = makeSUT(ageInMonths: 10)
+        let sut = makeSUT(months: 10)
         await sut.onAppear()
 
         await sut.showWorld(id: "w3")
@@ -112,7 +112,7 @@ struct WorldMapTests {
 
     @Test("Given an earlier world is shown, when choosing another child, then the current world is shown again")
     func childResetsWorld() async throws {
-        let sut = makeSUT(ageInMonths: 10, profile: HeroStub.family)
+        let sut = makeSUT(months: 10, profile: HeroStub.family)
         await sut.onAppear()
         await sut.showWorld(id: "w1")
 

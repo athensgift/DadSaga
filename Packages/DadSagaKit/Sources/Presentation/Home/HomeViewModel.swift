@@ -51,6 +51,9 @@ public final class HomeViewModel {
     @ObservationIgnored private var loadGeneration = 0
     /// Loads under way: coming back to the app starts none while one is.
     @ObservationIgnored private var loadsUnderWay = 0
+    /// Goes up when home is opened, another child is chosen or another world is shown: "When life changes" starts
+    /// closed then, and stays as the dad left it through every other reload (ADR-0053 §5).
+    @ObservationIgnored var situationalVisit = 0
 
     public init(
         useCases: UseCases,
@@ -66,6 +69,7 @@ public final class HomeViewModel {
     }
 
     public func onAppear() async {
+        situationalVisit += 1
         await load()
     }
 
@@ -85,6 +89,7 @@ public final class HomeViewModel {
         guard id != selectedChildID else { return }
         selectedChildID = id
         viewedWorldID = nil
+        situationalVisit += 1
         await load()
     }
 
@@ -215,7 +220,7 @@ public final class HomeViewModel {
             selectedChildID = overview.child.id
             viewedWorldID = overview.isShowingCurrentWorld ? nil : overview.shownWorld?.id
             self.overview = overview
-            state = .loaded(makeContent(overview, load: generation))
+            state = .loaded(makeContent(overview))
             return overview
         } catch {
             guard generation == loadGeneration else { return nil }
@@ -226,7 +231,7 @@ public final class HomeViewModel {
         }
     }
 
-    private func makeContent(_ overview: HomeOverview, load: Int) -> HomeContent {
+    private func makeContent(_ overview: HomeOverview) -> HomeContent {
         let profile = overview.profile
         let child = overview.child
         let catalog = overview.catalog
@@ -266,7 +271,7 @@ public final class HomeViewModel {
                 : nil,
             arrivalLine: child.isBorn ? nil : strings.text("When they arrive, untick “Not born yet” in My family."),
             cards: bossCards(overview.bosses, overview: overview) + questCards(overview),
-            situational: situationalCards(overview, load: load),
+            situational: situationalCards(overview),
             moments: momentsFormatter.section(for: child, age: adventure.age, catalog: catalog, progress: progress)
         )
     }

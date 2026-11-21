@@ -20,6 +20,7 @@ extension HomeViewModel {
         if let id, !overview.adventure.unlockedWorlds.contains(where: { $0.id == id }) { return }
         viewedWorldID = id == overview.adventure.currentWorld?.id ? nil : id
         worldMap = nil
+        situationalVisit += 1
         await reload()
     }
 

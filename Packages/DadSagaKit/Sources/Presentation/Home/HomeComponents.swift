@@ -243,7 +243,7 @@ struct ArrivalLine: View {
 }
 
 /// "When life changes": the bosses for a move, two homes or a loss, behind one closed row at the end of the world's
-/// cards (ADR-0053 §5). Closed each time home loads, and no count: there for the dad who needs them, not on every screen.
+/// cards (ADR-0053 §5). Closed each time home is opened, and no count: there for the dad who needs them, not on every screen.
 struct SituationalRow<Card: View>: View {
     let cards: SituationalCards
     @ViewBuilder let card: (CardModel) -> Card
