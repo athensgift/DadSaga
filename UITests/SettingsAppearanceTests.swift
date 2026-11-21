@@ -16,13 +16,13 @@ final class SettingsAppearanceTests: XCTestCase {
         let isPhoneDark = isDark()
 
         openSettings()
-        XCTAssertEqual(isDark(), isPhoneDark, "Automatic when Settings opens")
+        XCTAssertTrue(becomes(dark: isPhoneDark), "Automatic when Settings opens")
 
         choose(isPhoneDark ? "Light" : "Dark")
-        XCTAssertEqual(isDark(), !isPhoneDark, "the other look")
+        XCTAssertTrue(becomes(dark: !isPhoneDark), "the other look")
 
         choose("Automatic")
-        XCTAssertEqual(isDark(), isPhoneDark, "back to Automatic")
+        XCTAssertTrue(becomes(dark: isPhoneDark), "back to Automatic")
     }
 
     // MARK: Moving around
@@ -37,7 +37,12 @@ final class SettingsAppearanceTests: XCTestCase {
         XCTAssertTrue(hero.waitForExistence(timeout: 10))
         hero.tap()
         let start = app.buttons["Start the adventure"]
-        while !start.isHittable { app.swipeUp() }
+        XCTAssertTrue(start.waitForExistence(timeout: 10))
+        var swipes = 0
+        while !start.isHittable, swipes < 15 {
+            app.swipeUp()
+            swipes += 1
+        }
         start.tap()
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "home did not open")
     }
@@ -59,6 +64,15 @@ final class SettingsAppearanceTests: XCTestCase {
 
     // MARK: Reading the screen
 
+    /// Waits up to five seconds for the screen to be drawn in the look, for the change to finish animating.
+    private func becomes(dark: Bool) -> Bool {
+        for _ in 0..<10 {
+            if isDark() == dark { return true }
+            usleep(500_000)
+        }
+        return false
+    }
+
     /// Whether the screen is drawn dark: the mean brightness of its lower half, which Settings covers with its form.
     private func isDark() -> Bool {
         guard let image = app.screenshot().image.cgImage else {
@@ -67,12 +81,17 @@ final class SettingsAppearanceTests: XCTestCase {
         }
         let (width, height) = (image.width, image.height)
         var pixels = [UInt8](repeating: 0, count: width * height * 4)
-        pixels.withUnsafeMutableBytes { buffer in
-            let context = CGContext(
+        let isDrawn = pixels.withUnsafeMutableBytes { buffer in
+            guard let context = CGContext(
                 data: buffer.baseAddress, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
                 space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue
-            )
-            context?.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            ) else { return false }
+            context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))
+            return true
+        }
+        guard isDrawn else {
+            XCTFail("the screenshot could not be read")
+            return false
         }
         var total = 0.0
         var count = 0.0

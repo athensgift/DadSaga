@@ -1,7 +1,9 @@
 # ADR-0048: The Appearance choice is set on the window, not with `preferredColorScheme`
 
-**Status:** Accepted (2026-11-21). The owner reported the bug and confirmed it. Changes ADR-0030 §"Preferences" (how
-the root applies the look, and Settings' own copy of it), taking the fallback ADR-0030 named for this case.
+**Status:** Proposed (2026-11-21). The owner reported the bug and confirmed it; the fix waits for the owner's review.
+Changes ADR-0030 §"Preferences" (how the root applies the look, and Settings' own copy of it). It takes the fallback
+ADR-0030 named for this case, the window's `overrideUserInterfaceStyle`, but sets it from `RootView` rather than from the
+app target: `RootView` already holds the choice, and each window gets the look from the view inside it.
 
 ## Context
 - ADR-0030 has `RootView` apply `.preferredColorScheme(_:)` (`nil` for Automatic), and the Settings sheet apply the
@@ -20,10 +22,15 @@ the root applies the look, and Settings' own copy of it), taking the fallback AD
 - On macOS, where the package is only built to run its tests, the modifier does nothing.
 - `DadSagaUITests/SettingsAppearanceTests` checks it: it reads the iPhone's look from home, opens Settings, picks the
   other look, then Automatic, and compares the brightness of the screen each time. It runs in whichever look the
-  simulator has, because the iOS 27.2 simulator applies a change of system look only after a reboot.
+  simulator has, because the iOS 27.2 simulator applies a change of system look only after a reboot. Run it alone with
+  `-only-testing:DadSagaUITests/SettingsAppearanceTests` (about a minute) after a change to how the look is applied.
+  It covers on the simulator the "Appearance both ways while the sheet is open" check of ADR-0030; the check on a
+  device remains.
 
 ## Consequences
 - Settings, and every other sheet, follows the dad's choice while open, Automatic included, with one source of the look.
+- Everything the window presents follows it too: alerts, the keyboard, the share sheet and the Mail compose screen.
+  With `preferredColorScheme` most of these did as well; the choice now holds everywhere in the app.
 - The domain, the port and the presenters stay as they are (ADR-0030).
 - A window opened later (a second scene) gets the look from its own `RootView`.
 - Views that draw dark on purpose (the photo viewer, the film renderer) keep setting `\.colorScheme` themselves.
