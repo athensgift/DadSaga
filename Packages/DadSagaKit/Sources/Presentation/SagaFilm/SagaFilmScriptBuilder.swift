@@ -104,7 +104,7 @@ struct SagaFilmScriptBuilder {
 
     /// The hero and the child as they were when the period ended, as home would have drawn them then.
     private func family(in film: SagaFilm) -> SagaFilmFamily {
-        let hero = film.catalog.heroClasses.first { $0.id == film.profile.heroClassID }
+        let hero = film.catalog.hero(for: film.profile)
         return SagaFilmFamily(
             hero: HeroLook(look: hero?.look),
             heroSkin: SkinToneChoice(film.profile.dadSkinTone),

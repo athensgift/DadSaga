@@ -202,7 +202,7 @@ public final class HomeViewModel {
         let adventure = overview.adventure
         let progress = overview.progress
         let level = progress.level
-        let hero = catalog.heroClasses.first { $0.id == profile.heroClassID }
+        let hero = catalog.hero(for: profile)
         let childLine = "\(child.name) · \(strings.ageText(months: adventure.ageInMonths))"
         let hasSiblings = profile.children.count > 1
         return HomeContent(

@@ -111,13 +111,15 @@ public final class WardrobeViewModel {
                 item: nil
             )
         ]
+        // An item chosen before a rename is still the one shown as chosen (ADR-0048 §4).
+        let chosenID: String? = if case .item(let id) = choice { id } else { nil }
         options += items.map { item in
             let isLocked = item.minXP > xp
             return WardrobeOption(
                 id: item.id,
                 title: item.title.resolved(for: locale),
                 detail: isLocked ? "\(xp) / \(item.minXP) XP" : nil,
-                isSelected: choice == .item(item.id),
+                isSelected: chosenID.map(item.has(id:)) ?? false,
                 isLocked: isLocked,
                 progress: isLocked ? Double(xp) / Double(item.minXP) : nil,
                 item: HeroGearLook(look: item.look)

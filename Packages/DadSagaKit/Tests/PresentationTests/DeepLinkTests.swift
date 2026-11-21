@@ -37,6 +37,15 @@ struct DeepLinkTests {
         #expect(sut.selectedChildID == HeroStub.eleni.id)
     }
 
+    @Test("Given a widget link with a quest's id from before a rename, when opening it, then that quest opens")
+    func linkWithAFormerQuestIDOpensTheQuest() async {
+        let sut = await makeSUT()
+
+        await sut.open(.quest(id: "q1-before", childID: HeroStub.niko.id))
+
+        #expect(sut.selectedQuest?.id == "q1")
+    }
+
     @Test("Given a link for a child no longer in the family, when opening it, then home shows the first child")
     func unknownChild() async {
         let sut = await makeSUT()

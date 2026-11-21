@@ -11,6 +11,9 @@ public struct SagaOccasion: Hashable, Identifiable, Sendable {
 
     /// Stable, so an answer to the offer is remembered for this occasion only.
     public let id: String
+    /// `id`, and the ids this occasion had before its world was renamed: an answer given under any of them still holds
+    /// (ADR-0048 §4).
+    public let answerIDs: Set<String>
     public let kind: Kind
     public let childID: UUID
     /// The start of the day it happens.
@@ -18,8 +21,16 @@ public struct SagaOccasion: Hashable, Identifiable, Sendable {
     /// What the film offered for this occasion tells.
     public let period: SagaPeriod
 
-    public init(id: String, kind: Kind, childID: UUID, date: Date, period: SagaPeriod) {
+    public init(
+        id: String,
+        kind: Kind,
+        childID: UUID,
+        date: Date,
+        period: SagaPeriod,
+        formerIDs: [String] = []
+    ) {
         self.id = id
+        answerIDs = Set([id] + formerIDs)
         self.kind = kind
         self.childID = childID
         self.date = date
@@ -64,7 +75,7 @@ public enum SagaOccasions {
                 return dates.contains(where: interval.holds)
             }
             .max { ($0.date, $0.rank) < ($1.date, $1.rank) }
-        guard let newest, !answered.contains(newest.id) else { return nil }
+        guard let newest, answered.isDisjoint(with: newest.answerIDs) else { return nil }
         return newest
     }
 
@@ -84,7 +95,7 @@ public enum SagaOccasions {
             latest(for: $0, events: events, catalog: catalog, on: now, timeZone: timeZone, windowDays: windowDays)
         }
         guard let date = newest.map(\.date).max() else { return nil }
-        return newest.first { $0.date == date && !answered.contains($0.id) }
+        return newest.first { $0.date == date && answered.isDisjoint(with: $0.answerIDs) }
     }
 
     /// Every birthday so far, and the end of every world.
@@ -107,12 +118,14 @@ public enum SagaOccasions {
         }
         let worldEnds = catalog.worlds.compactMap { world -> SagaOccasion? in
             guard let maxAge = world.maxAgeMonths else { return nil }
+            let id = { (worldID: String) in "\(child.id.uuidString)/world/\(worldID)" }
             return SagaOccasion(
-                id: "\(child.id.uuidString)/world/\(world.id)",
+                id: id(world.id),
                 kind: .newWorld(left: world),
                 childID: child.id,
                 date: child.day(atMonths: maxAge + 1).start(in: timeZone),
-                period: .world(id: world.id)
+                period: .world(id: world.id),
+                formerIDs: world.formerIDs.map(id)
             )
         }
         return birthdays + worldEnds

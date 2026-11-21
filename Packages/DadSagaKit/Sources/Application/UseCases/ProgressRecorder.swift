@@ -49,7 +49,8 @@ struct ProgressRecorder {
         unknown: some Error
     ) async throws -> ProgressChange {
         let catalog = try await contentRepository.fetchCatalog()
-        guard catalog.contains(kind) else { throw unknown }
+        // Stored under the content's current id, even when asked by a former one (e.g. an old widget link).
+        guard let kind = catalog.canonical(kind) else { throw unknown }
         let events = try await progressRepository.fetchEvents()
         let before = DadProgress(events: events, catalog: catalog)
         let unchanged = ProgressChange(before: before, after: before, eventID: nil, gear: catalog.gear)

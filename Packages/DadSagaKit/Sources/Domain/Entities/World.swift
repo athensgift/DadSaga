@@ -1,6 +1,8 @@
 /// A themed stage of childhood. Unlocks by the child's real age, never by performance.
-public struct World: Hashable, Identifiable, Sendable {
+public struct World: ContentItem, Hashable, Identifiable, Sendable {
     public let id: String
+    /// Ids it had before a rename (ADR-0048 §4).
+    public let formerIDs: [String]
     public let order: Int
     public let title: LocalizedText
     public let tagline: LocalizedText
@@ -14,9 +16,11 @@ public struct World: Hashable, Identifiable, Sendable {
         title: LocalizedText,
         tagline: LocalizedText,
         minAgeMonths: Int,
-        maxAgeMonths: Int?
+        maxAgeMonths: Int?,
+        formerIDs: [String] = []
     ) {
         self.id = id
+        self.formerIDs = formerIDs
         self.order = order
         self.title = title
         self.tagline = tagline

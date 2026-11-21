@@ -8,6 +8,8 @@ struct LocalizedTextDTO: Decodable, Sendable {
 
 struct WorldDTO: Decodable, Sendable {
     let id: String
+    /// Ids it had before a rename (ADR-0048 §4). Once shipped, an id is never dropped.
+    var formerIDs: [String]?
     let order: Int
     let title: LocalizedTextDTO
     let tagline: LocalizedTextDTO
@@ -17,6 +19,8 @@ struct WorldDTO: Decodable, Sendable {
 
 struct QuestDTO: Decodable, Sendable {
     let id: String
+    /// Ids it had before a rename (ADR-0048 §4). Once shipped, an id is never dropped.
+    var formerIDs: [String]?
     let worldID: String
     let title: LocalizedTextDTO
     let description: LocalizedTextDTO
@@ -35,6 +39,8 @@ struct QuestTipDTO: Decodable, Sendable {
 
 struct BossFightDTO: Decodable, Sendable {
     let id: String
+    /// Ids it had before a rename (ADR-0048 §4). Once shipped, an id is never dropped.
+    var formerIDs: [String]?
     let worldID: String
     let title: LocalizedTextDTO
     let intro: LocalizedTextDTO
@@ -48,6 +54,8 @@ struct BossFightDTO: Decodable, Sendable {
 
 struct FirstMomentDTO: Decodable, Sendable {
     let id: String
+    /// Ids it had before a rename (ADR-0048 §4). Once shipped, an id is never dropped.
+    var formerIDs: [String]?
     let order: Int
     let emoji: String
     let title: LocalizedTextDTO
@@ -57,6 +65,8 @@ struct FirstMomentDTO: Decodable, Sendable {
 
 struct HeroClassDTO: Decodable, Sendable {
     let id: String
+    /// Ids it had before a rename (ADR-0048 §4). Once shipped, an id is never dropped.
+    var formerIDs: [String]?
     let order: Int
     let title: LocalizedTextDTO
     let tagline: LocalizedTextDTO
@@ -65,6 +75,8 @@ struct HeroClassDTO: Decodable, Sendable {
 
 struct GearItemDTO: Decodable, Sendable {
     let id: String
+    /// Ids it had before a rename (ADR-0048 §4). Once shipped, an id is never dropped.
+    var formerIDs: [String]?
     let skill: String
     let minXP: Int
     let look: String

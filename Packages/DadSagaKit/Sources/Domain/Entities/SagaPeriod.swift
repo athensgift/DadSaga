@@ -28,7 +28,7 @@ public enum SagaPeriod: Hashable, Sendable {
             start = child.day(atMonths: 12 * (number - 1)).start(in: timeZone)
             end = child.day(atMonths: 12 * number).start(in: timeZone)
         case .world(let id):
-            guard let world = catalog.worlds.first(where: { $0.id == id }) else { return nil }
+            guard let world = catalog.world(id: id) else { return nil }
             start = child.day(atMonths: world.minAgeMonths).start(in: timeZone)
             end = world.maxAgeMonths.map { child.day(atMonths: $0 + 1).start(in: timeZone) } ?? .distantFuture
         case .everything:

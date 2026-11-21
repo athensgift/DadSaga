@@ -215,7 +215,7 @@ final class AppContainer {
     func makeFamilyViewModel(onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel {
         FamilyViewModel(
             getProfile: getProfileUseCase,
-            updateFamily: DefaultUpdateFamilyUseCase(contentRepository: contentRepository, profileRepository: store.profiles),
+            updateFamily: DefaultUpdateFamilyUseCase(profileRepository: store.profiles),
             onSaved: onSaved
         )
     }

@@ -1,6 +1,8 @@
 /// A real-life challenge (first fever, sleep regression…) with a short survival guide.
-public struct BossFight: Hashable, Identifiable, Sendable {
+public struct BossFight: ContentItem, Hashable, Identifiable, Sendable {
     public let id: String
+    /// Ids it had before a rename (ADR-0048 §4).
+    public let formerIDs: [String]
     public let worldID: String
     public let title: LocalizedText
     public let intro: LocalizedText
@@ -22,9 +24,11 @@ public struct BossFight: Hashable, Identifiable, Sendable {
         skill: Skill,
         xp: Int,
         minAgeMonths: Int,
-        requiresSibling: Bool = false
+        requiresSibling: Bool = false,
+        formerIDs: [String] = []
     ) {
         self.id = id
+        self.formerIDs = formerIDs
         self.worldID = worldID
         self.title = title
         self.intro = intro

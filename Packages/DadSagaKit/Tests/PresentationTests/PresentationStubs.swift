@@ -19,7 +19,8 @@ enum Stub {
         ],
         quests: [
             Quest(id: "q1", worldID: "w1", title: LocalizedText(el: "Αποστολή", en: "Quest"),
-                  description: LocalizedText(el: "δ", en: "d"), skill: .care, xp: 20, minAgeMonths: 0)
+                  description: LocalizedText(el: "δ", en: "d"), skill: .care, xp: 20, minAgeMonths: 0,
+                  formerIDs: ["q1-before"])
         ],
         bosses: [
             BossFight(id: "b1", worldID: "w1", title: LocalizedText(el: "Αφεντικό", en: "Boss"),

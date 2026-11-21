@@ -18,58 +18,48 @@ public protocol UpdateFamilyUseCase: Sendable {
 }
 
 public struct DefaultUpdateHeroUseCase: UpdateHeroUseCase {
-    private let editor: ProfileEditor
+    private let contentRepository: any ContentRepository
+    private let profileRepository: any ProfileRepository
+    private let timeZone: TimeZone
 
     public init(
         contentRepository: any ContentRepository,
         profileRepository: any ProfileRepository,
         timeZone: TimeZone = .autoupdatingCurrent
     ) {
-        editor = ProfileEditor(
-            contentRepository: contentRepository, profileRepository: profileRepository, timeZone: timeZone
-        )
+        self.contentRepository = contentRepository
+        self.profileRepository = profileRepository
+        self.timeZone = timeZone
     }
 
+    /// The hero must be one the content has now: the page only offers those.
     public func execute(heroClassID: String, skinTone: SkinTone, appearance: DadAppearance, on date: Date) async throws {
-        try await editor.edit(on: date) { profile in
-            profile.heroClassID = heroClassID
-            profile.dadSkinTone = skinTone
-            profile.dadAppearance = appearance
-        }
-    }
-}
-
-public struct DefaultUpdateFamilyUseCase: UpdateFamilyUseCase {
-    private let editor: ProfileEditor
-
-    public init(
-        contentRepository: any ContentRepository,
-        profileRepository: any ProfileRepository,
-        timeZone: TimeZone = .autoupdatingCurrent
-    ) {
-        editor = ProfileEditor(
-            contentRepository: contentRepository, profileRepository: profileRepository, timeZone: timeZone
-        )
-    }
-
-    public func execute(children: [Child], on date: Date) async throws {
-        try await editor.edit(on: date) { $0.children = children }
-    }
-}
-
-/// Reads the stored profile, changes one part of it and stores it again through the same rules as onboarding.
-private struct ProfileEditor: Sendable {
-    let contentRepository: any ContentRepository
-    let profileRepository: any ProfileRepository
-    let timeZone: TimeZone
-
-    func edit(on date: Date, _ change: (inout PlayerProfile) -> Void) async throws {
         async let catalog = contentRepository.fetchCatalog()
         guard var profile = try await profileRepository.fetchProfile() else { throw ProfileEditError.noProfile }
-        change(&profile)
+        profile.heroClassID = heroClassID
+        profile.dadSkinTone = skinTone
+        profile.dadAppearance = appearance
         let valid = try ProfileRules.validated(
             profile, on: CalendarDay(date, in: timeZone), heroClasses: try await catalog.heroClasses
         )
         try await profileRepository.save(valid)
+    }
+}
+
+/// Keeps the stored hero as it is, even one the content no longer has: editing the family never asks for a hero
+/// (ADR-0048 §4).
+public struct DefaultUpdateFamilyUseCase: UpdateFamilyUseCase {
+    private let profileRepository: any ProfileRepository
+    private let timeZone: TimeZone
+
+    public init(profileRepository: any ProfileRepository, timeZone: TimeZone = .autoupdatingCurrent) {
+        self.profileRepository = profileRepository
+        self.timeZone = timeZone
+    }
+
+    public func execute(children: [Child], on date: Date) async throws {
+        guard var profile = try await profileRepository.fetchProfile() else { throw ProfileEditError.noProfile }
+        profile.children = try ProfileRules.validatedChildren(children, on: CalendarDay(date, in: timeZone))
+        try await profileRepository.save(profile)
     }
 }

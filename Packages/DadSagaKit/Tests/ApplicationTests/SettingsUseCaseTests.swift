@@ -184,7 +184,7 @@ struct EditProfileUseCaseTests {
         try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
             .execute(heroClassID: "h1", skinTone: .light, appearance: shavedNoBeard, on: today)
 
-        try await DefaultUpdateFamilyUseCase(contentRepository: content, profileRepository: profiles)
+        try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
             .execute(children: [anna], on: today)
 
         let profile = try #require(try await profiles.fetchProfile())
@@ -201,7 +201,7 @@ struct EditProfileUseCaseTests {
                 .execute(heroClassID: "h1", skinTone: .dark, appearance: shavedNoBeard, on: today)
         }
         await #expect(throws: ProfileEditError.noProfile) {
-            try await DefaultUpdateFamilyUseCase(contentRepository: content, profileRepository: profiles)
+            try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
                 .execute(children: [anna], on: today)
         }
     }
@@ -227,6 +227,56 @@ struct EditProfileUseCaseTests {
         #expect(after.equipped.map(\.id) == ["cloth"])
         #expect(after.equipped == before.equipped)
         #expect(try await progress.fetchEvents().count == 1)
+    }
+
+    @Test("Given a stored hero the content no longer has, when the family is saved, then it saves and keeps that hero")
+    func familySavesWithAnUnknownHero() async throws {
+        let profiles = SpyProfileRepository()
+        try await profiles.save(PlayerProfile(children: [anna, nikos], heroClassID: "gone", dadSkinTone: .light))
+
+        try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
+            .execute(children: [anna], on: today)
+
+        let profile = try #require(try await profiles.fetchProfile())
+        #expect(profile.children.map(\.id) == [anna.id])
+        #expect(profile.heroClassID == "gone")
+    }
+
+    @Test("Given a stored hero the content lacks, when the hero page opens and the look changes, then the first hero is saved")
+    func heroPageWithAnUnknownHeroSavesTheLook() async throws {
+        let profiles = SpyProfileRepository()
+        try await profiles.save(PlayerProfile(children: [anna], heroClassID: "gone", dadSkinTone: .light))
+
+        let choice = try #require(
+            try await DefaultGetHeroChoiceUseCase(contentRepository: content, profileRepository: profiles).execute()
+        )
+        #expect(choice.heroClassID == "h1")
+        try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
+            .execute(heroClassID: choice.heroClassID, skinTone: .light, appearance: shavedNoBeard, on: today)
+
+        let profile = try #require(try await profiles.fetchProfile())
+        #expect(profile.heroClassID == "h1")
+        #expect(profile.dadAppearance == shavedNoBeard)
+    }
+
+    @Test("Given a hero stored before it was renamed, when the hero page opens, then the renamed hero is selected")
+    func heroPageShowsTheRenamedHero() async throws {
+        let text = Self.text
+        let renamed = StubContentRepository(result: .success(ContentCatalog(
+            worlds: [], quests: [], bosses: [], firsts: [],
+            heroClasses: [
+                HeroClass(id: "h1", order: 1, title: text, tagline: text, look: "hero"),
+                HeroClass(id: "h2", order: 2, title: text, tagline: text, look: "chef", formerIDs: ["h-old"])
+            ]
+        )))
+        let profiles = SpyProfileRepository()
+        try await profiles.save(PlayerProfile(children: [anna], heroClassID: "h-old"))
+
+        let choice = try #require(
+            try await DefaultGetHeroChoiceUseCase(contentRepository: renamed, profileRepository: profiles).execute()
+        )
+
+        #expect(choice.heroClassID == "h2")
     }
 
     @Test("Given a stored profile, when reading the hero choice, then it has the classes, the id, the tone and the look")
