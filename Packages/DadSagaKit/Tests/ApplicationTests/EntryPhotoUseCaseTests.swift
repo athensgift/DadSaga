@@ -191,6 +191,7 @@ struct DeletedBeforeUpdate: ProgressRepository {
     init(_ base: any ProgressRepository) { self.base = base }
 
     func fetchEvents() async throws -> [ProgressEvent] { try await base.fetchEvents() }
+    func referencedPhotoIDs() async throws -> Set<String> { try await base.referencedPhotoIDs() }
     func add(_ event: ProgressEvent) async throws { try await base.add(event) }
     func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool { try await base.addUnlessRecorded(event) }
     func delete(id: UUID) async throws { try await base.delete(id: id) }
@@ -233,5 +234,9 @@ actor SpyPhotoStore: PhotoStore {
 
     func deleteAll() async {
         stored = [:]
+    }
+
+    func storedPhotos() async throws -> [StoredPhoto] {
+        stored.keys.map { StoredPhoto(id: $0, savedAt: nil) }
     }
 }

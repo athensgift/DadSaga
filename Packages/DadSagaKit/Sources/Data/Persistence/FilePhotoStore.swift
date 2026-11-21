@@ -80,6 +80,26 @@ public actor FilePhotoStore: PhotoStore {
         try? FileManager.default.removeItem(at: directory)
     }
 
+    /// Only files this store wrote: `<UUID>.jpg` regular files, straight inside the folder. No folder yet means no photos; any
+    /// other error throws, so a sweep never works from a partial list.
+    public func storedPhotos() async throws -> [StoredPhoto] {
+        let directory = try folder()
+        let files: [URL]
+        do {
+            files = try FileManager.default.contentsOfDirectory(
+                at: directory, includingPropertiesForKeys: [.isRegularFileKey, .contentModificationDateKey]
+            )
+        } catch CocoaError.fileReadNoSuchFile {
+            return []
+        }
+        return files.compactMap { file in
+            let id = file.deletingPathExtension().lastPathComponent
+            let values = try? file.resourceValues(forKeys: [.isRegularFileKey, .contentModificationDateKey])
+            guard file.pathExtension == "jpg", UUID(uuidString: id) != nil, values?.isRegularFile == true else { return nil }
+            return StoredPhoto(id: id, savedAt: values?.contentModificationDate)
+        }
+    }
+
     /// Ids are UUIDs we generated; anything else (e.g. a path) is reduced to its last component so it stays inside.
     private func url(for id: String, in directory: URL) -> URL {
         directory.appending(path: (id as NSString).lastPathComponent + ".jpg")

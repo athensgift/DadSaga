@@ -5,6 +5,9 @@ import Foundation
 /// `update` and `delete` exist for the dad correcting his own entries (ADR-0021).
 public protocol ProgressRepository: Sendable {
     func fetchEvents() async throws -> [ProgressEvent]
+    /// The photo ids of every stored entry, those `fetchEvents` leaves out included (content the app no longer knows),
+    /// whatever the child. A photo not in it belongs to no entry (ADR-0048 §5).
+    func referencedPhotoIDs() async throws -> Set<String>
     func add(_ event: ProgressEvent) async throws
     /// Adds the event unless the same child already has one for the same content, checked and stored in one step so two
     /// saves at the same moment can never both land. Returns whether it was added.

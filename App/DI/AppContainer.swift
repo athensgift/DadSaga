@@ -208,6 +208,15 @@ final class AppContainer {
         Task { await renderer.discardFilms() }
     }
 
+    /// Deletes photo files no entry points to, left when the app stopped between two writes (ADR-0048 §5). Run once,
+    /// at launch, at low priority; it deletes nothing when the saga can't be read.
+    func sweepOrphanPhotos() {
+        let sweep = DefaultSweepOrphanPhotosUseCase(
+            profileRepository: store.profiles, progressRepository: store.progress, photoStore: photoStore
+        )
+        Task(priority: .utility) { try? await sweep.execute(now: .now) }
+    }
+
     func makeReminderSettingsViewModel() -> ReminderSettingsViewModel {
         ReminderSettingsViewModel(useCases: reminderUseCases)
     }

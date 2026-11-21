@@ -203,6 +203,7 @@ struct ProgressUseCaseTests {
 /// Shows no events, then finds the event already stored when adding: another save got there first.
 struct LosesRace: ProgressRepository {
     func fetchEvents() async throws -> [ProgressEvent] { [] }
+    func referencedPhotoIDs() async throws -> Set<String> { [] }
     func add(_ event: ProgressEvent) async throws {}
     func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool { false }
     func update(_ event: ProgressEvent) async throws {}
@@ -214,6 +215,10 @@ actor SpyProgressRepository: ProgressRepository {
 
     func fetchEvents() async throws -> [ProgressEvent] {
         events
+    }
+
+    func referencedPhotoIDs() async throws -> Set<String> {
+        Set(events.flatMap(\.photoIDs))
     }
 
     func add(_ event: ProgressEvent) async throws {

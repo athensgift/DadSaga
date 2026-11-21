@@ -11,6 +11,11 @@ actor SwiftDataProgressRepository: ProgressRepository {
         return try modelContext.fetch(descriptor).compactMap { $0.toDomain() }
     }
 
+    /// Read from the rows, not from `fetchEvents`, whose mapping leaves out rows it can't show.
+    func referencedPhotoIDs() async throws -> Set<String> {
+        Set(try modelContext.fetch(FetchDescriptor<ProgressEventRecord>()).flatMap(\.photoIDs))
+    }
+
     func add(_ event: ProgressEvent) async throws {
         try modelContext.saveAllOrNothing { modelContext.insert(ProgressEventRecord(event: event)) }
     }

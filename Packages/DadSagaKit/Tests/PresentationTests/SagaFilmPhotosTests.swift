@@ -85,6 +85,7 @@ private struct IDPhotoStore: PhotoStore {
     func thumbnail(id: String, maxPixelSize: Int) async -> Data? { Data(id.utf8) }
     func delete(id: String) async {}
     func deleteAll() async {}
+    func storedPhotos() async throws -> [StoredPhoto] { [] }
 }
 
 /// Rates a photo by its id.

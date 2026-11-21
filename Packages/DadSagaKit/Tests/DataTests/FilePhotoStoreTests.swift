@@ -109,4 +109,34 @@ struct FilePhotoStoreTests {
         #expect(await sut.thumbnail(id: id, maxPixelSize: 2048) == stored)
         #expect(try pixelSize(of: try #require(await sut.thumbnail(id: id, maxPixelSize: 200))).width == 200)
     }
+
+    @Test("Given saved photos and other files in the folder, when listing, then only the photos come back, with a date")
+    func listsOnlyPhotoFiles() async throws {
+        let sut = FilePhotoStore(directory: directory)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let first = try await sut.save(try png(width: 10, height: 10))
+        let second = try await sut.save(try png(width: 10, height: 10))
+        try Data().write(to: directory.appending(path: "notes.txt"))
+        try Data().write(to: directory.appending(path: "not-a-uuid.jpg"))
+        try FileManager.default.createDirectory(
+            at: directory.appending(path: UUID().uuidString + ".jpg"), withIntermediateDirectories: true
+        )
+
+        let photos = try await sut.storedPhotos()
+
+        #expect(Set(photos.map(\.id)) == [first, second])
+        #expect(photos.allSatisfy { $0.savedAt.map { abs($0.timeIntervalSinceNow) < 60 } == true })
+    }
+
+    @Test("Given no photo saved yet, when listing, then there are none")
+    func noFolderListsNothing() async throws {
+        #expect(try await FilePhotoStore(directory: directory).storedPhotos().isEmpty)
+    }
+
+    @Test("Given no folder for the photos, when listing, then it throws")
+    func unknownFolderCantList() async throws {
+        let sut = FilePhotoStore(folder: { throw SharedContainerError.appGroupUnavailable })
+
+        await #expect(throws: SharedContainerError.appGroupUnavailable) { try await sut.storedPhotos() }
+    }
 }
