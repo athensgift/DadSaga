@@ -9,7 +9,7 @@ import SwiftUI
 /// when the Duo is opened flat and held upright (ADR-0045).
 public struct HomeView: View {
     @State var viewModel: HomeViewModel
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    @Environment(\.dynamicTypeSize) var dynamicTypeSize
     @Environment(\.scenePhase) private var scenePhase
     /// Set while the app is in the background, so coming back reloads once (not after Control Center or Face ID).
     @State var wasInBackground = false
@@ -22,6 +22,10 @@ public struct HomeView: View {
     @State private var fold: HorizontalFold?
     /// Where the fold runs across home, also while the device lies flat.
     @State private var flatFold: HorizontalFold?
+    /// The two-pane header's height, so the hero takes what is left above the fold.
+    @State var paneHeaderHeight: CGFloat = 0
+    /// The map and Settings' height over the adventure's pane, so its last card scrolls clear of them.
+    @State var paneButtonsHeight: CGFloat = 0
     @State var settingsViewModel: SettingsViewModel?
     /// The film sheet, opened from the film offer.
     @State var sagaFilm: SagaFilmViewModel?
@@ -137,7 +141,7 @@ public struct HomeView: View {
         Binding(get: { viewModel.worldMap }, set: { if $0 == nil { viewModel.closeMap() } })
     }
 
-    private var arrangement: HomeArrangement {
+    var arrangement: HomeArrangement {
         HomeArrangement.make(width: width, fold: fold, flatFold: flatFold)
     }
 
@@ -149,12 +153,18 @@ public struct HomeView: View {
             let panes = arrangement.fold.map { AnyLayout(FoldedStackLayout(fold: $0)) }
                 ?? AnyLayout(HStackLayout(alignment: .top, spacing: 0))
             panes {
-                ScrollView { heroPanel(content).padding(DSSpacing.l) }
+                ScrollView { heroPanel(content).padding(HomeArrangement.panePadding) }
                     .frame(maxWidth: .infinity)
                     .modifier(celebrationOverlay)
-                ScrollView { adventure(content).padding(DSSpacing.l) }
+                ScrollView { adventure(content).padding(HomeArrangement.panePadding) }
+                    // The last card scrolls clear of the map and Settings.
+                    .contentMargins(.bottom, paneButtonsHeight, for: .scrollContent)
                     .frame(maxWidth: .infinity)
             }
+            // Over the adventure's pane, just above the tab bar: within the dad's reach, wherever home is scrolled.
+            .overlay(alignment: .bottomTrailing) { paneButtons }
+            // VoiceOver reads the map and Settings first, as it did when they stood by the title.
+            .accessibilityElement(children: .contain)
             .motion(.smooth, value: arrangement)
         } else {
             ScrollView {
@@ -177,13 +187,10 @@ public struct HomeView: View {
     }
 
     private func heroPanel(_ content: HomeContent) -> some View {
-        // Above a fold the pane is wider than tall: the hero stands beside his lines and level, unless the text
-        // is too large for half the width.
-        let isBeside = arrangement.fold != nil && !dynamicTypeSize.isAccessibilitySize
-        let stageAndLevel = isBeside
+        let stageAndLevel = isHeroBesideLevel
             ? AnyLayout(HStackLayout(spacing: DSSpacing.l))
             : AnyLayout(VStackLayout(spacing: DSSpacing.m))
-        return VStack(spacing: DSSpacing.m) {
+        return VStack(spacing: HomeArrangement.headerSpacing) {
             if arrangement.hasPanes {
                 paneHeader(content)
             }
@@ -209,38 +216,6 @@ public struct HomeView: View {
             }
         }
         .frame(maxWidth: .infinity)
-    }
-
-    /// The dad and his children, on the glow of his colour.
-    private func heroStage(_ content: HomeContent) -> some View {
-        let style = content.heroLook.avatarStyle
-        return FamilyStage(
-            heroStyle: style,
-            heroSkin: content.heroSkin.avatarSkin,
-            heroFeatures: content.heroAppearance.avatarFeatures,
-            heroGear: content.heroGear.map(\.heroItem),
-            medals: content.medalCount,
-            heroTitle: content.heroTitle,
-            companions: content.companions,
-            selectedChildID: content.selectedChildID,
-            maxHeroSize: arrangement.maxHeroSize,
-            cheerTrigger: viewModel.celebration?.id ?? 0
-        ) { id in
-            Task { await viewModel.selectChild(id: id) }
-        }
-        .padding(.top, DSSpacing.xl)
-        .background {
-            Circle()
-                .fill(
-                    RadialGradient(
-                        colors: [style.tint.opacity(0.28), style.tint.opacity(0)],
-                        center: .center,
-                        startRadius: 10,
-                        endRadius: 150
-                    )
-                )
-                .frame(width: 300, height: 300)
-        }
     }
 
     private func adventure(_ content: HomeContent) -> some View {

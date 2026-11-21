@@ -57,13 +57,27 @@ struct HomeArrangementTests {
     @Test("Given a tall pane above the fold, when the hero is sized, then he is as big as in the two columns")
     func heroInATallPane() {
         let tall = HomeArrangement.stacked(HorizontalFold(top: 520, bottom: 550))
-        #expect(tall.maxHeroSize == HomeArrangement.columns.maxHeroSize)
+        let columns = HomeArrangement.columns.maxHeroSize(headerHeight: 41, besideLevel: false)
+        #expect(tall.maxHeroSize(headerHeight: 41, besideLevel: true) == columns)
+    }
+
+    @Test("Given the iPhone Duo open upright, when the hero is sized, then he fills what the title leaves above the fold")
+    func heroReachesTheFold() {
+        let open = HomeArrangement.stacked(HorizontalFold(top: 393.5, bottom: 393.5))
+        #expect(open.maxHeroSize(headerHeight: 41, besideLevel: true) == 256.5)
+        #expect(open.maxHeroSize(headerHeight: 69, besideLevel: true) == 228.5)
+    }
+
+    @Test("Given the accessibility text sizes, when the hero is sized above a fold, then he is no taller than in one column")
+    func heroOverHisLevel() {
+        let open = HomeArrangement.stacked(HorizontalFold(top: 520, bottom: 520))
+        let column = HomeArrangement.column.maxHeroSize(headerHeight: 0, besideLevel: false)
+        #expect(open.maxHeroSize(headerHeight: 41, besideLevel: false) == column)
     }
 
     @Test("Given a short pane above the fold, when the hero is sized, then he shrinks but stays recognisable")
     func heroInAShortPane() {
-        let short = HomeArrangement.stacked(HorizontalFold(top: 360, bottom: 390))
-        #expect(short.maxHeroSize == 180)
-        #expect(HomeArrangement.stacked(HorizontalFold(top: 210, bottom: 240)).maxHeroSize == 120)
+        let short = HomeArrangement.stacked(HorizontalFold(top: 210, bottom: 240))
+        #expect(short.maxHeroSize(headerHeight: 41, besideLevel: true) == 120)
     }
 }

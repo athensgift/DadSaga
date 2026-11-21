@@ -4,29 +4,50 @@ import SwiftUI
 // MARK: - Header and toolbar buttons
 
 extension HomeView {
-    /// The two-pane layouts have no navigation bar, so their title and buttons sit at the top of the hero pane.
+    /// The two-pane layouts have no navigation bar, so their title sits at the top of the hero pane.
     func paneHeader(_ content: HomeContent) -> some View {
-        HStack {
-            Text(content.heroTitle)
-                .font(DSFont.largeTitle)
-                .foregroundStyle(DSColor.textPrimary)
-                .accessibilityAddTraits(.isHeader)
-            Spacer()
-            worldMapButton
-                .labelStyle(.iconOnly)
-                .buttonStyle(.glass)
-            settingsButton
-                .labelStyle(.iconOnly)
-                .buttonStyle(.glass)
+        Text(content.heroTitle)
+            .font(DSFont.largeTitle)
+            .foregroundStyle(DSColor.textPrimary)
+            .accessibilityAddTraits(.isHeader)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { paneHeaderHeight = $0 }
+    }
+
+    /// The map and Settings in the two-pane layouts: one glass capsule by the tab bar, at the trailing edge, as they
+    /// are in the side bar the system draws on the Duo's cover display (ADR-0056).
+    var paneButtons: some View {
+        HStack(spacing: 0) {
+            paneButton(worldMapTitle, systemImage: "map", action: openMap)
+            paneButton(settingsTitle, systemImage: "gearshape", action: openSettings)
         }
+        .padding(.horizontal, DSSpacing.xs)
+        .glassEffect(.regular.interactive(), in: .capsule)
+        .padding(DSSpacing.m)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { paneButtonsHeight = $0 }
+        .accessibilitySortPriority(1)
+    }
+
+    private func paneButton(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+                .labelStyle(.iconOnly)
+                .font(DSFont.symbol)
+                .frame(width: 48, height: 48)
+                .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .foregroundStyle(.tint)
     }
 
     var worldMapButton: some View {
-        Button {
-            viewModel.openMap()
-        } label: {
+        Button(action: openMap) {
             Label(worldMapTitle, systemImage: "map")
         }
+    }
+
+    func openMap() {
+        viewModel.openMap()
     }
 
     var worldMapTitle: String {
@@ -34,11 +55,13 @@ extension HomeView {
     }
 
     var settingsButton: some View {
-        Button {
-            settingsViewModel = settings.makeSettings()
-        } label: {
+        Button(action: openSettings) {
             Label(settingsTitle, systemImage: "gearshape")
         }
+    }
+
+    func openSettings() {
+        settingsViewModel = settings.makeSettings()
     }
 
     var settingsTitle: String {
@@ -55,6 +78,48 @@ extension HomeView {
     func homeSheetDismissed() {
         unsavedWork.end(scope: UnsavedScope.homeSheet)
         viewModel.sheetDismissed()
+    }
+}
+
+// MARK: - The stage
+
+extension HomeView {
+    /// Above a fold the pane is wider than tall: the hero stands beside his lines and level, unless the text is too
+    /// large for half the width.
+    var isHeroBesideLevel: Bool {
+        arrangement.fold != nil && !dynamicTypeSize.isAccessibilitySize
+    }
+
+    /// The dad and his children, on the glow of his colour.
+    func heroStage(_ content: HomeContent) -> some View {
+        let style = content.heroLook.avatarStyle
+        return FamilyStage(
+            heroStyle: style,
+            heroSkin: content.heroSkin.avatarSkin,
+            heroFeatures: content.heroAppearance.avatarFeatures,
+            heroGear: content.heroGear.map(\.heroItem),
+            medals: content.medalCount,
+            heroTitle: content.heroTitle,
+            companions: content.companions,
+            selectedChildID: content.selectedChildID,
+            maxHeroSize: arrangement.maxHeroSize(headerHeight: paneHeaderHeight, besideLevel: isHeroBesideLevel),
+            cheerTrigger: viewModel.celebration?.id ?? 0
+        ) { id in
+            Task { await viewModel.selectChild(id: id) }
+        }
+        .padding(.top, HomeArrangement.stageTopPadding)
+        .background {
+            Circle()
+                .fill(
+                    RadialGradient(
+                        colors: [style.tint.opacity(0.28), style.tint.opacity(0)],
+                        center: .center,
+                        startRadius: 10,
+                        endRadius: 150
+                    )
+                )
+                .frame(width: 300, height: 300)
+        }
     }
 }
 

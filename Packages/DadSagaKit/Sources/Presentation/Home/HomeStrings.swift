@@ -66,7 +66,7 @@ struct HomeStrings {
 
     /// The one health line under medical tips and boss guides. Lives here, not in the JSON, so it cannot drift.
     var medicalFooter: String {
-        strings.text("General information. It does not replace your paediatrician.")
+        strings.text("General information. It does not replace a doctor's advice.")
     }
 
     /// Whole and half years, e.g. "2", "3½".

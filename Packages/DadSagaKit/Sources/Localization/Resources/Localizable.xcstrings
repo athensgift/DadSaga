@@ -2237,19 +2237,19 @@
         }
       }
     },
-    "General information. It does not replace your paediatrician." : {
+    "General information. It does not replace a doctor's advice." : {
       "extractionState" : "manual",
       "localizations" : {
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Γενικές πληροφορίες. Δεν αντικαθιστούν τον παιδίατρό σου."
+            "value" : "Γενικές πληροφορίες. Δεν αντικαθιστούν τη συμβουλή γιατρού."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "General information. It does not replace your paediatrician."
+            "value" : "General information. It does not replace a doctor's advice."
           }
         }
       }
