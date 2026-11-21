@@ -82,10 +82,10 @@ struct WorldMapTests {
         #expect(sut.worldMap == nil)
         #expect(loaded(sut)?.worldTitle == "Βάλτος")
         #expect(loaded(sut)?.cards.map(\.id) == ["q1"])
-        #expect(loaded(sut)?.backToCurrentTitle == "Πίσω στον κόσμο του τώρα")
+        #expect(loaded(sut)?.backToCurrentTitle == "Πίσω στον τωρινό κόσμο")
         sut.openMap()
         #expect(sut.worldMap?.worlds.first?.isShown == true)
-        #expect(sut.worldMap?.worlds.first?.tag == "Το βλέπεις τώρα")
+        #expect(sut.worldMap?.worlds.first?.tag == "Σε προβολή")
 
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()

@@ -45,6 +45,11 @@ extension HomeViewModel {
 
     /// Opens a captured moment at step 2, to change its date, note or photos, or to delete it. No celebration.
     public func editMoment(id: UUID) {
+        editMoment(id: id, in: overview)
+    }
+
+    /// - Parameter overview: what to find the moment in, e.g. what a link's own load read.
+    func editMoment(id: UUID, in overview: HomeOverview?) {
         guard let overview,
               let moment = overview.progress.moments(for: overview.child.id).first(where: { $0.eventID == id }) else { return }
         errorMessage = nil
@@ -98,16 +103,17 @@ extension HomeViewModel {
         await useCases.moments.getPhoto.execute(id: id, maxPixelSize: maxPixelSize)
     }
 
-    /// Runs a change that earns nothing: closes the sheet and refreshes, or shows an error and keeps it open.
+    /// Runs a change to the open moment that earns nothing: closes its sheet and refreshes, or shows an error and keeps
+    /// it open. A link from outside waits while it runs (`receive`), so the sheet is still the moment's.
     func perform(_ action: () async throws -> Void) async {
         guard !isCompleting else { return }
         isCompleting = true
         defer { isCompleting = false }
+        errorMessage = nil
         do {
             try await action()
             momentCapture = nil
-            errorMessage = nil
-            await reload()
+            await load()
         } catch {
             errorMessage = saveFailedMessage
         }

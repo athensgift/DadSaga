@@ -10,7 +10,14 @@ import SwiftUI
 public struct HomeView: View {
     @State var viewModel: HomeViewModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
+    /// Set while the app is in the background, so coming back reloads once (not after Control Center or Face ID).
+    @State var wasInBackground = false
+    /// The app's editors holding changes the dad hasn't saved: a link waits for them. The root screen's, shared with
+    /// the timeline; home's own where nothing above provides one (previews, snapshots).
+    @Environment(UnsavedWork.self) private var sharedUnsavedWork: UnsavedWork?
+    @State private var ownUnsavedWork = UnsavedWork()
+    var unsavedWork: UnsavedWork { sharedUnsavedWork ?? ownUnsavedWork }
     @State private var width: CGFloat = 0
     @State private var fold: HorizontalFold?
     /// Where the fold runs across home, also while the device lies flat.
@@ -23,18 +30,18 @@ public struct HomeView: View {
     let makeSagaFilm: SagaFilmSheet.MakeViewModel
     let settings: SettingsScreens
     let pendingLink: PendingLink?
-    let onLinkHandled: @MainActor () -> Void
+    let onLinkHandled: @MainActor (PendingLink) -> Void
 
     /// - Parameters:
     ///   - settings: builds Settings, behind its toolbar button.
     ///   - makeSagaFilm: builds the film sheet for the film home offers.
-    ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` runs once it is open.
+    ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` gets it once it is open.
     public init(
         viewModel: HomeViewModel,
         makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
         settings: SettingsScreens,
         pendingLink: PendingLink? = nil,
-        onLinkHandled: @escaping @MainActor () -> Void = {}
+        onLinkHandled: @escaping @MainActor (PendingLink) -> Void = { _ in }
     ) {
         _viewModel = State(initialValue: viewModel)
         self.makeSagaFilm = makeSagaFilm
@@ -64,7 +71,7 @@ public struct HomeView: View {
             ) { flatFold = $0 }
             .background(DSColor.background)
             .safeAreaInset(edge: .bottom) { undoBar }
-            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
+            .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
             .navigationTitle(title)
             // Two panes scroll separately. A navigation bar collapses or hides with whichever pane scrolls and
             // shifts the other, so the two-pane layouts have no bar: their title lives in the hero pane.
@@ -81,14 +88,22 @@ public struct HomeView: View {
                 viewModel.closeMap()
             }
         }
-        .sheet(item: $settingsViewModel, onDismiss: reloadAfterSheet) { settingsModel in
+        .sheet(item: $settingsViewModel, onDismiss: settingsDismissed) { settingsModel in
             SettingsView(viewModel: settingsModel, pages: settings.pages) { settingsViewModel = nil }
+                .environment(\.unsavedScope, UnsavedScope.settings)
         }
         .sagaFilmSheet($sagaFilm)
         .task { await viewModel.onAppear() }
+        .onChange(of: scenePhase) { _, phase in scenePhaseChanged(to: phase) }
         .task(id: pendingLink) { await openPendingLink() }
-        .sheet(item: activeSheet, onDismiss: viewModel.sheetDismissed, content: sheetContent)
+        .task(id: viewModel.celebration?.id) { await celebrationTime() }
+        .sheet(item: activeSheet, onDismiss: homeSheetDismissed) { sheet in
+            sheetContent(sheet)
+                .environment(\.unsavedScope, UnsavedScope.homeSheet)
+        }
         .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
+        // Last, so the sheets and Settings' pages see it too.
+        .environment(unsavedWork)
     }
 
     private var title: String {
@@ -140,7 +155,7 @@ public struct HomeView: View {
                 ScrollView { adventure(content).padding(DSSpacing.l) }
                     .frame(maxWidth: .infinity)
             }
-            .animation(reduceMotion ? nil : .smooth, value: arrangement)
+            .motion(.smooth, value: arrangement)
         } else {
             ScrollView {
                 VStack(spacing: DSSpacing.l) {
@@ -158,7 +173,7 @@ public struct HomeView: View {
     /// Fixed over the scroll view, not scrolled with the hero, so a dad who completes a card further down still sees it.
     /// With two panes it stays in the hero's, away from the Duo's fold.
     private var celebrationOverlay: CelebrationOverlay {
-        CelebrationOverlay(celebration: viewModel.celebration) { viewModel.celebrationFinished() }
+        CelebrationOverlay(celebration: viewModel.celebration)
     }
 
     private func heroPanel(_ content: HomeContent) -> some View {
@@ -272,8 +287,8 @@ public struct HomeView: View {
             )
                 .padding(.top, DSSpacing.l)
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.reminderOffer)
-        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.sagaOffer)
+        .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.reminderOffer)
+        .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.sagaOffer)
     }
 }
 
@@ -342,26 +357,5 @@ extension HomeView {
             onConfirm: { note, photos in Task { await viewModel.defeatSelectedBoss(note: note, photos: photos) } },
             onClose: { viewModel.dismissSelection() }
         )
-    }
-}
-
-// MARK: - Links from outside the app
-
-extension HomeView {
-    /// Closes this screen's own sheets, then lets the presenter open the link (ADR-0023).
-    func openPendingLink() async {
-        guard let pendingLink else { return }
-        let hadSheet = settingsViewModel != nil || sagaFilm != nil
-            || viewModel.worldMap != nil || photoViewer != nil
-        settingsViewModel = nil
-        sagaFilm = nil
-        photoViewer = nil
-        viewModel.closeMap()
-        // A new sheet cannot appear while the old one is still sliding away.
-        if hadSheet { try? await Task.sleep(for: .milliseconds(450)) }
-        // A newer link replaced this one while the sheets closed; its own task opens it.
-        guard !Task.isCancelled else { return }
-        await viewModel.open(pendingLink)
-        onLinkHandled()
     }
 }

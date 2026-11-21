@@ -14,6 +14,9 @@ struct QuestSheet: View {
     @State private var photos = PhotoDrafts()
     /// The last note's photos, full screen.
     @State private var lastViewer: PhotoViewerContent?
+    @State private var isConfirmingDiscard = false
+
+    private var hasUnsavedChanges: Bool { JournalDraft.hasUnsavedChanges(note: note, photos: photos) }
 
     var body: some View {
         NavigationStack {
@@ -51,20 +54,27 @@ struct QuestSheet: View {
             }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .close, action: onClose)
+                    Button(role: .close) {
+                        if hasUnsavedChanges { isConfirmingDiscard = true } else { onClose() }
+                    }
+                    // A save under way can't be discarded: it writes everything anyway.
+                    .disabled(isCompleting)
                 }
             }
+            .modifier(UnsavedChangesGuard(
+                hasUnsavedChanges: hasUnsavedChanges,
+                isAsking: $isConfirmingDiscard,
+                labels: quest.journal,
+                onSave: nil,
+                onDiscard: onClose
+            ))
         }
         .photoViewer($lastViewer, loader: loader)
     }
 
     private var actions: some View {
         VStack(spacing: DSSpacing.s) {
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.boss)
-            }
+            SheetError(message: errorMessage)
             PrimaryButton(quest.confirmTitle) { onConfirm(note, photos) }
                 .disabled(isCompleting || photos.isLoading)
         }
@@ -85,6 +95,9 @@ struct BossSheet: View {
     @State private var photos = PhotoDrafts()
     /// The last note's photos, full screen.
     @State private var lastViewer: PhotoViewerContent?
+    @State private var isConfirmingDiscard = false
+
+    private var hasUnsavedChanges: Bool { JournalDraft.hasUnsavedChanges(note: note, photos: photos) }
 
     var body: some View {
         NavigationStack {
@@ -119,9 +132,20 @@ struct BossSheet: View {
             .navigationTitle(boss.title)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button(role: .close, action: onClose)
+                    Button(role: .close) {
+                        if hasUnsavedChanges { isConfirmingDiscard = true } else { onClose() }
+                    }
+                    // A save under way can't be discarded: it writes everything anyway.
+                    .disabled(isCompleting)
                 }
             }
+            .modifier(UnsavedChangesGuard(
+                hasUnsavedChanges: hasUnsavedChanges,
+                isAsking: $isConfirmingDiscard,
+                labels: boss.journal,
+                onSave: nil,
+                onDiscard: onClose
+            ))
         }
         .photoViewer($lastViewer, loader: loader)
     }
@@ -132,11 +156,7 @@ struct BossSheet: View {
 
     @ViewBuilder private var actions: some View {
         VStack(spacing: DSSpacing.s) {
-            if let errorMessage {
-                Text(errorMessage)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.boss)
-            }
+            SheetError(message: errorMessage)
             if boss.isDefeated {
                 Label(boss.defeatedText, systemImage: "rosette")
                     .font(DSFont.headline)

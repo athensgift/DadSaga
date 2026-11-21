@@ -96,9 +96,14 @@ struct ChildPicker: View {
 }
 
 /// Floating, transient feedback after a quest or boss: the one place on home where Liquid Glass sits over content.
+/// How long it shows and when VoiceOver reads it are home's (`HomeView.celebrationTime`), so a badge drawn again (two
+/// panes after one) neither restarts its time nor is read twice.
 struct CelebrationBadge: View {
     let celebration: Celebration
-    let onFinished: () -> Void
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// The symbols bounce once per celebration; with Reduce Motion they stay still.
+    private var bounce: Int { reduceMotion ? 0 : celebration.id }
 
     var body: some View {
         VStack(spacing: DSSpacing.xs) {
@@ -109,25 +114,25 @@ struct CelebrationBadge: View {
                 Label(levelUpText, systemImage: "star.fill")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.legendary)
-                    .symbolEffect(.bounce, value: celebration.id)
+                    .symbolEffect(.bounce, value: bounce)
             }
             if let badgeText = celebration.badgeText {
                 Label(badgeText, systemImage: "rosette")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.boss)
-                    .symbolEffect(.bounce, value: celebration.id)
+                    .symbolEffect(.bounce, value: bounce)
             }
             if let momentText = celebration.momentText {
                 Label(momentText, systemImage: "star.fill")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.legendary)
-                    .symbolEffect(.bounce, value: celebration.id)
+                    .symbolEffect(.bounce, value: bounce)
             }
             if let unlockText = celebration.unlockText {
                 Label(unlockText, systemImage: "gift.fill")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.accent)
-                    .symbolEffect(.bounce, value: celebration.id)
+                    .symbolEffect(.bounce, value: bounce)
             }
         }
         // Each line at its natural width when it fits the screen; wrapped within the screen when it doesn't.
@@ -138,17 +143,12 @@ struct CelebrationBadge: View {
         .glassEffect(.regular, in: .rect(cornerRadius: DSRadius.card))
         .padding(.horizontal, DSSpacing.m)
         .transition(.scale(scale: 0.6).combined(with: .opacity))
-        .task(id: celebration.id) {
-            try? await Task.sleep(for: .seconds(celebration.highlight >= .unlock ? 3.2 : 2.2))
-            onFinished()
-        }
     }
 }
 
 /// The badge with its burst, centred over the screen, and the haptic, while something is celebrated.
 struct CelebrationOverlay: ViewModifier {
     let celebration: Celebration?
-    let onFinished: () -> Void
     @Environment(\.isHapticsEnabled) private var isHapticsEnabled
 
     func body(content: Content) -> some View {
@@ -165,11 +165,11 @@ struct CelebrationOverlay: ViewModifier {
                             )
                                 .id(celebration.id)
                         }
-                        CelebrationBadge(celebration: celebration, onFinished: onFinished)
+                        CelebrationBadge(celebration: celebration)
                     }
                 }
             }
-            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: celebration)
+            .motion(.spring(response: 0.4, dampingFraction: 0.7), value: celebration)
             .sensoryFeedback(trigger: celebration) { _, celebration in
                 celebration?.haptic(isEnabled: isHapticsEnabled)?.feedback
             }
@@ -241,7 +241,11 @@ struct UndoBar: View {
             Label {
                 Text(offer.message).foregroundStyle(DSColor.textPrimary)
             } icon: {
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(DSColor.xp)
+                if offer.didFail {
+                    Image(systemName: "exclamationmark.circle.fill").foregroundStyle(DSColor.boss)
+                } else {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(DSColor.xp)
+                }
             }
             .font(DSFont.subheadline)
             Spacer(minLength: 0)
@@ -258,6 +262,10 @@ struct UndoBar: View {
         .frame(maxWidth: readableWidth)
         .padding(.horizontal, DSSpacing.m)
         .padding(.bottom, DSSpacing.s)
+        // "Couldn't undo" is read out, whether the bar came back for it or never left.
+        .onChange(of: offer.didFail, initial: true) { _, didFail in
+            if didFail { AccessibilityNotification.Announcement(offer.message).post() }
+        }
         .task(id: offer.id) {
             try? await Task.sleep(for: duration)
             if !Task.isCancelled { onExpire() }

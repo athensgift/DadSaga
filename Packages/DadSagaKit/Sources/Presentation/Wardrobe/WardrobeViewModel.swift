@@ -56,11 +56,12 @@ public final class WardrobeViewModel {
         // Only this slot changes on screen, so a reply for another slot never undoes a tap made meanwhile.
         let previous = wardrobe.outfit.choices[skill]
         self.wardrobe?.outfit.choices[skill] = choice == .automatic ? nil : choice
+        // The last error goes as the next try starts, so the same error again is read out again.
+        errorMessage = nil
         rebuild()
         do {
             let saved = try await useCases.setChoice.execute(skill: skill, choice: choice)
             self.wardrobe?.outfit.choices[skill] = saved.choices[skill]
-            errorMessage = nil
         } catch {
             self.wardrobe?.outfit.choices[skill] = previous
             errorMessage = strings.text("Couldn't save. Please try again.")

@@ -45,7 +45,6 @@ struct CoverAndFormPanes<Form: View>: View {
     @State private var foldedPanes = FoldedPanes.flat
     /// The cover full screen, opened from above the fold.
     @State private var viewer: PhotoViewerContent?
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         let cover = photos.cover(for: foldedPanes)
@@ -64,7 +63,7 @@ struct CoverAndFormPanes<Form: View>: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .modifier(FoldedPanesReader(panes: $foldedPanes))
         .modifier(HideKeyboardBar())
-        .animation(reduceMotion ? nil : .smooth, value: panes)
+        .motion(.smooth, value: panes)
         .photoViewer($viewer, loader: loader)
     }
 }

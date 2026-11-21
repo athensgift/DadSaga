@@ -1,7 +1,7 @@
 import Application
 import Domain
 import Foundation
-import Presentation
+@testable import Presentation
 import Testing
 
 /// Links from the home-screen widget (ADR-0023): they open a screen and never record anything.
@@ -103,7 +103,41 @@ struct RootLinkTests {
 
         #expect(sut.selectedTab == .adventure)
         #expect(sut.pendingLink == PendingLink(link))
-        sut.linkHandled()
+        sut.linkHandled(PendingLink(link))
+        #expect(sut.pendingLink == nil)
+    }
+
+    @Test("Given a note with unsaved words on the timeline, when a link arrives, then it waits there, and goes on after")
+    func linkWaitsWhereTheDadIs() async {
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
+        await sut.onAppear()
+        sut.selectedTab = .timeline
+        let note = UUID()
+        sut.unsavedWork.set(note, in: UnsavedScope.timelineJournal, hasUnsavedChanges: true)
+        let older = AppLink.child(HeroStub.niko.id)
+        let newer = AppLink.quest(id: "q1", childID: HeroStub.niko.id)
+
+        sut.open(url: older.url)
+        sut.open(url: newer.url)
+        #expect(sut.selectedTab == .timeline)
+        #expect(sut.pendingLink == nil)
+
+        sut.unsavedWork.end(scope: UnsavedScope.timelineJournal)
+        #expect(sut.selectedTab == .adventure)
+        #expect(sut.pendingLink == PendingLink(newer))
+    }
+
+    @Test("Given a link waiting for an editor, when the dad starts over, then it never opens")
+    func startOverDropsAWaitingLink() async {
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
+        await sut.onAppear()
+        let editor = UUID()
+        sut.unsavedWork.set(editor, in: UnsavedScope.settings, hasUnsavedChanges: true)
+        sut.open(url: AppLink.child(HeroStub.niko.id).url)
+
+        sut.startedOver()
+        sut.unsavedWork.closed(editor)
+
         #expect(sut.pendingLink == nil)
     }
 

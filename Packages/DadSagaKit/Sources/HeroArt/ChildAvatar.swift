@@ -88,7 +88,8 @@ public struct ChildAvatar: View {
         .opacity(hasAppeared || isStill ? 1 : 0)
         .onChange(of: cheerTrigger) { cheer() }
         .onAppear {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) { hasAppeared = true }
+            // With Reduce Motion it is simply there, without growing in.
+            withAnimation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) { hasAppeared = true }
         }
         .accessibilityAddTraits(.isImage)
     }
@@ -146,6 +147,7 @@ private struct ChildProportions {
 
 /// The whole child on a fixed canvas, drawn upwards from the ground line.
 struct ChildFigure: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     static let designSize = CGSize(width: 80, height: 120)
     /// Distance of the ground line below the canvas centre.
     private static let ground: CGFloat = 54
@@ -188,7 +190,8 @@ struct ChildFigure: View {
             .offset(y: Self.ground + (stage == .baby ? 0 : pose.bob * 0.6) + (isCheering ? -12 : 0))
         }
         .frame(width: Self.designSize.width, height: Self.designSize.height)
-        .animation(.spring(response: 0.3, dampingFraction: 0.45), value: isCheering)
+        // With Reduce Motion the cheer shows at once, without the bounce.
+        .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.45), value: isCheering)
     }
 
     // MARK: Body

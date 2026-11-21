@@ -189,6 +189,20 @@ struct TimelineViewModelTests {
         #expect(loadedContent(sut)?.sections.last?.items.first?.subtitle.hasSuffix(" · γέλασε πολύ") == true)
     }
 
+    @Test("Given the note editor open, when a link is about to open home, then it closes only if that loses nothing")
+    func linkClosesOnlyAClearEditor() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        let quest = try #require(loadedContent(sut)?.sections.last?.items.first)
+        sut.editJournal(id: quest.id)
+
+        sut.linkWillOpen(editorHoldsChanges: true)
+        #expect(sut.journalEditor != nil)
+
+        sut.linkWillOpen(editorHoldsChanges: false)
+        #expect(sut.journalEditor == nil)
+    }
+
     @Test("Given an entry with two photos, when adding one and making it the cover, then it is saved first")
     func savesArrangedPhotos() async throws {
         let quest = ProgressEvent(kind: .quest(id: "q1"), childID: HeroStub.niko.id, date: january, photoIDs: ["a", "b"])

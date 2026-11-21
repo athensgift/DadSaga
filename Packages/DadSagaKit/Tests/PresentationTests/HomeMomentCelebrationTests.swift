@@ -38,7 +38,7 @@ struct HomeMomentCelebrationTests {
         #expect(celebration.highlight == .moment)
         #expect(celebration.id == details.undoOffer?.id)
         sut.sheetDismissed()
-        sut.celebrationFinished()
+        sut.celebrationFinished(id: celebration.id)
         #expect(sut.celebration == nil)
     }
 

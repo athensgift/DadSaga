@@ -17,6 +17,17 @@ public final class FamilyViewModel {
     public let latestBirthDate: Date
 
     public var canSave: Bool { family.isComplete && !isSaving }
+    /// The way back to Settings. The screen draws its own, so it can ask first when leaving would lose changes.
+    public var backTitle: String { strings.text("Settings") }
+
+    /// The family as last loaded or saved: leaving with anything else would lose the dad's changes.
+    private var stored: FamilyDraft?
+
+    /// Something changed and isn't saved yet, so leaving asks first (`UnsavedChangesGuard`).
+    public var hasUnsavedChanges: Bool {
+        guard let stored else { return false }
+        return family != stored
+    }
 
     private let getProfile: any GetProfileUseCase
     private let updateFamily: any UpdateFamilyUseCase
@@ -49,6 +60,7 @@ public final class FamilyViewModel {
                 return
             }
             family = FamilyDraft(profile)
+            stored = family
             state = .loaded(makeContent())
         } catch {
             state = .failed(message: strings.text("Your family failed to load."))
@@ -63,14 +75,18 @@ public final class FamilyViewModel {
         family.removeChild(id: id)
     }
 
+    /// Saves the family as it is now. An edit made while it saves stays unsaved, and the screen stays open to show it.
+    /// The last error goes as the save starts, so the same error again is read out again.
     public func save() async {
         guard canSave else { return }
         isSaving = true
         defer { isSaving = false }
+        errorMessage = nil
+        let saving = family
         do {
-            try await updateFamily.execute(children: family.children.map(\.child), on: latestBirthDate)
-            errorMessage = nil
-            onSaved()
+            try await updateFamily.execute(children: saving.children.map(\.child), on: latestBirthDate)
+            stored = saving
+            if family == saving { onSaved() }
         } catch {
             errorMessage = strings.text("Couldn't save. Please try again.")
         }
@@ -81,6 +97,7 @@ public final class FamilyViewModel {
             title: strings.text("My family"),
             childEditor: ChildEditorLabels.make(locale: locale),
             saveTitle: strings.text("Save"),
+            unsaved: JournalLabels(locale: locale),
             footnote: strings.text("If you remove a child, everything you earned together stays.")
         )
     }
@@ -98,5 +115,7 @@ public struct FamilyContent: Equatable, Sendable {
     public let title: String
     public let childEditor: ChildEditorLabels
     public let saveTitle: String
+    /// "Discard the changes you just made?" and its answers.
+    public let unsaved: JournalLabels
     public let footnote: String
 }

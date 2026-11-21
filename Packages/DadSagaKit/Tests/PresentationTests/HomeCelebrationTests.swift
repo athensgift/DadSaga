@@ -25,6 +25,18 @@ struct HomeCelebrationTests {
         #expect(sut.celebration?.highlight == .levelUp)
     }
 
+    @Test("Given 80 XP, when completing a quest with VoiceOver on, then what it hears says the XP and the new level")
+    func celebrationIsReadOut() async {
+        await progress.seed(times: 4)
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+
+        #expect(sut.celebration?.announcement == "+20 XP, Επίπεδο 2!")
+    }
+
     @Test("Given a level-up and a plain quest, when haptics are on, then the level-up taps and the plain quest does not")
     func hapticsOn() async throws {
         await progress.seed(times: 4)

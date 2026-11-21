@@ -73,7 +73,7 @@ public struct RootView: View {
                             makeSagaFilm: makeSagaFilm,
                             settings: settingsScreens,
                             pendingLink: viewModel.pendingLink,
-                            onLinkHandled: { viewModel.linkHandled() }
+                            onLinkHandled: { viewModel.linkHandled($0) }
                         ),
                         timeline: TimelineView(
                             viewModel: timeline,
@@ -81,6 +81,7 @@ public struct RootView: View {
                             isOpeningLink: viewModel.pendingLink != nil
                         )
                     )
+                    .environment(viewModel.unsavedWork)
                     .transition(.opacity)
                 } else {
                     ProgressView()

@@ -76,6 +76,80 @@ struct FamilyViewModelTests {
         #expect(sut.errorMessage == "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.")
     }
 
+    @Test("Given My family just opened, when nothing is touched, then leaving loses nothing")
+    func openedFamilyHasNothingToLose() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+
+        #expect(!sut.hasUnsavedChanges)
+    }
+
+    @Test("Given My family open, when a name changes or a child is added, then leaving would lose it")
+    func changedFamilyHasSomethingToLose() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+
+        sut.family.children[0].name = "Νικόλας"
+        #expect(sut.hasUnsavedChanges)
+
+        sut.family.children[0].name = "Νίκος"
+        #expect(!sut.hasUnsavedChanges)
+
+        sut.addChild()
+        #expect(sut.hasUnsavedChanges)
+    }
+
+    @Test("Given a changed family, when saving fails, then the changes still count as unsaved; when it works, they don't")
+    func savingSettlesTheChanges() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+        sut.family.children[0].name = "Νικόλας"
+        await update.failNext()
+
+        await sut.save()
+        #expect(sut.hasUnsavedChanges)
+
+        await sut.save()
+        #expect(!sut.hasUnsavedChanges)
+    }
+
+    @Test("Given a family saving, when the dad edits a name meanwhile, then that edit stays unsaved and the screen stays open")
+    func editDuringASaveIsKept() async {
+        var closed = false
+        let sut = makeSUT { closed = true }
+        await sut.onAppear()
+        sut.family.children[0].name = "Νικόλας"
+        await update.holdNext()
+        let saving = Task { await sut.save() }
+        while !sut.isSaving { await Task.yield() }
+
+        sut.family.children[0].name = "Νικολάκης"
+        await update.finishHeldSave()
+        await saving.value
+
+        #expect(await update.saved?.map(\.name) == ["Νικόλας"])
+        #expect(sut.hasUnsavedChanges)
+        #expect(!closed)
+    }
+
+    @Test("Given a family whose save failed, when the dad tries again, then the old error goes while it saves")
+    func retryClearsTheError() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+        sut.family.children[0].name = "Νικόλας"
+        await update.failNext()
+        await sut.save()
+        #expect(sut.errorMessage != nil)
+
+        await update.holdNext()
+        let saving = Task { await sut.save() }
+        while !sut.isSaving { await Task.yield() }
+
+        #expect(sut.errorMessage == nil)
+        await update.finishHeldSave()
+        await saving.value
+    }
+
     @Test("Given no profile, when appearing, then state is failed")
     func noProfile() async {
         let sut = makeSUT(profile: nil)
@@ -92,8 +166,26 @@ actor SpyUpdateFamily: UpdateFamilyUseCase {
         shouldFail = true
     }
 
+    private var holdsNext = false
+    private var held: CheckedContinuation<Void, Never>?
+
+    /// The next save waits until `finishHeldSave()`.
+    func holdNext() {
+        holdsNext = true
+    }
+
+    func finishHeldSave() {
+        holdsNext = false
+        held?.resume()
+        held = nil
+    }
+
     func execute(children: [Child], on date: Date) async throws {
-        if shouldFail { throw StubError.boom }
+        if holdsNext { await withCheckedContinuation { held = $0 } }
+        if shouldFail {
+            shouldFail = false
+            throw StubError.boom
+        }
         saved = children
     }
 }

@@ -35,7 +35,7 @@ struct HomeViewModelTests {
         #expect(sut.celebration?.levelUpText == nil)
         #expect(sut.celebration?.highlight == .quest)
 
-        sut.celebrationFinished()
+        sut.celebrationFinished(id: 1)
         #expect(sut.celebration == nil)
     }
 
@@ -60,7 +60,7 @@ struct HomeViewModelTests {
         await sut.onAppear()
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
-        #expect(sut.undoOffer?.message == "Καταγράφηκε")
+        #expect(sut.undoOffer?.message == "Αποθηκεύτηκε")
         #expect(sut.undoOffer?.actionTitle == "Αναίρεση")
 
         await sut.undoLastRecord()
@@ -317,6 +317,7 @@ extension HomeViewModelTests {
         await sut.undoLastRecord()
 
         #expect(sut.undoOffer == offer)
+        await progress.finishSlowSave()
         await saving.value
         await sut.undoLastRecord()
         #expect(await progress.eventCount == 1)

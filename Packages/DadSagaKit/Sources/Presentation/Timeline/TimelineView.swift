@@ -13,14 +13,16 @@ public struct TimelineView: View {
     @State private var fold: HorizontalFold?
     /// The entry the dad tapped while the list was below a fold.
     @State private var previewedID: UUID?
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let makeSagaFilm: SagaFilmSheet.MakeViewModel
     private let isOpeningLink: Bool
+    /// The app's editors holding unsaved changes: the note editor stays open for a link while it holds some.
+    @Environment(UnsavedWork.self) private var unsavedWork: UnsavedWork?
 
     /// - Parameters:
     ///   - makeSagaFilm: builds the film sheet behind "Make a film".
-    ///   - isOpeningLink: a link from outside the app (the widget) is opening on another tab; the journal editor, the
-    ///     film sheet and the photo viewer close so they do not cover that screen.
+    ///   - isOpeningLink: a link from outside the app (the widget) is opening on another tab; the film sheet and the
+    ///     photo viewer close so they do not cover that screen, and so does the note editor unless it is saving or
+    ///     holds unsaved changes. Then it stays, and the link waits for it (ADR-0050).
     public init(
         viewModel: TimelineViewModel,
         makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
@@ -75,20 +77,25 @@ public struct TimelineView: View {
         }
         .onChange(of: isOpeningLink) { _, opening in
             guard opening else { return }
-            viewModel.closeJournal()
+            viewModel.linkWillOpen(editorHoldsChanges: unsavedWork?.isHeld == true)
             sagaFilm = nil
             photoViewer = nil
         }
-        .sheet(item: Binding(get: { viewModel.journalEditor }, set: { if $0 == nil { viewModel.closeJournal() } })) { editor in
-            JournalEditorSheet(
-                editor: editor,
-                isSaving: viewModel.isSaving,
-                errorMessage: viewModel.errorMessage,
-                loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
-                onSave: { note, photos in Task { await viewModel.saveJournal(note: note, photos: photos) } },
-                onClose: { viewModel.closeJournal() }
-            )
-        }
+        .sheet(
+            item: Binding(get: { viewModel.journalEditor }, set: { if $0 == nil { viewModel.closeJournal() } }),
+            onDismiss: journalDismissed,
+            content: { editor in
+                JournalEditorSheet(
+                    editor: editor,
+                    isSaving: viewModel.isSaving,
+                    errorMessage: viewModel.errorMessage,
+                    loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
+                    onSave: { note, photos in Task { await viewModel.saveJournal(note: note, photos: photos) } },
+                    onClose: { viewModel.closeJournal() }
+                )
+                .environment(\.unsavedScope, UnsavedScope.timelineJournal)
+            }
+        )
         .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
         .alert(
             viewModel.errorMessage ?? "",
@@ -98,6 +105,11 @@ public struct TimelineView: View {
                 set: { _ in viewModel.dismissError() }
             )
         ) {}
+    }
+
+    /// The note sheet closed, saved or not: nothing in it holds a link back any more (ADR-0050).
+    private func journalDismissed() {
+        unsavedWork?.end(scope: UnsavedScope.timelineJournal)
     }
 
     private var title: String {
@@ -128,7 +140,7 @@ public struct TimelineView: View {
             }
             list(content, previewedID: previewed?.id)
         }
-        .animation(reduceMotion ? nil : .smooth, value: previewed?.id)
+        .motion(.smooth, value: previewed?.id)
     }
 
     private func showPhotos(of item: TimelineItem, content: TimelineContent) {

@@ -10,7 +10,7 @@ import Observation
 public final class HomeViewModel {
     public private(set) var state: HomeViewState = .loading
     public internal(set) var selectedQuest: QuestDetail?
-    public private(set) var selectedBoss: BossDetail?
+    public internal(set) var selectedBoss: BossDetail?
     public internal(set) var celebration: Celebration?
     /// "Undo" for a few seconds after the dad records something, in case he tapped by mistake.
     public internal(set) var undoOffer: UndoOffer?
@@ -43,10 +43,14 @@ public final class HomeViewModel {
     let now: @Sendable () -> Date
     /// What the screen was last built from, for actions that need it (e.g. which firsts are left).
     private(set) var overview: HomeOverview?
-    private var celebrationCount = 0
+    @ObservationIgnored private var celebrationCount = 0
+    /// The last celebration VoiceOver read.
+    @ObservationIgnored private var announcedCelebrationID: Int?
     /// Each load takes a number; only the latest one may update the screen, so an older load that finishes last
     /// (e.g. home appearing while a widget link opens another child) cannot put back what it read.
-    private var loadGeneration = 0
+    @ObservationIgnored private var loadGeneration = 0
+    /// Loads under way: coming back to the app starts none while one is.
+    @ObservationIgnored private var loadsUnderWay = 0
 
     public init(
         useCases: UseCases,
@@ -67,6 +71,13 @@ public final class HomeViewModel {
 
     /// Reloads everything, e.g. after the family was edited.
     public func reload() async {
+        await load()
+    }
+
+    /// Back in the app, perhaps a day later: the child's age, world and suggestions are read again. Not while a load
+    /// is under way: that one already reads what is true now.
+    public func appBecameActive() async {
+        guard state != .loading, loadsUnderWay == 0 else { return }
         await load()
     }
 
@@ -118,19 +129,30 @@ public final class HomeViewModel {
         celebrate(change, badge: badge)
     }
 
-    public func celebrationFinished() {
-        celebration = nil
+    /// A celebration's time is up. Ignored if a newer one has replaced it.
+    public func celebrationFinished(id: Int) {
+        if celebration?.id == id { celebration = nil }
+    }
+
+    /// Whether VoiceOver should read this celebration now: only the first time. Its time on screen starts again when
+    /// home comes back from the other tab, but it was already read.
+    public func shouldAnnounce(_ celebration: Celebration) -> Bool {
+        guard celebration.id != announcedCelebrationID else { return false }
+        announcedCelebrationID = celebration.id
+        return true
     }
 
     /// Runs a progress action and refreshes the screen. Returns what it changed, or `nil` after showing an error.
-    /// It closes nothing: each caller decides what the dad sees next.
+    /// It closes nothing: each caller decides what the dad sees next. A link from outside waits while it runs
+    /// (`receive`), so the open sheet is still the one the save came from. The last error goes as the
+    /// save starts, so the same error again is read out again.
     func record(_ action: () async throws -> ProgressChange) async -> ProgressChange? {
         guard !isCompleting else { return nil }
         isCompleting = true
         defer { isCompleting = false }
+        errorMessage = nil
         do {
             let change = try await action()
-            errorMessage = nil
             await load()
             return change
         } catch {
@@ -167,31 +189,40 @@ public final class HomeViewModel {
         strings.text("Couldn't save. Please try again.")
     }
 
-    private func load() async {
+    /// Reads home again and shows it, unless a newer load has started meanwhile. Returns what it read either way, for a
+    /// caller that needs this load's own answer (`open(_:)`), or `nil` if there was none.
+    @discardableResult
+    func load() async -> HomeOverview? {
         loadGeneration += 1
         let generation = loadGeneration
+        loadsUnderWay += 1
+        defer { loadsUnderWay -= 1 }
         do {
             guard let overview = try await useCases.getOverview.execute(
                 childID: selectedChildID, worldID: viewedWorldID, on: now()
             ) else {
-                guard generation == loadGeneration else { return }
+                guard generation == loadGeneration else { return nil }
                 state = .failed(message: strings.text("No profile found."))
-                return
+                return nil
             }
             let sagaOffer = makeSagaOffer(overview)
             let reminderOffer = sagaOffer == nil
                 ? await makeReminderOffer(children: overview.profile.children, progress: overview.progress)
                 : nil
-            guard generation == loadGeneration else { return }
+            guard generation == loadGeneration else { return overview }
             self.sagaOffer = sagaOffer
             self.reminderOffer = reminderOffer
             selectedChildID = overview.child.id
             viewedWorldID = overview.isShowingCurrentWorld ? nil : overview.shownWorld?.id
             self.overview = overview
             state = .loaded(makeContent(overview))
+            return overview
         } catch {
-            guard generation == loadGeneration else { return }
+            guard generation == loadGeneration else { return nil }
+            // A home that loaded once stays as it was: what it shows is still the dad's saga, only not refreshed.
+            if case .loaded = state { return nil }
             state = .failed(message: strings.text("Content failed to load."))
+            return nil
         }
     }
 

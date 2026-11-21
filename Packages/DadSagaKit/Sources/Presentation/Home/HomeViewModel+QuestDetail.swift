@@ -1,10 +1,12 @@
+import Application
 import Domain
 import Foundation
 import Localization
 
 /// The quest and boss sheets' content: what to do, how to do it well, and what the dad wrote last time.
 extension HomeViewModel {
-    func detail(for quest: Quest) -> QuestDetail {
+    /// - Parameter overview: what to read the last note from; the screen's own when `nil`.
+    func detail(for quest: Quest, in overview: HomeOverview? = nil) -> QuestDetail {
         QuestDetail(
             id: quest.id,
             title: quest.title.resolved(for: locale),
@@ -16,7 +18,7 @@ extension HomeViewModel {
             footer: quest.tip?.isMedical == true ? strings.medicalFooter : nil,
             confirmTitle: strings.text("I did it!"),
             journal: JournalLabels(locale: locale),
-            lastJournal: lastJournal(for: .quest(id: quest.id))
+            lastJournal: lastJournal(for: .quest(id: quest.id), in: overview ?? self.overview)
         )
     }
 
@@ -33,11 +35,11 @@ extension HomeViewModel {
             defeatedText: strings.defeatedText(for: boss),
             confirmTitle: strings.text("We made it through!"),
             journal: JournalLabels(locale: locale),
-            lastJournal: lastJournal(for: .boss(id: boss.id))
+            lastJournal: lastJournal(for: .boss(id: boss.id), in: overview)
         )
     }
 
-    private func lastJournal(for kind: ProgressEvent.Kind) -> LastJournal? {
+    private func lastJournal(for kind: ProgressEvent.Kind, in overview: HomeOverview?) -> LastJournal? {
         guard let overview, let entry = overview.progress.lastJournal(for: kind, childID: overview.child.id) else { return nil }
         let day = strings.day(entry.date)
         return LastJournal(

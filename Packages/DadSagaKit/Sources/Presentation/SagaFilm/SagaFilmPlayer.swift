@@ -15,7 +15,6 @@ struct SagaFilmPlayer: View {
     @State private var player: AVPlayer?
     @State private var size = CGSize.zero
     @State private var fold: HorizontalFold?
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// The most of the sheet's height the film takes, so sharing stays on screen under a vertical film.
     private static let filmHeightShare = 0.58
@@ -68,7 +67,7 @@ struct SagaFilmPlayer: View {
         // Read where the panes are placed, so the fold is in their coordinates.
         .onGeometryChange(for: CGSize.self) { $0.size } action: { size = $0 }
         .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum) { fold = $0 }
-        .animation(reduceMotion ? nil : .smooth, value: fold)
+        .motion(.smooth, value: fold)
         .task(id: made.url) {
             let player = AVPlayer(url: made.url)
             self.player = player

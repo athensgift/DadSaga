@@ -65,7 +65,8 @@ public struct HeroAvatar: View {
         .onChange(of: cheerTrigger) { cheer() }
         .sensoryFeedback(.impact, trigger: isCheering) { _, cheering in cheering && isHapticsEnabled }
         .onAppear {
-            withAnimation(.spring(response: 0.5, dampingFraction: 0.6)) { hasAppeared = true }
+            // With Reduce Motion it is simply there, without growing in.
+            withAnimation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.6)) { hasAppeared = true }
         }
         .accessibilityAddTraits(.isImage)
     }
@@ -184,6 +185,7 @@ struct HeroPose {
 /// The whole character on a fixed design canvas. `HeroAvatar` scales it to the requested size.
 /// Parts are positioned from the canvas centre and layered back to front.
 struct HeroFigure: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     static let designSize = CGSize(width: 110, height: 160)
 
     let style: HeroAvatar.Style
@@ -233,7 +235,8 @@ struct HeroFigure: View {
             .offset(y: 12 + pose.bob + hover + (isCheering ? -18 : 0))
         }
         .frame(width: Self.designSize.width, height: Self.designSize.height)
-        .animation(.spring(response: 0.3, dampingFraction: 0.45), value: isCheering)
+        // With Reduce Motion the cheer shows at once, without the bounce.
+        .animation(reduceMotion ? nil : .spring(response: 0.3, dampingFraction: 0.45), value: isCheering)
     }
 }
 
