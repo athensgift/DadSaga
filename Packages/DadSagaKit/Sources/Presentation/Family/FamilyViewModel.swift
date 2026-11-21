@@ -21,6 +21,8 @@ public final class FamilyViewModel {
     private let getProfile: any GetProfileUseCase
     private let updateFamily: any UpdateFamilyUseCase
     private let locale: Locale
+    /// The zone the date pickers draw in, and the one "today" is read in.
+    public let timeZone: TimeZone
     private let onSaved: @MainActor () -> Void
 
     public init(
@@ -28,11 +30,13 @@ public final class FamilyViewModel {
         updateFamily: any UpdateFamilyUseCase,
         locale: Locale = .current,
         now: Date = .now,
+        timeZone: TimeZone = .autoupdatingCurrent,
         onSaved: @escaping @MainActor () -> Void
     ) {
         self.getProfile = getProfile
         self.updateFamily = updateFamily
         self.locale = locale
+        self.timeZone = timeZone
         self.onSaved = onSaved
         latestBirthDate = now
     }
@@ -52,7 +56,7 @@ public final class FamilyViewModel {
     }
 
     public func addChild() {
-        family.addChild(birthDate: latestBirthDate)
+        family.addChild(birthDay: CalendarDay(latestBirthDate, in: timeZone))
     }
 
     public func removeChild(id: UUID) {

@@ -15,7 +15,9 @@ public struct ChildDraft: Identifiable, Equatable, Sendable {
     /// Kept from the stored child when editing, so their progress stays linked.
     public let id: UUID
     public var name: String
-    public var birthDate: Date
+    /// The day the dad picked (ADR-0048 §2). It is kept as a day, so a time zone change while the screen is open
+    /// moves nothing; only the picker converts, through `pickerDate(in:)` and `pickBirthDate(_:in:)`.
+    public var birthDay: CalendarDay
     public var gender: GenderChoice
     public var skinTone: SkinToneChoice
 
@@ -23,16 +25,26 @@ public struct ChildDraft: Identifiable, Equatable, Sendable {
         !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    /// The moment the date picker shows: the start of the birth day in `timeZone`, the zone the picker draws in.
+    public func pickerDate(in timeZone: TimeZone) -> Date {
+        birthDay.start(in: timeZone)
+    }
+
+    /// The dad picked `date` in a picker drawn in `timeZone`: only its day is kept.
+    public mutating func pickBirthDate(_ date: Date, in timeZone: TimeZone) {
+        birthDay = CalendarDay(date, in: timeZone)
+    }
+
     public init(
         id: UUID = UUID(),
         name: String = "",
-        birthDate: Date,
+        birthDay: CalendarDay,
         gender: GenderChoice = .boy,
         skinTone: SkinToneChoice = .mediumLight
     ) {
         self.id = id
         self.name = name
-        self.birthDate = birthDate
+        self.birthDay = birthDay
         self.gender = gender
         self.skinTone = skinTone
     }
@@ -54,9 +66,9 @@ public struct FamilyDraft: Equatable, Sendable {
     }
 
     /// New children start with the newest sibling's skin tone, which is usually right.
-    public mutating func addChild(birthDate: Date) {
+    public mutating func addChild(birthDay: CalendarDay) {
         guard canAddChild else { return }
-        children.append(ChildDraft(birthDate: birthDate, skinTone: children.last?.skinTone ?? dadSkinTone))
+        children.append(ChildDraft(birthDay: birthDay, skinTone: children.last?.skinTone ?? dadSkinTone))
     }
 
     public mutating func removeChild(id: UUID) {
@@ -147,19 +159,28 @@ extension ChildDraft {
         self.init(
             id: child.id,
             name: child.name,
-            birthDate: child.birthDate,
+            birthDay: child.birthDay,
             gender: GenderChoice(child.gender),
             skinTone: SkinToneChoice(child.skinTone)
         )
     }
 
     var child: Child {
-        Child(id: id, name: name, birthDate: birthDate, gender: gender.domain, skinTone: skinTone.domain)
+        Child(
+            id: id,
+            name: name,
+            birthDay: birthDay,
+            gender: gender.domain,
+            skinTone: skinTone.domain
+        )
     }
 }
 
 extension FamilyDraft {
     init(_ profile: PlayerProfile) {
-        self.init(children: profile.children.map(ChildDraft.init), dadSkinTone: SkinToneChoice(profile.dadSkinTone))
+        self.init(
+            children: profile.children.map(ChildDraft.init),
+            dadSkinTone: SkinToneChoice(profile.dadSkinTone)
+        )
     }
 }

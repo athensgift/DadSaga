@@ -21,6 +21,8 @@ public struct HomeOverview: Sendable {
     /// The one film to offer the family today, if the dad hasn't answered it (ADR-0037 §5). It can be about a child
     /// other than the one home shows.
     public let sagaOffer: SagaOccasion?
+    /// The day home is read on, in the phone's time zone: every child's age is counted to it.
+    public let today: CalendarDay
 
     public var childCount: Int { profile.children.count }
 
@@ -36,7 +38,8 @@ public struct HomeOverview: Sendable {
         progress: DadProgress,
         outfit: Outfit,
         worldID: String?,
-        sagaOffer: SagaOccasion? = nil
+        sagaOffer: SagaOccasion? = nil,
+        today: CalendarDay
     ) {
         self.profile = profile
         self.child = child
@@ -49,6 +52,7 @@ public struct HomeOverview: Sendable {
         bosses = adventure.availableBosses.filter { $0.worldID == shownWorld?.id }
         equippedGear = GearRules.equipped(catalog.gear, skillXP: progress.skillXP, outfit: outfit)
         self.sagaOffer = sagaOffer
+        self.today = today
     }
 }
 
@@ -64,7 +68,7 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
     private let progressRepository: any ProgressRepository
     private let outfitRepository: any OutfitRepository
     private let sagaOfferRepository: any SagaOfferRepository
-    private let calendar: Calendar
+    private let timeZone: TimeZone
 
     public init(
         contentRepository: any ContentRepository,
@@ -72,14 +76,14 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
         progressRepository: any ProgressRepository,
         outfitRepository: any OutfitRepository,
         sagaOfferRepository: any SagaOfferRepository,
-        calendar: Calendar = .autoupdatingCurrent
+        timeZone: TimeZone = .autoupdatingCurrent
     ) {
         self.contentRepository = contentRepository
         self.profileRepository = profileRepository
         self.progressRepository = progressRepository
         self.outfitRepository = outfitRepository
         self.sagaOfferRepository = sagaOfferRepository
-        self.calendar = calendar
+        self.timeZone = timeZone
     }
 
     public func execute(childID: UUID?, worldID: String?, on date: Date) async throws -> HomeOverview? {
@@ -92,20 +96,20 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
         else { return nil }
         let catalog = try await pendingCatalog
         let events = try await pendingEvents
+        let today = CalendarDay(date, in: timeZone)
         return HomeOverview(
             profile: profile,
             child: child,
             catalog: catalog,
-            adventure: Adventure(
-                for: child, childCount: profile.children.count, catalog: catalog, on: date, calendar: calendar
-            ),
+            adventure: Adventure(for: child, childCount: profile.children.count, catalog: catalog, on: today),
             progress: DadProgress(events: events, catalog: catalog),
             outfit: try await pendingOutfit,
             worldID: worldID,
             sagaOffer: SagaOccasions.latest(
                 forFamily: profile.children, events: events, catalog: catalog, on: date,
-                answered: await answeredOffers, calendar: calendar
-            )
+                answered: await answeredOffers, timeZone: timeZone
+            ),
+            today: today
         )
     }
 }

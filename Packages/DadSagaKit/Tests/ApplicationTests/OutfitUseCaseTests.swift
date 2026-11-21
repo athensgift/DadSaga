@@ -53,10 +53,11 @@ struct OutfitUseCaseTests {
         #expect(try await getWardrobe.execute().outfit == outfit)
     }
 
-    @Test("Given the dad's hero class, when reading the wardrobe, then it carries that class; a removed class gives none")
+    @Test("Given the dad's hero class, when reading the wardrobe, then it carries that class; a removed class shows as the first")
     func wardrobeHero() async throws {
-        let chef = HeroClass(id: "h-x", order: 1, title: Self.text, tagline: Self.text, look: "chef")
-        let catalog = ContentCatalog(worlds: [], quests: [], bosses: [], firsts: [], heroClasses: [chef], gear: [])
+        let first = HeroClass(id: "h-first", order: 1, title: Self.text, tagline: Self.text, look: "hero")
+        let chef = HeroClass(id: "h-x", order: 2, title: Self.text, tagline: Self.text, look: "chef")
+        let catalog = ContentCatalog(worlds: [], quests: [], bosses: [], firsts: [], heroClasses: [chef, first], gear: [])
         let profiles = SpyProfileRepository()
         let sut = DefaultGetWardrobeUseCase(
             contentRepository: StubContentRepository(result: .success(catalog)),
@@ -64,13 +65,13 @@ struct OutfitUseCaseTests {
             progressRepository: progress,
             outfitRepository: repository
         )
-        let child = Child(name: "Νίκος", birthDate: .now)
+        let child = Child(name: "Νίκος", birthDay: CalendarDay(.now, in: .gmt))
 
         try await profiles.save(PlayerProfile(children: [child], heroClassID: "h-x"))
         #expect(try await sut.execute().hero?.look == "chef")
 
         try await profiles.save(PlayerProfile(children: [child], heroClassID: "h-gone"))
-        #expect(try await sut.execute().hero == nil)
+        #expect(try await sut.execute().hero?.look == "hero")
     }
 
     @Test("Given an item not earned, of another slot or unknown, when wearing it, then it throws and nothing changes")

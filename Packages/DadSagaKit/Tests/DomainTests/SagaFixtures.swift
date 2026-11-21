@@ -7,14 +7,15 @@ struct SagaFixtures {
     let child: Child
     let sibling: Child
     let catalog: ContentCatalog
+    var timeZone: TimeZone { calendar.timeZone }
 
     init(birth: DateComponents = DateComponents(year: 2024, month: 1, day: 15), worlds: [World]? = nil) {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
         self.calendar = calendar
         let birthDate = calendar.date(from: birth) ?? .distantPast
-        child = Child(name: "Άννα", birthDate: birthDate)
-        sibling = Child(name: "Νίκος", birthDate: birthDate)
+        child = Child(name: "Άννα", birthDay: CalendarDay(birthDate, in: .gmt))
+        sibling = Child(name: "Νίκος", birthDay: CalendarDay(birthDate, in: .gmt))
 
         let text = Fixtures.text
         catalog = ContentCatalog(
@@ -39,7 +40,7 @@ struct SagaFixtures {
 
     /// `months` and `days` after the start of the child's birth day, plus `hours`.
     func date(months: Int, days: Int = 0, hours: Int = 0) -> Date {
-        let birthDay = calendar.startOfDay(for: child.birthDate)
+        let birthDay = child.birthDay.start(in: calendar.timeZone)
         let month = calendar.date(byAdding: .month, value: months, to: birthDay) ?? .distantPast
         let day = calendar.date(byAdding: .day, value: days, to: month) ?? .distantPast
         return calendar.date(byAdding: .hour, value: hours, to: day) ?? .distantPast
@@ -57,7 +58,7 @@ struct SagaFixtures {
 
     func storyboard(_ events: [ProgressEvent], period: SagaPeriod = .everything) -> SagaStoryboard? {
         SagaStoryboard.make(
-            events: events, child: child, period: period, catalog: catalog, now: date(months: 80), calendar: calendar
+            events: events, child: child, period: period, catalog: catalog, now: date(months: 80), timeZone: timeZone
         )
     }
 
@@ -70,7 +71,7 @@ struct SagaFixtures {
     ) -> SagaOccasion? {
         SagaOccasions.latest(
             for: child, events: events, catalog: catalog, on: date(months: months, days: days, hours: hours),
-            answered: answered, calendar: calendar
+            answered: answered, timeZone: timeZone
         )
     }
 }

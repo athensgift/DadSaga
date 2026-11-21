@@ -7,7 +7,7 @@ struct SagaPeriodTests {
     let saga = SagaFixtures()
 
     func interval(_ period: SagaPeriod, nowMonths: Int = 80) -> DateInterval? {
-        period.interval(for: saga.child, catalog: saga.catalog, now: saga.date(months: nowMonths), calendar: saga.calendar)
+        period.interval(for: saga.child, catalog: saga.catalog, now: saga.date(months: nowMonths), timeZone: saga.timeZone)
     }
 
     @Test("Given the second year, when asking its interval, then it runs from the first birthday to the second")
@@ -31,7 +31,7 @@ struct SagaPeriodTests {
     func available() {
         let events = [3, 14, 25].map { saga.event(.quest(id: "q1"), months: $0) }
         let periods = SagaPeriod.available(
-            for: saga.child, events: events, catalog: saga.catalog, now: saga.date(months: 26), calendar: saga.calendar
+            for: saga.child, events: events, catalog: saga.catalog, now: saga.date(months: 26), timeZone: saga.timeZone
         )
         #expect(periods == [.year(1), .year(2), .year(3), .world(id: "w1"), .world(id: "w2"), .world(id: "w3"), .everything])
     }
@@ -40,7 +40,7 @@ struct SagaPeriodTests {
     func emptyPeriodsLeftOut() {
         let events = [saga.event(.quest(id: "q1"), months: 3), saga.event(.quest(id: "q1"), months: 14, child: saga.sibling)]
         let periods = SagaPeriod.available(
-            for: saga.child, events: events, catalog: saga.catalog, now: saga.date(months: 26), calendar: saga.calendar
+            for: saga.child, events: events, catalog: saga.catalog, now: saga.date(months: 26), timeZone: saga.timeZone
         )
         #expect(periods == [.year(1), .world(id: "w1"), .everything])
     }
@@ -54,9 +54,9 @@ struct SagaPeriodTests {
         ])
         let now = odd.date(months: 20)
 
-        #expect(SagaPeriod.world(id: "open").interval(for: odd.child, catalog: odd.catalog, now: now, calendar: odd.calendar)?
+        #expect(SagaPeriod.world(id: "open").interval(for: odd.child, catalog: odd.catalog, now: now, timeZone: odd.timeZone)?
             .end == .distantFuture)
-        #expect(SagaPeriod.world(id: "broken").interval(for: odd.child, catalog: odd.catalog, now: now, calendar: odd.calendar)
+        #expect(SagaPeriod.world(id: "broken").interval(for: odd.child, catalog: odd.catalog, now: now, timeZone: odd.timeZone)
             == nil)
     }
 
@@ -64,7 +64,7 @@ struct SagaPeriodTests {
     func availableForANewborn() {
         let periods = SagaPeriod.available(
             for: saga.child, events: [saga.event(.quest(id: "q1"), months: 0, days: 1)], catalog: saga.catalog,
-            now: saga.date(months: 0, days: 3), calendar: saga.calendar
+            now: saga.date(months: 0, days: 3), timeZone: saga.timeZone
         )
         #expect(periods == [.year(1), .world(id: "w1"), .everything])
     }
@@ -73,7 +73,7 @@ struct SagaPeriodTests {
     func yearsStartAtMidnight() {
         let afternoon = SagaFixtures(birth: DateComponents(year: 2024, month: 1, day: 15, hour: 14))
         let year = SagaPeriod.year(1).interval(
-            for: afternoon.child, catalog: afternoon.catalog, now: afternoon.date(months: 30), calendar: afternoon.calendar
+            for: afternoon.child, catalog: afternoon.catalog, now: afternoon.date(months: 30), timeZone: afternoon.timeZone
         )
         #expect(year == DateInterval(start: afternoon.date(months: 0), end: afternoon.date(months: 12)))
         #expect(afternoon.calendar.component(.hour, from: afternoon.date(months: 12)) == 0)
@@ -82,7 +82,7 @@ struct SagaPeriodTests {
     @Test("Given no entries yet, when listing periods, then only everything")
     func availableWithNothing() {
         let periods = SagaPeriod.available(
-            for: saga.child, events: [], catalog: saga.catalog, now: saga.date(months: 26), calendar: saga.calendar
+            for: saga.child, events: [], catalog: saga.catalog, now: saga.date(months: 26), timeZone: saga.timeZone
         )
         #expect(periods == [.everything])
     }

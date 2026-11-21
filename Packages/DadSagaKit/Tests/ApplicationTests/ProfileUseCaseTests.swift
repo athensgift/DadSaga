@@ -28,19 +28,20 @@ struct ProfileUseCaseTests {
     func savesValidProfile() async throws {
         let repository = SpyProfileRepository()
         let sut = DefaultSaveProfileUseCase(contentRepository: content, profileRepository: repository)
-        let child = Child(name: " Νίκος ", birthDate: today)
+        let child = Child(name: " Νίκος ", birthDay: CalendarDay(today, in: .gmt))
 
         try await sut.execute(PlayerProfile(children: [child], heroClassID: "h1"), on: today)
 
         let stored = try await DefaultGetProfileUseCase(repository: repository).execute()
-        #expect(stored == PlayerProfile(children: [Child(id: child.id, name: "Νίκος", birthDate: today)], heroClassID: "h1"))
+        let trimmed = Child(id: child.id, name: "Νίκος", birthDay: CalendarDay(today, in: .gmt))
+        #expect(stored == PlayerProfile(children: [trimmed], heroClassID: "h1"))
     }
 
     @Test("Given an unknown hero class, when saving, then it throws and nothing is stored")
     func rejectsInvalidProfile() async throws {
         let repository = SpyProfileRepository()
         let sut = DefaultSaveProfileUseCase(contentRepository: content, profileRepository: repository)
-        let profile = PlayerProfile(children: [Child(name: "Νίκος", birthDate: today)], heroClassID: "nope")
+        let profile = PlayerProfile(children: [Child(name: "Νίκος", birthDay: CalendarDay(today, in: .gmt))], heroClassID: "nope")
 
         await #expect(throws: ProfileValidationError.unknownHeroClass("nope")) {
             try await sut.execute(profile, on: today)

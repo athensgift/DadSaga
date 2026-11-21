@@ -15,6 +15,7 @@ struct DadSagaApp: App {
         self.container = container
         rootViewModel = container.makeRootViewModel()
         container.discardLeftoverFilms()
+        container.sweepOrphanPhotos()
     }
 
     var body: some Scene {

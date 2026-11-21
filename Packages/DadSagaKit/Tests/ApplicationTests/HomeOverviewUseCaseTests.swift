@@ -33,8 +33,8 @@ struct HomeOverviewUseCaseTests {
     )
 
     let today = Date(timeIntervalSince1970: 400 * 86_400)
-    var baby: Child { Child(name: "Νίκος", birthDate: today.addingTimeInterval(-60 * 86_400)) }
-    var toddler: Child { Child(name: "Ελένη", birthDate: today.addingTimeInterval(-365 * 86_400)) }
+    var baby: Child { Child(name: "Νίκος", birthDay: CalendarDay(today.addingTimeInterval(-60 * 86_400), in: .gmt)) }
+    var toddler: Child { Child(name: "Ελένη", birthDay: CalendarDay(today.addingTimeInterval(-365 * 86_400), in: .gmt)) }
     let profiles = SpyProfileRepository()
     let progress = SpyProgressRepository()
     let outfit = SpyOutfitRepository()
@@ -52,7 +52,7 @@ struct HomeOverviewUseCaseTests {
             progressRepository: progress,
             outfitRepository: outfit,
             sagaOfferRepository: offers,
-            calendar: Self.utc
+            timeZone: .gmt
         )
     }
 
@@ -136,7 +136,7 @@ struct HomeOverviewUseCaseTests {
 
     @Test("Given a child older than every world, when reading home with or without a chosen world, then the choice decides")
     func beyondContent() async throws {
-        let older = Child(name: "Άννα", birthDate: today.addingTimeInterval(-3 * 365 * 86_400))
+        let older = Child(name: "Άννα", birthDay: CalendarDay(today.addingTimeInterval(-3 * 365 * 86_400), in: .gmt))
         try await family([older])
 
         let current = try #require(try await sut.execute(childID: nil, worldID: nil, on: today))
@@ -174,7 +174,7 @@ struct HomeOverviewUseCaseTests {
 
     /// Turned one `days` ago.
     func oneYearOld(for days: Double, name: String = "Άννα") -> Child {
-        Child(name: name, birthDate: today.addingTimeInterval(-(365 + days) * 86_400))
+        Child(name: name, birthDay: CalendarDay(today.addingTimeInterval(-(365 + days) * 86_400), in: .gmt))
     }
 
     func quest(with child: Child, daysAgo: Double) -> ProgressEvent {
@@ -237,5 +237,19 @@ struct HomeOverviewUseCaseTests {
         try await progress.add(quest(with: older, daysAgo: 100))
         let late = try #require(try await sut.execute(childID: nil, worldID: nil, on: today))
         #expect(late.sagaOffer == nil)
+    }
+
+    @Test("Given a child who completes a world today, when home loads in the morning, then the new world and its offer show")
+    func worldAndOfferChangeTogether() async throws {
+        let february = try #require(Self.utc.date(from: DateComponents(year: 2026, month: 2, day: 10, hour: 15)))
+        let morning = try #require(Self.utc.date(from: DateComponents(year: 2026, month: 10, day: 10, hour: 9)))
+        let child = Child(name: "Νίκος", birthDay: .day(2026, 1, 10))
+        try await family([child])
+        try await progress.add(ProgressEvent(kind: .quest(id: "q-swamp"), childID: child.id, date: february))
+
+        let overview = try #require(try await sut.execute(childID: nil, worldID: nil, on: morning))
+
+        #expect(overview.sagaOffer?.kind == .newWorld(left: Self.swamp))
+        #expect(overview.adventure.currentWorld == Self.plains)
     }
 }

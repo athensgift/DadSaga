@@ -26,7 +26,8 @@ public enum WeeklyQuest {
     /// Whether the dad completed this quest with this child at some point in this week.
     public static func isDone(_ quest: Quest, childID: UUID, week: DateInterval, events: [ProgressEvent]) -> Bool {
         events.contains { event in
-            event.kind == .quest(id: quest.id) && event.childID == childID
+            guard case .quest(let id) = event.kind, quest.has(id: id) else { return false }
+            return event.childID == childID
                 && event.date >= week.start && event.date < week.end
         }
     }

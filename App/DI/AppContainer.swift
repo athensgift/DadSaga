@@ -35,7 +35,7 @@ final class AppContainer {
 
     init(data: DeviceData = .forLaunch()) {
         store = data.store
-        photoStore = FilePhotoStore.moments(in: data.photoDirectory)
+        photoStore = data.photos
         reminderSettings = UserDefaultsReminderSettingsRepository(defaults: data.defaults)
         notificationScheduler = data.notificationScheduler
         preferencesRepository = UserDefaultsPreferencesRepository(defaults: data.defaults)
@@ -208,6 +208,15 @@ final class AppContainer {
         Task { await renderer.discardFilms() }
     }
 
+    /// Deletes photo files no entry points to, left when the app stopped between two writes (ADR-0048 §6). Run once,
+    /// at launch, at low priority; it deletes nothing when the saga can't be read.
+    func sweepOrphanPhotos() {
+        let sweep = DefaultSweepOrphanPhotosUseCase(
+            profileRepository: store.profiles, progressRepository: store.progress, photoStore: photoStore
+        )
+        Task(priority: .utility) { try? await sweep.execute(now: .now) }
+    }
+
     func makeReminderSettingsViewModel() -> ReminderSettingsViewModel {
         ReminderSettingsViewModel(useCases: reminderUseCases)
     }
@@ -215,7 +224,7 @@ final class AppContainer {
     func makeFamilyViewModel(onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel {
         FamilyViewModel(
             getProfile: getProfileUseCase,
-            updateFamily: DefaultUpdateFamilyUseCase(contentRepository: contentRepository, profileRepository: store.profiles),
+            updateFamily: DefaultUpdateFamilyUseCase(profileRepository: store.profiles),
             onSaved: onSaved
         )
     }

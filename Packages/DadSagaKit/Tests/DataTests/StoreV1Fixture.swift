@@ -7,7 +7,7 @@ enum StoreV1Fixture {
     static func id(_ text: String) -> UUID { UUID(uuidString: text) ?? UUID() }
     static let mia = Child(
         id: id("33333333-3333-3333-3333-333333333333"), name: "Μία",
-        birthDate: Date(timeIntervalSince1970: 1_740_000_000), gender: .girl, skinTone: .medium
+        birthDay: .migrated(1_740_000_000), gender: .girl, skinTone: .medium
     )
     static let profile = PlayerProfile(children: [mia], heroClassID: "chef", dadSkinTone: .light)
     /// The four events, each with the one photo version 1 kept as a one-item list.

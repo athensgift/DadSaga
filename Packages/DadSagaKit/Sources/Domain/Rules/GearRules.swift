@@ -10,7 +10,8 @@ public enum GearRules {
     }
 
     /// What the hero wears: one item per skill at most. Automatic slots wear the best earned item; a chosen item that
-    /// is not earned (e.g. content changed) falls back to automatic. Ordered by skill.
+    /// is not earned (e.g. content changed) falls back to automatic, and one chosen before a rename stays worn. Ordered by
+    /// skill.
     public static func equipped(_ gear: [GearItem], skillXP: [Skill: Int], outfit: Outfit = Outfit()) -> [GearItem] {
         let earned = earned(gear, skillXP: skillXP)
         return Skill.allCases.compactMap { skill in
@@ -18,7 +19,7 @@ public enum GearRules {
             switch outfit.choice(for: skill) {
             case .automatic: return best
             case .hidden: return nil
-            case .item(let id): return earned.first { $0.id == id && $0.skill == skill } ?? best
+            case .item(let id): return earned.first { $0.has(id: id) && $0.skill == skill } ?? best
             }
         }
     }

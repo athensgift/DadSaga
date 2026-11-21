@@ -22,7 +22,7 @@ public struct Wardrobe: Sendable {
     }
 
     public func isEarned(itemID: String, skill: Skill) -> Bool {
-        GearRules.earned(gear, skillXP: progress.skillXP).contains { $0.id == itemID && $0.skill == skill }
+        GearRules.earned(gear, skillXP: progress.skillXP).contains { $0.has(id: itemID) && $0.skill == skill }
     }
 }
 
@@ -57,7 +57,7 @@ public struct DefaultGetWardrobeUseCase: GetWardrobeUseCase {
         let profile = try await pendingProfile
         return Wardrobe(
             profile: profile,
-            hero: catalog.heroClasses.first { $0.id == profile?.heroClassID },
+            hero: profile.flatMap(catalog.hero(for:)),
             gear: catalog.gear,
             progress: DadProgress(events: try await pendingEvents, catalog: catalog),
             outfit: try await pendingOutfit

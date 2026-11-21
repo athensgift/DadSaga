@@ -38,7 +38,7 @@ struct SagaFilmTexts {
         case .year(let number):
             strings.text("Year \(number)")
         case .world(let id):
-            catalog.worlds.first { $0.id == id }?.title.resolved(for: locale) ?? strings.text("The whole saga")
+            catalog.world(id: id)?.title.resolved(for: locale) ?? strings.text("The whole saga")
         case .everything:
             strings.text("The whole saga")
         }
@@ -51,7 +51,7 @@ struct SagaFilmTexts {
     /// Roles, and only what the dad did in the period: a count of zero is left out, and with it the whole line when
     /// there is nothing to count (ADR-0006). The music is the track chosen, its title in the film's language (ADR-0046 §5).
     func credits(_ credits: SagaCredits, in film: SagaFilm, music: Soundtrack) -> SagaFilmCredits {
-        let hero = film.catalog.heroClasses.first { $0.id == film.profile.heroClassID }
+        let hero = film.catalog.hero(for: film.profile)
         let done = [
             credits.questsDone > 0 ? strings.text("\(credits.questsDone) quests") : nil,
             credits.bossesBeaten > 0 ? strings.text("\(credits.bossesBeaten) bosses") : nil

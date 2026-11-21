@@ -40,8 +40,8 @@ struct WeeklyHighlightsUseCaseTests {
     /// Wednesday; the week runs from Monday 16 to Monday 23 November 2026.
     let today = Self.date(2026, 11, 18)
     /// Eight months old on Monday 16 (world 1), nine on Thursday 19 (world 2).
-    let baby = Child(name: "Lena", birthDate: Self.date(2026, 2, 19, 0))
-    let toddler = Child(name: "Nikos", birthDate: Self.date(2025, 1, 1))
+    let baby = Child(name: "Lena", birthDay: CalendarDay(Self.date(2026, 2, 19, 0), in: .gmt))
+    let toddler = Child(name: "Nikos", birthDay: CalendarDay(Self.date(2025, 1, 1), in: .gmt))
     let profiles = SpyProfileRepository()
     let progress = SpyProgressRepository()
     let photos = SpyPhotoStore()
@@ -87,7 +87,7 @@ struct WeeklyHighlightsUseCaseTests {
 
     @Test("Given the quest was done with this child this week, when executing, then it is marked done")
     func doneThisWeek() async throws {
-        let baby = Child(name: "Lena", birthDate: Self.date(2026, 6, 1))
+        let baby = Child(name: "Lena", birthDay: CalendarDay(Self.date(2026, 6, 1), in: .gmt))
         try await onboard([baby, toddler])
         try await progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: toddler.id, date: today))
         let highlights = try await sut.execute(childID: baby.id, on: today, photoMaxPixelSize: nil)
@@ -101,7 +101,7 @@ struct WeeklyHighlightsUseCaseTests {
 
     @Test("Given a child older than every world, when executing, then adventures are coming and the moment stays")
     func beyondContent() async throws {
-        let older = Child(name: "Eleni", birthDate: Self.date(2020, 1, 1))
+        let older = Child(name: "Eleni", birthDay: CalendarDay(Self.date(2020, 1, 1), in: .gmt))
         try await onboard([older])
         try await progress.add(ProgressEvent(kind: .first(id: "f1"), childID: older.id, date: Self.date(2021, 5, 1)))
 
@@ -150,6 +150,33 @@ struct WeeklyHighlightsUseCaseTests {
 
         #expect(highlights?.latestMoment?.first.id == "f1")
         #expect(highlights?.momentPhoto == nil)
+    }
+
+    @Test(
+        "Given a phone on a lunar calendar, when picking the weekly quest, then it comes from the Gregorian age",
+        arguments: [Calendar.Identifier.islamicUmmAlQura, .hebrew]
+    )
+    func weeklyQuestUsesTheGregorianAge(_ identifier: Calendar.Identifier) async throws {
+        var phone = Calendar(identifier: identifier)
+        phone.timeZone = Self.calendar.timeZone
+        phone.firstWeekday = 2
+        // 8 Gregorian months and 27 days on Monday 16 November: more than nine lunar months.
+        try await onboard([Child(name: "Lena", birthDay: .day(2026, 2, 20))])
+        let sut = DefaultGetWeeklyHighlightsUseCase(
+            contentRepository: StubContentRepository(result: .success(Self.catalog)),
+            profileRepository: profiles,
+            progressRepository: progress,
+            photoStore: photos,
+            calendar: phone
+        )
+
+        let highlights = try await sut.execute(childID: nil, on: today, photoMaxPixelSize: nil)
+
+        guard case .suggested(let quest, _) = highlights?.quest else {
+            Issue.record("Expected a quest")
+            return
+        }
+        #expect(quest.id == "q1")
     }
 }
 

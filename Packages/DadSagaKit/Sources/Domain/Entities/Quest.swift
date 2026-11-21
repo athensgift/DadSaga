@@ -1,6 +1,8 @@
 /// Something the dad does in real life. XP rewards the dad's action.
-public struct Quest: Hashable, Identifiable, Sendable {
+public struct Quest: ContentItem, Hashable, Identifiable, Sendable {
     public let id: String
+    /// Ids it had before a rename (ADR-0048 §5).
+    public let formerIDs: [String]
     public let worldID: String
     public let title: LocalizedText
     public let description: LocalizedText
@@ -21,9 +23,11 @@ public struct Quest: Hashable, Identifiable, Sendable {
         xp: Int,
         minAgeMonths: Int,
         tip: QuestTip? = nil,
-        isEvergreen: Bool = false
+        isEvergreen: Bool = false,
+        formerIDs: [String] = []
     ) {
         self.id = id
+        self.formerIDs = formerIDs
         self.worldID = worldID
         self.title = title
         self.description = description

@@ -24,10 +24,10 @@ public struct Adventure: Hashable, Sendable {
         self.availableBosses = availableBosses
     }
 
-    /// The child's adventure on `date`. `childCount` is the number of children in the family; sibling-only bosses need
+    /// The child's adventure on `today`. `childCount` is the number of children in the family; sibling-only bosses need
     /// more than one.
-    public init(for child: Child, childCount: Int, catalog: ContentCatalog, on date: Date, calendar: Calendar) {
-        let age = child.ageInMonths(at: date, calendar: calendar)
+    public init(for child: Child, childCount: Int, catalog: ContentCatalog, on today: CalendarDay) {
+        let age = child.ageInMonths(on: today)
         let isBeyondContent = UnlockRules.isBeyondContent(catalog, ageInMonths: age)
         self.init(
             ageInMonths: age,

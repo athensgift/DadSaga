@@ -4,11 +4,11 @@ import Testing
 
 @Suite("ProfileRules")
 struct ProfileRulesTests {
-    let today = Date(timeIntervalSince1970: 1_000_000)
+    let today = CalendarDay.day(2026, 11, 21)
     let heroes = [HeroClass(id: "h1", order: 1, title: Fixtures.text, tagline: Fixtures.text, look: "hero")]
 
-    func child(_ name: String = "Νίκος", bornDaysAgo days: Double = 30) -> Child {
-        Child(name: name, birthDate: today.addingTimeInterval(-days * 86_400), gender: .girl, skinTone: .dark)
+    func child(_ name: String = "Νίκος", bornDaysAgo days: Int = 30) -> Child {
+        Child(name: name, birthDay: today.adding(days: -days), gender: .girl, skinTone: .dark)
     }
 
     func profile(_ children: [Child]? = nil, hero: String = "h1") -> PlayerProfile {
@@ -49,11 +49,13 @@ struct ProfileRulesTests {
         }
     }
 
-    @Test("Given a birth date after today, when validating, then birthDateInFuture is thrown")
-    func futureBirthDate() {
+    @Test("Given a birth day after today, when validating, then birthDateInFuture is thrown; today itself is fine")
+    func futureBirthDate() throws {
         #expect(throws: ProfileValidationError.birthDateInFuture) {
             try ProfileRules.validated(profile([child(bornDaysAgo: -1)]), on: today, heroClasses: heroes)
         }
+        let born = try ProfileRules.validated(profile([child(bornDaysAgo: 0)]), on: today, heroClasses: heroes)
+        #expect(born.children.first?.birthDay == today)
     }
 
     @Test("Given a hero class that is not in the content, when validating, then unknownHeroClass is thrown")

@@ -16,7 +16,8 @@ extension WorldDTO {
             title: title.toDomain(),
             tagline: tagline.toDomain(),
             minAgeMonths: minAgeMonths,
-            maxAgeMonths: maxAgeMonths
+            maxAgeMonths: maxAgeMonths,
+            formerIDs: formerIDs ?? []
         )
     }
 }
@@ -32,7 +33,8 @@ extension QuestDTO {
             xp: xp,
             minAgeMonths: minAgeMonths,
             tip: tip?.toDomain(),
-            isEvergreen: evergreen ?? false
+            isEvergreen: evergreen ?? false,
+            formerIDs: formerIDs ?? []
         )
     }
 }
@@ -55,7 +57,8 @@ extension BossFightDTO {
             skill: try QuestDTO.skill(skill, itemID: id),
             xp: xp,
             minAgeMonths: minAgeMonths,
-            requiresSibling: requiresSibling ?? false
+            requiresSibling: requiresSibling ?? false,
+            formerIDs: formerIDs ?? []
         )
     }
 }
@@ -68,7 +71,8 @@ extension FirstMomentDTO {
             emoji: emoji,
             title: title.toDomain(),
             xp: xp,
-            companionTrait: companionTrait
+            companionTrait: companionTrait,
+            formerIDs: formerIDs ?? []
         )
     }
 }
@@ -84,13 +88,27 @@ extension QuestDTO {
 
 extension HeroClassDTO {
     func toDomain() -> HeroClass {
-        HeroClass(id: id, order: order, title: title.toDomain(), tagline: tagline.toDomain(), look: look)
+        HeroClass(
+            id: id,
+            order: order,
+            title: title.toDomain(),
+            tagline: tagline.toDomain(),
+            look: look,
+            formerIDs: formerIDs ?? []
+        )
     }
 }
 
 extension GearItemDTO {
     func toDomain() throws -> GearItem {
-        GearItem(id: id, skill: try QuestDTO.skill(skill, itemID: id), minXP: minXP, look: look, title: title.toDomain())
+        GearItem(
+            id: id,
+            skill: try QuestDTO.skill(skill, itemID: id),
+            minXP: minXP,
+            look: look,
+            title: title.toDomain(),
+            formerIDs: formerIDs ?? []
+        )
     }
 }
 

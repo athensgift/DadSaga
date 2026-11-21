@@ -61,10 +61,10 @@ public struct SagaStoryboard: Hashable, Sendable {
         period: SagaPeriod,
         catalog: ContentCatalog,
         now: Date,
-        calendar: Calendar = .autoupdatingCurrent,
+        timeZone: TimeZone = .autoupdatingCurrent,
         pacing: SagaPacing = .standard
     ) -> SagaStoryboard? {
-        guard let interval = period.interval(for: child, catalog: catalog, now: now, calendar: calendar) else {
+        guard let interval = period.interval(for: child, catalog: catalog, now: now, timeZone: timeZone) else {
             return nil
         }
         let entries = Timeline.countedEntries(from: events, catalog: catalog)
@@ -76,18 +76,18 @@ public struct SagaStoryboard: Hashable, Sendable {
         let shown = entries.filter { if case .quest = $0.kind { !$0.photoIDs.isEmpty } else { true } }
         let worlds = Dictionary(uniqueKeysWithValues: shown.compactMap { entry in
             UnlockRules.currentWorld(
-                in: catalog, ageInMonths: child.sagaCompleted(.month, at: entry.date, calendar: calendar)
+                in: catalog, ageInMonths: child.ageInMonths(on: CalendarDay(entry.date, in: timeZone))
             ).map { (entry.id, $0) }
         })
         let cutter = Cutter(shown: shown, worlds: worlds, pacing: pacing, credits: credits)
         let asOf = min(interval.end, now)
         let lastMoment = asOf == interval.end ? asOf.addingTimeInterval(-1) : asOf
-        let firstDay = entries.map(\.date).min().map(calendar.startOfDay(for:))
-        let start = min(max(interval.start, calendar.startOfDay(for: child.birthDate)), firstDay ?? .distantFuture)
+        let firstDay = entries.map(\.date).min().map { CalendarDay($0, in: timeZone).start(in: timeZone) }
+        let start = min(max(interval.start, child.birthDay.start(in: timeZone)), firstDay ?? .distantFuture)
         return SagaStoryboard(
             period: period,
             asOf: asOf,
-            childAgeInMonths: child.sagaCompleted(.month, at: lastMoment, calendar: calendar),
+            childAgeInMonths: child.ageInMonths(on: CalendarDay(lastMoment, in: timeZone)),
             span: DateInterval(start: start, end: max(start, lastMoment)),
             scenes: cutter.cut()
         )

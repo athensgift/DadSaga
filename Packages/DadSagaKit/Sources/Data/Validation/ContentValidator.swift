@@ -6,8 +6,10 @@ import Domain
 enum ContentValidator {
     static func validate(_ catalog: ContentCatalog) throws {
         var seen: Set<String> = []
-        let allIDs = catalog.worlds.map(\.id) + catalog.quests.map(\.id) + catalog.bosses.map(\.id)
-            + catalog.firsts.map(\.id) + catalog.heroClasses.map(\.id) + catalog.gear.map(\.id)
+        // A former id is reserved like a current one (ADR-0048 §5): it may not name anything else, nor be listed twice.
+        let items: [any ContentItem] = catalog.worlds + catalog.quests + catalog.bosses + catalog.firsts
+            + catalog.heroClasses + catalog.gear
+        let allIDs = items.flatMap { [$0.id] + $0.formerIDs }
         for id in allIDs where !seen.insert(id).inserted {
             throw ContentDataError.duplicateID(id)
         }

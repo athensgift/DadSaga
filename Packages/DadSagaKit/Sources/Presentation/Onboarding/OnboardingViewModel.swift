@@ -37,6 +37,8 @@ public final class OnboardingViewModel {
     private let loadCatalog: any LoadContentCatalogUseCase
     private let saveProfile: any SaveProfileUseCase
     private let locale: Locale
+    /// The zone the date pickers draw in, and the one "today" is read in.
+    public let timeZone: TimeZone
     private let onFinished: @MainActor () -> Void
 
     public init(
@@ -44,13 +46,15 @@ public final class OnboardingViewModel {
         saveProfile: any SaveProfileUseCase,
         locale: Locale = .current,
         now: Date = .now,
+        timeZone: TimeZone = .autoupdatingCurrent,
         onFinished: @escaping @MainActor () -> Void
     ) {
         self.loadCatalog = loadCatalog
         self.saveProfile = saveProfile
         self.locale = locale
+        self.timeZone = timeZone
         self.onFinished = onFinished
-        family = FamilyDraft(children: [ChildDraft(birthDate: now)])
+        family = FamilyDraft(children: [ChildDraft(birthDay: CalendarDay(now, in: timeZone))])
         latestBirthDate = now
     }
 
@@ -70,7 +74,7 @@ public final class OnboardingViewModel {
     }
 
     public func addChild() {
-        family.addChild(birthDate: latestBirthDate)
+        family.addChild(birthDay: CalendarDay(latestBirthDate, in: timeZone))
     }
 
     public func removeChild(id: UUID) {
