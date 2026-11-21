@@ -24,7 +24,6 @@ struct ChildEditorCard: View {
                     skin: child.skinTone,
                     size: 76
                 )
-                // Its whole height, so the child stands above the line under the row, not on it.
                 .accessibilityHidden(true)
                 Text(verbatim: "\(labels.childTitle) \(number)")
                     .font(DSFont.headline)

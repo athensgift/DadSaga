@@ -2,8 +2,9 @@
 
 **Status:** Accepted (2026-11-22). The owner tried home on the iPhone Duo after ADR-0053 and asked for the map and
 Settings to sit open where they sit closed, by the tab bar, and for the empty block under the hero to go. Changes
-ADR-0043 §3 (the stage no longer holds the buttons), ADR-0044 §8 (in the wide layouts the map and Settings are not in
-the pane's header) and ADR-0045 (its Context: the system reports a flat fold with the hinge's thickness).
+ADR-0030 §1 (Settings is not in the wide layout's header), ADR-0043 §3 (the stage no longer holds the buttons),
+ADR-0044 §8 (in the wide layouts the map and Settings are not in the pane's header) and ADR-0045 (its Context: the
+system reports a flat fold with the hinge's thickness).
 
 ## Context
 - Closed, the Duo's cover display is 678 × 466 pt, short and wide. There iOS 27 draws the tab bar as a bar at the side
@@ -19,14 +20,17 @@ the pane's header) and ADR-0045 (its Context: the system reports a flat fold wit
   adventure. It was there before ADR-0053; a child on the way only made it easy to see.
 
 ## Decision
-1. **In the two-pane layouts the map and Settings are one glass group at the trailing edge, just above the tab bar,**
+1. **In the two-pane layouts the map and Settings are one glass capsule at the trailing edge, just above the tab bar,**
    over the adventure's pane, which keeps room under its last card for them. The hero's pane is headed by the title
    alone. One column keeps them in the navigation bar, where the cover display's side bar shows them.
 2. **A flat fold is the line down its middle.** The reader takes the active folds while the device is half-open; while
    it lies flat, and only where a screen asks (`whileFlat`), it takes each fold as the line down the middle of the band
    the system reports. Half-open, the band stays empty, as in ADR-0043. Folding narrows each pane by half the band.
-3. **The hero fills what the header leaves above the fold:** his height is the pane's height less the header as drawn
-   (measured), the padding and the space above the stage, between 120 and 260 pt as before.
+3. **The hero fills what the title leaves above the fold:** his height is the pane's height less the title as drawn
+   (measured), the padding and the space above the stage, between 120 and 260 pt as before. At the accessibility text
+   sizes, where he stands above his level, he is no taller than in one column (210 pt) and the pane scrolls.
+4. **The map and Settings are one capsule, map first,** read first by VoiceOver, as when they stood by the title. The
+   adventure's bottom margin is their measured height.
 
 ## Rejected
 - **A side bar drawn by the app when open:** a second tab bar beside the system's, which iOS would still draw at the
