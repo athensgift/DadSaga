@@ -49,9 +49,9 @@ evergreen; tracks of at least 130 s in their own PR; the partner question, on by
    five chapter cards, opening, credits); the tracks are 95 s and loop. *Recommended:* make every track at least 130 s,
    with a test that fails when the content outgrows the music; firsts are never dropped. *Otherwise:* keep the loop, or
    cap the firsts in a film (against ADR-0036 §2).
-3. **The partner question:** ask "I have a partner" (the owner's wording, after first "I'm raising them with a partner") once in onboarding and in "My family", on by
-   default, no reason asked. *Recommended:* yes. *Otherwise:* the six partner cards show to everyone, as date night and
-   check-in do today.
+3. **The partner question:** ask "I have a partner" (the owner's wording, after first "I'm raising them with a
+   partner") once in onboarding and in "My family", on by default, no reason asked. *Recommended:* yes.
+   *Otherwise:* the six partner cards show to everyone, as date night and check-in do today.
 4. **"When life changes":** the three situational bosses in one closed row at the end of the world's cards.
    *Recommended:* yes. *Otherwise:* they show like every other boss.
 

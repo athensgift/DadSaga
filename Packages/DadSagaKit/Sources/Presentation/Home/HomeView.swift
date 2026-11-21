@@ -271,7 +271,7 @@ public struct HomeView: View {
                 cardButton(card)
             }
             if let situational = content.situational {
-                // Closed again on every load, and for another child or world.
+                // Closed again when home is opened or shows another child or world; open through a save.
                 SituationalRow(cards: situational) { cardButton($0) }
                     .id(situational.id)
             }

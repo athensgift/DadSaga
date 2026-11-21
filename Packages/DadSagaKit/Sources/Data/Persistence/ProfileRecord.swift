@@ -2,7 +2,7 @@ import Domain
 import Foundation
 
 /// What was read from the store doesn't make sense: shown as a failure, never guessed at.
-public enum StoredDataError: Error, Equatable {
+enum StoredDataError: Error, Equatable {
     /// A child's birth day columns are partly filled, or name a day the calendar doesn't have.
     case unreadableBirthDay(childID: UUID)
 }

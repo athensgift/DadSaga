@@ -5,12 +5,13 @@ ships in v1, World 0 included, and a tick "Not born yet" where the child's name 
 child is in World 0. Drafted by the architect; the owner then chose the recommendation on the four open points
 (`docs/plans/v1-card-set.md`): first aid folds into `q-w0-first-aid` (§6), the partner question (§4), "When life
 changes" (§5) and longer tracks (§9, decided in ADR-0052). Numbered 0053: 0051 went to the release ADR while this was
-in review. Changes ADR-0005 (new content fields), ADR-0012 (a child may not be born yet),
-ADR-0013 (a mark for a child on the way), ADR-0019 (a world before birth; what a locked world says before the birth),
-ADR-0020 §2–§3 (evergreen bosses; `onlyFor` replaces `requiresSibling`; the map counts every boss beaten), ADR-0026
-(schema version 6), ADR-0028 (`Adventure` takes the family's facts, not a child count), ADR-0030 ("My family" asks
-about a partner and whether a child is born), ADR-0036 §1 and §7 (the world before birth in the film, and its offer at
-the birth) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropped; retiring a card).
+in review. Changes ADR-0005 (new content fields), ADR-0012 (a child may not be born yet), ADR-0013 (a mark for a
+child on the way), ADR-0019 (a world before birth; what a locked world says before the birth), ADR-0020 §2–§3
+(evergreen bosses; `onlyFor` replaces `requiresSibling`; the map counts every boss beaten), ADR-0023 (the widget opens
+the store without the migration plan, §8), ADR-0026 (schema version 6), ADR-0028 (`Adventure` takes the family's
+facts, not a child count), ADR-0030 ("My family" asks about a partner and whether a child is born), ADR-0036 §1 and §7
+(the world before birth in the film, and its offer at the birth) and ADR-0048 §2, §3 and §5 (an age before birth;
+`birthDate` dropped; retiring a card).
 
 ## Context
 - **The set.** 190 cards were reviewed. The owner dropped 20 in the first round and 7 in the second
@@ -90,7 +91,7 @@ the birth) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropp
   the weekly quest say "Adventures for your child's age are coming soon.", as they do today for a child over six.
 - **World map:** World 0's age line reads "before birth". For a child not born yet every other world reads "Opens after
   the birth": there are no months to count.
-- **Its two bosses stay in it.** On the birth day the arrival line sits above them; after the birth they are on the map
+- **Its two bosses stay in it.** Before the birth the arrival line sits above them; after the birth they are on the map
   like any earlier world's bosses.
 - **Film:**
   - World 0 is a period: everything before the birth day, or everything so far while the child is not born.
@@ -131,8 +132,9 @@ the birth) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropp
   - Not added: `twoHomes` (both its cards were dropped) and `requiresPregnancy` (A14).
 - **The partner answer** (the owner's choice): `PlayerProfile.hasPartner: Bool`. Onboarding asks once, with the
   children: a switch "I have a partner" («Έχω σύντροφο»: the same with one child or four), on, with one line under it,
-  "Shows the cards for the two of you." «Δείχνει τις κάρτες για τους δυο σας.» "My family" has the same row. Nothing asks why, and no other word is used for the answer. A profile without an answer, which is every
-  profile today, reads yes: no one loses a card he sees now.
+  "Shows the cards for the two of you." «Δείχνει τις κάρτες για τους δυο σας.» "My family" has the same row.
+  Nothing asks why, and no other word is used for the answer. A profile without an answer, which is every profile
+  today, reads yes: no one loses a card he sees now.
 - **A card for someone else is never offered:** not on home, not as the weekly quest, not on the widget or in the
   notification, and a link to it opens no sheet. What the dad did with it still counts: `Timeline` doesn't read
   audiences.
@@ -142,9 +144,10 @@ the birth) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropp
 
 ### 5. Bosses for when life changes, and bosses at every age
 - **`"situational": true`** (`b-w4-two-homes`, `b-w4-big-goodbye`, `b-w4-big-move`; the owner's choice): offered by
-  age and audience like any boss, but home lists them in one closed row at the end of the world's cards, "When life changes", that opens to
-  show them. It is closed each time home loads and shows no count. They are there for the dad who needs them, and not
-  on every dad's screen.
+  age and audience like any boss, but home lists them in one closed row at the end of the world's cards, "When life
+  changes", that opens to show them. It is closed each time home is opened, or shows another child or world, and stays
+  as the dad left it while he records something from it. It shows no count. They are there for the dad who needs
+  them, and not on every dad's screen.
 - **`"evergreen": true` on a boss** (`b-w1-double-shift`, `b-w2-long-grind`): shown in every later world, like an
   evergreen quest (ADR-0020 §2), and counted on the map only in its own world. Once beaten it shows "Defeated" wherever
   it appears.
@@ -219,8 +222,7 @@ Every other shipped quest, boss and first keeps its id, skill and XP in the set.
 
 ### 9. More firsts than the music
 - At the 3-second floor, 33 firsts and the retired one, five chapter cards, the opening and the credits make about 124
-  seconds; the shortest track is 95 and loops. Only a whole-saga film of a dad who captured more than about 25 firsts
-  reaches the loop.
+  seconds; when this was written the shortest track was 95 seconds, so a long whole-saga film looped its music.
 - **Decided in [ADR-0052](0052-saga-music-outlasts-the-longest-film.md)**, not here: every track outlasts the longest
   film the content allows, checked against the bundled content. Firsts are still never dropped (ADR-0036 §2).
 
