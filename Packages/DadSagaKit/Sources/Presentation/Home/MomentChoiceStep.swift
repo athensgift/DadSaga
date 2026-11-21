@@ -36,7 +36,7 @@ struct MomentChoiceStep: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: DSSpacing.m) {
-                DateRow(label: choice.dateLabel, date: $date, range: choice.earliestDate...choice.latestDate)
+                DateRow(label: choice.dateLabel, date: $date, range: earliestDate...choice.latestDate)
                     .font(DSFont.body)
                     .foregroundStyle(DSColor.textPrimary)
                     .padding(.horizontal, DSSpacing.m)
@@ -74,11 +74,18 @@ struct MomentChoiceStep: View {
         }
     }
 
+    /// The chosen first's own earliest day, or the earliest of all while none is chosen.
+    private var earliestDate: Date {
+        choice.options.first { $0.id == selectedID }?.earliestDate ?? choice.earliestDate
+    }
+
     private func optionButton(_ option: MomentOption) -> some View {
         let isSelected = option.id == selectedID
         let shape = RoundedRectangle(cornerRadius: DSRadius.tile + 4, style: .continuous)
         return Button {
             selectedID = option.id
+            // A day before this first's earliest moves up to it: a first after the birth isn't dated before it.
+            date = max(date, option.earliestDate)
         } label: {
             VStack(spacing: DSSpacing.xs) {
                 Text(option.emoji).font(DSFont.emoji)

@@ -1,4 +1,5 @@
 import Application
+import Domain
 import Foundation
 import Observation
 
@@ -33,7 +34,8 @@ extension HomeViewModel {
     }
 
     /// Shows the link's child, then the quest's sheet or the moment. A child no longer in the family opens home
-    /// as it is; a quest or moment that no longer exists opens no sheet.
+    /// as it is; a quest that no longer exists or isn't offered to this child (retired, too early, for someone else:
+    /// ADR-0051) or a moment that no longer exists opens no sheet.
     /// It reads what its own load returned, and opens only if the screen still shows the link's child: a load started
     /// meanwhile (the app coming back) may hold the previous child, and the dad or a newer link may have picked
     /// another, whose quest this one must not open.
@@ -50,7 +52,9 @@ extension HomeViewModel {
         case .quest(let id, _):
             // From the whole catalog, not just the shown world: last week's quest may belong to the previous one.
             guard let quest = overview.catalog.quest(id: id),
-                  quest.minAgeMonths <= overview.adventure.ageInMonths else { return }
+                  UnlockRules.isOffered(
+                      quest, in: overview.catalog, age: overview.adventure.age, family: overview.family
+                  ) else { return }
             selectedQuest = detail(for: quest, in: overview)
         case .moment(let eventID, _):
             editMoment(id: eventID, in: overview)

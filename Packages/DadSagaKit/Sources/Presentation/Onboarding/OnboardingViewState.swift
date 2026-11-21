@@ -9,6 +9,7 @@ public struct OnboardingContent: Equatable, Sendable {
     public let welcomeTitle: String
     public let welcomeSubtitle: String
     public let childEditor: ChildEditorLabels
+    public let partner: PartnerRowLabels
     public let continueTitle: String
     public let heroTitle: String
     public let finishTitle: String

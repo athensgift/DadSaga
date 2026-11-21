@@ -9,14 +9,20 @@ extension LocalizedTextDTO {
 }
 
 extension WorldDTO {
-    func toDomain() -> World {
-        World(
+    /// A world is either before birth with no ages, or has a minimum age (ADR-0051 §7).
+    func toDomain() throws -> World {
+        let span: WorldSpan
+        switch (beforeBirth ?? false, minAgeMonths, maxAgeMonths) {
+        case (true, nil, nil): span = .beforeBirth
+        case (false, let min?, let max): span = .months(min: min, max: max)
+        default: throw ContentDataError.invalidWorldAges(worldID: id)
+        }
+        return World(
             id: id,
             order: order,
             title: title.toDomain(),
             tagline: tagline.toDomain(),
-            minAgeMonths: minAgeMonths,
-            maxAgeMonths: maxAgeMonths,
+            span: span,
             formerIDs: formerIDs ?? []
         )
     }
@@ -34,6 +40,8 @@ extension QuestDTO {
             minAgeMonths: minAgeMonths,
             tip: tip?.toDomain(),
             isEvergreen: evergreen ?? false,
+            onlyFor: try Self.audiences(onlyFor, itemID: id),
+            isRetired: retired ?? false,
             formerIDs: formerIDs ?? []
         )
     }
@@ -57,7 +65,9 @@ extension BossFightDTO {
             skill: try QuestDTO.skill(skill, itemID: id),
             xp: xp,
             minAgeMonths: minAgeMonths,
-            requiresSibling: requiresSibling ?? false,
+            onlyFor: try QuestDTO.audiences(onlyFor, itemID: id),
+            isSituational: situational ?? false,
+            isEvergreen: evergreen ?? false,
             formerIDs: formerIDs ?? []
         )
     }
@@ -72,6 +82,8 @@ extension FirstMomentDTO {
             title: title.toDomain(),
             xp: xp,
             companionTrait: companionTrait,
+            isBeforeBirth: beforeBirth ?? false,
+            isRetired: retired ?? false,
             formerIDs: formerIDs ?? []
         )
     }
@@ -83,6 +95,16 @@ extension QuestDTO {
             throw ContentDataError.unknownSkill(itemID: itemID, skill: raw)
         }
         return skill
+    }
+
+    /// Audience words are parsed like skills: an unknown one fails the load (ADR-0051 §4).
+    static func audiences(_ raw: [String]?, itemID: String) throws -> Set<Audience> {
+        Set(try (raw ?? []).map { word in
+            guard let audience = Audience(rawValue: word) else {
+                throw ContentDataError.unknownAudience(itemID: itemID, audience: word)
+            }
+            return audience
+        })
     }
 }
 

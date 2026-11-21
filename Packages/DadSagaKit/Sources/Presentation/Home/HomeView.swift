@@ -253,26 +253,24 @@ public struct HomeView: View {
             WorldHeader(content: content) {
                 Task { await viewModel.showWorld(id: nil) }
             }
+            if let arrivalLine = content.arrivalLine {
+                Text(arrivalLine)
+                    .font(DSFont.subheadline)
+                    .foregroundStyle(DSColor.textSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.bottom, DSSpacing.s)
+            }
             if let emptyMessage = content.emptyMessage {
                 ContentUnavailableView(emptyMessage, systemImage: "map")
                     .padding(.vertical, DSSpacing.l)
             }
             ForEach(content.cards) { card in
-                Button {
-                    viewModel.select(cardID: card.id)
-                } label: {
-                    QuestCard(
-                        title: card.title,
-                        subtitle: card.subtitle,
-                        badge: card.badge,
-                        symbol: card.symbol,
-                        style: card.kind.cardStyle,
-                        footnote: card.footnote,
-                        hint: card.hint,
-                        skill: card.skill
-                    )
-                }
-                .buttonStyle(.plain)
+                cardButton(card)
+            }
+            if let situational = content.situational {
+                // A new child or world starts it closed again.
+                SituationalRow(cards: situational) { cardButton($0) }
+                    .id("\(content.selectedChildID)/\(content.worldTitle ?? "")")
             }
             MomentsSectionView(
                 section: content.moments,
@@ -289,6 +287,28 @@ public struct HomeView: View {
         }
         .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.reminderOffer)
         .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.sagaOffer)
+    }
+
+}
+
+extension HomeView {
+    /// A quest or boss card; a tap opens its sheet.
+    func cardButton(_ card: CardModel) -> some View {
+        Button {
+            viewModel.select(cardID: card.id)
+        } label: {
+            QuestCard(
+                title: card.title,
+                subtitle: card.subtitle,
+                badge: card.badge,
+                symbol: card.symbol,
+                style: card.kind.cardStyle,
+                footnote: card.footnote,
+                hint: card.hint,
+                skill: card.skill
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 

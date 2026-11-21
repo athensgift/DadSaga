@@ -87,6 +87,7 @@ struct FamilyView: View {
                         .buttonStyle(.glass)
                         .controlSize(.large)
                 }
+                PartnerRow(hasPartner: $viewModel.family.hasPartner, labels: content.partner)
                 SheetError(message: viewModel.errorMessage)
                 Text(content.footnote)
                     .font(DSFont.caption)

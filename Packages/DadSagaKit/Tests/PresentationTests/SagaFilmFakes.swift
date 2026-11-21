@@ -45,9 +45,9 @@ enum FilmStub {
     static let catalog = ContentCatalog(
         worlds: [
             World(id: "w1", order: 1, title: LocalizedText(el: "Σπηλιά", en: "Cave"),
-                  tagline: LocalizedText(el: "Οι πρώτες μέρες", en: "The early days"), minAgeMonths: 0, maxAgeMonths: 11),
+                  tagline: LocalizedText(el: "Οι πρώτες μέρες", en: "The early days"), span: .months(min: 0, max: 11)),
             World(id: "w2", order: 2, title: LocalizedText(el: "Πεδιάδες", en: "Plains"),
-                  tagline: LocalizedText(el: "Όλα κινούνται", en: "Everything moves"), minAgeMonths: 12, maxAgeMonths: nil)
+                  tagline: LocalizedText(el: "Όλα κινούνται", en: "Everything moves"), span: .months(min: 12, max: nil))
         ],
         quests: [
             Quest(id: "q1", worldID: "w1", title: LocalizedText(el: "Βόλτα", en: "Walk"),

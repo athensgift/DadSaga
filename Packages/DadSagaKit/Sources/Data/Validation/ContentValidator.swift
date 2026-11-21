@@ -24,7 +24,24 @@ enum ContentValidator {
         for quest in catalog.quests where quest.tip?.steps.isEmpty == true {
             throw ContentDataError.emptyTip(itemID: quest.id)
         }
+        try validateBeforeBirth(catalog)
         try validateAppearance(catalog.appearanceOptions)
+    }
+
+    /// At most one world is before birth, and it comes first by order; every card in it is for 0 months, so it is
+    /// reached before the birth and after it (ADR-0051 §2, §7).
+    private static func validateBeforeBirth(_ catalog: ContentCatalog) throws {
+        let beforeBirth = catalog.worlds.filter(\.isBeforeBirth)
+        if let second = beforeBirth.dropFirst().first {
+            throw ContentDataError.misplacedBeforeBirthWorld(worldID: second.id)
+        }
+        guard let world = beforeBirth.first else { return }
+        if catalog.worlds.contains(where: { !$0.isBeforeBirth && $0.order <= world.order }) {
+            throw ContentDataError.misplacedBeforeBirthWorld(worldID: world.id)
+        }
+        let aged = catalog.quests.filter { $0.worldID == world.id && $0.minAgeMonths > 0 }.map(\.id)
+            + catalog.bosses.filter { $0.worldID == world.id && $0.minAgeMonths > 0 }.map(\.id)
+        if let itemID = aged.first { throw ContentDataError.agedBeforeBirth(itemID: itemID) }
     }
 
     /// Each part names every option the app can draw, once, and nothing else (ADR-0044 §3). Ids are unique within

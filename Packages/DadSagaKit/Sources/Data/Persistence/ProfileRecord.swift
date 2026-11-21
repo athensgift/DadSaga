@@ -6,10 +6,9 @@ extension ChildRecord {
         self.init(
             childID: child.id,
             name: child.name,
-            birthDate: child.birthDay.start(in: .autoupdatingCurrent),
-            birthYear: child.birthDay.year,
-            birthMonth: child.birthDay.month,
-            birthDay: child.birthDay.day,
+            birthYear: child.birthDay?.year,
+            birthMonth: child.birthDay?.month,
+            birthDay: child.birthDay?.day,
             gender: child.gender.rawValue,
             skinTone: child.skinTone.rawValue,
             order: order
@@ -18,17 +17,15 @@ extension ChildRecord {
 
     func update(from child: Child, order: Int) {
         name = child.name
-        birthDate = child.birthDay.start(in: .autoupdatingCurrent)
-        birthYear = child.birthDay.year
-        birthMonth = child.birthDay.month
-        birthDay = child.birthDay.day
+        birthYear = child.birthDay?.year
+        birthMonth = child.birthDay?.month
+        birthDay = child.birthDay?.day
         gender = child.gender.rawValue
         skinTone = child.skinTone.rawValue
         self.order = order
     }
 
-    /// A row without a day (one the migration didn't fill) reads its moment in the phone's time zone, as the migration
-    /// would have.
+    /// A row without a day is a child not born yet (ADR-0051 §8).
     func toDomain() -> Child {
         let storedDay = birthYear.flatMap { year in
             birthMonth.flatMap { month in birthDay.flatMap { CalendarDay(year: year, month: month, day: $0) } }
@@ -36,7 +33,7 @@ extension ChildRecord {
         return Child(
             id: childID,
             name: name,
-            birthDay: storedDay ?? CalendarDay(birthDate, in: .autoupdatingCurrent),
+            birthDay: storedDay,
             gender: Gender(rawValue: gender) ?? .boy,
             skinTone: SkinTone(rawValue: skinTone) ?? .mediumLight
         )
@@ -49,7 +46,7 @@ extension ProfileRecord {
         update(from: profile)
     }
 
-    /// Every save writes the whole look, so a row never keeps a part from an earlier version.
+    /// Every save writes the whole look and the partner answer, so a row never keeps a part from an earlier version.
     func update(from profile: PlayerProfile) {
         heroClassID = profile.heroClassID
         dadSkinTone = profile.dadSkinTone.rawValue
@@ -57,9 +54,11 @@ extension ProfileRecord {
         hairColor = profile.dadAppearance.hairColor.rawValue
         beard = profile.dadAppearance.beard.rawValue
         glasses = profile.dadAppearance.glasses.rawValue
+        hasPartner = profile.hasPartner
     }
 
     /// A part missing (a row from version 3) or unknown to this version reads as the standard look for the skin tone.
+    /// No partner answer (a row from version 5) reads yes, so no one loses a card he saw (ADR-0051 §4).
     func toDomain(children: [Child]) -> PlayerProfile {
         let tone = SkinTone(rawValue: dadSkinTone) ?? .mediumLight
         let standard = DadAppearance.standard(for: tone)
@@ -69,6 +68,9 @@ extension ProfileRecord {
             beard: beard.flatMap(DadAppearance.Beard.init(rawValue:)) ?? standard.beard,
             glasses: glasses.flatMap(DadAppearance.Glasses.init(rawValue:)) ?? standard.glasses
         )
-        return PlayerProfile(children: children, heroClassID: heroClassID, dadSkinTone: tone, dadAppearance: look)
+        return PlayerProfile(
+            children: children, heroClassID: heroClassID, dadSkinTone: tone, dadAppearance: look,
+            hasPartner: hasPartner ?? true
+        )
     }
 }

@@ -25,21 +25,19 @@ extension HomeViewModel {
 
     private func makeWorldMap(_ overview: HomeOverview) -> WorldMapContent {
         let strings = HomeStrings(locale: locale)
-        let age = overview.adventure.ageInMonths
+        let age = overview.adventure.age
         let unlocked = Set(overview.adventure.unlockedWorlds.map(\.id))
         let shownID = overview.shownWorld?.id
         return WorldMapContent(
             title: strings.text("World map"),
-            subtitle: "\(overview.child.name) · \(strings.ageText(months: age))",
+            subtitle: "\(overview.child.name) · \(strings.ageText(age))",
             worlds: overview.catalog.worlds.map { world in
                 let status: WorldMapItem.Status = world.id == overview.adventure.currentWorld?.id
                     ? .current
                     : unlocked.contains(world.id) ? .visited : .locked
-                let done = overview.progress.progress(
-                    in: world, catalog: overview.catalog, childID: overview.child.id, childCount: overview.childCount
-                )
+                let done = overview.progress.progress(in: world, catalog: overview.catalog, childID: overview.child.id)
                 let detail = status == .locked
-                    ? strings.unlocksIn(months: world.minAgeMonths - age)
+                    ? strings.unlocks(world, at: age)
                     : strings.worldProgress(quests: done.questsDone, bosses: done.bossesDone)
                 let isShown = world.id == shownID
                 return WorldMapItem(
@@ -47,7 +45,7 @@ extension HomeViewModel {
                     number: world.order,
                     title: world.title.resolved(for: locale),
                     tagline: world.tagline.resolved(for: locale),
-                    ageRange: strings.ageRange(from: world.minAgeMonths, to: world.maxAgeMonths),
+                    ageRange: strings.ageRange(world.span),
                     status: status,
                     detail: detail,
                     tag: status == .current

@@ -134,32 +134,32 @@ struct UnlockRulesTests {
 
     @Test("Given a newborn, when unlocking, then only the first world and its age-0 quests are available")
     func newborn() throws {
-        #expect(UnlockRules.unlockedWorlds(in: catalog, ageInMonths: 0).map(\.id) == ["w1"])
+        #expect(UnlockRules.unlockedWorlds(in: catalog, age: .months(0)).map(\.id) == ["w1"])
         let first = try #require(catalog.worlds.first { $0.id == "w1" })
-        #expect(UnlockRules.quests(for: first, in: catalog, ageInMonths: 0).map(\.id) == ["q1"])
-        #expect(UnlockRules.availableBosses(in: catalog, ageInMonths: 0, childCount: 1).map(\.id) == ["b1"])
+        #expect(UnlockRules.quests(for: first, in: catalog, age: .months(0), family: .everyone).map(\.id) == ["q1"])
+        #expect(UnlockRules.bosses(for: first, in: catalog, age: .months(0), family: .everyone).map(\.id) == ["b1"])
     }
 
     @Test("Given a 10-month-old, when unlocking, then both worlds are open and the current world is the second")
     func tenMonths() throws {
-        #expect(UnlockRules.unlockedWorlds(in: catalog, ageInMonths: 10).count == 2)
-        #expect(UnlockRules.currentWorld(in: catalog, ageInMonths: 10)?.id == "w2")
+        #expect(UnlockRules.unlockedWorlds(in: catalog, age: .months(10)).count == 2)
+        #expect(UnlockRules.currentWorld(in: catalog, age: .months(10))?.id == "w2")
         let first = try #require(catalog.worlds.first { $0.id == "w1" })
         let second = try #require(catalog.worlds.first { $0.id == "w2" })
-        #expect(UnlockRules.quests(for: first, in: catalog, ageInMonths: 10).map(\.id) == ["q1", "q2"])
-        #expect(UnlockRules.quests(for: second, in: catalog, ageInMonths: 10).map(\.id) == ["q3"])
+        #expect(UnlockRules.quests(for: first, in: catalog, age: .months(10), family: .everyone).map(\.id) == ["q1", "q2"])
+        #expect(UnlockRules.quests(for: second, in: catalog, age: .months(10), family: .everyone).map(\.id) == ["q3"])
     }
 }
 
 @Suite("Child")
 struct ChildTests {
-    @Test("Given a birth day, when computing age, then completed months are returned and never negative")
+    @Test("Given a birth day, when computing age, then completed months are returned, and a day before the birth is before birth")
     func ageInMonths() {
         let child = Child(name: "Νίκος", birthDay: .day(2026, 1, 15))
 
-        #expect(child.ageInMonths(on: .day(2026, 4, 14)) == 2)
-        #expect(child.ageInMonths(on: .day(2026, 4, 15)) == 3)
-        #expect(child.ageInMonths(on: .day(2025, 12, 1)) == 0)
+        #expect(child.age(on: .day(2026, 4, 14)).months == 2)
+        #expect(child.age(on: .day(2026, 4, 15)).months == 3)
+        #expect(child.age(on: .day(2025, 12, 1)) == .beforeBirth)
     }
 }
 
@@ -168,8 +168,8 @@ enum Fixtures {
 
     static let catalog = ContentCatalog(
         worlds: [
-            World(id: "w2", order: 2, title: text, tagline: text, minAgeMonths: 9, maxAgeMonths: 24),
-            World(id: "w1", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: 8)
+            World(id: "w2", order: 2, title: text, tagline: text, span: .months(min: 9, max: 24)),
+            World(id: "w1", order: 1, title: text, tagline: text, span: .months(min: 0, max: 8))
         ],
         quests: [
             Quest(id: "q1", worldID: "w1", title: text, description: text, skill: .care, xp: 20, minAgeMonths: 0),

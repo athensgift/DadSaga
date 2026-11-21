@@ -10,8 +10,8 @@ struct QuestTipsTests {
     let progress = FakeProgress()
 
     static let text = HeroStub.text
-    static let swamp = World(id: "w1", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: 8)
-    static let plains = World(id: "w2", order: 2, title: text, tagline: text, minAgeMonths: 9, maxAgeMonths: 24)
+    static let swamp = World(id: "w1", order: 1, title: text, tagline: text, span: .months(min: 0, max: 8))
+    static let plains = World(id: "w2", order: 2, title: text, tagline: text, span: .months(min: 9, max: 24))
     static let tip = QuestTip(
         title: LocalizedText(el: "Ο καναπές είναι παγίδα", en: "The sofa is a trap"),
         steps: [LocalizedText(el: "Βήμα ένα", en: "Step one"), LocalizedText(el: "Βήμα δύο", en: "Step two")],
@@ -30,7 +30,7 @@ struct QuestTipsTests {
 
     func makeSUT() -> HomeViewModel {
         let adventure = Adventure(
-            ageInMonths: 10, currentWorld: Self.plains, unlockedWorlds: [Self.swamp, Self.plains], availableBosses: []
+            age: .months(10), family: .everyone, currentWorld: Self.plains, unlockedWorlds: [Self.swamp, Self.plains]
         )
         return HomeViewModel(
             useCases: HomeViewModel.UseCases(

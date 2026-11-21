@@ -102,6 +102,16 @@ struct SagaFilmScriptBuilder {
         }
     }
 
+    /// The child as they were when the period ended: the mark for a film before the birth (ADR-0051 §2).
+    private func companion(in film: SagaFilm) -> CompanionModel {
+        CompanionModel(
+            child: film.child,
+            stage: CompanionStage(age: film.storyboard.childAge),
+            traits: Set(film.childFirsts.compactMap { $0.companionTrait.flatMap(CompanionTrait.init(content:)) }),
+            strings: texts.strings
+        )
+    }
+
     /// The hero and the child as they were when the period ended, as home would have drawn them then.
     private func family(in film: SagaFilm) -> SagaFilmFamily {
         let hero = film.catalog.hero(for: film.profile)
@@ -111,14 +121,7 @@ struct SagaFilmScriptBuilder {
             heroAppearance: DadAppearanceChoice(film.profile.dadAppearance),
             heroGear: film.equippedGear.compactMap { HeroGearLook(look: $0.look) },
             medals: film.medalCount,
-            child: CompanionModel(
-                id: film.child.id,
-                name: film.child.name,
-                stage: CompanionStage(ageInMonths: film.storyboard.childAgeInMonths),
-                gender: GenderChoice(film.child.gender),
-                skin: SkinToneChoice(film.child.skinTone),
-                traits: Set(film.childFirsts.compactMap { $0.companionTrait.flatMap(CompanionTrait.init(content:)) })
-            )
+            child: companion(in: film)
         )
     }
 }

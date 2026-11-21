@@ -206,15 +206,15 @@ enum HeroStub {
     static func adventure(for child: Child) -> Adventure {
         if child.name == "Ελένη" {
             return Adventure(
-                ageInMonths: 60, currentWorld: nil, unlockedWorlds: catalog.worlds,
-                availableBosses: [], isBeyondContent: true
+                age: .months(60), family: .everyone, currentWorld: nil, unlockedWorlds: catalog.worlds,
+                isBeyondContent: true
             )
         }
         return Adventure(
-            ageInMonths: 10,
+            age: .months(10),
+            family: .everyone,
             currentWorld: catalog.worlds.first,
-            unlockedWorlds: catalog.worlds,
-            availableBosses: catalog.bosses
+            unlockedWorlds: catalog.worlds
         )
     }
 

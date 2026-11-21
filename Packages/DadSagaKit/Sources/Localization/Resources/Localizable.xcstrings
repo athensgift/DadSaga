@@ -1,6 +1,23 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "%@, on the way" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, έρχεται"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, on the way"
+          }
+        }
+      }
+    },
     "%@–%@ years" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -325,6 +342,23 @@
         }
       }
     },
+    "before birth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "πριν τη γέννα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "before birth"
+          }
+        }
+      }
+    },
     "Close" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -631,6 +665,23 @@
         }
       }
     },
+    "I'm raising them with a partner" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τα μεγαλώνω μαζί με τον άνθρωπό μου"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I'm raising them with a partner"
+          }
+        }
+      }
+    },
     "Listen to the music" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -648,6 +699,91 @@
         }
       }
     },
+    "Name or nickname" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όνομα ή χαϊδευτικό"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name or nickname"
+          }
+        }
+      }
+    },
+    "Not born yet" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν έχει γεννηθεί ακόμα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not born yet"
+          }
+        }
+      }
+    },
+    "on the way" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "έρχεται"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "on the way"
+          }
+        }
+      }
+    },
+    "Opens after the birth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ανοίγει μετά τη γέννα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens after the birth"
+          }
+        }
+      }
+    },
+    "Shows the cards for the two of you." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δείχνει και τις κάρτες για τους δυο σας."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows the cards for the two of you."
+          }
+        }
+      }
+    },
     "Stop the music" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -661,6 +797,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stop the music"
+          }
+        }
+      }
+    },
+    "The day you found out, the first picture… Capture them here." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η μέρα που το έμαθες, η πρώτη εικόνα… Κράτα τες εδώ."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The day you found out, the first picture… Capture them here."
+          }
+        }
+      }
+    },
+    "When life changes" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όταν αλλάζει η ζωή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When life changes"
+          }
+        }
+      }
+    },
+    "When they arrive, untick “Not born yet” in My family." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Όταν έρθει, κλείσε το «Δεν έχει γεννηθεί ακόμα» στο «Η οικογένειά μου»."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When they arrive, untick “Not born yet” in My family."
           }
         }
       }

@@ -99,12 +99,12 @@ public struct DadProgress: Hashable, Sendable {
         questsByChild[childID] ?? [:]
     }
 
-    /// How far the dad got in one world with this child. An evergreen quest counts only in its home world, and a boss
-    /// this family cannot meet (a sibling boss with one child) does not count.
-    public func progress(in world: World, catalog: ContentCatalog, childID: UUID, childCount: Int) -> WorldProgress {
+    /// How far the dad got in one world with this child. An evergreen quest or boss counts only in its home world. Every
+    /// boss beaten counts, whoever it is for now, and so does a retired quest he did (ADR-0051 §4, §6).
+    public func progress(in world: World, catalog: ContentCatalog, childID: UUID) -> WorldProgress {
         let completions = questCompletions(for: childID)
         let defeated = defeatedBossIDs(for: childID)
-        let bosses = catalog.bosses.filter { $0.worldID == world.id && UnlockRules.isPossible($0, childCount: childCount) }
+        let bosses = catalog.bosses.filter { $0.worldID == world.id }
         return WorldProgress(
             questsDone: catalog.quests.filter { $0.worldID == world.id && completions[$0.id, default: 0] > 0 }.count,
             bossesDone: bosses.filter { defeated.contains($0.id) }.count

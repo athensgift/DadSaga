@@ -80,13 +80,13 @@ struct FamilyStage: View {
 
     private func child(_ companion: CompanionModel, size: CGFloat, heroSize: CGFloat) -> some View {
         let isSelected = companion.id == selectedChildID
-        return ChildAvatar(
-            stage: companion.stage.avatarStage,
-            gender: companion.gender.avatarGender,
-            skin: companion.skin.avatarSkin,
+        return CompanionFigure(
+            stage: companion.stage,
+            gender: companion.gender,
+            skin: companion.skin,
             size: size,
             cheerTrigger: taps[companion.id, default: 0] + (isSelected ? cheerTrigger : 0),
-            traits: companion.traits.avatarTraits
+            traits: companion.traits
         )
         .padding(.bottom, HeroAvatar.groundInset(forSize: heroSize) - ChildAvatar.groundInset(forSize: size))
         .contentShape(Rectangle())
@@ -95,7 +95,7 @@ struct FamilyStage: View {
             onSelect(companion.id)
         }
         .accessibilityElement()
-        .accessibilityLabel(companion.name)
+        .accessibilityLabel(companion.spokenName)
         .accessibilityAddTraits(isSelected && companions.count > 1 ? [.isButton, .isSelected] : .isButton)
     }
 }

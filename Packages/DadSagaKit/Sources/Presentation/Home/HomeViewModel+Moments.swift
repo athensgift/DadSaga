@@ -1,4 +1,5 @@
 import Application
+import Domain
 import Foundation
 
 /// Legendary moments, in two steps (ADR-0042 §5): choosing the first records it; photos and a few words follow, if
@@ -10,6 +11,7 @@ extension HomeViewModel {
         errorMessage = nil
         momentCapture = momentsFormatter.capture(
             for: overview.child,
+            age: overview.adventure.age,
             catalog: overview.catalog,
             progress: overview.progress,
             now: now()

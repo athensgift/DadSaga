@@ -94,7 +94,7 @@ public final class HomeViewModel {
         guard let overview else { return }
         if let quest = overview.quests.first(where: { $0.id == cardID }) {
             selectedQuest = detail(for: quest)
-        } else if let boss = overview.bosses.first(where: { $0.id == cardID }) {
+        } else if let boss = (overview.bosses + overview.situationalBosses).first(where: { $0.id == cardID }) {
             selectedBoss = detail(for: boss)
         }
     }
@@ -120,7 +120,7 @@ public final class HomeViewModel {
     /// Records the open boss as defeated, with the dad's optional note and photos.
     public func defeatSelectedBoss(note: String = "", photos: PhotoDrafts = PhotoDrafts()) async {
         guard let boss = selectedBoss, !boss.isDefeated, let childID = selectedChildID else { return }
-        let badge = overview?.bosses.first { $0.id == boss.id }?.badge.resolved(for: locale)
+        let badge = overview?.catalog.boss(id: boss.id)?.badge.resolved(for: locale)
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
         guard let change = await record({
             try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now(), journal: journal)
@@ -234,7 +234,7 @@ public final class HomeViewModel {
         let progress = overview.progress
         let level = progress.level
         let hero = catalog.hero(for: profile)
-        let childLine = "\(child.name) · \(strings.ageText(months: adventure.ageInMonths))"
+        let childLine = "\(child.name) · \(strings.ageText(adventure.age))"
         let hasSiblings = profile.children.count > 1
         return HomeContent(
             heroTitle: hero?.title.resolved(for: locale) ?? strings.text("Hero"),
@@ -246,16 +246,7 @@ public final class HomeViewModel {
             medalCount: progress.allDefeatedBossIDs.count,
             companionLine: hasSiblings ? profile.children.map(\.name).joined(separator: " · ") : childLine,
             childTabs: hasSiblings ? profile.children.map { ChildTab(id: $0.id, name: $0.name) } : [],
-            companions: profile.children.map { child in
-                CompanionModel(
-                    id: child.id,
-                    name: child.name,
-                    stage: CompanionStage(ageInMonths: child.ageInMonths(on: overview.today)),
-                    gender: GenderChoice(child.gender),
-                    skin: SkinToneChoice(child.skinTone),
-                    traits: momentsFormatter.traits(for: child, catalog: catalog, progress: progress)
-                )
-            },
+            companions: companions(overview),
             selectedChildID: child.id,
             selectedChildLine: hasSiblings ? childLine : nil,
             familyTitle: strings.text("My family"),
@@ -273,40 +264,10 @@ public final class HomeViewModel {
             emptyMessage: adventure.isBeyondContent
                 ? strings.text("Adventures for your child's age are coming soon.")
                 : nil,
-            cards: bossCards(overview) + questCards(overview),
-            moments: momentsFormatter.section(for: child, catalog: catalog, progress: progress)
+            arrivalLine: child.isBorn ? nil : strings.text("When they arrive, untick “Not born yet” in My family."),
+            cards: bossCards(overview.bosses, overview: overview) + questCards(overview),
+            situational: situationalCards(overview),
+            moments: momentsFormatter.section(for: child, age: adventure.age, catalog: catalog, progress: progress)
         )
-    }
-
-    private func bossCards(_ overview: HomeOverview) -> [CardModel] {
-        let defeatedBossIDs = overview.defeatedBossIDs
-        return overview.bosses.map { boss in
-            CardModel(
-                id: boss.id,
-                title: boss.title.resolved(for: locale),
-                subtitle: boss.intro.resolved(for: locale),
-                badge: strings.text("BOSS"),
-                symbol: "flame.fill",
-                kind: .boss,
-                footnote: defeatedBossIDs.contains(boss.id) ? strings.defeatedText(for: boss) : nil
-            )
-        }
-    }
-
-    private func questCards(_ overview: HomeOverview) -> [CardModel] {
-        let completions = overview.progress.questCompletions(for: overview.child.id)
-        return overview.quests.map { quest in
-            CardModel(
-                id: quest.id,
-                title: quest.title.resolved(for: locale),
-                subtitle: quest.description.resolved(for: locale),
-                badge: "+\(quest.xp) XP",
-                symbol: quest.skill.symbol,
-                kind: .quest,
-                footnote: completions[quest.id].map(strings.doneText),
-                hint: quest.tip?.title.resolved(for: locale),
-                skill: strings.skill(quest.skill)
-            )
-        }
     }
 }

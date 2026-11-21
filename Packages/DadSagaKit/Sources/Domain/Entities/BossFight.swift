@@ -11,8 +11,12 @@ public struct BossFight: ContentItem, Hashable, Identifiable, Sendable {
     public let skill: Skill
     public let xp: Int
     public let minAgeMonths: Int
-    /// Only for families with more than one child (e.g. a new sibling). Reads the family, never the child's development.
-    public let requiresSibling: Bool
+    /// Offered only to a family where every one of these holds (ADR-0051 §4). Empty: every family.
+    public let onlyFor: Set<Audience>
+    /// For when life changes (a move, two homes, a loss): home keeps it in a closed row of its own (ADR-0051 §5).
+    public let isSituational: Bool
+    /// Also shown in every later world, like an evergreen quest; counted only in its own world (ADR-0051 §5).
+    public let isEvergreen: Bool
 
     public init(
         id: String,
@@ -24,7 +28,9 @@ public struct BossFight: ContentItem, Hashable, Identifiable, Sendable {
         skill: Skill,
         xp: Int,
         minAgeMonths: Int,
-        requiresSibling: Bool = false,
+        onlyFor: Set<Audience> = [],
+        isSituational: Bool = false,
+        isEvergreen: Bool = false,
         formerIDs: [String] = []
     ) {
         self.id = id
@@ -37,6 +43,8 @@ public struct BossFight: ContentItem, Hashable, Identifiable, Sendable {
         self.skill = skill
         self.xp = xp
         self.minAgeMonths = minAgeMonths
-        self.requiresSibling = requiresSibling
+        self.onlyFor = onlyFor
+        self.isSituational = isSituational
+        self.isEvergreen = isEvergreen
     }
 }

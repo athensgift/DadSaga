@@ -10,6 +10,8 @@ public struct PlayerProfile: Hashable, Sendable {
     public var dadSkinTone: SkinTone
     /// The dad's hair, beard and glasses (ADR-0044).
     public var dadAppearance: DadAppearance
+    /// "I'm raising them with a partner" (ADR-0051 §4): shows the cards for the two of them. Yes unless he said no.
+    public var hasPartner: Bool
 
     /// The child with `id`, or the first child when `id` is `nil` or no longer in the family. `nil` without children.
     public func child(_ id: UUID?) -> Child? {
@@ -21,11 +23,13 @@ public struct PlayerProfile: Hashable, Sendable {
         children: [Child],
         heroClassID: String,
         dadSkinTone: SkinTone = .mediumLight,
-        dadAppearance: DadAppearance? = nil
+        dadAppearance: DadAppearance? = nil,
+        hasPartner: Bool = true
     ) {
         self.children = children
         self.heroClassID = heroClassID
         self.dadSkinTone = dadSkinTone
         self.dadAppearance = dadAppearance ?? .standard(for: dadSkinTone)
+        self.hasPartner = hasPartner
     }
 }

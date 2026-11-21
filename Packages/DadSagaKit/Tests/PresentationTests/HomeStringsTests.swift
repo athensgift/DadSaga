@@ -1,3 +1,4 @@
+import Domain
 import Foundation
 import Testing
 @testable import Presentation
@@ -15,12 +16,15 @@ struct HomeStringsTests {
         #expect(english.doneText(times: 3) == "Done 3 times")
     }
 
-    @Test("Given a locked world one and two months away, then it says month, then months")
+    @Test("Given a locked world one and two months away, then it says month, then months; before the birth, after the birth")
     func unlocksIn() {
-        #expect(greek.unlocksIn(months: 1) == "Ξεκλειδώνει σε 1 μήνα")
-        #expect(greek.unlocksIn(months: 2) == "Ξεκλειδώνει σε 2 μήνες")
-        #expect(english.unlocksIn(months: 1) == "Unlocks in 1 month")
-        #expect(english.unlocksIn(months: 2) == "Unlocks in 2 months")
+        let world = World(id: "w2", order: 2, title: HeroStub.text, tagline: HeroStub.text, span: .months(min: 9, max: 24))
+        #expect(greek.unlocks(world, at: .months(8)) == "Ξεκλειδώνει σε 1 μήνα")
+        #expect(greek.unlocks(world, at: .months(7)) == "Ξεκλειδώνει σε 2 μήνες")
+        #expect(english.unlocks(world, at: .months(8)) == "Unlocks in 1 month")
+        #expect(english.unlocks(world, at: .months(7)) == "Unlocks in 2 months")
+        #expect(greek.unlocks(world, at: .beforeBirth) == "Ανοίγει μετά τη γέννα")
+        #expect(english.unlocks(world, at: .beforeBirth) == "Opens after the birth")
     }
 
     @Test("Given a world with 1 quest and 2 bosses kept, then each count takes its own form")
@@ -30,18 +34,21 @@ struct HomeStringsTests {
         #expect(english.worldProgress(quests: 7, bosses: 1) == "7 quests · 1 boss")
     }
 
-    @Test("Given children of 0, 1, 5 and 30 months, then the age reads correctly in both languages")
+    @Test("Given a child on the way and of 0, 1, 5 and 30 months, then the age reads correctly in both languages")
     func ages() {
-        #expect([0, 1, 5, 30].map(greek.ageText) == ["νεογέννητο", "1 μηνός", "5 μηνών", "2 ετών"])
-        #expect([0, 1, 5, 30].map(english.ageText) == ["newborn", "1 month old", "5 months old", "2 years old"])
+        let ages: [ChildAge] = [.beforeBirth, .months(0), .months(1), .months(5), .months(30)]
+        #expect(ages.map(greek.ageText) == ["έρχεται", "νεογέννητο", "1 μηνός", "5 μηνών", "2 ετών"])
+        #expect(ages.map(english.ageText) == ["on the way", "newborn", "1 month old", "5 months old", "2 years old"])
     }
 
     @Test("Given world age ranges, then months, years and open-ended ranges read in both languages")
     func ageRanges() {
-        #expect(greek.ageRange(from: 0, to: 8) == "0–8 μηνών")
-        #expect(greek.ageRange(from: 25, to: 41) == "2–3½ ετών")
-        #expect(greek.ageRange(from: 72, to: nil) == "από 6 ετών")
-        #expect(english.ageRange(from: 72, to: nil) == "from 6 years")
+        #expect(greek.ageRange(.months(min: 0, max: 8)) == "0–8 μηνών")
+        #expect(greek.ageRange(.months(min: 25, max: 41)) == "2–3½ ετών")
+        #expect(greek.ageRange(.months(min: 72, max: nil)) == "από 6 ετών")
+        #expect(english.ageRange(.months(min: 72, max: nil)) == "from 6 years")
+        #expect(greek.ageRange(.beforeBirth) == "πριν τη γέννα")
+        #expect(english.ageRange(.beforeBirth) == "before birth")
     }
 
     @Test("Given a quest, then the reward names the skill in each language")

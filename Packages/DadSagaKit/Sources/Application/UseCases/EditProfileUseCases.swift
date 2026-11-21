@@ -12,9 +12,9 @@ public protocol UpdateHeroUseCase: Sendable {
     func execute(heroClassID: String, skinTone: SkinTone, appearance: DadAppearance, on date: Date) async throws
 }
 
-/// Changes the children and keeps the dad's hero.
+/// Changes the children and the partner answer, and keeps the dad's hero.
 public protocol UpdateFamilyUseCase: Sendable {
-    func execute(children: [Child], on date: Date) async throws
+    func execute(children: [Child], hasPartner: Bool, on date: Date) async throws
 }
 
 public struct DefaultUpdateHeroUseCase: UpdateHeroUseCase {
@@ -57,9 +57,10 @@ public struct DefaultUpdateFamilyUseCase: UpdateFamilyUseCase {
         self.timeZone = timeZone
     }
 
-    public func execute(children: [Child], on date: Date) async throws {
+    public func execute(children: [Child], hasPartner: Bool, on date: Date) async throws {
         guard var profile = try await profileRepository.fetchProfile() else { throw ProfileEditError.noProfile }
         profile.children = try ProfileRules.validatedChildren(children, on: CalendarDay(date, in: timeZone))
+        profile.hasPartner = hasPartner
         try await profileRepository.save(profile)
     }
 }
