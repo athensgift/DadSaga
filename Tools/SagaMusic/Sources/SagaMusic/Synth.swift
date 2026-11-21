@@ -67,7 +67,8 @@ enum Instrument {
                 weights: [1: 1, 2: 0.22, 3: 0.07, 4.1: 0.04], attackTime: 0.012, decay: 0.7, vibratoDepth: 0.0015
             ))
         case .musicBox:
-            Self.struck(pitch, seconds: 2.6, velocity: velocity, weights: [1: 1, 2.76: 0.3, 5.4: 0.1], decay: 1.1)
+            Self.struck(pitch, seconds: 2.6, velocity: velocity, weights: [1: 1, 2.76: 0.15, 5.4: 0.04], decay: 1.1,
+                        attackTime: 0.006)
         case .marimba:
             Self.struck(pitch, seconds: 1.4, velocity: velocity, weights: [1: 1, 3.93: 0.25, 9.2: 0.05], decay: 3.5)
         case .brass:
@@ -125,10 +126,11 @@ enum Instrument {
         seconds: Double,
         velocity: Double,
         weights: [Double: Double],
-        decay: Double
+        decay: Double,
+        attackTime: Double = 0.002
     ) -> [Float] {
         partials(pitch, seconds: seconds, harmonics: weights.keys.sorted()) { harmonic, time in
-            let attack = min(1, time / 0.002)
+            let attack = min(1, time / attackTime)
             return attack * velocity * (weights[harmonic] ?? 0) * exp(-time * decay * (0.6 + 0.4 * harmonic))
         }
     }

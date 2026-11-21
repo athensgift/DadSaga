@@ -8,7 +8,7 @@ extension Score {
         band: Band(
             comping: Comping(instrument: .guitar, steps: Step.arpeggio([0, 1, 2, 3, 2, 1], every: 0.5),
                              octave: 12, velocity: 0.13, accentEvery: 3, pan: -0.25),
-            lead: Lead(instrument: .musicBox, velocity: 0.26, pan: 0.2),
+            lead: Lead(instrument: .musicBox, velocity: 0.13, pan: 0.2),
             bass: BassLine(steps: [Step(0, 0)], octave: 0, velocity: 0.16),
             padVelocity: 0.008,
             reverb: 0.45
