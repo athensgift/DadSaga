@@ -13,3 +13,9 @@ DerivedData/
 .build/
 .swiftpm/
 *.xcresult
+
+# Local only
+.claude/worktrees/
+.claude/settings.local.json
+build/
+*.ipa

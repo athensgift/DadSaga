@@ -1,6 +1,6 @@
 ---
 name: fable-hard
-description: Fable escalation for genuinely hard problems - the Saga video engine (AVFoundation composition, Core Animation overlays, export), iCloud/CloudKit sync and partner co-op, or a bug the main session failed to fix twice. Costs usage credits on the Pro plan - use ONLY when the user explicitly asks for fable-hard; otherwise suggest it and wait.
+description: Fable for genuinely hard problems - the Saga video engine (AVFoundation composition, Core Animation overlays, export), iCloud/CloudKit sync and partner co-op, or a bug the main session failed to fix twice. Hand it the problem as soon as a fix has failed twice.
 model: fable
 effort: high
 color: orange

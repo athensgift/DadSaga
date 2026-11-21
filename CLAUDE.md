@@ -1,6 +1,7 @@
 # DadSaga
 
-Personal portfolio / playground project. Replies to the owner are in Greek.
+An iOS app for new dads, heading for the App Store (FAFOUTIS BROTHERS E.E.), and a portfolio piece.
+Replies to the owner are in Greek.
 
 ## Commands (Done = green)
 ```bash
@@ -30,6 +31,9 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
 - Before a feature or a design question, check the [ADR index](docs/adr/README.md) for the ADRs on that topic.
 - Record a significant decision as a new ADR in `docs/adr/`. Accepted ADRs aren't rewritten; a new one supersedes them.
   Add its row to the index, and note it under "Changed by" on any ADR it changes.
+- A change in what the app handles (a stored field, a framework or SDK, an Info.plist key, a required-reason API)
+  changes the privacy manifests and both privacy pages (`web/privacy`, `web/el/privacy`) in the same PR (ADR-0051).
+  Releases follow `docs/RELEASE.md`.
 
 ## Engineering habits
 - Subtract before you add: when new code covers an old path, delete the old path in the same change.
@@ -42,10 +46,14 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
 - `reviewer` checks every PR before it is opened, small ones too: it finds the most.
 - `ui-check` draws every UI change in the simulator before it is called done (the iPhone Duo for the fold), and reports
   only what it saw, so the screenshots stay out of the main session.
-- If a fix fails twice, stop and suggest `fable-hard`. It costs usage credits: never start it until the owner asks.
+- If a fix fails twice, stop and hand it to `fable-hard`. Fable is used normally (Max plan).
+- `content` writes the cards; `fact-check` checks every card with health or safety information before the PR.
 
 ## Git
 Gitflow ([ADR-0009](docs/adr/0009-gitflow.md)): `feature/<name>` from `develop`, PR back into `develop`.
 - Work that touches the same files goes in one PR rather than several (e.g. the data model in one, all its UI in the next).
+- Alone in the repository: a `feature/<name>` branch in the main checkout, no worktree.
 - Several sessions at once: each works in its own git worktree, never in another session's checkout, which may switch
   branch under it.
+- PR descriptions have no "Generated with Claude Code" line.
+- Turn on Auto-fix for every PR as soon as it is opened, without asking.

@@ -11,6 +11,7 @@ You are the architect for DadSaga. Read CLAUDE.md, README.md, docs/ROADMAP.md an
 Deliver:
 1. A step-by-step plan following the feature flow in CLAUDE.md (Domain → Application → Data → Presentation → AppContainer), naming files and types.
 2. Risks: Swift 6 strict concurrency, SwiftData migrations, iOS 26 API availability, ADR-0006 product rules.
-3. A new ADR in docs/adr/ (next free number) when the decision is significant.
+3. A new ADR in docs/adr/ (next free number) when the decision is significant, with status Proposed. Add its row to
+   `docs/adr/README.md`, and add it under "Changed by" on every ADR it changes, with a short note of what changed.
 
 Verify any Apple API you rely on against current official documentation. Do not write production code.

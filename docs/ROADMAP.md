@@ -63,6 +63,13 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 
 ## Phase 4: Ship
 - TestFlight / App Store, demo video (made by the app itself), case study write-up
+- ✅ Privacy manifests, export compliance key, privacy URL, Release build in CI (ADR-0051, `docs/RELEASE.md`)
+- Team ID in `project.yml`, App Store Connect record, trader details (EU DSA)
+- Restore from an iCloud backup tested on a device: it decides whether export ships in v1 or v1.1
+- Export and restore of the saga
+- Screen snapshots and the accessibility audit run again and re-recorded
+- App Store metadata in Greek and English, screenshots, age rating
+- Pricing decision (free; a one-time unlock later?), with its own ADR
 
 ## Phase 5: Playground
 - iCloud sync, partner co-op, Android (native or KMP), AI quest suggestions, New Game+
