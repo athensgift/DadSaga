@@ -1,11 +1,11 @@
 # Plan: the v1 card set
 
-Implements [ADR-0051](../adr/0051-v1-card-set-before-birth-audiences-and-retired-cards.md). Inputs: the owner's review of
+Implements [ADR-0053](../adr/0053-v1-card-set-before-birth-audiences-and-retired-cards.md). Inputs: the owner's review of
 the card set (2026-11-21, two rounds) and the set itself (190 cards). Every kept card ships in v1, World 0 included.
 
 ## Decisions taken
 1. **A child "not born yet"** is a switch under the name in the child editor (onboarding and "My family"), as the owner
-   asked. While it is on, no date is kept: no due date, no countdown (ADR-0051 §1). `Child.birthDay` is optional;
+   asked. While it is on, no date is kept: no due date, no countdown (ADR-0053 §1). `Child.birthDay` is optional;
    `Child.age(on:)` returns `.beforeBirth` or `.months(n)`, one rule for everything.
 2. **Unticking it and saving a day** makes the child born that day: same child, so everything recorded before the birth
    stays theirs. World 1 opens by age; World 0 becomes a visited world. Ticking a born child again is allowed.
@@ -22,8 +22,8 @@ the card set (2026-11-21, two rounds) and the set itself (190 cards). Every kept
      `b-w1-fourth-trimester`.
    - `olderSibling`: `q-w1-meet-the-crew` (owner: only with an older child). Twins have no older sibling.
    - `youngerSibling`: `b-w3-new-sibling`, narrowed from "more than one child"; a sibling on the way counts.
-7. **The facts the dad gives:** whether each child is born (the switch), and one family answer, "I'm raising them with
-   a partner" (on by default; every existing profile reads yes). Siblings come from the birth days.
+7. **The facts the dad gives:** whether each child is born (the switch), and one family answer, "I have a partner"
+   (on by default; every existing profile reads yes). Siblings come from the birth days.
 8. **Situational bosses** (`b-w4-two-homes`, `b-w4-big-goodbye`, `b-w4-big-move`) sit in one closed row at the end of
    the world's cards, "When life changes". **Evergreen bosses** (`b-w1-double-shift`, `b-w2-long-grind`, found in the
    set's meta lines) show in later worlds like evergreen quests.
@@ -31,7 +31,7 @@ the card set (2026-11-21, two rounds) and the set itself (190 cards). Every kept
    never offers it again. Retired: `q-w1-tummy-time`, `q-w2-rough-play`, `q-w3-ten-breaths` (folded into the boss
    `b-w3-red-mist`, another kind), `f-sleepover`. Moves within a kind use `formerIDs`: `q-w2-car-seat → q-w1-car-seat`,
    `q-w2-toothbrush → q-w1-toothbrush`, `q-w2-date-night → q-w1-date-night`, `q-w4-swim → q-w2-swim`,
-   `q-w4-check-in → q-w1-check-in`, `f-christmas → f-celebration`. All keep skill and XP (ADR-0051 §6 table).
+   `q-w4-check-in → q-w1-check-in`, `f-christmas → f-celebration`. All keep skill and XP (ADR-0053 §6 table).
 10. **Schema V6:** `ChildRecord.birthDate` goes (after a `willMigrate` fills any missing day); empty day columns mean
     "not born yet"; `ProfileRecord.hasPartner: Bool?`.
 11. **When no world fits** (a child older than every world, or not born with no world before birth in the content),
@@ -49,7 +49,7 @@ evergreen; tracks of at least 130 s in their own PR; the partner question, on by
    five chapter cards, opening, credits); the tracks are 95 s and loop. *Recommended:* make every track at least 130 s,
    with a test that fails when the content outgrows the music; firsts are never dropped. *Otherwise:* keep the loop, or
    cap the firsts in a film (against ADR-0036 §2).
-3. **The partner question:** ask "I'm raising them with a partner" once in onboarding and in "My family", on by
+3. **The partner question:** ask "I have a partner" (the owner's wording, after first "I'm raising them with a partner") once in onboarding and in "My family", on by
    default, no reason asked. *Recommended:* yes. *Otherwise:* the six partner cards show to everyone, as date night and
    check-in do today.
 4. **"When life changes":** the three situational bosses in one closed row at the end of the world's cards.
@@ -153,8 +153,8 @@ build before the PR.
 |---|---|---|
 | Child editor switch | Not born yet | Δεν έχει γεννηθεί ακόμα |
 | Name, while it is on | Name or nickname | Όνομα ή χαϊδευτικό |
-| Partner switch | I'm raising them with a partner | Τα μεγαλώνω μαζί με τον άνθρωπό μου |
-| Under it | Shows the cards for the two of you. | Δείχνει και τις κάρτες για τους δυο σας. |
+| Partner switch | I have a partner | Έχω σύντροφο |
+| Under it | Shows the cards for the two of you. | Δείχνει τις κάρτες για τους δυο σας. |
 | Age line | on the way | έρχεται |
 | World 0's ages | before birth | πριν τη γέννα |
 | A locked world, before the birth | Opens after the birth | Ανοίγει μετά τη γέννα |

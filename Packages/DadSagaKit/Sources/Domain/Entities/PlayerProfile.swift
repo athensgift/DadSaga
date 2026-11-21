@@ -10,7 +10,7 @@ public struct PlayerProfile: Hashable, Sendable {
     public var dadSkinTone: SkinTone
     /// The dad's hair, beard and glasses (ADR-0044).
     public var dadAppearance: DadAppearance
-    /// "I'm raising them with a partner" (ADR-0051 §4): shows the cards for the two of them. Yes unless he said no.
+    /// "I have a partner" (ADR-0053 §4): shows the cards for the two of them. Yes unless he said no.
     public var hasPartner: Bool
 
     /// The child with `id`, or the first child when `id` is `nil` or no longer in the family. `nil` without children.

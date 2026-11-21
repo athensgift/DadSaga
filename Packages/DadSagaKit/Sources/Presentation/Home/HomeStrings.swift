@@ -35,7 +35,7 @@ struct HomeStrings {
         strings.text("Done \(times) times")
     }
 
-    /// "on the way" before the birth (ADR-0051 §2), then months up to two years, then years.
+    /// "on the way" before the birth (ADR-0053 §2), then months up to two years, then years.
     func ageText(_ age: ChildAge) -> String {
         guard let months = age.months else { return strings.text("on the way") }
         return switch months {
@@ -56,7 +56,7 @@ struct HomeStrings {
     }
 
     /// When a locked world opens: in so many months, or after the birth for a child not born yet, who has no months
-    /// to count (ADR-0051 §2).
+    /// to count (ADR-0053 §2).
     func unlocks(_ world: World, at age: ChildAge) -> String {
         guard let months = age.months else { return strings.text("Opens after the birth") }
         guard case .months(let min, _) = world.span else { return "" }

@@ -43,7 +43,7 @@ public struct SagaStoryboard: Hashable, Sendable {
     /// opening draws the hero and the child as they were then.
     public let asOf: Date
     /// The child's age at the last moment of the period, or now: how the film draws them. Before the birth for a film
-    /// of a child not born yet, or of the world before birth (ADR-0051 §2).
+    /// of a child not born yet, or of the world before birth (ADR-0053 §2).
     public let childAge: ChildAge
     /// The days the film covers, for the opening's dates (ADR-0041 §2): from the start of its period to its last
     /// moment, or to now while it is still going. The whole saga starts on the child's birth day, or on the first

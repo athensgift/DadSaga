@@ -1,4 +1,4 @@
-/// A child's age on a day (ADR-0051 §1): before the birth, or the completed Gregorian months since the birth day
+/// A child's age on a day (ADR-0053 §1): before the birth, or the completed Gregorian months since the birth day
 /// (ADR-0048 §2). The one age every world, card, period and film is decided by.
 public enum ChildAge: Hashable, Sendable {
     /// Not born yet, or a day before the birth day.

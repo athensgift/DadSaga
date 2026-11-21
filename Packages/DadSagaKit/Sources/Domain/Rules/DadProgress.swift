@@ -100,7 +100,7 @@ public struct DadProgress: Hashable, Sendable {
     }
 
     /// How far the dad got in one world with this child. An evergreen quest or boss counts only in its home world. Every
-    /// boss beaten counts, whoever it is for now, and so does a retired quest he did (ADR-0051 §4, §6).
+    /// boss beaten counts, whoever it is for now, and so does a retired quest he did (ADR-0053 §4, §6).
     public func progress(in world: World, catalog: ContentCatalog, childID: UUID) -> WorldProgress {
         let completions = questCompletions(for: childID)
         let defeated = defeatedBossIDs(for: childID)

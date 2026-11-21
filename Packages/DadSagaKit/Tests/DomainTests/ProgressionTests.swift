@@ -154,7 +154,7 @@ struct UnlockRulesTests {
 @Suite("Child")
 struct ChildTests {
     @Test("Given a birth day, when computing age, then completed months are returned, and a day before the birth is before birth")
-    func ageInMonths() {
+    func ageByBirthDay() {
         let child = Child(name: "Νίκος", birthDay: .day(2026, 1, 15))
 
         #expect(child.age(on: .day(2026, 4, 14)).months == 2)

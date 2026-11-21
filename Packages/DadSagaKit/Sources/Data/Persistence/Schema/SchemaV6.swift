@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-/// The stored shape since a child can be not born yet (ADR-0051 §8): version 5 without the child's `birthDate`, and with
+/// The stored shape since a child can be not born yet (ADR-0053 §8): version 5 without the child's `birthDate`, and with
 /// the dad's partner answer. All three day columns empty mean "not born yet"; no stored flag says it, so two fields can
 /// never disagree.
 /// No `#Unique` and no indexes: a unique column upserts silently, and a store with duplicates would not open.
@@ -26,7 +26,7 @@ enum SchemaV6: VersionedSchema {
         var hairColor: String?
         var beard: String?
         var glasses: String?
-        /// "I'm raising them with a partner" (ADR-0051 §4). Nil in rows from version 5, and nil reads yes.
+        /// "I have a partner" (ADR-0053 §4). Nil in rows from version 5, and nil reads yes.
         var hasPartner: Bool?
 
         init(

@@ -11,7 +11,7 @@ struct MomentsFormatter {
     let timeZone: TimeZone
 
     /// Every captured moment, a retired first's too; "complete" once every first that can be offered at this age is
-    /// captured (ADR-0051 §3, §6).
+    /// captured (ADR-0053 §3, §6).
     func section(for child: Child, age: ChildAge, catalog: ContentCatalog, progress: DadProgress) -> MomentsSection {
         let moments = progress.moments(for: child.id)
         let captured = progress.capturedFirstIDs(for: child.id)

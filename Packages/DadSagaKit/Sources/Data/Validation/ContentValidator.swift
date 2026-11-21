@@ -29,7 +29,7 @@ enum ContentValidator {
     }
 
     /// At most one world is before birth, and it comes first by order; every card in it is for 0 months, so it is
-    /// reached before the birth and after it (ADR-0051 §2, §7).
+    /// reached before the birth and after it (ADR-0053 §2, §7).
     private static func validateBeforeBirth(_ catalog: ContentCatalog) throws {
         let beforeBirth = catalog.worlds.filter(\.isBeforeBirth)
         if let second = beforeBirth.dropFirst().first {

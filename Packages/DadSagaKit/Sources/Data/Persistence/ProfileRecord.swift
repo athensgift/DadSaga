@@ -1,6 +1,12 @@
 import Domain
 import Foundation
 
+/// What was read from the store doesn't make sense: shown as a failure, never guessed at.
+public enum StoredDataError: Error, Equatable {
+    /// A child's birth day columns are partly filled, or name a day the calendar doesn't have.
+    case unreadableBirthDay(childID: UUID)
+}
+
 extension ChildRecord {
     convenience init(child: Child, order: Int) {
         self.init(
@@ -25,10 +31,20 @@ extension ChildRecord {
         self.order = order
     }
 
-    /// A row without a day is a child not born yet (ADR-0051 §8).
-    func toDomain() -> Child {
-        let storedDay = birthYear.flatMap { year in
-            birthMonth.flatMap { month in birthDay.flatMap { CalendarDay(year: year, month: month, day: $0) } }
+    /// Three empty day columns are a child not born yet (ADR-0053 §8). Some of them, or a day the calendar doesn't have,
+    /// is a damaged row: it throws rather than quietly making a born child not born.
+    func toDomain() throws -> Child {
+        let storedDay: CalendarDay?
+        switch (birthYear, birthMonth, birthDay) {
+        case (nil, nil, nil):
+            storedDay = nil
+        case (let year?, let month?, let day?):
+            guard let day = CalendarDay(year: year, month: month, day: day) else {
+                throw StoredDataError.unreadableBirthDay(childID: childID)
+            }
+            storedDay = day
+        default:
+            throw StoredDataError.unreadableBirthDay(childID: childID)
         }
         return Child(
             id: childID,
@@ -58,7 +74,7 @@ extension ProfileRecord {
     }
 
     /// A part missing (a row from version 3) or unknown to this version reads as the standard look for the skin tone.
-    /// No partner answer (a row from version 5) reads yes, so no one loses a card he saw (ADR-0051 §4).
+    /// No partner answer (a row from version 5) reads yes, so no one loses a card he saw (ADR-0053 §4).
     func toDomain(children: [Child]) -> PlayerProfile {
         let tone = SkinTone(rawValue: dadSkinTone) ?? .mediumLight
         let standard = DadAppearance.standard(for: tone)

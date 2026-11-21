@@ -11,11 +11,11 @@ public struct BossFight: ContentItem, Hashable, Identifiable, Sendable {
     public let skill: Skill
     public let xp: Int
     public let minAgeMonths: Int
-    /// Offered only to a family where every one of these holds (ADR-0051 §4). Empty: every family.
+    /// Offered only to a family where every one of these holds (ADR-0053 §4). Empty: every family.
     public let onlyFor: Set<Audience>
-    /// For when life changes (a move, two homes, a loss): home keeps it in a closed row of its own (ADR-0051 §5).
+    /// For when life changes (a move, two homes, a loss): home keeps it in a closed row of its own (ADR-0053 §5).
     public let isSituational: Bool
-    /// Also shown in every later world, like an evergreen quest; counted only in its own world (ADR-0051 §5).
+    /// Also shown in every later world, like an evergreen quest; counted only in its own world (ADR-0053 §5).
     public let isEvergreen: Bool
 
     public init(

@@ -98,7 +98,7 @@ public enum SagaOccasions {
         return newest.first { $0.date == date && answered.isDisjoint(with: $0.answerIDs) }
     }
 
-    /// Every birthday so far, and the end of every world: a world before birth ends on the birth day (ADR-0051 §2).
+    /// Every birthday so far, and the end of every world: a world before birth ends on the birth day (ADR-0053 §2).
     /// None before the birth.
     private static func occasions(
         for child: Child,

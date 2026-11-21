@@ -1,15 +1,16 @@
-# ADR-0051: The v1 card set: a world before birth, who a card is for, and retiring cards that shipped
+# ADR-0053: The v1 card set: a world before birth, who a card is for, and retiring cards that shipped
 
 **Status:** Accepted (2026-11-21). From the owner's review of the card set (2026-11-21, two rounds): every card he kept
 ships in v1, World 0 included, and a tick "Not born yet" where the child's name is entered is how the app knows a
 child is in World 0. Drafted by the architect; the owner then chose the recommendation on the four open points
 (`docs/plans/v1-card-set.md`): first aid folds into `q-w0-first-aid` (§6), the partner question (§4), "When life
-changes" (§5) and tracks of at least 130 seconds (§9). Changes ADR-0005 (new content fields), ADR-0012 (a child may not be born yet),
+changes" (§5) and longer tracks (§9, decided in ADR-0052). Numbered 0053: 0051 went to the release ADR while this was
+in review. Changes ADR-0005 (new content fields), ADR-0012 (a child may not be born yet),
 ADR-0013 (a mark for a child on the way), ADR-0019 (a world before birth; what a locked world says before the birth),
 ADR-0020 §2–§3 (evergreen bosses; `onlyFor` replaces `requiresSibling`; the map counts every boss beaten), ADR-0026
 (schema version 6), ADR-0028 (`Adventure` takes the family's facts, not a child count), ADR-0030 ("My family" asks
 about a partner and whether a child is born), ADR-0036 §1 and §7 (the world before birth in the film, and its offer at
-the birth), ADR-0046 §1 (every track at least 130 seconds) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropped; retiring a card).
+the birth) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropped; retiring a card).
 
 ## Context
 - **The set.** 190 cards were reviewed. The owner dropped 20 in the first round and 7 in the second
@@ -128,9 +129,9 @@ the birth), ADR-0046 §1 (every track at least 130 seconds) and ADR-0048 §2, §
   - `youngerSibling`: `b-w3-new-sibling` ("The New Roommate"), which was "more than one child". A child with only an
     older sibling no longer meets it; one whose sibling is on the way meets it before the birth.
   - Not added: `twoHomes` (both its cards were dropped) and `requiresPregnancy` (A14).
-- **The partner answer** (the owner's choice): `PlayerProfile.hasPartner: Bool`. Onboarding asks once, with the children: a switch "I'm
-  raising them with a partner", on, with one line under it, "Shows the cards for the two of you." "My family" has the
-  same row. Nothing asks why, and no other word is used for the answer. A profile without an answer, which is every
+- **The partner answer** (the owner's choice): `PlayerProfile.hasPartner: Bool`. Onboarding asks once, with the
+  children: a switch "I have a partner" («Έχω σύντροφο»: the same with one child or four), on, with one line under it,
+  "Shows the cards for the two of you." «Δείχνει τις κάρτες για τους δυο σας.» "My family" has the same row. Nothing asks why, and no other word is used for the answer. A profile without an answer, which is every
   profile today, reads yes: no one loses a card he sees now.
 - **A card for someone else is never offered:** not on home, not as the weekly quest, not on the widget or in the
   notification, and a link to it opens no sheet. What the dad did with it still counts: `Timeline` doesn't read
@@ -220,11 +221,8 @@ Every other shipped quest, boss and first keeps its id, skill and XP in the set.
 - At the 3-second floor, 33 firsts and the retired one, five chapter cards, the opening and the credits make about 124
   seconds; the shortest track is 95 and loops. Only a whole-saga film of a dad who captured more than about 25 firsts
   reaches the loop.
-- **Decided (the owner's choice):** every track at least as long as the longest film the content allows (130 seconds or
-  more), and a test that works that length out from the catalog and `SagaPacing` and fails when the content outgrows the
-  music. Firsts are still never dropped. That changes ADR-0046 §1's 95 seconds. It is its own PR
-  (`feature/saga-music-length`), independent of the model and the content.
-- Rejected: keeping the loop as it is, or capping the firsts in a film, which ADR-0036 §2 rules out.
+- **Decided in [ADR-0052](0052-saga-music-outlasts-the-longest-film.md)**, not here: every track outlasts the longest
+  film the content allows, checked against the bundled content. Firsts are still never dropped (ADR-0036 §2).
 
 ### 10. Where the code goes
 
@@ -258,7 +256,6 @@ Every other shipped quest, boss and first keeps its id, skill and XP in the set.
 - A per-child "who gave birth" fact; corrected age for children born early and a path for a stay in neonatal care (A5;
   ADR-0048 deferred corrected age).
 - Retiring bosses, heroes, gear or worlds: when the first one is retired.
-- The longer tracks (§9) land in their own PR.
 
 ## Consequences
 - A dad can start before the birth: World 0, its two firsts, and a film of the waiting, offered on the birth day. The
@@ -272,4 +269,3 @@ Every other shipped quest, boss and first keeps its id, skill and XP in the set.
   words so past entries keep them. Past entries of `f-christmas` now read "First big celebration".
 - One stored version more, and a fixture of three small binary files.
 - World 0's bosses are a tap further away once the child is born: the map, then World 0.
-- Until the music PR lands (§9), a long whole-saga film loops its music.

@@ -216,6 +216,10 @@ struct WorldHeader: View {
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)
             }
+            // Under the world it is about, aligned with it (ADR-0053 §1).
+            if let arrivalLine = content.arrivalLine, content.worldTitle != nil {
+                ArrivalLine(text: arrivalLine)
+            }
             if let back = content.backToCurrentTitle {
                 Button(back, systemImage: "arrow.uturn.backward", action: onBack)
                     .font(DSFont.subheadline)
@@ -226,8 +230,20 @@ struct WorldHeader: View {
     }
 }
 
+/// "When they arrive, untick “Not born yet” in My family.": one quiet line, no card, no count, no date.
+struct ArrivalLine: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(DSFont.subheadline)
+            .foregroundStyle(DSColor.textSecondary)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
 /// "When life changes": the bosses for a move, two homes or a loss, behind one closed row at the end of the world's
-/// cards (ADR-0051 §5). Closed whenever it appears, and no count: there for the dad who needs them, not on every screen.
+/// cards (ADR-0053 §5). Closed each time home loads, and no count: there for the dad who needs them, not on every screen.
 struct SituationalRow<Card: View>: View {
     let cards: SituationalCards
     @ViewBuilder let card: (CardModel) -> Card

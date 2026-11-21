@@ -4,7 +4,7 @@ import Localization
 
 /// How old a child looks on screen.
 public enum CompanionStage: CaseIterable, Sendable {
-    /// Not born yet: a small mark beside the hero, not a child (ADR-0051 §2).
+    /// Not born yet: a small mark beside the hero, not a child (ADR-0053 §2).
     case onTheWay
     case baby, toddler, preschooler, kid
 

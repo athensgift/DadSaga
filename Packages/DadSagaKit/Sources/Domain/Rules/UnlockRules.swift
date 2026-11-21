@@ -1,4 +1,4 @@
-/// Age-based unlocking, and who a card is for (ADR-0019, ADR-0020, ADR-0051). The child's development never locks the dad
+/// Age-based unlocking, and who a card is for (ADR-0019, ADR-0020, ADR-0053). The child's development never locks the dad
 /// out of anything.
 public enum UnlockRules {
     /// Every world the child has reached: a world before birth at every age, a world of months from its minimum age.
@@ -28,7 +28,7 @@ public enum UnlockRules {
         shown(in: world, catalog: catalog, from: catalog.quests.filter { isOffered($0, in: catalog, age: age, family: family) })
     }
 
-    /// The bosses offered in one world: its own, then every evergreen boss from an earlier world (ADR-0051 §5), each
+    /// The bosses offered in one world: its own, then every evergreen boss from an earlier world (ADR-0053 §5), each
     /// offered to this child and family. Situational bosses are included; home keeps them apart.
     public static func bosses(
         for world: World,
@@ -51,7 +51,7 @@ public enum UnlockRules {
         isReached(minAgeMonths: boss.minAgeMonths, worldID: boss.worldID, in: catalog, at: age) && family.allows(boss.onlyFor)
     }
 
-    /// The firsts that can be captured at this age (ADR-0051 §3): before the birth only firsts before birth, after it
+    /// The firsts that can be captured at this age (ADR-0053 §3): before the birth only firsts before birth, after it
     /// every first. Never a retired one.
     public static func firsts(in catalog: ContentCatalog, age: ChildAge) -> [FirstMoment] {
         catalog.firsts.filter { first in

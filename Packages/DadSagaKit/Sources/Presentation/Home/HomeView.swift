@@ -195,9 +195,11 @@ public struct HomeView: View {
                         Text(content.companionLine)
                             .font(DSFont.headline)
                             .foregroundStyle(DSColor.textPrimary)
-                        Text(content.heroTagline)
-                            .font(DSFont.subheadline)
-                            .foregroundStyle(DSColor.textSecondary)
+                        if let tagline = content.heroTagline {
+                            Text(tagline)
+                                .font(DSFont.subheadline)
+                                .foregroundStyle(DSColor.textSecondary)
+                        }
                     }
                     .multilineTextAlignment(.center)
                     LevelPanel(
@@ -253,24 +255,25 @@ public struct HomeView: View {
             WorldHeader(content: content) {
                 Task { await viewModel.showWorld(id: nil) }
             }
-            if let arrivalLine = content.arrivalLine {
-                Text(arrivalLine)
-                    .font(DSFont.subheadline)
-                    .foregroundStyle(DSColor.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.bottom, DSSpacing.s)
-            }
             if let emptyMessage = content.emptyMessage {
-                ContentUnavailableView(emptyMessage, systemImage: "map")
-                    .padding(.vertical, DSSpacing.l)
+                // With no world to show, the arrival line goes with the message, centred under it.
+                VStack(spacing: DSSpacing.xs) {
+                    ContentUnavailableView(emptyMessage, systemImage: "map")
+                    if let arrivalLine = content.arrivalLine, content.worldTitle == nil {
+                        ArrivalLine(text: arrivalLine)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .padding(.vertical, DSSpacing.l)
             }
             ForEach(content.cards) { card in
                 cardButton(card)
             }
             if let situational = content.situational {
-                // A new child or world starts it closed again.
+                // Closed again on every load, and for another child or world.
                 SituationalRow(cards: situational) { cardButton($0) }
-                    .id("\(content.selectedChildID)/\(content.worldTitle ?? "")")
+                    .id(situational.id)
             }
             MomentsSectionView(
                 section: content.moments,
@@ -288,7 +291,6 @@ public struct HomeView: View {
         .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.reminderOffer)
         .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.sagaOffer)
     }
-
 }
 
 extension HomeView {

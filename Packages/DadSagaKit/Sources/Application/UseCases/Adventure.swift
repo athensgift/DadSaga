@@ -1,10 +1,10 @@
 import Domain
 import Foundation
 
-/// What the dad can play right now with one child: the child's age today and the family's facts (ADR-0051).
+/// What the dad can play right now with one child: the child's age today and the family's facts (ADR-0053).
 public struct Adventure: Hashable, Sendable {
     public let age: ChildAge
-    /// Who the cards are for in this family (ADR-0051 §4).
+    /// Who the cards are for in this family (ADR-0053 §4).
     public let family: FamilyFacts
     /// No world fits this age (older than every world, or not born with no world before birth): nothing to play with
     /// them yet.

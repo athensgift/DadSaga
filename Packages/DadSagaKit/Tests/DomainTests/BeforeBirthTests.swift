@@ -2,7 +2,7 @@ import Domain
 import Foundation
 import Testing
 
-/// A child not born yet, World 0, who a card is for, retired cards and firsts before birth (ADR-0051).
+/// A child not born yet, World 0, who a card is for, retired cards and firsts before birth (ADR-0053).
 @Suite("Before birth, audiences and retired cards")
 struct BeforeBirthTests {
     static let text = LocalizedText(el: "x", en: "x")
@@ -148,6 +148,17 @@ struct BeforeBirthTests {
             == ["b-w2-roommate"])
         #expect(UnlockRules.bosses(for: plains, in: catalog, age: .months(36), family: alone).isEmpty)
         #expect(comingFacts.hasOlderSibling && !comingFacts.hasYoungerSibling)
+    }
+
+    @Test("Given two children both not born yet, when reading the facts, then neither has an older or younger sibling")
+    func twoNotBorn() {
+        let one = Child(name: "Α", birthDay: nil)
+        let two = Child(name: "Β", birthDay: nil)
+        let profile = PlayerProfile(children: [one, two], heroClassID: "h")
+        for child in [one, two] {
+            let facts = FamilyFacts(profile: profile, child: child)
+            #expect(!facts.hasOlderSibling && !facts.hasYoungerSibling)
+        }
     }
 
     @Test("Given the profile's partner answer, when reading the facts, then it is what the dad said; a new profile reads yes")

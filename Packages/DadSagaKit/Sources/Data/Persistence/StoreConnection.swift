@@ -32,7 +32,7 @@ actor StoreConnection {
         if let opened { return opened }
         do {
             // Only the app migrates (ADR-0026). Read-only, no stage may run: a stage's own work (V5 → V6 fills birth days
-            // before the column goes) would write to a store the widget must leave as it found it (ADR-0051 §8). An
+            // before the column goes) would write to a store the widget must leave as it found it (ADR-0053 §8). An
             // older store then fails to open, untouched, until the app has migrated it.
             let container = try ModelContainer(
                 for: Self.schema,

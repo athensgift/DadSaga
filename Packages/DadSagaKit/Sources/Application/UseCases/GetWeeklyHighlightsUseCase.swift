@@ -93,7 +93,7 @@ public struct DefaultGetWeeklyHighlightsUseCase: GetWeeklyHighlightsUseCase {
 
     /// The age is taken on the day the week starts, so a birthday mid-week does not swap the card. It is the Gregorian
     /// age, whatever calendar the week is counted on (ADR-0048 §2). Only a quest offered to this family is picked: never
-    /// a retired one or one for someone else (ADR-0051).
+    /// a retired one or one for someone else (ADR-0053).
     private func questSlot(
         for child: Child,
         family: FamilyFacts,

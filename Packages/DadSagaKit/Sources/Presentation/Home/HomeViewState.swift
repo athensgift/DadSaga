@@ -9,7 +9,8 @@ public enum HomeViewState: Equatable, Sendable {
 
 public struct HomeContent: Equatable, Sendable {
     public let heroTitle: String
-    public let heroTagline: String
+    /// The hero's motto; `nil` while the child shown is not born yet, when it would speak of days that haven't come.
+    public let heroTagline: String?
     public let heroLook: HeroLook
     public let heroSkin: SkinToneChoice
     public let heroAppearance: DadAppearanceChoice
@@ -41,17 +42,19 @@ public struct HomeContent: Equatable, Sendable {
     public let backToCurrentTitle: String?
     /// Shown instead of quests when there is no content for the child's age yet.
     public let emptyMessage: String?
-    /// One quiet line under the world while the child is not born yet: how to say they've arrived (ADR-0051 §1).
+    /// One quiet line under the world while the child is not born yet: how to say they've arrived (ADR-0053 §1).
     public let arrivalLine: String?
     public let cards: [CardModel]
-    /// The bosses for when life changes, in one closed row after the cards (ADR-0051 §5); `nil` when there are none.
+    /// The bosses for when life changes, in one closed row after the cards (ADR-0053 §5); `nil` when there are none.
     public let situational: SituationalCards?
     /// The selected child's legendary moments.
     public let moments: MomentsSection
 }
 
 /// "When life changes" and its bosses. It opens on a tap and shows no count.
-public struct SituationalCards: Equatable, Sendable {
+public struct SituationalCards: Equatable, Identifiable, Sendable {
+    /// The child, the world and the load it was read in: a new id starts the row closed.
+    public let id: String
     public let title: String
     public let cards: [CardModel]
 }
@@ -159,7 +162,7 @@ public struct MomentOption: Equatable, Identifiable, Sendable {
     public let emoji: String
     public let title: String
     public let reward: String
-    /// The earliest day this first can be dated (ADR-0051 §3).
+    /// The earliest day this first can be dated (ADR-0053 §3).
     public let earliestDate: Date
 }
 

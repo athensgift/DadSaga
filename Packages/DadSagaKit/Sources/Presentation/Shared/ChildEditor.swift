@@ -3,7 +3,7 @@ import HeroArt
 import SwiftUI
 
 /// One child's details: name, whether they are born yet, birth date, gender and skin tone. Used by onboarding and the
-/// family screen. While "Not born yet" is on, only the name is asked (ADR-0051 §1).
+/// family screen. While "Not born yet" is on, only the name is asked (ADR-0053 §1).
 struct ChildEditorCard: View {
     @Binding var child: ChildDraft
     let number: Int

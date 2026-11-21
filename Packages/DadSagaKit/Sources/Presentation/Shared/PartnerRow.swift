@@ -1,7 +1,7 @@
 import DesignSystem
 import SwiftUI
 
-/// "I'm raising them with a partner", with the line under it (ADR-0051 §4). On by default; nothing asks why.
+/// "I have a partner", with the line under it (ADR-0053 §4). On by default; nothing asks why.
 struct PartnerRow: View {
     @Binding var hasPartner: Bool
     let labels: PartnerRowLabels

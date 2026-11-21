@@ -13,9 +13,9 @@ public enum ContentDataError: Error, Equatable {
     case unknownAppearanceOption(part: String, id: String)
     /// A look option the app can draw that the content does not name.
     case missingAppearanceOption(part: String, id: String)
-    /// An `onlyFor` word that is not an `Audience` (ADR-0051 §4).
+    /// An `onlyFor` word that is not an `Audience` (ADR-0053 §4).
     case unknownAudience(itemID: String, audience: String)
-    /// A world neither before birth without ages, nor with a minimum age (ADR-0051 §7).
+    /// A world neither before birth without ages, nor with a minimum age (ADR-0053 §7).
     case invalidWorldAges(worldID: String)
     /// A second world before birth, or one that isn't the first world by order.
     case misplacedBeforeBirthWorld(worldID: String)

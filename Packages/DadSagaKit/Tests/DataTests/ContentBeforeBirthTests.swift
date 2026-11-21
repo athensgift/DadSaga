@@ -2,7 +2,7 @@ import Domain
 import Testing
 @testable import Data
 
-/// The content's new shape (ADR-0051 §7): a world before birth, `onlyFor`, `situational`, `evergreen`, `retired` and
+/// The content's new shape (ADR-0053 §7): a world before birth, `onlyFor`, `situational`, `evergreen`, `retired` and
 /// `beforeBirth`, and what the load rejects.
 @Suite("Content before birth and audiences")
 struct ContentBeforeBirthTests {

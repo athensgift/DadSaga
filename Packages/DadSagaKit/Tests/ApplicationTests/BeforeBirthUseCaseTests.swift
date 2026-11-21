@@ -4,7 +4,7 @@ import Foundation
 import Testing
 
 /// Home, the weekly quest and "My family" for a child not born yet, a dad without a partner and the bosses for when
-/// life changes (ADR-0051).
+/// life changes (ADR-0053).
 @Suite("Use cases before birth and for each family")
 struct BeforeBirthUseCaseTests {
     static let text = Stub.text

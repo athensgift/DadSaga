@@ -2,7 +2,7 @@ import DesignSystem
 import HeroArt
 import SwiftUI
 
-/// A child not born yet, beside the hero (ADR-0051 §2): a small heart in a circle, standing on the ground a child would,
+/// A child not born yet, beside the hero (ADR-0053 §2): a small heart in a circle, standing on the ground a child would,
 /// in a frame the size of a child's. An SF Symbol present since iOS 13; the code-drawn children don't change.
 struct OnTheWayMark: View {
     /// The canvas height a child would have here.
