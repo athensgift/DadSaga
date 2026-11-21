@@ -25,16 +25,62 @@ struct BundledSoundtrackRepositoryTests {
         }
     }
 
-    @Test("Given every bundled track, when opening it, then it has one audio track at least 95 seconds long")
-    func everyTrackOutlastsAFilm() async throws {
+    @Test("Given the bundled content and music, when making the longest film the content allows, then every track outlasts it")
+    func everyTrackOutlastsTheLongestFilm() async throws {
+        let film = try await Self.longestFilm()
+
         for track in try await repository.fetchSoundtracks() {
             let asset = AVURLAsset(url: track.audioURL)
             let audio = try await asset.loadTracks(withMediaType: .audio)
             let duration = try await asset.load(.duration)
 
             #expect(audio.count == 1, "\(track.id) has \(audio.count) audio tracks")
-            #expect(duration.seconds >= 95, "\(track.id) lasts \(duration.seconds) s")
+            #expect(duration.seconds >= film.seconds, "\(track.id) lasts \(duration.seconds) s, a film \(film.seconds) s")
         }
+    }
+
+    /// The longest film the bundled content allows (ADR-0036 §2, ADR-0052): every first, each with all its photos, spread
+    /// across the worlds so each can have its chapter card, under far more quests and bosses than fit. The film's own
+    /// rules then drop everything but the firsts and shorten those, so it is as long as the content can make it.
+    private static func longestFilm() async throws -> SagaStoryboard {
+        let catalog = try await BundledContentRepository().fetchCatalog()
+        let child = Child(name: "Test", birthDay: .day(2_020, 1, 15))
+        let worlds = catalog.worlds
+        let lastWorld = try #require(worlds.last)
+        let photos = (1...ProgressEvent.photoLimit).map { "p\($0)" }
+        let inWorld = { (worldID: String, minute: Int) -> Date in
+            let world = worlds.first { $0.id == worldID } ?? lastWorld
+            return child.day(atMonths: world.minAgeMonths).start(in: .gmt).addingTimeInterval(Double(60 * minute))
+        }
+        let firsts = catalog.firsts.enumerated().map { index, first in
+            ProgressEvent(
+                kind: .first(id: first.id), childID: child.id,
+                date: inWorld(worlds[index % worlds.count].id, index), photoIDs: photos
+            )
+        }
+        let quests = catalog.quests.enumerated().map { index, quest in
+            ProgressEvent(
+                kind: .quest(id: quest.id), childID: child.id, date: inWorld(quest.worldID, index), photoIDs: photos
+            )
+        }
+        let bosses = catalog.bosses.enumerated().map { index, boss in
+            ProgressEvent(
+                kind: .boss(id: boss.id), childID: child.id, date: inWorld(boss.worldID, index), photoIDs: photos
+            )
+        }
+        let film = try #require(SagaStoryboard.make(
+            events: firsts + quests + bosses,
+            child: child,
+            period: .everything,
+            catalog: catalog,
+            now: child.day(atMonths: lastWorld.minAgeMonths + 12).start(in: .gmt),
+            timeZone: .gmt
+        ))
+        let keptFirsts = film.scenes.count { scene in
+            if case .entry(let entry) = scene.kind, case .first = entry.kind { true } else { false }
+        }
+        #expect(keptFirsts == catalog.firsts.count, "a film keeps every first")
+        return film
     }
 
     @Test("Given a track DTO with a licence other than original or CC0, when mapping, then unknownLicence is thrown")

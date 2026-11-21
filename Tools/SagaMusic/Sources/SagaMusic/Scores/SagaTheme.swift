@@ -1,6 +1,6 @@
 extension Score {
     /// The first theme: a gentle tune in D major at 80 beats a minute.
-    /// Intro (plucked chords alone), A (the tune), B (higher, with bass), A again, and an ending that settles on D.
+    /// Intro (plucked chords alone), A (the tune), B (higher, with bass), A, B and A again, and an ending that settles on D.
     static let sagaTheme = Score(
         id: "saga-theme",
         beatsPerMinute: 80,
@@ -14,7 +14,7 @@ extension Score {
             reverb: 0.35
         ),
         bars: section(.light, [("D", ""), ("A", ""), ("Bm", ""), ("G", "")])
-            + sagaA + sagaB + sagaA
+            + sagaA + sagaB + sagaA + sagaB + sagaA
             + section(.full, [("G", "G5/2 F#5/2"), ("D", "F#5/4")])
             + section(.light, [("A", "E5/4"), ("D", "D5/4")])
     )

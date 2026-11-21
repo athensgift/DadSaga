@@ -1,6 +1,6 @@
 extension Score {
     /// A warm, wistful tune in A major at 96 beats a minute: a fingerpicked guitar and a flute.
-    /// Intro, A (guitar and flute alone), B with bass, A, B, and an ending that comes home to A.
+    /// Intro, A (guitar and flute alone), B with bass, A, B, A alone again, B, and an ending that comes home to A.
     static let homeward = Score(
         id: "like-yesterday",
         beatsPerMinute: 96,
@@ -17,6 +17,8 @@ extension Score {
             + section(.light, homewardA)
             + section(.full, homewardB)
             + section(.full, homewardA)
+            + section(.full, homewardB)
+            + section(.light, homewardA)
             + section(.full, homewardB)
             + section(.full, [("D", "F#5/3 E5"), ("E", "E5/2 D5 B4")])
             + section(.light, [("A", "C#5/4"), ("A", "A4/4")])

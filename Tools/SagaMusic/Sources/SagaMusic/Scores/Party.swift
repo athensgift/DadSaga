@@ -1,6 +1,6 @@
 extension Score {
     /// A bouncy tune in F major at 120 beats a minute, for birthdays: ukulele oom-pahs, a marimba on the tune, light
-    /// drums. Intro, A twice (the second with drums), B, A, B again and a short ending.
+    /// drums. Intro, A twice (the second with drums), B, A, B, A with drums, B again and a short ending.
     static let party = Score(
         id: "candles-and-confetti",
         beatsPerMinute: 120,
@@ -23,6 +23,8 @@ extension Score {
             + section(.driving, partyA(ending: ("F", "F5 C5/.5 A4/.5 F4/2")))
             + section(.driving, partyB)
             + section(.full, partyA(ending: ("F", "F5 C5/.5 A4/.5 F4/2")))
+            + section(.driving, partyB)
+            + section(.driving, partyA(ending: ("F", "F5 C5/.5 A4/.5 F4/2")))
             + section(.driving, partyB)
             + section(.full, [("F", "F5 A5 C6/2"), ("Bb", "Bb5 A5 G5/2")])
             + section(.light, [("C", "E5 G5 Bb5/2"), ("F", "F5/4")])
