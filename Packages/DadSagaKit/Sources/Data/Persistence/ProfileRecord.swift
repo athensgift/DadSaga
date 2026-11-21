@@ -25,7 +25,7 @@ extension ChildRecord {
         self.order = order
     }
 
-    /// A row without a day is a child not born yet (ADR-0051 §8).
+    /// A row without a day is a child not born yet (ADR-0053 §8).
     func toDomain() -> Child {
         let storedDay = birthYear.flatMap { year in
             birthMonth.flatMap { month in birthDay.flatMap { CalendarDay(year: year, month: month, day: $0) } }
@@ -58,7 +58,7 @@ extension ProfileRecord {
     }
 
     /// A part missing (a row from version 3) or unknown to this version reads as the standard look for the skin tone.
-    /// No partner answer (a row from version 5) reads yes, so no one loses a card he saw (ADR-0051 §4).
+    /// No partner answer (a row from version 5) reads yes, so no one loses a card he saw (ADR-0053 §4).
     func toDomain(children: [Child]) -> PlayerProfile {
         let tone = SkinTone(rawValue: dadSkinTone) ?? .mediumLight
         let standard = DadAppearance.standard(for: tone)

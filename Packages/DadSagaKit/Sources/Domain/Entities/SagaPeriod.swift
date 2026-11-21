@@ -4,7 +4,7 @@ import Foundation
 ///
 /// Every boundary is at the start of a day in the phone's time zone, on the day the child turns that many months
 /// (`Child.day(atMonths:)`), so periods agree with the child's age everywhere (ADR-0048 §2). A world before birth ends
-/// on the birth day, and no year starts before it (ADR-0051 §2).
+/// on the birth day, and no year starts before it (ADR-0053 §2).
 public enum SagaPeriod: Hashable, Sendable {
     /// The nth year of life, from birthday n − 1 to birthday n. The first year starts at birth.
     case year(Int)

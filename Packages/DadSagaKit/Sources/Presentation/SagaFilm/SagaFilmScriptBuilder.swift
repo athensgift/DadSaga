@@ -102,7 +102,7 @@ struct SagaFilmScriptBuilder {
         }
     }
 
-    /// The child as they were when the period ended: the mark for a film before the birth (ADR-0051 §2).
+    /// The child as they were when the period ended: the mark for a film before the birth (ADR-0053 §2).
     private func companion(in film: SagaFilm) -> CompanionModel {
         CompanionModel(
             child: film.child,

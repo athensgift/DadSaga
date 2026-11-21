@@ -1,11 +1,11 @@
 # Plan: the v1 card set
 
-Implements [ADR-0051](../adr/0051-v1-card-set-before-birth-audiences-and-retired-cards.md). Inputs: the owner's review of
+Implements [ADR-0053](../adr/0053-v1-card-set-before-birth-audiences-and-retired-cards.md). Inputs: the owner's review of
 the card set (2026-11-21, two rounds) and the set itself (190 cards). Every kept card ships in v1, World 0 included.
 
 ## Decisions taken
 1. **A child "not born yet"** is a switch under the name in the child editor (onboarding and "My family"), as the owner
-   asked. While it is on, no date is kept: no due date, no countdown (ADR-0051 §1). `Child.birthDay` is optional;
+   asked. While it is on, no date is kept: no due date, no countdown (ADR-0053 §1). `Child.birthDay` is optional;
    `Child.age(on:)` returns `.beforeBirth` or `.months(n)`, one rule for everything.
 2. **Unticking it and saving a day** makes the child born that day: same child, so everything recorded before the birth
    stays theirs. World 1 opens by age; World 0 becomes a visited world. Ticking a born child again is allowed.
@@ -31,7 +31,7 @@ the card set (2026-11-21, two rounds) and the set itself (190 cards). Every kept
    never offers it again. Retired: `q-w1-tummy-time`, `q-w2-rough-play`, `q-w3-ten-breaths` (folded into the boss
    `b-w3-red-mist`, another kind), `f-sleepover`. Moves within a kind use `formerIDs`: `q-w2-car-seat → q-w1-car-seat`,
    `q-w2-toothbrush → q-w1-toothbrush`, `q-w2-date-night → q-w1-date-night`, `q-w4-swim → q-w2-swim`,
-   `q-w4-check-in → q-w1-check-in`, `f-christmas → f-celebration`. All keep skill and XP (ADR-0051 §6 table).
+   `q-w4-check-in → q-w1-check-in`, `f-christmas → f-celebration`. All keep skill and XP (ADR-0053 §6 table).
 10. **Schema V6:** `ChildRecord.birthDate` goes (after a `willMigrate` fills any missing day); empty day columns mean
     "not born yet"; `ProfileRecord.hasPartner: Bool?`.
 11. **When no world fits** (a child older than every world, or not born with no world before birth in the content),

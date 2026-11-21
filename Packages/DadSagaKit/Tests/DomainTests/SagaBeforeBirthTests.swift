@@ -2,7 +2,7 @@ import Domain
 import Foundation
 import Testing
 
-/// World 0 in the film (ADR-0051 §2): a period that ends on the birth day, its offer on that day, its chapter.
+/// World 0 in the film (ADR-0053 §2): a period that ends on the birth day, its offer on that day, its chapter.
 @Suite("Saga film before birth")
 struct SagaBeforeBirthTests {
     static let text = Fixtures.text

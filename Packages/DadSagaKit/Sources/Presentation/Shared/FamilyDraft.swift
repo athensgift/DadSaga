@@ -15,7 +15,7 @@ public struct ChildDraft: Identifiable, Equatable, Sendable {
     /// Kept from the stored child when editing, so their progress stays linked.
     public let id: UUID
     public var name: String
-    /// Off while the switch "Not born yet" is on (ADR-0051 §1): then no day is kept, and date, gender and skin tone
+    /// Off while the switch "Not born yet" is on (ADR-0053 §1): then no day is kept, and date, gender and skin tone
     /// aren't asked.
     public var isBorn: Bool
     /// The day the dad picked (ADR-0048 §2), or the day the picker shows when he unticks "Not born yet": today for a
@@ -61,7 +61,7 @@ public struct ChildDraft: Identifiable, Equatable, Sendable {
 public struct FamilyDraft: Equatable, Sendable {
     public var children: [ChildDraft]
     public var dadSkinTone: SkinToneChoice
-    /// "I'm raising them with a partner" (ADR-0051 §4): on unless he turns it off.
+    /// "I'm raising them with a partner" (ADR-0053 §4): on unless he turns it off.
     public var hasPartner: Bool
 
     public var canAddChild: Bool { children.count < PlayerProfile.maxChildren }
@@ -204,7 +204,7 @@ extension FamilyDraft {
     }
 }
 
-/// The partner switch and its line, the same in onboarding and "My family" (ADR-0051 §4).
+/// The partner switch and its line, the same in onboarding and "My family" (ADR-0053 §4).
 public struct PartnerRowLabels: Equatable, Sendable {
     public let title: String
     public let line: String

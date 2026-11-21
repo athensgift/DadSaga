@@ -4,7 +4,7 @@ import Foundation
 import Presentation
 import Testing
 
-/// Content with a world before birth, for the screens of ADR-0051.
+/// Content with a world before birth, for the screens of ADR-0053.
 enum HarbourStub {
     static let text = LocalizedText(el: "x", en: "x")
     static func named(_ el: String, _ en: String) -> LocalizedText { LocalizedText(el: el, en: en) }

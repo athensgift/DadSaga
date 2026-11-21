@@ -1,6 +1,6 @@
 # ADR-0042: Up to five photos on every entry, a full-screen viewer, and firsts in two steps
 
-**Status:** Proposed (2026-11-20). The owner approved the three changes and asked for the design; drafted by the
+**Status:** Accepted (2026-11-21; proposed 2026-11-20, implemented and merged). The owner approved the three changes and asked for the design; drafted by the
 architect. Changes ADR-0016 and ADR-0022 (an entry keeps up to five photos), ADR-0021 §3 (a first's undo shows in its
 sheet), ADR-0026 §4 (the first new schema versions are for photos; the non-optional `childID` waits for sync),
 ADR-0036 §1–§2 and ADR-0037 §2 (an entry's further photos in the film), ADR-0033 and ADR-0034 (the audit and the

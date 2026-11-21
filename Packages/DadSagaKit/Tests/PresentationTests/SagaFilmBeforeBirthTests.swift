@@ -4,7 +4,7 @@ import Foundation
 import Testing
 @testable import Presentation
 
-/// The film's opening for a child not born yet (ADR-0051 §2): the hero and the child's mark.
+/// The film's opening for a child not born yet (ADR-0053 §2): the hero and the child's mark.
 @Suite("Saga film before birth")
 struct SagaFilmBeforeBirthTests {
     @Test("Given a child not born yet with a first, when the film is scripted, then the opening draws the mark")

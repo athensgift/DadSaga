@@ -1,6 +1,6 @@
 # ADR-0040: The website gets its own script, a family that cheers, and a clip of the real timeline
 
-**Status:** Proposed (2026-11-20). The owner asked for Super Dad and the baby to react to a tap as in the app, and for
+**Status:** Accepted (2026-11-21; proposed 2026-11-20, implemented and merged). The owner asked for Super Dad and the baby to react to a tap as in the app, and for
 the timeline to look real, ideally as a short video. The owner agreed to JavaScript for it. Changes ADR-0031 §1 (no
 JavaScript, the launch art as the hero image) and ADR-0039 (CSS-only motion).
 

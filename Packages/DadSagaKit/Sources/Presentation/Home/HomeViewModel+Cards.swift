@@ -5,7 +5,7 @@ import Foundation
 /// The cards home shows for the selected child: the companions beside the hero, bosses, quests and the bosses for when
 /// life changes.
 extension HomeViewModel {
-    /// Every child as drawn beside the dad today: the mark for a child on the way (ADR-0051 §2).
+    /// Every child as drawn beside the dad today: the mark for a child on the way (ADR-0053 §2).
     func companions(_ overview: HomeOverview) -> [CompanionModel] {
         overview.profile.children.map { child in
             CompanionModel(
@@ -17,7 +17,7 @@ extension HomeViewModel {
         }
     }
 
-    /// "When life changes", closed after the cards; `nil` when the world has none (ADR-0051 §5).
+    /// "When life changes", closed after the cards; `nil` when the world has none (ADR-0053 §5).
     func situationalCards(_ overview: HomeOverview) -> SituationalCards? {
         guard !overview.situationalBosses.isEmpty else { return nil }
         return SituationalCards(

@@ -10,10 +10,10 @@ public struct FirstMoment: ContentItem, Hashable, Identifiable, Sendable {
     public let xp: Int
     /// Visual change unlocked on the child's companion (e.g. "walk"), if any.
     public let companionTrait: String?
-    /// A first before the birth, such as the day he found out (ADR-0051 §3): offered before the birth, and datable on any
+    /// A first before the birth, such as the day he found out (ADR-0053 §3): offered before the birth, and datable on any
     /// day up to today.
     public let isBeforeBirth: Bool
-    /// A shipped first that is never offered again; it stays for the moments already captured (ADR-0051 §6).
+    /// A shipped first that is never offered again; it stays for the moments already captured (ADR-0053 §6).
     public let isRetired: Bool
 
     public init(

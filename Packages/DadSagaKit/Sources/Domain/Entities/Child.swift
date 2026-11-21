@@ -15,7 +15,7 @@ public struct Child: Hashable, Identifiable, Sendable {
     public let id: UUID
     public var name: String
     /// The day the child was born, as the dad picked it: not a moment, so it doesn't move with the time zone. `nil`
-    /// while the child is not born yet (ADR-0051 §1): no due date is kept.
+    /// while the child is not born yet (ADR-0053 §1): no due date is kept.
     public var birthDay: CalendarDay?
     public var gender: Gender
     public var skinTone: SkinTone
@@ -36,7 +36,7 @@ public struct Child: Hashable, Identifiable, Sendable {
 
     public var isBorn: Bool { birthDay != nil }
 
-    /// The child's age on `day`: the one age rule for worlds, cards, periods and films (ADR-0048 §2, ADR-0051 §1).
+    /// The child's age on `day`: the one age rule for worlds, cards, periods and films (ADR-0048 §2, ADR-0053 §1).
     /// Before the birth when there is no birth day or `day` is earlier; otherwise the completed Gregorian months.
     public func age(on day: CalendarDay) -> ChildAge {
         guard let birthDay, birthDay <= day else { return .beforeBirth }

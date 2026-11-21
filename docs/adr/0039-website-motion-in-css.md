@@ -1,6 +1,6 @@
 # ADR-0039: Website motion in CSS only
 
-**Status:** Proposed (2026-11-20). The owner asked for a livelier site, with animations on scroll. Extends ADR-0031
+**Status:** Accepted (2026-11-21; proposed 2026-11-20, implemented and merged). The owner asked for a livelier site, with animations on scroll. Extends ADR-0031
 (the site still has no JavaScript).
 
 ## Context

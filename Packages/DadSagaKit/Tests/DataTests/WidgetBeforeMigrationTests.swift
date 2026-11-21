@@ -5,7 +5,7 @@ import Testing
 /// After an update with a new schema, the widget can run before the app has migrated the store. Only the app migrates
 /// (ADR-0023, ADR-0026): the widget, opening the older store read-only, must fail and leave every file as it was
 /// (ADR-0034 §6). Checked with the real plan and copies of the stores versions 1, 3 and 4 wrote (ADR-0042 §2,
-/// ADR-0044 §6, ADR-0048 §3, ADR-0051 §8).
+/// ADR-0044 §6, ADR-0048 §3, ADR-0053 §8).
 @Suite("Widget before the app migrates", .serialized)
 struct WidgetBeforeMigrationTests {
     let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-widget-v3-" + UUID().uuidString)

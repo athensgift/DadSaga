@@ -41,10 +41,10 @@ public struct HomeContent: Equatable, Sendable {
     public let backToCurrentTitle: String?
     /// Shown instead of quests when there is no content for the child's age yet.
     public let emptyMessage: String?
-    /// One quiet line under the world while the child is not born yet: how to say they've arrived (ADR-0051 §1).
+    /// One quiet line under the world while the child is not born yet: how to say they've arrived (ADR-0053 §1).
     public let arrivalLine: String?
     public let cards: [CardModel]
-    /// The bosses for when life changes, in one closed row after the cards (ADR-0051 §5); `nil` when there are none.
+    /// The bosses for when life changes, in one closed row after the cards (ADR-0053 §5); `nil` when there are none.
     public let situational: SituationalCards?
     /// The selected child's legendary moments.
     public let moments: MomentsSection
@@ -159,7 +159,7 @@ public struct MomentOption: Equatable, Identifiable, Sendable {
     public let emoji: String
     public let title: String
     public let reward: String
-    /// The earliest day this first can be dated (ADR-0051 §3).
+    /// The earliest day this first can be dated (ADR-0053 §3).
     public let earliestDate: Date
 }
 

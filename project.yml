@@ -53,6 +53,8 @@ targets:
         CFBundleDisplayName: DadSaga
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        # No encryption of its own, only Apple's: no export compliance question for each build (ADR-0051).
+        ITSAppUsesNonExemptEncryption: false
         CFBundleURLTypes:
           - CFBundleURLName: com.athinodoros.dadsaga
             CFBundleURLSchemes: [dadsaga]
@@ -63,7 +65,7 @@ targets:
         # Settings' contact, rate/share and privacy rows (ADR-0030). An empty value hides its row.
         DadSagaFeedbackAddress: "hello@dadsaga.app"
         DadSagaAppStoreID: ""
-        DadSagaPrivacyPolicyURL: ""
+        DadSagaPrivacyPolicyURL: "https://dadsaga.app/privacy/"
         # Native launch screen (ADR-0025): Super Dad with a baby on DSColor.background, light and dark.
         UILaunchScreen:
           UIColorName: LaunchBackground

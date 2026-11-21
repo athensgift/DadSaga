@@ -1,4 +1,4 @@
-/// The facts about a family that decide who a card is for (ADR-0051 §4): what the dad answered, and the order the
+/// The facts about a family that decide who a card is for (ADR-0053 §4): what the dad answered, and the order the
 /// children were born in. Never the child's development (ADR-0006 rule 3).
 public struct FamilyFacts: Hashable, Sendable {
     public let hasPartner: Bool

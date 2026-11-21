@@ -2,7 +2,7 @@ import Domain
 import Foundation
 import Testing
 
-/// A child not born yet, World 0, who a card is for, retired cards and firsts before birth (ADR-0051).
+/// A child not born yet, World 0, who a card is for, retired cards and firsts before birth (ADR-0053).
 @Suite("Before birth, audiences and retired cards")
 struct BeforeBirthTests {
     static let text = LocalizedText(el: "x", en: "x")

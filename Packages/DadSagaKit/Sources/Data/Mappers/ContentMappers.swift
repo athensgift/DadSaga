@@ -9,7 +9,7 @@ extension LocalizedTextDTO {
 }
 
 extension WorldDTO {
-    /// A world is either before birth with no ages, or has a minimum age (ADR-0051 §7).
+    /// A world is either before birth with no ages, or has a minimum age (ADR-0053 §7).
     func toDomain() throws -> World {
         let span: WorldSpan
         switch (beforeBirth ?? false, minAgeMonths, maxAgeMonths) {
@@ -97,7 +97,7 @@ extension QuestDTO {
         return skill
     }
 
-    /// Audience words are parsed like skills: an unknown one fails the load (ADR-0051 §4).
+    /// Audience words are parsed like skills: an unknown one fails the load (ADR-0053 §4).
     static func audiences(_ raw: [String]?, itemID: String) throws -> Set<Audience> {
         Set(try (raw ?? []).map { word in
             guard let audience = Audience(rawValue: word) else {

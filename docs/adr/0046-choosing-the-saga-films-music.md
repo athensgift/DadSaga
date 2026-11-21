@@ -1,6 +1,6 @@
 # ADR-0046: Choosing the saga film's music: five original tracks, heard before choosing, the last choice remembered
 
-**Status:** Proposed (2026-11-20). The owner asked for the dad to choose his film's music; four more
+**Status:** Accepted (2026-11-21; proposed 2026-11-20, implemented and merged). The owner asked for the dad to choose his film's music; four more
 original tracks are made with `Tools/SagaMusic`. Drafted by the architect. Changes ADR-0036 §8 (five bundled tracks, each with a
 Greek and an English title and a mood line), ADR-0037 §2 and §4 (the credits name the track in the film's language; the
 sheet gains a music choice and can play a track before the film is made), ADR-0041 §5 (its port keeps the music choice

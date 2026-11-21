@@ -13,11 +13,11 @@ public struct HomeOverview: Sendable {
     /// The world whose quests and bosses are shown: an earlier one the dad chose on the map, or the current one.
     public let shownWorld: World?
     /// The shown world's quests offered to this child and family, evergreen ones from earlier worlds included
-    /// (ADR-0020, ADR-0051).
+    /// (ADR-0020, ADR-0053).
     public let quests: [Quest]
     /// The shown world's bosses offered to this child and family, evergreen ones included, without the situational ones.
     public let bosses: [BossFight]
-    /// The shown world's bosses for when life changes: home keeps them in one closed row (ADR-0051 §5).
+    /// The shown world's bosses for when life changes: home keeps them in one closed row (ADR-0053 §5).
     public let situationalBosses: [BossFight]
     /// What the hero wears, one item per skill at most.
     public let equippedGear: [GearItem]

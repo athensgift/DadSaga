@@ -25,11 +25,11 @@ public struct World: ContentItem, Hashable, Identifiable, Sendable {
         self.span = span
     }
 
-    /// Whether the world is before birth (ADR-0051 §2).
+    /// Whether the world is before birth (ADR-0053 §2).
     public var isBeforeBirth: Bool { span == .beforeBirth }
 }
 
-/// The ages a world is for (ADR-0051 §2).
+/// The ages a world is for (ADR-0053 §2).
 public enum WorldSpan: Hashable, Sendable {
     /// The time before the birth. Reached at every age: the current world before the birth, a visited one after it.
     case beforeBirth

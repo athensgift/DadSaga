@@ -25,16 +25,78 @@ struct BundledSoundtrackRepositoryTests {
         }
     }
 
-    @Test("Given every bundled track, when opening it, then it has one audio track at least 95 seconds long")
-    func everyTrackOutlastsAFilm() async throws {
-        for track in try await repository.fetchSoundtracks() {
-            let asset = AVURLAsset(url: track.audioURL)
-            let audio = try await asset.loadTracks(withMediaType: .audio)
-            let duration = try await asset.load(.duration)
+    @Test("Given the bundled content and music, when making the longest film the content allows, then every track outlasts it")
+    func everyTrackOutlastsTheLongestFilm() async throws {
+        let film = try await Self.longestFilm()
 
+        for track in try await repository.fetchSoundtracks() {
+            // Measured as `MusicBed` measures it before it decides to loop: exact timing, the audio track's own range.
+            let asset = AVURLAsset(url: track.audioURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+            let audio = try await asset.loadTracks(withMediaType: .audio)
             #expect(audio.count == 1, "\(track.id) has \(audio.count) audio tracks")
-            #expect(duration.seconds >= 95, "\(track.id) lasts \(duration.seconds) s")
+            let range = try await try #require(audio.first).load(.timeRange)
+
+            #expect(
+                range.duration.seconds >= film.seconds,
+                "\(track.id) lasts \(range.duration.seconds) s, a film \(film.seconds) s"
+            )
         }
+    }
+
+    /// The longest film the bundled content allows (ADR-0036 §2, ADR-0052): every first, each with all its photos, spread
+    /// across the worlds so each can have its chapter card, under far more quests and bosses than fit. The film's own
+    /// rules then drop everything but the firsts and shorten those, so it is as long as the content can make it.
+    private static func longestFilm() async throws -> SagaStoryboard {
+        let catalog = try await BundledContentRepository().fetchCatalog()
+        let child = Child(name: "Test", birthDay: .day(2_020, 1, 15))
+        let worlds = catalog.worlds
+        let birth = try #require(child.birthDay)
+        let photos = (1...ProgressEvent.photoLimit).map { "p\($0)" }
+        let byID = Dictionary(uniqueKeysWithValues: worlds.map { ($0.id, $0) })
+        /// A moment in the world: from its first month, or a month before the birth for the world before birth, so
+        /// that world gets its chapter too (ADR-0053 §2).
+        let inWorld = { (worldID: String, minute: Int) throws -> Date in
+            let world = try #require(byID[worldID], "\(worldID) is a world")
+            let start: CalendarDay = switch world.span {
+            case .beforeBirth: birth.adding(days: -30)
+            case .months(let min, _): try #require(child.day(atMonths: min))
+            }
+            return start.start(in: .gmt).addingTimeInterval(Double(60 * minute))
+        }
+        let lastMonths = worlds.compactMap { world -> Int? in
+            if case .months(let min, _) = world.span { min } else { nil }
+        }.max() ?? 0
+        let firsts = try catalog.firsts.enumerated().map { index, first in
+            ProgressEvent(
+                kind: .first(id: first.id), childID: child.id,
+                date: try inWorld(worlds[index % worlds.count].id, index), photoIDs: photos
+            )
+        }
+        let quests = try catalog.quests.enumerated().map { index, quest in
+            ProgressEvent(
+                kind: .quest(id: quest.id), childID: child.id, date: try inWorld(quest.worldID, index), photoIDs: photos
+            )
+        }
+        let bosses = try catalog.bosses.enumerated().map { index, boss in
+            ProgressEvent(
+                kind: .boss(id: boss.id), childID: child.id, date: try inWorld(boss.worldID, index), photoIDs: photos
+            )
+        }
+        let film = try #require(SagaStoryboard.make(
+            events: firsts + quests + bosses,
+            child: child,
+            period: .everything,
+            catalog: catalog,
+            now: birth.adding(months: lastMonths + 12).start(in: .gmt),
+            timeZone: .gmt
+        ))
+        let keptFirsts = film.scenes.count { scene in
+            if case .entry(let entry) = scene.kind, case .first = entry.kind { true } else { false }
+        }
+        #expect(keptFirsts == catalog.firsts.count, "a film keeps every first")
+        let chapters = film.scenes.count { if case .chapter = $0.kind { true } else { false } }
+        #expect(chapters == worlds.count, "every world has its chapter card, or the worst case is undercounted")
+        return film
     }
 
     @Test("Given a track DTO with a licence other than original or CC0, when mapping, then unknownLicence is thrown")

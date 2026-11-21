@@ -1,6 +1,6 @@
 # ADR-0041: Dates in the saga film, behind a switch the sheet remembers
 
-**Status:** Proposed (2026-11-20). The owner asked for dates in the film, on by default, with a switch on the film
+**Status:** Accepted (2026-11-21; proposed 2026-11-20, implemented and merged). The owner asked for dates in the film, on by default, with a switch on the film
 sheet to take them out before sharing beyond the family. Changes ADR-0037 §2 ("No dates and no ages on any card", and
 what the opening, first and boss cards show), §7 (snapshots) and its consequence that a shared film never shows a date.
 

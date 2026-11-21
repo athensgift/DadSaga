@@ -1,7 +1,7 @@
 import Domain
 import Foundation
 
-/// What the fixture store written by version 5 holds (ADR-0051 §8): the last store with a `birthDate` column. One child
+/// What the fixture store written by version 5 holds (ADR-0053 §8): the last store with a `birthDate` column. One child
 /// has her day columns; the other's are empty, as in a row the V4 → V5 migration didn't reach, with a birth moment late
 /// in the evening UTC, which is already the next day in Athens. Never regenerate the files.
 enum StoreV5Fixture {

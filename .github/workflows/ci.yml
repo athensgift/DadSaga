@@ -8,14 +8,20 @@ on:
 permissions:
   contents: read
 
+# On a PR, a newer push stops the run it replaces. Every merge into develop or main is checked to the end.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build-and-test:
     # Pinned to the Mac's Xcode, so an image update never changes the toolchain under us (ADR-0034). The screen
     # snapshots run on the Mac, not here.
     runs-on: xcode-27
-    # A run takes about 7 minutes. A test parked in a wait it can't cancel (a stalled AVAssetWriter, ADR-0036) outlives
-    # Swift Testing's time limit, so the job stops here instead of after GitHub's six hours.
-    timeout-minutes: 25
+    # A run took about 7 minutes before the Release and test builds (ADR-0051): measure it again. A test parked in a
+    # wait it can't cancel (a stalled AVAssetWriter, ADR-0036) outlives Swift Testing's time limit, so the job stops
+    # here instead of after GitHub's six hours.
+    timeout-minutes: 45
     env:
       DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
     steps:
@@ -34,10 +40,27 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
-      - name: Build app (simulator)
+      # What only a release build compiles: the `#else` of `#if DEBUG`, and the optimised build (ADR-0051).
+      - name: Build app (Release)
         run: |
           xcodebuild build \
             -project DadSaga.xcodeproj \
             -scheme DadSaga \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            CODE_SIGNING_ALLOWED=NO
+
+      # The UI tests and the screen snapshots run on the Mac (ADR-0034); here they are only compiled, so they never
+      # fall behind the app. The first also builds the app for the simulator.
+      - name: Build app (simulator), UI tests and snapshots
+        run: |
+          xcodebuild build-for-testing \
+            -project DadSaga.xcodeproj \
+            -scheme DadSaga \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
+          xcodebuild build-for-testing \
+            -project DadSaga.xcodeproj \
+            -scheme DadSagaSnapshots \
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO
