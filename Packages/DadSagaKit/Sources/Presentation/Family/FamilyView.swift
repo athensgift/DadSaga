@@ -4,6 +4,8 @@ import SwiftUI
 /// "My family", pushed from Settings.
 struct FamilyView: View {
     @State var viewModel: FamilyViewModel
+    @State private var isConfirmingDiscard = false
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         Group {
@@ -20,7 +22,16 @@ struct FamilyView: View {
         .background(DSColor.background)
         .navigationTitle(title)
         .toolbarTitleDisplayMode(.inline)
+        // With changes not saved, the system's back button and its swipe would drop them: a back button that asks first
+        // stands in for it.
+        .navigationBarBackButtonHidden(viewModel.hasUnsavedChanges)
         .toolbar {
+            if viewModel.hasUnsavedChanges, case .loaded(let content) = viewModel.state {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(content.backTitle, systemImage: "chevron.backward") { isConfirmingDiscard = true }
+                        .disabled(viewModel.isSaving)
+                }
+            }
             ToolbarItem(placement: .confirmationAction) {
                 Button(role: .confirm) {
                     Task { await viewModel.save() }
@@ -29,7 +40,19 @@ struct FamilyView: View {
                 .accessibilityLabel(saveTitle)
             }
         }
+        .modifier(UnsavedChangesGuard(
+            hasUnsavedChanges: viewModel.hasUnsavedChanges,
+            isAsking: $isConfirmingDiscard,
+            labels: unsavedLabels,
+            canSave: viewModel.canSave,
+            onSave: { Task { await viewModel.save() } },
+            onDiscard: { dismiss() }
+        ))
         .task { await viewModel.onAppear() }
+    }
+
+    private var unsavedLabels: JournalLabels {
+        if case .loaded(let content) = viewModel.state { content.unsaved } else { JournalLabels(locale: .current) }
     }
 
     private var title: String {
@@ -60,11 +83,7 @@ struct FamilyView: View {
                         .buttonStyle(.glass)
                         .controlSize(.large)
                 }
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .font(DSFont.caption)
-                        .foregroundStyle(DSColor.boss)
-                }
+                SheetError(message: viewModel.errorMessage)
                 Text(content.footnote)
                     .font(DSFont.caption)
                     .foregroundStyle(DSColor.textSecondary)
@@ -73,7 +92,7 @@ struct FamilyView: View {
             .frame(maxWidth: readableWidth)
             .padding(DSSpacing.m)
             .frame(maxWidth: .infinity)
-            .animation(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.family.children.count)
+            .motion(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.family.children.count)
         }
         .scrollDismissesKeyboard(.interactively)
     }

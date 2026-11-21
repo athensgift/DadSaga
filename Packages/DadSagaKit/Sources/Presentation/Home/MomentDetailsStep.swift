@@ -84,7 +84,7 @@ struct MomentDetailsStep: View {
         .photoViewer($coverViewer, loader: loader)
         .background(DSColor.background)
         .safeAreaInset(edge: .bottom) { undoBar }
-        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: details.undoOffer)
+        .motion(.spring(response: 0.35, dampingFraction: 0.8), value: details.undoOffer)
         .navigationTitle(details.title)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {

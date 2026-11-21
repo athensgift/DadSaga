@@ -128,7 +128,7 @@ private struct HeroOptionCard: View {
                 }
             }
             .contentShape(shape)
-            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+            .motion(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .combine)

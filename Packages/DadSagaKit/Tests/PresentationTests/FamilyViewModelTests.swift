@@ -76,6 +76,43 @@ struct FamilyViewModelTests {
         #expect(sut.errorMessage == "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.")
     }
 
+    @Test("Given My family just opened, when nothing is touched, then leaving loses nothing")
+    func openedFamilyHasNothingToLose() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+
+        #expect(!sut.hasUnsavedChanges)
+    }
+
+    @Test("Given My family open, when a name changes or a child is added, then leaving would lose it")
+    func changedFamilyHasSomethingToLose() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+
+        sut.family.children[0].name = "Νικόλας"
+        #expect(sut.hasUnsavedChanges)
+
+        sut.family.children[0].name = "Νίκος"
+        #expect(!sut.hasUnsavedChanges)
+
+        sut.addChild()
+        #expect(sut.hasUnsavedChanges)
+    }
+
+    @Test("Given a changed family, when saving fails, then the changes still count as unsaved; when it works, they don't")
+    func savingSettlesTheChanges() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+        sut.family.children[0].name = "Νικόλας"
+        await update.failNext()
+
+        await sut.save()
+        #expect(sut.hasUnsavedChanges)
+
+        await sut.save()
+        #expect(!sut.hasUnsavedChanges)
+    }
+
     @Test("Given no profile, when appearing, then state is failed")
     func noProfile() async {
         let sut = makeSUT(profile: nil)
@@ -93,7 +130,10 @@ actor SpyUpdateFamily: UpdateFamilyUseCase {
     }
 
     func execute(children: [Child], on date: Date) async throws {
-        if shouldFail { throw StubError.boom }
+        if shouldFail {
+            shouldFail = false
+            throw StubError.boom
+        }
         saved = children
     }
 }

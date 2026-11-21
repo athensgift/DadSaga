@@ -156,6 +156,7 @@ public struct SettingsView: View {
                 Text(errorMessage)
                     .font(DSFont.caption)
                     .foregroundStyle(DSColor.boss)
+                    .onAppear { AccessibilityNotification.Announcement(errorMessage).post() }
             }
         } footer: {
             Text(labels.footer).foregroundStyle(DSColor.textSecondary)

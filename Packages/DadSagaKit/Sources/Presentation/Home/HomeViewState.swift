@@ -208,6 +208,11 @@ public struct Celebration: Equatable, Identifiable, Sendable {
         case quest, boss, unlock, moment, levelUp
     }
 
+    /// Everything the badge shows, in its order, for VoiceOver to read out as it appears.
+    public var announcement: String {
+        [xpText, levelUpText, badgeText, momentText, unlockText].compactMap(\.self).joined(separator: ", ")
+    }
+
     public var highlight: Highlight {
         if levelUpText != nil { return .levelUp }
         if momentText != nil { return .moment }

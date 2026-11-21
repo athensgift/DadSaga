@@ -75,7 +75,7 @@ public struct OnboardingView: View {
             .frame(maxWidth: readableWidth)
             .padding(DSSpacing.l)
             .frame(maxWidth: .infinity)
-            .animation(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.family.children.count)
+            .motion(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.family.children.count)
         }
         .scrollDismissesKeyboard(.interactively)
         // When the keyboard shrinks the screen, keep the form and button in view rather than the avatar.
@@ -93,11 +93,7 @@ public struct OnboardingView: View {
                     appearance: viewModel.dadAppearance,
                     selectedHeroID: viewModel.selectedHeroID
                 ) { viewModel.selectHero(id: $0) }
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .font(DSFont.caption)
-                        .foregroundStyle(DSColor.boss)
-                }
+                SheetError(message: viewModel.errorMessage)
             }
             .padding(DSSpacing.m)
         }

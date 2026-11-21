@@ -18,6 +18,15 @@ public final class FamilyViewModel {
 
     public var canSave: Bool { family.isComplete && !isSaving }
 
+    /// The family as last loaded or saved: leaving with anything else would lose the dad's changes.
+    private var stored: FamilyDraft?
+
+    /// Something changed and isn't saved yet, so leaving asks first (`UnsavedChangesGuard`).
+    public var hasUnsavedChanges: Bool {
+        guard let stored else { return false }
+        return family != stored
+    }
+
     private let getProfile: any GetProfileUseCase
     private let updateFamily: any UpdateFamilyUseCase
     private let locale: Locale
@@ -49,6 +58,7 @@ public final class FamilyViewModel {
                 return
             }
             family = FamilyDraft(profile)
+            stored = family
             state = .loaded(makeContent())
         } catch {
             state = .failed(message: strings.text("Your family failed to load."))
@@ -70,6 +80,7 @@ public final class FamilyViewModel {
         do {
             try await updateFamily.execute(children: family.children.map(\.child), on: latestBirthDate)
             errorMessage = nil
+            stored = family
             onSaved()
         } catch {
             errorMessage = strings.text("Couldn't save. Please try again.")
@@ -81,6 +92,8 @@ public final class FamilyViewModel {
             title: strings.text("My family"),
             childEditor: ChildEditorLabels.make(locale: locale),
             saveTitle: strings.text("Save"),
+            backTitle: strings.text("Settings"),
+            unsaved: JournalLabels(locale: locale),
             footnote: strings.text("If you remove a child, everything you earned together stays.")
         )
     }
@@ -98,5 +111,9 @@ public struct FamilyContent: Equatable, Sendable {
     public let title: String
     public let childEditor: ChildEditorLabels
     public let saveTitle: String
+    /// The way back to Settings, while leaving would ask first.
+    public let backTitle: String
+    /// "Discard the changes you just made?" and its answers.
+    public let unsaved: JournalLabels
     public let footnote: String
 }

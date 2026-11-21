@@ -62,17 +62,13 @@ public struct WardrobeView: View {
                     )
                     .frame(width: 260, height: 260)
             }
-            .animation(.spring(response: 0.35, dampingFraction: 0.75), value: content.gear)
+            .motion(.spring(response: 0.35, dampingFraction: 0.75), value: content.gear)
             .accessibilityHidden(true)
         } acting: { _ in
             ForEach(content.slots) { slot in
                 slotView(slot)
             }
-            if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.boss)
-            }
+            SheetError(message: viewModel.errorMessage)
             Text(content.footnote)
                 .font(DSFont.caption)
                 .foregroundStyle(DSColor.textSecondary)

@@ -34,11 +34,7 @@ struct HeroSettingsView: View {
                 if let look = viewModel.previewLook {
                     preview(look.avatarStyle)
                 }
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .font(DSFont.caption)
-                        .foregroundStyle(DSColor.boss)
-                }
+                SheetError(message: viewModel.errorMessage)
                 HeroPicker(
                     content: content.picker,
                     skinTone: skinToneBinding,
@@ -74,7 +70,7 @@ struct HeroSettingsView: View {
                 )
                 .frame(width: 220, height: 220)
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.75), value: viewModel.appearance)
+        .motion(.spring(response: 0.35, dampingFraction: 0.75), value: viewModel.appearance)
         .accessibilityHidden(true)
     }
 

@@ -65,7 +65,7 @@ public struct HomeView: View {
             ) { flatFold = $0 }
             .background(DSColor.background)
             .safeAreaInset(edge: .bottom) { undoBar }
-            .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
+            .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
             .navigationTitle(title)
             // Two panes scroll separately. A navigation bar collapses or hides with whichever pane scrolls and
             // shifts the other, so the two-pane layouts have no bar: their title lives in the hero pane.
@@ -278,8 +278,8 @@ public struct HomeView: View {
             )
                 .padding(.top, DSSpacing.l)
         }
-        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.reminderOffer)
-        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.sagaOffer)
+        .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.reminderOffer)
+        .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.sagaOffer)
     }
 }
 

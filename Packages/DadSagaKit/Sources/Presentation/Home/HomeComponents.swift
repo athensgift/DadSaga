@@ -99,6 +99,10 @@ struct ChildPicker: View {
 struct CelebrationBadge: View {
     let celebration: Celebration
     let onFinished: (_ id: Int) -> Void
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    /// The symbols bounce once per celebration; with Reduce Motion they stay still.
+    private var bounce: Int { reduceMotion ? 0 : celebration.id }
 
     var body: some View {
         VStack(spacing: DSSpacing.xs) {
@@ -109,25 +113,25 @@ struct CelebrationBadge: View {
                 Label(levelUpText, systemImage: "star.fill")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.legendary)
-                    .symbolEffect(.bounce, value: celebration.id)
+                    .symbolEffect(.bounce, value: bounce)
             }
             if let badgeText = celebration.badgeText {
                 Label(badgeText, systemImage: "rosette")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.boss)
-                    .symbolEffect(.bounce, value: celebration.id)
+                    .symbolEffect(.bounce, value: bounce)
             }
             if let momentText = celebration.momentText {
                 Label(momentText, systemImage: "star.fill")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.legendary)
-                    .symbolEffect(.bounce, value: celebration.id)
+                    .symbolEffect(.bounce, value: bounce)
             }
             if let unlockText = celebration.unlockText {
                 Label(unlockText, systemImage: "gift.fill")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.accent)
-                    .symbolEffect(.bounce, value: celebration.id)
+                    .symbolEffect(.bounce, value: bounce)
             }
         }
         // Each line at its natural width when it fits the screen; wrapped within the screen when it doesn't.
@@ -139,6 +143,7 @@ struct CelebrationBadge: View {
         .padding(.horizontal, DSSpacing.m)
         .transition(.scale(scale: 0.6).combined(with: .opacity))
         .task(id: celebration.id) {
+            AccessibilityNotification.Announcement(celebration.announcement).post()
             // Cancelled when a newer celebration replaces this one: that one keeps its own time.
             do {
                 try await Task.sleep(for: .seconds(celebration.highlight >= .unlock ? 3.2 : 2.2))
@@ -174,7 +179,7 @@ struct CelebrationOverlay: ViewModifier {
                     }
                 }
             }
-            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: celebration)
+            .motion(.spring(response: 0.4, dampingFraction: 0.7), value: celebration)
             .sensoryFeedback(trigger: celebration) { _, celebration in
                 celebration?.haptic(isEnabled: isHapticsEnabled)?.feedback
             }
@@ -267,6 +272,10 @@ struct UndoBar: View {
         .frame(maxWidth: readableWidth)
         .padding(.horizontal, DSSpacing.m)
         .padding(.bottom, DSSpacing.s)
+        // "Couldn't undo" is read out, whether the bar came back for it or never left.
+        .onChange(of: offer.didFail, initial: true) { _, didFail in
+            if didFail { AccessibilityNotification.Announcement(offer.message).post() }
+        }
         .task(id: offer.id) {
             try? await Task.sleep(for: duration)
             if !Task.isCancelled { onExpire() }
