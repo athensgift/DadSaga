@@ -1,6 +1,6 @@
 extension Score {
     /// A lullaby in G major, three beats a bar at 72 a minute: a music box over a fingerpicked guitar and a soft pad.
-    /// Intro, A (box and guitar alone), B, A and B with a low bass, and an ending that slows onto G.
+    /// Intro, A (box and guitar alone), B, A and B with a low bass, A alone again, B, and an ending that slows onto G.
     static let lullaby = Score(
         id: "music-box-lullaby",
         beatsPerMinute: 72,
@@ -17,6 +17,8 @@ extension Score {
             + section(.light, lullabyA)
             + section(.full, lullabyB)
             + section(.full, lullabyA)
+            + section(.full, lullabyB)
+            + section(.light, lullabyA)
             + section(.full, lullabyB)
             + section(.full, [("C", "E6/2 D6"), ("D", "C6/1.5 A5/1.5")])
             + section(.light, [("G", "B5/3"), ("G", "G5/3")])

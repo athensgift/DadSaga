@@ -1,6 +1,6 @@
 extension Score {
     /// A heroic march in D minor at 100 beats a minute: a plucked ostinato, a brass tune, timpani and drums.
-    /// Intro, A, A with drums, B (brighter, in the major keys), A, and an ending that lands on D minor.
+    /// Intro, A, A with drums, B (brighter, in the major keys), A, B and A again, and an ending that lands on D minor.
     static let adventure = Score(
         id: "great-adventure",
         beatsPerMinute: 100,
@@ -16,6 +16,8 @@ extension Score {
         ),
         bars: section(.light, [("Dm", ""), ("Bb", ""), ("F", ""), ("C", "")])
             + section(.full, adventureA(ending: ("A", "A4/3 -")))
+            + section(.driving, adventureA(ending: ("Dm", "D5/3 -")))
+            + section(.driving, adventureB)
             + section(.driving, adventureA(ending: ("Dm", "D5/3 -")))
             + section(.driving, adventureB)
             + section(.driving, adventureA(ending: ("Dm", "D5/3 -")))
