@@ -36,7 +36,8 @@
           "en": "Can't make it? Ask that evening what was said and note it down. It counts."
         }
       ]
-    }
+    },
+    "onlyFor": ["partner"]
   },
   {
     "id": "q-w0-birth-partner",
@@ -79,7 +80,8 @@
           "en": "Birth plans often change at the last minute. Nobody failed."
         }
       ]
-    }
+    },
+    "onlyFor": ["partner"]
   },
   {
     "id": "q-w0-car-seat",
@@ -158,11 +160,14 @@
           "en": "Either way there's work for you: burping, nappies, water for her, the night."
         }
       ]
-    }
+    },
+    "onlyFor": ["partner"]
   },
   {
     "id": "q-w0-first-aid",
-    "formerIDs": ["q-w1-first-aid"],
+    "formerIDs": [
+      "q-w1-first-aid"
+    ],
     "worldID": "w0-harbour",
     "skill": "care",
     "xp": 35,
@@ -243,7 +248,8 @@
           "en": "Babies don't read calendars. The earlier the bag is by the door, the better you sleep."
         }
       ]
-    }
+    },
+    "onlyFor": ["partner"]
   },
   {
     "id": "q-w0-name",
@@ -356,7 +362,8 @@
           "en": "Pick a song now. You'll need it at 3am."
         }
       ]
-    }
+    },
+    "onlyFor": ["partner"]
   },
   {
     "id": "q-w0-the-talk",
@@ -863,7 +870,9 @@
   },
   {
     "id": "q-w1-car-seat",
-    "formerIDs": ["q-w2-car-seat"],
+    "formerIDs": [
+      "q-w2-car-seat"
+    ],
     "worldID": "w1-swamp",
     "skill": "care",
     "xp": 25,
@@ -1452,7 +1461,9 @@
   },
   {
     "id": "q-w1-check-in",
-    "formerIDs": ["q-w4-check-in"],
+    "formerIDs": [
+      "q-w4-check-in"
+    ],
     "worldID": "w1-swamp",
     "skill": "resilience",
     "xp": 30,
@@ -1584,7 +1595,9 @@
   },
   {
     "id": "q-w1-date-night",
-    "formerIDs": ["q-w2-date-night"],
+    "formerIDs": [
+      "q-w2-date-night"
+    ],
     "worldID": "w1-swamp",
     "skill": "resilience",
     "xp": 35,
@@ -1666,7 +1679,9 @@
   },
   {
     "id": "q-w1-toothbrush",
-    "formerIDs": ["q-w2-toothbrush"],
+    "formerIDs": [
+      "q-w2-toothbrush"
+    ],
     "worldID": "w1-swamp",
     "skill": "care",
     "xp": 20,
@@ -2102,7 +2117,9 @@
   },
   {
     "id": "q-w2-swim",
-    "formerIDs": ["q-w4-swim"],
+    "formerIDs": [
+      "q-w4-swim"
+    ],
     "worldID": "w2-plains",
     "skill": "play",
     "xp": 30,

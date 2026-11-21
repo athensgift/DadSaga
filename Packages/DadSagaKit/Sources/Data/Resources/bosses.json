@@ -50,7 +50,8 @@
     "badge": {
       "el": "Ο Βράχος της Μεγάλης Μέρας",
       "en": "Rock of the Big Day"
-    }
+    },
+    "onlyFor": ["partner"]
   },
   {
     "id": "b-w0-caesarean",
@@ -103,7 +104,8 @@
     "badge": {
       "el": "Τα Χέρια του Σπιτιού",
       "en": "Hands of the House"
-    }
+    },
+    "onlyFor": ["partner"]
   },
   {
     "id": "b-w1-endless-cry",
@@ -190,8 +192,8 @@
         "en": "Watch the child, not just the number: are they drinking? looking at you? easy to wake? If not, call."
       },
       {
-        "el": "Αν δυσκολεύεται να αναπνεύσει ή έχει σπασμούς, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
-        "en": "If they struggle to breathe or have a seizure, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
+        "el": "Αν δυσκολεύεται να αναπνεύσει ή έχει σπασμούς, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+        "en": "If they struggle to breathe or have a seizure, call the emergency number."
       }
     ],
     "badge": {
