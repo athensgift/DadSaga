@@ -1,63 +1,605 @@
 [
   {
-    "id": "q-w1-skin-to-skin",
-    "worldID": "w1-swamp",
+    "id": "q-w0-appointment",
+    "worldID": "w0-harbour",
     "skill": "care",
-    "xp": 20,
+    "xp": 30,
     "minAgeMonths": 0,
     "title": {
-      "el": "Ώρα αγκαλιάς",
-      "en": "Cuddle time"
+      "el": "Μαζί στο ραντεβού",
+      "en": "In the room"
     },
     "description": {
-      "el": "20 λεπτά αγκαλιά δέρμα με δέρμα. Κινητό μακριά.",
-      "en": "20 minutes of skin-to-skin. Phone away."
+      "el": "Πήγαινε σε ένα ραντεβού ή σε έναν υπέρηχο, αν σε θέλει εκεί, και κάνε μία δική σου ερώτηση.",
+      "en": "Go to an appointment or a scan, if she wants you there, and ask one question of your own."
     },
     "tip": {
       "title": {
-        "el": "Ο καναπές είναι παγίδα",
-        "en": "The sofa is a trap"
+        "el": "Η δική σου ερώτηση",
+        "en": "A question of your own"
       },
       "steps": [
         {
-          "el": "Αν νιώσεις ότι σε παίρνει ο ύπνος, βάλε πρώτα το μωρό ανάσκελα στην κούνια του.",
-          "en": "If you feel yourself nodding off, put the baby on their back in the cot first."
+          "el": "Ρώτα πρώτα εκείνη αν σε θέλει μέσα. Το ραντεβού είναι δικό της.",
+          "en": "Ask her first whether she wants you in there. It's her appointment."
         },
         {
-          "el": "Ο καναπές και η πολυθρόνα είναι τα πιο επικίνδυνα μέρη για να αποκοιμηθείς με μωρό στην αγκαλιά.",
-          "en": "A sofa or an armchair is the most dangerous place to fall asleep holding a baby."
+          "el": "Γράφε τις απορίες στο κινητό όπως έρχονται. Μια καλή για αρχή: «τι προσέχουμε ως την επόμενη φορά, και ποιον παίρνουμε τηλέφωνο;»",
+          "en": "Note questions on your phone as they come up. A good opener: “what do we watch for before next time, and who do we call?”"
+        },
+        {
+          "el": "Αν σου ζητήσουν να βγεις για λίγα λεπτά, είναι ρουτίνα: σε πολλά μέρη βλέπουν κάθε έγκυο και μόνη της, για ένα μέρος της επίσκεψης.",
+          "en": "If you're asked to step out for a few minutes, it's routine: in many places every pregnant woman is seen on her own for part of a visit."
+        },
+        {
+          "el": "Δεν μπορείς να πας; Ρώτα το βράδυ τι είπαν και σημείωσέ το. Μετράει.",
+          "en": "Can't make it? Ask that evening what was said and note it down. It counts."
+        }
+      ]
+    },
+    "onlyFor": ["partner"]
+  },
+  {
+    "id": "q-w0-birth-partner",
+    "worldID": "w0-harbour",
+    "skill": "care",
+    "xp": 35,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Ο δεύτερος παίκτης",
+      "en": "Player two"
+    },
+    "description": {
+      "el": "Αν θα είσαι δίπλα της στη γέννα: κάθισε μαζί της και μάθε τι θέλει. Ποιος θα είναι μέσα, τι τη βοηθά στον πόνο, τι θέλει αν αλλάξει το σχέδιο. Γράψ' τα.",
+      "en": "If you'll be beside her at the birth: sit down with her and learn what she wants. Who's in the room, what helps her with pain, what she wants if the plan changes. Write it down."
+    },
+    "tip": {
+      "title": {
+        "el": "Η φωνή της, όταν σου το ζητήσει",
+        "en": "Her voice, when she asks you to be"
+      },
+      "steps": [
+        {
+          "el": "Εσύ δεν αποφασίζεις, μεταφέρεις: «μου έχει πει ότι θέλει…». Τη συναίνεση τη ζητούν από εκείνη, ποτέ από σένα.",
+          "en": "You don't decide, you relay: “she's told me she wants…” Consent is asked of her, never of you."
+        },
+        {
+          "el": "Πριν από κάτι που δεν είναι επείγον, τέσσερις ερωτήσεις: τι κερδίζουμε, τι ρισκάρουμε, τι άλλο υπάρχει, τι γίνεται αν περιμένουμε;",
+          "en": "Before anything that isn't urgent, four questions: what do we gain, what do we risk, what else is there, what happens if we wait?"
+        },
+        {
+          "el": "Το «ναι» και το «όχι» είναι δικά της, και μπορεί να αλλάξει γνώμη όποτε θέλει, και για την ανακούφιση από τον πόνο. Αν αυτό που λέει τώρα διαφέρει από το χαρτί, ισχύει αυτό που λέει τώρα.",
+          "en": "The yes and the no are hers, and she can change her mind at any point, pain relief included. If what she says now differs from the paper, what she says now wins."
+        },
+        {
+          "el": "Η δουλειά σου μέσα: νερό, ένα χέρι να σφίξει, ανάσες μαζί, ησυχία όταν τη ζητήσει.",
+          "en": "Your job in there: water, a hand to squeeze, breathing together, quiet when she asks for it."
+        },
+        {
+          "el": "Τα σχέδια γέννας αλλάζουν συχνά την τελευταία στιγμή. Δεν απέτυχε κανείς.",
+          "en": "Birth plans often change at the last minute. Nobody failed."
+        }
+      ]
+    },
+    "onlyFor": ["partner"]
+  },
+  {
+    "id": "q-w0-car-seat",
+    "worldID": "w0-harbour",
+    "skill": "care",
+    "xp": 30,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Το κάθισμα πριν από τον επιβάτη",
+      "en": "The seat before the passenger"
+    },
+    "description": {
+      "el": "Αν θα μπει σε αυτοκίνητο, ακόμα και σε ταξί: στήσε το κάθισμα και δέσε ένα αρκουδάκι για πρόβα, πριν από την πρώτη του διαδρομή.",
+      "en": "If they'll ride in a car, even a taxi: fit the seat and strap in a teddy as a rehearsal, before their first ride."
+    },
+    "tip": {
+      "title": {
+        "el": "Πρόβα με αρκουδάκι",
+        "en": "Dress rehearsal"
+      },
+      "steps": [
+        {
+          "el": "Τοποθετείται ώστε το μωρό να κοιτάζει προς τα πίσω, και ποτέ σε θέση που έχει μπροστά της ενεργό αερόσακο.",
+          "en": "Rear-facing, and never in a seat with an active airbag in front of it."
+        },
+        {
+          "el": "Διάβασε και τα δύο εγχειρίδια: του καθίσματος και του αυτοκινήτου. Αν κάπου κοντά σου ελέγχουν τοποθετήσεις, πήγαινε.",
+          "en": "Read both manuals: the seat's and the car's. If someone near you checks fittings, go."
+        },
+        {
+          "el": "Μεταχειρισμένο μόνο αν ξέρεις όλη του την ιστορία: δεν έχει τρακάρει, έχει τις οδηγίες του, δεν είναι παλιό. Από άγνωστο, όχι.",
+          "en": "Second-hand only if you know its whole history: never in a crash, instructions included, not too old. Not from a stranger."
+        },
+        {
+          "el": "Το κάθισμα είναι για τη διαδρομή, όχι για ύπνο. Όταν φτάσετε, το μωρό βγαίνει και ξαπλώνει σε επίπεδη επιφάνεια.",
+          "en": "The seat is for the journey, not for sleep. When you arrive, the baby comes out and lies on a flat surface."
         }
       ],
       "medical": true
     }
   },
   {
-    "id": "q-w1-night-shift",
-    "worldID": "w1-swamp",
-    "skill": "patience",
-    "xp": 30,
+    "id": "q-w0-feeding-plan",
+    "worldID": "w0-harbour",
+    "skill": "care",
+    "xp": 25,
     "minAgeMonths": 0,
     "title": {
-      "el": "Νυχτερινή βάρδια",
-      "en": "Night shift"
+      "el": "Το σχέδιο για το τάισμα",
+      "en": "The feeding plan"
     },
     "description": {
-      "el": "Απόψε η νύχτα είναι δική σου: άλλαγμα, ρέψιμο, νανούρισμα. Αν θηλάζει, όλα εκτός από το τάισμα.",
-      "en": "Tonight the night is yours: nappy, burping, settling. If they're breastfed, everything except the feed."
+      "el": "Ρώτα τη σύντροφό σου πώς σκέφτεται να ταΐσει το μωρό, και μάθε ένα πράγμα που μπορείς να κάνεις εσύ για να πάει καλά.",
+      "en": "Ask your partner how she's thinking of feeding the baby, and learn one thing you can do to help it go well."
     },
     "tip": {
       "title": {
-        "el": "Πιάσ' το πριν κλάψει",
-        "en": "Catch it before the cry"
+        "el": "Η δουλειά του δεύτερου",
+        "en": "The wingman's job"
       },
       "steps": [
         {
-          "el": "Τα σημάδια της πείνας έρχονται πριν το κλάμα: γυρίζει το κεφάλι, ανοίγει το στόμα, βάζει το χέρι στο στόμα.",
-          "en": "Hunger shows before the crying does: head turning, mouth opening, hand to mouth."
+          "el": "Το αν θα θηλάσει το αποφασίζει εκείνη. Εσύ στηρίζεις την απόφαση, όποια κι αν είναι, και όποτε αλλάξει.",
+          "en": "Whether she breastfeeds is her call. You back the decision, whatever it is, and whenever it changes."
         },
         {
-          "el": "Χαμηλό φως, λίγα λόγια, καθόλου παιχνίδι. Η νύχτα πρέπει να είναι βαρετή.",
-          "en": "Low light, few words, no play. Nights should be boring."
+          "el": "Αν θηλάσει: οι πρώτες μέρες είναι συχνά οι πιο δύσκολες. Μάθε από τώρα ποιον παίρνετε τηλέφωνο αν πονάει ή αν το μωρό δεν πιάνει το στήθος.",
+          "en": "If she breastfeeds: the first days are often the hardest. Find out now who you call if it hurts or the baby won't latch."
+        },
+        {
+          "el": "Αν θα πίνει από μπιμπερό: μάθε να το ετοιμάζεις και να το καθαρίζεις σωστά, και κράτα το μωρό κοντά σου σε κάθε τάισμα.",
+          "en": "If they'll be bottle-fed: learn to prepare and clean bottles properly, and hold the baby close for every feed."
+        },
+        {
+          "el": "Και στις δύο περιπτώσεις υπάρχει δουλειά για σένα: ρέψιμο, πάνα, νερό για εκείνη, η νύχτα.",
+          "en": "Either way there's work for you: burping, nappies, water for her, the night."
+        }
+      ]
+    },
+    "onlyFor": ["partner"]
+  },
+  {
+    "id": "q-w0-first-aid",
+    "formerIDs": [
+      "q-w1-first-aid"
+    ],
+    "worldID": "w0-harbour",
+    "skill": "care",
+    "xp": 35,
+    "minAgeMonths": 0,
+    "evergreen": true,
+    "title": {
+      "el": "Πρώτες βοήθειες για μωρά και παιδιά",
+      "en": "Baby and child first aid"
+    },
+    "description": {
+      "el": "Κλείσε ένα μάθημα πρώτων βοηθειών για μωρά και παιδιά. Ιδανικά ένα όπου εξασκείσαι με κούκλα.",
+      "en": "Book a baby and child first-aid class. Ideally one where you practise on a doll."
+    },
+    "tip": {
+      "title": {
+        "el": "Από εκπαιδευτή, όχι από βίντεο",
+        "en": "From an instructor, not a video"
+      },
+      "steps": [
+        {
+          "el": "Δεν υπάρχει λάθος στιγμή: πριν τη γέννα ή μετά, όποτε βρεις ένα μάθημα.",
+          "en": "There's no wrong time: before the birth or after, whenever you find a class."
+        },
+        {
+          "el": "Οι κινήσεις για μωρά και παιδιά διαφέρουν από των ενηλίκων και οι οδηγίες αλλάζουν: μάθε τες από εκπαιδευτή, όχι από παλιό βίντεο.",
+          "en": "Techniques for babies and children differ from adults' and the guidance changes: learn them from an instructor, not an old video."
+        },
+        {
+          "el": "Ρώτα το μαιευτήριο, τον γιατρό του παιδιού ή τον Ερυθρό Σταυρό της χώρας σου πού γίνονται μαθήματα.",
+          "en": "Ask the maternity unit, your child's doctor or your country's Red Cross where classes are held."
+        },
+        {
+          "el": "Πάρε μαζί γιαγιά, παππού ή όποιον άλλον το προσέχει.",
+          "en": "Bring a grandparent or whoever else looks after them."
+        },
+        {
+          "el": "Έκανες ήδη ένα; Μια επανάληψη κάθε λίγα χρόνια μετράει κι αυτή.",
+          "en": "Done one already? A refresher every few years counts too."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w0-go-bag",
+    "worldID": "w0-harbour",
+    "skill": "care",
+    "xp": 20,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Το σακίδιο",
+      "en": "The go bag"
+    },
+    "description": {
+      "el": "Ετοιμάστε μαζί την τσάντα για τη γέννα, και φτιάξε μια μικρή δική σου. Άφησέ τες δίπλα στην πόρτα.",
+      "en": "Pack the birth bag together, and a small one of your own. Park them by the door."
+    },
+    "tip": {
+      "title": {
+        "el": "Η δική σου τσάντα",
+        "en": "Your own bag"
+      },
+      "steps": [
+        {
+          "el": "Φορτιστής με μακρύ καλώδιο, ψιλά για το πάρκινγκ και τον αυτόματο πωλητή, σνακ, νερό, μια αλλαξιά, οδοντόβουρτσα.",
+          "en": "A charger with a long cable, change for the car park and the vending machine, snacks, water, a change of clothes, a toothbrush."
+        },
+        {
+          "el": "Τα χαρτιά της εγκυμοσύνης και οι σημειώσεις για το τι θέλει στη γέννα, στην ίδια τσέπη.",
+          "en": "The pregnancy notes and her birth preferences, in the same pocket."
+        },
+        {
+          "el": "Μάθε πού είναι το καθετί στη δική της τσάντα. Εσύ θα ψάχνεις, εκείνη θα έχει άλλη δουλειά.",
+          "en": "Learn where everything is in her bag. You'll be the one rummaging; she'll be busy."
+        },
+        {
+          "el": "Τα μωρά δεν διαβάζουν ημερολόγιο. Όσο πιο νωρίς στέκεται η τσάντα δίπλα στην πόρτα, τόσο πιο ήσυχος κοιμάσαι.",
+          "en": "Babies don't read calendars. The earlier the bag is by the door, the better you sleep."
+        }
+      ]
+    },
+    "onlyFor": ["partner"]
+  },
+  {
+    "id": "q-w0-name",
+    "worldID": "w0-harbour",
+    "skill": "play",
+    "xp": 20,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Το όνομα",
+      "en": "The name"
+    },
+    "description": {
+      "el": "Γράψτε ο καθένας χωριστά μια λίστα με ονόματα και συγκρίνετε. Ό,τι υπάρχει και στις δύο, περνά στον τελικό.",
+      "en": "Each write your own list of names, then compare. Anything on both goes through to the final."
+    },
+    "tip": {
+      "title": {
+        "el": "Δοκιμή φωνής",
+        "en": "Voice test"
+      },
+      "steps": [
+        {
+          "el": "Φώναξέ το δυνατά από το άλλο δωμάτιο. Θα το κάνεις χιλιάδες φορές.",
+          "en": "Shout it from another room. You'll be doing that thousands of times."
+        },
+        {
+          "el": "Δεν χρειάζεται να αποφασίσετε τώρα, ούτε να το πείτε σε κανέναν.",
+          "en": "You don't have to decide now, or tell anyone."
+        }
+      ]
+    },
+    "onlyFor": ["partner"]
+  },
+  {
+    "id": "q-w0-paperwork",
+    "worldID": "w0-harbour",
+    "skill": "resilience",
+    "xp": 25,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Η αποστολή με τα χαρτιά",
+      "en": "The paperwork quest"
+    },
+    "description": {
+      "el": "Μάθε τι άδεια δικαιούσαι ως πατέρας και τι χαρτιά θα χρειαστούν μετά τη γέννα. Γράψ' τα σε μία λίστα.",
+      "en": "Find out what leave you're entitled to as a father and what paperwork follows the birth. Put it all in one list."
+    },
+    "tip": {
+      "title": {
+        "el": "Η λίστα",
+        "en": "The list"
+      },
+      "steps": [
+        {
+          "el": "Άδεια: πόσες μέρες, με τι αποδοχές, και πόσο πριν πρέπει να το ξέρει η δουλειά. Διαφέρει πολύ από χώρα σε χώρα και από εργοδότη σε εργοδότη.",
+          "en": "Leave: how many days, on what pay, and how far ahead work needs to know. It varies hugely by country and by employer."
+        },
+        {
+          "el": "Πες το στη δουλειά όταν είσαι έτοιμος. Ρώτα και για ευελιξία τις πρώτες εβδομάδες, όχι μόνο για μέρες άδειας.",
+          "en": "Tell work when you're ready. Ask about flexibility in the first weeks too, not just days off."
+        },
+        {
+          "el": "Μετά τη γέννα: δήλωση γέννησης, ασφάλιση υγείας του μωρού, επιδόματα. Μάθε από τώρα ποιος κάνει τι, και πού.",
+          "en": "After the birth: registering the birth, the baby's health cover, any benefits. Find out now who does what, and where."
+        },
+        {
+          "el": "Αν δεν είστε παντρεμένοι, ή αν το μωρό έρχεται με παρένθετη μητέρα ή με υιοθεσία, ρώτα αν χρειάζεται κάτι παραπάνω για να αναγνωριστείς ως γονιός.",
+          "en": "If you aren't married, or the baby is coming through surrogacy or adoption, ask whether anything extra is needed for you to be recognised as a parent."
+        },
+        {
+          "el": "Ένα ποσό στην άκρη για τους πρώτους μήνες, όσο μικρό κι αν είναι, αγοράζει ηρεμία.",
+          "en": "A little money set aside for the first months, however small, buys calm."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w0-voice",
+    "worldID": "w0-harbour",
+    "skill": "play",
+    "xp": 20,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Η φωνή απ' έξω",
+      "en": "The voice from outside"
+    },
+    "description": {
+      "el": "Μίλα, διάβασε ή τραγούδα κοντά στην κοιλιά για λίγα λεπτά. Ό,τι θέλεις: παραμύθι, αθλητικά, τη λίστα για το σούπερ μάρκετ.",
+      "en": "Talk, read or sing near the bump for a few minutes. Anything goes: a story, the football results, the shopping list."
+    },
+    "tip": {
+      "title": {
+        "el": "Σε ακούει;",
+        "en": "Can they hear you?"
+      },
+      "steps": [
+        {
+          "el": "Ρώτα πρώτα την ιδιοκτήτρια της κοιλιάς.",
+          "en": "Ask the owner of the bump first."
+        },
+        {
+          "el": "Τους τελευταίους μήνες το μωρό αντιδρά στις φωνές. Σε μια μελέτη, οι παλμοί της καρδιάς του άλλαζαν όταν διάβαζε ο πατέρας.",
+          "en": "In the later months the baby responds to voices. In one study its heart rate changed when the father read aloud."
+        },
+        {
+          "el": "Δεν είναι μάθημα και δεν το κάνει πιο έξυπνο. Είναι για σένα: συνηθίζεις να του μιλάς.",
+          "en": "It isn't a lesson and it won't make them smarter. It's for you: you get used to talking to them."
+        },
+        {
+          "el": "Διάλεξε από τώρα ένα τραγούδι. Θα το χρειαστείς στις τρεις το πρωί.",
+          "en": "Pick a song now. You'll need it at 3am."
+        }
+      ]
+    },
+    "onlyFor": ["partner"]
+  },
+  {
+    "id": "q-w0-the-talk",
+    "worldID": "w0-harbour",
+    "skill": "resilience",
+    "xp": 30,
+    "minAgeMonths": 0,
+    "onlyFor": ["partner"],
+    "title": {
+      "el": "Η κουβέντα πριν το μωρό",
+      "en": "The talk before the baby"
+    },
+    "description": {
+      "el": "Κάτσε με τον σύντροφό σου και πείτε ο καθένας έναν φόβο και μία ελπίδα για τους πρώτους μήνες. Απόψε δεν λύνετε τίποτα, μόνο ακούτε.",
+      "en": "Sit down with your partner and each name one fear and one hope for the first months. Nothing gets fixed tonight; you just listen."
+    },
+    "tip": {
+      "title": {
+        "el": "Τέσσερα θέματα που αξίζει να ανοίξουν νωρίς",
+        "en": "Four topics worth opening early"
+      },
+      "steps": [
+        {
+          "el": "Οι νύχτες: πώς θα μοιράσετε τον ύπνο;",
+          "en": "Nights: how will you split the sleep?"
+        },
+        {
+          "el": "Οι επισκέψεις: ποιος έρχεται τις πρώτες μέρες, και ποιος από τους δυο σας λέει το «όχι ακόμα»;",
+          "en": "Visitors: who comes in the first days, and which of you says “not yet”?"
+        },
+        {
+          "el": "Τα λεφτά και οι άδειες: ποιος μένει σπίτι, για πόσο, και με τι εισόδημα;",
+          "en": "Money and leave: who's at home, for how long, and on what income?"
+        },
+        {
+          "el": "Το σύνθημα: μια λέξη που σημαίνει «δεν αντέχω άλλο, πάρ' το εσύ», χωρίς ερωτήσεις.",
+          "en": "The code word: one word that means “I'm done, you take over”, no questions asked."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w0-systems-check",
+    "worldID": "w0-harbour",
+    "skill": "resilience",
+    "xp": 30,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Έλεγχος συστημάτων",
+      "en": "Systems check"
+    },
+    "description": {
+      "el": "Ρώτα τον εαυτό σου πώς είσαι στ' αλήθεια με όλο αυτό, και πες το σε έναν άνθρωπο. Και το «φοβάμαι» είναι απάντηση.",
+      "en": "Ask yourself how you're really doing with all this, and tell one person. “Scared” is an answer."
+    },
+    "tip": {
+      "title": {
+        "el": "Δεν είσαι ο μόνος",
+        "en": "You're not the only one"
+      },
+      "steps": [
+        {
+          "el": "Περίπου ένας στους δέκα άντρες περνά κατάθλιψη ήδη από την εγκυμοσύνη, όχι μόνο μετά τη γέννα.",
+          "en": "About one man in ten goes through depression during the pregnancy itself, not only after the birth."
+        },
+        {
+          "el": "Δεν μοιάζει πάντα με λύπη: νεύρα, κακός ύπνος, απόσυρση, παραπάνω ώρες στη δουλειά.",
+          "en": "It doesn't always look like sadness: a short fuse, poor sleep, pulling away, longer hours at work."
+        },
+        {
+          "el": "Το «εκείνη περνά τα δύσκολα, εγώ δεν δικαιούμαι να παραπονιέμαι» είναι μια συνηθισμένη παγίδα. Δικαιούσαι.",
+          "en": "“She's the one going through it, I've no right to complain” is a common trap. You have every right."
+        },
+        {
+          "el": "Αν κρατήσει πάνω από δύο εβδομάδες, μίλα με γιατρό.",
+          "en": "If it lasts more than two weeks, talk to a doctor."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w0-smoke-free",
+    "worldID": "w0-harbour",
+    "skill": "care",
+    "xp": 30,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Σπίτι χωρίς καπνό",
+      "en": "Smoke-free base"
+    },
+    "description": {
+      "el": "Κάνε το σπίτι και το αυτοκίνητο χώρους χωρίς καπνό, από τώρα. Αν καπνίζεις, ρώτα τι βοήθεια υπάρχει για να το κόψεις.",
+      "en": "Make the home and the car smoke-free, starting now. If you smoke, ask what help there is to quit."
+    },
+    "tip": {
+      "title": {
+        "el": "Γιατί από τώρα",
+        "en": "Why from now"
+      },
+      "steps": [
+        {
+          "el": "Ο καπνός των άλλων φτάνει στο μωρό και πριν γεννηθεί.",
+          "en": "Other people's smoke reaches the baby before birth too."
+        },
+        {
+          "el": "Μετά τη γέννα, ένα σπίτι χωρίς καπνό είναι από τα πιο σημαντικά πράγματα για τον ασφαλή ύπνο του μωρού.",
+          "en": "After the birth, a smoke-free home is one of the most important things for the baby's safe sleep."
+        },
+        {
+          "el": "Ο κανόνας ισχύει και για τους επισκέπτες: έξω, και όχι δίπλα στο μωρό.",
+          "en": "The rule covers visitors too: outside, and not next to the baby."
+        },
+        {
+          "el": "Με βοήθεια κόβεται πολύ πιο εύκολα απ' ό,τι μόνος σου. Ρώτα τον γιατρό ή τον φαρμακοποιό σου τι υπάρχει κοντά σου.",
+          "en": "Quitting is far easier with support than alone. Ask your doctor or pharmacist what's available near you."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w0-sleep-space",
+    "worldID": "w0-harbour",
+    "skill": "care",
+    "xp": 25,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Η πρώτη του γωνιά",
+      "en": "Their first corner"
+    },
+    "description": {
+      "el": "Στήσε εκεί που θα κοιμηθεί την πρώτη του νύχτα: δικό του, επίπεδο, σκληρό στρώμα, χωρίς τίποτα άλλο μέσα, και πάντα ξαπλώνει ανάσκελα. Στο δικό σας δωμάτιο.",
+      "en": "Set up where they'll sleep on their first night: their own flat, firm mattress with nothing else in it, and they always go down on their back. In your room."
+    },
+    "tip": {
+      "title": {
+        "el": "Το βαρετό είναι το ασφαλές",
+        "en": "Boring is safe"
+      },
+      "steps": [
+        {
+          "el": "Πίεσε το στρώμα με το χέρι: δεν πρέπει να βουλιάζει. Να εφαρμόζει στο πλαίσιο χωρίς κενά.",
+          "en": "Press the mattress with your hand: it shouldn't sink. It should fit the frame with no gaps."
+        },
+        {
+          "el": "Όχι φωλιές, στρωματάκια με πλαϊνά, σφήνες, πάντες, μαξιλάρια, παπλώματα, λούτρινα. Όσο πιο άδειο, τόσο καλύτερα.",
+          "en": "No nests, pods, wedges, bumpers, pillows, duvets or soft toys. The emptier, the better."
+        },
+        {
+          "el": "Ό,τι το κρατά μισοκαθιστό ή σε κλίση δεν είναι για ύπνο.",
+          "en": "Anything that holds them propped up or on a slope isn't for sleeping."
+        },
+        {
+          "el": "Στα δώρα που δεν ταιριάζουν με αυτά λες «ευχαριστώ» και τα ανεβάζεις στο πατάρι.",
+          "en": "Gifts that don't fit these rules get a “thank you” and a place in the loft."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w0-welcome-crew",
+    "worldID": "w0-harbour",
+    "skill": "care",
+    "xp": 25,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Η επιτροπή υποδοχής",
+      "en": "The welcome committee"
+    },
+    "description": {
+      "el": "Αν στο σπίτι υπάρχει ήδη παιδί ή ζώο, ετοίμασέ το: πες στο παιδί τι θα αλλάξει και τι θα μείνει ίδιο, μάθε στο ζώο τους νέους κανόνες.",
+      "en": "If there's already a child or a pet at home, get them ready: tell the child what will change and what will stay the same; teach the animal the new rules."
+    },
+    "tip": {
+      "title": {
+        "el": "Πριν έρθει ο νέος συγκάτοικος",
+        "en": "Before the new roommate arrives"
+      },
+      "steps": [
+        {
+          "el": "Στο παιδί: λίγα λόγια, αληθινά. Στην αρχή το μωρό θα κοιμάται, θα τρώει και θα κλαίει. Δεν θα παίζει ακόμα.",
+          "en": "For the child: few words, true ones. At first the baby will sleep, feed and cry. It won't play yet."
+        },
+        {
+          "el": "Μεγάλες αλλαγές (καινούργιο κρεβάτι, δωμάτιο, σχολείο) όχι κολλητά με τον ερχομό του μωρού, αν γίνεται.",
+          "en": "Big changes (new bed, new room, new school) not right on top of the baby's arrival, if you can help it."
+        },
+        {
+          "el": "Πες του ποιος θα το προσέχει όσο θα λείπετε για τη γέννα.",
+          "en": "Tell them who'll look after them while you're away for the birth."
+        },
+        {
+          "el": "Στο ζώο: οι νέοι κανόνες (πού κοιμάται, πού δεν μπαίνει) ξεκινούν τώρα, όχι τη μέρα που θα έρθει το μωρό.",
+          "en": "For the pet: the new rules (where it sleeps, where it doesn't go) start now, not the day the baby comes home."
+        },
+        {
+          "el": "Μωρό και ζώο ποτέ μόνα τους στο ίδιο δωμάτιο, όσο ήρεμο κι αν είναι το ζώο.",
+          "en": "Baby and pet never alone in a room together, however gentle the animal."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w0-your-team",
+    "worldID": "w0-harbour",
+    "skill": "resilience",
+    "xp": 25,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Η ομάδα σου",
+      "en": "Your party"
+    },
+    "description": {
+      "el": "Γράψε τρία ονόματα: ποιος φέρνει φαγητό, ποιον παίρνεις τηλέφωνο στις δύσκολες ώρες, ποιος ξέρει από μωρά. Και πες τους το από τώρα.",
+      "en": "Write down three names: who brings food, who you call in the rough hours, who knows babies. And tell them now."
+    },
+    "tip": {
+      "title": {
+        "el": "Η βοήθεια θέλει οδηγίες",
+        "en": "Help needs instructions"
+      },
+      "steps": [
+        {
+          "el": "Το «πες μου αν χρειαστείς κάτι» σπάνια δουλεύει. Δώσε συγκεκριμένη δουλειά: «φέρε φαγητό την Τρίτη».",
+          "en": "“Let me know if you need anything” rarely works. Hand out a specific job: “bring dinner on Tuesday”."
+        },
+        {
+          "el": "Ένας άνθρωπος που πέρασε πρόσφατα τα ίδια αξίζει όσο δέκα βιβλία.",
+          "en": "One person who's recently been through it is worth ten books."
+        },
+        {
+          "el": "Αν είστε μακριά από οικογένεια και φίλους, ψάξε από τώρα μια ομάδα γονέων κοντά σου ή online.",
+          "en": "If you're far from family and friends, look now for a parents' group nearby or online."
         }
       ]
     }
@@ -99,6 +641,65 @@
     }
   },
   {
+    "id": "q-w1-cot-check",
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 25,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Έλεγχος κούνιας",
+      "en": "Cot check"
+    },
+    "description": {
+      "el": "Κοίτα πού θα κοιμηθεί απόψε: ανάσκελα, σε σκληρό επίπεδο στρώμα, σε άδεια κούνια.",
+      "en": "Check where they sleep tonight: on their back, on a firm flat mattress, in an empty cot."
+    },
+    "tip": {
+      "title": {
+        "el": "Άδεια κούνια, ήσυχο κεφάλι",
+        "en": "Empty cot, easy mind"
+      },
+      "steps": [
+        {
+          "el": "Πάντα ανάσκελα, σε κάθε ύπνο, μέρα και νύχτα, σε άδεια κούνια: ούτε μαξιλάρι, ούτε πάπλωμα, ούτε λούτρινα, ούτε προστατευτικά στα κάγκελα.",
+          "en": "Always on their back, for every sleep, day and night, in an empty cot: no pillow, no duvet, no soft toys, no bumper."
+        },
+        {
+          "el": "Τους πρώτους έξι μήνες η κούνια του μένει στο δικό σας δωμάτιο.",
+          "en": "For the first six months their cot stays in your room."
+        },
+        {
+          "el": "Ξανακάνε τον έλεγχο στη γιαγιά, στο ξενοδοχείο, στις διακοπές.",
+          "en": "Run the check again at grandma's, at the hotel, on holiday."
+        },
+        {
+          "el": "Κανείς δεν καπνίζει στο σπίτι, στο αυτοκίνητο ή δίπλα στο μωρό. Το ανοιχτό παράθυρο δεν αρκεί.",
+          "en": "Nobody smokes in the home, in the car or near the baby. An open window isn't enough."
+        },
+        {
+          "el": "Ποτέ ύπνος μαζί του σε καναπέ ή πολυθρόνα. Και ποτέ στο ίδιο κρεβάτι αν εσύ ή όποιος άλλος κοιμάται εκεί έχει πιει, καπνίζει ή παίρνει φάρμακα ή ουσίες που φέρνουν υπνηλία, ή αν το μωρό γεννήθηκε πρόωρα ή μικρό.",
+          "en": "Never sleep with them on a sofa or in an armchair. And never in the same bed if you or anyone else sleeping there has been drinking, smokes or takes medicines or drugs that make them drowsy, or if the baby was born early or small."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w1-lullaby",
+    "worldID": "w1-swamp",
+    "skill": "patience",
+    "xp": 30,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Το δικό σου νανούρισμα",
+      "en": "Your own lullaby"
+    },
+    "description": {
+      "el": "Τραγούδα του απόψε (ή μουρμούρα) ένα τραγούδι. Το ίδιο κάθε φορά, για να γίνει το δικό σας.",
+      "en": "Sing (or hum) them a song tonight. The same one every time, so it becomes yours."
+    }
+  },
+  {
     "id": "q-w1-narrator",
     "worldID": "w1-swamp",
     "skill": "play",
@@ -130,34 +731,106 @@
     }
   },
   {
-    "id": "q-w1-solo-walk",
-    "worldID": "w1-swamp",
-    "skill": "resilience",
-    "xp": 25,
-    "minAgeMonths": 0,
-    "evergreen": true,
-    "title": {
-      "el": "Βόλτα για σένα",
-      "en": "A walk for you"
-    },
-    "description": {
-      "el": "30 λεπτά περπάτημα μόνος σου. Χωρίς ειδοποιήσεις.",
-      "en": "30 minutes walking on your own. Notifications off."
-    }
-  },
-  {
-    "id": "q-w1-lullaby",
+    "id": "q-w1-night-shift",
     "worldID": "w1-swamp",
     "skill": "patience",
     "xp": 30,
     "minAgeMonths": 0,
     "title": {
-      "el": "Το δικό σου νανούρισμα",
-      "en": "Your own lullaby"
+      "el": "Νυχτερινή βάρδια",
+      "en": "Night shift"
     },
     "description": {
-      "el": "Τραγούδα του απόψε (ή μουρμούρα) ένα τραγούδι. Το ίδιο κάθε φορά, για να γίνει το δικό σας.",
-      "en": "Sing (or hum) them a song tonight. The same one every time, so it becomes yours."
+      "el": "Απόψε η νύχτα είναι δική σου: άλλαγμα, ρέψιμο, νανούρισμα. Αν θηλάζει, όλα εκτός από το τάισμα.",
+      "en": "Tonight the night is yours: nappy, burping, settling. If they're breastfed, everything except the feed."
+    },
+    "tip": {
+      "title": {
+        "el": "Πιάσ' το πριν κλάψει",
+        "en": "Catch it before the cry"
+      },
+      "steps": [
+        {
+          "el": "Τα σημάδια της πείνας έρχονται πριν το κλάμα: γυρίζει το κεφάλι, ανοίγει το στόμα, βάζει το χέρι στο στόμα.",
+          "en": "Hunger shows before the crying does: head turning, mouth opening, hand to mouth."
+        },
+        {
+          "el": "Χαμηλό φως, λίγα λόγια, καθόλου παιχνίδι. Η νύχτα πρέπει να είναι βαρετή.",
+          "en": "Low light, few words, no play. Nights should be boring."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w1-skin-to-skin",
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 20,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Ώρα αγκαλιάς",
+      "en": "Cuddle time"
+    },
+    "description": {
+      "el": "20 λεπτά αγκαλιά δέρμα με δέρμα. Κινητό μακριά.",
+      "en": "20 minutes of skin-to-skin. Phone away."
+    },
+    "tip": {
+      "title": {
+        "el": "Νύσταξες; Πρώτα η κούνια",
+        "en": "Sleepy? Cot first"
+      },
+      "steps": [
+        {
+          "el": "Αν νιώσεις ότι σε παίρνει ο ύπνος, βάλε πρώτα το μωρό ανάσκελα στην κούνια του και μετά ξάπλωσε εσύ. Όχι στον καναπέ ή στην πολυθρόνα με το μωρό στην αγκαλιά.",
+          "en": "If you feel yourself nodding off, put the baby on their back in the cot first, then lie down yourself. Not on the sofa or in an armchair with the baby on you."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w1-bottle-engineer",
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 25,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Ο μηχανικός του μπιμπερό",
+      "en": "Bottle engineer"
+    },
+    "description": {
+      "el": "Αν το μωρό πίνει φόρμουλα: ετοίμασε ένα μπιμπερό από την αρχή ως το τέλος, ακριβώς όπως γράφει το κουτί.",
+      "en": "If the baby has formula: make up one bottle from start to finish, exactly as the tin says."
+    },
+    "tip": {
+      "title": {
+        "el": "Πρώτα το νερό, μετά η σκόνη",
+        "en": "Water first, then powder"
+      },
+      "steps": [
+        {
+          "el": "Πλύνε τα χέρια σου. Μπιμπερό και θηλή καθαρά, και αποστειρωμένα όπως συνιστούν στη χώρα σου για την ηλικία του.",
+          "en": "Wash your hands. Bottle and teat clean, and sterilised the way your country advises for their age."
+        },
+        {
+          "el": "Ποιο νερό και πόσο ζεστό διαφέρει από χώρα σε χώρα: σε πολλές είναι φρεσκοβρασμένο νερό που κρύωσε όχι πάνω από 30 λεπτά. Ακολούθησε το κουτί και τις οδηγίες της χώρας σου, ιδίως για μωρό κάτω των 2 μηνών ή πρόωρο.",
+          "en": "Which water, and how hot, differs by country: in many it's freshly boiled water left to cool for no more than 30 minutes. Follow the tin and your country's advice, especially for a baby under 2 months or born early."
+        },
+        {
+          "el": "Πρώτα το νερό, μετά η σκόνη, με τη μεζούρα του ίδιου κουτιού, ίσια και όχι πατημένη. Ποτέ παραπάνω σκόνη και ποτέ παραπάνω νερό.",
+          "en": "Water first, then powder, with the scoop from that same tin, levelled and not packed. Never extra powder and never extra water."
+        },
+        {
+          "el": "Κρύωσέ το κάτω από τη βρύση και δοκίμασε λίγες σταγόνες στο μέσα μέρος του καρπού σου: χλιαρό, όχι ζεστό. Ποτέ στον φούρνο μικροκυμάτων.",
+          "en": "Cool it under the tap and test a few drops on the inside of your wrist: lukewarm, not hot. Never in the microwave."
+        },
+        {
+          "el": "Ένα μπιμπερό τη φορά, όταν το χρειάζεται. Ό,τι μείνει μετά το τάισμα πετιέται, δεν φυλάγεται για το επόμενο.",
+          "en": "One bottle at a time, when it's needed. Whatever is left after the feed gets thrown away, not saved for the next one."
+        }
+      ],
+      "medical": true
     }
   },
   {
@@ -168,12 +841,12 @@
     "minAgeMonths": 0,
     "evergreen": true,
     "title": {
-      "el": "Κάλεσε έναν φίλο",
+      "el": "Πάρε τηλέφωνο έναν φίλο",
       "en": "Call a friend"
     },
     "description": {
-      "el": "Μίλα με έναν φίλο. Πες του και πώς είσαι εσύ, όχι μόνο το μωρό.",
-      "en": "Talk to a friend. Tell them how you are, not just the baby."
+      "el": "Μίλα με έναν φίλο. Πες του και πώς είσαι εσύ, όχι μόνο πώς είναι το παιδί.",
+      "en": "Talk to a friend. Tell them how you are, not just how the kid is."
     },
     "tip": {
       "title": {
@@ -186,83 +859,96 @@
           "en": "Open with one true sentence: “I'm wrecked.” The other person will follow."
         },
         {
-          "el": "Περίπου ένας στους δέκα νέους μπαμπάδες περνά κατάθλιψη τον πρώτο χρόνο. Το να το πεις σε έναν άνθρωπο είναι το πρώτο βήμα.",
-          "en": "About one new dad in ten goes through depression in the first year. Telling one person is the first step."
+          "el": "Δεν του ζητάς λύση. Φτάνει να το ακούσει ένας άνθρωπος.",
+          "en": "You're not asking for a fix. One person hearing it is enough."
+        },
+        {
+          "el": "Οι μπαμπάδες ζορίζονται πιο συχνά απ' όσο λέγεται, και όχι μόνο στην αρχή. Αν οι βαριές μέρες κρατούν εβδομάδες, η επόμενη κουβέντα είναι με γιατρό.",
+          "en": "Dads struggle more often than people say, and not only at the start. If the heavy days go on for weeks, the next conversation is with a doctor."
         }
       ]
     }
   },
   {
-    "id": "q-w1-tummy-time",
+    "id": "q-w1-car-seat",
+    "formerIDs": [
+      "q-w2-car-seat"
+    ],
     "worldID": "w1-swamp",
-    "skill": "play",
-    "xp": 20,
+    "skill": "care",
+    "xp": 25,
     "minAgeMonths": 0,
+    "evergreen": true,
     "title": {
-      "el": "Προπονητής tummy time",
-      "en": "Tummy time coach"
+      "el": "Έλεγχος καθίσματος",
+      "en": "Car seat check"
     },
     "description": {
-      "el": "Ξάπλωσε στο πάτωμα απέναντί του και κάνε μαζί tummy time.",
-      "en": "Lie on the floor facing them and do tummy time together."
+      "el": "Πριν την επόμενη διαδρομή, σε όποιο αυτοκίνητο κι αν είναι, έλεγξε το κάθισμα: φορά, ζώνες, στερέωση.",
+      "en": "Before the next ride, in whoever's car it is, check the seat: direction, straps, fixing."
     },
     "tip": {
       "title": {
-        "el": "Λίγο και συχνά",
-        "en": "Little and often"
+        "el": "Το τεστ της τσιμπιάς",
+        "en": "The pinch test"
       },
       "steps": [
         {
-          "el": "Ξεκινά από τις πρώτες μέρες. Δύο-τρία λεπτά τη φορά φτάνουν, και ο στόχος είναι γύρω στα 30 λεπτά μέσα στη μέρα.",
-          "en": "It starts in the first days. Two or three minutes at a time is enough, building to about 30 minutes across the day."
+          "el": "Κοιτάζει προς τα πίσω από την πρώτη διαδρομή, και για όσο το επιτρέπει το κάθισμα. Ποτέ μπροστά σε ενεργό αερόσακο.",
+          "en": "Rear-facing from the very first ride, and for as long as the seat allows. Never in front of an active airbag."
         },
         {
-          "el": "Μετράει και μπρούμυτα πάνω στο στήθος σου.",
-          "en": "Lying on your chest counts."
+          "el": "Σφίξε τις ζώνες μέχρι να μην μπορείς να τσιμπήσεις ιμάντα στον ώμο του. Χωρίς μπουφάν ή φόρμα εξόδου από κάτω: η κουβέρτα μπαίνει από πάνω.",
+          "en": "Tighten the straps until you can't pinch any webbing at their shoulder. No puffy coat or snowsuit underneath: the blanket goes on top."
         },
         {
-          "el": "Μόνο όταν είναι ξύπνιο και το βλέπεις. Αν γκρινιάξει, σταμάτα και δοκίμασε αργότερα.",
-          "en": "Only while they're awake and you're watching. If they fuss, stop and try again later."
+          "el": "Δέσ' το όπως λέει το εγχειρίδιο του καθίσματος και του αυτοκινήτου. Τράβηξέ το στη βάση του: πρέπει να κουνιέται ελάχιστα. Στο νεογέννητο η κλίση είναι τέτοια που το κεφάλι δεν πέφτει μπροστά.",
+          "en": "Fit it the way the seat's manual and the car's manual say. Tug it at the base: it should barely shift. For a newborn, the recline keeps their head from flopping forward."
+        },
+        {
+          "el": "Το κάθισμα είναι για τη διαδρομή, όχι για ύπνο. Μόλις φτάσετε, το μωρό βγαίνει. Στα μεγάλα ταξίδια κάνε συχνές στάσεις και, αν γίνεται, κάθεται ένας μεγάλος πίσω μαζί του.",
+          "en": "The seat is for the ride, not for sleep. When you arrive, the baby comes out. On long trips stop often and, if you can, an adult rides in the back with them."
+        },
+        {
+          "el": "Μεταχειρισμένο μόνο αν ξέρεις την ιστορία του: όχι αν έχει περάσει τρακάρισμα, όχι αν έχει λήξει ή του λείπουν κομμάτια.",
+          "en": "Second-hand only if you know its history: not after a crash, not past its expiry date, not with parts missing."
         }
       ],
       "medical": true
     }
   },
   {
-    "id": "q-w1-cot-check",
+    "id": "q-w1-early-night",
     "worldID": "w1-swamp",
-    "skill": "care",
+    "skill": "resilience",
     "xp": 25,
     "minAgeMonths": 0,
+    "evergreen": true,
     "title": {
-      "el": "Έλεγχος κούνιας",
-      "en": "Cot check"
+      "el": "Νωρίς για ύπνο",
+      "en": "Early night"
     },
     "description": {
-      "el": "Κοίτα πού θα κοιμηθεί απόψε: ανάσκελα, σε σκληρό επίπεδο στρώμα, σε άδεια κούνια.",
-      "en": "Check where they sleep tonight: on their back, on a firm flat mattress, in an empty cot."
+      "el": "Απόψε πέσε για ύπνο μόλις κοιμηθεί το παιδί. Τα πιάτα και η σειρά θα είναι εκεί και αύριο.",
+      "en": "Tonight go to bed as soon as your child is asleep. The dishes and the series will still be there tomorrow."
     },
     "tip": {
       "title": {
-        "el": "Άδεια κούνια, ήσυχο κεφάλι",
-        "en": "Empty cot, easy mind"
+        "el": "Κουρασμένος μπαμπάς, ασφαλές μωρό",
+        "en": "Tired dad, safe baby"
       },
       "steps": [
         {
-          "el": "Πάντα ανάσκελα, σε κάθε ύπνο, μέρα και νύχτα.",
-          "en": "Always on their back, for every sleep, day and night."
+          "el": "Ο ύπνος των γονιών δεν γυρίζει στα παλιά για χρόνια. Δεν τον ξεχρεώνεις σε ένα Σαββατοκύριακο: τον μαζεύεις λίγο λίγο.",
+          "en": "Parents' sleep doesn't go back to how it was for years. You can't repay it in one weekend: you bank it a little at a time."
         },
         {
-          "el": "Τίποτα μέσα στην κούνια: ούτε μαξιλάρι, ούτε πάπλωμα, ούτε λούτρινα, ούτε προστατευτικά στα κάγκελα.",
-          "en": "Nothing in the cot: no pillow, no duvet, no soft toys, no bumper."
+          "el": "Αν είστε δύο, πείτε από πριν ποιος σηκώνεται απόψε. Ο άλλος κοιμάται κανονικά, με κλειστή πόρτα.",
+          "en": "If there are two of you, agree beforehand who gets up tonight. The other one sleeps properly, door closed."
         },
         {
-          "el": "Τους πρώτους έξι μήνες η κούνια του μένει στο δικό σας δωμάτιο.",
-          "en": "For the first six months their cot stays in your room."
-        },
-        {
-          "el": "Ξανακάνε τον έλεγχο στη γιαγιά, στο ξενοδοχείο, στις διακοπές.",
-          "en": "Run the check again at grandma's, at the hotel, on holiday."
+          "el": "Το μωρό δεν κοιμάται στο κρεβάτι σου αν ήπιες αλκοόλ, καπνίζεις ή πήρες κάτι που φέρνει υπνηλία, ή αν γεννήθηκε πρόωρα ή μικρό. Για το κοινό κρεβάτι γενικά οι οδηγίες διαφέρουν από χώρα σε χώρα: ρώτα τον γιατρό του. Και ποτέ ύπνος μαζί του σε καναπέ ή πολυθρόνα.",
+          "en": "The baby doesn't sleep in your bed if you've had alcohol, you smoke or you've taken anything that makes you drowsy, or if they were born early or small. On bed-sharing in general the advice differs from country to country: ask their doctor. And never fall asleep with them on a sofa or in an armchair."
         }
       ],
       "medical": true
@@ -274,6 +960,7 @@
     "skill": "care",
     "xp": 20,
     "minAgeMonths": 0,
+    "onlyFor": ["partner"],
     "title": {
       "el": "Ο δεύτερος στο τάισμα",
       "en": "Feeding wingman"
@@ -289,14 +976,278 @@
       },
       "steps": [
         {
-          "el": "Ο θηλασμός φέρνει δίψα. Φέρε νερό πριν σου το ζητήσει.",
-          "en": "Breastfeeding is thirsty work. Bring water before she asks."
+          "el": "Ο θηλασμός φέρνει δίψα και πείνα. Φέρε νερό και κάτι να φάει πριν σου το ζητήσει.",
+          "en": "Breastfeeding is thirsty, hungry work. Bring water and a snack before you're asked."
         },
         {
-          "el": "Με το μπιμπερό: κράτα το μισοκαθιστό, κοντά σου, και κοίταξέ το. Δεν είναι αγγαρεία, είναι η ώρα σας.",
-          "en": "With a bottle: hold them half upright, close to you, and look at them. It's not a chore, it's your time."
+          "el": "Τις πρώτες εβδομάδες ένα μωρό που θηλάζει τρώει 8 με 12 φορές το 24ωρο, και παραπάνω, μέρα και νύχτα. Δεν σημαίνει ότι το γάλα δεν φτάνει.",
+          "en": "In the first weeks a breastfed baby feeds 8 to 12 times in 24 hours, or more, day and night. It doesn't mean there isn't enough milk."
+        },
+        {
+          "el": "Λίγη ευαισθησία τις πρώτες μέρες είναι συνηθισμένη. Πόνος σε κάθε τάισμα ή θηλές που ανοίγουν και ματώνουν θέλουν βοήθεια νωρίς, από μαία ή σύμβουλο θηλασμού. Το τηλέφωνο το παίρνεις εσύ.",
+          "en": "Some soreness in the first days is common. Pain at every feed, or nipples that crack or bleed, need help early from a midwife or a breastfeeding specialist. You make the call."
+        },
+        {
+          "el": "Με το μπιμπερό: μισοκαθιστό στην αγκαλιά σου, να σε βλέπει. Άγγιξε τη θηλή στα χείλη του και περίμενε να ανοίξει το στόμα. Κάνε παύσεις, και όταν γυρίσει το κεφάλι τελειώσατε, ακόμα κι αν έμεινε γάλα.",
+          "en": "With a bottle: half upright in your arms, where they can see you. Brush the teat on their lips and wait for the mouth to open. Take pauses, and when they turn away you're done, even if there's milk left."
+        },
+        {
+          "el": "Μένεις δίπλα του όσο πίνει, με το μπιμπερό στο χέρι σου και όχι στηριγμένο σε μαξιλάρι, για να το σηκώσεις αν το γάλα έρθει πολύ γρήγορα.",
+          "en": "Stay with them for the whole bottle, held in your hand rather than propped on a cushion, so you can sit them up if the milk comes too fast."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w1-meet-the-crew",
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 25,
+    "minAgeMonths": 0,
+    "onlyFor": ["olderSibling"],
+    "title": {
+      "el": "Η σειρά του μεγάλου",
+      "en": "The big one's turn"
+    },
+    "description": {
+      "el": "Σήμερα δέκα λεπτά μόνο με το μεγάλο, χωρίς μωρό στην αγκαλιά και χωρίς κινητό. Διαλέγει εκείνο τι θα κάνετε.",
+      "en": "Today, ten minutes with just the older one, no baby in your arms and no phone. They choose what you do."
+    },
+    "tip": {
+      "title": {
+        "el": "Πρώτα η αγκαλιά του μεγάλου",
+        "en": "The big one's hug comes first"
+      },
+      "steps": [
+        {
+          "el": "Όταν γυρίζεις σπίτι, χαιρέτα πρώτα το μεγάλο. Το μωρό δεν θα το θυμάται· το μεγάλο θα το θυμάται.",
+          "en": "When you come home, greet the older one first. The baby won't remember; the older one will."
+        },
+        {
+          "el": "Πες στους επισκέπτες να μιλήσουν πρώτα στο μεγάλο, πριν σκύψουν πάνω από το μωρό.",
+          "en": "Ask visitors to talk to the older one first, before they lean over the baby."
+        },
+        {
+          "el": "Δώσε του ρόλο, όχι ευθύνη: φέρνει την πάνα, διαλέγει το φορμάκι, τραγουδά στο μωρό.",
+          "en": "Give them a role, not a responsibility: fetching the nappy, choosing the babygrow, singing to the baby."
+        },
+        {
+          "el": "Ζήλια, θυμός ή «στείλτε το πίσω» είναι αναμενόμενα. Τα ακούς χωρίς να τα διορθώνεις: «σου λείπει όπως ήταν πριν».",
+          "en": "Jealousy, anger or “send it back” are to be expected. You hear them without correcting them: “you miss how it was before.”"
+        },
+        {
+          "el": "Ένα μικρό παιδί και ένα μωρό δεν μένουν μόνα στο ίδιο δωμάτιο, ακόμα κι όταν το μεγάλο το αγαπά πολύ.",
+          "en": "A small child and a baby aren't left alone in the same room, even when the older one adores them."
         }
       ]
+    }
+  },
+  {
+    "id": "q-w1-nappy-detective",
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 20,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Ο ντετέκτιβ της πάνας",
+      "en": "Nappy detective"
+    },
+    "description": {
+      "el": "Σήμερα οι πάνες είναι δικές σου. Κοίτα τι έχει μέσα πριν την πετάξεις: είναι η αναφορά του μωρού για το πώς πάει το φαγητό.",
+      "en": "Today the nappies are yours. Look inside before you bin it: it's the baby's report on how feeding is going."
+    },
+    "tip": {
+      "title": {
+        "el": "Τι σου λέει η πάνα",
+        "en": "What the nappy tells you"
+      },
+      "steps": [
+        {
+          "el": "Τα πρώτα κόπρανα είναι μαυροπράσινα και κολλώδη σαν πίσσα. Είναι φυσιολογικό. Σε λίγες μέρες γίνονται κίτρινα ή μουσταρδί.",
+          "en": "The first poos are greenish-black and sticky like tar. That's normal. Within a few days they turn yellow or mustard."
+        },
+        {
+          "el": "Τις πρώτες δύο μέρες οι βρεγμένες πάνες είναι λίγες. Από την πέμπτη μέρα περίπου περίμενε τουλάχιστον έξι βαριές βρεγμένες πάνες το 24ωρο. Αν είναι λιγότερες, πες το στη μαία ή στον γιατρό την ίδια μέρα.",
+          "en": "In the first two days there are only a few wet nappies. From about day five, expect at least six heavy wet nappies in 24 hours. If there are fewer, tell the midwife or doctor the same day."
+        },
+        {
+          "el": "Τις πρώτες μέρες τα μωρά χάνουν λίγο βάρος και μετά το ξαναπαίρνουν. Το ζύγισμα και το αν πάει καλά το κρίνει η μαία ή ο γιατρός, όχι η ζυγαριά του μπάνιου.",
+          "en": "In the first days babies lose a little weight and then put it back on. The weighing, and whether it's going well, is for the midwife or doctor to judge, not the bathroom scales."
+        },
+        {
+          "el": "Ο αφαλός: καθαρός και στεγνός, με την πάνα διπλωμένη από κάτω του. Πέφτει μόνος του, δεν τον τραβάς. Αν κοκκινίσει το δέρμα γύρω, μυρίζει ή βγάζει υγρό, πες το στη μαία ή στον γιατρό την ίδια μέρα. Αν αιμορραγεί και δεν σταματά, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+          "en": "The cord stump: clean and dry, with the nappy folded below it. It drops off by itself, you don't pull it. If the skin around it goes red, it smells or oozes, tell the midwife or doctor the same day. If it bleeds and doesn't stop, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
+        },
+        {
+          "el": "Γιατρός ή μαία την ίδια μέρα αν τα κόπρανα είναι ωχρά ή λευκά ή έχουν αίμα. Μετά τις πρώτες δύο μέρες, αν περάσουν 6 ώρες χωρίς βρεγμένη πάνα, πάρε τώρα τον γιατρό, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+          "en": "Doctor or midwife the same day if the poo is pale or white or has blood in it. After the first two days, if 6 hours pass without a wet nappy, call the doctor now, whatever the hour, and the emergency number if they tell you to or if you can't reach them."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w1-pet-intro",
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 20,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Ο τετράποδος συγκάτοικος",
+      "en": "The four-legged roommate"
+    },
+    "description": {
+      "el": "Αν έχεις σκύλο ή γάτα: σήμερα η βόλτα ή το παιχνίδι του είναι δικά σου. Άλλαξε και η δική του ζωή.",
+      "en": "If you have a dog or a cat: today their walk or their playtime is yours. Their life just changed too."
+    },
+    "tip": {
+      "title": {
+        "el": "Ποτέ οι δυο τους μόνοι",
+        "en": "Never just the two of them"
+      },
+      "steps": [
+        {
+          "el": "Μωρό και ζώο δεν μένουν ποτέ μόνα στο ίδιο δωμάτιο, όσο ήρεμο κι αν είναι το ζώο. Αν βγεις, βγαίνει μαζί σου το ένα από τα δύο.",
+          "en": "Baby and pet are never alone in the same room, however gentle the pet is. If you step out, one of them steps out with you."
+        },
+        {
+          "el": "Το ζώο δεν μπαίνει εκεί που κοιμάται το μωρό: ούτε στην κούνια, ούτε στο καλαθάκι, ούτε στο κρεβάτι αν κοιμάστε μαζί.",
+          "en": "The pet stays out of where the baby sleeps: not in the cot, not in the basket, not in the bed if you share it."
+        },
+        {
+          "el": "Κράτα τη ρουτίνα του όσο γίνεται: βόλτα, φαγητό και λίγη προσοχή μόνο για εκείνο. Ένα ζώο που το ξέχασαν είναι ζώο που αγχώνεται.",
+          "en": "Keep their routine as steady as you can: walks, meals and a bit of attention that's just for them. A forgotten pet is a stressed pet."
+        },
+        {
+          "el": "Πλένεις τα χέρια σου μετά το ζώο, το φαγητό του ή την άμμο, πριν πιάσεις το μωρό.",
+          "en": "Wash your hands after the pet, its food or the litter tray, before you pick up the baby."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w1-solo-walk",
+    "worldID": "w1-swamp",
+    "skill": "resilience",
+    "xp": 25,
+    "minAgeMonths": 0,
+    "evergreen": true,
+    "title": {
+      "el": "Βόλτα για σένα",
+      "en": "A walk for you"
+    },
+    "description": {
+      "el": "Μισή ώρα περπάτημα για να αδειάσει το κεφάλι σου. Χωρίς ειδοποιήσεις.",
+      "en": "Half an hour's walk to clear your head. Notifications off."
+    },
+    "tip": {
+      "title": {
+        "el": "Η πιο φτηνή επανεκκίνηση",
+        "en": "The cheapest reset"
+      },
+      "steps": [
+        {
+          "el": "Έξω και με φως ημέρας, αν γίνεται. Αν έχεις μόνο δέκα λεπτά, μετράνε κι αυτά.",
+          "en": "Outdoors and in daylight if you can. If ten minutes is all you have, they count too."
+        },
+        {
+          "el": "Δεν έχεις σε ποιον να αφήσεις το μωρό; Πάρ' το μαζί σου, στο καρότσι ή στον μάρσιπο. Η βόλτα είναι πάλι για σένα.",
+          "en": "Nobody to leave the baby with? Bring them, in the pram or the carrier. The walk is still for you."
+        },
+        {
+          "el": "Χωρίς λίστα με δουλειές στο μυαλό, και χωρίς προορισμό.",
+          "en": "No to-do list in your head, and nowhere you have to get to."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w1-speed-dial",
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 20,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Ταχεία κλήση",
+      "en": "Speed dial"
+    },
+    "description": {
+      "el": "Αποθήκευσε σήμερα στο κινητό σου τα τηλέφωνα που δεν θα έχεις χρόνο να ψάξεις.",
+      "en": "Save today the numbers you won't have time to look up."
+    },
+    "tip": {
+      "title": {
+        "el": "Πέντε λεπτά, μία λίστα",
+        "en": "Five minutes, one list"
+      },
+      "steps": [
+        {
+          "el": "Ο αριθμός έκτακτης ανάγκης της χώρας σου. Όταν ταξιδεύεις, μάθε και τον τοπικό.",
+          "en": "Your country's emergency number. When you travel, learn the local one too."
+        },
+        {
+          "el": "Ο γιατρός του παιδιού, και ποιον παίρνεις όταν δεν απαντά: νύχτα, σαββατοκύριακο, αργία.",
+          "en": "Your child's doctor, and who you call when they don't answer: nights, weekends, holidays."
+        },
+        {
+          "el": "Το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν δεν υπάρχει, για δηλητηρίαση πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+          "en": "Your country's poison centre, if there is one. If there isn't, for poisoning call the doctor now, and the emergency number if they tell you to or if you can't reach them."
+        },
+        {
+          "el": "Το πιο κοντινό νοσοκομείο που δέχεται παιδιά στα επείγοντα, και πώς πας εκεί νύχτα.",
+          "en": "The nearest hospital whose emergency department takes children, and how you get there at night."
+        },
+        {
+          "el": "Μια σημείωση με το τελευταίο βάρος του μωρού και την ημερομηνία: θα σου το ζητήσουν. Στείλ' τα όλα και σε όποιον άλλον το προσέχει.",
+          "en": "A note with the baby's latest weight and the date: you'll be asked for it. Send the whole list to anyone else who looks after them."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w1-thermostat",
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 25,
+    "minAgeMonths": 0,
+    "title": {
+      "el": "Ο θερμοστάτης",
+      "en": "The thermostat"
+    },
+    "description": {
+      "el": "Πριν βγείτε, και πριν το βάλεις για ύπνο, έλεγξε αν ζεσταίνεται ή κρυώνει: άγγιξε το στήθος ή τον σβέρκο του.",
+      "en": "Before you head out, and before you put them down to sleep, check whether they're too hot or too cold: feel their chest or the back of their neck."
+    },
+    "tip": {
+      "title": {
+        "el": "Στήθος και σβέρκος, όχι χεράκια",
+        "en": "Chest and neck, not hands"
+      },
+      "steps": [
+        {
+          "el": "Τα χέρια και τα πόδια του είναι συνήθως πιο δροσερά, και αυτό είναι φυσιολογικό. Αν το στήθος ή ο σβέρκος είναι ζεστός ή ιδρωμένος, βγάλε ένα ρούχο.",
+          "en": "Hands and feet are usually cooler, and that's normal. If the chest or the back of the neck is hot or sweaty, take a layer off."
+        },
+        {
+          "el": "Μέσα στο σπίτι, στο μαγαζί και στο ζεστό αυτοκίνητο, το σκουφάκι και τα ρούχα της εξόδου βγαίνουν. Τα μωρά αποβάλλουν θερμότητα από το κεφάλι.",
+          "en": "Indoors, in a shop and in a warm car, the hat and the outdoor clothes come off. Babies lose heat through their head."
+        },
+        {
+          "el": "Κάτω από 6 μηνών, καθόλου απευθείας στον ήλιο: σκιά, ελαφριά ρούχα που το καλύπτουν, καπέλο με φαρδύ γύρο. Για το αντηλιακό σε αυτή την ηλικία οι οδηγίες διαφέρουν: ρώτα τον γιατρό του παιδιού.",
+          "en": "Under 6 months, no direct sun at all: shade, light clothes that cover them, a brimmed hat. On sunscreen at this age the advice differs: ask your child's doctor."
+        },
+        {
+          "el": "Μη σκεπάζεις το καρότσι με κουβέρτα ή πανί: από κάτω η ζέστη παγιδεύεται. Βάλε ομπρέλα ή σκίαστρο που αφήνει τον αέρα να περνά.",
+          "en": "Don't drape a blanket or a cloth over the pram: the heat gets trapped underneath. Use a parasol or a sunshade that lets the air through."
+        },
+        {
+          "el": "Ποτέ μόνο του στο αυτοκίνητο, ούτε για ένα λεπτό και ούτε με ανοιχτό παράθυρο. Το αυτοκίνητο ζεσταίνεται πολύ γρήγορα, ακόμα και σε δροσερή μέρα.",
+          "en": "Never alone in a car, not for one minute and not with the window open. A car heats up very fast, even on a mild day."
+        }
+      ],
+      "medical": true
     }
   },
   {
@@ -334,6 +1285,135 @@
         }
       ],
       "medical": true
+    }
+  },
+  {
+    "id": "q-w1-brief-the-backup",
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 30,
+    "minAgeMonths": 1,
+    "evergreen": true,
+    "title": {
+      "el": "Οδηγίες προς ναυτιλλομένους",
+      "en": "Brief the backup"
+    },
+    "description": {
+      "el": "Πριν αφήσεις το παιδί σε όποιον το προσέχει (παππού, γιαγιά, θεία, babysitter), πες του τα λίγα πράγματα που δεν αλλάζουν. Και ένα ευχαριστώ.",
+      "en": "Before you leave your child with whoever minds them (a grandparent, an aunt, a sitter), tell them the few things that don't change. And say thank you."
+    },
+    "tip": {
+      "title": {
+        "el": "Τρία αδιαπραγμάτευτα, όλα τα άλλα ελεύθερα",
+        "en": "Three non-negotiables, the rest is free"
+      },
+      "steps": [
+        {
+          "el": "Διάλεξε τρία που μετράνε: πώς κοιμάται, πώς ταξιδεύει, τι δεν τρώει ακόμα. Οι οδηγίες άλλαξαν από τότε που μεγάλωσαν εσένα.",
+          "en": "Pick three that matter: how they sleep, how they travel, what they don't eat yet. The advice has changed since you were raised."
+        },
+        {
+          "el": "Πες το «τι» μαζί με το «γιατί», και βάλε μπροστά τον γιατρό: «έτσι μας είπε ο γιατρός του».",
+          "en": "Give the “what” with the “why”, and put the doctor in front: “that's what their doctor told us.”"
+        },
+        {
+          "el": "Στα υπόλοιπα άφησέ τους να το κάνουν με τον τρόπο τους. Το παιδί κερδίζει από ανθρώπους που το αγαπούν διαφορετικά.",
+          "en": "On everything else, let them do it their way. Your child gains from people who love them differently."
+        },
+        {
+          "el": "Τα όρια στους δικούς σου γονείς τα βάζεις εσύ, όχι ο σύντροφός σου. Αν είστε δύο, ο καθένας μιλά στους δικούς του.",
+          "en": "Limits with your own parents are yours to set, not your partner's. If there are two of you, each talks to their own."
+        },
+        {
+          "el": "Κι εκείνοι κουράζονται. Ρώτα πού και πού αν τους πέφτει βαρύ.",
+          "en": "They get tired too. Ask now and then whether it's getting too much."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w1-invisible-jobs",
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 30,
+    "minAgeMonths": 1,
+    "evergreen": true,
+    "onlyFor": ["partner"],
+    "title": {
+      "el": "Οι αόρατες δουλειές",
+      "en": "The invisible jobs"
+    },
+    "description": {
+      "el": "Διάλεξε μία δουλειά του παιδιού ή του σπιτιού και πάρ' την ολόκληρη: να τη θυμάσαι, να την οργανώνεις, να την κάνεις. Χωρίς να σου το πει κανείς.",
+      "en": "Pick one child or household job and own all of it: remembering it, planning it, doing it. Without anyone telling you."
+    },
+    "tip": {
+      "title": {
+        "el": "Το δύσκολο είναι να το θυμάσαι",
+        "en": "The hard part is remembering"
+      },
+      "steps": [
+        {
+          "el": "Η δουλειά δεν είναι μόνο «πήγα το παιδί στον γιατρό». Είναι και ποιος θυμήθηκε το εμβόλιο, ποιος έκλεισε το ραντεβού, ποιος ξέρει πού είναι το βιβλιάριο υγείας.",
+          "en": "The job isn't only “I took them to the doctor”. It's also who remembered the vaccine, who booked the appointment, who knows where the health record is."
+        },
+        {
+          "el": "Ιδέες: τα ρούχα στο σωστό νούμερο, τα ραντεβού με τον γιατρό, οι πάνες και το γάλα πριν τελειώσουν, τα δώρα για τα πάρτι.",
+          "en": "Ideas: clothes in the right size, the doctor's appointments, nappies and milk before they run out, presents for parties."
+        },
+        {
+          "el": "Μη ρωτάς «τι να κάνω;». Η ερώτηση αφήνει την οργάνωση στον άλλον. Πες «αυτό το έχω εγώ από δω και πέρα».",
+          "en": "Don't ask “what should I do?”. The question leaves the planning with the other person. Say “this one's mine from now on.”"
+        },
+        {
+          "el": "Θα το κάνεις με τον δικό σου τρόπο. Αλλιώς δεν σημαίνει λάθος, αρκεί να γίνεται.",
+          "en": "You'll do it your own way. Different isn't wrong, as long as it gets done."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w1-money-talk",
+    "worldID": "w1-swamp",
+    "skill": "resilience",
+    "xp": 30,
+    "minAgeMonths": 1,
+    "evergreen": true,
+    "title": {
+      "el": "Τα λεφτά στο τραπέζι",
+      "en": "Money on the table"
+    },
+    "description": {
+      "el": "Μισή ώρα, χωρίς πανικό: γράψε τι μπαίνει, τι βγαίνει και τι άλλαξε με το παιδί. Αν είστε δύο, κάντε το μαζί.",
+      "en": "Half an hour, no panic: write down what comes in, what goes out and what changed with your child. If there are two of you, do it together."
+    },
+    "tip": {
+      "title": {
+        "el": "Ο αριθμός τρομάζει λιγότερο από την ιδέα του",
+        "en": "The number is less scary than the idea of it"
+      },
+      "steps": [
+        {
+          "el": "Το άγχος για τα λεφτά είναι πολύ συνηθισμένο στους νέους μπαμπάδες. Δεν είναι θέμα χαρακτήρα.",
+          "en": "Money worry is very common among new dads. It's not a character flaw."
+        },
+        {
+          "el": "Δες τι δικαιούσαι: επιδόματα, άδειες, εκπτώσεις φόρου. Διαφέρουν από χώρα σε χώρα, και πολλοί δεν τα ζητούν ποτέ.",
+          "en": "Check what you're entitled to: benefits, leave, tax relief. They differ by country, and many people never claim them."
+        },
+        {
+          "el": "Ένα μωρό χρειάζεται πολύ λιγότερα πράγματα απ' όσα πουλιούνται. Τα δανεικά και τα μεταχειρισμένα κάνουν για τα περισσότερα. Το κάθισμα αυτοκινήτου και το στρώμα, καλύτερα καινούργια ή από άνθρωπο που ξέρεις.",
+          "en": "A baby needs far fewer things than are sold for one. Borrowed and second-hand do fine for most of them. The car seat and the mattress are best new, or from someone you know."
+        },
+        {
+          "el": "Το άγχος για τα λεφτά συχνά βγαίνει ως καβγάς για κάτι άλλο. Πες το με το όνομά του: «αγχώνομαι για τα λεφτά».",
+          "en": "Money worry often comes out as a row about something else. Call it by its name: “I'm worried about money.”"
+        },
+        {
+          "el": "Αν τα χρέη σε πνίγουν, σε πολλές χώρες υπάρχουν δωρεάν υπηρεσίες συμβουλών. Όσο νωρίτερα, τόσο περισσότερες οι επιλογές.",
+          "en": "If debt is swamping you, many countries have free advice services. The earlier you ask, the more options there are."
+        }
+      ]
     }
   },
   {
@@ -383,47 +1463,177 @@
     }
   },
   {
-    "id": "q-w1-first-aid",
+    "id": "q-w1-check-in",
+    "formerIDs": [
+      "q-w4-check-in"
+    ],
     "worldID": "w1-swamp",
-    "skill": "care",
-    "xp": 35,
-    "minAgeMonths": 4,
+    "skill": "resilience",
+    "xp": 30,
+    "minAgeMonths": 2,
+    "evergreen": true,
+    "onlyFor": ["partner"],
     "title": {
-      "el": "Πρώτες βοήθειες",
-      "en": "First-aid drill"
+      "el": "Πώς είμαστε εμείς;",
+      "en": "How are we doing?"
     },
     "description": {
-      "el": "Πριν αρχίσει τις στερεές, μάθε τι κάνεις αν πνιγεί: δες ένα βίντεο πρώτων βοηθειών για βρέφη ή γράψου σε σεμινάριο.",
-      "en": "Before solids begin, learn what to do if they choke: watch an infant first-aid video or book a class."
+      "el": "Ρώτα τον σύντροφό σου «πώς είμαστε εμείς οι δύο;» και άκου την απάντηση ως το τέλος. Όχι για το παιδί, όχι για τα ψώνια.",
+      "en": "Ask your partner “how are the two of us doing?” and listen to the whole answer. Not about the kid, not about the shopping."
     },
     "tip": {
       "title": {
-        "el": "Αναγούλα ή πνιγμός;",
-        "en": "Gag or choke?"
+        "el": "Δέκα λεπτά, χωρίς λύσεις",
+        "en": "Ten minutes, no fixing"
       },
       "steps": [
         {
-          "el": "Αν βήχει, κοκκινίζει και κάνει θόρυβο, είναι αναγούλα. Άφησέ το να βήξει.",
-          "en": "If they cough, go red and make noise, it's gagging. Let them cough."
+          "el": "Τρεις ερωτήσεις φτάνουν: τι πήγε καλά αυτή τη βδομάδα, τι σε βάρυνε, τι χρειάζεσαι από μένα.",
+          "en": "Three questions are enough: what went well this week, what weighed on you, what do you need from me."
         },
         {
-          "el": "Αν δεν βγάζει ήχο και δεν αναπνέει, είναι πνιγμός. Για μωρό κάτω του ενός έτους: μπρούμυτα πάνω στον πήχη σου με το κεφάλι χαμηλά, και έως 5 δυνατά χτυπήματα ανάμεσα στις ωμοπλάτες.",
-          "en": "If they make no sound and can't breathe, it's choking. For a baby under one: face down along your forearm, head low, and up to 5 sharp blows between the shoulder blades."
+          "el": "Άκου χωρίς να υπερασπιστείς τον εαυτό σου. Η πρώτη σου απάντηση είναι «σε άκουσα».",
+          "en": "Listen without defending yourself. Your first reply is “I hear you.”"
         },
         {
-          "el": "Αν δεν βγει, γύρισέ το ανάσκελα και κάνε έως 5 ωθήσεις με δύο δάχτυλα στη μέση του στήθους. Συνέχισε εναλλάξ και κάλεσε ασθενοφόρο.",
-          "en": "If it doesn't clear, turn them face up and give up to 5 thrusts with two fingers on the middle of the chest. Keep alternating and call an ambulance."
+          "el": "Μετά πες και το δικό σου. Κανείς δεν μαντεύει τι χρειάζεται ο άλλος.",
+          "en": "Then say your own. Nobody can guess what the other one needs."
         },
         {
-          "el": "Μη βάζεις δάχτυλα στα τυφλά στο στόμα του.",
-          "en": "Don't poke blindly in their mouth with your fingers."
+          "el": "Πολλά ζευγάρια ζορίζονται μετά το παιδί, και συνήθως αυτό δεν φτιάχνει μόνο του με τον καιρό. Δεν σημαίνει ότι κάτι χάλασε σε εσάς: σημαίνει ότι θέλει συντήρηση.",
+          "en": "Many couples take a hit after a child, and time alone doesn't usually repair it. It doesn't mean something's broken between you: it means it needs maintenance."
         },
         {
-          "el": "Ένα σεμινάριο με κούκλα αξίζει περισσότερο από κάθε κείμενο.",
-          "en": "One class with a practice doll is worth more than any text."
+          "el": "Αν οι καβγάδες έγιναν ο κανόνας, ένας σύμβουλος ζευγαριών δεν είναι ήττα. Είναι co-op. Αν όμως φοβάσαι τον σύντροφό σου ή νιώθεις ότι σε ελέγχει, αυτό δεν είναι δουλειά για σύμβουλο ζευγαριών: μίλα μόνος σου με έναν γιατρό ή με μια γραμμή στήριξης της χώρας σου.",
+          "en": "If arguing has become the default, a couples counsellor isn't a defeat. It's co-op mode. But if you're afraid of your partner or feel controlled by them, that's not a job for couples counselling: talk on your own to a doctor or to a support line in your country."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w1-close-again",
+    "worldID": "w1-swamp",
+    "skill": "resilience",
+    "xp": 30,
+    "minAgeMonths": 2,
+    "evergreen": true,
+    "onlyFor": ["partner"],
+    "title": {
+      "el": "Ξανά κοντά",
+      "en": "Close again"
+    },
+    "description": {
+      "el": "Ρώτα τον σύντροφό σου πώς νιώθει με την εγγύτητα μετά το μωρό, και πες και το δικό σου. Χωρίς βιασύνη και χωρίς στόχο για απόψε.",
+      "en": "Ask your partner how they feel about closeness since the baby, and say how you feel too. No hurry and no goal for tonight."
+    },
+    "tip": {
+      "title": {
+        "el": "Δεν υπάρχει ημερομηνία επιστροφής",
+        "en": "There's no return date"
+      },
+      "steps": [
+        {
+          "el": "Δεν υπάρχει «κανονικός» χρόνος για να ξαναρχίσει το σεξ. Κούραση και λιγότερη διάθεση μετά από ένα μωρό είναι πολύ συνηθισμένα, και στους δύο.",
+          "en": "There's no “normal” time for sex to start again. Tiredness and less desire after a baby are very common, for both of you."
+        },
+        {
+          "el": "Η εγγύτητα δεν είναι μόνο σεξ: αγκαλιά στον καναπέ, ένα μασάζ, δέκα λεπτά κουβέντα στο κρεβάτι. Αυτά κρατούν τη γέφυρα ανοιχτή.",
+          "en": "Closeness isn't only sex: a cuddle on the sofa, a massage, ten minutes talking in bed. Those keep the bridge open."
+        },
+        {
+          "el": "Αν νιώθεις παραμερισμένος, πες το ως συναίσθημα, όχι ως παράπονο: «μου λείπεις», όχι «ποτέ δεν…».",
+          "en": "If you feel sidelined, say it as a feeling, not a complaint: “I miss you”, not “you never…”."
+        },
+        {
+          "el": "Αν η σύντροφός σου γέννησε: ο πόνος στο σεξ δεν είναι κάτι που «συνηθίζεται». Το λέει στον γιατρό ή στη μαία.",
+          "en": "If your partner gave birth: pain during sex isn't something to “get used to”. It's something to tell the doctor or midwife."
+        },
+        {
+          "el": "Αν η σύντροφός σου γέννησε: νέα εγκυμοσύνη μπορεί να έρθει ήδη από τις πρώτες εβδομάδες, πριν από την πρώτη περίοδο και ακόμα και με θηλασμό. Αν δεν το έχετε κάνει ήδη, μιλήστε για αντισύλληψη με τον γιατρό ή τη μαία.",
+          "en": "If your partner gave birth: another pregnancy can happen within the first weeks, before the first period and even while breastfeeding. If you haven't already, talk about contraception with the doctor or midwife."
         }
       ],
       "medical": true
+    }
+  },
+  {
+    "id": "q-w1-find-your-party",
+    "worldID": "w1-swamp",
+    "skill": "resilience",
+    "xp": 30,
+    "minAgeMonths": 2,
+    "evergreen": true,
+    "title": {
+      "el": "Βρες τη συντροφιά σου",
+      "en": "Find your party"
+    },
+    "description": {
+      "el": "Στείλε μήνυμα σε έναν άλλον μπαμπά ή γονιό και κανονίστε κάτι με τα παιδιά μαζί: βόλτα με τα καρότσια, παιδική χαρά, καφέ.",
+      "en": "Message another dad or parent and plan something with the kids along: a pram walk, the playground, a coffee."
+    },
+    "tip": {
+      "title": {
+        "el": "Κανένα raid δεν βγαίνει solo",
+        "en": "No raid is beaten solo"
+      },
+      "steps": [
+        {
+          "el": "Σε έρευνα σε τέσσερις χώρες, σχεδόν ένας στους τέσσερις μπαμπάδες είπε ότι ένιωσε απομονωμένος όταν έγινε πατέρας. Ο άλλος μπαμπάς στην παιδική χαρά μάλλον περιμένει κι αυτός να μιλήσει κάποιος πρώτος.",
+          "en": "In a survey across four countries, nearly one dad in four said he felt isolated when he became a father. The other dad at the playground is probably waiting for someone to speak first, too."
+        },
+        {
+          "el": "Δεν χρειάζεται «να μιλήσουμε». Φτάνει να κάνετε κάτι δίπλα δίπλα: περπάτημα, μπάλα, μαστόρεμα. Η κουβέντα έρχεται μόνη της.",
+          "en": "It doesn't have to be “a talk”. Doing something side by side is enough: a walk, a kickabout, fixing something. The talking comes on its own."
+        },
+        {
+          "el": "Πού βρίσκονται: στην παιδική χαρά την ίδια ώρα κάθε Σάββατο, στον παιδικό σταθμό, στους παλιούς φίλους που έγιναν κι αυτοί γονείς.",
+          "en": "Where to find them: at the playground at the same time every Saturday, at daycare, among old friends who've become parents too."
+        },
+        {
+          "el": "Κράτα και τους φίλους χωρίς παιδιά. Ένα μήνυμα «δεν χάθηκα, απλώς δεν κοιμάμαι» φτάνει για να μείνει η πόρτα ανοιχτή.",
+          "en": "Keep your friends without kids too. A message saying “I haven't vanished, I'm just not sleeping” is enough to keep the door open."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w1-date-night",
+    "formerIDs": [
+      "q-w2-date-night"
+    ],
+    "worldID": "w1-swamp",
+    "skill": "resilience",
+    "xp": 35,
+    "minAgeMonths": 4,
+    "evergreen": true,
+    "onlyFor": ["partner"],
+    "title": {
+      "el": "Βραδιά για δύο",
+      "en": "Date night"
+    },
+    "description": {
+      "el": "Οργάνωσε εσύ μια βραδιά για σένα και τον σύντροφό σου, ολόκληρη: από την ιδέα μέχρι το ποιος θα κρατήσει το παιδί.",
+      "en": "Plan an evening for you and your partner, all of it: from the idea to who's minding your child."
+    },
+    "tip": {
+      "title": {
+        "el": "Δεν χρειάζεται έξοδος",
+        "en": "It doesn't need a night out"
+      },
+      "steps": [
+        {
+          "el": "Φαγητό απ' έξω αφού κοιμηθεί το παιδί, και τα κινητά σε άλλο δωμάτιο. Μετράει.",
+          "en": "Food ordered in after bedtime, phones in another room. It counts."
+        },
+        {
+          "el": "Βάλ' το στο ημερολόγιο. Το «κάποια στιγμή» δεν έρχεται.",
+          "en": "Put it in the calendar. “Sometime” never comes."
+        },
+        {
+          "el": "Ένας κανόνας: για μισή ώρα δεν μιλάτε ούτε για το παιδί ούτε για τις δουλειές του σπιτιού.",
+          "en": "One rule: for half an hour you talk about neither the kid nor the chores."
+        }
+      ]
     }
   },
   {
@@ -431,7 +1641,7 @@
     "worldID": "w1-swamp",
     "skill": "care",
     "xp": 30,
-    "minAgeMonths": 6,
+    "minAgeMonths": 4,
     "title": {
       "el": "Ανιχνευτής πατώματος",
       "en": "Floor scout"
@@ -447,20 +1657,109 @@
       },
       "steps": [
         {
-          "el": "Φάρμακα και απορρυπαντικά ψηλά και κλειδωμένα. Όχι κάτω από τον νεροχύτη.",
-          "en": "Medicines and detergents up high and locked. Not under the sink."
+          "el": "Φάρμακα, απορρυπαντικά και κάψουλες πλυντηρίου ψηλά και κλειδωμένα. Όχι κάτω από τον νεροχύτη.",
+          "en": "Medicines, detergents and laundry capsules up high and locked. Not under the sink."
         },
         {
-          "el": "Μπαταρίες-κουμπιά και μαγνητάκια μακριά: αν τα καταπιεί είναι επείγον.",
-          "en": "Button batteries and small magnets out of reach: swallowing one is an emergency."
+          "el": "Μπαταρίες-κουμπιά και μαγνητάκια μακριά, και οι θήκες μπαταριών κλειστές καλά. Αν καταπιεί ένα, κάλεσε τον αριθμό έκτακτης ανάγκης ή πήγαινέ το αμέσως στα επείγοντα, ακόμα κι αν δείχνει καλά.",
+          "en": "Button batteries and small magnets out of reach, and battery covers shut tight. If they swallow one, call the emergency number or take them to the emergency department straight away, even if they seem fine."
         },
         {
-          "el": "Βιβλιοθήκες, συρταριέρες και τηλεόραση βιδωμένες στον τοίχο.",
-          "en": "Bookcases, drawer units and the TV fixed to the wall."
+          "el": "Κορδόνια από στόρια και κουρτίνες δεμένα ψηλά, και η κούνια μακριά τους.",
+          "en": "Blind and curtain cords tied up high, and the cot well away from them."
         },
         {
-          "el": "Αποθήκευσε στο κινητό το τηλέφωνο του Κέντρου Δηλητηριάσεων. Αν καταπιεί κάτι, καλείς εκεί αμέσως.",
-          "en": "Save your country's poison centre number in your phone. If they swallow something, that's who you call straight away."
+          "el": "Πορτάκι στη σκάλα πριν μπουσουλήσει. Και από τώρα: ποτέ μόνο του σε κρεβάτι, καναπέ ή αλλαξιέρα, ούτε για ένα δευτερόλεπτο.",
+          "en": "A gate on the stairs before they crawl. And from now on: never alone on a bed, sofa or changing table, not even for a second."
+        },
+        {
+          "el": "Αποθήκευσε στο κινητό το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν καταπιεί κάτι άλλο, πάρε τώρα εκεί ή τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις. Μην του προκαλέσεις εμετό. Αν δυσκολεύεται να αναπνεύσει ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+          "en": "Save your country's poison centre in your phone, if there is one. If they swallow anything else, call it or the doctor now, and the emergency number if they tell you to or if you can't reach them. Don't make them sick. If they struggle to breathe or won't wake, call the emergency number."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w1-toothbrush",
+    "formerIDs": [
+      "q-w2-toothbrush"
+    ],
+    "worldID": "w1-swamp",
+    "skill": "care",
+    "xp": 20,
+    "minAgeMonths": 6,
+    "evergreen": true,
+    "title": {
+      "el": "Βάρδια οδοντόβουρτσας",
+      "en": "Toothbrush duty"
+    },
+    "description": {
+      "el": "Μόλις βγει το πρώτο δόντι, βούρτσισέ το απόψε, πριν τον ύπνο.",
+      "en": "As soon as the first tooth is through, brush it tonight, before bed."
+    },
+    "tip": {
+      "title": {
+        "el": "Κόκκος ρυζιού",
+        "en": "A grain of rice"
+      },
+      "steps": [
+        {
+          "el": "Από το πρώτο δόντι, δύο φορές τη μέρα. Το βραδινό βούρτσισμα είναι το πιο σημαντικό.",
+          "en": "From the first tooth, twice a day. The bedtime one matters most."
+        },
+        {
+          "el": "Οδοντόκρεμα ελάχιστη: όσο ένας κόκκος ρυζιού. Το από πότε, με πόσο φθόριο και πότε γίνεται όσο ένα μπιζέλι διαφέρει από χώρα σε χώρα. Ρώτα τον οδοντίατρο ή τον γιατρό του.",
+          "en": "The tiniest bit of toothpaste: a grain of rice. When to start it, how much fluoride and when it becomes a pea differ by country. Ask the dentist or their doctor."
+        },
+        {
+          "el": "Βουρτσίζεις εσύ, όχι εκείνο, για χρόνια ακόμα. Δώσε του μια δεύτερη οδοντόβουρτσα να κρατάει.",
+          "en": "You do the brushing, not them, for years yet. Give them a second brush to hold."
+        },
+        {
+          "el": "Όχι μπιμπερό στο κρεβάτι. Το γάλα που μένει στα δόντια όλη νύχτα τα χαλάει. Τελευταίο το βούρτσισμα, μετά βιβλίο και ύπνος.",
+          "en": "No bottle in bed. Milk sitting on teeth all night is bad for them. Brushing comes last, then a book, then sleep."
+        },
+        {
+          "el": "Πρώτη επίσκεψη στον οδοντίατρο ως τα πρώτα γενέθλια περίπου. Πρώτα για γνωριμία, όχι για πρόβλημα.",
+          "en": "First dentist visit by about the first birthday. To get acquainted, not because something is wrong."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w1-tummy-time",
+    "worldID": "w1-swamp",
+    "skill": "play",
+    "xp": 20,
+    "minAgeMonths": 0,
+    "retired": true,
+    "title": {
+      "el": "Προπονητής tummy time",
+      "en": "Tummy time coach"
+    },
+    "description": {
+      "el": "Ξάπλωσε στο πάτωμα απέναντί του και κάνε μαζί tummy time.",
+      "en": "Lie on the floor facing them and do tummy time together."
+    },
+    "tip": {
+      "title": {
+        "el": "Λίγο και συχνά",
+        "en": "Little and often"
+      },
+      "steps": [
+        {
+          "el": "Ξεκινά από τις πρώτες μέρες. Δύο-τρία λεπτά τη φορά φτάνουν, και ο στόχος είναι γύρω στα 30 λεπτά μέσα στη μέρα.",
+          "en": "It starts in the first days. Two or three minutes at a time is enough, building to about 30 minutes across the day."
+        },
+        {
+          "el": "Μετράει και μπρούμυτα πάνω στο στήθος σου.",
+          "en": "Lying on your chest counts."
+        },
+        {
+          "el": "Μόνο όταν είναι ξύπνιο και το βλέπεις. Αν γκρινιάξει, σταμάτα και δοκίμασε αργότερα.",
+          "en": "Only while they're awake and you're watching. If they fuss, stop and try again later."
         }
       ],
       "medical": true
@@ -493,6 +1792,14 @@
         {
           "el": "Δείχνε και ονόμαζε: «να ο σκύλος». Αργότερα ρώτα: «πού είναι ο σκύλος;»",
           "en": "Point and name: “there's the dog.” Later ask: “where's the dog?”"
+        },
+        {
+          "el": "Μην το διαβάζεις μόνο: κουβεντιάστε το. Ρώτα, περίμενε, και ό,τι πει ξαναπές το λίγο πιο πλούσιο: «Γάτα!» «Ναι, μια πορτοκαλί γάτα που κοιμάται.»",
+          "en": "Don't just read it: talk about it. Ask, wait, and whatever they say, say it back a little richer: “Cat!” “Yes, an orange cat, fast asleep.”"
+        },
+        {
+          "el": "Λίγα λεπτά κάθε μέρα αξίζουν περισσότερο από μία ώρα το Σάββατο. Στη γλώσσα που μιλάς πιο άνετα.",
+          "en": "A few minutes every day beat an hour on Saturday. In whichever language you speak most easily."
         }
       ]
     }
@@ -513,6 +1820,46 @@
     }
   },
   {
+    "id": "q-w2-height-check",
+    "worldID": "w2-plains",
+    "skill": "care",
+    "xp": 30,
+    "minAgeMonths": 9,
+    "title": {
+      "el": "Έλεγχος ύψους",
+      "en": "Height check"
+    },
+    "description": {
+      "el": "Κάποια στιγμή θα σηκωθεί και θα σκαρφαλώσει. Πριν γίνει, κάνε έναν γύρο στο σπίτι με ένα κατσαβίδι και κοίτα ό,τι είναι πάνω από το πάτωμα.",
+      "en": "Sooner or later they'll pull up and climb. Before they do, take a lap of the house with a screwdriver and look at everything above floor level."
+    },
+    "tip": {
+      "title": {
+        "el": "Αν φαίνεται σκάλα, είναι σκάλα",
+        "en": "If it looks like a ladder, it is one"
+      },
+      "steps": [
+        {
+          "el": "Βιβλιοθήκες, συρταριέρες και τηλεόραση στερεωμένες στον τοίχο. Τα βαριά στα κάτω ράφια, και τίποτα που θέλει (παιχνίδια, τηλεκοντρόλ) στην κορυφή.",
+          "en": "Bookcases, drawer units and the TV fixed to the wall. Heavy things on the bottom shelves, and nothing they want (toys, the remote) on top."
+        },
+        {
+          "el": "Παράθυρα και μπαλκονόπορτες με ασφάλεια που δεν τα αφήνει να ανοίξουν διάπλατα. Καρέκλες, κρεβάτια και γλάστρες μακριά από παράθυρα και κάγκελα.",
+          "en": "Windows and balcony doors with a catch that stops them opening wide. Chairs, beds and plant pots away from windows and railings."
+        },
+        {
+          "el": "Πορτάκια στη σκάλα, πάνω και κάτω, μέχρι να την ανεβοκατεβαίνει με σιγουριά.",
+          "en": "Gates on the stairs, top and bottom, until they go up and down with confidence."
+        },
+        {
+          "el": "Όταν φτάσει και στον πάγκο: ζεστά ροφήματα μακριά από την άκρη, λαβές από κατσαρόλες προς τα μέσα.",
+          "en": "Once they can reach the worktop: hot drinks away from the edge, pan handles turned inwards."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
     "id": "q-w2-me-time",
     "worldID": "w2-plains",
     "skill": "resilience",
@@ -524,48 +1871,32 @@
       "en": "Time for you"
     },
     "description": {
-      "el": "Μία ώρα για το χόμπι σου. Χωρίς ενοχές.",
-      "en": "One hour for your hobby. Guilt-free."
-    }
-  },
-  {
-    "id": "q-w2-toothbrush",
-    "worldID": "w2-plains",
-    "skill": "care",
-    "xp": 20,
-    "minAgeMonths": 9,
-    "title": {
-      "el": "Βάρδια οδοντόβουρτσας",
-      "en": "Toothbrush duty"
-    },
-    "description": {
-      "el": "Βούρτσισέ του τα δόντια απόψε, πριν τον ύπνο.",
-      "en": "Brush their teeth tonight, before bed."
+      "el": "Μία ώρα για κάτι που είναι μόνο δικό σου: το χόμπι σου, το παιχνίδι σου, το μαστόρεμά σου. Χωρίς ενοχές.",
+      "en": "One hour for something that's only yours: your hobby, your game, your tinkering. Guilt-free."
     },
     "tip": {
       "title": {
-        "el": "Κόκκος ρυζιού",
-        "en": "A grain of rice"
+        "el": "Συντήρηση, όχι ανταμοιβή",
+        "en": "Maintenance, not a reward"
       },
       "steps": [
         {
-          "el": "Από το πρώτο δόντι, δύο φορές τη μέρα. Η βραδινή είναι η πιο σημαντική.",
-          "en": "From the first tooth, twice a day. The bedtime one matters most."
+          "el": "Κλείσ' την από πριν, όπως ένα ραντεβού. Ο χρόνος που «θα περισσέψει» δεν περισσεύει ποτέ.",
+          "en": "Book it in advance, like an appointment. The time that's “left over” never is."
         },
         {
-          "el": "Φθοριούχα οδοντόκρεμα σε μέγεθος κόκκου ρυζιού μέχρι τα δύο, μπιζελιού μετά.",
-          "en": "Fluoride toothpaste the size of a grain of rice until two, a pea after that."
+          "el": "Αν είστε δύο, ισχύει και για τους δύο: μία ώρα ο καθένας, με τη σειρά.",
+          "en": "If there are two of you, it goes for both: an hour each, taking turns."
         },
         {
-          "el": "Βουρτσίζεις εσύ, όχι εκείνο. Δώσε του μια δεύτερη οδοντόβουρτσα να κρατάει.",
-          "en": "You do the brushing, not them. Give them a second brush to hold."
+          "el": "Αν είσαι μόνος με το παιδί, η ώρα σου είναι όταν κοιμάται ή όταν το κρατά κάποιος δικός σου άνθρωπος. Μετράει το ίδιο.",
+          "en": "If you're on your own with your child, your hour is while they sleep or while someone you trust has them. It counts just the same."
         },
         {
-          "el": "Πρώτη επίσκεψη στον οδοντίατρο γύρω στα πρώτα γενέθλια.",
-          "en": "First dentist visit around the first birthday."
+          "el": "Δεν χρειάζεται να την κερδίσεις πρώτα. Ο μπαμπάς που έχει κάτι δικό του αντέχει περισσότερο.",
+          "en": "You don't have to earn it first. A dad who has something of his own lasts longer."
         }
-      ],
-      "medical": true
+      ]
     }
   },
   {
@@ -585,70 +1916,76 @@
     },
     "tip": {
       "title": {
-        "el": "Το αθόρυβο δεν φτάνει",
-        "en": "Silent isn't enough"
+        "el": "Σε βλέπει που το κοιτάς",
+        "en": "They watch you watching it"
       },
       "steps": [
         {
-          "el": "Το κινητό πάνω στο τραπέζι τραβάει το βλέμμα σου ακόμα και σβηστό. Σε άλλο δωμάτιο.",
-          "en": "A phone on the table pulls your eyes even when it's off. Another room."
+          "el": "Το αθόρυβο δεν φτάνει: αν είναι στην τσέπη, θα το βγάλεις. Σε άλλο δωμάτιο.",
+          "en": "Silent isn't enough: if it's in your pocket, you'll take it out. Another room."
+        },
+        {
+          "el": "Στο φαγητό και στην ώρα του ύπνου, το δικό σου κινητό κάτω. Τις συνήθειες με τις οθόνες τις μαθαίνει κοιτώντας εσένα.",
+          "en": "At meals and at bedtime, your own phone goes down. They learn screen habits by watching you."
+        },
+        {
+          "el": "Για το παιδί: πριν τα δύο, όσο λιγότερη οθόνη τόσο καλύτερα. Σε αυτή την ηλικία μαθαίνει από πρόσωπα και πράγματα, όχι από βίντεο. Η βιντεοκλήση με τη γιαγιά είναι άλλο πράγμα.",
+          "en": "For your child: before two, the less screen the better. At this age they learn from faces and things, not from video. A video call with grandma is a different matter."
+        },
+        {
+          "el": "Όσο γίνεται, όχι οθόνη για να ηρεμήσει ή για να φάει, και όχι τηλεόραση που παίζει στο βάθος.",
+          "en": "As far as you can, no screen to calm them down or to get them to eat, and no TV running in the background."
+        },
+        {
+          "el": "Κάποιες μέρες η οθόνη θα σε σώσει. Δεν χάλασες τίποτα· αύριο πάλι.",
+          "en": "Some days the screen will save you. Nothing is broken; tomorrow is another go."
         }
       ]
     }
   },
   {
-    "id": "q-w2-car-seat",
+    "id": "q-w2-water-watcher",
     "worldID": "w2-plains",
     "skill": "care",
-    "xp": 25,
+    "xp": 30,
     "minAgeMonths": 9,
+    "evergreen": true,
     "title": {
-      "el": "Έλεγχος καθίσματος",
-      "en": "Car seat check"
+      "el": "Φύλακας του νερού",
+      "en": "Water watcher"
     },
     "description": {
-      "el": "Πριν την επόμενη διαδρομή, έλεγξε το κάθισμα: φορά, ζώνες, στερέωση.",
-      "en": "Before the next drive, check the seat: direction, straps, fixing."
+      "el": "Όπου υπάρχει νερό, γίνε εσύ ο φύλακας: σε απόσταση χεριού, χωρίς κινητό. Μετράει και η μπανιέρα.",
+      "en": "Wherever there's water, you're the watcher: within arm's reach, no phone. The bath counts."
     },
     "tip": {
       "title": {
-        "el": "Το τεστ της τσιμπιάς",
-        "en": "The pinch test"
+        "el": "Με τα μάτια, όχι με τα αυτιά",
+        "en": "Eyes, not ears"
       },
       "steps": [
         {
-          "el": "Με την πλάτη στον δρόμο για όσο το επιτρέπει το κάθισμα, όχι μόνο μέχρι τον χρόνο.",
-          "en": "Rear-facing for as long as the seat allows, not just until their first birthday."
+          "el": "Στο νερό κοιτάς, δεν περιμένεις να ακούσεις: ένα παιδί που ζορίζεται στο νερό συνήθως δεν φωνάζει ούτε πλατσουρίζει. Μπορεί να γίνει αθόρυβα και γρήγορα, και σε λίγα εκατοστά νερό.",
+          "en": "In the water you watch rather than listen: a child who gets into trouble in water usually doesn't shout or splash. It can happen quietly and quickly, even in a few centimetres of water."
         },
         {
-          "el": "Σφίξε τις ζώνες μέχρι να μην μπορείς να τσιμπήσεις ύφασμα στον ώμο του.",
-          "en": "Tighten the straps until you can't pinch any webbing at their shoulder."
+          "el": "Απόσταση χεριού για κάθε παιδί που δεν κολυμπά καλά. Τα μπρατσάκια και τα φουσκωτά είναι παιχνίδια, όχι σωσίβια.",
+          "en": "Arm's reach for any child who isn't a strong swimmer. Armbands and inflatables are toys, not life-savers."
         },
         {
-          "el": "Χωρίς μπουφάν κάτω από τις ζώνες. Η κουβέρτα μπαίνει από πάνω.",
-          "en": "No puffy coat under the straps. The blanket goes on top."
+          "el": "Ένας ενήλικας είναι ο φύλακας κάθε φορά. Όταν φεύγεις, το λες: «τώρα το έχεις εσύ».",
+          "en": "One adult is the watcher at a time. When you leave, say it: “you've got them now.”"
         },
         {
-          "el": "Κούνησε το κάθισμα στη βάση του: δεν πρέπει να μετακινείται.",
-          "en": "Tug the seat at its base: it shouldn't shift."
+          "el": "Στο σπίτι: άδειασε μπανιέρα, κουβάδες και φουσκωτή πισίνα μόλις τελειώσετε. Αν υπάρχει πισίνα, θέλει φράχτη γύρω γύρω και πόρτα που κλείνει και μανταλώνει μόνη της.",
+          "en": "At home: empty the bath, buckets and the paddling pool as soon as you're done. A pool needs a fence all the way round and a gate that closes and latches by itself."
+        },
+        {
+          "el": "Σε βάρκα, και δίπλα σε λίμνη, ποτάμι ή θάλασσα όπου δεν πατώνει, σωσίβιο γιλέκο στο μέγεθός του. Το φοράς κι εσύ.",
+          "en": "On a boat, and beside a lake, a river or sea too deep to stand in, a life jacket in their size. You wear one too."
         }
       ],
       "medical": true
-    }
-  },
-  {
-    "id": "q-w2-park-scout",
-    "worldID": "w2-plains",
-    "skill": "play",
-    "xp": 25,
-    "minAgeMonths": 10,
-    "title": {
-      "el": "Εξερεύνηση στο πάρκο",
-      "en": "Park expedition"
-    },
-    "description": {
-      "el": "Πάτε στο πάρκο και άφησέ το να διαλέξει πού θα πάτε.",
-      "en": "Go to the park and let them choose where to go."
     }
   },
   {
@@ -680,117 +2017,142 @@
           "en": "No honey before their first birthday."
         },
         {
-          "el": "Σταφύλια και ντοματίνια κομμένα στα τέσσερα, κατά μήκος. Όχι ολόκληροι ξηροί καρποί πριν τα πέντε.",
-          "en": "Grapes and cherry tomatoes cut into quarters, lengthways. No whole nuts before the age of five."
+          "el": "Σταφύλια και ντοματίνια κομμένα στα τέσσερα, κατά μήκος. Ολόκληροι ξηροί καρποί όχι ακόμα. Ως ποια ηλικία διαφέρει ανά χώρα: ρώτα τον γιατρό του παιδιού.",
+          "en": "Grapes and cherry tomatoes cut into quarters, lengthways. No whole nuts yet. Until what age differs by country: ask your child's doctor."
         }
       ],
       "medical": true
     }
   },
   {
-    "id": "q-w2-date-night",
+    "id": "q-w2-park-scout",
     "worldID": "w2-plains",
-    "skill": "resilience",
+    "skill": "play",
+    "xp": 25,
+    "minAgeMonths": 10,
+    "title": {
+      "el": "Εξερεύνηση στο πάρκο",
+      "en": "Park expedition"
+    },
+    "description": {
+      "el": "Πάτε στο πάρκο και άφησέ το να διαλέξει πού θα πάτε.",
+      "en": "Go to the park and let them choose where to go."
+    }
+  },
+  {
+    "id": "q-w2-barefoot",
+    "worldID": "w2-plains",
+    "skill": "play",
+    "xp": 20,
+    "minAgeMonths": 10,
+    "title": {
+      "el": "Ξυπόλυτος εξερευνητής",
+      "en": "Barefoot explorer"
+    },
+    "description": {
+      "el": "Βγάλτε παπούτσια και κάλτσες και δοκιμάστε μαζί τρεις επιφάνειες: χαλί, γρασίδι, άμμο, ό,τι έχετε. Ρίξε πρώτα μια ματιά για κάτι αιχμηρό ή καυτό. Είτε μπουσουλάει είτε περπατά.",
+      "en": "Shoes and socks off, and try three surfaces together: rug, grass, sand, whatever you have. Check first for anything sharp or hot. Crawling or walking, either way."
+    },
+    "tip": {
+      "title": {
+        "el": "Τα παπούτσια είναι για τον δρόμο",
+        "en": "Shoes are for the street"
+      },
+      "steps": [
+        {
+          "el": "Μέσα στο σπίτι, ξυπόλυτο ή με κάλτσες που δεν γλιστράνε. Τα πόδια του δεν χρειάζονται παπούτσι για να μάθουν να περπατούν.",
+          "en": "Indoors, barefoot or in non-slip socks. Their feet don't need a shoe to learn to walk."
+        },
+        {
+          "el": "Τα πρώτα παπούτσια είναι για προστασία έξω: ελαφριά, μαλακά, με σόλα που λυγίζει και δεν γλιστρά. Όχι σκληρά ή «ορθοπεδικά», εκτός αν τα ζητήσει γιατρός.",
+          "en": "First shoes are for protection outdoors: light, soft, with a sole that bends and grips. Not stiff or “orthopaedic”, unless a doctor asks for them."
+        },
+        {
+          "el": "Το πόδι μεγαλώνει γρήγορα: έλεγχε το νούμερο κάθε μήνα περίπου, με το παιδί όρθιο. Καλύτερα καθόλου παπούτσι παρά στενό.",
+          "en": "Feet grow fast: check the size about once a month, with them standing. No shoe is better than a tight one."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w2-argue-like-a-pro",
+    "worldID": "w2-plains",
+    "skill": "patience",
     "xp": 35,
     "minAgeMonths": 12,
     "evergreen": true,
     "title": {
-      "el": "Ραντεβού για δύο",
-      "en": "Date night"
+      "el": "Καβγάς με κανόνες",
+      "en": "Argue like a pro"
     },
     "description": {
-      "el": "Οργάνωσε μια βραδιά με τον/την σύντροφό σου.",
-      "en": "Plan an evening with your partner."
+      "el": "Την επόμενη φορά που θα διαφωνήσεις με άλλον μεγάλο μπροστά στο παιδί, κράτα χαμηλά τη φωνή σου. Κι όταν τα βρείτε, ας το δει κι αυτό.",
+      "en": "Next time you disagree with another adult in front of your child, keep your voice down. And when you've worked it out, let them see that too."
     },
     "tip": {
       "title": {
-        "el": "Δεν χρειάζεται έξοδος",
-        "en": "It doesn't need a night out"
+        "el": "Δεν μετράει αν μαλώνετε, αλλά πώς",
+        "en": "It's not whether you argue, it's how"
       },
       "steps": [
         {
-          "el": "Φαγητό απ' έξω αφού κοιμηθεί, και τα κινητά σε άλλο δωμάτιο. Μετράει.",
-          "en": "A takeaway after bedtime, phones in another room. It counts."
+          "el": "Η διαφωνία από μόνη της δεν βλάπτει τα παιδιά. Τα βαραίνουν οι καβγάδες που είναι συχνοί, άγριοι και δεν κλείνουν ποτέ, είτε ζείτε μαζί είτε χωριστά. Και το παγωμένο «δεν μιλιόμαστε» είναι κι αυτό καβγάς.",
+          "en": "Disagreement in itself doesn't harm children. What weighs on them is arguing that is frequent, fierce and never settled, whether you live together or apart. And the frozen silent treatment counts as arguing."
         },
         {
-          "el": "Βάλ' το στο ημερολόγιο. Το «κάποια στιγμή» δεν έρχεται.",
-          "en": "Put it in the calendar. “Sometime” never comes."
+          "el": "Ποτέ με το παιδί στη μέση: ούτε αγγελιοφόρος, ούτε διαιτητής, ούτε θέμα του καβγά όσο ακούει.",
+          "en": "Never with your child in the middle: not as messenger, not as referee, and not as the subject while they're listening."
+        },
+        {
+          "el": "Αν ανεβαίνουν οι τόνοι, πες «το συνεχίζουμε όταν κοιμηθεί». Και γύρνα πραγματικά σε αυτό.",
+          "en": "If it's heating up, say “we'll finish this after bedtime.” And actually come back to it."
+        },
+        {
+          "el": "Αν σας είδε να μαλώνετε, ας σας δει και να τα βρίσκετε, όταν γίνει στ' αλήθεια: μια συγγνώμη, μια αγκαλιά, ένα «διαφωνήσαμε και τα είπαμε».",
+          "en": "If they saw you argue, let them see you make up too, once it's real: a sorry, a hug, a “we disagreed and we talked it through.”"
+        },
+        {
+          "el": "Αν στους καβγάδες υπάρχει φόβος, απειλές ή βία, δεν είναι θέμα τεχνικής και δεν χρειάζεται να τα βρείτε μπροστά σε κανέναν. Μίλα με μια γραμμή στήριξης της χώρας σου ή με έναν γιατρό. Αν κάποιος δεν είναι ασφαλής αυτή τη στιγμή, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+          "en": "If there is fear, threats or violence in the arguments, this isn't about technique and nobody has to make up in front of anyone. Talk to a support line in your country or to a doctor. If someone isn't safe right now, call the emergency number."
         }
       ]
     }
   },
   {
-    "id": "q-w2-rough-play",
+    "id": "q-w2-swim",
+    "formerIDs": [
+      "q-w4-swim"
+    ],
     "worldID": "w2-plains",
     "skill": "play",
-    "xp": 25,
-    "minAgeMonths": 12,
-    "evergreen": true,
-    "title": {
-      "el": "Πάλη στο χαλί",
-      "en": "Wrestle on the rug"
-    },
-    "description": {
-      "el": "Κυνηγητό, αλογάκι, πάλη στο χαλί. Όταν πει «στοπ», σταματάς αμέσως.",
-      "en": "Chase, horsey rides, wrestling on the rug. When they say “stop”, you stop at once."
-    },
-    "tip": {
-      "title": {
-        "el": "Ο κανόνας του «στοπ»",
-        "en": "The “stop” rule"
-      },
-      "steps": [
-        {
-          "el": "Το «στοπ» ισχύει και για τους δύο. Όταν το πεις εσύ, σταματά κι εκείνο.",
-          "en": "“Stop” works both ways. When you say it, they stop too."
-        },
-        {
-          "el": "Άφησέ το να κερδίζει συχνά, όχι πάντα.",
-          "en": "Let them win often, not always."
-        },
-        {
-          "el": "Όχι ακριβώς πριν τον ύπνο. Κλείστε με κάτι ήρεμο.",
-          "en": "Not right before bed. Finish with something calm."
-        }
-      ]
-    }
-  },
-  {
-    "id": "q-w2-water-watcher",
-    "worldID": "w2-plains",
-    "skill": "care",
     "xp": 30,
     "minAgeMonths": 12,
     "evergreen": true,
     "title": {
-      "el": "Φύλακας του νερού",
-      "en": "Water watcher"
+      "el": "Μαζί στο νερό",
+      "en": "In the water together"
     },
     "description": {
-      "el": "Στη θάλασσα ή στην πισίνα γίνε εσύ ο φύλακας: σε απόσταση χεριού, χωρίς κινητό.",
-      "en": "At the sea or the pool, you're the watcher: within arm's reach, no phone."
+      "el": "Μπες μαζί του στο νερό και παίξτε. Αργότερα, αν υπάρχουν μαθήματα κολύμβησης κοντά σας, πήγαινέ το εσύ.",
+      "en": "Get in the water with them and play. Later, if there are swimming lessons near you, be the one who takes them."
     },
     "tip": {
       "title": {
-        "el": "Ο πνιγμός δεν κάνει θόρυβο",
-        "en": "Drowning is silent"
+        "el": "Κολυμπάει, κι εσύ το προσέχεις",
+        "en": "They swim, you still watch"
       },
       "steps": [
         {
-          "el": "Δεν φωνάζει και δεν χτυπιέται. Γίνεται αθόρυβα, μέσα σε δευτερόλεπτα.",
-          "en": "There's no shouting or splashing. It happens quietly, in seconds."
+          "el": "Τώρα ο στόχος είναι να αγαπήσει το νερό: πιτσίλισμα, τραγούδια, αγκαλιά. Το πότε αρχίζουν τα μαθήματα διαφέρει από χώρα σε χώρα και από παιδί σε παιδί.",
+          "en": "For now the goal is to enjoy the water: splashing, songs, being held. When lessons start differs by country and by child."
         },
         {
-          "el": "Απόσταση χεριού για κάθε παιδί που δεν κολυμπά καλά, ακόμα και με μπρατσάκια.",
-          "en": "Arm's reach for any child who isn't a strong swimmer, armbands or not."
+          "el": "Μην το πιέσεις να βάλει το κεφάλι μέσα. Ο φόβος φεύγει με το παιχνίδι.",
+          "en": "Don't push them to put their head under. Fear leaves through play."
         },
         {
-          "el": "Ένας ενήλικας είναι ο φύλακας κάθε φορά. Όταν φεύγεις, το λες: «τώρα το έχεις εσύ».",
-          "en": "One adult is the watcher at a time. When you leave, say it: “you've got them now.”"
-        },
-        {
-          "el": "Ισχύει και για τη μπανιέρα και τη φουσκωτή πισίνα.",
-          "en": "It applies to the bath and the paddling pool too."
+          "el": "Τα μαθήματα είναι ένα ακόμα επίπεδο προστασίας, όχι ασπίδα. Η επίβλεψη μένει ίδια, όσο καλά κι αν κολυμπά.",
+          "en": "Lessons are one more layer of protection, not a shield. The watching stays the same, however well they swim."
         }
       ],
       "medical": true
@@ -843,60 +2205,39 @@
     }
   },
   {
-    "id": "q-w3-two-choices",
-    "worldID": "w3-no-land",
-    "skill": "patience",
+    "id": "q-w2-rough-play",
+    "worldID": "w2-plains",
+    "skill": "play",
     "xp": 25,
-    "minAgeMonths": 25,
+    "minAgeMonths": 12,
+    "retired": true,
     "title": {
-      "el": "Δύο επιλογές",
-      "en": "Two choices"
+      "el": "Πάλη στο χαλί",
+      "en": "Wrestle on the rug"
     },
     "description": {
-      "el": "Δώσε δύο επιλογές αντί για εντολή: «Την κόκκινη ή τη μπλε μπλούζα;»",
-      "en": "Offer two choices instead of an order: “The red shirt or the blue one?”"
+      "el": "Κυνηγητό, αλογάκι, πάλη στο χαλί. Όταν πει «στοπ», σταματάς αμέσως.",
+      "en": "Chase, horsey rides, wrestling on the rug. When they say “stop”, you stop at once."
     },
     "tip": {
       "title": {
-        "el": "Και οι δύο να σου κάνουν",
-        "en": "Both have to work for you"
+        "el": "Ο κανόνας του «στοπ»",
+        "en": "The “stop” rule"
       },
       "steps": [
         {
-          "el": "Δώσε μόνο επιλογές που δέχεσαι. Αν το ένα από τα δύο είναι απειλή, δεν είναι επιλογή.",
-          "en": "Only offer options you can live with. If one of the two is a threat, it isn't a choice."
+          "el": "Το «στοπ» ισχύει και για τους δύο. Όταν το πεις εσύ, σταματά κι εκείνο.",
+          "en": "“Stop” works both ways. When you say it, they stop too."
+        },
+        {
+          "el": "Άφησέ το να κερδίζει συχνά, όχι πάντα.",
+          "en": "Let them win often, not always."
+        },
+        {
+          "el": "Όχι ακριβώς πριν τον ύπνο. Κλείστε με κάτι ήρεμο.",
+          "en": "Not right before bed. Finish with something calm."
         }
       ]
-    }
-  },
-  {
-    "id": "q-w3-puddles",
-    "worldID": "w3-no-land",
-    "skill": "play",
-    "xp": 25,
-    "minAgeMonths": 25,
-    "title": {
-      "el": "Βουτιά στις λακκούβες",
-      "en": "Puddle jumping"
-    },
-    "description": {
-      "el": "Γαλότσες, αδιάβροχα, και πηδήξτε σε κάθε λακκούβα. Μαζί.",
-      "en": "Wellies on, and jump in every puddle. Together."
-    }
-  },
-  {
-    "id": "q-w3-blanket-fort",
-    "worldID": "w3-no-land",
-    "skill": "play",
-    "xp": 25,
-    "minAgeMonths": 25,
-    "title": {
-      "el": "Κάστρο από κουβέρτες",
-      "en": "Blanket fort"
-    },
-    "description": {
-      "el": "Χτίστε ένα κάστρο από κουβέρτες και μαξιλάρια και διαβάστε μέσα ένα βιβλίο.",
-      "en": "Build a fort from blankets and pillows and read a book inside it."
     }
   },
   {
@@ -931,6 +2272,21 @@
     }
   },
   {
+    "id": "q-w3-blanket-fort",
+    "worldID": "w3-no-land",
+    "skill": "play",
+    "xp": 25,
+    "minAgeMonths": 25,
+    "title": {
+      "el": "Κάστρο από κουβέρτες",
+      "en": "Blanket fort"
+    },
+    "description": {
+      "el": "Χτίστε ένα κάστρο από κουβέρτες και μαξιλάρια και διαβάστε μέσα ένα βιβλίο.",
+      "en": "Build a fort from blankets and pillows and read a book inside it."
+    }
+  },
+  {
     "id": "q-w3-friends-night",
     "worldID": "w3-no-land",
     "skill": "resilience",
@@ -944,6 +2300,49 @@
     "description": {
       "el": "Βγες με φίλους. Μιλήστε και για άλλα πράγματα εκτός από παιδιά.",
       "en": "Go out with friends. Talk about things other than kids."
+    }
+  },
+  {
+    "id": "q-w3-puddles",
+    "worldID": "w3-no-land",
+    "skill": "play",
+    "xp": 25,
+    "minAgeMonths": 25,
+    "title": {
+      "el": "Βουτιά στις λακκούβες",
+      "en": "Puddle jumping"
+    },
+    "description": {
+      "el": "Γαλότσες, αδιάβροχα, και πηδήξτε σε κάθε λακκούβα. Μαζί.",
+      "en": "Wellies on, and jump in every puddle. Together."
+    }
+  },
+  {
+    "id": "q-w3-quote-book",
+    "worldID": "w3-no-land",
+    "skill": "play",
+    "xp": 20,
+    "minAgeMonths": 25,
+    "evergreen": true,
+    "title": {
+      "el": "Το τετράδιο με τις ατάκες",
+      "en": "The quote book"
+    },
+    "description": {
+      "el": "Γράψε κάτι που είπε σήμερα και σε έκανε να γελάσεις.",
+      "en": "Write down something they said today that made you laugh."
+    },
+    "tip": {
+      "title": {
+        "el": "Με τα δικά του λόγια",
+        "en": "In their own words"
+      },
+      "steps": [
+        {
+          "el": "Γράψ' το ακριβώς όπως το είπε, με τα λάθη. Τα λάθη είναι αυτά που θα σου λείψουν.",
+          "en": "Write it exactly as they said it, mistakes included. The mistakes are what you'll miss."
+        }
+      ]
     }
   },
   {
@@ -1018,46 +2417,357 @@
     }
   },
   {
-    "id": "q-w3-quote-book",
+    "id": "q-w3-two-choices",
+    "worldID": "w3-no-land",
+    "skill": "patience",
+    "xp": 25,
+    "minAgeMonths": 25,
+    "title": {
+      "el": "Δύο επιλογές",
+      "en": "Two choices"
+    },
+    "description": {
+      "el": "Δώσε δύο επιλογές αντί για εντολή: «Την κόκκινη ή τη μπλε μπλούζα;»",
+      "en": "Offer two choices instead of an order: “The red shirt or the blue one?”"
+    },
+    "tip": {
+      "title": {
+        "el": "Και οι δύο να σου κάνουν",
+        "en": "Both have to work for you"
+      },
+      "steps": [
+        {
+          "el": "Δώσε μόνο επιλογές που δέχεσαι. Αν το ένα από τα δύο είναι απειλή, δεν είναι επιλογή.",
+          "en": "Only offer options you can live with. If one of the two is a threat, it isn't a choice."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w3-catch-good",
+    "worldID": "w3-no-land",
+    "skill": "patience",
+    "xp": 25,
+    "minAgeMonths": 25,
+    "title": {
+      "el": "Πιάσ' το στο καλό",
+      "en": "Catch them being good"
+    },
+    "description": {
+      "el": "Σήμερα πιάσε το να κάνει κάτι σωστά και πες του ακριβώς τι είδες: «Έβαλες τα παπούτσια σου δίπλα στην πόρτα, μόνο σου».",
+      "en": "Today, catch them doing something right and tell them exactly what you saw: “You put your shoes by the door, all by yourself.”"
+    },
+    "tip": {
+      "title": {
+        "el": "Πες τι είδες",
+        "en": "Say what you saw"
+      },
+      "steps": [
+        {
+          "el": "Το σκέτο «μπράβο» δεν λέει τι να ξανακάνει. Περίγραψε την πράξη.",
+          "en": "A bare “well done” doesn't tell them what to do again. Describe the action."
+        },
+        {
+          "el": "Πες το αμέσως, από κοντά, κοιτώντας το.",
+          "en": "Say it straight away, up close, looking at them."
+        },
+        {
+          "el": "Διάλεξε το αντίθετο από αυτό που σε κουράζει: αν σε τρελαίνουν οι φωνές, πιάσε τη στιγμή που μίλησε ήσυχα.",
+          "en": "Pick the opposite of what wears you down: if the shouting drives you mad, catch the moment they spoke quietly."
+        },
+        {
+          "el": "Χωρίς «αλλά» στο τέλος. Το «…αλλά γιατί δεν το κάνεις πάντα;» το σβήνει.",
+          "en": "No “but” on the end. “…but why can't you always do that?” wipes it out."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w3-engine-check",
+    "worldID": "w3-no-land",
+    "skill": "resilience",
+    "xp": 35,
+    "minAgeMonths": 25,
+    "evergreen": true,
+    "title": {
+      "el": "Σέρβις στη δική σου μηχανή",
+      "en": "Service your own engine"
+    },
+    "description": {
+      "el": "Κλείσε ένα ραντεβού για σένα: γιατρό, οδοντίατρο, ή την εξέταση που αναβάλλεις από τότε που έγινες μπαμπάς.",
+      "en": "Book one appointment for yourself: the doctor, the dentist, or the check you've been putting off since you became a dad."
+    },
+    "tip": {
+      "title": {
+        "el": "Το ξέρεις από τα παιχνίδια: χωρίς HP δεν βγαίνει η πίστα",
+        "en": "You know it from games: no HP, no level"
+      },
+      "steps": [
+        {
+          "el": "Ρώτα τον γιατρό ποιοι έλεγχοι και ποια εμβόλια σου αναλογούν στην ηλικία σου. Διαφέρουν από χώρα σε χώρα.",
+          "en": "Ask the doctor which checks and vaccines are due at your age. They differ from country to country."
+        },
+        {
+          "el": "Πες του και για τον ύπνο και τη διάθεσή σου. Είναι κι αυτά υγεία.",
+          "en": "Tell them about your sleep and your mood too. That's health as well."
+        },
+        {
+          "el": "Γράψε από πριν ό,τι σε απασχολεί, για να μην το ξεχάσεις μέσα στο ιατρείο.",
+          "en": "Write down beforehand whatever's on your mind, so you don't forget it once you're in the room."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w3-grape-cutter",
+    "worldID": "w3-no-land",
+    "skill": "care",
+    "xp": 20,
+    "minAgeMonths": 25,
+    "title": {
+      "el": "Ο κόφτης των σταφυλιών",
+      "en": "Grape cutter"
+    },
+    "description": {
+      "el": "Στο σημερινό φαγητό κόψε τα στρογγυλά στα τέσσερα, κατά μήκος, σταφύλια και ντοματίνια, και φάτε όλοι καθιστοί.",
+      "en": "At today's meal, cut the round things lengthways into quarters, grapes and cherry tomatoes, and everybody eats sitting down."
+    },
+    "tip": {
+      "title": {
+        "el": "Ακόμα δεν τελειώσαμε με αυτό",
+        "en": "We're not done with this yet"
+      },
+      "steps": [
+        {
+          "el": "Ό,τι είναι στρογγυλό, σκληρό ή κολλώδες θέλει ακόμα κόψιμο ή αναμονή. Τα λουκάνικα κόβονται κατά μήκος σε λεπτές λωρίδες, όχι σε ροδέλες· το ποπ κορν και οι σκληρές καραμέλες περιμένουν.",
+          "en": "Anything round, hard or sticky still needs cutting or waiting. Sausages get cut lengthways into thin strips, not rounds; popcorn and hard sweets can wait."
+        },
+        {
+          "el": "Ολόκληροι ξηροί καρποί όχι ακόμα. Αλεσμένοι, ή ως λεπτή στρώση φιστικοβούτυρο ή άλλο βούτυρο ξηρών καρπών στο ψωμί, ναι. Ως ποια ηλικία διαφέρει ανά χώρα: ρώτα τον γιατρό του παιδιού.",
+          "en": "No whole nuts yet. Ground, or as a thin layer of peanut butter or another nut butter on bread, yes. Until what age differs by country: ask your child's doctor."
+        },
+        {
+          "el": "Τρώει καθιστό. Όχι τρέχοντας, όχι ξαπλωμένο, όχι στο αυτοκίνητο, και με έναν μεγάλο να το βλέπει.",
+          "en": "They eat sitting down. Not running, not lying down, not in the car, and with a grown-up watching."
+        },
+        {
+          "el": "Και εκτός πιάτου: μπαλόνια, κέρματα και μπαταρίες-κουμπιά μένουν μακριά του. Αν καταπιεί μπαταρία-κουμπί, κάλεσε αμέσως τον αριθμό έκτακτης ανάγκης, ακόμα κι αν δείχνει καλά.",
+          "en": "Off the plate too: balloons, coins and button batteries stay out of reach. If they swallow a button battery, call the emergency number straight away, even if they seem fine."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w3-keep-one-change-one",
+    "worldID": "w3-no-land",
+    "skill": "resilience",
+    "xp": 30,
+    "minAgeMonths": 25,
+    "evergreen": true,
+    "title": {
+      "el": "Κράτα ένα, άλλαξε ένα",
+      "en": "Keep one, change one"
+    },
+    "description": {
+      "el": "Σκέψου πώς σε μεγάλωσαν. Διάλεξε ένα πράγμα που θέλεις να κρατήσεις και ένα που θέλεις να κάνεις αλλιώς, και πες τα σε κάποιον.",
+      "en": "Think about how you were raised. Pick one thing you want to keep and one you want to do differently, and tell someone."
+    },
+    "tip": {
+      "title": {
+        "el": "Δεν είσαι υποχρεωμένος να παίξεις με τον ίδιο χαρακτήρα",
+        "en": "You don't have to play the same character"
+      },
+      "steps": [
+        {
+          "el": "Στη στιγμή της πίεσης βγαίνει η φωνή που άκουγες παιδί. Το να την αναγνωρίσεις («αυτό το έλεγαν σε μένα») είναι το μισό της αλλαγής.",
+          "en": "Under pressure, the voice you heard as a child comes out. Recognising it (“that's what was said to me”) is half the change."
+        },
+        {
+          "el": "Το «κρατάω» μετράει όσο και το «αλλάζω»: το κυριακάτικο πρωινό, τα αστεία, η υπομονή στο μαστόρεμα.",
+          "en": "“Keep” counts as much as “change”: the Sunday breakfast, the jokes, the patience at the workbench."
+        },
+        {
+          "el": "Αν ο πατέρας σου έλειπε, ή ήταν εκεί με τρόπο που πονούσε, δεν ξεκινάς με χαμένο παιχνίδι. Διάλεξε για πρότυπο έναν άλλον άνθρωπο: έναν παππού, έναν δάσκαλο, έναν φίλο που το κάνει καλά.",
+          "en": "If your father wasn't there, or was there in a way that hurt, you're not starting a lost game. Choose someone else as your model: a grandfather, a teacher, a friend who does it well."
+        },
+        {
+          "el": "Αν το παρελθόν βαραίνει πολύ, αξίζει μια κουβέντα με ειδικό. Δεν είναι αδυναμία: είναι η πιο δύσκολη αποστολή της λίστας.",
+          "en": "If the past weighs a lot, it's worth talking to a professional. That's not weakness: it's the hardest quest on the list."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w3-real-names",
+    "worldID": "w3-no-land",
+    "skill": "care",
+    "xp": 20,
+    "minAgeMonths": 25,
+    "title": {
+      "el": "Τα κανονικά ονόματα",
+      "en": "Real names"
+    },
+    "description": {
+      "el": "Στο μπάνιο, πες όλα τα μέρη του σώματος με το όνομά τους, και τα ιδιωτικά: πέος, όρχεις, αιδοίο, πισινός.",
+      "en": "At bath time, name every part of the body by its real name, the private ones too: penis, testicles, vulva, bottom."
+    },
+    "tip": {
+      "title": {
+        "el": "Με τη φωνή που λες «αγκώνας»",
+        "en": "In the voice you use for “elbow”"
+      },
+      "steps": [
+        {
+          "el": "Πες τα όπως λες «γόνατο» και «αγκώνας». Η αμηχανία είναι δική σου, όχι δική του.",
+          "en": "Say them the way you say “knee” and “elbow”. The awkwardness is yours, not theirs."
+        },
+        {
+          "el": "Αιδοίο λέγεται όλο το εξωτερικό μέρος στα κορίτσια, αυτό που φαίνεται.",
+          "en": "Vulva is the word for the whole outside part on a girl, the part you can see."
+        },
+        {
+          "el": "Τα ψεύτικα ονόματα δίνουν την ιδέα ότι αυτά τα μέρη είναι κάτι κρυφό ή κακό. Με τα σωστά, μπορεί να πει σε σένα ή στον γιατρό ακριβώς τι πονάει.",
+          "en": "Made-up names can suggest those parts are secret or bad. With the right ones, they can tell you or a doctor exactly what hurts."
+        },
+        {
+          "el": "Αν στο σπίτι υπάρχει ήδη χαϊδευτικό, δεν το απαγορεύεις. Προσθέτεις δίπλα του το κανονικό.",
+          "en": "If the family already has a pet name, you don't need to ban it. Add the real one alongside."
+        },
+        {
+          "el": "Η περιέργεια για το σώμα του είναι φυσιολογική σε αυτή την ηλικία. Χωρίς γέλια και χωρίς ντροπή: λες μόνο πού και πότε είναι ιδιωτικό.",
+          "en": "Curiosity about their body is normal at this age. No laughing and no shaming: just say where and when it's private."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w3-shade-first",
+    "worldID": "w3-no-land",
+    "skill": "care",
+    "xp": 20,
+    "minAgeMonths": 25,
+    "evergreen": true,
+    "title": {
+      "el": "Πρώτα η σκιά",
+      "en": "Shade first"
+    },
+    "description": {
+      "el": "Πριν βγείτε σε δυνατό ήλιο: καπέλο, μπλούζα, σκιά, και αντηλιακό σε ό,τι μένει ακάλυπτο.",
+      "en": "Before you go out in strong sun: hat, T-shirt, shade, and sunscreen on whatever is left uncovered."
+    },
+    "tip": {
+      "title": {
+        "el": "Το αντηλιακό έρχεται τελευταίο",
+        "en": "Sunscreen comes last"
+      },
+      "steps": [
+        {
+          "el": "Η σειρά μετράει: σκιά τις μεσημεριανές ώρες, ρούχα και καπέλο με μπορ γύρω γύρω, και μετά αντηλιακό. Το κασκέτο αφήνει ακάλυπτα τα αυτιά και τον σβέρκο.",
+          "en": "The order matters: shade around the middle of the day, clothes and a hat with a brim all the way round, and then sunscreen. A cap leaves the ears and neck bare."
+        },
+        {
+          "el": "Αντηλιακό υψηλής προστασίας, άφθονο, και στα αυτιά, στον σβέρκο και πάνω στα πόδια. Ξανά κάθε δύο ώρες περίπου και μετά το νερό.",
+          "en": "High-protection sunscreen, plenty of it, on ears, the back of the neck and the tops of feet too. Again about every two hours, and after water."
+        },
+        {
+          "el": "Ποιος δείκτης προστασίας συνιστάται διαφέρει ανά χώρα: ρώτα στο φαρμακείο.",
+          "en": "Which protection factor is recommended differs by country: ask at the pharmacy."
+        },
+        {
+          "el": "Η συννεφιά δεν είναι σκιά. Δες τον δείκτη UV στην πρόγνωση του καιρού: από 3 και πάνω θέλει προστασία.",
+          "en": "Cloud isn't shade. Check the UV index in the weather forecast: from 3 upwards, protection is needed."
+        },
+        {
+          "el": "Βάλε κι εσύ. Αντιγράφει αυτό που κάνεις.",
+          "en": "Put some on yourself. They copy what you do."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w3-your-language",
     "worldID": "w3-no-land",
     "skill": "play",
     "xp": 20,
     "minAgeMonths": 25,
     "evergreen": true,
     "title": {
-      "el": "Το τετράδιο με τις ατάκες",
-      "en": "The quote book"
+      "el": "Η γλώσσα σου, οι ιστορίες σου",
+      "en": "Your language, your stories"
     },
     "description": {
-      "el": "Γράψε κάτι που είπε σήμερα και σε έκανε να γελάσεις.",
-      "en": "Write down something they said today that made you laugh."
+      "el": "Απόψε πες του μια ιστορία ή ένα τραγούδι από τα δικά σου παιδικά χρόνια, στη γλώσσα που μεγάλωσες.",
+      "en": "Tonight, tell them a story or sing a song from your own childhood, in the language you grew up with."
     },
     "tip": {
       "title": {
-        "el": "Με τα δικά του λόγια",
-        "en": "In their own words"
+        "el": "Δύο γλώσσες δεν είναι βάρος",
+        "en": "Two languages aren't a burden"
       },
       "steps": [
         {
-          "el": "Γράψ' το ακριβώς όπως το είπε, με τα λάθη. Τα λάθη είναι αυτά που θα σου λείψουν.",
-          "en": "Write it exactly as they said it, mistakes included. The mistakes are what you'll miss."
+          "el": "Οι δύο ή περισσότερες γλώσσες δεν προκαλούν καθυστέρηση στην ομιλία και δεν μπερδεύουν το παιδί.",
+          "en": "Two or more languages don't cause a speech delay and don't confuse a child."
+        },
+        {
+          "el": "Το ανακάτεμα των γλωσσών μέσα στην ίδια πρόταση είναι φυσιολογικό.",
+          "en": "Mixing languages in one sentence is normal."
+        },
+        {
+          "el": "Μίλα του στη γλώσσα που νιώθεις πιο άνετα. Δεν χρειάζεται να την αφήσεις όταν αρχίσει σχολείο.",
+          "en": "Talk to them in the language you're most at home in. You don't need to drop it when school starts."
+        },
+        {
+          "el": "Αν σου απαντά στην άλλη γλώσσα, συνέχισε. Το ότι σε καταλαβαίνει μετράει.",
+          "en": "If they answer in the other language, keep going. Understanding you counts."
+        },
+        {
+          "el": "Αν σε προβληματίζει η ομιλία του, ρώτα τον γιατρό του ή έναν λογοθεραπευτή. Μην κόψεις μια γλώσσα όσο περιμένεις απάντηση.",
+          "en": "If their speech worries you, ask their doctor or a speech therapist. Don't drop a language while you wait for an answer."
         }
       ]
     }
   },
   {
-    "id": "q-w3-ten-breaths",
+    "id": "q-w3-your-turn",
     "worldID": "w3-no-land",
-    "skill": "patience",
-    "xp": 30,
-    "minAgeMonths": 26,
+    "skill": "play",
+    "xp": 20,
+    "minAgeMonths": 25,
     "title": {
-      "el": "Δέκα ανάσες",
-      "en": "Ten breaths"
+      "el": "Σειρά μου, σειρά σου",
+      "en": "My turn, your turn"
     },
     "description": {
-      "el": "Πριν απαντήσεις σε ένα ξέσπασμα, πάρε δέκα αργές ανάσες.",
-      "en": "Before you respond to a meltdown, take ten slow breaths."
+      "el": "Παίξτε κάτι που έχει σειρά: κυλάτε μια μπάλα, χτίζετε πύργο ένα τουβλάκι ο καθένας. Λέγε το δυνατά: «σειρά μου… σειρά σου».",
+      "en": "Play something with turns: roll a ball back and forth, build a tower one brick each. Say it out loud: “my turn… your turn.”"
+    },
+    "tip": {
+      "title": {
+        "el": "Το μοίρασμα δεν διατάζεται",
+        "en": "Sharing can't be ordered"
+      },
+      "steps": [
+        {
+          "el": "Σε αυτή την ηλικία το να μοιράζεται πάντα δεν είναι ρεαλιστικό. Η τιμωρία επειδή δεν μοιράστηκε δεν το διδάσκει.",
+          "en": "At this age, sharing every time isn't realistic. Punishing them for not sharing doesn't teach it."
+        },
+        {
+          "el": "Μάθε του μια φράση αντί για το άρπαγμα: «Μου το δίνεις όταν τελειώσεις;»",
+          "en": "Teach a line to use instead of grabbing: “Can I have it when you've finished?”"
+        },
+        {
+          "el": "Πριν έρθει φίλος στο σπίτι, βάλτε μαζί στην άκρη δυο-τρία παιχνίδια που είναι μόνο δικά του. Τα υπόλοιπα είναι για όλους.",
+          "en": "Before a friend comes round, put two or three toys away together that are just theirs. The rest are for everyone."
+        },
+        {
+          "el": "Όταν περιμένει ή δίνει κάτι, πες του τι είδες: «Του έδωσες το φτυάρι. Αυτό ήταν ευγενικό».",
+          "en": "When they wait or hand something over, tell them what you saw: “You gave him the spade. That was kind.”"
+        }
+      ]
     }
   },
   {
@@ -1092,42 +2802,12 @@
     }
   },
   {
-    "id": "q-w3-bike-pilot",
-    "worldID": "w3-no-land",
-    "skill": "play",
-    "xp": 35,
-    "minAgeMonths": 30,
-    "title": {
-      "el": "Πιλότος ποδηλάτου",
-      "en": "Bike pilot"
-    },
-    "description": {
-      "el": "Ποδήλατο ισορροπίας, κράνος, κι εσύ τρέχεις δίπλα.",
-      "en": "A balance bike, a helmet, and you running alongside."
-    },
-    "tip": {
-      "title": {
-        "el": "Πρώτα η ισορροπία",
-        "en": "Balance first"
-      },
-      "steps": [
-        {
-          "el": "Με το ποδήλατο ισορροπίας μαθαίνει πρώτα το δύσκολο. Τα πετάλια έρχονται εύκολα μετά.",
-          "en": "On a balance bike they learn the hard part first. Pedals come easily later."
-        },
-        {
-          "el": "Κράνος από την πρώτη βόλτα, για να μη γίνει ποτέ θέμα.",
-          "en": "Helmet from the very first ride, so it never becomes a debate."
-        }
-      ]
-    }
-  },
-  {
     "id": "q-w3-let-them-climb",
     "worldID": "w3-no-land",
     "skill": "patience",
     "xp": 25,
     "minAgeMonths": 30,
+    "evergreen": true,
     "title": {
       "el": "Άσ' το να σκαρφαλώσει",
       "en": "Let them climb"
@@ -1153,37 +2833,187 @@
         {
           "el": "Οι γρατζουνιές είναι μέσα στο πρόγραμμα. Εσύ φροντίζεις να μην υπάρχει κάτι που δεν φαίνεται: ύψος πάνω από τσιμέντο, δρόμος δίπλα.",
           "en": "Scrapes are part of the deal. Your job is the dangers they can't see: height over concrete, a road nearby."
+        },
+        {
+          "el": "Το κουμάντο το κάνει εκείνο. Δεν το σπρώχνεις πιο ψηλά απ' όσο θέλει, ούτε με ένα «έλα, μη φοβάσαι».",
+          "en": "They set the pace. You don't push them higher than they want to go, not even with a “come on, don't be scared”."
         }
       ]
     }
   },
   {
-    "id": "q-w4-why-hour",
-    "worldID": "w4-why-kingdom",
-    "skill": "patience",
-    "xp": 25,
-    "minAgeMonths": 42,
+    "id": "q-w3-bike-pilot",
+    "worldID": "w3-no-land",
+    "skill": "play",
+    "xp": 35,
+    "minAgeMonths": 30,
     "title": {
-      "el": "Η ώρα των «γιατί»",
-      "en": "Why hour"
+      "el": "Πιλότος ποδηλάτου",
+      "en": "Bike pilot"
     },
     "description": {
-      "el": "Απάντησε σε κάθε «γιατί» για δέκα λεπτά. Ό,τι δεν ξέρεις, ψάξτε το μαζί.",
-      "en": "Answer every “why” for ten minutes. What you don't know, look up together."
+      "el": "Ποδήλατο ισορροπίας ή πατίνι, κράνος, κι εσύ τρέχεις δίπλα.",
+      "en": "A balance bike or a scooter, a helmet, and you running alongside."
     },
     "tip": {
       "title": {
-        "el": "«Εσύ τι λες;»",
-        "en": "“What do you think?”"
+        "el": "Πρώτα η ισορροπία",
+        "en": "Balance first"
       },
       "steps": [
         {
-          "el": "Πού και πού γύρνα του την ερώτηση. Οι δικές του εξηγήσεις είναι το καλύτερο κομμάτι.",
-          "en": "Now and then turn the question back. Their own explanations are the best part."
+          "el": "Με το ποδήλατο ισορροπίας μαθαίνει πρώτα το δύσκολο. Τα πετάλια έρχονται εύκολα μετά.",
+          "en": "On a balance bike they learn the hard part first. Pedals come easily later."
         },
         {
-          "el": "Το «δεν ξέρω, πάμε να το βρούμε» είναι πλήρης απάντηση.",
-          "en": "“I don't know, let's find out” is a complete answer."
+          "el": "Κράνος από την πρώτη βόλτα, για να μη γίνει ποτέ θέμα. Και στο πατίνι. Και στο δικό σου κεφάλι.",
+          "en": "Helmet from the very first ride, so it never becomes a debate. On the scooter too. And on your own head."
+        },
+        {
+          "el": "Το κράνος κάθεται ίσια και σκεπάζει το μέτωπο, με το λουρί εφαρμοστό. Αν γλιστράει πίσω όταν κουνά το κεφάλι, θέλει σφίξιμο.",
+          "en": "The helmet sits level and covers the forehead, with the strap snug. If it slides back when they shake their head, tighten it."
+        },
+        {
+          "el": "Μόλις κατέβει από το ποδήλατο, το κράνος βγαίνει: στα όργανα της παιδικής χαράς και στα δέντρα μπορεί να σκαλώσει.",
+          "en": "Once they're off the bike, the helmet comes off: on playground equipment and in trees it can get caught."
+        },
+        {
+          "el": "Μετά από γερό χτύπημα το κράνος αλλάζεται, ακόμα κι αν δείχνει εντάξει.",
+          "en": "After a hard knock the helmet gets replaced, even if it looks fine."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w3-dentist-run",
+    "worldID": "w3-no-land",
+    "skill": "care",
+    "xp": 25,
+    "minAgeMonths": 30,
+    "title": {
+      "el": "Αποστολή: οδοντίατρος",
+      "en": "Dentist run"
+    },
+    "description": {
+      "el": "Κλείσε έναν έλεγχο στον οδοντίατρο για μια μέρα που δεν πονάει τίποτα. Και απόψε το βούρτσισμα το τελειώνεις εσύ.",
+      "en": "Book a dental check-up for a day when nothing hurts. And tonight, you're the one who finishes the brushing."
+    },
+    "tip": {
+      "title": {
+        "el": "Το χέρι σου στη βούρτσα",
+        "en": "Your hand on the brush"
+      },
+      "steps": [
+        {
+          "el": "Ξεκινά εκείνο, τελειώνεις εσύ. Τα μικρά χέρια δεν τα καταφέρνουν σωστά μόνα τους για αρκετά χρόνια ακόμα.",
+          "en": "They start, you finish. Small hands can't do the job properly on their own for a good few years yet."
+        },
+        {
+          "el": "Δύο φορές τη μέρα με φθοριούχα οδοντόκρεμα. Η βραδινή μετράει περισσότερο. Πόση οδοντόκρεμα και ποια διαφέρει ανά ηλικία και χώρα: ρώτα τον οδοντίατρο.",
+          "en": "Twice a day with fluoride toothpaste. The bedtime one matters most. How much paste and which one differs by age and by country: ask the dentist."
+        },
+        {
+          "el": "Μετά το βούρτσισμα φτύνει, δεν ξεπλένει με νερό. Έτσι το φθόριο μένει πάνω στα δόντια.",
+          "en": "After brushing they spit, they don't rinse with water. That way the fluoride stays on the teeth."
+        },
+        {
+          "el": "Ο οδοντίατρος δεν γίνεται ποτέ απειλή. Παίξτε τον στο σπίτι πρώτα: μέτρα του τα δόντια με ένα κουταλάκι.",
+          "en": "The dentist is never a threat. Play dentists at home first: count their teeth with a teaspoon."
+        },
+        {
+          "el": "Τα γλυκά ποτά και σνακ μαζί με τα γεύματα, όχι όλη μέρα. Ανάμεσα, νερό.",
+          "en": "Sweet drinks and snacks go with meals, not all day long. In between, water."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w3-feelings-detective",
+    "worldID": "w3-no-land",
+    "skill": "care",
+    "xp": 20,
+    "minAgeMonths": 30,
+    "title": {
+      "el": "Ντετέκτιβ συναισθημάτων",
+      "en": "Feelings detective"
+    },
+    "description": {
+      "el": "Στο αποψινό βιβλίο σταμάτα σε μια εικόνα και ρώτα: «Πώς νιώθει αυτός; Από πού το κατάλαβες;»",
+      "en": "In tonight's book, stop at one picture and ask: “How is he feeling? How can you tell?”"
+    },
+    "tip": {
+      "title": {
+        "el": "Πέρα από το «χαρούμενος» και «λυπημένος»",
+        "en": "Beyond happy and sad"
+      },
+      "steps": [
+        {
+          "el": "Δώσε του καινούργιες λέξεις: απογοήτευση, ζήλια, περηφάνια, ντροπή, άγχος.",
+          "en": "Hand them new words: disappointment, jealousy, pride, embarrassment, worry."
+        },
+        {
+          "el": "Λέγε και τα δικά σου δυνατά: «Εκνευρίστηκα που δεν παίρνει μπρος το αμάξι. Παίρνω μια ανάσα».",
+          "en": "Say your own out loud too: “I'm annoyed the car won't start. I'm taking a breath.”"
+        },
+        {
+          "el": "Όλα τα συναισθήματα επιτρέπονται. Δεν επιτρέπονται όλες οι πράξεις: «Μπορείς να θυμώσεις. Δεν μπορείς να χτυπήσεις».",
+          "en": "Every feeling is allowed. Not every action is: “You can be angry. You can't hit.”"
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w3-ten-breaths",
+    "worldID": "w3-no-land",
+    "skill": "patience",
+    "xp": 30,
+    "minAgeMonths": 26,
+    "retired": true,
+    "title": {
+      "el": "Δέκα ανάσες",
+      "en": "Ten breaths"
+    },
+    "description": {
+      "el": "Πριν απαντήσεις σε ένα ξέσπασμα, πάρε δέκα αργές ανάσες.",
+      "en": "Before you respond to a meltdown, take ten slow breaths."
+    }
+  },
+  {
+    "id": "q-w4-underwear-rule",
+    "worldID": "w4-why-kingdom",
+    "skill": "care",
+    "xp": 35,
+    "minAgeMonths": 42,
+    "title": {
+      "el": "Ο κανόνας των εσωρούχων",
+      "en": "The underwear rule"
+    },
+    "description": {
+      "el": "Εξήγησέ του: ό,τι καλύπτει το εσώρουχο είναι δικό του. Κανείς δεν το αγγίζει ούτε ζητά να το δει, και κανείς δεν του ζητά να αγγίξει ή να δει το σώμα κάποιου άλλου.",
+      "en": "Explain it: what their underwear covers is theirs. Nobody touches it or asks to see it, and nobody asks them to touch or look at anyone else's."
+    },
+    "tip": {
+      "title": {
+        "el": "Χωρίς μυστικά",
+        "en": "No secrets"
+      },
+      "steps": [
+        {
+          "el": "«Το σώμα σου είναι δικό σου.» Ούτε το φιλί στη θεία είναι υποχρεωτικό: φτάνει ένα «γεια» ή ένα κόλλα πέντε.",
+          "en": "“Your body is yours.” Even a kiss for auntie isn't compulsory: a wave or a high five will do."
+        },
+        {
+          "el": "Εξαίρεση: όποιος το φροντίζει, για καθαριότητα, και ο γιατρός ή ο νοσηλευτής, με εσένα ή έναν άλλο μεγάλο που εμπιστεύεται μέσα στο δωμάτιο. Πάντα εξηγούν γιατί και ρωτούν πρώτα.",
+          "en": "The exceptions: whoever looks after them, for washing, and a doctor or nurse, with you or another grown-up they trust in the room. They always explain why and ask first."
+        },
+        {
+          "el": "Εκπλήξεις ναι, μυστικά όχι. Μια έκπληξη τη μαθαίνουν όλοι σε λίγο και χαίρονται. Ποτέ μυστικό για αγγίγματα, για το σώμα ή για φωτογραφίες, ούτε όταν το ζητά ένας μεγάλος που αγαπάμε. Και δεν θα μπλέξει που το είπε.",
+          "en": "Surprises yes, secrets no. A surprise is something everyone finds out soon and is happy about. Never a secret about touching, bodies or photos, not even when a grown-up we love asks. And they won't be in trouble for telling."
+        },
+        {
+          "el": "Πες του καθαρά: «Αν γίνει ποτέ κάτι τέτοιο, μου το λες, ακόμα κι αν έχει περάσει καιρός, ακόμα κι αν δεν είπες όχι. Δεν φταις ποτέ εσύ, και θα σε πιστέψω». Και διαλέξτε μαζί τρεις μεγάλους στους οποίους μπορεί να το πει, όχι μόνο εσένα.",
+          "en": "Say it plainly: “If anything like that ever happens, tell me, even if it was a while ago, even if you didn't say no. It's never your fault, and I will believe you.” And choose together three grown-ups they could tell, not only you."
         }
       ]
     }
@@ -1220,21 +3050,6 @@
     }
   },
   {
-    "id": "q-w4-story-maker",
-    "worldID": "w4-why-kingdom",
-    "skill": "play",
-    "xp": 25,
-    "minAgeMonths": 42,
-    "title": {
-      "el": "Ο παραμυθάς",
-      "en": "Story maker"
-    },
-    "description": {
-      "el": "Φτιάξτε μια ιστορία μαζί: εσύ μια πρόταση, εκείνο την επόμενη.",
-      "en": "Make up a story together: you say one sentence, they say the next."
-    }
-  },
-  {
     "id": "q-w4-one-on-one",
     "worldID": "w4-why-kingdom",
     "skill": "care",
@@ -1267,6 +3082,52 @@
     }
   },
   {
+    "id": "q-w4-story-maker",
+    "worldID": "w4-why-kingdom",
+    "skill": "play",
+    "xp": 25,
+    "minAgeMonths": 42,
+    "title": {
+      "el": "Ο παραμυθάς",
+      "en": "Story maker"
+    },
+    "description": {
+      "el": "Φτιάξτε μια ιστορία μαζί: εσύ μια πρόταση, εκείνο την επόμενη.",
+      "en": "Make up a story together: you say one sentence, they say the next."
+    }
+  },
+  {
+    "id": "q-w4-why-hour",
+    "worldID": "w4-why-kingdom",
+    "skill": "patience",
+    "xp": 25,
+    "minAgeMonths": 42,
+    "title": {
+      "el": "Η ώρα των «γιατί»",
+      "en": "Why hour"
+    },
+    "description": {
+      "el": "Απάντησε σε κάθε «γιατί» για δέκα λεπτά. Ό,τι δεν ξέρεις, ψάξτε το μαζί.",
+      "en": "Answer every “why” for ten minutes. What you don't know, look up together."
+    },
+    "tip": {
+      "title": {
+        "el": "«Εσύ τι λες;»",
+        "en": "“What do you think?”"
+      },
+      "steps": [
+        {
+          "el": "Πού και πού γύρνα του την ερώτηση. Οι δικές του εξηγήσεις είναι το καλύτερο κομμάτι.",
+          "en": "Now and then turn the question back. Their own explanations are the best part."
+        },
+        {
+          "el": "Το «δεν ξέρω, πάμε να το βρούμε» είναι πλήρης απάντηση.",
+          "en": "“I don't know, let's find out” is a complete answer."
+        }
+      ]
+    }
+  },
+  {
     "id": "q-w4-move",
     "worldID": "w4-why-kingdom",
     "skill": "resilience",
@@ -1278,65 +3139,30 @@
       "en": "Move for you"
     },
     "description": {
-      "el": "30 λεπτά άσκηση σήμερα. Για σένα.",
-      "en": "30 minutes of exercise today. For you."
-    }
-  },
-  {
-    "id": "q-w4-check-in",
-    "worldID": "w4-why-kingdom",
-    "skill": "resilience",
-    "xp": 30,
-    "minAgeMonths": 42,
-    "evergreen": true,
-    "title": {
-      "el": "Πώς είσαι εσύ;",
-      "en": "How are you?"
-    },
-    "description": {
-      "el": "Μίλα με τον/τη σύντροφό σου για το πώς είστε εσείς, όχι μόνο για τα παιδιά.",
-      "en": "Talk with your partner about how you two are doing, not just the kids."
-    }
-  },
-  {
-    "id": "q-w4-underwear-rule",
-    "worldID": "w4-why-kingdom",
-    "skill": "care",
-    "xp": 35,
-    "minAgeMonths": 42,
-    "title": {
-      "el": "Ο κανόνας του εσώρουχου",
-      "en": "The underwear rule"
-    },
-    "description": {
-      "el": "Εξήγησέ του: ό,τι καλύπτει το εσώρουχο είναι δικό του και κανείς δεν το αγγίζει.",
-      "en": "Explain it: what their underwear covers is theirs, and nobody touches it."
+      "el": "Σήμερα κάνε κάτι που σε λαχανιάζει, για μισή ώρα ή για όσο έχεις. Για σένα.",
+      "en": "Today do something that gets you out of breath, for half an hour or for as long as you've got. For you."
     },
     "tip": {
       "title": {
-        "el": "Χωρίς μυστικά",
-        "en": "No secrets"
+        "el": "Ό,τι προλάβεις, μετράει",
+        "en": "Whatever you manage counts"
       },
       "steps": [
         {
-          "el": "Χρησιμοποίησε τα κανονικά ονόματα για τα μέρη του σώματος.",
-          "en": "Use the proper names for body parts."
+          "el": "Για τους ενήλικες ο στόχος είναι γύρω στις δυόμισι ώρες την εβδομάδα με μέτρια ένταση, ή τον μισό χρόνο αν είναι έντονη. Αλλά και τα δέκα λεπτά είναι καλύτερα από το τίποτα.",
+          "en": "For adults the aim is around two and a half hours a week at a moderate pace, or half that time if it's vigorous. But ten minutes still beats nothing."
         },
         {
-          "el": "«Το σώμα σου είναι δικό σου.» Ούτε το φιλί στη θεία είναι υποχρεωτικό.",
-          "en": "“Your body is yours.” Even a kiss for auntie isn't compulsory."
+          "el": "Δύο ή περισσότερες μέρες την εβδομάδα, κάτι με βάρος: κάμψεις, λάστιχα, ή το παιδί στους ώμους.",
+          "en": "On two or more days a week, something with load: push-ups, bands, or your kid on your shoulders."
         },
         {
-          "el": "Εξαίρεση είναι οι γονείς και ο γιατρός, για καθαριότητα και υγεία, και πάντα με εξήγηση.",
-          "en": "The exceptions are parents and the doctor, for washing and health, and always with an explanation."
+          "el": "Δεν έχεις ποιος να κρατήσει το παιδί; Τρέξιμο δίπλα στο ποδήλατό του, κυνηγητό στο πάρκο, χορός στο σαλόνι. Μετράει.",
+          "en": "Nobody to mind your child? A run beside their bike, chase in the park, dancing in the living room. It counts."
         },
         {
-          "el": "Καλά μυστικά είναι οι εκπλήξεις. Ένα μυστικό που το στενοχωρεί το λέει πάντα σε σένα, και δεν θα θυμώσεις.",
-          "en": "Good secrets are surprises. A secret that makes them feel bad always gets told to you, and you won't be angry."
-        },
-        {
-          "el": "Το βιβλίο «Κίκο και το χέρι» του Συμβουλίου της Ευρώπης υπάρχει δωρεάν στα ελληνικά.",
-          "en": "The Council of Europe's book “Kiko and the Hand” is free online."
+          "el": "Αν έχεις χρόνια να γυμναστείς ή κάποιο θέμα υγείας, ρώτα πρώτα έναν γιατρό.",
+          "en": "If it's been years since you exercised or you have a health condition, ask a doctor first."
         }
       ]
     }
@@ -1394,8 +3220,8 @@
       "en": "If we get separated"
     },
     "description": {
-      "el": "Μάθε του τι κάνει αν χαθείτε: μένει εκεί που είναι και ζητά βοήθεια από μια μαμά με παιδιά.",
-      "en": "Teach them what to do if you get separated: stay where they are and ask a mum with children for help."
+      "el": "Μάθε του τι κάνει αν χαθείτε: σταματά, μένει εκεί που είναι και φωνάζει δυνατά το μικρό σου όνομα, όχι «μπαμπά». Αν δεν έρθεις, ζητά βοήθεια από κάποιον που δουλεύει εκεί ή από έναν γονιό με παιδιά.",
+      "en": "Teach them what to do if you get separated: stop, stay put and shout your first name, not “Dad”. If you don't come, they ask someone who works there, or a parent with children."
     },
     "tip": {
       "title": {
@@ -1404,54 +3230,26 @@
       },
       "steps": [
         {
-          "el": "Μάθετε μαζί το ονοματεπώνυμό σου και το κινητό σου, σαν τραγουδάκι.",
-          "en": "Learn your full name and your mobile number together as a little song."
+          "el": "Μάθετε μαζί το ονοματεπώνυμό σου και το κινητό σου, σαν τραγουδάκι. Σε πολυκοσμία γράψε τον αριθμό στο μπράτσο του ή σε βραχιολάκι.",
+          "en": "Learn your full name and your mobile number together as a little song. In a crowd, write the number on their arm or on a wristband."
         },
         {
-          "el": "Σε παραλία ή πανηγύρι γράψε τον αριθμό σου στο μπράτσο του ή σε βραχιολάκι.",
-          "en": "At the beach or a festival, write your number on their arm or on a wristband."
+          "el": "Μόλις φτάσετε κάπου, συμφωνήστε ένα σημείο συνάντησης και δείξε του ποιον θα ρωτούσε εδώ: το ταμείο, κάποιον με στολή ή καρτελάκι.",
+          "en": "As soon as you arrive somewhere, agree a meeting point and show them who they'd ask here: the till, someone in uniform or with a name badge."
         },
         {
-          "el": "Μόλις φτάσετε κάπου, συμφωνήστε ένα σημείο συνάντησης.",
-          "en": "As soon as you arrive somewhere, agree on a meeting point."
+          "el": "Δεν φεύγει από το μέρος με κανέναν, ούτε με αυτόν που το βοηθά. Ο μεγάλος σε παίρνει τηλέφωνο από εκεί.",
+          "en": "They don't leave the place with anyone, not even the person helping. The grown-up phones you from there."
+        },
+        {
+          "el": "Κάντε το παιχνίδι: «Χάθηκα! Τι κάνω;». Να το πει δυνατά: «Συγγνώμη, χάθηκα. Μπορείτε να πάρετε τον μπαμπά μου;»",
+          "en": "Make a game of it: “I'm lost! What do I do?” Have them say it out loud: “Excuse me, I'm lost. Can you call my dad?”"
         },
         {
           "el": "Μάθε του τον αριθμό έκτακτης ανάγκης: πότε τον παίρνουμε και τι λέμε.",
           "en": "Teach them the emergency number: when we call it and what we say."
         }
       ]
-    }
-  },
-  {
-    "id": "q-w4-swim",
-    "worldID": "w4-why-kingdom",
-    "skill": "play",
-    "xp": 30,
-    "minAgeMonths": 48,
-    "title": {
-      "el": "Μαζί στο νερό",
-      "en": "In the water together"
-    },
-    "description": {
-      "el": "Μπες μαζί του στο νερό. Ή γράψ' το σε μαθήματα κολύμβησης και πήγαινέ το εσύ.",
-      "en": "Get in the water with them. Or sign them up for swimming lessons and be the one who takes them."
-    },
-    "tip": {
-      "title": {
-        "el": "Κολυμπάει, αλλά το βλέπεις",
-        "en": "They swim, you still watch"
-      },
-      "steps": [
-        {
-          "el": "Τα μαθήματα είναι ένα ακόμα επίπεδο προστασίας, όχι ασπίδα. Η επίβλεψη μένει ίδια.",
-          "en": "Lessons are one more layer of protection, not a shield. The watching stays the same."
-        },
-        {
-          "el": "Μην το πιέσεις να βάλει το κεφάλι μέσα. Ο φόβος φεύγει με το παιχνίδι.",
-          "en": "Don't push them to put their head under. Fear leaves through play."
-        }
-      ],
-      "medical": true
     }
   },
   {
@@ -1465,22 +3263,113 @@
       "en": "A real job"
     },
     "description": {
-      "el": "Δώσε του μια δουλειά του σπιτιού που θα είναι δική του: στρώνει το τραπέζι, ταΐζει τη γάτα.",
-      "en": "Give them a household job that's theirs: laying the table, feeding the cat."
+      "el": "Δώσε του μια δουλειά του σπιτιού που θα είναι δική του: στρώνει το τραπέζι, ποτίζει τη γλάστρα, ταΐζει τη γάτα.",
+      "en": "Give them a household job that's theirs: laying the table, watering the plant, feeding the cat."
     },
     "tip": {
       "title": {
-        "el": "Ευχαριστώ, όχι χαρτζιλίκι",
-        "en": "A thank-you, not pocket money"
+        "el": "Πρώτα το ευχαριστώ",
+        "en": "The thank-you comes first"
       },
       "steps": [
         {
-          "el": "Ευχαρίστησέ το όπως θα ευχαριστούσες έναν μεγάλο. Χωρίς αυτοκόλλητα και πληρωμή.",
-          "en": "Thank them the way you'd thank an adult. No stickers, no payment."
+          "el": "Ευχαρίστησέ το όπως θα ευχαριστούσες έναν μεγάλο, και πες τι άλλαξε: «Το τραπέζι είναι έτοιμο επειδή το έστρωσες εσύ».",
+          "en": "Thank them the way you'd thank an adult, and say what it changed: “The table's ready because you laid it.”"
+        },
+        {
+          "el": "Ένας πίνακας όπου βάζει μόνο του το σημάδι βοηθά να γίνει συνήθεια. Το αν οι δουλειές συνδέονται με χαρτζιλίκι το αποφασίζει η οικογένειά σου· αν ναι, να ξέρει από πριν τι περιμένεις.",
+          "en": "A chart they tick themselves helps it become a habit. Whether chores are linked to pocket money is your family's call: if they are, make sure they know in advance what you expect."
         },
         {
           "el": "Μην το ξανακάνεις σωστά μπροστά του.",
           "en": "Don't redo it properly in front of them."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w4-seat-level-up",
+    "worldID": "w4-why-kingdom",
+    "skill": "care",
+    "xp": 25,
+    "minAgeMonths": 48,
+    "title": {
+      "el": "Αναβάθμιση καθίσματος",
+      "en": "Seat level-up"
+    },
+    "description": {
+      "el": "Πριν αλλάξεις κάθισμα, διάβασε την ετικέτα του: έχει πράγματι ξεπεράσει το όριο ύψους ή βάρους; Ισχύει για όποιο αυτοκίνητο μπαίνει.",
+      "en": "Before you change seats, read the label: have they really passed its height or weight limit? This goes for any car they ride in."
+    },
+    "tip": {
+      "title": {
+        "el": "Μέγεθος, όχι γενέθλια",
+        "en": "Size, not birthdays"
+      },
+      "steps": [
+        {
+          "el": "Μένει στο κάθισμα με τις δικές του ζώνες όσο το επιτρέπει η ετικέτα. Η αλλαγή δεν γίνεται επειδή έκλεισε χρόνια ή επειδή άλλαξε ο φίλος του.",
+          "en": "They stay in the seat with its own harness for as long as the label allows. You don't move up because of a birthday, or because a friend did."
+        },
+        {
+          "el": "Στο ανυψωτικό κάθισμα (booster) η ζώνη του αυτοκινήτου περνά από τη μέση του ώμου και του στήθους, όχι από τον λαιμό, και χαμηλά στους γοφούς, όχι στην κοιλιά.",
+          "en": "In a booster seat, the car's belt crosses the middle of the shoulder and chest, not the neck, and sits low on the hips, not on the tummy."
+        },
+        {
+          "el": "Το booster φεύγει μόνο όταν η ζώνη κάθεται έτσι και χωρίς αυτό: πλάτη στο κάθισμα, γόνατα λυγισμένα στην άκρη, σε όλη τη διαδρομή. Για τα περισσότερα παιδιά αυτό αργεί χρόνια ακόμα.",
+          "en": "The booster only goes when the belt sits like that without it: back against the seat, knees bent at the edge, for the whole trip. For most children that's still years away."
+        },
+        {
+          "el": "Το ύψος ή η ηλικία που ορίζει ο νόμος διαφέρει από χώρα σε χώρα. Δες τι ισχύει εκεί που ζεις και εκεί που ταξιδεύεις, και αν ο νόμος το επιτρέπει νωρίτερα, πήγαινε με το πώς κάθεται η ζώνη.",
+          "en": "The height or age in the law differs from country to country. Check the rule where you live and where you travel, and if the law lets you stop sooner, go by how the belt fits."
+        },
+        {
+          "el": "Το πίσω κάθισμα μένει η πιο ασφαλής θέση για πολλά χρόνια ακόμα.",
+          "en": "The back seat stays the safest place for many years yet."
+        }
+      ],
+      "medical": true
+    }
+  },
+  {
+    "id": "q-w4-where-from",
+    "worldID": "w4-why-kingdom",
+    "skill": "patience",
+    "xp": 25,
+    "minAgeMonths": 48,
+    "title": {
+      "el": "«Από πού ήρθα εγώ;»",
+      "en": "“Where did I come from?”"
+    },
+    "description": {
+      "el": "Πες του την ιστορία της μέρας που ήρθε στην οικογένεια. Όταν έρθει το «ναι, αλλά πώς;», δώσε μια σύντομη και αληθινή απάντηση.",
+      "en": "Tell them the story of the day they joined the family. When the “yes, but how?” comes, give a short, true answer."
+    },
+    "tip": {
+      "title": {
+        "el": "Σύντομα και αληθινά",
+        "en": "Short and true"
+      },
+      "steps": [
+        {
+          "el": "Ρώτα πρώτα «εσύ τι λες;». Συχνά ρωτά κάτι πολύ μικρότερο από αυτό που φοβάσαι.",
+          "en": "Ask “what do you think?” first. Often they're asking something much smaller than you fear."
+        },
+        {
+          "el": "Σε αυτή την ηλικία φτάνει: «Τα μωρά μεγαλώνουν σε ένα μέρος μέσα στο σώμα που λέγεται μήτρα». Τα υπόλοιπα περιμένουν την επόμενη ερώτηση.",
+          "en": "At this age this is enough: “Babies grow in a place inside the body called the womb.” The rest can wait for the next question."
+        },
+        {
+          "el": "Όχι πελαργοί. Θα χρειαστεί να το πάρεις πίσω, και θα έχει μάθει ότι σε αυτές τις ερωτήσεις δεν παίρνει απάντηση.",
+          "en": "No storks. You'll have to take it back one day, and they'll have learned that these questions don't get answered."
+        },
+        {
+          "el": "Οι οικογένειες φτιάχνονται με πολλούς τρόπους: γέννηση, υιοθεσία, αναδοχή, με τη βοήθεια γιατρών. Πες του τη δική του ιστορία όπως είναι.",
+          "en": "Families are made in many ways: birth, adoption, fostering, with doctors' help. Tell them their own story as it is."
+        },
+        {
+          "el": "Το «δεν ξέρω πώς να σου το πω, θα σου απαντήσω το βράδυ» επιτρέπεται. Αρκεί να γυρίσεις.",
+          "en": "“I'm not sure how to say it, I'll tell you tonight” is allowed. As long as you come back."
         }
       ]
     }
@@ -1527,8 +3416,8 @@
       "en": "Street lessons"
     },
     "description": {
-      "el": "Περάστε έναν δρόμο με εκείνο οδηγό: σταματά, κοιτάζει, ακούει, και λέει πότε περνάτε.",
-      "en": "Cross a road with them in charge: they stop, look, listen, and say when you go."
+      "el": "Περάστε έναν δρόμο με εκείνο οδηγό: σταματά, κοιτάζει, ακούει, και λέει πότε περνάτε. Εσύ κρατάς το χέρι του και έχεις τον τελευταίο λόγο.",
+      "en": "Cross a road with them in charge: they stop, look, listen, and say when you go. You hold their hand and have the final say."
     },
     "tip": {
       "title": {
@@ -1537,12 +3426,16 @@
       },
       "steps": [
         {
-          "el": "Εκείνο αποφασίζει, αλλά το χέρι σου δεν φεύγει. Σε αυτή την ηλικία δεν υπολογίζει ακόμα ταχύτητα και απόσταση.",
-          "en": "They decide, but your hand stays. At this age they can't yet judge speed and distance."
+          "el": "Εκείνο αποφασίζει, αλλά το χέρι σου δεν φεύγει. Για αρκετά χρόνια ακόμα δεν υπολογίζει σωστά ταχύτητα και απόσταση.",
+          "en": "They decide, but your hand stays. For a good few years yet they can't judge speed and distance properly."
         },
         {
-          "el": "Κάν' το κι εσύ σωστά όταν βιάζεσαι. Αυτό που βλέπει μετράει περισσότερο από αυτό που ακούει.",
-          "en": "Do it properly yourself when you're in a hurry. What they see counts more than what they hear."
+          "el": "Στα πάρκινγκ και στις εισόδους γκαράζ, ο οδηγός που κάνει όπισθεν δεν βλέπει κάποιον στο ύψος του. Εκεί το χέρι δεν αφήνεται ποτέ.",
+          "en": "In car parks and by driveways, a reversing driver can't see someone their height. There, the hand never lets go."
+        },
+        {
+          "el": "Κάν' το κι εσύ σωστά όταν βιάζεσαι, και χωρίς κινητό στο χέρι. Αυτό που βλέπει μετράει περισσότερο από αυτό που ακούει.",
+          "en": "Do it properly yourself when you're in a hurry, and without your phone in your hand. What they see counts more than what they hear."
         }
       ]
     }
@@ -1574,6 +3467,84 @@
         {
           "el": "Σταμάτα σε σημείο με αγωνία. Θα σου το ζητήσει μόνο του αύριο.",
           "en": "Stop at a cliffhanger. Tomorrow they'll be the one asking."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w4-screen-rules",
+    "worldID": "w4-why-kingdom",
+    "skill": "patience",
+    "xp": 30,
+    "minAgeMonths": 60,
+    "title": {
+      "el": "Οι κανόνες του σπιτιού για τις οθόνες",
+      "en": "House rules for screens"
+    },
+    "description": {
+      "el": "Γράψτε μαζί τους κανόνες του σπιτιού για τις οθόνες σε ένα χαρτί στο ψυγείο: πού, πότε, και τι γίνεται όταν τελειώσει ο χρόνος.",
+      "en": "Write the house rules for screens together, on a sheet of paper on the fridge: where, when, and what happens when time's up."
+    },
+    "tip": {
+      "title": {
+        "el": "Ισχύουν και για σένα",
+        "en": "They apply to you too"
+      },
+      "steps": [
+        {
+          "el": "Ξεκίνα από μέρη και ώρες χωρίς οθόνη: το τραπέζι, το υπνοδωμάτιο, η τελευταία ώρα πριν τον ύπνο.",
+          "en": "Start with screen-free places and times: the table, the bedroom, the last hour before sleep."
+        },
+        {
+          "el": "Κοινή συσκευή της οικογένειας αντί για δικό του τάμπλετ. Έτσι βλέπεις τι βλέπει, και βλέπετε μαζί.",
+          "en": "A shared family device rather than a tablet of their own. That way you see what they see, and you watch together."
+        },
+        {
+          "el": "Το τι βλέπει και με ποιον μετράει περισσότερο από τα λεπτά. Κράτα ό,τι το αφήνει με όρεξη για παιχνίδι.",
+          "en": "What they watch and who with matters more than the minutes. Keep the things that leave them wanting to play."
+        },
+        {
+          "el": "Οι κανόνες πιάνουν κι εσένα: το κινητό σου κάτω στο φαγητό και στην ώρα του ύπνου.",
+          "en": "The rules cover you as well: your phone down at meals and at bedtime."
+        },
+        {
+          "el": "Όταν ένας κανόνας πάψει να δουλεύει, τον ξαναγράφετε. Δεν απέτυχε το σχέδιο, μεγάλωσε το παιδί.",
+          "en": "When a rule stops working, rewrite it. The plan didn't fail, the child grew."
+        }
+      ]
+    }
+  },
+  {
+    "id": "q-w4-three-jars",
+    "worldID": "w4-why-kingdom",
+    "skill": "patience",
+    "xp": 25,
+    "minAgeMonths": 60,
+    "title": {
+      "el": "Τρία βαζάκια",
+      "en": "Three jars"
+    },
+    "description": {
+      "el": "Δώσε του λίγα κέρματα και τρία βαζάκια: ξοδεύω, μαζεύω, χαρίζω. Το πού πάει το καθένα το αποφασίζει εκείνο.",
+      "en": "Give them a few coins and three jars: spend, save, give. Which coin goes where is their decision."
+    },
+    "tip": {
+      "title": {
+        "el": "Άσ' το να κάνει λάθος",
+        "en": "Let them get it wrong"
+      },
+      "steps": [
+        {
+          "el": "Το ποσό δεν έχει σημασία. Σημασία έχει να είναι σταθερό και να ξέρει πότε έρχεται το επόμενο.",
+          "en": "The amount doesn't matter. What matters is that it's regular and they know when the next one comes."
+        },
+        {
+          "el": "Αν τα ξοδέψει όλα σε κάτι που έσπασε σε μία μέρα, αυτό ήταν το μάθημα. Μην αναπληρώσεις.",
+          "en": "If they blow the lot on something that broke in a day, that was the lesson. Don't top it up."
+        },
+        {
+          "el": "Μίλα δυνατά όταν ψωνίζεις: «Αυτό είναι ακριβό, θα πάρουμε το άλλο». Έτσι μαθαίνει πολλά.",
+          "en": "Think out loud when you shop: “That one's too dear, we'll take the other.” They learn a lot that way."
         }
       ]
     }

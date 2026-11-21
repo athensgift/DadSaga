@@ -68,7 +68,7 @@ struct QuestTipsTests {
         #expect(cards(sut).map(\.hint) == [nil, "Ο καναπές είναι παγίδα"])
     }
 
-    @Test("Given a medical tip, when opening the quest, then the steps and the paediatrician footer are shown")
+    @Test("Given a medical tip, when opening the quest, then the steps and the doctor footer are shown")
     func medicalTip() async throws {
         let sut = makeSUT()
         await sut.onAppear()
@@ -78,7 +78,7 @@ struct QuestTipsTests {
         let quest = try #require(sut.selectedQuest)
         #expect(quest.tip?.title == "Ο καναπές είναι παγίδα")
         #expect(quest.tip?.steps == ["Βήμα ένα", "Βήμα δύο"])
-        #expect(quest.footer == "Γενικές πληροφορίες. Δεν αντικαθιστούν τον παιδίατρό σου.")
+        #expect(quest.footer == "Γενικές πληροφορίες. Δεν αντικαθιστούν τη συμβουλή γιατρού.")
     }
 
     @Test("Given a quest without a tip, when opening it, then there is no tip and no footer")

@@ -1,5 +1,18 @@
 [
   {
+    "id": "w0-harbour",
+    "order": 0,
+    "title": {
+      "el": "Το Λιμάνι της Αναμονής",
+      "en": "The Harbour of Waiting"
+    },
+    "tagline": {
+      "el": "Το πλοίο δεν φάνηκε ακόμα. Εσύ ετοιμάζεις την προβλήτα.",
+      "en": "The ship isn't in sight yet. You're getting the pier ready."
+    },
+    "beforeBirth": true
+  },
+  {
     "id": "w1-swamp",
     "order": 1,
     "title": {
