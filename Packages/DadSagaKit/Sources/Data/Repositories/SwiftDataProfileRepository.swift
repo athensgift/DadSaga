@@ -10,7 +10,7 @@ actor SwiftDataProfileRepository: ProfileRepository {
         guard let record = try record() else { return nil }
         let children = try modelContext
             .fetch(FetchDescriptor<ChildRecord>(sortBy: [SortDescriptor(\.order)]))
-            .map { $0.toDomain() }
+            .map { try $0.toDomain() }
         return record.toDomain(children: children)
     }
 
