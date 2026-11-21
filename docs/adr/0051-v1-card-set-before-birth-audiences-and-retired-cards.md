@@ -1,14 +1,15 @@
 # ADR-0051: The v1 card set: a world before birth, who a card is for, and retiring cards that shipped
 
-**Status:** Proposed (2026-11-21). From the owner's review of the card set (2026-11-21, two rounds): every card he kept
+**Status:** Accepted (2026-11-21). From the owner's review of the card set (2026-11-21, two rounds): every card he kept
 ships in v1, World 0 included, and a tick "Not born yet" where the child's name is entered is how the app knows a
-child is in World 0. Drafted by the architect; four points wait for the owner (see the plan,
-`docs/plans/v1-card-set.md`). Changes ADR-0005 (new content fields), ADR-0012 (a child may not be born yet),
+child is in World 0. Drafted by the architect; the owner then chose the recommendation on the four open points
+(`docs/plans/v1-card-set.md`): first aid folds into `q-w0-first-aid` (§6), the partner question (§4), "When life
+changes" (§5) and tracks of at least 130 seconds (§9). Changes ADR-0005 (new content fields), ADR-0012 (a child may not be born yet),
 ADR-0013 (a mark for a child on the way), ADR-0019 (a world before birth; what a locked world says before the birth),
 ADR-0020 §2–§3 (evergreen bosses; `onlyFor` replaces `requiresSibling`; the map counts every boss beaten), ADR-0026
 (schema version 6), ADR-0028 (`Adventure` takes the family's facts, not a child count), ADR-0030 ("My family" asks
 about a partner and whether a child is born), ADR-0036 §1 and §7 (the world before birth in the film, and its offer at
-the birth) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropped; retiring a card).
+the birth), ADR-0046 §1 (every track at least 130 seconds) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropped; retiring a card).
 
 ## Context
 - **The set.** 190 cards were reviewed. The owner dropped 20 in the first round and 7 in the second
@@ -127,7 +128,7 @@ the birth) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropp
   - `youngerSibling`: `b-w3-new-sibling` ("The New Roommate"), which was "more than one child". A child with only an
     older sibling no longer meets it; one whose sibling is on the way meets it before the birth.
   - Not added: `twoHomes` (both its cards were dropped) and `requiresPregnancy` (A14).
-- **The partner answer:** `PlayerProfile.hasPartner: Bool`. Onboarding asks once, with the children: a switch "I'm
+- **The partner answer** (the owner's choice): `PlayerProfile.hasPartner: Bool`. Onboarding asks once, with the children: a switch "I'm
   raising them with a partner", on, with one line under it, "Shows the cards for the two of you." "My family" has the
   same row. Nothing asks why, and no other word is used for the answer. A profile without an answer, which is every
   profile today, reads yes: no one loses a card he sees now.
@@ -139,8 +140,8 @@ the birth) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropp
   but what was kept.
 
 ### 5. Bosses for when life changes, and bosses at every age
-- **`"situational": true`** (`b-w4-two-homes`, `b-w4-big-goodbye`, `b-w4-big-move`): offered by age and audience like
-  any boss, but home lists them in one closed row at the end of the world's cards, "When life changes", that opens to
+- **`"situational": true`** (`b-w4-two-homes`, `b-w4-big-goodbye`, `b-w4-big-move`; the owner's choice): offered by
+  age and audience like any boss, but home lists them in one closed row at the end of the world's cards, "When life changes", that opens to
   show them. It is closed each time home loads and shows no count. They are there for the dad who needs them, and not
   on every dad's screen.
 - **`"evergreen": true` on a boss** (`b-w1-double-shift`, `b-w2-long-grind`): shown in every later world, like an
@@ -156,6 +157,9 @@ the birth) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropp
 - **A move or a rename within a kind** uses `formerIDs` (ADR-0048 §5), and the new id names its new world. A card
   folded into another kind is retired: a quest counts each time, a boss once.
 - **Bosses** get `retired` when the first one is retired; none is now.
+- **First aid** (the owner's choice): `q-w0-first-aid` takes `q-w1-first-aid` as a former id and is `evergreen`, with
+  "baby and child first aid" wording, so a dad who starts after the birth still has first aid on home. So four shipped
+  cards are retired and seven move or are renamed.
 
 | Shipped | Now | Kind | Skill · XP, before → now | How |
 |---|---|---|---|---|
@@ -165,7 +169,7 @@ the birth) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropp
 | `q-w4-swim` | `q-w2-swim` | quest | play 30 → play 30 | `formerIDs` |
 | `q-w4-check-in` | `q-w1-check-in` | quest | resilience 30 → resilience 30 | `formerIDs`; `partner` |
 | `f-christmas` | `f-celebration` | first | 30 → 30 | `formerIDs`; "First big celebration" |
-| `q-w1-first-aid` | `q-w0-first-aid` (owner to confirm) | quest | care 35 → care 35 | `formerIDs` |
+| `q-w1-first-aid` | `q-w0-first-aid` | quest | care 35 → care 35 | `formerIDs`; `evergreen`, "baby and child first aid" |
 | `q-w3-ten-breaths` | retired; its steps in `b-w3-red-mist` | quest | patience 30, kept | `retired` |
 | `q-w1-tummy-time` | retired | quest | play 20, kept | `retired` |
 | `q-w2-rough-play` | retired | quest | play 25, kept | `retired` |
@@ -206,16 +210,21 @@ Every other shipped quest, boss and first keeps its id, skill and XP in the set.
   everything, both children born on their days and the partner answer yes; the widget opens a copy read-only at
   version 6, throws, and leaves the files byte for byte as they were; the earlier fixtures still open. A child not born
   yet is saved and read back without a day, and born again on a day.
+- **The widget opens the store without the migration plan.** The `StoreV5` fixture showed that read-only, V5 → V6's
+  `willMigrate` still ran and wrote to the store before the migration failed, so the files changed. Only the app
+  migrates (ADR-0026): read-only, no stage runs, an older store fails to open untouched, and the widget reads it once
+  the app has migrated it.
 - An older build can't open a version 6 store: the calm "couldn't open" screen (ADR-0026).
 
-### 9. More firsts than the music: the owner decides
+### 9. More firsts than the music
 - At the 3-second floor, 33 firsts and the retired one, five chapter cards, the opening and the credits make about 124
   seconds; the shortest track is 95 and loops. Only a whole-saga film of a dad who captured more than about 25 firsts
   reaches the loop.
-- **Recommended:** every track at least as long as the longest film the content allows (130 seconds or more), and a test
-  that works that length out from the catalog and `SagaPacing` and fails when the content outgrows the music. Firsts are
-  still never dropped. That changes ADR-0046 §1's 95 seconds; the index notes it once the owner chooses.
-- Otherwise: keep the loop as it is, or cap the firsts in a film, which ADR-0036 §2 rules out.
+- **Decided (the owner's choice):** every track at least as long as the longest film the content allows (130 seconds or
+  more), and a test that works that length out from the catalog and `SagaPacing` and fails when the content outgrows the
+  music. Firsts are still never dropped. That changes ADR-0046 §1's 95 seconds. It is its own PR
+  (`feature/saga-music-length`), independent of the model and the content.
+- Rejected: keeping the loop as it is, or capping the firsts in a film, which ADR-0036 §2 rules out.
 
 ### 10. Where the code goes
 
@@ -223,7 +232,7 @@ Every other shipped quest, boss and first keeps its id, skill and XP in the set.
 |---|---|---|
 | Domain | `ChildAge`, `WorldSpan`, `Audience`, `FamilyFacts`; `UnlockRules.bosses(for:…)`, `firsts(in:age:)`, `isOffered(_:age:family:)` | `Child.birthDay` optional, `age(on:)` replaces `ageInMonths(on:)`, `day(atMonths:)` optional; `World.span` replaces the two ages; `Quest` and `BossFight` gain `onlyFor`, `Quest` and `FirstMoment` `isRetired`, `BossFight` `isSituational` and `isEvergreen`, `FirstMoment` `isBeforeBirth`; `requiresSibling`, `isPossible` and every `childCount` go; `PlayerProfile.hasPartner`; `ProfileRules`, `SagaPeriod`, `SagaOccasions`, `SagaStoryboard` (`childAge` replaces `childAgeInMonths`), `DadProgress.progress(in:)` |
 | Application | `HomeOverview.situationalBosses`, `HomeOverview.family` | `Adventure` takes `FamilyFacts` and has `age`; `availableBosses` goes (home asks `UnlockRules.bosses(for:)`); the weekly quest reads the family; `UpdateFamilyUseCase.execute(children:hasPartner:on:)` |
-| Data | `SchemaV6` and its stage; the `StoreV5` fixture; `ContentDataError.unknownAudience`, `.invalidWorldAges`, `.misplacedBeforeBirthWorld`, `.agedBeforeBirth` | DTOs and mappers for the new fields, `requiresSibling` gone; `ContentValidator`; `ChildRecord` and `ProfileRecord` mappings; `CurrentSchema`; the content JSON; `ShippedContentIDs.json` |
+| Data | `SchemaV6` and its stage; the `StoreV5` fixture; `ContentDataError.unknownAudience`, `.invalidWorldAges`, `.misplacedBeforeBirthWorld`, `.agedBeforeBirth` | DTOs and mappers for the new fields, `requiresSibling` gone; `ContentValidator`; `ChildRecord` and `ProfileRecord` mappings; `CurrentSchema`; `StoreConnection` opens read-only without the plan (§8); the content JSON; `ShippedContentIDs.json` |
 | Presentation | `CompanionStage.onTheWay` and its mark; the "Not born yet" switch and the partner row; home's arrival line and "When life changes" row | `ChildDraft`, `FamilyDraft`, `ChildEditorCard`, onboarding, "My family", home, the map, moments, links, the film's opening card; strings in el and en |
 | App | | nothing new to wire: the use cases keep their dependencies |
 
@@ -249,7 +258,7 @@ Every other shipped quest, boss and first keeps its id, skill and XP in the set.
 - A per-child "who gave birth" fact; corrected age for children born early and a path for a stay in neonatal care (A5;
   ADR-0048 deferred corrected age).
 - Retiring bosses, heroes, gear or worlds: when the first one is retired.
-- The film's music length (§9), until the owner chooses.
+- The longer tracks (§9) land in their own PR.
 
 ## Consequences
 - A dad can start before the birth: World 0, its two firsts, and a film of the waiting, offered on the birth day. The
@@ -259,8 +268,8 @@ Every other shipped quest, boss and first keeps its id, skill and XP in the set.
 - One more personal answer (a partner), kept on the device (ADR-0004) and erased by "start over" (ADR-0030 §8). A dad
   who answers no stops seeing six cards; everything he did with them stays.
 - `b-w3-new-sibling` now needs a younger sibling, born or on the way: a youngest child stops seeing it.
-- Five shipped cards are retired and six renamed; their ids stay for good, and the content carries the retired cards'
+- Four shipped cards are retired and seven moved or renamed; their ids stay for good, and the content carries the retired cards'
   words so past entries keep them. Past entries of `f-christmas` now read "First big celebration".
 - One stored version more, and a fixture of three small binary files.
 - World 0's bosses are a tap further away once the child is born: the map, then World 0.
-- Until the owner decides §9, a long whole-saga film loops its music.
+- Until the music PR lands (§9), a long whole-saga film loops its music.
