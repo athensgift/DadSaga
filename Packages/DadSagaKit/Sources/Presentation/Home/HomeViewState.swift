@@ -174,7 +174,7 @@ public struct QuestDetail: Equatable, Identifiable, Sendable {
     public let reward: String
     /// How to do it well, when the quest has a tip.
     public let tip: TipDetail?
-    /// The "does not replace your paediatrician" line, for medical tips only.
+    /// The "does not replace a doctor's advice" line, for medical tips only.
     public let footer: String?
     public let confirmTitle: String
     public let journal: JournalLabels
