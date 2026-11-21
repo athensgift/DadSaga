@@ -280,7 +280,8 @@
           "en": "You don't have to decide now, or tell anyone."
         }
       ]
-    }
+    },
+    "onlyFor": ["partner"]
   },
   {
     "id": "q-w0-paperwork",
