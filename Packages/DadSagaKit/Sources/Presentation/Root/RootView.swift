@@ -91,7 +91,7 @@ public struct RootView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DSColor.background)
         .tint(DSColor.accent)
-        .preferredColorScheme(viewModel.preferences.appearance.colorScheme)
+        .windowAppearance(viewModel.preferences.appearance)
         .environment(\.isHapticsEnabled, viewModel.preferences.isHapticsEnabled)
         .animation(.easeInOut(duration: 0.35), value: viewModel.state)
         .task {
