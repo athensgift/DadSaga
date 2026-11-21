@@ -131,12 +131,8 @@
         "en": "Work down the list: feed, nappy, skin-to-skin cuddle, walking, quiet singing, a turn in the pram."
       },
       {
-        "el": "Αν νιώσεις ότι φτάνεις στα όριά σου, βάλ' το ανάσκελα στην κούνια του και βγες από το δωμάτιο για λίγα λεπτά. Είναι ασφαλές και επιτρέπεται.",
-        "en": "If you feel yourself reaching your limit, lay them on their back in the cot and leave the room for a few minutes. It's safe and it's allowed."
-      },
-      {
-        "el": "Ό,τι κι αν νιώθεις, μην ταρακουνήσεις ποτέ το μωρό, ούτε για λίγο. Αν ανεβαίνει ο θυμός, άφησέ το ανάσκελα στην κούνια και βγες για λίγα λεπτά, όπως παραπάνω.",
-        "en": "Whatever you're feeling, never shake a baby, not even for a moment. If the anger rises, lay them on their back in the cot and step out for a few minutes, as above."
+        "el": "Αν νιώσεις ότι φτάνεις στα όριά σου ή ότι ανεβαίνει ο θυμός, βάλ' το ανάσκελα στην κούνια του και βγες από το δωμάτιο για λίγα λεπτά. Είναι ασφαλές και επιτρέπεται. Ό,τι κι αν νιώθεις, μην ταρακουνήσεις ποτέ το μωρό, ούτε για λίγο.",
+        "en": "If you feel yourself reaching your limit or the anger rising, lay them on their back in the cot and leave the room for a few minutes. It's safe and it's allowed. Whatever you're feeling, never shake a baby, not even for a moment."
       },
       {
         "el": "Αν είστε δύο, αλλάξτε βάρδια πριν εξαντληθείτε και οι δύο, όχι μετά.",
@@ -172,8 +168,8 @@
         "en": "Take the temperature and note the time and reading."
       },
       {
-        "el": "Αν το μωρό είναι κάτω από 3 μηνών και έχει 38°C ή παραπάνω, επικοινώνησε αμέσως με τον παιδίατρο.",
-        "en": "If the baby is under 3 months and has 38°C (100.4°F) or higher, call your paediatrician right away."
+        "el": "Αν το μωρό είναι κάτω από 3 μηνών και έχει 38°C ή παραπάνω, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+        "en": "If the baby is under 3 months and has 38°C (100.4°F) or higher, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
       },
       {
         "el": "Από 3 έως 6 μηνών, με 39°C ή παραπάνω, πάρε επίσης τον παιδίατρο την ίδια μέρα.",
@@ -451,8 +447,8 @@
         "en": "If you feel you might lose control: put the baby down on their back in the cot, leave the room and call someone to come over. If the baby is in danger right now, call the emergency number."
       },
       {
-        "el": "Αν μεγαλώνετε μαζί το μωρό, έχε τον νου σου και στον άνθρωπό σου. Αν δεις τα ίδια σημάδια, πες το με αγάπη. Αν ξαφνικά μοιάζει μπερδεμένος, λέει πράγματα που δεν βγάζουν νόημα ή δεν κοιμάται καθόλου, ζητήστε ιατρική βοήθεια τώρα· αν κάποιος κινδυνεύει τώρα, κάλεσε τον αριθμό έκτακτης ανάγκης.",
-        "en": "If you're raising the baby with someone, look out for them too. If you see the same signs, say so with love. If they suddenly seem confused, say things that make no sense or don't sleep at all, get medical help now; if anyone is in danger right now, call the emergency number."
+        "el": "Αν μεγαλώνετε μαζί το μωρό, έχε τον νου σου και στον σύντροφό σου. Αν δεις τα ίδια σημάδια, πες το με αγάπη. Αν ξαφνικά μοιάζει μπερδεμένος, λέει πράγματα που δεν βγάζουν νόημα ή δεν κοιμάται καθόλου, ζητήστε ιατρική βοήθεια τώρα· αν κάποιος κινδυνεύει τώρα, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+        "en": "If you're raising the baby with a partner, look out for them too. If you see the same signs, say so with love. If they suddenly seem confused, say things that make no sense or don't sleep at all, get medical help now; if anyone is in danger right now, call the emergency number."
       }
     ],
     "badge": {
@@ -550,7 +546,7 @@
       },
       {
         "el": "Πυρετός 38°C και πάνω δεν είναι από τα δόντια. Αντιμετώπισέ τον σαν πυρετό.",
-        "en": "A temperature of 38°C or more isn't from teething. Treat it as a fever."
+        "en": "A temperature of 38°C (100.4°F) or more isn't from teething. Treat it as a fever."
       }
     ],
     "badge": {
@@ -753,8 +749,8 @@
         "en": "Call the emergency number if they struggle to breathe, their lips or skin turn grey or blue, or they're floppy and won't wake."
       },
       {
-        "el": "Πλύσιμο χεριών με σαπούνι μετά από κάθε πάνα, και σπίτι μέχρι να περάσουν δύο μέρες από το τελευταίο επεισόδιο, ή όσο ζητά ο παιδικός. Πιθανότατα θα κολλήσεις κι εσύ: τα ίδια ισχύουν και για σένα.",
-        "en": "Wash hands with soap after every nappy, and home until two days after the last episode, or whatever the nursery asks. You'll probably catch it too: the same rules apply to you."
+        "el": "Πλύσιμο χεριών με σαπούνι μετά από κάθε πάνα, και σπίτι μέχρι να περάσουν δύο μέρες από το τελευταίο επεισόδιο, ή όσο ζητά ο παιδικός σταθμός. Πιθανότατα θα κολλήσεις κι εσύ: τα ίδια ισχύουν και για σένα.",
+        "en": "Wash hands with soap after every nappy, and home until two days after the last episode, or whatever daycare asks. You'll probably catch it too: the same rules apply to you."
       }
     ],
     "badge": {
@@ -1120,7 +1116,7 @@
       },
       {
         "el": "Αν το παιδί είναι σε ασφαλές σημείο, κάνε ένα βήμα πίσω και πες το: «Έχω θυμώσει πολύ. Γυρίζω σε ένα λεπτό». Έξω από το σπίτι, μένεις δίπλα του και απλώς σωπαίνεις για λίγο. Δέκα αργές ανάσες και μετά απαντάς.",
-        "en": "If your child is somewhere safe, step back and say so: “I'm really angry. I'll be back in a minute.” When you're out, stay next to them and just go quiet for a bit. Ten slow breaths, then you answer."
+        "en": "If your child is somewhere safe, step back and say so: “I'm really angry. I'll be back in a minute.” Away from home, stay next to them and just go quiet for a bit. Ten slow breaths, then you answer."
       },
       {
         "el": "Ποτέ ξύλο, ούτε «μια ελαφριά στον ποπό». Δεν διδάσκει αυτό που θέλεις, και με τον καιρό κάνει τη συμπεριφορά χειρότερη. Το ίδιο ισχύει για τις προσβολές και τις απειλές.",
@@ -1193,7 +1189,7 @@
       },
       {
         "el": "Συνήθως αραιώνει όσο έρχονται οι λέξεις. Αν κρατά εβδομάδες, αν κάποιος χτυπάει σοβαρά ή αν σας παίρνουν συχνά τηλέφωνο από τον παιδικό σταθμό, μίλα με τον γιατρό του παιδιού.",
-        "en": "It usually fades as the words arrive. If it goes on for weeks, if someone is getting badly hurt, or if nursery keeps calling you, talk to your child's doctor."
+        "en": "It usually fades as the words arrive. If it goes on for weeks, if someone is getting badly hurt, or if daycare keeps calling you, talk to your child's doctor."
       }
     ],
     "badge": {

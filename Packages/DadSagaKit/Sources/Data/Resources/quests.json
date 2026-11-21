@@ -308,8 +308,8 @@
           "en": "Leave: how many days, on what pay, and how far ahead work needs to know. It varies hugely by country and by employer."
         },
         {
-          "el": "Πες το στη δουλειά όταν είστε έτοιμοι και οι δύο. Ρώτα και για ευελιξία τις πρώτες εβδομάδες, όχι μόνο για μέρες άδειας.",
-          "en": "Tell work when you're both ready. Ask about flexibility in the first weeks too, not just days off."
+          "el": "Πες το στη δουλειά όταν είσαι έτοιμος. Ρώτα και για ευελιξία τις πρώτες εβδομάδες, όχι μόνο για μέρες άδειας.",
+          "en": "Tell work when you're ready. Ask about flexibility in the first weeks too, not just days off."
         },
         {
           "el": "Μετά τη γέννα: δήλωση γέννησης, ασφάλιση υγείας του μωρού, επιδόματα. Μάθε από τώρα ποιος κάνει τι, και πού.",
@@ -378,7 +378,7 @@
       "en": "The talk before the baby"
     },
     "description": {
-      "el": "Κάτσε με τον άνθρωπό σου και πείτε ο καθένας έναν φόβο και μία ελπίδα για τους πρώτους μήνες. Απόψε δεν λύνετε τίποτα, μόνο ακούτε.",
+      "el": "Κάτσε με τον σύντροφό σου και πείτε ο καθένας έναν φόβο και μία ελπίδα για τους πρώτους μήνες. Απόψε δεν λύνετε τίποτα, μόνο ακούτε.",
       "en": "Sit down with your partner and each name one fear and one hope for the first months. Nothing gets fixed tonight; you just listen."
     },
     "tip": {
@@ -782,12 +782,8 @@
       },
       "steps": [
         {
-          "el": "Αν νιώσεις ότι σε παίρνει ο ύπνος, βάλε πρώτα το μωρό ανάσκελα στην κούνια του.",
-          "en": "If you feel yourself nodding off, put the baby on their back in the cot first."
-        },
-        {
-          "el": "Αν νυστάζεις, όχι στον καναπέ ή στην πολυθρόνα με το μωρό στην αγκαλιά. Σήκω, άφησέ το στην κούνια του και μετά ξάπλωσε εσύ.",
-          "en": "If you're getting sleepy, not on the sofa or in an armchair with the baby on you. Get up, put them in their cot, then lie down yourself."
+          "el": "Αν νιώσεις ότι σε παίρνει ο ύπνος, βάλε πρώτα το μωρό ανάσκελα στην κούνια του και μετά ξάπλωσε εσύ. Όχι στον καναπέ ή στην πολυθρόνα με το μωρό στην αγκαλιά.",
+          "en": "If you feel yourself nodding off, put the baby on their back in the cot first, then lie down yourself. Not on the sofa or in an armchair with the baby on you."
         }
       ],
       "medical": true
@@ -888,8 +884,8 @@
       "en": "Car seat check"
     },
     "description": {
-      "el": "Πριν την επόμενη διαδρομή, σε όποιο αυτοκίνητο κι αν είναι, έλεγξε το κάθισμα: φορά, ζώνες, στερέωση. Αν μπορείς, κάν' το πριν τη γέννα.",
-      "en": "Before the next ride, in whoever's car it is, check the seat: direction, straps, fixing. If you can, do it before the birth."
+      "el": "Πριν την επόμενη διαδρομή, σε όποιο αυτοκίνητο κι αν είναι, έλεγξε το κάθισμα: φορά, ζώνες, στερέωση.",
+      "en": "Before the next ride, in whoever's car it is, check the seat: direction, straps, fixing."
     },
     "tip": {
       "title": {
@@ -964,6 +960,7 @@
     "skill": "care",
     "xp": 20,
     "minAgeMonths": 0,
+    "onlyFor": ["partner"],
     "title": {
       "el": "Ο δεύτερος στο τάισμα",
       "en": "Feeding wingman"
@@ -1176,8 +1173,8 @@
       "en": "Speed dial"
     },
     "description": {
-      "el": "Αποθήκευσε σήμερα στο κινητό σου τα τηλέφωνα που δεν θα έχεις χρόνο να ψάξεις. Αν μπορείς, πριν τη γέννα.",
-      "en": "Save today the numbers you won't have time to look up. If you can, before the birth."
+      "el": "Αποθήκευσε σήμερα στο κινητό σου τα τηλέφωνα που δεν θα έχεις χρόνο να ψάξεις.",
+      "en": "Save today the numbers you won't have time to look up."
     },
     "tip": {
       "title": {
@@ -1205,7 +1202,8 @@
           "el": "Μια σημείωση με το τελευταίο βάρος του μωρού και την ημερομηνία: θα σου το ζητήσουν. Στείλ' τα όλα και σε όποιον άλλον το προσέχει.",
           "en": "A note with the baby's latest weight and the date: you'll be asked for it. Send the whole list to anyone else who looks after them."
         }
-      ]
+      ],
+      "medical": true
     }
   },
   {
@@ -1311,8 +1309,8 @@
       },
       "steps": [
         {
-          "el": "Διάλεξε λίγα και σοβαρά: πώς κοιμάται, πώς ταξιδεύει, τι δεν τρώει ακόμα. Οι οδηγίες άλλαξαν από τότε που μεγάλωσαν εσένα.",
-          "en": "Pick a few that matter: how they sleep, how they travel, what they don't eat yet. The advice has changed since you were raised."
+          "el": "Διάλεξε τρία που μετράνε: πώς κοιμάται, πώς ταξιδεύει, τι δεν τρώει ακόμα. Οι οδηγίες άλλαξαν από τότε που μεγάλωσαν εσένα.",
+          "en": "Pick three that matter: how they sleep, how they travel, what they don't eat yet. The advice has changed since you were raised."
         },
         {
           "el": "Πες το «τι» μαζί με το «γιατί», και βάλε μπροστά τον γιατρό: «έτσι μας είπε ο γιατρός του».",
@@ -1323,7 +1321,7 @@
           "en": "On everything else, let them do it their way. Your child gains from people who love them differently."
         },
         {
-          "el": "Τα όρια στους δικούς σου γονείς τα βάζεις εσύ, όχι το ταίρι σου. Αν είστε δύο, ο καθένας μιλά στους δικούς του.",
+          "el": "Τα όρια στους δικούς σου γονείς τα βάζεις εσύ, όχι ο σύντροφός σου. Αν είστε δύο, ο καθένας μιλά στους δικούς του.",
           "en": "Limits with your own parents are yours to set, not your partner's. If there are two of you, each talks to their own."
         },
         {
@@ -1480,7 +1478,7 @@
       "en": "How are we doing?"
     },
     "description": {
-      "el": "Ρώτα το ταίρι σου «πώς είμαστε εμείς οι δύο;» και άκου την απάντηση ως το τέλος. Όχι για το παιδί, όχι για τα ψώνια.",
+      "el": "Ρώτα τον σύντροφό σου «πώς είμαστε εμείς οι δύο;» και άκου την απάντηση ως το τέλος. Όχι για το παιδί, όχι για τα ψώνια.",
       "en": "Ask your partner “how are the two of us doing?” and listen to the whole answer. Not about the kid, not about the shopping."
     },
     "tip": {
@@ -1506,7 +1504,7 @@
           "en": "Many couples take a hit after a child, and time alone doesn't usually repair it. It doesn't mean something's broken between you: it means it needs maintenance."
         },
         {
-          "el": "Αν οι καβγάδες έγιναν ο κανόνας, ένας σύμβουλος ζευγαριών δεν είναι ήττα. Είναι co-op. Αν όμως φοβάσαι το ταίρι σου ή νιώθεις ότι σε ελέγχει, αυτό δεν είναι δουλειά για σύμβουλο ζευγαριών: μίλα μόνος σου με έναν γιατρό ή με μια γραμμή στήριξης της χώρας σου.",
+          "el": "Αν οι καβγάδες έγιναν ο κανόνας, ένας σύμβουλος ζευγαριών δεν είναι ήττα. Είναι co-op. Αν όμως φοβάσαι τον σύντροφό σου ή νιώθεις ότι σε ελέγχει, αυτό δεν είναι δουλειά για σύμβουλο ζευγαριών: μίλα μόνος σου με έναν γιατρό ή με μια γραμμή στήριξης της χώρας σου.",
           "en": "If arguing has become the default, a couples counsellor isn't a defeat. It's co-op mode. But if you're afraid of your partner or feel controlled by them, that's not a job for couples counselling: talk on your own to a doctor or to a support line in your country."
         }
       ]
@@ -1525,7 +1523,7 @@
       "en": "Close again"
     },
     "description": {
-      "el": "Ρώτα το ταίρι σου πώς νιώθει με την εγγύτητα μετά το μωρό, και πες και το δικό σου. Χωρίς βιασύνη και χωρίς στόχο για απόψε.",
+      "el": "Ρώτα τον σύντροφό σου πώς νιώθει με την εγγύτητα μετά το μωρό, και πες και το δικό σου. Χωρίς βιασύνη και χωρίς στόχο για απόψε.",
       "en": "Ask your partner how they feel about closeness since the baby, and say how you feel too. No hurry and no goal for tonight."
     },
     "tip": {
@@ -1547,11 +1545,11 @@
           "en": "If you feel sidelined, say it as a feeling, not a complaint: “I miss you”, not “you never…”."
         },
         {
-          "el": "Αν το ταίρι σου γέννησε: ο πόνος στο σεξ δεν είναι κάτι που «συνηθίζεται». Το λέει στον γιατρό ή στη μαία.",
+          "el": "Αν η σύντροφός σου γέννησε: ο πόνος στο σεξ δεν είναι κάτι που «συνηθίζεται». Το λέει στον γιατρό ή στη μαία.",
           "en": "If your partner gave birth: pain during sex isn't something to “get used to”. It's something to tell the doctor or midwife."
         },
         {
-          "el": "Αν το ταίρι σου γέννησε: νέα εγκυμοσύνη μπορεί να έρθει ήδη από τις πρώτες εβδομάδες, πριν από την πρώτη περίοδο και ακόμα και με θηλασμό. Αν δεν το έχετε κάνει ήδη, μιλήστε για αντισύλληψη με τον γιατρό ή τη μαία.",
+          "el": "Αν η σύντροφός σου γέννησε: νέα εγκυμοσύνη μπορεί να έρθει ήδη από τις πρώτες εβδομάδες, πριν από την πρώτη περίοδο και ακόμα και με θηλασμό. Αν δεν το έχετε κάνει ήδη, μιλήστε για αντισύλληψη με τον γιατρό ή τη μαία.",
           "en": "If your partner gave birth: another pregnancy can happen within the first weeks, before the first period and even while breastfeeding. If you haven't already, talk about contraception with the doctor or midwife."
         }
       ],
@@ -1614,7 +1612,7 @@
       "en": "Date night"
     },
     "description": {
-      "el": "Οργάνωσε εσύ μια βραδιά για σένα και το ταίρι σου, ολόκληρη: από την ιδέα μέχρι το ποιος θα κρατήσει το παιδί.",
+      "el": "Οργάνωσε εσύ μια βραδιά για σένα και τον σύντροφό σου, ολόκληρη: από την ιδέα μέχρι το ποιος θα κρατήσει το παιδί.",
       "en": "Plan an evening for you and your partner, all of it: from the idea to who's minding your child."
     },
     "tip": {
@@ -2212,7 +2210,6 @@
     "skill": "play",
     "xp": 25,
     "minAgeMonths": 12,
-    "evergreen": true,
     "retired": true,
     "title": {
       "el": "Πάλη στο χαλί",

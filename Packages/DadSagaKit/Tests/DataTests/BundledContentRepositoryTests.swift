@@ -19,13 +19,33 @@ struct BundledContentRepositoryTests {
     func readsNewFields() async throws {
         let catalog = try await repository.fetchCatalog()
         #expect(catalog.quests.compactMap(\.tip).count == 87)
-        #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 28)
-        #expect(catalog.quests.filter(\.isEvergreen).count == 30)
+        #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 29)
+        #expect(catalog.quests.filter(\.isEvergreen).count == 29)
         #expect(catalog.bosses.filter { !$0.onlyFor.isEmpty }.map(\.id) == [
             "b-w0-birth-day", "b-w0-caesarean", "b-w1-fourth-trimester", "b-w3-new-sibling"
         ])
         #expect(catalog.boss(id: "b-w1-fourth-trimester")?.onlyFor == [.partner])
         #expect(catalog.boss(id: "b-w3-new-sibling")?.onlyFor == [.youngerSibling])
+    }
+
+    @Test("Given the bundled JSON, when fetching, then the cards ADR-0053 and ADR-0054 name carry their flags")
+    func readsTheDecidedFlags() async throws {
+        let catalog = try await repository.fetchCatalog()
+        #expect(Set(catalog.quests.filter { $0.onlyFor == [.partner] }.map(\.id)) == [
+            "q-w0-appointment", "q-w0-birth-partner", "q-w0-feeding-plan", "q-w0-go-bag", "q-w0-name", "q-w0-voice",
+            "q-w0-the-talk", "q-w1-feeding-wingman", "q-w1-invisible-jobs", "q-w1-check-in", "q-w1-close-again",
+            "q-w1-date-night"
+        ])
+        #expect(catalog.quests.filter { $0.onlyFor == [.olderSibling] }.map(\.id) == ["q-w1-meet-the-crew"])
+        #expect(Set(catalog.quests.filter(\.isRetired).map(\.id)) == [
+            "q-w1-tummy-time", "q-w2-rough-play", "q-w3-ten-breaths"
+        ])
+        #expect(catalog.firsts.filter(\.isRetired).map(\.id) == ["f-sleepover"])
+        #expect(catalog.firsts.filter(\.isBeforeBirth).map(\.id) == ["f-found-out", "f-first-picture"])
+        #expect(catalog.bosses.filter(\.isSituational).map(\.id) == [
+            "b-w4-two-homes", "b-w4-big-goodbye", "b-w4-big-move"
+        ])
+        #expect(catalog.bosses.filter(\.isEvergreen).map(\.id) == ["b-w1-double-shift", "b-w2-long-grind"])
     }
 
     @Test("Given the bundled heroes, when fetching, then each dad is drawn with his own look")
