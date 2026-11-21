@@ -8,9 +8,8 @@ no longer "at least 95 seconds" but at least the longest film).
 - A film is at most 90 seconds, but firsts are never dropped: when they don't fit, everything else goes and each first
   gets shorter, down to 3 seconds (ADR-0036 §2). So the longest film is the opening (3.5 s), a chapter card for each
   world (2.5 s), every first at 3 s and the credits (6 s). A first counts once per child, so "every first" is every
-  first in the content, a retired one included: a saga that captured it still shows it.
-- Today's content (24 firsts, 4 worlds) allows 91.5 s. The v1 card set (`docs/plans/v1-card-set.md`: 34 firsts in the
-  JSON, 5 worlds) allows 3.5 + 12.5 + 102 + 6 = 124 s.
+  first in the content, including any a later card set stops offering: a saga that captured it still shows it.
+- Today's content (24 firsts, 4 worlds) allows 91.5 s. The v1 card set being prepared (34 firsts in the JSON, 5 worlds) allows 3.5 + 12.5 + 102 + 6 = 124 s.
 - The five tracks last 100 to 104 seconds. `FilmKit` loops music that is shorter than the film, so a long film would
   start its track again from the intro and fade out in the middle of the second pass.
 - The tracks are rendered from scores by `Tools/SagaMusic` (ADR-0036 §8, ADR-0046): the same score always renders the

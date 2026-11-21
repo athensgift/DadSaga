@@ -30,12 +30,16 @@ struct BundledSoundtrackRepositoryTests {
         let film = try await Self.longestFilm()
 
         for track in try await repository.fetchSoundtracks() {
-            let asset = AVURLAsset(url: track.audioURL)
+            // Measured as `MusicBed` measures it before it decides to loop: exact timing, the audio track's own range.
+            let asset = AVURLAsset(url: track.audioURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
             let audio = try await asset.loadTracks(withMediaType: .audio)
-            let duration = try await asset.load(.duration)
-
             #expect(audio.count == 1, "\(track.id) has \(audio.count) audio tracks")
-            #expect(duration.seconds >= film.seconds, "\(track.id) lasts \(duration.seconds) s, a film \(film.seconds) s")
+            let range = try await try #require(audio.first).load(.timeRange)
+
+            #expect(
+                range.duration.seconds >= film.seconds,
+                "\(track.id) lasts \(range.duration.seconds) s, a film \(film.seconds) s"
+            )
         }
     }
 
@@ -48,24 +52,25 @@ struct BundledSoundtrackRepositoryTests {
         let worlds = catalog.worlds
         let lastWorld = try #require(worlds.last)
         let photos = (1...ProgressEvent.photoLimit).map { "p\($0)" }
-        let inWorld = { (worldID: String, minute: Int) -> Date in
-            let world = worlds.first { $0.id == worldID } ?? lastWorld
+        let byID = Dictionary(uniqueKeysWithValues: worlds.map { ($0.id, $0) })
+        let inWorld = { (worldID: String, minute: Int) throws -> Date in
+            let world = try #require(byID[worldID], "\(worldID) is a world")
             return child.day(atMonths: world.minAgeMonths).start(in: .gmt).addingTimeInterval(Double(60 * minute))
         }
-        let firsts = catalog.firsts.enumerated().map { index, first in
+        let firsts = try catalog.firsts.enumerated().map { index, first in
             ProgressEvent(
                 kind: .first(id: first.id), childID: child.id,
-                date: inWorld(worlds[index % worlds.count].id, index), photoIDs: photos
+                date: try inWorld(worlds[index % worlds.count].id, index), photoIDs: photos
             )
         }
-        let quests = catalog.quests.enumerated().map { index, quest in
+        let quests = try catalog.quests.enumerated().map { index, quest in
             ProgressEvent(
-                kind: .quest(id: quest.id), childID: child.id, date: inWorld(quest.worldID, index), photoIDs: photos
+                kind: .quest(id: quest.id), childID: child.id, date: try inWorld(quest.worldID, index), photoIDs: photos
             )
         }
-        let bosses = catalog.bosses.enumerated().map { index, boss in
+        let bosses = try catalog.bosses.enumerated().map { index, boss in
             ProgressEvent(
-                kind: .boss(id: boss.id), childID: child.id, date: inWorld(boss.worldID, index), photoIDs: photos
+                kind: .boss(id: boss.id), childID: child.id, date: try inWorld(boss.worldID, index), photoIDs: photos
             )
         }
         let film = try #require(SagaStoryboard.make(
@@ -80,6 +85,8 @@ struct BundledSoundtrackRepositoryTests {
             if case .entry(let entry) = scene.kind, case .first = entry.kind { true } else { false }
         }
         #expect(keptFirsts == catalog.firsts.count, "a film keeps every first")
+        let chapters = film.scenes.count { if case .chapter = $0.kind { true } else { false } }
+        #expect(chapters == worlds.count, "every world has its chapter card, or the worst case is undercounted")
         return film
     }
 
