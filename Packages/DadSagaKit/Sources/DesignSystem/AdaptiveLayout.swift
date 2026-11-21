@@ -31,17 +31,21 @@ public struct AdaptiveStack<Content: View>: View {
 public struct CardTitle: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let title: String
-    let badge: String
+    /// e.g. "BOSS"; `nil` for none.
+    let badge: String?
     let tint: Color
 
-    public init(_ title: String, badge: String, tint: Color) {
+    public init(_ title: String, badge: String? = nil, tint: Color) {
         self.title = title
         self.badge = badge
         self.tint = tint
     }
 
     public var body: some View {
-        if dynamicTypeSize.isAccessibilitySize {
+        if badge == nil {
+            titleText
+                .frame(maxWidth: .infinity, alignment: .leading)
+        } else if dynamicTypeSize.isAccessibilitySize {
             VStack(alignment: .leading, spacing: DSSpacing.xs) {
                 titleText
                 badgeText
@@ -64,7 +68,7 @@ public struct CardTitle: View {
     }
 
     private var badgeText: some View {
-        Text(badge)
+        Text(badge ?? "")
             .font(DSFont.caption)
             .foregroundStyle(tint)
     }

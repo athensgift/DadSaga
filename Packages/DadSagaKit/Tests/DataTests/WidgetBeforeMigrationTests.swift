@@ -5,7 +5,7 @@ import Testing
 /// After an update with a new schema, the widget can run before the app has migrated the store. Only the app migrates
 /// (ADR-0023, ADR-0026): the widget, opening the older store read-only, must fail and leave every file as it was
 /// (ADR-0034 §6), so it opens the store without the migration plan and no stage runs (ADR-0053 §8). Checked with copies
-/// of the stores versions 1, 3, 4 and 5 wrote (ADR-0042 §2, ADR-0044 §6, ADR-0048 §3, ADR-0053 §8).
+/// of the stores versions 1, 3, 4, 5 and 6 wrote (ADR-0042 §2, ADR-0044 §6, ADR-0048 §3, ADR-0053 §8, ADR-0055 §5).
 @Suite("Widget before the app migrates", .serialized)
 struct WidgetBeforeMigrationTests {
     let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-widget-v3-" + UUID().uuidString)
@@ -23,7 +23,10 @@ struct WidgetBeforeMigrationTests {
     }
 
     @Test("Given an older store, when the widget opens it at the current version, then it throws and the saga is unchanged",
-          arguments: [StoreV1Fixture.directory, StoreV3Fixture.directory, StoreV4Fixture.directory, StoreV5Fixture.directory])
+          arguments: [
+              StoreV1Fixture.directory, StoreV3Fixture.directory, StoreV4Fixture.directory, StoreV5Fixture.directory,
+              StoreV6Fixture.directory
+          ])
     func widgetFailsWithoutTouchingTheStore(fixture: URL) async throws {
         try StoreFiles.copy(from: fixture, to: directory)
         let before = try storeContents()

@@ -69,7 +69,13 @@ enum FilmStub {
                       tagline: LocalizedText(el: "τ", en: "t"), look: "cool")
         ],
         gear: [
-            GearItem(id: "g1", skill: .care, minXP: 50, look: "burpCloth", title: LocalizedText(el: "Πανάκι", en: "Burp cloth"))
+            GearItem(id: "g1", skill: .care, look: "burpCloth", title: LocalizedText(el: "Πανάκι", en: "Burp cloth"))
+        ],
+        titles: [
+            DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: LocalizedText(el: "Σε αναμονή", en: "In waiting")),
+            DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["g1"],
+                     name: LocalizedText(el: "Νέος στο ταξίδι", en: "New to the journey")),
+            DadTitle(id: "t2", order: 2, minCards: 5, minXP: 100, name: LocalizedText(el: "Σίγουρα χέρια", en: "Steady hands"))
         ]
     )
 
@@ -186,6 +192,7 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
         guard let storyboard else { return nil }
         let progress = DadProgress(events: events.filter { $0.date < storyboard.asOf }, catalog: catalog)
         let firsts = progress.capturedFirstIDs(for: child.id)
+        let standing = DadStanding.asOf(progress, catalog: catalog, kept: .fresh)
         return SagaFilm(
             profile: profile,
             child: child,
@@ -196,7 +203,8 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
             ),
             medalCount: progress.allDefeatedBossIDs.count,
             childFirsts: catalog.firsts.filter { firsts.contains($0.id) },
-            equippedGear: catalog.gear.filter { (progress.skillXP[$0.skill] ?? 0) >= $0.minXP },
+            equippedGear: GearRules.equipped(standing.gear),
+            title: standing.title,
             soundtracks: soundtracks,
             soundtrack: soundtrack,
             showsDates: await choices.showsDates()

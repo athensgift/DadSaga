@@ -57,7 +57,7 @@ struct TimelinePreview: View {
                     )
             }
             VStack(alignment: .leading, spacing: DSSpacing.s) {
-                CardTitle(item.title, badge: item.badge, tint: item.kind.tint)
+                CardTitle(item.title, tint: item.kind.tint)
                 Text(item.subtitle)
                     .font(DSFont.body)
                     .foregroundStyle(DSColor.textSecondary)

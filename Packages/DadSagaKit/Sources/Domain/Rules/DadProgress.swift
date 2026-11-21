@@ -2,18 +2,18 @@ import Foundation
 
 /// The dad's aggregated progress, derived from events. Pure and deterministic.
 ///
-/// XP and level are the dad's, from every child together. What happened with a child (quests done, bosses
+/// XP and cards done are the dad's, from every child together. What happened with a child (quests done, bosses
 /// defeated, firsts captured) is kept per child: each child has their own first fever and their own first steps.
 public struct DadProgress: Hashable, Sendable {
     public let totalXP: Int
+    /// Every counted entry: a quest every time, a boss or a first once per child (ADR-0055 §1).
+    public let cardsDone: Int
     public let skillXP: [Skill: Int]
     private let firstsByChild: [UUID: Set<String>]
     private let bossesByChild: [UUID: Set<String>]
     private let questsByChild: [UUID: [String: Int]]
     private let momentsByChild: [UUID: [CapturedMoment]]
     private let journalByChild: [UUID: [ProgressEvent.Kind: JournalEntry]]
-
-    public var level: LevelProgress { LevelCurve.progress(forTotalXP: totalXP) }
 
     /// Every boss defeated, with any child.
     public var allDefeatedBossIDs: Set<String> { bossesByChild.values.reduce(into: []) { $0.formUnion($1) } }
@@ -29,7 +29,9 @@ public struct DadProgress: Hashable, Sendable {
         var momentsByChild: [UUID: [CapturedMoment]] = [:]
         var journalByChild: [UUID: [ProgressEvent.Kind: JournalEntry]] = [:]
 
-        for entry in Timeline.countedEntries(from: events, catalog: catalog) {
+        let entries = Timeline.countedEntries(from: events, catalog: catalog)
+        cardsDone = entries.count
+        for entry in entries {
             total += entry.xp
             let eventKind: ProgressEvent.Kind
             switch entry.kind {

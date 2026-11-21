@@ -13,6 +13,8 @@ extension HomeViewModel {
         let reminder: ReminderUseCases
         /// The dad's answer to the film offer.
         let answerSagaOffer: any AnswerSagaOfferUseCase
+        /// The dad closed the card for a new title.
+        let markTitleSeen: any MarkTitleSeenUseCase
 
         public init(
             getOverview: any GetHomeOverviewUseCase,
@@ -21,7 +23,8 @@ extension HomeViewModel {
             deleteEvent: any DeleteEventUseCase,
             moments: MomentUseCases,
             reminder: ReminderUseCases,
-            answerSagaOffer: any AnswerSagaOfferUseCase
+            answerSagaOffer: any AnswerSagaOfferUseCase,
+            markTitleSeen: any MarkTitleSeenUseCase
         ) {
             self.getOverview = getOverview
             self.completeQuest = completeQuest
@@ -30,6 +33,7 @@ extension HomeViewModel {
             self.moments = moments
             self.reminder = reminder
             self.answerSagaOffer = answerSagaOffer
+            self.markTitleSeen = markTitleSeen
         }
     }
 

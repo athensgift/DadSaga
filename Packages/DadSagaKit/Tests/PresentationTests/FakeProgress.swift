@@ -4,8 +4,19 @@ import Foundation
 
 /// An in-memory stand-in for both progress use cases, backed by the stub catalog.
 actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCase,
-    UpdateMomentUseCase, DeleteEventUseCase, GetPhotoUseCase {
-    private var events: [ProgressEvent] = []
+    UpdateMomentUseCase, DeleteEventUseCase, GetPhotoUseCase, MarkTitleSeenUseCase {
+    private(set) var events: [ProgressEvent] = []
+    /// What the store keeps for titles, kept before each change as the app does (ADR-0055 §3).
+    private(set) var kept = KeptStanding.fresh
+
+    private func keepBeforeChange() {
+        let progress = DadProgress(events: events, catalog: HeroStub.catalog)
+        if let next = DadStanding(progress: progress, catalog: HeroStub.catalog, kept: kept).toKeep { kept = next }
+    }
+
+    func execute(titleID: String) async throws {
+        kept.seenTitleID = titleID
+    }
     private var shouldFail = false
 
     func seed(times: Int) {
@@ -126,13 +137,13 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         await waitIfSlow()
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
+        keepBeforeChange()
         let event = ProgressEvent(kind: .first(id: request.firstID), childID: request.childID, date: request.date)
         events.append(event)
         return ProgressChange(
             before: before,
             after: DadProgress(events: events, catalog: HeroStub.catalog),
-            eventID: event.id,
-            gear: HeroStub.catalog.gear
+            eventID: event.id
         )
     }
 
@@ -166,6 +177,7 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
 
     func execute(eventID: UUID) async throws {
         if shouldFail { throw StubError.boom }
+        keepBeforeChange()
         events.removeAll { $0.id == eventID }
     }
 
@@ -179,13 +191,13 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
     private func record(_ kind: ProgressEvent.Kind, childID: UUID, on date: Date, note: String?) throws -> ProgressChange {
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
+        keepBeforeChange()
         let event = ProgressEvent(kind: kind, childID: childID, date: date, note: note)
         events.append(event)
         return ProgressChange(
             before: before,
             after: DadProgress(events: events, catalog: HeroStub.catalog),
-            eventID: event.id,
-            gear: HeroStub.catalog.gear
+            eventID: event.id
         )
     }
 }

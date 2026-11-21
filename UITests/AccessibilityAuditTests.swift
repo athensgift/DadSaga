@@ -36,7 +36,11 @@ final class AccessibilityAuditTests: XCTestCase {
         audit("World map")
         close()
 
-        tap(app.scrollViews.buttons.matching(NSPredicate(format: "label CONTAINS 'XP'")).firstMatch)
+        // A quest card names the skill it grows; a boss card doesn't (ADR-0055 §7).
+        let quest = NSPredicate(
+            format: "label CONTAINS 'Care' OR label CONTAINS 'Play' OR label CONTAINS 'Patience' OR label CONTAINS 'Resilience'"
+        )
+        tap(app.scrollViews.buttons.matching(quest).firstMatch)
         expandSheet()
         audit("Quest")
         tap(app.buttons["I did it!"])

@@ -19,6 +19,8 @@ public struct HomeOverview: Sendable {
     public let bosses: [BossFight]
     /// The shown world's bosses for when life changes: home keeps them in one closed row (ADR-0053 §5).
     public let situationalBosses: [BossFight]
+    /// The dad's title, the gear he has and a title card not closed yet (ADR-0055).
+    public let standing: DadStanding
     /// What the hero wears, one item per skill at most.
     public let equippedGear: [GearItem]
     /// The one film to offer the family today, if the dad hasn't answered it (ADR-0037 §5). It can be about a child
@@ -40,6 +42,7 @@ public struct HomeOverview: Sendable {
         catalog: ContentCatalog,
         adventure: Adventure,
         progress: DadProgress,
+        kept: KeptStanding = .fresh,
         outfit: Outfit,
         worldID: String?,
         sagaOffer: SagaOccasion? = nil,
@@ -58,7 +61,9 @@ public struct HomeOverview: Sendable {
         let bosses = shownWorld.map { UnlockRules.bosses(for: $0, in: catalog, age: age, family: family) } ?? []
         self.bosses = bosses.filter { !$0.isSituational }
         situationalBosses = bosses.filter(\.isSituational)
-        equippedGear = GearRules.equipped(catalog.gear, skillXP: progress.skillXP, outfit: outfit)
+        let standing = DadStanding(progress: progress, catalog: catalog, kept: kept)
+        self.standing = standing
+        equippedGear = GearRules.equipped(standing.gear, outfit: outfit)
         self.sagaOffer = sagaOffer
         self.today = today
     }
@@ -75,6 +80,7 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
     private let profileRepository: any ProfileRepository
     private let progressRepository: any ProgressRepository
     private let outfitRepository: any OutfitRepository
+    private let standingRepository: any StandingRepository
     private let sagaOfferRepository: any SagaOfferRepository
     private let timeZone: TimeZone
 
@@ -83,6 +89,7 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
         profileRepository: any ProfileRepository,
         progressRepository: any ProgressRepository,
         outfitRepository: any OutfitRepository,
+        standingRepository: any StandingRepository,
         sagaOfferRepository: any SagaOfferRepository,
         timeZone: TimeZone = .autoupdatingCurrent
     ) {
@@ -90,6 +97,7 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
         self.profileRepository = profileRepository
         self.progressRepository = progressRepository
         self.outfitRepository = outfitRepository
+        self.standingRepository = standingRepository
         self.sagaOfferRepository = sagaOfferRepository
         self.timeZone = timeZone
     }
@@ -98,6 +106,7 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
         async let pendingCatalog = contentRepository.fetchCatalog()
         async let pendingEvents = progressRepository.fetchEvents()
         async let pendingOutfit = outfitRepository.fetchOutfit()
+        async let pendingKept = standingRepository.fetchKept()
         async let answeredOffers = sagaOfferRepository.answeredOccasionIDs()
         guard let profile = try await profileRepository.fetchProfile(),
               let child = profile.child(childID)
@@ -113,6 +122,7 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
                 for: child, family: FamilyFacts(profile: profile, child: child), catalog: catalog, on: today
             ),
             progress: DadProgress(events: events, catalog: catalog),
+            kept: try await pendingKept,
             outfit: try await pendingOutfit,
             worldID: worldID,
             sagaOffer: SagaOccasions.latest(

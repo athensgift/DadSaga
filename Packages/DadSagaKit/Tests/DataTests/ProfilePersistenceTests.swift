@@ -18,15 +18,29 @@ struct HeroClassContentTests {
     }
 }
 
+@Suite("Title content")
+struct TitleContentTests {
+    @Test("Given the bundled JSON, when fetching, then the owner's ten titles load in both languages, each item once")
+    func loadsTitles() async throws {
+        let catalog = try await BundledContentRepository().fetchCatalog()
+        #expect(catalog.titles.map(\.minCards) == [0, 1, 2, 4, 7, 11, 16, 22, 29, 37])
+        #expect(catalog.titles.map(\.minXP) == [0, 20, 60, 140, 260, 420, 620, 860, 1140, 1460])
+        #expect(catalog.titles[4].name == LocalizedText(el: "Σίγουρα χέρια", en: "Steady hands"))
+        #expect(catalog.title(bringing: "g-mug")?.id == "t-new-to-the-journey")
+        #expect(catalog.title(bringing: "g-burp-cloth-gold")?.id == "t-super-dad")
+        #expect(catalog.titles.flatMap(\.gearIDs).sorted() == catalog.gear.map(\.id).sorted())
+    }
+}
+
 @Suite("Gear content")
 struct GearContentTests {
-    @Test("Given the bundled JSON, when fetching, then every skill has two gear tiers with text in both languages")
+    @Test("Given the bundled JSON, when fetching, then every slot has two items, the first from an earlier title")
     func loadsGear() async throws {
         let catalog = try await BundledContentRepository().fetchCatalog()
         for skill in Skill.allCases {
-            let tiers = catalog.gear.filter { $0.skill == skill }.map(\.minXP).sorted()
-            #expect(tiers.count == 2, "\(skill)")
-            #expect(tiers.first ?? 0 > 0)
+            let titles = catalog.gear.filter { $0.skill == skill }.compactMap { catalog.title(bringing: $0.id)?.order }
+            #expect(titles.count == 2, "\(skill)")
+            #expect(titles.min() ?? 0 > 0)
         }
         for item in catalog.gear {
             #expect(!item.title.el.isEmpty && !item.title.en.isEmpty)

@@ -93,9 +93,21 @@ struct GearItemDTO: Decodable, Sendable {
     /// Ids it had before a rename (ADR-0048 §5). Once shipped, an id is never dropped.
     var formerIDs: [String]?
     let skill: String
-    let minXP: Int
+    /// Only on the eight items that shipped before titles (ADR-0055 §4).
+    var skillXPBeforeTitles: Int?
     let look: String
     let title: LocalizedTextDTO
+}
+
+/// One of the dad's titles (ADR-0055 §2).
+struct DadTitleDTO: Decodable, Sendable {
+    let id: String
+    var formerIDs: [String]?
+    let order: Int
+    let minCards: Int
+    let minXP: Int
+    let gear: [String]
+    let name: LocalizedTextDTO
 }
 
 /// The name of one of the dad's look options (ADR-0044 §3). `id` is unique within its `part` only.

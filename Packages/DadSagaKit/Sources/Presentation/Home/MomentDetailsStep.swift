@@ -112,9 +112,6 @@ struct MomentDetailsStep: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: DSSpacing.xs) {
-            Text(details.reward)
-                .font(DSFont.caption)
-                .foregroundStyle(DSColor.legendary)
             if let heading = details.heading {
                 Text(heading)
                     .font(DSFont.title)

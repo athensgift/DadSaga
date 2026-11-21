@@ -19,8 +19,8 @@ public enum HomeWidgetContent: Hashable, Sendable {
     public struct QuestTile: Hashable, Sendable {
         public let header: String
         public let title: String
-        /// "+15 XP · Care"; `nil` when there is no quest.
-        public let reward: String?
+        /// The quest's skill, e.g. "Care"; `nil` when there is no quest. No XP (ADR-0055 §7).
+        public let skill: String?
         /// "✓ Done this week" when the dad did it with this child this week. Otherwise `nil`: nothing is said.
         public let doneText: String?
         public let link: URL

@@ -74,7 +74,7 @@ struct MomentCard: View {
                     ThumbnailSlot()
                 }
                 VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                    CardTitle(card.title, badge: card.badge, tint: DSColor.legendary)
+                    CardTitle(card.title, tint: DSColor.legendary)
                     Text(card.subtitle)
                         .font(DSFont.subheadline)
                         .foregroundStyle(DSColor.textSecondary)

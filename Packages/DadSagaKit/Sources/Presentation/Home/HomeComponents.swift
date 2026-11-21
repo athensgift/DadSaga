@@ -1,60 +1,19 @@
 import DesignSystem
 import SwiftUI
 
-/// The dad's level and XP inside it.
-struct LevelPanel: View {
+/// The dad's title under the hero, where a level was: a name, no bar and no number (ADR-0055 §6).
+struct TitleLine: View {
     let title: String
-    let xpLine: String
-    let fraction: Double
-    /// Set while a level-up is celebrated: the bar fills to the end before starting the new level, and the panel glows.
-    var levelUpID: Int?
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var shownFraction: Double?
-    @State private var isGlowing = false
 
     var body: some View {
-        VStack(alignment: .leading, spacing: DSSpacing.s) {
-            HStack(alignment: .firstTextBaseline) {
-                Text(title)
-                    .font(DSFont.headline)
-                    .foregroundStyle(DSColor.textPrimary)
-                    .contentTransition(.numericText())
-                Spacer()
-                Text(xpLine)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.textSecondary)
-                    .monospacedDigit()
-                    .contentTransition(.numericText())
-            }
-            XPBar(label: title, fraction: shownFraction ?? fraction)
-        }
-        .padding(DSSpacing.m)
-        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
-        .overlay {
-            RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous)
-                .stroke(DSColor.legendary, lineWidth: 2)
-                .shadow(color: DSColor.legendary.opacity(0.7), radius: 8)
-                .opacity(isGlowing ? 1 : 0)
-        }
-        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: fraction)
-        .task(id: levelUpID) { await celebrateLevelUp() }
-        .accessibilityElement(children: .combine)
-    }
-
-    /// Fills the old level to the end, then empties into the new one, instead of the bar running backwards.
-    private func celebrateLevelUp() async {
-        guard levelUpID != nil else { return }
-        withAnimation(.easeInOut(duration: 0.3)) { isGlowing = true }
-        if !reduceMotion {
-            withAnimation(.easeOut(duration: 0.45)) { shownFraction = 1 }
-            try? await Task.sleep(for: .milliseconds(550))
-            shownFraction = 0
-            try? await Task.sleep(for: .milliseconds(50))
-        }
-        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) { shownFraction = nil }
-        try? await Task.sleep(for: .seconds(1.2))
-        withAnimation(.easeInOut(duration: 0.6)) { isGlowing = false }
+        Label(title, systemImage: "laurel.leading")
+            .font(DSFont.headline)
+            .foregroundStyle(DSColor.textPrimary)
+            .padding(.horizontal, DSSpacing.m)
+            .padding(.vertical, DSSpacing.s)
+            .frame(maxWidth: .infinity)
+            .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+            .accessibilityElement(children: .combine)
     }
 }
 
@@ -107,14 +66,10 @@ struct CelebrationBadge: View {
 
     var body: some View {
         VStack(spacing: DSSpacing.xs) {
-            Text(celebration.xpText)
-                .font(DSFont.title)
-                .foregroundStyle(DSColor.xp)
-            if let levelUpText = celebration.levelUpText {
-                Label(levelUpText, systemImage: "star.fill")
+            if let skillText = celebration.skillText {
+                Text(skillText)
                     .font(DSFont.headline)
-                    .foregroundStyle(DSColor.legendary)
-                    .symbolEffect(.bounce, value: bounce)
+                    .foregroundStyle(DSColor.xp)
             }
             if let badgeText = celebration.badgeText {
                 Label(badgeText, systemImage: "rosette")
@@ -126,12 +81,6 @@ struct CelebrationBadge: View {
                 Label(momentText, systemImage: "star.fill")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.legendary)
-                    .symbolEffect(.bounce, value: bounce)
-            }
-            if let unlockText = celebration.unlockText {
-                Label(unlockText, systemImage: "gift.fill")
-                    .font(DSFont.headline)
-                    .foregroundStyle(DSColor.accent)
                     .symbolEffect(.bounce, value: bounce)
             }
         }
@@ -159,7 +108,7 @@ struct CelebrationOverlay: ViewModifier {
                         if let color = celebration.burstColor {
                             CelebrationBurst(
                                 color: color,
-                                sparkles: celebration.highlight == .levelUp ? 16 : 10,
+                                sparkles: 10,
                                 // The card's sheet is still closing when the celebration starts.
                                 delay: 0.35
                             )
@@ -182,8 +131,7 @@ extension Celebration {
         switch highlight {
         case .quest: nil
         case .boss: DSColor.boss
-        case .unlock: DSColor.accent
-        case .moment, .levelUp: DSColor.legendary
+        case .moment: DSColor.legendary
         }
     }
 

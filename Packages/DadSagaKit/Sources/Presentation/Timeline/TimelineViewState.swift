@@ -47,7 +47,6 @@ public struct TimelineItem: Equatable, Identifiable, Sendable {
     public let title: String
     /// Child (when there are several), day, and the note or badge.
     public let subtitle: String
-    public let badge: String
     public let symbol: String
     /// In the dad's order; the first is the cover.
     public let photoIDs: [String]

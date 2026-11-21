@@ -123,5 +123,17 @@
     {"id": "g-blocks", "skill": "play", "minXP": 200},
     {"id": "g-diaper-bag", "skill": "resilience", "minXP": 50},
     {"id": "g-mega-bag", "skill": "resilience", "minXP": 200}
+  ],
+  "titles": [
+    { "id": "t-dad-in-waiting", "minCards": 0, "minXP": 0, "gear": [] },
+    { "id": "t-new-to-the-journey", "minCards": 1, "minXP": 20, "gear": ["g-mug"] },
+    { "id": "t-apprentice-dad", "minCards": 2, "minXP": 60, "gear": ["g-burp-cloth"] },
+    { "id": "t-dad-with-tricks", "minCards": 4, "minXP": 140, "gear": ["g-duck"] },
+    { "id": "t-steady-hands", "minCards": 7, "minXP": 260, "gear": ["g-diaper-bag"] },
+    { "id": "t-family-rock", "minCards": 11, "minXP": 420, "gear": ["g-blocks"] },
+    { "id": "t-dad-of-all-trades", "minCards": 16, "minXP": 620, "gear": ["g-thermos"] },
+    { "id": "t-keeper-of-the-house", "minCards": 22, "minXP": 860, "gear": ["g-mega-bag"] },
+    { "id": "t-super-dad", "minCards": 29, "minXP": 1140, "gear": ["g-burp-cloth-gold"] },
+    { "id": "t-legendary-dad", "minCards": 37, "minXP": 1460, "gear": [] }
   ]
 }

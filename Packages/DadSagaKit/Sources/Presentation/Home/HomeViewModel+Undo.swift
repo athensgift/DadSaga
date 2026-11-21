@@ -4,7 +4,7 @@ import Localization
 
 /// Undo for a few seconds after the dad records something (ADR-0021).
 extension HomeViewModel {
-    /// Takes back what was just recorded: its XP, and any level, gear or badge it brought.
+    /// Takes back what was just recorded, and any badge it brought. The title and gear stay (ADR-0055 §3).
     /// While another save is still running the offer stays, so the tap is not lost and can be made again.
     /// If taking it back fails, the entry is still there, so the bar comes back saying so, to try again.
     /// The bar is its only voice: it leaves any sheet open meanwhile, and that sheet's error, as they are.

@@ -50,7 +50,7 @@ extension HomeViewModel {
                 id: quest.id,
                 title: quest.title.resolved(for: locale),
                 subtitle: quest.description.resolved(for: locale),
-                badge: "+\(quest.xp) XP",
+                badge: nil,
                 symbol: quest.skill.symbol,
                 kind: .quest,
                 footnote: completions[quest.id].map(strings.doneText),

@@ -31,6 +31,16 @@ struct CatalogTests {
         return text.matches(of: regex).map { String($0.output.2) }
     }
 
+    @Test("Given the catalog, then no key or text speaks of XP or a level: the dad sees titles (ADR-0055 §7)")
+    func noXPOrLevels() throws {
+        for (key, entry) in try Self.entries() {
+            let texts = [key, Self.value(entry, "el") ?? "", Self.value(entry, "en") ?? ""]
+            for word in ["XP", "Level", "level", "Επίπεδο", "επίπεδο"] {
+                #expect(!texts.contains { $0.contains(word) }, "\(word) in: \(key)")
+            }
+        }
+    }
+
     @Test("Given the catalog, then every key has Greek and English text, and both plural forms where it is a plural")
     func everyEntryIsComplete() throws {
         let entries = try Self.entries()

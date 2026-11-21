@@ -147,6 +147,10 @@ struct HomeSagaOfferTests {
             FakeFilmOffers(occasion: Self.birthday), reminder: ReminderUseCases(get: reminder, update: reminder)
         )
         await sut.onAppear()
+        // The seeded quest brought a title: its card comes before the film (ADR-0055 §6).
+        #expect(sut.titleCard != nil)
+        #expect(sut.sagaOffer == nil)
+        await sut.closeTitleCard()
         #expect(sut.sagaOffer != nil)
         #expect(sut.reminderOffer == nil)
 
@@ -158,4 +162,9 @@ struct HomeSagaOfferTests {
         #expect(sut.sagaOffer == nil)
         #expect(sut.reminderOffer?.title == "Μια υπενθύμιση την εβδομάδα;")
     }
+}
+
+/// Closing a title card, for screens whose tests don't look at it.
+struct FakeTitleSeen: MarkTitleSeenUseCase {
+    func execute(titleID: String) async throws {}
 }

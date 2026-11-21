@@ -94,9 +94,6 @@ struct MomentChoiceStep: View {
                     .foregroundStyle(DSColor.textPrimary)
                     .multilineTextAlignment(.center)
                     .lineLimit(2, reservesSpace: true)
-                Text(option.reward)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.legendary)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, DSSpacing.s)

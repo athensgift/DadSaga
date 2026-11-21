@@ -11,7 +11,7 @@ extension HomeViewModel {
             id: quest.id,
             title: quest.title.resolved(for: locale),
             description: quest.description.resolved(for: locale),
-            reward: strings.reward(for: quest),
+            reward: strings.skill(quest.skill),
             tip: quest.tip.map { tip in
                 TipDetail(title: tip.title.resolved(for: locale), steps: tip.steps.map { $0.resolved(for: locale) })
             },
@@ -29,7 +29,7 @@ extension HomeViewModel {
             intro: boss.intro.resolved(for: locale),
             guideTitle: strings.text("Survival guide"),
             guide: boss.guide.map { $0.resolved(for: locale) },
-            reward: "+\(boss.xp) XP · \(boss.badge.resolved(for: locale))",
+            reward: boss.badge.resolved(for: locale),
             disclaimer: strings.medicalFooter,
             isDefeated: overview?.defeatedBossIDs.contains(boss.id) == true,
             defeatedText: strings.defeatedText(for: boss),

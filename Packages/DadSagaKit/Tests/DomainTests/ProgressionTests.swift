@@ -2,36 +2,6 @@ import Foundation
 import Testing
 import Domain
 
-@Suite("LevelCurve")
-struct LevelCurveTests {
-    @Test("Given 0 XP, when computing level, then level is 1")
-    func zeroXPIsLevelOne() {
-        #expect(LevelCurve.level(forTotalXP: 0) == 1)
-    }
-
-    @Test(
-        "Given XP on a level boundary, when computing level, then the new level is reached",
-        arguments: [(100, 2), (299, 2), (300, 3), (600, 4), (1000, 5)]
-    )
-    func levelBoundaries(xp: Int, expectedLevel: Int) {
-        #expect(LevelCurve.level(forTotalXP: xp) == expectedLevel)
-    }
-
-    @Test("Given 200 XP, when computing progress, then it is halfway through level 2")
-    func progressInsideLevel() {
-        let progress = LevelCurve.progress(forTotalXP: 200)
-        #expect(progress.level == 2)
-        #expect(progress.xpIntoLevel == 100)
-        #expect(progress.xpNeededForNextLevel == 200)
-        #expect(progress.fraction == 0.5)
-    }
-
-    @Test("Given negative XP, when computing progress, then it is clamped to level 1")
-    func negativeXPIsClamped() {
-        #expect(LevelCurve.progress(forTotalXP: -50) == LevelCurve.progress(forTotalXP: 0))
-    }
-}
-
 @Suite("DadProgress")
 struct DadProgressTests {
     let catalog = Fixtures.catalog

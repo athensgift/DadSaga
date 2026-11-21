@@ -202,12 +202,9 @@ public struct HomeView: View {
                         }
                     }
                     .multilineTextAlignment(.center)
-                    LevelPanel(
-                        title: content.levelTitle,
-                        xpLine: content.xpLine,
-                        fraction: content.levelFraction,
-                        levelUpID: viewModel.celebration.flatMap { $0.highlight == .levelUp ? $0.id : nil }
-                    )
+                    if let dadTitle = content.dadTitle {
+                        TitleLine(title: dadTitle)
+                    }
                 }
             }
         }
@@ -290,6 +287,7 @@ public struct HomeView: View {
         }
         .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.reminderOffer)
         .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.sagaOffer)
+        .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.titleCard)
     }
 }
 

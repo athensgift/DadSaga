@@ -103,3 +103,34 @@ enum Stub {
         firsts: []
     )
 }
+
+/// The profile's kept standing, in memory (ADR-0055 §3). Starts as a saga begun with titles.
+actor InMemoryStanding: StandingRepository {
+    private(set) var kept: KeptStanding
+    private(set) var writes = 0
+    var failsToKeep = false
+
+    init(_ kept: KeptStanding = .fresh) {
+        self.kept = kept
+    }
+
+    func fetchKept() async throws -> KeptStanding { kept }
+
+    func keep(titleID: String?, gearIDs: [String]) async throws {
+        if failsToKeep { throw StubError.boom }
+        writes += 1
+        kept.titleID = titleID ?? kept.titleID
+        kept.gearIDs = gearIDs
+    }
+
+    func markSeen(titleID: String) async throws {
+        kept.seenTitleID = titleID
+    }
+
+    func failKeeping() { failsToKeep = true }
+}
+
+extension ProgressChange {
+    /// What the change gave in XP: the app never shows it (ADR-0055 §7), the tests check it.
+    var gainedXP: Int { after.totalXP - before.totalXP }
+}

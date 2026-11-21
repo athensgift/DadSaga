@@ -13,7 +13,12 @@ struct ProgressUseCaseTests {
     @Test("Given a note and a photo, when completing a quest, then both are kept on the event and are its last journal")
     func completesQuestWithJournal() async throws {
         let repository = SpyProgressRepository()
-        let sut = DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        let sut = DefaultCompleteQuestUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
 
         let change = try await sut.execute(
             questID: "q1", childID: child, on: today, journal: JournalInput(note: "  first bath!  ", photos: [Data([1])])
@@ -30,7 +35,12 @@ struct ProgressUseCaseTests {
     @Test("Given a quest with a photo, when updating its journal, then the note changes and the old photo is removed")
     func updatesJournal() async throws {
         let repository = SpyProgressRepository()
-        _ = try await DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        _ = try await DefaultCompleteQuestUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
             .execute(questID: "q1", childID: child, on: today, journal: JournalInput(note: "a", photos: [Data([1])]))
         let event = try #require(try await repository.fetchEvents().first)
 
@@ -47,35 +57,29 @@ struct ProgressUseCaseTests {
     @Test("Given a known quest, when completing it, then an event is stored and its XP is gained")
     func completesQuest() async throws {
         let repository = SpyProgressRepository()
-        let sut = DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        let sut = DefaultCompleteQuestUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
 
         let change = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
 
         #expect(change.gainedXP == 20)
-        #expect(!change.leveledUp)
         #expect(try await repository.fetchEvents().map(\.kind) == [.quest(id: "q1")])
         #expect(try await repository.fetchEvents().map(\.childID) == [child])
-    }
-
-    @Test("Given 80 XP, when completing a 20 XP quest, then the dad levels up")
-    func levelsUp() async throws {
-        let repository = SpyProgressRepository()
-        for _ in 0..<4 {
-            try await repository.add(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today))
-        }
-        let sut = DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
-
-        let change = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
-
-        #expect(change.before.totalXP == 80)
-        #expect(change.after.level.level == 2)
-        #expect(change.leveledUp)
     }
 
     @Test("Given an unknown quest, when completing it, then it throws and nothing is stored")
     func unknownQuest() async throws {
         let repository = SpyProgressRepository()
-        let sut = DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        let sut = DefaultCompleteQuestUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
 
         await #expect(throws: ProgressError.unknownQuest("nope")) {
             try await sut.execute(questID: "nope", childID: child, on: today, journal: .empty)
@@ -86,7 +90,12 @@ struct ProgressUseCaseTests {
     @Test("Given an undefeated boss, when defeating it, then its XP is gained once and one event is stored")
     func defeatsBoss() async throws {
         let repository = SpyProgressRepository()
-        let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        let sut = DefaultDefeatBossUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
 
         let change = try await sut.execute(bossID: "b1", childID: child, on: today, journal: .empty)
 
@@ -98,7 +107,12 @@ struct ProgressUseCaseTests {
     @Test("Given a boss already defeated, when defeating it again with a photo, then nothing changes and nothing is kept")
     func bossOnlyOnce() async throws {
         let repository = SpyProgressRepository()
-        let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        let sut = DefaultDefeatBossUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
         _ = try await sut.execute(bossID: "b1", childID: child, on: today, journal: .empty)
 
         let change = try await sut.execute(bossID: "b1", childID: child, on: today, journal: JournalInput(photos: [Data([1])]))
@@ -112,7 +126,12 @@ struct ProgressUseCaseTests {
     @Test("Given a boss defeated with one child, when defeating it with another, then it counts again")
     func bossPerChild() async throws {
         let repository = SpyProgressRepository()
-        let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        let sut = DefaultDefeatBossUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
         _ = try await sut.execute(bossID: "b1", childID: child, on: today, journal: .empty)
 
         let change = try await sut.execute(bossID: "b1", childID: UUID(), on: today, journal: .empty)
@@ -124,7 +143,12 @@ struct ProgressUseCaseTests {
     @Test("Given a quest done once, when completing it again with the same child, then it is stored and counts again")
     func questRepeatable() async throws {
         let repository = SpyProgressRepository()
-        let sut = DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        let sut = DefaultCompleteQuestUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
         _ = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
 
         let change = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
@@ -135,7 +159,12 @@ struct ProgressUseCaseTests {
 
     @Test("Given another save of the same boss landed first, when defeating it, then nothing is added and no photo is kept")
     func bossRace() async throws {
-        let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: LosesRace(), photoStore: photos)
+        let sut = DefaultDefeatBossUseCase(
+            contentRepository: content,
+            progressRepository: LosesRace(),
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
 
         let change = try await sut.execute(bossID: "b1", childID: child, on: today, journal: JournalInput(photos: [Data([1])]))
 
@@ -147,8 +176,18 @@ struct ProgressUseCaseTests {
     @Test("Given storing fails, when recording a quest or a boss with a photo, then it throws and the photo is removed")
     func failedSaveRemovesPhoto() async throws {
         let failing = FailingUpdates(SpyProgressRepository())
-        let quest = DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: failing, photoStore: photos)
-        let boss = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: failing, photoStore: photos)
+        let quest = DefaultCompleteQuestUseCase(
+            contentRepository: content,
+            progressRepository: failing,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
+        let boss = DefaultDefeatBossUseCase(
+            contentRepository: content,
+            progressRepository: failing,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
 
         await #expect(throws: FailingUpdates.Failure.self) {
             try await quest.execute(questID: "q1", childID: child, on: today, journal: JournalInput(photos: [Data([1])]))
@@ -160,38 +199,15 @@ struct ProgressUseCaseTests {
         #expect(await photos.stored.isEmpty)
     }
 
-    @Test("Given a quest that crosses a gear threshold, when completing it, then the change names the new gear")
-    func newGear() async throws {
-        let text = Stub.text
-        let catalog = ContentCatalog(
-            worlds: Stub.catalog.worlds,
-            quests: Stub.catalog.quests,
-            bosses: [],
-            firsts: [],
-            gear: [
-                GearItem(id: "g-cloth", skill: .care, minXP: 40, look: "burpCloth", title: text),
-                GearItem(id: "g-duck", skill: .play, minXP: 20, look: "duck", title: text)
-            ]
-        )
-        let sut = DefaultCompleteQuestUseCase(
-            contentRepository: StubContentRepository(result: .success(catalog)),
-            progressRepository: SpyProgressRepository(),
-            photoStore: photos
-        )
-
-        let first = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
-        let second = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
-        let third = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
-
-        #expect(first.newGear.isEmpty)
-        #expect(second.newGear.map(\.id) == ["g-cloth"])
-        #expect(third.newGear.isEmpty)
-    }
-
     @Test("Given an unknown boss, when defeating it, then it throws and nothing is stored")
     func unknownBoss() async throws {
         let repository = SpyProgressRepository()
-        let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        let sut = DefaultDefeatBossUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
 
         await #expect(throws: ProgressError.unknownBoss("nope")) {
             try await sut.execute(bossID: "nope", childID: child, on: today, journal: .empty)

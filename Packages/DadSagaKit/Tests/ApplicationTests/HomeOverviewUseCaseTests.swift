@@ -27,8 +27,13 @@ struct HomeOverviewUseCaseTests {
         ],
         firsts: [],
         gear: [
-            GearItem(id: "g-cloth", skill: .care, minXP: 20, look: "burpCloth", title: text),
-            GearItem(id: "g-duck", skill: .play, minXP: 500, look: "duck", title: text)
+            GearItem(id: "g-cloth", skill: .care, skillXPBeforeTitles: 20, look: "burpCloth", title: text),
+            GearItem(id: "g-duck", skill: .play, skillXPBeforeTitles: 500, look: "duck", title: text)
+        ],
+        titles: [
+            DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
+            DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["g-cloth"], name: text),
+            DadTitle(id: "t2", order: 2, minCards: 50, minXP: 5000, gearIDs: ["g-duck"], name: text)
         ]
     )
 
@@ -51,6 +56,7 @@ struct HomeOverviewUseCaseTests {
             profileRepository: profiles,
             progressRepository: progress,
             outfitRepository: outfit,
+            standingRepository: InMemoryStanding(),
             sagaOfferRepository: offers,
             timeZone: .gmt
         )
@@ -161,12 +167,13 @@ struct HomeOverviewUseCaseTests {
         #expect(try await sut.execute(childID: baby.id, worldID: nil, on: today)?.defeatedBossIDs.isEmpty == true)
     }
 
-    @Test("Given no events, when reading home, then the dad is level 1 with 0 XP")
+    @Test("Given no events, when reading home, then the dad has 0 XP, the first title and no card")
     func emptyProgress() async throws {
         try await family([baby])
         let overview = try #require(try await sut.execute(childID: nil, worldID: nil, on: today))
         #expect(overview.progress.totalXP == 0)
-        #expect(overview.progress.level.level == 1)
+        #expect(overview.standing.title?.id == "t0")
+        #expect(overview.standing.news == nil)
     }
 
     // MARK: The film offer

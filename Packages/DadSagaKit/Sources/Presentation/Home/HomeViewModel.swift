@@ -26,6 +26,10 @@ public final class HomeViewModel {
     public internal(set) var worldMap: WorldMapContent?
     /// The offer of a saga film, until the dad answers it (ADR-0037 §5).
     public internal(set) var sagaOffer: SagaFilmOffer?
+    /// The card for a new title: shown before any offer (ADR-0055 §6).
+    public internal(set) var titleCard: TitleCard?
+    /// Titles whose card was closed in this session, so a reload while the close is being saved can't bring it back.
+    var closedTitleCards: Set<String> = []
     /// The film offers the dad answered in this session.
     var answeredSagaOffers: Set<String> = []
     /// The offer of a weekly reminder, until the dad answers it. It waits while a film is offered: home shows one
@@ -119,19 +123,20 @@ public final class HomeViewModel {
             try await self.useCases.completeQuest.execute(questID: quest.id, childID: childID, on: self.now(), journal: journal)
         }) else { return }
         selectedQuest = nil
-        celebrate(change)
+        celebrate(change, skill: overview?.catalog.quest(id: quest.id)?.skill)
     }
 
     /// Records the open boss as defeated, with the dad's optional note and photos.
     public func defeatSelectedBoss(note: String = "", photos: PhotoDrafts = PhotoDrafts()) async {
         guard let boss = selectedBoss, !boss.isDefeated, let childID = selectedChildID else { return }
-        let badge = overview?.catalog.boss(id: boss.id)?.badge.resolved(for: locale)
+        let content = overview?.catalog.boss(id: boss.id)
+        let badge = content?.badge.resolved(for: locale)
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
         guard let change = await record({
             try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now(), journal: journal)
         }) else { return }
         selectedBoss = nil
-        celebrate(change, badge: badge)
+        celebrate(change, skill: content?.skill, badge: badge)
     }
 
     /// A celebration's time is up. Ignored if a newer one has replaced it.
@@ -167,25 +172,22 @@ public final class HomeViewModel {
     }
 
     /// Home's celebration and "Saved · Undo" for a quest or boss.
-    private func celebrate(_ change: ProgressChange, badge: String? = nil) {
+    private func celebrate(_ change: ProgressChange, skill: Skill?, badge: String? = nil) {
         // A moment's celebration still waiting would only replace this newer one when the sheet closes.
         pendingMomentCelebration = nil
-        let celebration = makeCelebration(change, badge: badge)
+        let celebration = makeCelebration(change, skill: skill, badge: badge)
         self.celebration = celebration
         undoOffer = change.eventID.map { makeUndoOffer(id: celebration.id, eventID: $0) }
     }
 
-    /// What a change gained, as a celebration with a new id.
-    func makeCelebration(_ change: ProgressChange, badge: String? = nil, moment: String? = nil) -> Celebration {
+    /// What a change grew, as a celebration with a new id: the skill, a badge or a moment, never a number. A new title
+    /// has its own card (ADR-0055 §6).
+    func makeCelebration(_ change: ProgressChange, skill: Skill?, badge: String? = nil, moment: String? = nil) -> Celebration {
         celebrationCount += 1
         return Celebration(
             id: celebrationCount,
-            xpText: "+\(change.gainedXP) XP",
-            levelUpText: change.leveledUp
-                ? strings.text("Level \(change.after.level.level)") + "!"
-                : nil,
+            skillText: skill.map(strings.strings.skillGrew),
             badgeText: badge,
-            unlockText: change.newGear.first.map { strings.text("New: \($0.title.resolved(for: locale))") },
             momentText: moment
         )
     }
@@ -210,11 +212,13 @@ public final class HomeViewModel {
                 state = .failed(message: strings.text("No profile found."))
                 return nil
             }
-            let sagaOffer = makeSagaOffer(overview)
-            let reminderOffer = sagaOffer == nil
+            let titleCard = makeTitleCard(overview)
+            let sagaOffer = titleCard == nil ? makeSagaOffer(overview) : nil
+            let reminderOffer = titleCard == nil && sagaOffer == nil
                 ? await makeReminderOffer(children: overview.profile.children, progress: overview.progress)
                 : nil
             guard generation == loadGeneration else { return overview }
+            self.titleCard = titleCard
             self.sagaOffer = sagaOffer
             self.reminderOffer = reminderOffer
             selectedChildID = overview.child.id
@@ -237,7 +241,6 @@ public final class HomeViewModel {
         let catalog = overview.catalog
         let adventure = overview.adventure
         let progress = overview.progress
-        let level = progress.level
         let hero = catalog.hero(for: profile)
         let childLine = "\(child.name) · \(strings.ageText(adventure.age))"
         let hasSiblings = profile.children.count > 1
@@ -256,10 +259,7 @@ public final class HomeViewModel {
             selectedChildLine: hasSiblings ? childLine : nil,
             familyTitle: strings.text("My family"),
             settingsTitle: strings.text("Settings"),
-            level: level.level,
-            levelTitle: strings.text("Level \(level.level)"),
-            levelFraction: level.fraction,
-            xpLine: "\(level.xpIntoLevel) / \(level.xpNeededForNextLevel) XP",
+            dadTitle: overview.standing.title?.name.resolved(for: locale),
             worldTitle: overview.shownWorld?.title.resolved(for: locale),
             worldTagline: overview.shownWorld?.tagline.resolved(for: locale),
             mapTitle: strings.text("World map"),

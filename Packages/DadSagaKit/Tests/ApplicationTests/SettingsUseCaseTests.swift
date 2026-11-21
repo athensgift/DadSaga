@@ -139,7 +139,11 @@ struct EditProfileUseCaseTests {
             HeroClass(id: "h1", order: 1, title: text, tagline: text, look: "hero"),
             HeroClass(id: "h2", order: 2, title: text, tagline: text, look: "chef")
         ],
-        gear: [GearItem(id: "cloth", skill: .care, minXP: 20, look: "burpCloth", title: text)],
+        gear: [GearItem(id: "cloth", skill: .care, skillXPBeforeTitles: 20, look: "burpCloth", title: text)],
+        titles: [
+            DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
+            DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["cloth"], name: text)
+        ],
         appearanceOptions: [DadAppearanceOption(part: .beard, id: "none", title: text)]
     )))
     let shavedNoBeard = DadAppearance(hair: .shaved, hairColor: .grey, beard: .none, glasses: .round)
@@ -215,7 +219,8 @@ struct EditProfileUseCaseTests {
         let outfit = SpyOutfitRepository()
         _ = try await outfit.setChoice(.item("cloth"), for: .care)
         let wardrobe = DefaultGetWardrobeUseCase(
-            contentRepository: content, profileRepository: profiles, progressRepository: progress, outfitRepository: outfit
+            contentRepository: content, profileRepository: profiles, progressRepository: progress, outfitRepository: outfit,
+            standingRepository: InMemoryStanding()
         )
         let before = try await wardrobe.execute()
 

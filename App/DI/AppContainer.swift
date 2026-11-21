@@ -61,7 +61,8 @@ final class AppContainer {
             contentRepository: contentRepository,
             profileRepository: store.profiles,
             progressRepository: store.progress,
-            outfitRepository: store.outfit
+            outfitRepository: store.outfit,
+            standingRepository: store.standing
         )
     }
 
@@ -153,30 +154,40 @@ final class AppContainer {
                     profileRepository: store.profiles,
                     progressRepository: store.progress,
                     outfitRepository: store.outfit,
+                    standingRepository: store.standing,
                     sagaOfferRepository: sagaOffers
                 ),
                 completeQuest: DefaultCompleteQuestUseCase(
                     contentRepository: contentRepository,
                     progressRepository: store.progress,
+                    standingRepository: store.standing,
                     photoStore: photoStore
                 ),
                 defeatBoss: DefaultDefeatBossUseCase(
                     contentRepository: contentRepository,
                     progressRepository: store.progress,
+                    standingRepository: store.standing,
                     photoStore: photoStore
                 ),
-                deleteEvent: DefaultDeleteEventUseCase(progressRepository: store.progress, photoStore: photoStore),
+                deleteEvent: DefaultDeleteEventUseCase(
+                    contentRepository: contentRepository,
+                    progressRepository: store.progress,
+                    standingRepository: store.standing,
+                    photoStore: photoStore
+                ),
                 moments: HomeViewModel.MomentUseCases(
                     capture: DefaultCaptureMomentUseCase(
                         contentRepository: contentRepository,
                         progressRepository: store.progress,
+                        standingRepository: store.standing,
                         photoStore: photoStore
                     ),
                     update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
                 ),
                 reminder: reminderUseCases,
-                answerSagaOffer: DefaultAnswerSagaOfferUseCase(repository: sagaOffers)
+                answerSagaOffer: DefaultAnswerSagaOfferUseCase(repository: sagaOffers),
+                markTitleSeen: DefaultMarkTitleSeenUseCase(standingRepository: store.standing)
             )
         )
     }
@@ -190,6 +201,7 @@ final class AppContainer {
                     profileRepository: store.profiles,
                     progressRepository: store.progress,
                     outfitRepository: store.outfit,
+                    standingRepository: store.standing,
                     soundtrackRepository: soundtrackRepository,
                     choicesRepository: sagaFilmChoices
                 ),
@@ -236,7 +248,8 @@ final class AppContainer {
                 setChoice: DefaultSetOutfitChoiceUseCase(
                     contentRepository: contentRepository,
                     progressRepository: store.progress,
-                    outfitRepository: store.outfit
+                    outfitRepository: store.outfit,
+                    standingRepository: store.standing
                 )
             )
         )
@@ -247,7 +260,12 @@ final class AppContainer {
             getProfile: getProfileUseCase,
             getTimeline: DefaultGetTimelineUseCase(contentRepository: contentRepository, progressRepository: store.progress),
             getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore),
-            deleteEvent: DefaultDeleteEventUseCase(progressRepository: store.progress, photoStore: photoStore),
+            deleteEvent: DefaultDeleteEventUseCase(
+                contentRepository: contentRepository,
+                progressRepository: store.progress,
+                standingRepository: store.standing,
+                photoStore: photoStore
+            ),
             updateJournal: DefaultUpdateJournalUseCase(progressRepository: store.progress, photoStore: photoStore)
         )
     }

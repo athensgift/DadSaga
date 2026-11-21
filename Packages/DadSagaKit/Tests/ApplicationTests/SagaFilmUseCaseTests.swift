@@ -17,8 +17,13 @@ struct SagaFilmUseCaseTests {
                            skill: .care, xp: 100, minAgeMonths: 9)],
         firsts: [FirstMoment(id: "f-walk", order: 1, emoji: "👣", title: text, xp: 30, companionTrait: "walk")],
         gear: [
-            GearItem(id: "g-cloth", skill: .care, minXP: 20, look: "burpCloth", title: text),
-            GearItem(id: "g-hat", skill: .care, minXP: 100, look: "hat", title: text)
+            GearItem(id: "g-cloth", skill: .care, skillXPBeforeTitles: 20, look: "burpCloth", title: text),
+            GearItem(id: "g-hat", skill: .care, skillXPBeforeTitles: 100, look: "hat", title: text)
+        ],
+        titles: [
+            DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
+            DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["g-cloth"], name: text),
+            DadTitle(id: "t2", order: 2, minCards: 2, minXP: 100, gearIDs: ["g-hat"], name: text)
         ]
     )
     static let music = Soundtrack(
@@ -67,6 +72,7 @@ struct SagaFilmUseCaseTests {
             profileRepository: profiles,
             progressRepository: progress,
             outfitRepository: SpyOutfitRepository(),
+            standingRepository: InMemoryStanding(),
             soundtrackRepository: StubSoundtrackRepository(soundtracks: soundtracks),
             choicesRepository: choices,
             timeZone: calendar.timeZone

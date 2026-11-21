@@ -682,6 +682,23 @@
         }
       }
     },
+    "Its badge will be removed. Your title and what you got stay." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το έμβλημά του θα αφαιρεθεί. Ο τίτλος σου και ό,τι πήρες μένουν."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Its badge will be removed. Your title and what you got stay."
+          }
+        }
+      }
+    },
     "Listen to the music" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -712,6 +729,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Name or nickname"
+          }
+        }
+      }
+    },
+    "Nice" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ωραία"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nice"
           }
         }
       }
@@ -818,6 +852,57 @@
         }
       }
     },
+    "The moment and its photos will be removed. Your title and what you got stay." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η στιγμή και οι φωτογραφίες της θα διαγραφούν. Ο τίτλος σου και ό,τι πήρες μένουν."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The moment and its photos will be removed. Your title and what you got stay."
+          }
+        }
+      }
+    },
+    "Title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τίτλος"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title"
+          }
+        }
+      }
+    },
+    "What your hero earns will be here." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ό,τι κερδίζει ο ήρωάς σου θα είναι εδώ."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What your hero earns will be here."
+          }
+        }
+      }
+    },
     "When life changes" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -848,6 +933,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "When they arrive, untick “Not born yet” in My family."
+          }
+        }
+      }
+    },
+    "You became “%@”." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Έγινες «%@»."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You became “%@”."
+          }
+        }
+      }
+    },
+    "You got: %@." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Πήρες: %@."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You got: %@."
+          }
+        }
+      }
+    },
+    "Your care grew" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η φροντίδα σου μεγάλωσε"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your care grew"
           }
         }
       }
@@ -1278,23 +1414,6 @@
         }
       }
     },
-    "The moment, its photos and its XP will be removed." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Η στιγμή, οι φωτογραφίες της και τα XP της θα σβηστούν."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The moment, its photos and its XP will be removed."
-          }
-        }
-      }
-    },
     "Up to %lld photos on each entry." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1346,6 +1465,23 @@
         }
       }
     },
+    "Your patience grew" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η υπομονή σου μεγάλωσε"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your patience grew"
+          }
+        }
+      }
+    },
     "Your photos and note will be deleted with it, for good." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1376,6 +1512,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your photos, firsts and notes from it, as a film with music. Made on this iPhone."
+          }
+        }
+      }
+    },
+    "Your play grew" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το παιχνίδι σου μεγάλωσε"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your play grew"
+          }
+        }
+      }
+    },
+    "Your resilience grew" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η αντοχή σου μεγάλωσε"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your resilience grew"
+          }
+        }
+      }
+    },
+    "Your title and what you got stay." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ο τίτλος σου και ό,τι πήρες μένουν."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your title and what you got stay."
+          }
+        }
+      }
+    },
+    "Your titles bring these. What you have stays yours." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τα φέρνουν οι τίτλοι σου. Ό,τι έχεις μένει δικό σου."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your titles bring these. What you have stays yours."
           }
         }
       }
@@ -2152,23 +2356,6 @@
         }
       }
     },
-    "Its %lld XP will be removed." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Θα αφαιρεθούν τα %lld XP."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Its %lld XP will be removed."
-          }
-        }
-      }
-    },
     "Last time (%@)" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2250,23 +2437,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Legendary moments you capture show up here."
-          }
-        }
-      }
-    },
-    "Level %lld" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Επίπεδο %lld"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Level %lld"
           }
         }
       }
@@ -2369,23 +2539,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Name"
-          }
-        }
-      }
-    },
-    "New: %@" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Νέο: %@"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "New: %@"
           }
         }
       }
@@ -2743,23 +2896,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Take a photo"
-          }
-        }
-      }
-    },
-    "The badge and its %lld XP will be removed." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Θα αφαιρεθούν το έμβλημα και τα %lld XP."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The badge and its %lld XP will be removed."
           }
         }
       }
@@ -3124,23 +3260,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "You are here"
-          }
-        }
-      }
-    },
-    "You earn items with each skill's XP. What you earn stays yours." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Κερδίζεις αντικείμενα με τα XP κάθε δεξιότητας. Ό,τι κερδίζεις μένει δικό σου."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You earn items with each skill's XP. What you earn stays yours."
           }
         }
       }

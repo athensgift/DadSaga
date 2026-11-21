@@ -56,7 +56,7 @@ extension HomeView {
             if viewModel.shouldAnnounce(celebration) {
                 AccessibilityNotification.Announcement(celebration.announcement).post()
             }
-            try await Task.sleep(for: .seconds(celebration.highlight >= .unlock ? 2.6 : 1.6))
+            try await Task.sleep(for: .seconds(celebration.highlight >= .moment ? 2.6 : 1.6))
         } catch {
             return
         }

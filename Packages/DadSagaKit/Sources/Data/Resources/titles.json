@@ -1,0 +1,22 @@
+[
+  { "id": "t-dad-in-waiting", "order": 0, "minCards": 0, "minXP": 0, "gear": [],
+    "name": { "el": "Μπαμπάς σε αναμονή", "en": "Dad in waiting" } },
+  { "id": "t-new-to-the-journey", "order": 1, "minCards": 1, "minXP": 20, "gear": ["g-mug"],
+    "name": { "el": "Νέος στο ταξίδι", "en": "New to the journey" } },
+  { "id": "t-apprentice-dad", "order": 2, "minCards": 2, "minXP": 60, "gear": ["g-burp-cloth"],
+    "name": { "el": "Μαθητευόμενος μπαμπάς", "en": "Apprentice dad" } },
+  { "id": "t-dad-with-tricks", "order": 3, "minCards": 4, "minXP": 140, "gear": ["g-duck"],
+    "name": { "el": "Μπαμπάς με κόλπα", "en": "Dad with a few tricks" } },
+  { "id": "t-steady-hands", "order": 4, "minCards": 7, "minXP": 260, "gear": ["g-diaper-bag"],
+    "name": { "el": "Σίγουρα χέρια", "en": "Steady hands" } },
+  { "id": "t-family-rock", "order": 5, "minCards": 11, "minXP": 420, "gear": ["g-blocks"],
+    "name": { "el": "Βράχος της οικογένειας", "en": "Family rock" } },
+  { "id": "t-dad-of-all-trades", "order": 6, "minCards": 16, "minXP": 620, "gear": ["g-thermos"],
+    "name": { "el": "Μπαμπάς για όλα", "en": "Dad of all trades" } },
+  { "id": "t-keeper-of-the-house", "order": 7, "minCards": 22, "minXP": 860, "gear": ["g-mega-bag"],
+    "name": { "el": "Φύλακας του σπιτιού", "en": "Keeper of the house" } },
+  { "id": "t-super-dad", "order": 8, "minCards": 29, "minXP": 1140, "gear": ["g-burp-cloth-gold"],
+    "name": { "el": "Σούπερ μπαμπάς", "en": "Super dad" } },
+  { "id": "t-legendary-dad", "order": 9, "minCards": 37, "minXP": 1460, "gear": [],
+    "name": { "el": "Μπαμπάς-θρύλος", "en": "Legendary dad" } }
+]

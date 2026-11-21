@@ -17,7 +17,7 @@ And parents drop baby trackers because the logging starts to feel like pressure 
 
 So DadSaga follows a few rules (see [ADR-0006](docs/adr/0006-no-pressure-game-design.md)):
 
-1. XP rewards the **dad's actions**, never the child's development.
+1. Titles reward the **dad's actions**, never the child's development.
 2. Nothing is ever lost: no penalties and no breakable streaks.
 3. Worlds unlock by the child's **age**, never by milestones.
 4. One skill branch, **Resilience**, is about the dad's own wellbeing.
@@ -34,7 +34,7 @@ Packages/DadSagaKit
 ├── Localization           UI text: one String Catalog (el + en) for the app and the widget
 ├── Data                   repository implementations, DTOs, mappers, bundled JSON
 ├── Application            use cases + repository protocols (ports)
-├── Domain                 entities + business rules (level curve, unlocks, progress)
+├── Domain                 entities + business rules (titles, unlocks, progress)
 ├── HeroArt                the code-drawn hero and children (ADR-0028)
 ├── DesignSystem           tokens + reusable SwiftUI components
 ├── FilmKit                writes a film frame by frame; Apple frameworks only, knows nothing of the game (ADR-0036)

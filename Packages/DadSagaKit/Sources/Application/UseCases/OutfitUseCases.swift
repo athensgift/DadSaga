@@ -1,28 +1,29 @@
 import Domain
 
-/// The hero's wardrobe: the family's dad, every item in the game, his progress and what he chose to wear.
+/// The hero's wardrobe: the family's dad, the gear he has, his progress and what he chose to wear. Only what he has:
+/// an item not earned yet would tell him what the next title brings (ADR-0055 §8).
 public struct Wardrobe: Sendable {
     public let profile: PlayerProfile?
     /// The dad's hero class, if the content still has it.
     public let hero: HeroClass?
-    /// Every item, earned or not.
-    public let gear: [GearItem]
+    /// Every item he has, by slot, the best last in each.
+    public let earned: [GearItem]
     public let progress: DadProgress
     public var outfit: Outfit
 
     /// What the hero wears with the current choices.
-    public var equipped: [GearItem] { GearRules.equipped(gear, skillXP: progress.skillXP, outfit: outfit) }
+    public var equipped: [GearItem] { GearRules.equipped(earned, outfit: outfit) }
 
-    public init(profile: PlayerProfile?, hero: HeroClass?, gear: [GearItem], progress: DadProgress, outfit: Outfit) {
+    public init(profile: PlayerProfile?, hero: HeroClass?, earned: [GearItem], progress: DadProgress, outfit: Outfit) {
         self.profile = profile
         self.hero = hero
-        self.gear = gear
+        self.earned = earned
         self.progress = progress
         self.outfit = outfit
     }
 
     public func isEarned(itemID: String, skill: Skill) -> Bool {
-        GearRules.earned(gear, skillXP: progress.skillXP).contains { $0.has(id: itemID) && $0.skill == skill }
+        earned.contains { $0.has(id: itemID) && $0.skill == skill }
     }
 }
 
@@ -35,17 +36,20 @@ public struct DefaultGetWardrobeUseCase: GetWardrobeUseCase {
     private let profileRepository: any ProfileRepository
     private let progressRepository: any ProgressRepository
     private let outfitRepository: any OutfitRepository
+    private let standingRepository: any StandingRepository
 
     public init(
         contentRepository: any ContentRepository,
         profileRepository: any ProfileRepository,
         progressRepository: any ProgressRepository,
-        outfitRepository: any OutfitRepository
+        outfitRepository: any OutfitRepository,
+        standingRepository: any StandingRepository
     ) {
         self.contentRepository = contentRepository
         self.profileRepository = profileRepository
         self.progressRepository = progressRepository
         self.outfitRepository = outfitRepository
+        self.standingRepository = standingRepository
     }
 
     public func execute() async throws -> Wardrobe {
@@ -53,13 +57,15 @@ public struct DefaultGetWardrobeUseCase: GetWardrobeUseCase {
         async let pendingProfile = profileRepository.fetchProfile()
         async let pendingEvents = progressRepository.fetchEvents()
         async let pendingOutfit = outfitRepository.fetchOutfit()
+        async let pendingKept = standingRepository.fetchKept()
         let catalog = try await pendingCatalog
         let profile = try await pendingProfile
+        let progress = DadProgress(events: try await pendingEvents, catalog: catalog)
         return Wardrobe(
             profile: profile,
             hero: profile.flatMap(catalog.hero(for:)),
-            gear: catalog.gear,
-            progress: DadProgress(events: try await pendingEvents, catalog: catalog),
+            earned: DadStanding(progress: progress, catalog: catalog, kept: try await pendingKept).gear,
+            progress: progress,
             outfit: try await pendingOutfit
         )
     }
@@ -79,22 +85,25 @@ public struct DefaultSetOutfitChoiceUseCase: SetOutfitChoiceUseCase {
     private let contentRepository: any ContentRepository
     private let progressRepository: any ProgressRepository
     private let outfitRepository: any OutfitRepository
+    private let standingRepository: any StandingRepository
 
     public init(
         contentRepository: any ContentRepository,
         progressRepository: any ProgressRepository,
-        outfitRepository: any OutfitRepository
+        outfitRepository: any OutfitRepository,
+        standingRepository: any StandingRepository
     ) {
         self.contentRepository = contentRepository
         self.progressRepository = progressRepository
         self.outfitRepository = outfitRepository
+        self.standingRepository = standingRepository
     }
 
     public func execute(skill: Skill, choice: OutfitChoice) async throws -> Outfit {
         if case .item(let id) = choice {
             let catalog = try await contentRepository.fetchCatalog()
             let progress = DadProgress(events: try await progressRepository.fetchEvents(), catalog: catalog)
-            let earned = GearRules.earned(catalog.gear, skillXP: progress.skillXP)
+            let earned = DadStanding(progress: progress, catalog: catalog, kept: try await standingRepository.fetchKept()).gear
             guard earned.contains(where: { $0.id == id && $0.skill == skill }) else { throw OutfitError.notEarned(id) }
         }
         return try await outfitRepository.setChoice(choice, for: skill)

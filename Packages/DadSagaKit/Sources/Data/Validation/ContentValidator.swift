@@ -8,7 +8,7 @@ enum ContentValidator {
         var seen: Set<String> = []
         // A former id is reserved like a current one (ADR-0048 §5): it may not name anything else, nor be listed twice.
         let items: [any ContentItem] = catalog.worlds + catalog.quests + catalog.bosses + catalog.firsts
-            + catalog.heroClasses + catalog.gear
+            + catalog.heroClasses + catalog.gear + catalog.titles
         let allIDs = items.flatMap { [$0.id] + $0.formerIDs }
         for id in allIDs where !seen.insert(id).inserted {
             throw ContentDataError.duplicateID(id)
@@ -26,6 +26,37 @@ enum ContentValidator {
         }
         try validateBeforeBirth(catalog)
         try validateAppearance(catalog.appearanceOptions)
+        try validateTitles(catalog)
+    }
+
+    /// The first title needs nothing, each later one more cards and more XP, every item comes with exactly one title,
+    /// and every name says something (ADR-0055 §2).
+    private static func validateTitles(_ catalog: ContentCatalog) throws {
+        let titles = catalog.titles
+        if let first = titles.first, first.minCards != 0 || first.minXP != 0 {
+            throw ContentDataError.invalidTitleThresholds(titleID: first.id)
+        }
+        for (lower, higher) in zip(titles, titles.dropFirst())
+        where higher.order == lower.order || higher.minCards <= lower.minCards || higher.minXP <= lower.minXP {
+            throw ContentDataError.invalidTitleThresholds(titleID: higher.id)
+        }
+        for title in titles where title.name.el.isEmpty || title.name.en.isEmpty {
+            throw ContentDataError.emptyText(itemID: title.id)
+        }
+        var bringing: [String: String] = [:]
+        for title in titles {
+            for gearID in title.gearIDs {
+                guard let item = catalog.gearItem(id: gearID) else {
+                    throw ContentDataError.unknownGear(titleID: title.id, gearID: gearID)
+                }
+                guard bringing.updateValue(title.id, forKey: item.id) == nil else {
+                    throw ContentDataError.gearInTwoTitles(gearID: item.id)
+                }
+            }
+        }
+        if !titles.isEmpty, let item = catalog.gear.first(where: { bringing[$0.id] == nil }) {
+            throw ContentDataError.gearWithoutTitle(gearID: item.id)
+        }
     }
 
     /// At most one world is before birth, and it comes first by order; every card in it is for 0 months, so it is

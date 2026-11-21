@@ -55,14 +55,14 @@ struct HomeWidgetPresenterTests {
         )
     }
 
-    @Test("Given the weekly quest not done yet, when presenting, then it shows title and reward and says nothing more")
+    @Test("Given the weekly quest not done yet, when presenting, then it shows title and skill, no XP, and says nothing more")
     func suggestedQuest() {
         let greek = HomeWidgetPresenter(locale: Self.greek).content(for: highlights(), showsPhoto: true)
         let english = HomeWidgetPresenter(locale: Self.english).content(for: highlights(), showsPhoto: true)
 
         #expect(greek.tiles?.quest.header == "Αποστολή της εβδομάδας")
         #expect(greek.tiles?.quest.title == "Ώρα αγκαλιάς")
-        #expect(greek.tiles?.quest.reward?.hasPrefix("+15 XP · ") == true)
+        #expect(greek.tiles?.quest.skill == "Φροντίδα")
         #expect(greek.tiles?.quest.doneText == nil)
         #expect(greek.tiles?.quest.link == AppLink.quest(id: quest.id, childID: child.id).url)
         #expect(english.tiles?.quest.title == "Cuddle time")
@@ -84,7 +84,7 @@ struct HomeWidgetPresenterTests {
         let content = HomeWidgetPresenter(locale: Self.greek).content(for: highlights(quest: .comingSoon), showsPhoto: true)
 
         #expect(content.tiles?.quest.title == "Οι περιπέτειες για την ηλικία του παιδιού σου έρχονται σύντομα.")
-        #expect(content.tiles?.quest.reward == nil)
+        #expect(content.tiles?.quest.skill == nil)
         #expect(content.tiles?.quest.link == AppLink.child(child.id).url)
     }
 

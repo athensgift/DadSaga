@@ -37,9 +37,14 @@ public struct Strings: Sendable {
         }
     }
 
-    /// What a quest or boss earns, e.g. "+15 XP · Care".
-    public func reward(xp: Int, skill: Skill) -> String {
-        "+\(xp) XP · " + self.skill(skill)
+    /// What doing a card grew, e.g. "Η υπομονή σου μεγάλωσε" or "Your patience grew". Never a number (ADR-0055 §6).
+    public func skillGrew(_ skill: Skill) -> String {
+        switch skill {
+        case .care: text("Your care grew")
+        case .play: text("Your play grew")
+        case .patience: text("Your patience grew")
+        case .resilience: text("Your resilience grew")
+        }
     }
 
     /// A short day, e.g. "18 Νοε" or "Nov 18", in the full locale.

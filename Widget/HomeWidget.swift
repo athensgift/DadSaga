@@ -69,8 +69,8 @@ private struct QuestTile: View {
                 .foregroundStyle(DSColor.textPrimary)
                 .lineLimit(3)
                 .minimumScaleFactor(0.85)
-            if let reward = quest.reward {
-                Text(reward)
+            if let skill = quest.skill {
+                Text(skill)
                     .font(DSFont.caption)
                     .foregroundStyle(DSColor.xp)
                     .lineLimit(1)

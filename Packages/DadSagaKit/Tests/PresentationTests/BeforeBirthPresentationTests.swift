@@ -90,7 +90,8 @@ struct BeforeBirthPresentationTests {
                 deleteEvent: progress,
                 moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
                 reminder: .neverOffered,
-                answerSagaOffer: FakeFilmOffers()
+                answerSagaOffer: FakeFilmOffers(),
+                markTitleSeen: FakeTitleSeen()
             ),
             locale: Locale(identifier: locale),
             timeZone: .gmt,

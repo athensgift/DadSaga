@@ -13,14 +13,14 @@ struct HomeViewModelTests {
         makeHomeViewModel(profile: profile, progress: progress, locale: locale)
     }
 
-    @Test("Given a quest card, when selecting and confirming it, then XP is gained, the card shows it and the hero celebrates")
+    @Test("Given a quest card, when selecting and confirming it, then the card shows it, the title rises and the hero celebrates")
     func completesQuest() async {
         let sut = makeSUT(profile: HeroStub.profile)
         await sut.onAppear()
 
         sut.select(cardID: "q1")
         #expect(sut.selectedQuest?.title == "Αποστολή")
-        #expect(sut.selectedQuest?.reward == "+20 XP · Φροντίδα")
+        #expect(sut.selectedQuest?.reward == "Φροντίδα")
         await sut.completeSelectedQuest()
 
         guard case .loaded(let content) = sut.state else {
@@ -28,11 +28,10 @@ struct HomeViewModelTests {
             return
         }
         #expect(sut.selectedQuest == nil)
-        #expect(content.xpLine == "20 / 100 XP")
+        #expect(content.dadTitle == "Νέος στο ταξίδι")
         #expect(content.cards.last?.footnote == "Το έκανες 1 φορά")
         #expect(sut.celebration?.id == 1)
-        #expect(sut.celebration?.xpText == "+20 XP")
-        #expect(sut.celebration?.levelUpText == nil)
+        #expect(sut.celebration?.skillText == "Η φροντίδα σου μεγάλωσε")
         #expect(sut.celebration?.highlight == .quest)
 
         sut.celebrationFinished(id: 1)
@@ -72,7 +71,8 @@ struct HomeViewModelTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        #expect(content.xpLine == "0 / 100 XP")
+        // A title never goes down, even when the quest that brought it is undone (ADR-0055 §3).
+        #expect(content.dadTitle == "Νέος στο ταξίδι")
     }
 
     @Test("Given an undo offer, when an older offer expires, then the current one stays; when it expires, it closes")
@@ -92,9 +92,8 @@ struct HomeViewModelTests {
         #expect(await progress.eventCount == 2)
     }
 
-    @Test("Given 40 care XP, when a quest crosses 50, then the hero carries the burp cloth and the celebration says so")
+    @Test("Given no title yet, when the first quest brings one, then the hero carries its burp cloth and the card says so")
     func earnsGear() async {
-        await progress.seed(times: 2)
         let sut = makeSUT(profile: HeroStub.profile)
         await sut.onAppear()
         guard case .loaded(let before) = sut.state else {
@@ -106,8 +105,8 @@ struct HomeViewModelTests {
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
 
-        #expect(sut.celebration?.unlockText == "Νέο: Πανάκι")
-        #expect(sut.celebration?.highlight == .unlock)
+        #expect(sut.titleCard?.message == "Πήρες: Πανάκι.")
+        #expect(sut.celebration?.highlight == .quest)
         guard case .loaded(let after) = sut.state else {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
@@ -139,11 +138,11 @@ struct HomeViewModelTests {
         #expect(sut.selectedBoss?.title == "Αφεντικό")
         #expect(sut.selectedBoss?.intro == "ι")
         #expect(sut.selectedBoss?.guide == ["βήμα"])
-        #expect(sut.selectedBoss?.reward == "+100 XP · β")
+        #expect(sut.selectedBoss?.reward == "β")
         #expect(sut.selectedBoss?.isDefeated == false)
     }
 
-    @Test("Given a boss, when defeating it, then XP, badge and level-up are celebrated and the card shows the badge")
+    @Test("Given a boss, when defeating it, then the skill and badge are celebrated and the card shows the badge")
     func defeatsBoss() async {
         let sut = makeSUT(profile: HeroStub.profile)
         await sut.onAppear()
@@ -152,10 +151,9 @@ struct HomeViewModelTests {
         await sut.defeatSelectedBoss()
 
         #expect(sut.selectedBoss == nil)
-        #expect(sut.celebration?.xpText == "+100 XP")
+        #expect(sut.celebration?.skillText == "Η φροντίδα σου μεγάλωσε")
         #expect(sut.celebration?.badgeText == "β")
-        #expect(sut.celebration?.levelUpText == "Επίπεδο 2!")
-        #expect(sut.celebration?.highlight == .levelUp)
+        #expect(sut.celebration?.highlight == .boss)
         guard case .loaded(let content) = sut.state else {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
@@ -201,13 +199,11 @@ struct HomeViewModelTests {
         #expect(content.heroTitle == "Cool Μπαμπάς")
         #expect(content.heroLook == .cool)
         #expect(content.companionLine == "Νίκος · 10 μηνών")
-        #expect(content.level == 1)
-        #expect(content.levelTitle == "Επίπεδο 1")
-        #expect(content.xpLine == "0 / 100 XP")
+        #expect(content.dadTitle == "Σε αναμονή")
         #expect(content.worldTitle == "Κόσμος")
         #expect(content.cards.map(\.id) == ["b1", "q1"])
         #expect(content.cards.map(\.symbol) == ["flame.fill", "heart.fill"])
-        #expect(content.cards.last?.badge == "+20 XP")
+        #expect(content.cards.map(\.badge) == ["BOSS", nil])
         #expect(content.cards.map(\.skill) == [nil, "Φροντίδα"])
     }
 
@@ -341,7 +337,8 @@ func makeHomeViewModel(
             deleteEvent: progress,
             moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
             reminder: reminder,
-            answerSagaOffer: film
+            answerSagaOffer: film,
+            markTitleSeen: progress
         ),
         locale: Locale(identifier: locale),
         now: { HeroStub.today }

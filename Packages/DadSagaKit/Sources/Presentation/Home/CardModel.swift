@@ -7,7 +7,8 @@ public struct CardModel: Equatable, Identifiable, Sendable {
     public let id: String
     public let title: String
     public let subtitle: String
-    public let badge: String
+    /// "BOSS" for a boss; `nil` for a quest, which shows no XP (ADR-0055 §7).
+    public let badge: String?
     /// SF Symbol for the card's icon tile.
     public let symbol: String
     public let kind: Kind
@@ -15,6 +16,6 @@ public struct CardModel: Equatable, Identifiable, Sendable {
     public var footnote: String?
     /// A marker that the card has more inside, e.g. a tip's title.
     public var hint: String?
-    /// The skill a quest feeds, e.g. "Care", so the dad sees which gear it moves him towards.
+    /// The skill a quest feeds, e.g. "Care": flavour, it unlocks nothing (ADR-0055 §1).
     public var skill: String?
 }

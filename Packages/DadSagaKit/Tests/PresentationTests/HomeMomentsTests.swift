@@ -50,7 +50,6 @@ struct HomeMomentsTests {
         let details = try #require(sut.momentCapture?.details)
         #expect(details.isNew)
         #expect(details.title == "👣 Βήματα")
-        #expect(details.reward == "+30 XP")
         #expect(details.heading == "Αποθηκεύτηκε! Θες να κρατήσεις κάτι ακόμα;")
         #expect(details.line == "Φωτογραφίες ή δυο λόγια, τώρα ή όποτε θέλεις.")
         #expect(details.notNowTitle == "Όχι τώρα")
@@ -91,10 +90,10 @@ struct HomeMomentsTests {
         #expect(sut.momentCapture == nil)
         #expect(loadedMoments(sut)?.cards.count == 1)
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.xpLine == "30 / 100 XP")
+        #expect(content.dadTitle == "Νέος στο ταξίδι")
     }
 
-    @Test("Given step 2 of a new moment, when undoing, then the moment and its XP are gone and the sheet closes")
+    @Test("Given step 2 of a new moment, when undoing, then the moment is gone, the title stays and the sheet closes")
     func undoInStepTwo() async throws {
         let sut = await makeSUT()
         sut.startCapture()
@@ -105,7 +104,7 @@ struct HomeMomentsTests {
         #expect(sut.momentCapture == nil)
         #expect(loadedMoments(sut)?.cards.isEmpty == true)
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.xpLine == "0 / 100 XP")
+        #expect(content.dadTitle == "Νέος στο ταξίδι")
         #expect(content.companions.first?.traits.isEmpty == true)
     }
 
@@ -196,7 +195,7 @@ struct HomeMomentsTests {
         #expect(sut.momentCapture == nil)
         #expect(loadedMoments(sut)?.cards.isEmpty == true)
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.xpLine == "0 / 100 XP")
+        #expect(content.dadTitle == "Νέος στο ταξίδι")
     }
 
     @Test("Given step 2 with its undo offer, when another offer's time runs out, then this one stays")

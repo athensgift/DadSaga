@@ -27,10 +27,6 @@ struct HomeStrings {
         strings.day(date)
     }
 
-    func reward(for quest: Quest) -> String {
-        strings.reward(xp: quest.xp, skill: quest.skill)
-    }
-
     func doneText(times: Int) -> String {
         strings.text("Done \(times) times")
     }

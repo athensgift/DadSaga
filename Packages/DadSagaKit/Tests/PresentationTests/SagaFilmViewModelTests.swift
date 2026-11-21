@@ -153,6 +153,7 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
                 lines: [
                     SagaFilmCreditLine(role: "Πρωταγωνιστεί", name: "Άννα"),
                     SagaFilmCreditLine(role: "Ο ήρωας", name: "Cool Μπαμπάς"),
+                    SagaFilmCreditLine(role: "Τίτλος", name: "Σίγουρα χέρια"),
                     SagaFilmCreditLine(role: "Μαζί", name: "4 αποστολές · 1 αφεντικό"),
                     SagaFilmCreditLine(role: "Μουσική", name: "Το θέμα της ιστορίας · DadSaga")
                 ],
@@ -176,8 +177,9 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
             Issue.record("Expected credits, got \(String(describing: script.scenes.last))")
             return
         }
-        #expect(credits.lines.map(\.role) == ["Starring", "The hero", "Together", "Music"])
-        #expect(credits.lines.map(\.name) == ["Άννα", "Cool Dad", "2 quests", "Saga Theme · DadSaga"])
+        // The dad's title as the period ended, in the film's language (ADR-0055 §9).
+        #expect(credits.lines.map(\.role) == ["Starring", "The hero", "Title", "Together", "Music"])
+        #expect(credits.lines.map(\.name) == ["Άννα", "Cool Dad", "Steady hands", "2 quests", "Saga Theme · DadSaga"])
         #expect(credits.signature == "Made with DadSaga")
         #expect(script.scenes.first?.card.isOpening(period: "Year 2") == true)
     }

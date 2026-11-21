@@ -61,9 +61,12 @@ extension HomeView {
 // MARK: - Offers
 
 extension HomeView {
-    /// At most one offer at a time: the weekly reminder waits while a film is offered (ADR-0037 §5).
+    /// At most one card at a time: a new title first, then a film, then the weekly reminder (ADR-0055 §6, ADR-0037 §5).
     @ViewBuilder var offerCard: some View {
-        if let offer = viewModel.sagaOffer {
+        if let card = viewModel.titleCard {
+            OfferCard(card) { Task { await viewModel.closeTitleCard() } }
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+        } else if let offer = viewModel.sagaOffer {
             OfferCard(offer) { accept in
                 Task {
                     guard let request = await viewModel.answerSagaOffer(accept: accept) else { return }
