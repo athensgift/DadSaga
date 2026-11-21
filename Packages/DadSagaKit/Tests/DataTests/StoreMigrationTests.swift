@@ -95,6 +95,16 @@ struct StoreMigrationTests {
         #expect(days.last == [2026, 5, day])
     }
 
+    @Test("Given a store written by version 5, when the app opens it, then everything is there, both children born")
+    func version5OpensWithEverything() async throws {
+        try StoreFiles.copy(from: StoreV5Fixture.directory, to: directory)
+        let store = LocalStore.live(in: directory)
+
+        #expect(try await store.profiles.fetchProfile() == StoreV5Fixture.profile)
+        #expect(try await store.progress.fetchEvents() == StoreV5Fixture.events)
+        #expect(try await store.outfit.fetchOutfit() == StoreV5Fixture.outfit)
+    }
+
     @Test("Given a store written before versioned schemas, when the app opens it, then its photo is a one-item list")
     func storeBeforeVersion1Migrates() async throws {
         try StoreFiles.copy(from: StoreFixture.directory, to: directory)
