@@ -88,8 +88,9 @@ public final class RootViewModel {
         pendingLink = PendingLink(link)
     }
 
-    public func linkHandled() {
-        pendingLink = nil
+    /// Home opened this link. A newer one that arrived meanwhile stays, to open next.
+    public func linkHandled(_ link: PendingLink) {
+        if pendingLink == link { pendingLink = nil }
     }
 
     public func onboardingFinished() {

@@ -13,8 +13,11 @@ public struct HomeView: View {
     @Environment(\.scenePhase) private var scenePhase
     /// Set while the app is in the background, so coming back reloads once (not after Control Center or Face ID).
     @State var wasInBackground = false
-    /// Editors below home holding changes the dad hasn't saved: a link waits for them.
-    @State var unsavedWork = UnsavedWork()
+    /// The app's editors holding changes the dad hasn't saved: a link waits for them. The root screen's, shared with
+    /// the timeline; home's own where nothing above provides one (previews, snapshots).
+    @Environment(UnsavedWork.self) private var sharedUnsavedWork: UnsavedWork?
+    @State private var ownUnsavedWork = UnsavedWork()
+    var unsavedWork: UnsavedWork { sharedUnsavedWork ?? ownUnsavedWork }
     @State private var width: CGFloat = 0
     @State private var fold: HorizontalFold?
     /// Where the fold runs across home, also while the device lies flat.
@@ -27,18 +30,18 @@ public struct HomeView: View {
     let makeSagaFilm: SagaFilmSheet.MakeViewModel
     let settings: SettingsScreens
     let pendingLink: PendingLink?
-    let onLinkHandled: @MainActor () -> Void
+    let onLinkHandled: @MainActor (PendingLink) -> Void
 
     /// - Parameters:
     ///   - settings: builds Settings, behind its toolbar button.
     ///   - makeSagaFilm: builds the film sheet for the film home offers.
-    ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` runs once it is open.
+    ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` gets it once it is open.
     public init(
         viewModel: HomeViewModel,
         makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
         settings: SettingsScreens,
         pendingLink: PendingLink? = nil,
-        onLinkHandled: @escaping @MainActor () -> Void = {}
+        onLinkHandled: @escaping @MainActor (PendingLink) -> Void = { _ in }
     ) {
         _viewModel = State(initialValue: viewModel)
         self.makeSagaFilm = makeSagaFilm
@@ -91,9 +94,7 @@ public struct HomeView: View {
         .sagaFilmSheet($sagaFilm)
         .task { await viewModel.onAppear() }
         .onChange(of: scenePhase) { _, phase in scenePhaseChanged(to: phase) }
-        .task(id: LinkTurn(link: pendingLink, mustWait: viewModel.isCompleting || unsavedWork.isHeld)) {
-            await openPendingLink()
-        }
+        .task(id: pendingLink) { await openPendingLink() }
         .task(id: viewModel.celebration?.id) { await celebrationTime() }
         .sheet(item: activeSheet, onDismiss: viewModel.sheetDismissed, content: sheetContent)
         .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })

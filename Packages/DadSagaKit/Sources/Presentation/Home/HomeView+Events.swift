@@ -3,10 +3,16 @@ import SwiftUI
 // MARK: - Links from outside the app
 
 extension HomeView {
-    /// Closes this screen's own sheets, then lets the presenter open the link (ADR-0023). It waits while something
-    /// saves or an editor holds unsaved changes (ADR-0050): the task runs again once that ends, and the link opens then.
+    /// Hands the pending link to home, which opens it once nothing would be lost (ADR-0023, ADR-0050). A newer link
+    /// cancels this run: only a link that opened is reported handled.
     func openPendingLink() async {
-        guard let pendingLink, !viewModel.isCompleting, !unsavedWork.isHeld else { return }
+        guard let pendingLink else { return }
+        let opened = await viewModel.receive(pendingLink, unsavedWork: unsavedWork, closingOwnSheets: closeOwnSheets)
+        if opened { onLinkHandled(pendingLink) }
+    }
+
+    /// The sheets this view owns: Settings, the film, the photo viewer and the map. Home's own close as the link opens.
+    private func closeOwnSheets() async {
         let hadSheet = settingsViewModel != nil || sagaFilm != nil
             || viewModel.worldMap != nil || photoViewer != nil
         settingsViewModel = nil
@@ -15,31 +21,22 @@ extension HomeView {
         viewModel.closeMap()
         // A new sheet cannot appear while the old one is still sliding away.
         if hadSheet { try? await Task.sleep(for: .milliseconds(450)) }
-        // A newer link replaced this one while the sheets closed; its own task opens it.
-        guard !Task.isCancelled else { return }
-        await viewModel.open(pendingLink)
-        onLinkHandled()
     }
-}
-
-/// When the pending link may open: its task runs again when either changes.
-struct LinkTurn: Equatable {
-    let link: PendingLink?
-    let mustWait: Bool
 }
 
 // MARK: - Coming back to the app
 
 extension HomeView {
     /// Back in the app from the background, perhaps the next day: age, world and suggestions are read again. Not after
-    /// Control Center or Face ID, which only make the app inactive, and not while a link waits: opening it reads home.
+    /// Control Center or Face ID, which only make the app inactive. Also while a link waits: it checks the child after
+    /// its own load, so the two can't mix.
     func scenePhaseChanged(to phase: ScenePhase) {
         switch phase {
         case .background:
             wasInBackground = true
         case .active where wasInBackground:
             wasInBackground = false
-            if pendingLink == nil { Task { await viewModel.appBecameActive() } }
+            Task { await viewModel.appBecameActive() }
         default:
             break
         }
@@ -56,7 +53,9 @@ extension HomeView {
         guard let celebration = viewModel.celebration else { return }
         do {
             try await Task.sleep(for: .milliseconds(600))
-            AccessibilityNotification.Announcement(celebration.announcement).post()
+            if viewModel.shouldAnnounce(celebration) {
+                AccessibilityNotification.Announcement(celebration.announcement).post()
+            }
             try await Task.sleep(for: .seconds(celebration.highlight >= .unlock ? 2.6 : 1.6))
         } catch {
             return

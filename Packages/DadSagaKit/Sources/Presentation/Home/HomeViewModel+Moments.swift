@@ -104,7 +104,7 @@ extension HomeViewModel {
     }
 
     /// Runs a change to the open moment that earns nothing: closes its sheet and refreshes, or shows an error and keeps
-    /// it open. A link from outside waits while it runs (`HomeView.openPendingLink`), so the sheet is still the moment's.
+    /// it open. A link from outside waits while it runs (`receive`), so the sheet is still the moment's.
     func perform(_ action: () async throws -> Void) async {
         guard !isCompleting else { return }
         isCompleting = true

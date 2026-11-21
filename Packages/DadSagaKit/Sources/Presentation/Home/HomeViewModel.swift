@@ -10,7 +10,7 @@ import Observation
 public final class HomeViewModel {
     public private(set) var state: HomeViewState = .loading
     public internal(set) var selectedQuest: QuestDetail?
-    public private(set) var selectedBoss: BossDetail?
+    public internal(set) var selectedBoss: BossDetail?
     public internal(set) var celebration: Celebration?
     /// "Undo" for a few seconds after the dad records something, in case he tapped by mistake.
     public internal(set) var undoOffer: UndoOffer?
@@ -44,6 +44,8 @@ public final class HomeViewModel {
     /// What the screen was last built from, for actions that need it (e.g. which firsts are left).
     private(set) var overview: HomeOverview?
     @ObservationIgnored private var celebrationCount = 0
+    /// The last celebration VoiceOver read.
+    @ObservationIgnored private var announcedCelebrationID: Int?
     /// Each load takes a number; only the latest one may update the screen, so an older load that finishes last
     /// (e.g. home appearing while a widget link opens another child) cannot put back what it read.
     @ObservationIgnored private var loadGeneration = 0
@@ -132,9 +134,17 @@ public final class HomeViewModel {
         if celebration?.id == id { celebration = nil }
     }
 
+    /// Whether VoiceOver should read this celebration now: only the first time. Its time on screen starts again when
+    /// home comes back from the other tab, but it was already read.
+    public func shouldAnnounce(_ celebration: Celebration) -> Bool {
+        guard celebration.id != announcedCelebrationID else { return false }
+        announcedCelebrationID = celebration.id
+        return true
+    }
+
     /// Runs a progress action and refreshes the screen. Returns what it changed, or `nil` after showing an error.
     /// It closes nothing: each caller decides what the dad sees next. A link from outside waits while it runs
-    /// (`HomeView.openPendingLink`), so the open sheet is still the one the save came from. The last error goes as the
+    /// (`receive`), so the open sheet is still the one the save came from. The last error goes as the
     /// save starts, so the same error again is read out again.
     func record(_ action: () async throws -> ProgressChange) async -> ProgressChange? {
         guard !isCompleting else { return nil }

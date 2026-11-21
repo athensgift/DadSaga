@@ -103,7 +103,7 @@ struct RootLinkTests {
 
         #expect(sut.selectedTab == .adventure)
         #expect(sut.pendingLink == PendingLink(link))
-        sut.linkHandled()
+        sut.linkHandled(PendingLink(link))
         #expect(sut.pendingLink == nil)
     }
 

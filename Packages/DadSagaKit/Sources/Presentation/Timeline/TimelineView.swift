@@ -15,11 +15,14 @@ public struct TimelineView: View {
     @State private var previewedID: UUID?
     private let makeSagaFilm: SagaFilmSheet.MakeViewModel
     private let isOpeningLink: Bool
+    /// The app's editors holding unsaved changes: the note editor stays open for a link while it holds some.
+    @Environment(UnsavedWork.self) private var unsavedWork: UnsavedWork?
 
     /// - Parameters:
     ///   - makeSagaFilm: builds the film sheet behind "Make a film".
-    ///   - isOpeningLink: a link from outside the app (the widget) is opening on another tab; the journal editor, the
-    ///     film sheet and the photo viewer close so they do not cover that screen.
+    ///   - isOpeningLink: a link from outside the app (the widget) is opening on another tab; the film sheet and the
+    ///     photo viewer close so they do not cover that screen, and so does the note editor unless it is saving or
+    ///     holds unsaved changes. Then it stays, and the link waits for it (ADR-0050).
     public init(
         viewModel: TimelineViewModel,
         makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
@@ -74,7 +77,7 @@ public struct TimelineView: View {
         }
         .onChange(of: isOpeningLink) { _, opening in
             guard opening else { return }
-            viewModel.closeJournal()
+            if !viewModel.isSaving, unsavedWork?.isHeld != true { viewModel.closeJournal() }
             sagaFilm = nil
             photoViewer = nil
         }
