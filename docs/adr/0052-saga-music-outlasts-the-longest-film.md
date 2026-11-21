@@ -1,6 +1,6 @@
 # ADR-0052: Every saga track outlasts the longest film the content allows
 
-**Status:** Proposed (2026-11-21). The owner asked for every track to be at least 130 seconds, the same pieces, with a
+**Status:** Accepted (2026-11-21). The owner asked for every track to be at least 130 seconds, the same pieces, with a
 test that fails when the content outgrows the music. Changes ADR-0036 §8 and ADR-0046 §1 and §7 (a track's length is
 no longer "at least 95 seconds" but at least the longest film).
 
