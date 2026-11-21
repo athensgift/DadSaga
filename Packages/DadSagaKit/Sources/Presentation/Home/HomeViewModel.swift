@@ -215,7 +215,7 @@ public final class HomeViewModel {
             selectedChildID = overview.child.id
             viewedWorldID = overview.isShowingCurrentWorld ? nil : overview.shownWorld?.id
             self.overview = overview
-            state = .loaded(makeContent(overview))
+            state = .loaded(makeContent(overview, load: generation))
             return overview
         } catch {
             guard generation == loadGeneration else { return nil }
@@ -226,7 +226,7 @@ public final class HomeViewModel {
         }
     }
 
-    private func makeContent(_ overview: HomeOverview) -> HomeContent {
+    private func makeContent(_ overview: HomeOverview, load: Int) -> HomeContent {
         let profile = overview.profile
         let child = overview.child
         let catalog = overview.catalog
@@ -238,7 +238,7 @@ public final class HomeViewModel {
         let hasSiblings = profile.children.count > 1
         return HomeContent(
             heroTitle: hero?.title.resolved(for: locale) ?? strings.text("Hero"),
-            heroTagline: hero?.tagline.resolved(for: locale) ?? "",
+            heroTagline: child.isBorn ? hero?.tagline.resolved(for: locale) : nil,
             heroLook: HeroLook(look: hero?.look),
             heroSkin: SkinToneChoice(profile.dadSkinTone),
             heroAppearance: DadAppearanceChoice(profile.dadAppearance),
@@ -266,7 +266,7 @@ public final class HomeViewModel {
                 : nil,
             arrivalLine: child.isBorn ? nil : strings.text("When they arrive, untick “Not born yet” in My family."),
             cards: bossCards(overview.bosses, overview: overview) + questCards(overview),
-            situational: situationalCards(overview),
+            situational: situationalCards(overview, load: load),
             moments: momentsFormatter.section(for: child, age: adventure.age, catalog: catalog, progress: progress)
         )
     }

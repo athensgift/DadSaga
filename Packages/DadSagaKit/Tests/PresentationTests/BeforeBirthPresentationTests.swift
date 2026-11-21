@@ -31,6 +31,9 @@ enum HarbourStub {
                       skill: .care, xp: 100, minAgeMonths: 0),
             BossFight(id: "b-w1-fever", worldID: "w1", title: text, intro: text, guide: [text], badge: text,
                       skill: .care, xp: 100, minAgeMonths: 0),
+            BossFight(id: "b-w1-double", worldID: "w1", title: text, intro: text, guide: [text],
+                      badge: named("Διπλή βάρδια", "Double shift"), skill: .care, xp: 100, minAgeMonths: 0,
+                      isEvergreen: true),
             BossFight(id: "b-w1-move", worldID: "w1", title: named("Μετακόμιση", "The move"), intro: text, guide: [text],
                       badge: text, skill: .resilience, xp: 100, minAgeMonths: 0, isSituational: true)
         ],
@@ -113,6 +116,7 @@ struct BeforeBirthPresentationTests {
         let content = try content(sut)
 
         #expect(content.companionLine == "Μπέμπης · έρχεται")
+        #expect(content.heroTagline == nil)
         #expect(content.companions.first?.stage == .onTheWay)
         #expect(content.companions.first?.spokenName == "Μπέμπης, έρχεται")
         #expect(content.worldTitle == "Λιμάνι")
@@ -129,9 +133,14 @@ struct BeforeBirthPresentationTests {
         let content = try content(sut)
 
         #expect(content.arrivalLine == nil)
-        #expect(content.cards.map(\.id) == ["b-w1-fever", "q-w1-feed", "q-w1-date"])
+        #expect(content.heroTagline != nil)
+        #expect(content.cards.map(\.id) == ["b-w1-fever", "b-w1-double", "q-w1-feed", "q-w1-date"])
         #expect(content.situational?.title == "When life changes")
         #expect(content.situational?.cards.map(\.id) == ["b-w1-move"])
+        let firstID = try #require(content.situational?.id)
+        #expect(firstID.contains("/w1/"))
+        await sut.reload()
+        #expect(try self.content(sut).situational?.id != firstID, "a new load closes the row again")
 
         sut.select(cardID: "b-w1-move")
         #expect(sut.selectedBoss?.id == "b-w1-move")
@@ -142,7 +151,22 @@ struct BeforeBirthPresentationTests {
         let sut = home(profile([HarbourStub.born], partner: false))
         await sut.onAppear()
 
-        #expect(try content(sut).cards.map(\.id) == ["b-w1-fever", "q-w1-feed"])
+        #expect(try content(sut).cards.map(\.id) == ["b-w1-fever", "b-w1-double", "q-w1-feed"])
+    }
+
+    @Test("Given an evergreen boss beaten in its own world, when home shows a later world, then it reads Defeated there")
+    func evergreenBossDefeatedLater() async throws {
+        let older = Child(name: "Ελένη", birthDay: CalendarDay(HarbourStub.today, in: .gmt).adding(months: -10))
+        let beaten = ProgressEvent(
+            kind: .boss(id: "b-w1-double"), childID: older.id, date: HarbourStub.today.addingTimeInterval(-90 * 86_400)
+        )
+        let sut = home(profile([older]), events: [beaten])
+        await sut.onAppear()
+        let content = try content(sut)
+
+        #expect(content.worldTitle == "Πεδιάδα")
+        let card = try #require(content.cards.first { $0.id == "b-w1-double" })
+        #expect(card.footnote == "Νικήθηκε · Διπλή βάρδια")
     }
 
     // MARK: The map
@@ -244,7 +268,8 @@ struct BeforeBirthPresentationTests {
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
         #expect(content.childEditor.notBornLabel == "Δεν έχει γεννηθεί ακόμα")
         #expect(content.childEditor.unbornNamePlaceholder == "Όνομα ή χαϊδευτικό")
-        #expect(content.partner.title == "Τα μεγαλώνω μαζί με τον άνθρωπό μου")
+        #expect(content.partner.title == "Έχω σύντροφο")
+        #expect(content.partner.line == "Δείχνει τις κάρτες για τους δυο σας.")
         #expect(sut.family.hasPartner)
 
         sut.family.children[0].name = "Μπέμπης"

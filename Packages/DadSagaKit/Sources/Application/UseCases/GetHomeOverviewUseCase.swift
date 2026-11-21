@@ -27,7 +27,6 @@ public struct HomeOverview: Sendable {
     /// The day home is read on, in the phone's time zone: every child's age is counted to it.
     public let today: CalendarDay
 
-    public var childCount: Int { profile.children.count }
     /// Who the cards are for in this family.
     public var family: FamilyFacts { adventure.family }
 

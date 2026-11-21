@@ -70,7 +70,7 @@ struct StoreMigrationTests {
     }
 
     @Test("Given a store at version 5 whose birth days were never filled, when the app opens it, then the old dates become days")
-    func version5WithoutADayReadsTheOldDate() async throws {
+    func version5WithoutADayGetsItsDay() async throws {
         try StoreFiles.copy(from: StoreV4Fixture.directory, to: directory)
         let empty = try openAtVersion5 { context in
             try context.fetch(FetchDescriptor<SchemaV5.ChildRecord>()).map { [$0.birthYear, $0.birthDay].compactMap(\.self) }

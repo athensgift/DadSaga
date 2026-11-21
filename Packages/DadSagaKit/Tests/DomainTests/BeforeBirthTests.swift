@@ -150,6 +150,17 @@ struct BeforeBirthTests {
         #expect(comingFacts.hasOlderSibling && !comingFacts.hasYoungerSibling)
     }
 
+    @Test("Given two children both not born yet, when reading the facts, then neither has an older or younger sibling")
+    func twoNotBorn() {
+        let one = Child(name: "Α", birthDay: nil)
+        let two = Child(name: "Β", birthDay: nil)
+        let profile = PlayerProfile(children: [one, two], heroClassID: "h")
+        for child in [one, two] {
+            let facts = FamilyFacts(profile: profile, child: child)
+            #expect(!facts.hasOlderSibling && !facts.hasYoungerSibling)
+        }
+    }
+
     @Test("Given the profile's partner answer, when reading the facts, then it is what the dad said; a new profile reads yes")
     func partnerAnswer() {
         let child = Child(name: "Α", birthDay: nil)

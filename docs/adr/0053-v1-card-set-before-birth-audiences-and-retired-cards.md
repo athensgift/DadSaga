@@ -129,9 +129,9 @@ the birth) and ADR-0048 §2, §3 and §5 (an age before birth; `birthDate` dropp
   - `youngerSibling`: `b-w3-new-sibling` ("The New Roommate"), which was "more than one child". A child with only an
     older sibling no longer meets it; one whose sibling is on the way meets it before the birth.
   - Not added: `twoHomes` (both its cards were dropped) and `requiresPregnancy` (A14).
-- **The partner answer** (the owner's choice): `PlayerProfile.hasPartner: Bool`. Onboarding asks once, with the children: a switch "I'm
-  raising them with a partner", on, with one line under it, "Shows the cards for the two of you." "My family" has the
-  same row. Nothing asks why, and no other word is used for the answer. A profile without an answer, which is every
+- **The partner answer** (the owner's choice): `PlayerProfile.hasPartner: Bool`. Onboarding asks once, with the
+  children: a switch "I have a partner" («Έχω σύντροφο»: the same with one child or four), on, with one line under it,
+  "Shows the cards for the two of you." «Δείχνει τις κάρτες για τους δυο σας.» "My family" has the same row. Nothing asks why, and no other word is used for the answer. A profile without an answer, which is every
   profile today, reads yes: no one loses a card he sees now.
 - **A card for someone else is never offered:** not on home, not as the weekly quest, not on the widget or in the
   notification, and a link to it opens no sheet. What the dad did with it still counts: `Timeline` doesn't read

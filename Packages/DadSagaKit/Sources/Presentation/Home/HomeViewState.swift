@@ -9,7 +9,8 @@ public enum HomeViewState: Equatable, Sendable {
 
 public struct HomeContent: Equatable, Sendable {
     public let heroTitle: String
-    public let heroTagline: String
+    /// The hero's motto; `nil` while the child shown is not born yet, when it would speak of days that haven't come.
+    public let heroTagline: String?
     public let heroLook: HeroLook
     public let heroSkin: SkinToneChoice
     public let heroAppearance: DadAppearanceChoice
@@ -51,7 +52,9 @@ public struct HomeContent: Equatable, Sendable {
 }
 
 /// "When life changes" and its bosses. It opens on a tap and shows no count.
-public struct SituationalCards: Equatable, Sendable {
+public struct SituationalCards: Equatable, Identifiable, Sendable {
+    /// The child, the world and the load it was read in: a new id starts the row closed.
+    public let id: String
     public let title: String
     public let cards: [CardModel]
 }

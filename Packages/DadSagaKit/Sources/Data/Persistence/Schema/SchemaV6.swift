@@ -26,7 +26,7 @@ enum SchemaV6: VersionedSchema {
         var hairColor: String?
         var beard: String?
         var glasses: String?
-        /// "I'm raising them with a partner" (ADR-0053 §4). Nil in rows from version 5, and nil reads yes.
+        /// "I have a partner" (ADR-0053 §4). Nil in rows from version 5, and nil reads yes.
         var hasPartner: Bool?
 
         init(

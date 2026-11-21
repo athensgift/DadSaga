@@ -665,19 +665,19 @@
         }
       }
     },
-    "I'm raising them with a partner" : {
+    "I have a partner" : {
       "extractionState" : "manual",
       "localizations" : {
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Τα μεγαλώνω μαζί με τον άνθρωπό μου"
+            "value" : "Έχω σύντροφο"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "I'm raising them with a partner"
+            "value" : "I have a partner"
           }
         }
       }
@@ -773,7 +773,7 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Δείχνει και τις κάρτες για τους δυο σας."
+            "value" : "Δείχνει τις κάρτες για τους δυο σας."
           }
         },
         "en" : {

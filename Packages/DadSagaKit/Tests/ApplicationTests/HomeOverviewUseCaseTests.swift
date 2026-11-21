@@ -130,7 +130,6 @@ struct HomeOverviewUseCaseTests {
 
         try await family([toddler, baby])
         let overview = try #require(try await sut.execute(childID: toddler.id, worldID: nil, on: today))
-        #expect(overview.childCount == 2)
         #expect(overview.bosses.map(\.id) == ["b-plains", "b-together"])
     }
 

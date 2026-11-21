@@ -61,7 +61,7 @@ public struct ChildDraft: Identifiable, Equatable, Sendable {
 public struct FamilyDraft: Equatable, Sendable {
     public var children: [ChildDraft]
     public var dadSkinTone: SkinToneChoice
-    /// "I'm raising them with a partner" (ADR-0053 §4): on unless he turns it off.
+    /// "I have a partner" (ADR-0053 §4): on unless he turns it off.
     public var hasPartner: Bool
 
     public var canAddChild: Bool { children.count < PlayerProfile.maxChildren }
@@ -212,7 +212,7 @@ public struct PartnerRowLabels: Equatable, Sendable {
     static func make(locale: Locale) -> PartnerRowLabels {
         let strings = Strings(locale: locale)
         return PartnerRowLabels(
-            title: strings.text("I'm raising them with a partner"),
+            title: strings.text("I have a partner"),
             line: strings.text("Shows the cards for the two of you.")
         )
     }
