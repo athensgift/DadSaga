@@ -6,17 +6,22 @@ extension HomeViewModel {
     /// Takes back what was just recorded: its XP, and any level, gear or badge it brought.
     /// While another save is still running the offer stays, so the tap is not lost and can be made again.
     /// If taking it back fails, the entry is still there, so the bar comes back saying so, to try again.
+    /// The bar is its only voice: it leaves any sheet open meanwhile, and that sheet's error, as they are.
     public func undoLastRecord() async {
         guard !isCompleting, let offer = undoOffer else { return }
         undoOffer = nil
         // Only its own celebration: a moment's may be playing by now.
         celebrationFinished(id: offer.id)
-        let undone = await perform {
-            try await self.useCases.deleteEvent.execute(eventID: offer.eventID)
-        }
-        // Only if nothing newer has taken the bar meanwhile.
-        if !undone, undoOffer == nil {
-            undoOffer = makeUndoOffer(id: offer.id, eventID: offer.eventID, didFail: true)
+        isCompleting = true
+        defer { isCompleting = false }
+        do {
+            try await useCases.deleteEvent.execute(eventID: offer.eventID)
+            await load()
+        } catch {
+            // Only if nothing newer has taken the bar meanwhile.
+            if undoOffer == nil {
+                undoOffer = makeUndoOffer(id: offer.id, eventID: offer.eventID, didFail: true)
+            }
         }
     }
 

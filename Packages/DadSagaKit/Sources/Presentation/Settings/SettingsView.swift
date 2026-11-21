@@ -152,12 +152,7 @@ public struct SettingsView: View {
                 Label(labels.row, systemImage: "arrow.counterclockwise")
             }
             .disabled(viewModel.isStartingOver)
-            if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.boss)
-                    .onAppear { AccessibilityNotification.Announcement(errorMessage).post() }
-            }
+            SheetError(message: viewModel.errorMessage)
         } footer: {
             Text(labels.footer).foregroundStyle(DSColor.textSecondary)
         }

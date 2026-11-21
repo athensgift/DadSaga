@@ -96,9 +96,10 @@ struct ChildPicker: View {
 }
 
 /// Floating, transient feedback after a quest or boss: the one place on home where Liquid Glass sits over content.
+/// How long it shows and when VoiceOver reads it are home's (`HomeView.celebrationTime`), so a badge drawn again (two
+/// panes after one) neither restarts its time nor is read twice.
 struct CelebrationBadge: View {
     let celebration: Celebration
-    let onFinished: (_ id: Int) -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// The symbols bounce once per celebration; with Reduce Motion they stay still.
@@ -142,23 +143,12 @@ struct CelebrationBadge: View {
         .glassEffect(.regular, in: .rect(cornerRadius: DSRadius.card))
         .padding(.horizontal, DSSpacing.m)
         .transition(.scale(scale: 0.6).combined(with: .opacity))
-        .task(id: celebration.id) {
-            AccessibilityNotification.Announcement(celebration.announcement).post()
-            // Cancelled when a newer celebration replaces this one: that one keeps its own time.
-            do {
-                try await Task.sleep(for: .seconds(celebration.highlight >= .unlock ? 3.2 : 2.2))
-            } catch {
-                return
-            }
-            onFinished(celebration.id)
-        }
     }
 }
 
 /// The badge with its burst, centred over the screen, and the haptic, while something is celebrated.
 struct CelebrationOverlay: ViewModifier {
     let celebration: Celebration?
-    let onFinished: (_ id: Int) -> Void
     @Environment(\.isHapticsEnabled) private var isHapticsEnabled
 
     func body(content: Content) -> some View {
@@ -175,7 +165,7 @@ struct CelebrationOverlay: ViewModifier {
                             )
                                 .id(celebration.id)
                         }
-                        CelebrationBadge(celebration: celebration, onFinished: onFinished)
+                        CelebrationBadge(celebration: celebration)
                     }
                 }
             }

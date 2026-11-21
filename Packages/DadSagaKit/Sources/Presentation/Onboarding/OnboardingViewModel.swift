@@ -94,6 +94,8 @@ public final class OnboardingViewModel {
         guard let selectedHeroID, !isSaving else { return }
         isSaving = true
         defer { isSaving = false }
+        // The last error goes as the next try starts, so the same error again is read out again.
+        errorMessage = nil
         do {
             let profile = PlayerProfile(
                 children: family.children.map(\.child),

@@ -13,7 +13,6 @@ public struct TimelineView: View {
     @State private var fold: HorizontalFold?
     /// The entry the dad tapped while the list was below a fold.
     @State private var previewedID: UUID?
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     private let makeSagaFilm: SagaFilmSheet.MakeViewModel
     private let isOpeningLink: Bool
 
@@ -128,7 +127,7 @@ public struct TimelineView: View {
             }
             list(content, previewedID: previewed?.id)
         }
-        .animation(reduceMotion ? nil : .smooth, value: previewed?.id)
+        .motion(.smooth, value: previewed?.id)
     }
 
     private func showPhotos(of item: TimelineItem, content: TimelineContent) {

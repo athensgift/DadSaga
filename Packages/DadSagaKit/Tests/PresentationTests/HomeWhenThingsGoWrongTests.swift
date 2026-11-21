@@ -50,36 +50,86 @@ struct HomeWhenThingsGoWrongTests {
         #expect(again.didFail)
     }
 
-    @Test("Given a quest saving slowly, when a widget link opens another child's quest meanwhile, then that sheet stays open")
-    func linkDuringASaveKeepsItsSheet() async throws {
+    @Test("Given a link to another child's quest, when a second load overlaps it and ends last, then the quest still opens")
+    func linkSurvivesAnOverlappingLoad() async throws {
         let sut = await makeSUT(profile: HeroStub.family)
-        sut.select(cardID: "q1")
-        await progress.slowNext()
+        await progress.holdOverviews()
 
-        let saving = Task { await sut.completeSelectedQuest() }
-        try await Task.sleep(for: .milliseconds(50))
-        await sut.open(.quest(id: "q1", childID: HeroStub.eleni.id))
-        await saving.value
+        let opening = Task { await sut.open(.quest(id: "q1", childID: HeroStub.eleni.id)) }
+        await progress.waitUntilHeld(1)
+        let reloading = Task { await sut.reload() }
+        await progress.waitUntilHeld(2)
+        await progress.releaseOldestOverview()
+        await opening.value
+        await progress.releaseAllOverviews()
+        await reloading.value
 
         #expect(sut.selectedChildID == HeroStub.eleni.id)
         #expect(sut.selectedQuest?.id == "q1")
-        #expect(await progress.recordedChildIDs == [HeroStub.niko.id])
     }
 
-    @Test("Given a quest saving slowly, when a link opens another sheet and the save then fails, then that sheet shows no error")
-    func failedSaveStaysWithItsOwnSheet() async throws {
-        let sut = await makeSUT(profile: HeroStub.family)
+    @Test("Given home still loading, when the dad comes back to the app, then no second load starts")
+    func returningDuringALoadStartsNoOther() async throws {
+        let sut = await makeSUT()
+        await progress.holdOverviews()
+        let reloading = Task { await sut.reload() }
+        await progress.waitUntilHeld(1)
+
+        await sut.appBecameActive()
+
+        #expect(await progress.heldOverviewCount == 1)
+        await progress.releaseAllOverviews()
+        await reloading.value
+    }
+
+    @Test("Given a quest sheet opened after recording another, when undoing fails, then the sheet shows no error and stays")
+    func failedUndoLeavesAnOpenSheetAlone() async throws {
+        let sut = await makeSUT()
         sut.select(cardID: "q1")
-        await progress.slowNext()
+        await sut.completeSelectedQuest()
+        sut.select(cardID: "q1")
         await progress.failNext()
 
-        let saving = Task { await sut.completeSelectedQuest() }
-        try await Task.sleep(for: .milliseconds(50))
-        await sut.open(.quest(id: "q1", childID: HeroStub.eleni.id))
-        await saving.value
+        await sut.undoLastRecord()
 
         #expect(sut.selectedQuest?.id == "q1")
         #expect(sut.errorMessage == nil)
+        #expect(sut.undoOffer?.didFail == true)
+    }
+
+    @Test("Given a moment sheet opened after recording a quest, when undoing works, then the moment sheet stays open")
+    func undoKeepsAnOpenMomentSheet() async throws {
+        let sut = await makeSUT()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        sut.startCapture()
+        let capture = try #require(sut.momentCapture?.id)
+
+        await sut.undoLastRecord()
+
+        #expect(sut.momentCapture?.id == capture)
+        #expect(await progress.eventCount == 0)
+    }
+
+    @Test("Given a quest whose save failed, when the dad tries again, then the old error goes while it saves")
+    func retryClearsTheError() async throws {
+        let sut = await makeSUT()
+        await progress.failNext()
+        sut.select(cardID: "q1")
+        await progress.slowNext()
+        let failing = Task { await sut.completeSelectedQuest() }
+        while !sut.isCompleting { await Task.yield() }
+        await progress.finishSlowSave()
+        await failing.value
+        #expect(sut.errorMessage != nil)
+
+        await progress.slowNext()
+        let retrying = Task { await sut.completeSelectedQuest() }
+        while !sut.isCompleting { await Task.yield() }
+
+        #expect(sut.errorMessage == nil)
+        await progress.finishSlowSave()
+        await retrying.value
     }
 
     @Test("Given home showing the saga, when reloading it fails, then home keeps what it showed")

@@ -217,11 +217,12 @@ struct HomeMomentsTests {
         sut.startCapture()
         await progress.slowNext()
         let saving = Task { await sut.captureMoment(firstID: "f1", date: HeroStub.today) }
-        try await Task.sleep(for: .milliseconds(50))
+        while !sut.isCompleting { await Task.yield() }
         sut.dismissSelection()
         sut.startCapture()
         let reopened = try #require(sut.momentCapture?.id)
 
+        await progress.finishSlowSave()
         await saving.value
 
         #expect(sut.momentCapture?.id == reopened)

@@ -65,8 +65,8 @@ struct QuestSheet: View {
                 hasUnsavedChanges: hasUnsavedChanges,
                 isAsking: $isConfirmingDiscard,
                 labels: quest.journal,
-                canSave: !isCompleting && !photos.isLoading,
-                onSave: { onConfirm(note, photos) },
+                canSave: false,
+                onSave: nil,
                 onDiscard: onClose
             ))
         }
@@ -144,8 +144,8 @@ struct BossSheet: View {
                 hasUnsavedChanges: hasUnsavedChanges,
                 isAsking: $isConfirmingDiscard,
                 labels: boss.journal,
-                canSave: !isCompleting && !photos.isLoading,
-                onSave: { onConfirm(note, photos) },
+                canSave: false,
+                onSave: nil,
                 onDiscard: onClose
             ))
         }

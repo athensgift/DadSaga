@@ -73,15 +73,18 @@ public final class FamilyViewModel {
         family.removeChild(id: id)
     }
 
+    /// Saves the family as it is now. An edit made while it saves stays unsaved, and the screen stays open to show it.
+    /// The last error goes as the save starts, so the same error again is read out again.
     public func save() async {
         guard canSave else { return }
         isSaving = true
         defer { isSaving = false }
+        errorMessage = nil
+        let saving = family
         do {
-            try await updateFamily.execute(children: family.children.map(\.child), on: latestBirthDate)
-            errorMessage = nil
-            stored = family
-            onSaved()
+            try await updateFamily.execute(children: saving.children.map(\.child), on: latestBirthDate)
+            stored = saving
+            if family == saving { onSaved() }
         } catch {
             errorMessage = strings.text("Couldn't save. Please try again.")
         }

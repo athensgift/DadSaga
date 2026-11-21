@@ -317,6 +317,7 @@ extension HomeViewModelTests {
         await sut.undoLastRecord()
 
         #expect(sut.undoOffer == offer)
+        await progress.finishSlowSave()
         await saving.value
         await sut.undoLastRecord()
         #expect(await progress.eventCount == 1)

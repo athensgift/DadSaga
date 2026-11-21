@@ -17,7 +17,6 @@ struct ReadAndActPanes<Reading: View, Acting: View, Column: ViewModifier>: View 
     private let reading: (_ isSplit: Bool) -> Reading
     private let acting: (_ isSplit: Bool) -> Acting
     @State private var foldedPanes = FoldedPanes.flat
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     /// - Parameters:
     ///   - alignment, spacing: how both parts line up in the column, and the space between their views.
@@ -72,6 +71,6 @@ struct ReadAndActPanes<Reading: View, Acting: View, Column: ViewModifier>: View 
         .modifier(FoldedPanesReader(panes: $foldedPanes))
         .modifier(HideKeyboardBar())
         .toolbarTitleDisplayMode(panes == .flat ? flatTitle : .inline)
-        .animation(reduceMotion ? nil : .smooth, value: panes)
+        .motion(.smooth, value: panes)
     }
 }

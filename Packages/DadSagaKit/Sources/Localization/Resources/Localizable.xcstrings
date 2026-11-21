@@ -705,7 +705,7 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Συνέχισε να γράφεις"
+            "value" : "Συνέχισε την επεξεργασία"
           }
         },
         "en" : {
@@ -2481,7 +2481,7 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Τον βλέπεις τώρα"
+            "value" : "Σε προβολή"
           }
         },
         "en" : {
