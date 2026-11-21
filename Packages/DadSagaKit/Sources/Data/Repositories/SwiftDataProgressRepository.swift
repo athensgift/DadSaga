@@ -12,11 +12,11 @@ actor SwiftDataProgressRepository: ProgressRepository {
     }
 
     func add(_ event: ProgressEvent) async throws {
-        modelContext.insert(ProgressEventRecord(event: event))
-        try modelContext.save()
+        try modelContext.saveAllOrNothing { modelContext.insert(ProgressEventRecord(event: event)) }
     }
 
-    /// Synchronous inside the actor between the check and the save, so no other write can land in between.
+    /// Synchronous inside the actor between the check and the save, so no other write can land in between. The check
+    /// fetches the row rather than counting: after a rollback, `fetchCount` still counts the undone insert once.
     func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool {
         let record = ProgressEventRecord(event: event)
         let kind = record.kind
@@ -26,25 +26,26 @@ actor SwiftDataProgressRepository: ProgressRepository {
             predicate: #Predicate { $0.kind == kind && $0.contentID == contentID && $0.childID == childID }
         )
         existing.fetchLimit = 1
-        guard try modelContext.fetchCount(existing) == 0 else { return false }
-        modelContext.insert(record)
-        try modelContext.save()
-        return true
+        return try modelContext.saveAllOrNothing {
+            guard try modelContext.fetch(existing).isEmpty else { return false }
+            modelContext.insert(record)
+            return true
+        }
     }
 
     func update(_ event: ProgressEvent) async throws {
         guard let record = try record(id: event.id) else { throw ProgressError.unknownEvent }
-        record.date = event.date
-        record.note = event.note
-        record.photoIDs = event.photoIDs
-        record.childID = event.childID
-        try modelContext.save()
+        try modelContext.saveAllOrNothing {
+            record.date = event.date
+            record.note = event.note
+            record.photoIDs = event.photoIDs
+            record.childID = event.childID
+        }
     }
 
     func delete(id: UUID) async throws {
         guard let record = try record(id: id) else { return }
-        modelContext.delete(record)
-        try modelContext.save()
+        try modelContext.saveAllOrNothing { modelContext.delete(record) }
     }
 
     private func record(id: UUID) throws -> ProgressEventRecord? {

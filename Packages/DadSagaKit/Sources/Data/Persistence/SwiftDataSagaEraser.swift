@@ -7,16 +7,11 @@ import SwiftData
 @ModelActor
 actor SwiftDataSagaEraser: SagaEraser {
     func eraseAll() async throws {
-        do {
+        try modelContext.saveAllOrNothing {
             try deleteEvery(ProfileRecord.self)
             try deleteEvery(ChildRecord.self)
             try deleteEvery(ProgressEventRecord.self)
             try deleteEvery(OutfitRecord.self)
-            try modelContext.save()
-        } catch {
-            // Nothing was saved; the next try starts from a clean context.
-            modelContext.rollback()
-            throw error
         }
     }
 
