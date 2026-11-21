@@ -24,7 +24,6 @@ struct ChildEditorCard: View {
                     skin: child.skinTone,
                     size: 76
                 )
-                .padding(.vertical, -DSSpacing.s)
                 .accessibilityHidden(true)
                 Text(verbatim: "\(labels.childTitle) \(number)")
                     .font(DSFont.headline)
