@@ -6,7 +6,10 @@ extension ChildRecord {
         self.init(
             childID: child.id,
             name: child.name,
-            birthDate: child.birthDate,
+            birthDate: child.birthDay.start(in: .autoupdatingCurrent),
+            birthYear: child.birthDay.year,
+            birthMonth: child.birthDay.month,
+            birthDay: child.birthDay.day,
             gender: child.gender.rawValue,
             skinTone: child.skinTone.rawValue,
             order: order
@@ -15,17 +18,25 @@ extension ChildRecord {
 
     func update(from child: Child, order: Int) {
         name = child.name
-        birthDate = child.birthDate
+        birthDate = child.birthDay.start(in: .autoupdatingCurrent)
+        birthYear = child.birthDay.year
+        birthMonth = child.birthDay.month
+        birthDay = child.birthDay.day
         gender = child.gender.rawValue
         skinTone = child.skinTone.rawValue
         self.order = order
     }
 
+    /// A row without a day (one the migration didn't fill) reads its moment in the phone's time zone, as the migration
+    /// would have.
     func toDomain() -> Child {
-        Child(
+        let storedDay = birthYear.flatMap { year in
+            birthMonth.flatMap { month in birthDay.flatMap { CalendarDay(year: year, month: month, day: $0) } }
+        }
+        return Child(
             id: childID,
             name: name,
-            birthDate: birthDate,
+            birthDay: storedDay ?? CalendarDay(birthDate, in: .autoupdatingCurrent),
             gender: Gender(rawValue: gender) ?? .boy,
             skinTone: SkinTone(rawValue: skinTone) ?? .mediumLight
         )

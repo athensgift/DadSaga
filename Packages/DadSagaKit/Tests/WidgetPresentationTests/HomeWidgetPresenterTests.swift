@@ -20,7 +20,7 @@ struct HomeWidgetPresenterTests {
     static let greek = Locale(identifier: "el_GR")
     static let english = Locale(identifier: "en_US")
 
-    let child = Child(name: "Λένα", birthDate: Date(timeIntervalSince1970: 1_700_000_000))
+    let child = Child(name: "Λένα", birthDay: CalendarDay(Date(timeIntervalSince1970: 1_700_000_000), in: .gmt))
     let quest = Quest(
         id: "q-w1-skin-to-skin",
         worldID: "w1",

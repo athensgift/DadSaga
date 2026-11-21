@@ -58,6 +58,7 @@ public struct OnboardingView: View {
                         number: index + 1,
                         labels: content.childEditor,
                         latestBirthDate: viewModel.latestBirthDate,
+                        timeZone: viewModel.timeZone,
                         onRemove: viewModel.family.canRemoveChild ? { viewModel.removeChild(id: child.id) } : nil
                     )
                     .transition(.scale(scale: 0.95).combined(with: .opacity))

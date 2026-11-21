@@ -116,4 +116,5 @@ actor NamedPhotoStore: PhotoStore {
 
     func delete(id: String) async {}
     func deleteAll() async {}
+    func storedPhotos() async throws -> [StoredPhoto] { [] }
 }

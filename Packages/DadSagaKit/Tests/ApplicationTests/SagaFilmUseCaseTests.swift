@@ -49,12 +49,12 @@ struct SagaFilmUseCaseTests {
         calendar.timeZone = TimeZone(identifier: "UTC") ?? .gmt
         self.calendar = calendar
         let birth = calendar.date(from: DateComponents(year: 2024, month: 1, day: 15)) ?? .distantPast
-        anna = Child(name: "Άννα", birthDate: birth)
-        niko = Child(name: "Νίκος", birthDate: birth)
+        anna = Child(name: "Άννα", birthDay: CalendarDay(birth, in: .gmt))
+        niko = Child(name: "Νίκος", birthDay: CalendarDay(birth, in: .gmt))
     }
 
     func date(months: Int, days: Int = 0) -> Date {
-        let month = calendar.date(byAdding: .month, value: months, to: anna.birthDate) ?? .distantPast
+        let month = calendar.date(byAdding: .month, value: months, to: anna.birthDay.start(in: calendar.timeZone)) ?? .distantPast
         return calendar.date(byAdding: .day, value: days, to: month) ?? .distantPast
     }
 
@@ -68,7 +68,7 @@ struct SagaFilmUseCaseTests {
             outfitRepository: SpyOutfitRepository(),
             soundtrackRepository: StubSoundtrackRepository(soundtracks: soundtracks),
             choicesRepository: choices,
-            calendar: calendar
+            timeZone: calendar.timeZone
         )
     }
 

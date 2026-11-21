@@ -18,6 +18,9 @@ struct ConnectedProgressRepository: ProgressRepository {
     let connection: StoreConnection
 
     @concurrent func fetchEvents() async throws -> [ProgressEvent] { try await connection.open().progress.fetchEvents() }
+    @concurrent func referencedPhotoIDs() async throws -> Set<String> {
+        try await connection.open().progress.referencedPhotoIDs()
+    }
     @concurrent func add(_ event: ProgressEvent) async throws { try await connection.open().progress.add(event) }
     @concurrent func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool {
         try await connection.open().progress.addUnlessRecorded(event)

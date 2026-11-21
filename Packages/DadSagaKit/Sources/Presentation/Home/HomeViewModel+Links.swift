@@ -15,7 +15,7 @@ extension HomeViewModel {
         switch link {
         case .quest(let id, _):
             // From the whole catalog, not just the shown world: last week's quest may belong to the previous one.
-            guard let quest = overview.catalog.quests.first(where: { $0.id == id }),
+            guard let quest = overview.catalog.quest(id: id),
                   quest.minAgeMonths <= overview.adventure.ageInMonths else { return }
             selectedQuest = detail(for: quest)
         case .moment(let eventID, _):

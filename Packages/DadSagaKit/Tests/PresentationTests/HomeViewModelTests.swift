@@ -270,7 +270,7 @@ struct HomeViewModelTests {
 
     @Test("Given the second child is selected, when completing a quest, then it is recorded with that child")
     func questWithSelectedChild() async {
-        let older = Child(name: "Μαρία", birthDate: HeroStub.today)
+        let older = Child(name: "Μαρία", birthDay: CalendarDay(HeroStub.today, in: .gmt))
         let sut = makeSUT(profile: PlayerProfile(children: [HeroStub.niko, older], heroClassID: "h-cool"))
         await sut.onAppear()
         await sut.selectChild(id: older.id)

@@ -15,29 +15,31 @@ actor SwiftDataProfileRepository: ProfileRepository {
     }
 
     /// Updates the stored profile and family in place: rows keep their identity, which sync will need (ADR-0026).
-    /// Children are matched by id, so their progress stays linked; removed children and duplicate rows go.
+    /// Children are matched by id, so their progress stays linked; removed children and duplicate rows go. All or
+    /// nothing: the fetches come between the changes, so the whole body is inside.
     func save(_ profile: PlayerProfile) async throws {
-        let profiles = try modelContext.fetch(FetchDescriptor<ProfileRecord>())
-        if let record = profiles.first {
-            record.update(from: profile)
-        } else {
-            modelContext.insert(ProfileRecord(profile: profile))
-        }
-        profiles.dropFirst().forEach(modelContext.delete)
-
-        var stored: [UUID: ChildRecord] = [:]
-        for record in try modelContext.fetch(FetchDescriptor<ChildRecord>()) {
-            if stored[record.childID] == nil { stored[record.childID] = record } else { modelContext.delete(record) }
-        }
-        for (order, child) in profile.children.enumerated() {
-            if let record = stored.removeValue(forKey: child.id) {
-                record.update(from: child, order: order)
+        try modelContext.saveAllOrNothing {
+            let profiles = try modelContext.fetch(FetchDescriptor<ProfileRecord>())
+            if let record = profiles.first {
+                record.update(from: profile)
             } else {
-                modelContext.insert(ChildRecord(child: child, order: order))
+                modelContext.insert(ProfileRecord(profile: profile))
             }
+            profiles.dropFirst().forEach(modelContext.delete)
+
+            var stored: [UUID: ChildRecord] = [:]
+            for record in try modelContext.fetch(FetchDescriptor<ChildRecord>()) {
+                if stored[record.childID] == nil { stored[record.childID] = record } else { modelContext.delete(record) }
+            }
+            for (order, child) in profile.children.enumerated() {
+                if let record = stored.removeValue(forKey: child.id) {
+                    record.update(from: child, order: order)
+                } else {
+                    modelContext.insert(ChildRecord(child: child, order: order))
+                }
+            }
+            stored.values.forEach(modelContext.delete)
         }
-        stored.values.forEach(modelContext.delete)
-        try modelContext.save()
     }
 
     private func record() throws -> ProfileRecord? {

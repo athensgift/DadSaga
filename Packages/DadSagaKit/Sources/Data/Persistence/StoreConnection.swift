@@ -17,25 +17,24 @@ actor StoreConnection {
     /// The version the app reads and writes; older stores reach it through `DadSagaMigrationPlan`.
     static var schema: Schema { Schema(versionedSchema: CurrentSchema.self) }
 
-    private let configuration: ModelConfiguration
-    /// Created before opening an on-disk store.
-    private let directory: URL?
+    /// The store's folder, found and created when the store is opened; `nil` keeps the store in memory.
+    private let directory: (@Sendable () throws -> URL)?
+    private let readOnly: Bool
     private var opened: Repositories?
 
-    init(configuration: ModelConfiguration, directory: URL?) {
-        self.configuration = configuration
+    init(directory: (@Sendable () throws -> URL)?, readOnly: Bool) {
         self.directory = directory
+        self.readOnly = readOnly
     }
 
     /// Synchronous inside the actor, so two callers can never open the store twice.
     func open() throws -> Repositories {
         if let opened { return opened }
         do {
-            if let directory { try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true) }
             let container = try ModelContainer(
                 for: Self.schema,
                 migrationPlan: DadSagaMigrationPlan.self,
-                configurations: [configuration]
+                configurations: [configuration()]
             )
             let repositories = Repositories(
                 profiles: SwiftDataProfileRepository(modelContainer: container),
@@ -49,5 +48,27 @@ actor StoreConnection {
             Self.logger.error("The store could not be opened: \(String(describing: error), privacy: .public)")
             throw error
         }
+    }
+
+    /// Named explicitly, so SwiftData never picks a location on its own (ADR-0023). Never synced: sync will be its
+    /// own decision, not a side effect of an iCloud entitlement.
+    private func configuration() throws -> ModelConfiguration {
+        guard let directory else {
+            return ModelConfiguration(
+                schema: Self.schema,
+                isStoredInMemoryOnly: true,
+                allowsSave: true,
+                groupContainer: .none,
+                cloudKitDatabase: .none
+            )
+        }
+        let folder = try directory()
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return ModelConfiguration(
+            schema: Self.schema,
+            url: folder.appending(path: "DadSaga.store"),
+            allowsSave: !readOnly,
+            cloudKitDatabase: .none
+        )
     }
 }

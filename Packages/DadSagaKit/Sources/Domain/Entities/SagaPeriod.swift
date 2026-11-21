@@ -2,8 +2,8 @@ import Foundation
 
 /// The stretch of a child's life a saga film tells (ADR-0036).
 ///
-/// Every boundary is at the start of a day, counted from the start of the child's birth day: a birth date keeps the
-/// time of day it was entered, and a birthday must not begin in the afternoon.
+/// Every boundary is at the start of a day in the phone's time zone, on the day the child turns that many months
+/// (`Child.day(atMonths:)`), so periods agree with the child's age everywhere (ADR-0048 §2).
 public enum SagaPeriod: Hashable, Sendable {
     /// The nth year of life, from birthday n − 1 to birthday n. The first year starts at birth.
     case year(Int)
@@ -18,24 +18,24 @@ public enum SagaPeriod: Hashable, Sendable {
         for child: Child,
         catalog: ContentCatalog,
         now: Date,
-        calendar: Calendar = .autoupdatingCurrent
+        timeZone: TimeZone = .autoupdatingCurrent
     ) -> DateInterval? {
-        let start: Date?
-        let end: Date?
+        let start: Date
+        let end: Date
         switch self {
         case .year(let number):
             guard number >= 1 else { return nil }
-            start = child.sagaDate(adding: .year, number - 1, calendar: calendar)
-            end = child.sagaDate(adding: .year, number, calendar: calendar)
+            start = child.day(atMonths: 12 * (number - 1)).start(in: timeZone)
+            end = child.day(atMonths: 12 * number).start(in: timeZone)
         case .world(let id):
-            guard let world = catalog.worlds.first(where: { $0.id == id }) else { return nil }
-            start = child.sagaDate(adding: .month, world.minAgeMonths, calendar: calendar)
-            end = world.maxAgeMonths.map { child.sagaDate(adding: .month, $0 + 1, calendar: calendar) } ?? .distantFuture
+            guard let world = catalog.world(id: id) else { return nil }
+            start = child.day(atMonths: world.minAgeMonths).start(in: timeZone)
+            end = world.maxAgeMonths.map { child.day(atMonths: $0 + 1).start(in: timeZone) } ?? .distantFuture
         case .everything:
             start = .distantPast
             end = .distantFuture
         }
-        guard let start, let end, start < end, start <= now else { return nil }
+        guard start < end, start <= now else { return nil }
         return DateInterval(start: start, end: end)
     }
 
@@ -47,15 +47,16 @@ public enum SagaPeriod: Hashable, Sendable {
         events: [ProgressEvent],
         catalog: ContentCatalog,
         now: Date,
-        calendar: Calendar = .autoupdatingCurrent
+        timeZone: TimeZone = .autoupdatingCurrent
     ) -> [SagaPeriod] {
         let dates = Timeline.countedEntries(from: events, catalog: catalog)
             .filter { $0.childID == child.id }
             .map(\.date)
-        let candidates = (1...(child.sagaCompleted(.year, at: now, calendar: calendar) + 1)).map(SagaPeriod.year)
+        let years = child.ageInMonths(on: CalendarDay(now, in: timeZone)) / 12
+        let candidates = (1...(years + 1)).map(SagaPeriod.year)
             + catalog.worlds.map { SagaPeriod.world(id: $0.id) }
         return candidates.filter { period in
-            guard let interval = period.interval(for: child, catalog: catalog, now: now, calendar: calendar) else {
+            guard let interval = period.interval(for: child, catalog: catalog, now: now, timeZone: timeZone) else {
                 return false
             }
             return dates.contains(where: interval.holds)
@@ -67,18 +68,5 @@ extension DateInterval {
     /// Whether `date` falls in the interval, its end excluded.
     func holds(_ date: Date) -> Bool {
         start <= date && date < end
-    }
-}
-
-extension Child {
-    /// The start of the day `value` units after the child's birth day.
-    func sagaDate(adding unit: Calendar.Component, _ value: Int, calendar: Calendar) -> Date? {
-        calendar.date(byAdding: unit, value: value, to: calendar.startOfDay(for: birthDate))
-    }
-
-    /// Completed units of age at `date`, counted from the start of the birth day. Never negative.
-    func sagaCompleted(_ unit: Calendar.Component, at date: Date, calendar: Calendar) -> Int {
-        let start = calendar.startOfDay(for: birthDate)
-        return max(0, calendar.dateComponents([unit], from: start, to: date).value(for: unit) ?? 0)
     }
 }

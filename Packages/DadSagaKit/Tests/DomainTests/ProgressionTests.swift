@@ -153,20 +153,13 @@ struct UnlockRulesTests {
 
 @Suite("Child")
 struct ChildTests {
-    @Test("Given a birth date, when computing age, then completed months are returned and never negative")
-    func ageInMonths() throws {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = try #require(TimeZone(identifier: "UTC"))
-        let birth = try #require(calendar.date(from: DateComponents(year: 2026, month: 1, day: 15)))
-        let child = Child(name: "Νίκος", birthDate: birth)
+    @Test("Given a birth day, when computing age, then completed months are returned and never negative")
+    func ageInMonths() {
+        let child = Child(name: "Νίκος", birthDay: .day(2026, 1, 15))
 
-        let dayBefore = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 14)))
-        let onTheDay = try #require(calendar.date(from: DateComponents(year: 2026, month: 4, day: 15)))
-        let beforeBirth = try #require(calendar.date(from: DateComponents(year: 2025, month: 12, day: 1)))
-
-        #expect(child.ageInMonths(at: dayBefore, calendar: calendar) == 2)
-        #expect(child.ageInMonths(at: onTheDay, calendar: calendar) == 3)
-        #expect(child.ageInMonths(at: beforeBirth, calendar: calendar) == 0)
+        #expect(child.ageInMonths(on: .day(2026, 4, 14)) == 2)
+        #expect(child.ageInMonths(on: .day(2026, 4, 15)) == 3)
+        #expect(child.ageInMonths(on: .day(2025, 12, 1)) == 0)
     }
 }
 

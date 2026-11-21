@@ -35,7 +35,10 @@ struct AdventureTests {
         let today = try #require(utc.date(from: DateComponents(year: 2026, month: 11, day: 1)))
 
         let adventure = Adventure(
-            for: Child(name: "Νίκος", birthDate: birth), childCount: 1, catalog: Stub.catalog, on: today, calendar: utc
+            for: Child(name: "Νίκος", birthDay: CalendarDay(birth, in: .gmt)),
+            childCount: 1,
+            catalog: Stub.catalog,
+            on: CalendarDay(today, in: .gmt)
         )
 
         #expect(adventure.ageInMonths == 10)
@@ -49,10 +52,10 @@ struct AdventureTests {
     func familySize() {
         let birth = Date(timeIntervalSince1970: 0)
         let today = Date(timeIntervalSince1970: 14 * 31 * 86_400)
-        let child = Child(name: "Νίκος", birthDate: birth)
+        let child = Child(name: "Νίκος", birthDay: CalendarDay(birth, in: .gmt))
 
-        let alone = Adventure(for: child, childCount: 1, catalog: Stub.catalog, on: today, calendar: utc)
-        let siblings = Adventure(for: child, childCount: 2, catalog: Stub.catalog, on: today, calendar: utc)
+        let alone = Adventure(for: child, childCount: 1, catalog: Stub.catalog, on: CalendarDay(today, in: .gmt))
+        let siblings = Adventure(for: child, childCount: 2, catalog: Stub.catalog, on: CalendarDay(today, in: .gmt))
 
         #expect(alone.availableBosses.map(\.id) == ["b1"])
         #expect(siblings.availableBosses.map(\.id) == ["b1", "b-sibling"])
@@ -61,9 +64,9 @@ struct AdventureTests {
     @Test("Given a child older than every world, when building the adventure, then nothing is offered")
     func olderThanContent() {
         let today = Date(timeIntervalSince1970: 1_000_000_000)
-        let child = Child(name: "Άννα", birthDate: today.addingTimeInterval(-5 * 365 * 86_400))
+        let child = Child(name: "Άννα", birthDay: CalendarDay(today.addingTimeInterval(-5 * 365 * 86_400), in: .gmt))
 
-        let adventure = Adventure(for: child, childCount: 1, catalog: Stub.catalog, on: today, calendar: utc)
+        let adventure = Adventure(for: child, childCount: 1, catalog: Stub.catalog, on: CalendarDay(today, in: .gmt))
 
         #expect(adventure.isBeyondContent)
         #expect(adventure.currentWorld == nil)

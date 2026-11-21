@@ -87,14 +87,15 @@ public struct DefaultGetWeeklyHighlightsUseCase: GetWeeklyHighlightsUseCase {
         )
     }
 
-    /// The age is taken at the start of the week, so a birthday mid-week does not swap the card.
+    /// The age is taken on the day the week starts, so a birthday mid-week does not swap the card. It is the Gregorian
+    /// age, whatever calendar the week is counted on (ADR-0048 §2).
     private func questSlot(
         for child: Child,
         week: DateInterval,
         catalog: ContentCatalog,
         events: [ProgressEvent]
     ) -> WeeklyHighlights.QuestSlot {
-        let age = child.ageInMonths(at: week.start, calendar: calendar)
+        let age = child.ageInMonths(on: CalendarDay(week.start, in: calendar.timeZone))
         guard !UnlockRules.isBeyondContent(catalog, ageInMonths: age),
               let world = UnlockRules.currentWorld(in: catalog, ageInMonths: age),
               let quest = WeeklyQuest.pick(

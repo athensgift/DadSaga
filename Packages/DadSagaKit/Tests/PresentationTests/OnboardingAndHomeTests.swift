@@ -342,7 +342,8 @@ struct FakeHomeOverview: GetHomeOverviewUseCase {
             progress: await progress.current,
             outfit: await outfit.stored,
             worldID: worldID,
-            sagaOffer: await film.pending
+            sagaOffer: await film.pending,
+            today: CalendarDay(date, in: .gmt)
         )
     }
 }
@@ -367,8 +368,8 @@ enum HeroStub {
 
     static let today = Date(timeIntervalSince1970: 1_000_000)
     static let text = LocalizedText(el: "x", en: "x")
-    static let niko = Child(name: "Νίκος", birthDate: today)
-    static let eleni = Child(name: "Ελένη", birthDate: today, gender: .girl)
+    static let niko = Child(name: "Νίκος", birthDay: CalendarDay(today, in: .gmt))
+    static let eleni = Child(name: "Ελένη", birthDay: CalendarDay(today, in: .gmt), gender: .girl)
     static let profile = PlayerProfile(children: [niko], heroClassID: "h-cool", dadSkinTone: .mediumDark)
     static let family = PlayerProfile(children: [niko, eleni], heroClassID: "h-cool")
     static let catalog = ContentCatalog(
@@ -391,7 +392,8 @@ enum HeroStub {
             )
         ],
         gear: [
-            GearItem(id: "g1", skill: .care, minXP: 50, look: "burpCloth", title: LocalizedText(el: "Πανάκι", en: "Burp cloth")),
+            GearItem(id: "g1", skill: .care, minXP: 50, look: "burpCloth", title: LocalizedText(el: "Πανάκι", en: "Burp cloth"),
+                     formerIDs: ["g1-before"]),
             GearItem(id: "g2", skill: .care, minXP: 200, look: "unknownLook", title: text)
         ]
     )

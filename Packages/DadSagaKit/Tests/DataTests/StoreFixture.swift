@@ -6,12 +6,11 @@ enum StoreFixture {
     static func id(_ text: String) -> UUID { UUID(uuidString: text) ?? UUID() }
     static let lena = Child(
         id: id("11111111-1111-1111-1111-111111111111"), name: "Λένα",
-        birthDate: Date(timeIntervalSince1970: 1_750_000_000), gender: .girl, skinTone: .light
+        birthDay: .migrated(1_750_000_000), gender: .girl, skinTone: .light
     )
     static let nikos = Child(
         id: id("22222222-2222-2222-2222-222222222222"), name: "Νίκος",
-        birthDate: Date(timeIntervalSince1970: 1_700_000_000)
-    )
+        birthDay: .migrated(1_700_000_000))
     static let profile = PlayerProfile(children: [lena, nikos], heroClassID: "chef", dadSkinTone: .medium)
     static let events = [
         ProgressEvent(id: id("A0000000-0000-0000-0000-000000000001"), kind: .quest(id: "q-cuddle"), childID: lena.id,

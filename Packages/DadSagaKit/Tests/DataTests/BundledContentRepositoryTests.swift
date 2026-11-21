@@ -120,6 +120,17 @@ struct MappingTests {
         #expect(try dto.toDomain().requiresSibling)
     }
 
+    @Test("Given DTOs with former ids, when mapping, then the Domain items keep them; without, they have none")
+    func mapsFormerIDs() throws {
+        var quest = QuestDTO(id: "q", worldID: "w", title: text, description: text, skill: "care", xp: 10, minAgeMonths: 0)
+        #expect(try quest.toDomain().formerIDs.isEmpty)
+        quest.formerIDs = ["q-old"]
+        #expect(try quest.toDomain().formerIDs == ["q-old"])
+        var hero = HeroClassDTO(id: "h", order: 1, title: text, tagline: text, look: "hero")
+        hero.formerIDs = ["h-old"]
+        #expect(hero.toDomain().has(id: "h-old"))
+    }
+
     @Test("Given a quest DTO with an unknown skill, when mapping, then unknownSkill is thrown")
     func unknownSkill() {
         let dto = QuestDTO(id: "q", worldID: "w", title: text, description: text, skill: "juggling", xp: 10, minAgeMonths: 0)
@@ -173,6 +184,39 @@ struct ContentValidatorTests {
             ]
         )
         #expect(throws: ContentDataError.duplicateID("dup")) {
+            try ContentValidator.validate(catalog)
+        }
+    }
+
+    @Test("Given a renamed first whose former id is another first's id, when validating, then duplicateID is thrown")
+    func formerIDClashesWithAnID() {
+        let catalog = ContentCatalog(
+            worlds: [],
+            quests: [],
+            bosses: [],
+            firsts: [
+                FirstMoment(id: "f-smile", order: 1, emoji: "", title: text, xp: 1, companionTrait: nil),
+                FirstMoment(id: "f-grin", order: 2, emoji: "", title: text, xp: 1, companionTrait: nil, formerIDs: ["f-smile"])
+            ]
+        )
+        #expect(throws: ContentDataError.duplicateID("f-smile")) {
+            try ContentValidator.validate(catalog)
+        }
+    }
+
+    @Test("Given one former id listed by two items, when validating, then duplicateID is thrown")
+    func formerIDListedTwice() {
+        let catalog = ContentCatalog(
+            worlds: [],
+            quests: [],
+            bosses: [],
+            firsts: [],
+            gear: [
+                GearItem(id: "mug", skill: .care, minXP: 1, look: "mug", title: text, formerIDs: ["cup"]),
+                GearItem(id: "flask", skill: .care, minXP: 2, look: "mug", title: text, formerIDs: ["cup"])
+            ]
+        )
+        #expect(throws: ContentDataError.duplicateID("cup")) {
             try ContentValidator.validate(catalog)
         }
     }

@@ -8,6 +8,8 @@ struct ChildEditorCard: View {
     let number: Int
     let labels: ChildEditorLabels
     let latestBirthDate: Date
+    /// The zone the date picker draws in.
+    let timeZone: TimeZone
     /// `nil` hides the remove button (the last remaining child).
     let onRemove: (() -> Void)?
     var onSubmit: () -> Void = {}
@@ -16,7 +18,7 @@ struct ChildEditorCard: View {
         VStack(spacing: 0) {
             HStack(spacing: DSSpacing.s) {
                 ChildAvatar(
-                    stage: child.stage(at: latestBirthDate).avatarStage,
+                    stage: child.stage(at: latestBirthDate, timeZone: timeZone).avatarStage,
                     gender: child.gender.avatarGender,
                     skin: child.skinTone.avatarSkin,
                     size: 76
@@ -46,7 +48,7 @@ struct ChildEditorCard: View {
                     .onSubmit(onSubmit)
             }
             row {
-                DateRow(label: labels.birthDateLabel, date: $child.birthDate, range: .distantPast...latestBirthDate)
+                DateRow(label: labels.birthDateLabel, date: birthDate, range: .distantPast...latestBirthDate)
             }
             row {
                 Picker(labels.genderLabel, selection: $child.gender) {
@@ -66,6 +68,14 @@ struct ChildEditorCard: View {
         .font(DSFont.body)
         .foregroundStyle(DSColor.textPrimary)
         .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+    }
+
+    /// The picker shows and sets the stored day; the day itself never goes through a time of day.
+    private var birthDate: Binding<Date> {
+        Binding(
+            get: { child.pickerDate(in: timeZone) },
+            set: { child.pickBirthDate($0, in: timeZone) }
+        )
     }
 
     private func row(@ViewBuilder _ content: () -> some View) -> some View {

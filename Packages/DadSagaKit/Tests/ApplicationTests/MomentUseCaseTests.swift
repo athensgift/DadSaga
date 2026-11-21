@@ -202,6 +202,7 @@ struct FailingUpdates: ProgressRepository {
     init(_ base: any ProgressRepository) { self.base = base }
 
     func fetchEvents() async throws -> [ProgressEvent] { try await base.fetchEvents() }
+    func referencedPhotoIDs() async throws -> Set<String> { try await base.referencedPhotoIDs() }
     func add(_ event: ProgressEvent) async throws { throw Failure() }
     func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool { throw Failure() }
     func update(_ event: ProgressEvent) async throws { throw Failure() }

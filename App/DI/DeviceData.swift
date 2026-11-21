@@ -7,15 +7,16 @@ import Foundation
 /// saga, photos, preferences or reminders (ADR-0033, ADR-0034).
 struct DeviceData {
     let store: LocalStore
-    let photoDirectory: URL
+    let photos: FilePhotoStore
     let defaults: UserDefaults
     let notificationScheduler: any NotificationScheduler
 
-    /// In the folder the app shares with the widget (ADR-0023), and the app's own defaults.
+    /// In the folder the app shares with the widget (ADR-0023), and the app's own defaults. Without the App Group a
+    /// release build opens nothing, and the app shows its "couldn't open" screen (ADR-0048).
     static func live() -> DeviceData {
         DeviceData(
-            store: LocalStore.live(in: SharedContainer.directory()),
-            photoDirectory: SharedContainer.directory(),
+            store: LocalStore.shared(),
+            photos: FilePhotoStore.sharedMoments(),
             defaults: .standard,
             notificationScheduler: UserNotificationScheduler()
         )
@@ -47,7 +48,7 @@ struct DeviceData {
         defaults.removePersistentDomain(forName: suite)
         return DeviceData(
             store: LocalStore.inMemory(),
-            photoDirectory: FileManager.default.temporaryDirectory.appending(path: UUID().uuidString),
+            photos: FilePhotoStore.moments(in: FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)),
             defaults: defaults,
             notificationScheduler: SilentNotificationScheduler()
         )
