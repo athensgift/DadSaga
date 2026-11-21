@@ -66,6 +66,22 @@ struct HomeWhenThingsGoWrongTests {
         #expect(await progress.recordedChildIDs == [HeroStub.niko.id])
     }
 
+    @Test("Given a quest saving slowly, when a link opens another sheet and the save then fails, then that sheet shows no error")
+    func failedSaveStaysWithItsOwnSheet() async throws {
+        let sut = await makeSUT(profile: HeroStub.family)
+        sut.select(cardID: "q1")
+        await progress.slowNext()
+        await progress.failNext()
+
+        let saving = Task { await sut.completeSelectedQuest() }
+        try await Task.sleep(for: .milliseconds(50))
+        await sut.open(.quest(id: "q1", childID: HeroStub.eleni.id))
+        await saving.value
+
+        #expect(sut.selectedQuest?.id == "q1")
+        #expect(sut.errorMessage == nil)
+    }
+
     @Test("Given home showing the saga, when reloading it fails, then home keeps what it showed")
     func failedReloadKeepsHome() async throws {
         let sut = await makeSUT()

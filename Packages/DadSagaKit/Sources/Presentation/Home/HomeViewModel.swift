@@ -139,18 +139,20 @@ public final class HomeViewModel {
     }
 
     /// Runs a progress action and refreshes the screen. Returns what it changed, or `nil` after showing an error.
-    /// It closes nothing: each caller decides what the dad sees next.
+    /// It closes nothing: each caller decides what the dad sees next. The error belongs to the sheet the save was
+    /// started from: if a widget link opened another sheet meanwhile, that one is not told of a save it never made.
     func record(_ action: () async throws -> ProgressChange) async -> ProgressChange? {
         guard !isCompleting else { return nil }
         isCompleting = true
         defer { isCompleting = false }
+        let selection = selectionChanges
         do {
             let change = try await action()
             errorMessage = nil
             await load()
             return change
         } catch {
-            errorMessage = saveFailedMessage
+            if selection == selectionChanges { errorMessage = saveFailedMessage }
             return nil
         }
     }
