@@ -4,7 +4,7 @@ import UIKit
 #endif
 
 extension View {
-    /// Draws the window this view is in, and every sheet it presents, in the dad's choice (ADR-0048).
+    /// Draws the window this view is in, and every sheet it presents, in the dad's choice (ADR-0049).
     ///
     /// Sets the window's own `overrideUserInterfaceStyle`, which UIKit passes to every presentation and fully undoes
     /// for Automatic. `preferredColorScheme(nil)` does not: a sheet open while the dad goes back to Automatic keeps the

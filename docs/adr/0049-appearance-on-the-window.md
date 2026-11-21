@@ -1,4 +1,4 @@
-# ADR-0048: The Appearance choice is set on the window, not with `preferredColorScheme`
+# ADR-0049: The Appearance choice is set on the window, not with `preferredColorScheme`
 
 **Status:** Proposed (2026-11-21). The owner reported the bug and confirmed it; the fix waits for the owner's review.
 Changes ADR-0030 §"Preferences" (how the root applies the look, and Settings' own copy of it). It takes the fallback

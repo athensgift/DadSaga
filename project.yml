@@ -106,7 +106,7 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         GENERATE_INFOPLIST_FILE: YES
 
-  # Drives the app on a simulator: the accessibility audit of every screen, and Settings following Appearance (ADR-0048).
+  # Drives the app on a simulator: the accessibility audit of every screen, and Settings following Appearance (ADR-0049).
   DadSagaUITests:
     type: bundle.ui-testing
     platform: iOS
