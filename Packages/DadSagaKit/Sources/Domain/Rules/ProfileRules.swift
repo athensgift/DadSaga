@@ -27,7 +27,7 @@ public enum ProfileRules {
     }
 
     /// Returns the children with their names trimmed, or throws the first problem found. The hero is not looked at, so
-    /// a family can always be edited, even when the stored hero is one the content no longer has (ADR-0048 §4).
+    /// a family can always be edited, even when the stored hero is one the content no longer has (ADR-0048 §5).
     public static func validatedChildren(_ children: [Child], on today: CalendarDay) throws -> [Child] {
         guard !children.isEmpty else { throw ProfileValidationError.noChildren }
         guard children.count <= PlayerProfile.maxChildren else { throw ProfileValidationError.tooManyChildren }

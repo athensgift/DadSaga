@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-/// The stored shape since a birth date became a day (ADR-0048 §2): version 4 with the child's birth year, month and day
+/// The stored shape since a birth date became a day (ADR-0048 §3): version 4 with the child's birth year, month and day
 /// as three optional columns. `birthDate` stays for this version, so a row the migration didn't reach still reads.
 /// No `#Unique` and no indexes: a unique column upserts silently, and a store with duplicates would not open.
 /// Released versions are never edited: a change to a stored property is a new version with a stage in

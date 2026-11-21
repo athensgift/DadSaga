@@ -2,7 +2,7 @@ import Domain
 import Foundation
 import Testing
 
-/// A renamed card keeps everything the dad recorded under its old id (ADR-0048 §4).
+/// A renamed card keeps everything the dad recorded under its old id (ADR-0048 §5).
 @Suite("Former ids")
 struct FormerIDsTests {
     static let text = Fixtures.text

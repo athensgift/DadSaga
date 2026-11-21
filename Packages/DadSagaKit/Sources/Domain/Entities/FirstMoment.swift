@@ -1,7 +1,7 @@
 /// A "legendary moment" in the child's life. Celebrated when it happens, never expected by a date.
 public struct FirstMoment: ContentItem, Hashable, Identifiable, Sendable {
     public let id: String
-    /// Ids it had before a rename (ADR-0048 §4).
+    /// Ids it had before a rename (ADR-0048 §5).
     public let formerIDs: [String]
     public let order: Int
     public let emoji: String

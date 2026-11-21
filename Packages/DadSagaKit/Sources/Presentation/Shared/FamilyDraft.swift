@@ -15,9 +15,9 @@ public struct ChildDraft: Identifiable, Equatable, Sendable {
     /// Kept from the stored child when editing, so their progress stays linked.
     public let id: UUID
     public var name: String
-    /// What the date picker shows. Only its day is kept: the child's birth day is the day it falls on in the phone's
-    /// time zone (ADR-0048 §2).
-    public var birthDate: Date
+    /// The day the dad picked (ADR-0048 §2). It is kept as a day, so a time zone change while the screen is open
+    /// moves nothing; only the picker converts, through `pickerDate(in:)` and `pickBirthDate(_:in:)`.
+    public var birthDay: CalendarDay
     public var gender: GenderChoice
     public var skinTone: SkinToneChoice
 
@@ -25,16 +25,26 @@ public struct ChildDraft: Identifiable, Equatable, Sendable {
         !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
+    /// The moment the date picker shows: the start of the birth day in `timeZone`, the zone the picker draws in.
+    public func pickerDate(in timeZone: TimeZone) -> Date {
+        birthDay.start(in: timeZone)
+    }
+
+    /// The dad picked `date` in a picker drawn in `timeZone`: only its day is kept.
+    public mutating func pickBirthDate(_ date: Date, in timeZone: TimeZone) {
+        birthDay = CalendarDay(date, in: timeZone)
+    }
+
     public init(
         id: UUID = UUID(),
         name: String = "",
-        birthDate: Date,
+        birthDay: CalendarDay,
         gender: GenderChoice = .boy,
         skinTone: SkinToneChoice = .mediumLight
     ) {
         self.id = id
         self.name = name
-        self.birthDate = birthDate
+        self.birthDay = birthDay
         self.gender = gender
         self.skinTone = skinTone
     }
@@ -56,9 +66,9 @@ public struct FamilyDraft: Equatable, Sendable {
     }
 
     /// New children start with the newest sibling's skin tone, which is usually right.
-    public mutating func addChild(birthDate: Date) {
+    public mutating func addChild(birthDay: CalendarDay) {
         guard canAddChild else { return }
-        children.append(ChildDraft(birthDate: birthDate, skinTone: children.last?.skinTone ?? dadSkinTone))
+        children.append(ChildDraft(birthDay: birthDay, skinTone: children.last?.skinTone ?? dadSkinTone))
     }
 
     public mutating func removeChild(id: UUID) {
@@ -145,23 +155,21 @@ extension SkinToneChoice {
 }
 
 extension ChildDraft {
-    /// The picker shows the start of the stored birth day in `timeZone`.
-    init(_ child: Child, timeZone: TimeZone) {
+    init(_ child: Child) {
         self.init(
             id: child.id,
             name: child.name,
-            birthDate: child.birthDay.start(in: timeZone),
+            birthDay: child.birthDay,
             gender: GenderChoice(child.gender),
             skinTone: SkinToneChoice(child.skinTone)
         )
     }
 
-    /// The child, born on the day the picker shows in `timeZone`.
-    func child(in timeZone: TimeZone) -> Child {
+    var child: Child {
         Child(
             id: id,
             name: name,
-            birthDay: CalendarDay(birthDate, in: timeZone),
+            birthDay: birthDay,
             gender: gender.domain,
             skinTone: skinTone.domain
         )
@@ -169,9 +177,9 @@ extension ChildDraft {
 }
 
 extension FamilyDraft {
-    init(_ profile: PlayerProfile, timeZone: TimeZone) {
+    init(_ profile: PlayerProfile) {
         self.init(
-            children: profile.children.map { ChildDraft($0, timeZone: timeZone) },
+            children: profile.children.map(ChildDraft.init),
             dadSkinTone: SkinToneChoice(profile.dadSkinTone)
         )
     }

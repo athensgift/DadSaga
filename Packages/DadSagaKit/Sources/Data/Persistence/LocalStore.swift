@@ -27,7 +27,7 @@ public struct LocalStore: Sendable {
 
     /// The on-disk store in `directory`. The app opens it read-write; the widget opens it read-only, so only the app
     /// ever writes or migrates it.
-    public static func live(in directory: URL, readOnly: Bool = false) -> LocalStore {
+    static func live(in directory: URL, readOnly: Bool = false) -> LocalStore {
         live(directory: { directory }, readOnly: readOnly)
     }
 

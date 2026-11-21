@@ -21,7 +21,8 @@ public final class FamilyViewModel {
     private let getProfile: any GetProfileUseCase
     private let updateFamily: any UpdateFamilyUseCase
     private let locale: Locale
-    private let timeZone: TimeZone
+    /// The zone the date pickers draw in, and the one "today" is read in.
+    public let timeZone: TimeZone
     private let onSaved: @MainActor () -> Void
 
     public init(
@@ -47,7 +48,7 @@ public final class FamilyViewModel {
                 state = .failed(message: strings.text("No profile found."))
                 return
             }
-            family = FamilyDraft(profile, timeZone: timeZone)
+            family = FamilyDraft(profile)
             state = .loaded(makeContent())
         } catch {
             state = .failed(message: strings.text("Your family failed to load."))
@@ -55,7 +56,7 @@ public final class FamilyViewModel {
     }
 
     public func addChild() {
-        family.addChild(birthDate: latestBirthDate)
+        family.addChild(birthDay: CalendarDay(latestBirthDate, in: timeZone))
     }
 
     public func removeChild(id: UUID) {
@@ -67,7 +68,7 @@ public final class FamilyViewModel {
         isSaving = true
         defer { isSaving = false }
         do {
-            try await updateFamily.execute(children: family.children.map { $0.child(in: timeZone) }, on: latestBirthDate)
+            try await updateFamily.execute(children: family.children.map(\.child), on: latestBirthDate)
             errorMessage = nil
             onSaved()
         } catch {

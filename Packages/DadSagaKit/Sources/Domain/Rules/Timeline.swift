@@ -46,19 +46,19 @@ public enum Timeline {
         var entries: [TimelineEntry] = []
 
         for event in events.sorted(by: { $0.date < $1.date }) {
-            // An event stored under a former id counts as its content's current id (ADR-0048 §4).
-            guard let canonical = catalog.canonical(event.kind) else { continue }
+            // An event stored under a former id counts as its content's current id (ADR-0048 §5).
             let kind: TimelineEntry.Kind
+            let canonical: ProgressEvent.Kind
             switch event.kind {
             case .quest(let id):
                 guard let quest = catalog.quest(id: id) else { continue }
-                kind = .quest(quest)
+                (kind, canonical) = (.quest(quest), .quest(id: quest.id))
             case .boss(let id):
                 guard let boss = catalog.boss(id: id) else { continue }
-                kind = .boss(boss)
+                (kind, canonical) = (.boss(boss), .boss(id: boss.id))
             case .first(let id):
                 guard let first = catalog.first(id: id) else { continue }
-                kind = .first(first)
+                (kind, canonical) = (.first(first), .first(id: first.id))
             }
             if canonical.countsOncePerChild,
                !counted.insert(OncePerChild(childID: event.childID, kind: canonical)).inserted { continue }

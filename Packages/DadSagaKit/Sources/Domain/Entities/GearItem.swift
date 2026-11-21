@@ -2,7 +2,7 @@
 /// Gear is only ever gained: XP never goes down, so nothing is ever taken away (ADR-0006).
 public struct GearItem: ContentItem, Hashable, Identifiable, Sendable {
     public let id: String
-    /// Ids it had before a rename (ADR-0048 §4).
+    /// Ids it had before a rename (ADR-0048 §5).
     public let formerIDs: [String]
     public let skill: Skill
     /// Skill XP needed to earn it.

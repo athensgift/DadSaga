@@ -3,7 +3,7 @@ import Domain
 import Foundation
 import Testing
 
-/// The launch sweep of photos no entry points to (ADR-0048 §5). A wrongly deleted photo is lost for good, so every doubt
+/// The launch sweep of photos no entry points to (ADR-0048 §6). A wrongly deleted photo is lost for good, so every doubt
 /// keeps the file: an unreadable saga, no saga at all, a recent file, a file without a date.
 @Suite("Sweep of orphan photos")
 struct SweepOrphanPhotosUseCaseTests {

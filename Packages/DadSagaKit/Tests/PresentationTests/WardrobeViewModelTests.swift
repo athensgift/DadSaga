@@ -71,6 +71,18 @@ struct WardrobeViewModelTests {
         #expect(await outfit.stored == Outfit(choices: [.care: .item("g1")]))
     }
 
+    @Test("Given the burp cloth was chosen under its former id, when the wardrobe opens, then it is worn and shown as chosen")
+    func itemChosenUnderFormerIDIsChosen() async throws {
+        await progress.seed(times: 3)
+        await outfit.store(Outfit(choices: [.care: .item("g1-before")]))
+        let sut = makeSUT()
+        await sut.onAppear()
+        let content = try #require(loaded(sut))
+
+        #expect(content.gear == [.burpCloth])
+        #expect(content.slots.first?.options.map(\.isSelected) == [false, false, true, false])
+    }
+
     @Test("Given a locked item, when choosing it, then nothing changes")
     func lockedIgnored() async throws {
         await progress.seed(times: 3)
@@ -165,6 +177,10 @@ actor FakeOutfit: SetOutfitChoiceUseCase {
 
     func failNext() {
         shouldFail = true
+    }
+
+    func store(_ outfit: Outfit) {
+        stored = outfit
     }
 
     /// The next save is stored at once but its reply comes late, after any save made meanwhile: the reply's outfit

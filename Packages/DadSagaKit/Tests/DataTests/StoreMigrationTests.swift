@@ -5,7 +5,7 @@ import Testing
 @testable import Data
 
 /// Moving a store to several photos per entry, through versions 2 and 3 (ADR-0042 §2), to the dad's look at version 4
-/// (ADR-0044 §6), and to birth days at version 5 (ADR-0048 §2).
+/// (ADR-0044 §6), and to birth days at version 5 (ADR-0048 §3).
 @Suite("Store migration", .serialized)
 struct StoreMigrationTests {
     let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-migration-" + UUID().uuidString)

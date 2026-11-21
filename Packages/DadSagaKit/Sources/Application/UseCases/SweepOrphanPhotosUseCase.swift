@@ -1,7 +1,7 @@
 import Foundation
 
 /// Deletes photo files that no entry points to, left behind when the app stopped between two writes: starting over
-/// erases the store before the photos, saving an entry writes its photos before the entry (ADR-0048 §5).
+/// erases the store before the photos, saving an entry writes its photos before the entry (ADR-0048 §6).
 /// It runs once at launch and shows nothing.
 public protocol SweepOrphanPhotosUseCase: Sendable {
     /// Returns how many files it deleted.

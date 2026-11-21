@@ -9,7 +9,7 @@ import SwiftData
 /// captures nothing and can run twice; if anything fails, the store stays at version 1 or 2 with every photo id, and
 /// the next launch carries on. V3 → V4 adds the dad's look as four optional columns (ADR-0044 §6). V4 → V5 adds each
 /// child's birth day as three optional columns and fills them from the stored moment, read in the phone's time zone:
-/// the zone the dad picked it in (ADR-0048 §2). A row left empty still reads from `birthDate`.
+/// the zone the dad picked it in (ADR-0048 §3). A row left empty still reads from `birthDate`.
 enum DadSagaMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
         [SchemaV1.self, SchemaV2.self, SchemaV3.self, SchemaV4.self, SchemaV5.self]

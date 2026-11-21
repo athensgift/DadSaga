@@ -28,10 +28,32 @@ struct BirthDayEditorTests {
         var calendar = Calendar(identifier: .gregorian)
         calendar.timeZone = losAngeles
 
-        let shown = try #require(sut.family.children.first?.birthDate)
+        let shown = try #require(sut.family.children.first?.pickerDate(in: losAngeles))
         #expect(calendar.dateComponents([.year, .month, .day], from: shown) == DateComponents(year: 2025, month: 3, day: 15))
         await sut.save()
         #expect(await update.saved?.first?.birthDay == .day(2025, 3, 15))
+    }
+
+    @Test("Given My family opened in Athens, when the phone moves to London and a name changes, then every birth day is kept")
+    func familyKeepsTheDaysWhenTheZoneChanges() async throws {
+        let athens = try #require(TimeZone(identifier: "Europe/Athens"))
+        let london = try #require(TimeZone(identifier: "Europe/London"))
+        let children = [
+            Child(name: "Άννα", birthDay: .day(2025, 3, 15)),
+            Child(name: "Λευτέρης", birthDay: .day(2026, 5, 21))
+        ]
+        let profile = PlayerProfile(children: children, heroClassID: "h-cool")
+        let openedInAthens = makeFamily(profile: profile, timeZone: athens)
+        await openedInAthens.onAppear()
+        let savedInLondon = makeFamily(profile: profile, timeZone: london)
+        await savedInLondon.onAppear()
+
+        savedInLondon.family = openedInAthens.family
+        savedInLondon.family.children[0].name = "Αννούλα"
+        await savedInLondon.save()
+
+        let saved = try #require(await update.saved)
+        #expect(saved.map(\.birthDay) == [.day(2025, 3, 15), .day(2026, 5, 21)])
     }
 
     @Test("Given a birth date picked late in the evening in Auckland, when finishing, then the child's birth day is that day")
@@ -54,5 +76,30 @@ struct BirthDayEditorTests {
         await sut.finish()
 
         #expect(await save.saved?.children.first?.birthDay == .day(2025, 3, 15))
+    }
+
+    @Test("Given a picker in Auckland, when the dad picks 15 March late in the evening, then the child is born on 15 March")
+    func pickerKeepsOnlyTheDay() throws {
+        let auckland = try #require(TimeZone(identifier: "Pacific/Auckland"))
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = auckland
+        let evening = try #require(calendar.date(from: DateComponents(year: 2025, month: 3, day: 15, hour: 23, minute: 30)))
+        var draft = ChildDraft(name: "Άννα", birthDay: .day(2024, 1, 1))
+
+        draft.pickBirthDate(evening, in: auckland)
+
+        #expect(draft.birthDay == .day(2025, 3, 15))
+        #expect(calendar.isDate(draft.pickerDate(in: auckland), inSameDayAs: evening))
+    }
+
+    private func makeFamily(profile: PlayerProfile, timeZone: TimeZone) -> FamilyViewModel {
+        FamilyViewModel(
+            getProfile: StubGetProfile(profile: profile),
+            updateFamily: update,
+            locale: Locale(identifier: "el_GR"),
+            now: HeroStub.today,
+            timeZone: timeZone,
+            onSaved: {}
+        )
     }
 }

@@ -53,7 +53,9 @@ struct SagaFixture {
     /// The saga after a few weeks of play.
     func played() async throws -> SagaFixture {
         let profile = PlayerProfile(children: [Self.child], heroClassID: "h-super", dadSkinTone: .mediumLight)
-        try await DefaultSaveProfileUseCase(contentRepository: content, profileRepository: store.profiles)
+        try await DefaultSaveProfileUseCase(
+            contentRepository: content, profileRepository: store.profiles, timeZone: Self.calendar.timeZone
+        )
             .execute(profile, on: Self.today.addingTimeInterval(-30 * 86_400))
         let quest = DefaultCompleteQuestUseCase(
             contentRepository: content, progressRepository: store.progress, photoStore: photos
@@ -97,7 +99,9 @@ struct SagaFixture {
             skinTone: .mediumDark
         )
         let profile = PlayerProfile(children: [alex, maya], heroClassID: "h-super", dadSkinTone: .mediumLight)
-        try await DefaultSaveProfileUseCase(contentRepository: content, profileRepository: store.profiles)
+        try await DefaultSaveProfileUseCase(
+            contentRepository: content, profileRepository: store.profiles, timeZone: Self.calendar.timeZone
+        )
             .execute(profile, on: Self.day(30))
         _ = try await DefaultCompleteQuestUseCase(
             contentRepository: content, progressRepository: store.progress, photoStore: photos
@@ -135,15 +139,20 @@ struct SagaFixture {
             context.cgContext.fillEllipse(in: CGRect(x: 150, y: 200, width: 300, height: 300))
         }.jpegData(compressionQuality: 0.8)
     }
+}
 
-    // MARK: Screens
+// MARK: - Screens
 
+extension SagaFixture {
     func onboarding() -> OnboardingViewModel {
         OnboardingViewModel(
             loadCatalog: DefaultLoadContentCatalogUseCase(repository: content),
-            saveProfile: DefaultSaveProfileUseCase(contentRepository: content, profileRepository: store.profiles),
+            saveProfile: DefaultSaveProfileUseCase(
+                contentRepository: content, profileRepository: store.profiles, timeZone: Self.calendar.timeZone
+            ),
             locale: locale,
             now: Self.today,
+            timeZone: Self.calendar.timeZone,
             onFinished: {}
         )
     }
@@ -156,7 +165,8 @@ struct SagaFixture {
                     profileRepository: store.profiles,
                     progressRepository: store.progress,
                     outfitRepository: store.outfit,
-                    sagaOfferRepository: sagaOffers
+                    sagaOfferRepository: sagaOffers,
+                    timeZone: Self.calendar.timeZone
                 ),
                 completeQuest: DefaultCompleteQuestUseCase(
                     contentRepository: content, progressRepository: store.progress, photoStore: photos
@@ -176,6 +186,7 @@ struct SagaFixture {
                 answerSagaOffer: DefaultAnswerSagaOfferUseCase(repository: sagaOffers)
             ),
             locale: locale,
+            timeZone: Self.calendar.timeZone,
             now: { Self.today }
         )
     }
@@ -234,7 +245,9 @@ struct SagaFixture {
             makeHero: {
                 HeroSettingsViewModel(
                     getHeroChoice: DefaultGetHeroChoiceUseCase(contentRepository: content, profileRepository: store.profiles),
-                    updateHero: DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: store.profiles),
+                    updateHero: DefaultUpdateHeroUseCase(
+                        contentRepository: content, profileRepository: store.profiles, timeZone: Self.calendar.timeZone
+                    ),
                     locale: locale,
                     now: Self.today
                 )
@@ -243,9 +256,12 @@ struct SagaFixture {
             makeFamily: { onSaved in
                 FamilyViewModel(
                     getProfile: DefaultGetProfileUseCase(repository: store.profiles),
-                    updateFamily: DefaultUpdateFamilyUseCase(contentRepository: content, profileRepository: store.profiles),
+                    updateFamily: DefaultUpdateFamilyUseCase(
+                        profileRepository: store.profiles, timeZone: Self.calendar.timeZone
+                    ),
                     locale: locale,
                     now: Self.today,
+                    timeZone: Self.calendar.timeZone,
                     onSaved: onSaved
                 )
             },

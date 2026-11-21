@@ -9,7 +9,7 @@ public struct ContentCatalog: Hashable, Sendable {
     public let gear: [GearItem]
     /// In the order the menus show them.
     public let appearanceOptions: [DadAppearanceOption]
-    /// Every current and former id of each kind, so an id stored before a rename still finds its item (ADR-0048 §4).
+    /// Every current and former id of each kind, so an id stored before a rename still finds its item (ADR-0048 §5).
     private let questsByID: [String: Quest]
     private let bossesByID: [String: BossFight]
     private let firstsByID: [String: FirstMoment]
@@ -72,10 +72,5 @@ public struct ContentCatalog: Hashable, Sendable {
             }
         }
         return byID
-    }
-
-    /// Whether the content an event points to is in the catalog.
-    public func contains(_ kind: ProgressEvent.Kind) -> Bool {
-        canonical(kind) != nil
     }
 }

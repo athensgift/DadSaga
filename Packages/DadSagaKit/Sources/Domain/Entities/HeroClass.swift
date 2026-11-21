@@ -1,7 +1,7 @@
 /// The dad's RPG class. Purely an identity and a look: no class is stronger than another.
 public struct HeroClass: ContentItem, Hashable, Identifiable, Sendable {
     public let id: String
-    /// Ids it had before a rename (ADR-0048 §4).
+    /// Ids it had before a rename (ADR-0048 §5).
     public let formerIDs: [String]
     public let order: Int
     public let title: LocalizedText

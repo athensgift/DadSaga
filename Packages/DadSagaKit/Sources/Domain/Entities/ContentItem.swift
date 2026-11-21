@@ -1,4 +1,4 @@
-/// Content stored events and choices point to by id (ADR-0048 §4). An id never goes away once shipped: a rename keeps
+/// Content stored events and choices point to by id (ADR-0048 §5). An id never goes away once shipped: a rename keeps
 /// the old one in `formerIDs`, so what the dad recorded under it still counts.
 public protocol ContentItem {
     var id: String { get }

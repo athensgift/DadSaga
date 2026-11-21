@@ -12,7 +12,7 @@ public protocol PhotoStore: Sendable {
     /// Wipes every photo. Only starting over uses this.
     func deleteAll() async
     /// Every photo file there is, with when it was written. Throws if the folder can't be read, so a sweep that can't
-    /// see the files deletes none (ADR-0048 §5).
+    /// see the files deletes none (ADR-0048 §6).
     func storedPhotos() async throws -> [StoredPhoto]
 }
 

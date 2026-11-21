@@ -208,7 +208,7 @@ final class AppContainer {
         Task { await renderer.discardFilms() }
     }
 
-    /// Deletes photo files no entry points to, left when the app stopped between two writes (ADR-0048 §5). Run once,
+    /// Deletes photo files no entry points to, left when the app stopped between two writes (ADR-0048 §6). Run once,
     /// at launch, at low priority; it deletes nothing when the saga can't be read.
     func sweepOrphanPhotos() {
         let sweep = DefaultSweepOrphanPhotosUseCase(

@@ -1,7 +1,7 @@
 /// Something the dad does in real life. XP rewards the dad's action.
 public struct Quest: ContentItem, Hashable, Identifiable, Sendable {
     public let id: String
-    /// Ids it had before a rename (ADR-0048 §4).
+    /// Ids it had before a rename (ADR-0048 §5).
     public let formerIDs: [String]
     public let worldID: String
     public let title: LocalizedText

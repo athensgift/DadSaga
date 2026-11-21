@@ -168,8 +168,9 @@ photos are swept at launch, not left for export).
 - **Files first, entries second.** The sweep lists the files, then reads the entries, so a listed file is deleted only
   if no entry pointed to it after it was listed. No write points an entry at a file already on disk unless the entry
   has it already: an edit keeps only the ids the entry has (ADR-0042 §1).
-- Modification dates are a required-reason API, so the privacy manifest declares
-  `NSPrivacyAccessedAPICategoryFileTimestamp` with `C617.1`, beside `UserDefaults`'s `CA92.1`.
+- Modification dates are a required-reason API. The app has no privacy manifest yet: this change adds the use, and the
+  manifest that the release-prep work adds must declare `NSPrivacyAccessedAPICategoryFileTimestamp` with `C617.1`,
+  beside `UserDefaults`'s `CA92.1`, before any upload to App Store Connect.
 
 ### 7. Where the code goes
 
@@ -209,4 +210,4 @@ Not yet checked on a device. To check:
 - Every new card, hero, gear item or world adds a line to `ShippedContentIDs.json` in the same PR; a rename keeps the
   old id in `formerIDs` for good, and a card's skill and XP can't move against the dad.
 - Photos nothing points to are removed a day after they are left, never while the saga can't be read and never before
-  onboarding. The privacy manifest gains a file-timestamp reason.
+  onboarding. The privacy manifest, still to be added before the first upload, must carry a file-timestamp reason.

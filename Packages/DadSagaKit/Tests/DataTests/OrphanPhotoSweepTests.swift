@@ -5,7 +5,7 @@ import SwiftData
 import Testing
 @testable import Data
 
-/// The launch sweep against the real store and photo folder (ADR-0048 §5).
+/// The launch sweep against the real store and photo folder (ADR-0048 §6).
 @Suite("Orphan photo sweep")
 struct OrphanPhotoSweepTests {
     let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-sweep-" + UUID().uuidString)

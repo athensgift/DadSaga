@@ -111,7 +111,7 @@ public final class WardrobeViewModel {
                 item: nil
             )
         ]
-        // An item chosen before a rename is still the one shown as chosen (ADR-0048 §4).
+        // An item chosen before a rename is still the one shown as chosen (ADR-0048 §5).
         let chosenID: String? = if case .item(let id) = choice { id } else { nil }
         options += items.map { item in
             let isLocked = item.minXP > xp

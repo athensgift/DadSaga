@@ -47,7 +47,7 @@ public struct DefaultUpdateHeroUseCase: UpdateHeroUseCase {
 }
 
 /// Keeps the stored hero as it is, even one the content no longer has: editing the family never asks for a hero
-/// (ADR-0048 §4).
+/// (ADR-0048 §5).
 public struct DefaultUpdateFamilyUseCase: UpdateFamilyUseCase {
     private let profileRepository: any ProfileRepository
     private let timeZone: TimeZone

@@ -12,7 +12,7 @@ public struct SagaOccasion: Hashable, Identifiable, Sendable {
     /// Stable, so an answer to the offer is remembered for this occasion only.
     public let id: String
     /// `id`, and the ids this occasion had before its world was renamed: an answer given under any of them still holds
-    /// (ADR-0048 §4).
+    /// (ADR-0048 §5).
     public let answerIDs: Set<String>
     public let kind: Kind
     public let childID: UUID

@@ -392,7 +392,8 @@ enum HeroStub {
             )
         ],
         gear: [
-            GearItem(id: "g1", skill: .care, minXP: 50, look: "burpCloth", title: LocalizedText(el: "Πανάκι", en: "Burp cloth")),
+            GearItem(id: "g1", skill: .care, minXP: 50, look: "burpCloth", title: LocalizedText(el: "Πανάκι", en: "Burp cloth"),
+                     formerIDs: ["g1-before"]),
             GearItem(id: "g2", skill: .care, minXP: 200, look: "unknownLook", title: text)
         ]
     )

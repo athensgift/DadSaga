@@ -3,7 +3,7 @@ import Domain
 import Foundation
 import Testing
 
-/// Every content id the app has shipped, with what it was worth then (ADR-0048 §4). Events, outfit choices and film
+/// Every content id the app has shipped, with what it was worth then (ADR-0048 §5). Events, outfit choices and film
 /// answers are stored by these ids, so none may ever go. Add each new card here in the same change; never remove one.
 struct ShippedContentIDs: Decodable {
     struct Item: Decodable {

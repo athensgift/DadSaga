@@ -44,8 +44,7 @@ public struct CompanionModel: Equatable, Identifiable, Sendable {
 
 extension ChildDraft {
     /// The stage the child is drawn at on the day `date` falls on in `timeZone`.
-    func stage(at date: Date, timeZone: TimeZone = .autoupdatingCurrent) -> CompanionStage {
-        let child = child(in: timeZone)
-        return CompanionStage(ageInMonths: child.ageInMonths(on: CalendarDay(date, in: timeZone)))
+    func stage(at date: Date, timeZone: TimeZone) -> CompanionStage {
+        CompanionStage(ageInMonths: child.ageInMonths(on: CalendarDay(date, in: timeZone)))
     }
 }
