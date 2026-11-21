@@ -9,8 +9,12 @@ import Observation
 @Observable
 public final class HomeViewModel {
     public private(set) var state: HomeViewState = .loading
-    public internal(set) var selectedQuest: QuestDetail?
-    public private(set) var selectedBoss: BossDetail?
+    public internal(set) var selectedQuest: QuestDetail? {
+        didSet { selectionChanges += 1 }
+    }
+    public private(set) var selectedBoss: BossDetail? {
+        didSet { selectionChanges += 1 }
+    }
     public internal(set) var celebration: Celebration?
     /// "Undo" for a few seconds after the dad records something, in case he tapped by mistake.
     public internal(set) var undoOffer: UndoOffer?
@@ -43,6 +47,9 @@ public final class HomeViewModel {
     let now: @Sendable () -> Date
     /// What the screen was last built from, for actions that need it (e.g. which firsts are left).
     private(set) var overview: HomeOverview?
+    /// Counts each time a quest or boss sheet opens or closes, so a save that finishes later closes only the sheet it
+    /// was started from, not one a widget link opened meanwhile.
+    private var selectionChanges = 0
     private var celebrationCount = 0
     /// Each load takes a number; only the latest one may update the screen, so an older load that finishes last
     /// (e.g. home appearing while a widget link opens another child) cannot put back what it read.
@@ -67,6 +74,12 @@ public final class HomeViewModel {
 
     /// Reloads everything, e.g. after the family was edited.
     public func reload() async {
+        await load()
+    }
+
+    /// Back in the app, perhaps a day later: the child's age, world and suggestions are read again.
+    public func appBecameActive() async {
+        guard state != .loading else { return }
         await load()
     }
 
@@ -99,10 +112,11 @@ public final class HomeViewModel {
     public func completeSelectedQuest(note: String = "", photos: PhotoDrafts = PhotoDrafts()) async {
         guard let quest = selectedQuest, let childID = selectedChildID else { return }
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
+        let selection = selectionChanges
         guard let change = await record({
             try await self.useCases.completeQuest.execute(questID: quest.id, childID: childID, on: self.now(), journal: journal)
         }) else { return }
-        selectedQuest = nil
+        if selection == selectionChanges { selectedQuest = nil }
         celebrate(change)
     }
 
@@ -111,15 +125,17 @@ public final class HomeViewModel {
         guard let boss = selectedBoss, !boss.isDefeated, let childID = selectedChildID else { return }
         let badge = overview?.bosses.first { $0.id == boss.id }?.badge.resolved(for: locale)
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
+        let selection = selectionChanges
         guard let change = await record({
             try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now(), journal: journal)
         }) else { return }
-        selectedBoss = nil
+        if selection == selectionChanges { selectedBoss = nil }
         celebrate(change, badge: badge)
     }
 
-    public func celebrationFinished() {
-        celebration = nil
+    /// A celebration's time is up. Ignored if a newer one has replaced it.
+    public func celebrationFinished(id: Int) {
+        if celebration?.id == id { celebration = nil }
     }
 
     /// Runs a progress action and refreshes the screen. Returns what it changed, or `nil` after showing an error.
@@ -191,6 +207,8 @@ public final class HomeViewModel {
             state = .loaded(makeContent(overview))
         } catch {
             guard generation == loadGeneration else { return }
+            // A home that loaded once stays as it was: what it shows is still the dad's saga, only not refreshed.
+            if case .loaded = state { return }
             state = .failed(message: strings.text("Content failed to load."))
         }
     }

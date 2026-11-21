@@ -35,7 +35,7 @@ struct HomeViewModelTests {
         #expect(sut.celebration?.levelUpText == nil)
         #expect(sut.celebration?.highlight == .quest)
 
-        sut.celebrationFinished()
+        sut.celebrationFinished(id: 1)
         #expect(sut.celebration == nil)
     }
 

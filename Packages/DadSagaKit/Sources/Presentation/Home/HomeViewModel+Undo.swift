@@ -5,22 +5,28 @@ import Localization
 extension HomeViewModel {
     /// Takes back what was just recorded: its XP, and any level, gear or badge it brought.
     /// While another save is still running the offer stays, so the tap is not lost and can be made again.
+    /// If taking it back fails, the entry is still there, so the bar comes back saying so, to try again.
     public func undoLastRecord() async {
         guard !isCompleting, let offer = undoOffer else { return }
         undoOffer = nil
         // Only its own celebration: a moment's may be playing by now.
-        if celebration?.id == offer.id { celebrationFinished() }
-        await perform {
+        celebrationFinished(id: offer.id)
+        let undone = await perform {
             try await self.useCases.deleteEvent.execute(eventID: offer.eventID)
+        }
+        // Only if nothing newer has taken the bar meanwhile.
+        if !undone, undoOffer == nil {
+            undoOffer = makeUndoOffer(id: offer.id, eventID: offer.eventID, didFail: true)
         }
     }
 
-    func makeUndoOffer(id: Int, eventID: UUID) -> UndoOffer {
+    func makeUndoOffer(id: Int, eventID: UUID, didFail: Bool = false) -> UndoOffer {
         UndoOffer(
             id: id,
             eventID: eventID,
-            message: strings.text("Saved"),
-            actionTitle: strings.text("Undo")
+            message: didFail ? strings.text("Couldn't undo. Please try again.") : strings.text("Saved"),
+            actionTitle: strings.text("Undo"),
+            didFail: didFail
         )
     }
 

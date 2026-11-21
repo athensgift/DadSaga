@@ -1516,6 +1516,23 @@
         }
       }
     },
+    "Couldn't undo. Please try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν αναιρέθηκε. Δοκίμασε ξανά."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't undo. Please try again."
+          }
+        }
+      }
+    },
     "Cuddle time" : {
       "extractionState" : "manual",
       "localizations" : {

@@ -11,6 +11,7 @@ public struct HomeView: View {
     @State var viewModel: HomeViewModel
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
     @State private var width: CGFloat = 0
     @State private var fold: HorizontalFold?
     /// Where the fold runs across home, also while the device lies flat.
@@ -86,6 +87,11 @@ public struct HomeView: View {
         }
         .sagaFilmSheet($sagaFilm)
         .task { await viewModel.onAppear() }
+        // Back in the app, perhaps the next day: age, world and suggestions are read again.
+        .onChange(of: scenePhase) { old, phase in
+            guard old != .active, phase == .active else { return }
+            Task { await viewModel.appBecameActive() }
+        }
         .task(id: pendingLink) { await openPendingLink() }
         .sheet(item: activeSheet, onDismiss: viewModel.sheetDismissed, content: sheetContent)
         .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
@@ -158,7 +164,7 @@ public struct HomeView: View {
     /// Fixed over the scroll view, not scrolled with the hero, so a dad who completes a card further down still sees it.
     /// With two panes it stays in the hero's, away from the Duo's fold.
     private var celebrationOverlay: CelebrationOverlay {
-        CelebrationOverlay(celebration: viewModel.celebration) { viewModel.celebrationFinished() }
+        CelebrationOverlay(celebration: viewModel.celebration) { viewModel.celebrationFinished(id: $0) }
     }
 
     private func heroPanel(_ content: HomeContent) -> some View {

@@ -212,6 +212,18 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         DadProgress(events: frozen ?? events, catalog: HeroStub.catalog)
     }
 
+    /// Home's overview fails to load from now on, as if the store could no longer be read.
+    private var overviewFails = false
+    func failOverview() {
+        overviewFails = true
+    }
+
+    /// The progress home's overview reads, or an error once `failOverview()` was called.
+    func overviewProgress() throws -> DadProgress {
+        if overviewFails { throw StubError.boom }
+        return current
+    }
+
     /// The photos each quest or boss was recorded with.
     private(set) var recordedPhotos: [[Data]] = []
 
@@ -318,33 +330,6 @@ actor SpySaveProfile: SaveProfileUseCase {
     func execute(_ profile: PlayerProfile, on date: Date) async throws {
         if shouldFail { throw StubError.boom }
         saved = profile
-    }
-}
-
-/// Home's overview from stubs: the family, the fake log and wardrobe, and an adventure per child. Built with the real
-/// `HomeOverview`, so which world, quests, bosses and gear show follows the same rules as the app.
-struct FakeHomeOverview: GetHomeOverviewUseCase {
-    let profile: PlayerProfile?
-    var catalog = HeroStub.catalog
-    let progress: FakeProgress
-    var outfit = FakeOutfit()
-    var adventure: @Sendable (Child) -> Adventure = HeroStub.adventure
-    /// The film offer home finds, until the dad answers it.
-    var film = FakeFilmOffers()
-
-    func execute(childID: UUID?, worldID: String?, on date: Date) async throws -> HomeOverview? {
-        guard let profile, let child = profile.child(childID) else { return nil }
-        return HomeOverview(
-            profile: profile,
-            child: child,
-            catalog: catalog,
-            adventure: adventure(child),
-            progress: await progress.current,
-            outfit: await outfit.stored,
-            worldID: worldID,
-            sagaOffer: await film.pending,
-            today: CalendarDay(date, in: .gmt)
-        )
     }
 }
 

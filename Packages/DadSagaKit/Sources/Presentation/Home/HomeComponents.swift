@@ -98,7 +98,7 @@ struct ChildPicker: View {
 /// Floating, transient feedback after a quest or boss: the one place on home where Liquid Glass sits over content.
 struct CelebrationBadge: View {
     let celebration: Celebration
-    let onFinished: () -> Void
+    let onFinished: (_ id: Int) -> Void
 
     var body: some View {
         VStack(spacing: DSSpacing.xs) {
@@ -139,8 +139,13 @@ struct CelebrationBadge: View {
         .padding(.horizontal, DSSpacing.m)
         .transition(.scale(scale: 0.6).combined(with: .opacity))
         .task(id: celebration.id) {
-            try? await Task.sleep(for: .seconds(celebration.highlight >= .unlock ? 3.2 : 2.2))
-            onFinished()
+            // Cancelled when a newer celebration replaces this one: that one keeps its own time.
+            do {
+                try await Task.sleep(for: .seconds(celebration.highlight >= .unlock ? 3.2 : 2.2))
+            } catch {
+                return
+            }
+            onFinished(celebration.id)
         }
     }
 }
@@ -148,7 +153,7 @@ struct CelebrationBadge: View {
 /// The badge with its burst, centred over the screen, and the haptic, while something is celebrated.
 struct CelebrationOverlay: ViewModifier {
     let celebration: Celebration?
-    let onFinished: () -> Void
+    let onFinished: (_ id: Int) -> Void
     @Environment(\.isHapticsEnabled) private var isHapticsEnabled
 
     func body(content: Content) -> some View {
@@ -241,7 +246,11 @@ struct UndoBar: View {
             Label {
                 Text(offer.message).foregroundStyle(DSColor.textPrimary)
             } icon: {
-                Image(systemName: "checkmark.circle.fill").foregroundStyle(DSColor.xp)
+                if offer.didFail {
+                    Image(systemName: "exclamationmark.circle.fill").foregroundStyle(DSColor.boss)
+                } else {
+                    Image(systemName: "checkmark.circle.fill").foregroundStyle(DSColor.xp)
+                }
             }
             .font(DSFont.subheadline)
             Spacer(minLength: 0)

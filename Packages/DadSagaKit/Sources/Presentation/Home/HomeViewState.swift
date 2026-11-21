@@ -239,6 +239,8 @@ public struct UndoOffer: Equatable, Identifiable, Sendable {
     let eventID: UUID
     public let message: String
     public let actionTitle: String
+    /// Undoing it failed: the entry is still there, and the bar says so.
+    public var didFail = false
 }
 
 public struct ChildTab: Equatable, Identifiable, Sendable {

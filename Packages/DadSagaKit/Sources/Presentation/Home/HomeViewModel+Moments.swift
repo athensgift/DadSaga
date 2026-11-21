@@ -99,8 +99,10 @@ extension HomeViewModel {
     }
 
     /// Runs a change that earns nothing: closes the sheet and refreshes, or shows an error and keeps it open.
-    func perform(_ action: () async throws -> Void) async {
-        guard !isCompleting else { return }
+    /// Returns whether the change was made.
+    @discardableResult
+    func perform(_ action: () async throws -> Void) async -> Bool {
+        guard !isCompleting else { return false }
         isCompleting = true
         defer { isCompleting = false }
         do {
@@ -108,8 +110,10 @@ extension HomeViewModel {
             momentCapture = nil
             errorMessage = nil
             await reload()
+            return true
         } catch {
             errorMessage = saveFailedMessage
+            return false
         }
     }
 }
