@@ -7,6 +7,8 @@ import Localization
 struct MomentsFormatter {
     let strings: HomeStrings
     let locale: Locale
+    /// For the start of the child's birth day: a moment can't be dated before it.
+    let timeZone: TimeZone
 
     func section(for child: Child, catalog: ContentCatalog, progress: DadProgress) -> MomentsSection {
         let moments = progress.moments(for: child.id)
@@ -30,7 +32,7 @@ struct MomentsFormatter {
                 MomentOption(id: first.id, emoji: first.emoji, title: first.title.resolved(for: locale), reward: reward(first))
             },
             dateLabel: dateLabel,
-            earliestDate: min(child.birthDate, now),
+            earliestDate: min(child.birthDay.start(in: timeZone), now),
             latestDate: now,
             nextLine: strings.text("Next, if you like: photos or a few words."),
             saveTitle: strings.text("Save")
@@ -57,7 +59,7 @@ struct MomentsFormatter {
             note: moment.note ?? "",
             photoIDs: moment.photoIDs,
             dateLabel: dateLabel,
-            earliestDate: min(child.birthDate, moment.date, now),
+            earliestDate: min(child.birthDay.start(in: timeZone), moment.date, now),
             latestDate: now,
             notePlaceholder: strings.text("What happened? (optional)"),
             saveTitle: strings.text("Save"),

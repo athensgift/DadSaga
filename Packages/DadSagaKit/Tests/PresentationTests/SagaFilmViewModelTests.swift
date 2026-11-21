@@ -240,7 +240,7 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
 
     @Test("Given a name with a slash and a colon, when making the film, then its file name is one safe component")
     func fileName() async throws {
-        let child = Child(id: FilmStub.anna.id, name: "Άννα/Μαρία: η μικρή", birthDate: FilmStub.birth)
+        let child = Child(id: FilmStub.anna.id, name: "Άννα/Μαρία: η μικρή", birthDay: CalendarDay(FilmStub.birth, in: .gmt))
         let profile = PlayerProfile(children: [child], heroClassID: "h-cool")
         let sut = makeSUT(FakeGetSagaFilm(profile: profile))
         await sut.onAppear()
@@ -253,7 +253,9 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
 
     @Test("Given a name longer than a file name can be, when making the film, then its file name still fits and ends the same")
     func longFileName() async throws {
-        let child = Child(id: FilmStub.anna.id, name: String(repeating: "Άννα ", count: 60), birthDate: FilmStub.birth)
+        let child = Child(
+            id: FilmStub.anna.id, name: String(repeating: "Άννα ", count: 60), birthDay: CalendarDay(FilmStub.birth, in: .gmt)
+        )
         let profile = PlayerProfile(children: [child], heroClassID: "h-cool")
         let sut = makeSUT(FakeGetSagaFilm(profile: profile))
         await sut.onAppear()

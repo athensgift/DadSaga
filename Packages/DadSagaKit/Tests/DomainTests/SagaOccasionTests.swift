@@ -23,7 +23,7 @@ struct SagaOccasionTests {
         let feb28 = try #require(leap.calendar.date(from: DateComponents(year: 2025, month: 2, day: 28)))
 
         let occasion = SagaOccasions.latest(
-            for: leap.child, events: events, catalog: leap.catalog, on: feb28, calendar: leap.calendar
+            for: leap.child, events: events, catalog: leap.catalog, on: feb28, timeZone: leap.timeZone
         )
 
         #expect(occasion?.kind == .birthday(years: 1))
@@ -45,7 +45,7 @@ struct SagaOccasionTests {
         func occasion(months: Int) -> SagaOccasion? {
             SagaOccasions.latest(
                 for: saga.child, events: events, catalog: saga.catalog, on: saga.date(months: months, days: 1),
-                calendar: saga.calendar, windowDays: 60
+                timeZone: saga.timeZone, windowDays: 60
             )
         }
 
@@ -86,7 +86,7 @@ struct SagaOccasionTests {
         func occasion(answered: Set<String>) -> SagaOccasion? {
             SagaOccasions.latest(
                 for: saga.child, events: events, catalog: saga.catalog, on: saga.date(months: 25, days: 1),
-                answered: answered, calendar: saga.calendar, windowDays: 60
+                answered: answered, timeZone: saga.timeZone, windowDays: 60
             )
         }
         let newest = try #require(occasion(answered: []))
@@ -128,7 +128,7 @@ struct SagaOccasionTests {
 
     /// Νίκος is born `days` after Άννα.
     func brother(bornDaysLater days: Int) -> Child {
-        Child(name: "Νίκος", birthDate: saga.date(months: 0, days: days))
+        Child(name: "Νίκος", birthDay: CalendarDay(saga.date(months: 0, days: days), in: .gmt))
     }
 
     func familyOccasion(
@@ -136,7 +136,7 @@ struct SagaOccasionTests {
     ) -> SagaOccasion? {
         SagaOccasions.latest(
             forFamily: children, events: events, catalog: saga.catalog, on: saga.date(months: months, days: days),
-            answered: answered, calendar: saga.calendar
+            answered: answered, timeZone: saga.timeZone
         )
     }
 

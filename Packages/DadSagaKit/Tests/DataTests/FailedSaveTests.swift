@@ -8,7 +8,7 @@ import Testing
 @Suite("A save that fails")
 struct FailedSaveTests {
     let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-failed-save-" + UUID().uuidString)
-    let child = Child(name: "Λένα", birthDate: Date(timeIntervalSince1970: 1_700_000_000))
+    let child = Child(name: "Λένα", birthDay: .day(2023, 11, 14))
 
     /// A store with a family and one entry, reopened so that it cannot be written.
     private func unwritableStore(with events: [ProgressEvent] = []) async throws -> LocalStore {
@@ -69,7 +69,7 @@ struct FailedSaveTests {
     @Test("Given a stored family, when saving a new one fails, then the stored family is read back")
     func failedProfileSaveKeepsTheStoredFamily() async throws {
         let store = try await unwritableStore()
-        let other = Child(name: "Νίκος", birthDate: Date(timeIntervalSince1970: 1_710_000_000))
+        let other = Child(name: "Νίκος", birthDay: .day(2024, 3, 9))
 
         await #expect(throws: (any Error).self) {
             try await store.profiles.save(PlayerProfile(children: [other], heroClassID: "h-smart"))

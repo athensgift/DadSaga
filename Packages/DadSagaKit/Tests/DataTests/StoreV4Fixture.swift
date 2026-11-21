@@ -8,11 +8,11 @@ enum StoreV4Fixture {
     static func id(_ text: String) -> UUID { UUID(uuidString: text) ?? UUID() }
     static let anna = Child(
         id: id("66666666-6666-6666-6666-666666666666"), name: "Άννα",
-        birthDate: Date(timeIntervalSince1970: 1_741_003_200), gender: .girl, skinTone: .medium
+        birthDay: .migrated(1_741_003_200), gender: .girl, skinTone: .medium
     )
     static let lefteris = Child(
         id: id("77777777-7777-7777-7777-777777777777"), name: "Λευτέρης",
-        birthDate: Date(timeIntervalSince1970: 1_779_319_800), gender: .boy, skinTone: .medium
+        birthDay: .migrated(1_779_319_800), gender: .boy, skinTone: .medium
     )
     static let look = DadAppearance(hair: .curly, hairColor: .grey, beard: .short, glasses: .round)
     static let profile = PlayerProfile(

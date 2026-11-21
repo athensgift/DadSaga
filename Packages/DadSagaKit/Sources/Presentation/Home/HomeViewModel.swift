@@ -48,11 +48,16 @@ public final class HomeViewModel {
     /// (e.g. home appearing while a widget link opens another child) cannot put back what it read.
     private var loadGeneration = 0
 
-    public init(useCases: UseCases, locale: Locale = .current, now: @escaping @Sendable () -> Date = { .now }) {
+    public init(
+        useCases: UseCases,
+        locale: Locale = .current,
+        timeZone: TimeZone = .autoupdatingCurrent,
+        now: @escaping @Sendable () -> Date = { .now }
+    ) {
         self.useCases = useCases
         self.locale = locale
         strings = HomeStrings(locale: locale)
-        momentsFormatter = MomentsFormatter(strings: strings, locale: locale)
+        momentsFormatter = MomentsFormatter(strings: strings, locale: locale, timeZone: timeZone)
         self.now = now
     }
 
@@ -214,7 +219,7 @@ public final class HomeViewModel {
                 CompanionModel(
                     id: child.id,
                     name: child.name,
-                    stage: CompanionStage(ageInMonths: child.ageInMonths(at: now())),
+                    stage: CompanionStage(ageInMonths: child.ageInMonths(on: overview.today)),
                     gender: GenderChoice(child.gender),
                     skin: SkinToneChoice(child.skinTone),
                     traits: momentsFormatter.traits(for: child, catalog: catalog, progress: progress)

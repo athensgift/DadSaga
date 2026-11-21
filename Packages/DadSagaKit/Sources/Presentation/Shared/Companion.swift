@@ -1,3 +1,4 @@
+import Domain
 import Foundation
 
 /// How old a child looks on screen.
@@ -42,8 +43,9 @@ public struct CompanionModel: Equatable, Identifiable, Sendable {
 }
 
 extension ChildDraft {
-    /// The stage the child is drawn at, given today's date.
-    func stage(at date: Date, calendar: Calendar = .autoupdatingCurrent) -> CompanionStage {
-        CompanionStage(ageInMonths: child.ageInMonths(at: date, calendar: calendar))
+    /// The stage the child is drawn at on the day `date` falls on in `timeZone`.
+    func stage(at date: Date, timeZone: TimeZone = .autoupdatingCurrent) -> CompanionStage {
+        let child = child(in: timeZone)
+        return CompanionStage(ageInMonths: child.ageInMonths(on: CalendarDay(date, in: timeZone)))
     }
 }

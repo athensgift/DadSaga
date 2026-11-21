@@ -20,8 +20,14 @@ public protocol UpdateFamilyUseCase: Sendable {
 public struct DefaultUpdateHeroUseCase: UpdateHeroUseCase {
     private let editor: ProfileEditor
 
-    public init(contentRepository: any ContentRepository, profileRepository: any ProfileRepository) {
-        editor = ProfileEditor(contentRepository: contentRepository, profileRepository: profileRepository)
+    public init(
+        contentRepository: any ContentRepository,
+        profileRepository: any ProfileRepository,
+        timeZone: TimeZone = .autoupdatingCurrent
+    ) {
+        editor = ProfileEditor(
+            contentRepository: contentRepository, profileRepository: profileRepository, timeZone: timeZone
+        )
     }
 
     public func execute(heroClassID: String, skinTone: SkinTone, appearance: DadAppearance, on date: Date) async throws {
@@ -36,8 +42,14 @@ public struct DefaultUpdateHeroUseCase: UpdateHeroUseCase {
 public struct DefaultUpdateFamilyUseCase: UpdateFamilyUseCase {
     private let editor: ProfileEditor
 
-    public init(contentRepository: any ContentRepository, profileRepository: any ProfileRepository) {
-        editor = ProfileEditor(contentRepository: contentRepository, profileRepository: profileRepository)
+    public init(
+        contentRepository: any ContentRepository,
+        profileRepository: any ProfileRepository,
+        timeZone: TimeZone = .autoupdatingCurrent
+    ) {
+        editor = ProfileEditor(
+            contentRepository: contentRepository, profileRepository: profileRepository, timeZone: timeZone
+        )
     }
 
     public func execute(children: [Child], on date: Date) async throws {
@@ -49,12 +61,15 @@ public struct DefaultUpdateFamilyUseCase: UpdateFamilyUseCase {
 private struct ProfileEditor: Sendable {
     let contentRepository: any ContentRepository
     let profileRepository: any ProfileRepository
+    let timeZone: TimeZone
 
     func edit(on date: Date, _ change: (inout PlayerProfile) -> Void) async throws {
         async let catalog = contentRepository.fetchCatalog()
         guard var profile = try await profileRepository.fetchProfile() else { throw ProfileEditError.noProfile }
         change(&profile)
-        let valid = try ProfileRules.validated(profile, on: date, heroClasses: try await catalog.heroClasses)
+        let valid = try ProfileRules.validated(
+            profile, on: CalendarDay(date, in: timeZone), heroClasses: try await catalog.heroClasses
+        )
         try await profileRepository.save(valid)
     }
 }

@@ -15,6 +15,8 @@ public struct ChildDraft: Identifiable, Equatable, Sendable {
     /// Kept from the stored child when editing, so their progress stays linked.
     public let id: UUID
     public var name: String
+    /// What the date picker shows. Only its day is kept: the child's birth day is the day it falls on in the phone's
+    /// time zone (ADR-0048 §2).
     public var birthDate: Date
     public var gender: GenderChoice
     public var skinTone: SkinToneChoice
@@ -143,23 +145,34 @@ extension SkinToneChoice {
 }
 
 extension ChildDraft {
-    init(_ child: Child) {
+    /// The picker shows the start of the stored birth day in `timeZone`.
+    init(_ child: Child, timeZone: TimeZone) {
         self.init(
             id: child.id,
             name: child.name,
-            birthDate: child.birthDate,
+            birthDate: child.birthDay.start(in: timeZone),
             gender: GenderChoice(child.gender),
             skinTone: SkinToneChoice(child.skinTone)
         )
     }
 
-    var child: Child {
-        Child(id: id, name: name, birthDate: birthDate, gender: gender.domain, skinTone: skinTone.domain)
+    /// The child, born on the day the picker shows in `timeZone`.
+    func child(in timeZone: TimeZone) -> Child {
+        Child(
+            id: id,
+            name: name,
+            birthDay: CalendarDay(birthDate, in: timeZone),
+            gender: gender.domain,
+            skinTone: skinTone.domain
+        )
     }
 }
 
 extension FamilyDraft {
-    init(_ profile: PlayerProfile) {
-        self.init(children: profile.children.map(ChildDraft.init), dadSkinTone: SkinToneChoice(profile.dadSkinTone))
+    init(_ profile: PlayerProfile, timeZone: TimeZone) {
+        self.init(
+            children: profile.children.map { ChildDraft($0, timeZone: timeZone) },
+            dadSkinTone: SkinToneChoice(profile.dadSkinTone)
+        )
     }
 }

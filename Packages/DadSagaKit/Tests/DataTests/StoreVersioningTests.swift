@@ -86,7 +86,7 @@ struct StoreVersioningTests {
 
     @Test("Given two profile rows and a child stored twice, when the family is saved, then one of each remains")
     func saveCleansDuplicates() async throws {
-        let child = Child(name: "Λένα", birthDate: .distantPast)
+        let child = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
         try writeRows { context in
             context.insert(ProfileRecord(heroClassID: "old", dadSkinTone: "light"))
             context.insert(ProfileRecord(heroClassID: "older", dadSkinTone: "dark"))
@@ -104,12 +104,12 @@ struct StoreVersioningTests {
     @Test("Given a saved family, when one child is renamed, one removed and one added, then exactly that family comes back")
     func saveUpdatesInPlace() async throws {
         let store = LocalStore.live(in: directory)
-        let lena = Child(name: "Λένα", birthDate: .distantPast)
-        let nikos = Child(name: "Νίκος", birthDate: .distantPast)
+        let lena = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
+        let nikos = Child(name: "Νίκος", birthDay: .day(2020, 1, 1))
         try await store.profiles.save(PlayerProfile(children: [lena, nikos], heroClassID: "chef"))
         var renamed = lena
         renamed.name = "Ελένη"
-        let anna = Child(name: "Άννα", birthDate: .now)
+        let anna = Child(name: "Άννα", birthDay: CalendarDay(.now, in: .gmt))
         let family = PlayerProfile(children: [anna, renamed], heroClassID: "chef")
 
         try await store.profiles.save(family)

@@ -48,18 +48,18 @@ public enum SagaOccasions {
         catalog: ContentCatalog,
         on now: Date,
         answered: Set<String> = [],
-        calendar: Calendar = .autoupdatingCurrent,
+        timeZone: TimeZone = .autoupdatingCurrent,
         windowDays: Int = windowDays
     ) -> SagaOccasion? {
         let dates = Timeline.countedEntries(from: events, catalog: catalog)
             .filter { $0.childID == child.id }
             .map(\.date)
-        let newest = occasions(for: child, catalog: catalog, now: now, calendar: calendar)
+        let newest = occasions(for: child, catalog: catalog, now: now, timeZone: timeZone)
             .filter { occasion in
+                let closes = CalendarDay(occasion.date, in: timeZone).adding(days: windowDays).start(in: timeZone)
                 guard occasion.date <= now,
-                      let closes = calendar.date(byAdding: .day, value: windowDays, to: occasion.date),
                       now < closes,
-                      let interval = occasion.period.interval(for: child, catalog: catalog, now: now, calendar: calendar)
+                      let interval = occasion.period.interval(for: child, catalog: catalog, now: now, timeZone: timeZone)
                 else { return false }
                 return dates.contains(where: interval.holds)
             }
@@ -77,11 +77,11 @@ public enum SagaOccasions {
         catalog: ContentCatalog,
         on now: Date,
         answered: Set<String> = [],
-        calendar: Calendar = .autoupdatingCurrent,
+        timeZone: TimeZone = .autoupdatingCurrent,
         windowDays: Int = windowDays
     ) -> SagaOccasion? {
         let newest = children.compactMap {
-            latest(for: $0, events: events, catalog: catalog, on: now, calendar: calendar, windowDays: windowDays)
+            latest(for: $0, events: events, catalog: catalog, on: now, timeZone: timeZone, windowDays: windowDays)
         }
         guard let date = newest.map(\.date).max() else { return nil }
         return newest.first { $0.date == date && !answered.contains($0.id) }
@@ -92,29 +92,26 @@ public enum SagaOccasions {
         for child: Child,
         catalog: ContentCatalog,
         now: Date,
-        calendar: Calendar
+        timeZone: TimeZone
     ) -> [SagaOccasion] {
-        let birthdays = (0..<child.sagaCompleted(.year, at: now, calendar: calendar)).compactMap { index -> SagaOccasion? in
+        let years = child.ageInMonths(on: CalendarDay(now, in: timeZone)) / 12
+        let birthdays = (0..<years).map { index in
             let years = index + 1
-            return child.sagaDate(adding: .year, years, calendar: calendar).map {
-                SagaOccasion(
-                    id: "\(child.id.uuidString)/birthday/\(years)",
-                    kind: .birthday(years: years),
-                    childID: child.id,
-                    date: $0,
-                    period: .year(years)
-                )
-            }
+            return SagaOccasion(
+                id: "\(child.id.uuidString)/birthday/\(years)",
+                kind: .birthday(years: years),
+                childID: child.id,
+                date: child.day(atMonths: 12 * years).start(in: timeZone),
+                period: .year(years)
+            )
         }
         let worldEnds = catalog.worlds.compactMap { world -> SagaOccasion? in
-            guard let maxAge = world.maxAgeMonths,
-                  let date = child.sagaDate(adding: .month, maxAge + 1, calendar: calendar)
-            else { return nil }
+            guard let maxAge = world.maxAgeMonths else { return nil }
             return SagaOccasion(
                 id: "\(child.id.uuidString)/world/\(world.id)",
                 kind: .newWorld(left: world),
                 childID: child.id,
-                date: date,
+                date: child.day(atMonths: maxAge + 1).start(in: timeZone),
                 period: .world(id: world.id)
             )
         }

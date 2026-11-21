@@ -17,7 +17,7 @@ struct SagaFixture {
     static let child = Child(
         id: UUID(uuidString: "11111111-1111-1111-1111-111111111111") ?? UUID(),
         name: "Alex",
-        birthDate: today.addingTimeInterval(-122 * 86_400),
+        birthDay: CalendarDay(today.addingTimeInterval(-122 * 86_400), in: .gmt),
         gender: .boy,
         skinTone: .medium
     )
@@ -87,12 +87,12 @@ struct SagaFixture {
     /// home offers its film (ADR-0037 §5).
     func birthday() async throws -> SagaFixture {
         let alex = Child(
-            id: Self.child.id, name: "Alex", birthDate: Self.day(370), gender: .boy, skinTone: .medium
+            id: Self.child.id, name: "Alex", birthDay: CalendarDay(Self.day(370), in: .gmt), gender: .boy, skinTone: .medium
         )
         let maya = Child(
             id: UUID(uuidString: "22222222-2222-2222-2222-222222222222") ?? UUID(),
             name: "Maya",
-            birthDate: Self.day(60),
+            birthDay: CalendarDay(Self.day(60), in: .gmt),
             gender: .girl,
             skinTone: .mediumDark
         )
@@ -194,7 +194,7 @@ struct SagaFixture {
                     outfitRepository: store.outfit,
                     soundtrackRepository: BundledSoundtrackRepository(bundle: SagaMusic.bundle),
                     choicesRepository: sagaFilmChoices,
-                    calendar: Self.calendar
+                    timeZone: Self.calendar.timeZone
                 ),
                 setDates: DefaultSetSagaFilmDatesUseCase(repository: sagaFilmChoices),
                 setMusic: DefaultSetSagaFilmMusicUseCase(repository: sagaFilmChoices),

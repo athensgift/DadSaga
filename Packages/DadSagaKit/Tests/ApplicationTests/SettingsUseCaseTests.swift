@@ -127,8 +127,8 @@ extension WeeklyReminderUseCaseTests {
 @Suite("Editing the profile")
 struct EditProfileUseCaseTests {
     let today = Date(timeIntervalSince1970: 1_000_000)
-    let anna = Child(name: "Άννα", birthDate: Date(timeIntervalSince1970: 500_000))
-    let nikos = Child(name: "Νίκος", birthDate: Date(timeIntervalSince1970: 600_000))
+    let anna = Child(name: "Άννα", birthDay: CalendarDay(Date(timeIntervalSince1970: 500_000), in: .gmt))
+    let nikos = Child(name: "Νίκος", birthDay: CalendarDay(Date(timeIntervalSince1970: 600_000), in: .gmt))
     static let text = Stub.text
     let content = StubContentRepository(result: .success(ContentCatalog(
         worlds: [],

@@ -20,9 +20,9 @@ struct WeeklyReminderUseCaseTests {
 
     /// Wednesday 18 November 2026, noon UTC.
     let today = Fixture.date(2026, 11, 18)
-    let lena = Child(name: "Lena", birthDate: Fixture.date(2026, 1, 1))
-    let nikos = Child(name: "Nikos", birthDate: Fixture.date(2025, 6, 1))
-    let older = Child(name: "Eleni", birthDate: Fixture.date(2018, 1, 1))
+    let lena = Child(name: "Lena", birthDay: CalendarDay(Fixture.date(2026, 1, 1), in: .gmt))
+    let nikos = Child(name: "Nikos", birthDay: CalendarDay(Fixture.date(2025, 6, 1), in: .gmt))
+    let older = Child(name: "Eleni", birthDay: CalendarDay(Fixture.date(2018, 1, 1), in: .gmt))
     let profiles = SpyProfileRepository()
     let progress = SpyProgressRepository()
     let settings = FakeReminderSettings()

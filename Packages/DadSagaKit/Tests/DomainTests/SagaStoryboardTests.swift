@@ -172,7 +172,7 @@ struct SagaStoryboardTests {
             let born = SagaFixtures(birth: DateComponents(year: 2024, month: 1, day: 15, hour: hour))
             let storyboard = try #require(SagaStoryboard.make(
                 events: [], child: born.child, period: .year(1), catalog: born.catalog, now: born.date(months: 30),
-                calendar: born.calendar
+                timeZone: born.timeZone
             ))
             #expect(storyboard.childAgeInMonths == 11)
         }
@@ -182,7 +182,7 @@ struct SagaStoryboardTests {
     func childAgeToday() throws {
         let storyboard = try #require(SagaStoryboard.make(
             events: [], child: saga.child, period: .year(3), catalog: saga.catalog, now: saga.date(months: 26, days: 2),
-            calendar: saga.calendar
+            timeZone: saga.timeZone
         ))
         #expect(storyboard.childAgeInMonths == 26)
     }
@@ -197,7 +197,7 @@ struct SagaStoryboardTests {
     func spanOfTheCurrentYear() throws {
         let now = saga.date(months: 26, days: 2)
         let storyboard = try #require(SagaStoryboard.make(
-            events: [], child: saga.child, period: .year(3), catalog: saga.catalog, now: now, calendar: saga.calendar
+            events: [], child: saga.child, period: .year(3), catalog: saga.catalog, now: now, timeZone: saga.timeZone
         ))
         #expect(storyboard.span == DateInterval(start: saga.date(months: 24), end: now))
     }

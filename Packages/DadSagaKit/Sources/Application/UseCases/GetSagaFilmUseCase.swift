@@ -73,7 +73,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
     private let outfitRepository: any OutfitRepository
     private let soundtrackRepository: any SoundtrackRepository
     private let choicesRepository: any SagaFilmChoicesRepository
-    private let calendar: Calendar
+    private let timeZone: TimeZone
 
     public init(
         contentRepository: any ContentRepository,
@@ -82,7 +82,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
         outfitRepository: any OutfitRepository,
         soundtrackRepository: any SoundtrackRepository,
         choicesRepository: any SagaFilmChoicesRepository,
-        calendar: Calendar = .autoupdatingCurrent
+        timeZone: TimeZone = .autoupdatingCurrent
     ) {
         self.contentRepository = contentRepository
         self.profileRepository = profileRepository
@@ -90,7 +90,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
         self.outfitRepository = outfitRepository
         self.soundtrackRepository = soundtrackRepository
         self.choicesRepository = choicesRepository
-        self.calendar = calendar
+        self.timeZone = timeZone
     }
 
     public func execute(childID: UUID?, period: SagaPeriod?, on date: Date) async throws -> SagaFilm? {
@@ -111,11 +111,11 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
         let events = try await pendingEvents
 
         let chosen = period
-            ?? SagaOccasions.latest(for: child, events: events, catalog: catalog, on: date, calendar: calendar)?.period
+            ?? SagaOccasions.latest(for: child, events: events, catalog: catalog, on: date, timeZone: timeZone)?.period
             ?? .everything
         let storyboard = [chosen, .everything].lazy.compactMap {
             SagaStoryboard.make(
-                events: events, child: child, period: $0, catalog: catalog, now: date, calendar: calendar
+                events: events, child: child, period: $0, catalog: catalog, now: date, timeZone: timeZone
             )
         }.first
         guard let storyboard else { preconditionFailure("Everything always has an interval") }
@@ -127,7 +127,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
             catalog: catalog,
             storyboard: storyboard,
             availablePeriods: SagaPeriod.available(
-                for: child, events: events, catalog: catalog, now: date, calendar: calendar
+                for: child, events: events, catalog: catalog, now: date, timeZone: timeZone
             ),
             medalCount: progress.allDefeatedBossIDs.count,
             childFirsts: catalog.firsts.filter { firsts.contains($0.id) },

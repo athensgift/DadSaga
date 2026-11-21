@@ -11,7 +11,7 @@ struct SharedStoreTests {
     @Test("Given the app saved a family and progress, when a read-only store opens the folder, then it sees both")
     func readOnlyStoreReadsWhatTheAppWrote() async throws {
         let app = LocalStore.live(in: directory)
-        let child = Child(name: "Λένα", birthDate: Date(timeIntervalSince1970: 1_700_000_000))
+        let child = Child(name: "Λένα", birthDay: .day(2023, 11, 14))
         try await app.profiles.save(PlayerProfile(children: [child], heroClassID: "h-chef"))
         let event = ProgressEvent(kind: .quest(id: "q1"), childID: child.id, date: .now)
         try await app.progress.add(event)

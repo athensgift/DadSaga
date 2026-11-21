@@ -37,6 +37,7 @@ public final class OnboardingViewModel {
     private let loadCatalog: any LoadContentCatalogUseCase
     private let saveProfile: any SaveProfileUseCase
     private let locale: Locale
+    private let timeZone: TimeZone
     private let onFinished: @MainActor () -> Void
 
     public init(
@@ -44,11 +45,13 @@ public final class OnboardingViewModel {
         saveProfile: any SaveProfileUseCase,
         locale: Locale = .current,
         now: Date = .now,
+        timeZone: TimeZone = .autoupdatingCurrent,
         onFinished: @escaping @MainActor () -> Void
     ) {
         self.loadCatalog = loadCatalog
         self.saveProfile = saveProfile
         self.locale = locale
+        self.timeZone = timeZone
         self.onFinished = onFinished
         family = FamilyDraft(children: [ChildDraft(birthDate: now)])
         latestBirthDate = now
@@ -92,7 +95,7 @@ public final class OnboardingViewModel {
         defer { isSaving = false }
         do {
             let profile = PlayerProfile(
-                children: family.children.map(\.child),
+                children: family.children.map { $0.child(in: timeZone) },
                 heroClassID: selectedHeroID,
                 dadSkinTone: family.dadSkinTone.domain
             )

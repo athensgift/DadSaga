@@ -18,8 +18,8 @@ enum FilmStub {
     /// Five days after Anna's second birthday, at noon.
     static let today = Date(timeIntervalSince1970: 1_710_061_200 + (730 + 5) * 86_400 + 3 * 3_600)
 
-    static let anna = Child(name: "Άννα", birthDate: birth, gender: .girl, skinTone: .medium)
-    static let niko = Child(name: "Νίκος", birthDate: today.addingTimeInterval(-40 * 86_400))
+    static let anna = Child(name: "Άννα", birthDay: CalendarDay(birth, in: .gmt), gender: .girl, skinTone: .medium)
+    static let niko = Child(name: "Νίκος", birthDay: CalendarDay(today.addingTimeInterval(-40 * 86_400), in: .gmt))
     static let profile = PlayerProfile(children: [anna], heroClassID: "h-cool", dadSkinTone: .mediumDark)
     static let family = PlayerProfile(children: [anna, niko], heroClassID: "h-cool", dadSkinTone: .mediumDark)
 
@@ -176,10 +176,12 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
         let catalog = FilmStub.catalog
         let calendar = FilmStub.calendar
         let chosen = period
-            ?? SagaOccasions.latest(for: child, events: events, catalog: catalog, on: date, calendar: calendar)?.period
+            ?? SagaOccasions.latest(for: child, events: events, catalog: catalog, on: date, timeZone: calendar.timeZone)?.period
             ?? .everything
         let storyboard = [chosen, .everything].lazy.compactMap { [events] in
-            SagaStoryboard.make(events: events, child: child, period: $0, catalog: catalog, now: date, calendar: calendar)
+            SagaStoryboard.make(
+                events: events, child: child, period: $0, catalog: catalog, now: date, timeZone: calendar.timeZone
+            )
         }.first
         guard let storyboard else { return nil }
         let progress = DadProgress(events: events.filter { $0.date < storyboard.asOf }, catalog: catalog)
@@ -190,7 +192,7 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
             catalog: catalog,
             storyboard: storyboard,
             availablePeriods: SagaPeriod.available(
-                for: child, events: events, catalog: catalog, now: date, calendar: calendar
+                for: child, events: events, catalog: catalog, now: date, timeZone: calendar.timeZone
             ),
             medalCount: progress.allDefeatedBossIDs.count,
             childFirsts: catalog.firsts.filter { firsts.contains($0.id) },

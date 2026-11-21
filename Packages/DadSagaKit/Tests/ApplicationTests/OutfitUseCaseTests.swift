@@ -64,7 +64,7 @@ struct OutfitUseCaseTests {
             progressRepository: progress,
             outfitRepository: repository
         )
-        let child = Child(name: "Νίκος", birthDate: .now)
+        let child = Child(name: "Νίκος", birthDay: CalendarDay(.now, in: .gmt))
 
         try await profiles.save(PlayerProfile(children: [child], heroClassID: "h-x"))
         #expect(try await sut.execute().hero?.look == "chef")

@@ -38,6 +38,7 @@ struct GearContentTests {
 @Suite("LocalStore", .serialized)
 struct LocalStoreTests {
     let birth = Date(timeIntervalSince1970: 1_000_000)
+    let birthDay = CalendarDay.day(2025, 3, 15)
 
     @Test("Given an empty store, when fetching, then there is no profile")
     func emptyStore() async throws {
@@ -50,8 +51,8 @@ struct LocalStoreTests {
         let sut = LocalStore.inMemory().profiles
         let profile = PlayerProfile(
             children: [
-                Child(name: "Νίκος", birthDate: birth, gender: .boy, skinTone: .medium),
-                Child(name: "Άννα", birthDate: birth.addingTimeInterval(-86_400), gender: .girl, skinTone: .dark)
+                Child(name: "Νίκος", birthDay: birthDay, gender: .boy, skinTone: .medium),
+                Child(name: "Άννα", birthDay: birthDay.adding(days: -1), gender: .girl, skinTone: .dark)
             ],
             heroClassID: "h-cool",
             dadSkinTone: .mediumDark,
@@ -68,11 +69,11 @@ struct LocalStoreTests {
         let sut = LocalStore.inMemory().profiles
         try await sut.save(
             PlayerProfile(
-                children: [Child(name: "Νίκος", birthDate: birth), Child(name: "Μαρία", birthDate: birth)],
+                children: [Child(name: "Νίκος", birthDay: birthDay), Child(name: "Μαρία", birthDay: birthDay)],
                 heroClassID: "h-cool"
             )
         )
-        let updated = PlayerProfile(children: [Child(name: "Άννα", birthDate: birth)], heroClassID: "h-smart")
+        let updated = PlayerProfile(children: [Child(name: "Άννα", birthDay: birthDay)], heroClassID: "h-smart")
 
         try await sut.save(updated)
 
@@ -83,7 +84,7 @@ struct LocalStoreTests {
     func eraseAll() async throws {
         let store = LocalStore.inMemory()
         try await store.profiles.save(
-            PlayerProfile(children: [Child(name: "Νίκος", birthDate: birth)], heroClassID: "h-cool")
+            PlayerProfile(children: [Child(name: "Νίκος", birthDay: birthDay)], heroClassID: "h-cool")
         )
         try await store.progress.add(ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth))
         _ = try await store.outfit.setChoice(.hidden, for: .care)
@@ -99,12 +100,12 @@ struct LocalStoreTests {
     func eraseForgetsLook() async throws {
         let store = LocalStore.inMemory()
         try await store.profiles.save(PlayerProfile(
-            children: [Child(name: "Νίκος", birthDate: birth)], heroClassID: "h-cool",
+            children: [Child(name: "Νίκος", birthDay: birthDay)], heroClassID: "h-cool",
             dadAppearance: DadAppearance(hair: .shaved, beard: .none)
         ))
 
         try await store.eraser.eraseAll()
-        try await store.profiles.save(PlayerProfile(children: [Child(name: "Άννα", birthDate: birth)], heroClassID: "h-cool"))
+        try await store.profiles.save(PlayerProfile(children: [Child(name: "Άννα", birthDay: birthDay)], heroClassID: "h-cool"))
 
         #expect(try await store.profiles.fetchProfile()?.dadAppearance == .standard(for: .mediumLight))
     }
