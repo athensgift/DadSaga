@@ -28,7 +28,7 @@ struct HomeLinkTests {
     func waitsForAnEditor() async throws {
         let sut = await makeSUT()
         let editor = UUID()
-        work.set(editor, hasUnsavedChanges: true)
+        work.set(editor, in: UnsavedScope.homeSheet, hasUnsavedChanges: true)
         var sheetsClosed = 0
 
         let receiving = Task { await sut.receive(eleniQuest, unsavedWork: work) { sheetsClosed += 1 } }
@@ -36,7 +36,7 @@ struct HomeLinkTests {
         #expect(sheetsClosed == 0)
         #expect(sut.selectedQuest == nil)
 
-        work.set(editor, hasUnsavedChanges: false)
+        work.set(editor, in: UnsavedScope.homeSheet, hasUnsavedChanges: false)
         #expect(await receiving.value)
         #expect(sheetsClosed == 1)
         #expect(sut.selectedChildID == HeroStub.eleni.id)
@@ -98,18 +98,54 @@ struct HomeLinkTests {
     func newerLinkWins() async throws {
         let sut = await makeSUT()
         let editor = UUID()
-        work.set(editor, hasUnsavedChanges: true)
+        work.set(editor, in: UnsavedScope.homeSheet, hasUnsavedChanges: true)
         let older = PendingLink(.child(HeroStub.niko.id))
 
         let first = Task { await sut.receive(older, unsavedWork: work) {} }
         await settle()
         first.cancel()
-        let second = Task { await sut.receive(eleniQuest, unsavedWork: work) {} }
-        work.set(editor, hasUnsavedChanges: false)
-
+        // Cancelling alone ends the wait: the editor still holds.
         #expect(await first.value == false)
+        #expect(work.isHeld)
+
+        let second = Task { await sut.receive(eleniQuest, unsavedWork: work) {} }
+        work.set(editor, in: UnsavedScope.homeSheet, hasUnsavedChanges: false)
+
         #expect(await second.value)
         #expect(sut.selectedChildID == HeroStub.eleni.id)
+        #expect(sut.selectedQuest?.id == "q1")
+    }
+
+    @Test("Given a link opening, when its run is cancelled during the load, then no sheet opens")
+    func cancelledOpenOpensNothing() async throws {
+        let sut = await makeSUT()
+        await progress.holdOverviews()
+
+        let opening = Task { await sut.open(.quest(id: "q1", childID: HeroStub.eleni.id)) }
+        await progress.waitUntilHeld(1)
+        opening.cancel()
+        await progress.releaseAllOverviews()
+        await opening.value
+
+        #expect(sut.selectedQuest == nil)
+    }
+
+    @Test("Given a link waiting for an editor, when the dad comes back to the app, then home reloads and the link opens later")
+    func returnReloadsWhileALinkWaits() async throws {
+        let sut = await makeSUT()
+        let editor = UUID()
+        work.set(editor, in: UnsavedScope.homeSheet, hasUnsavedChanges: true)
+        let receiving = Task { await sut.receive(eleniQuest, unsavedWork: work) {} }
+        await settle()
+
+        await progress.holdOverviews()
+        let returning = Task { await sut.appBecameActive() }
+        await progress.waitUntilHeld(1)
+        await progress.releaseAllOverviews()
+        await returning.value
+
+        work.set(editor, in: UnsavedScope.homeSheet, hasUnsavedChanges: false)
+        #expect(await receiving.value)
         #expect(sut.selectedQuest?.id == "q1")
     }
 
@@ -127,17 +163,6 @@ struct HomeLinkTests {
 
         sut.linkHandled(PendingLink(newer))
         #expect(sut.pendingLink == nil)
-    }
-
-    @Test("Given an editor with changes, when its registration ends, then nothing is held; not before")
-    func registrationLastsAsLongAsTheEditor() {
-        var registration: EditorRegistration? = EditorRegistration()
-        registration?.report(hasUnsavedChanges: true, to: work)
-        #expect(work.isHeld)
-
-        registration = nil
-
-        #expect(!work.isHeld)
     }
 
     @Test("Given a celebration read out, when its time starts again, then VoiceOver doesn't read it twice")

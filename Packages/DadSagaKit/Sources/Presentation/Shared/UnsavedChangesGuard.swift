@@ -2,8 +2,8 @@ import SwiftUI
 
 /// Keeps a sheet or screen from losing what the dad changed and hasn't saved: while there is something to lose, a swipe
 /// can't close it, and Close asks first. The question is an alert, so every answer is a visible button: discard, keep
-/// editing, and save where saving only keeps his edit (ADR-0042 §5, ADR-0050). It also tells the app's `UnsavedWork`,
-/// for as long as the editor exists, so a link from outside waits for it.
+/// editing, and save where saving only keeps his edit (ADR-0042 §5, ADR-0050). It also tells the app's `UnsavedWork`
+/// while there is something to lose, so a link from outside waits for it.
 struct UnsavedChangesGuard: ViewModifier {
     let hasUnsavedChanges: Bool
     @Binding var isAsking: Bool
@@ -15,7 +15,9 @@ struct UnsavedChangesGuard: ViewModifier {
     let onSave: (() -> Void)?
     let onDiscard: () -> Void
     @Environment(UnsavedWork.self) private var unsavedWork: UnsavedWork?
-    @State private var registration = EditorRegistration()
+    @Environment(\.unsavedScope) private var scope
+    /// Made the first time there is something to report, not on every redraw.
+    @State private var registration: EditorRegistration?
 
     func body(content: Content) -> some View {
         content
@@ -25,11 +27,17 @@ struct UnsavedChangesGuard: ViewModifier {
                     Button(labels.save, action: onSave)
                         .disabled(!canSave)
                 }
-                Button(labels.discard, role: .destructive, action: onDiscard)
+                Button(labels.discard, role: .destructive) {
+                    registration?.discard()
+                    onDiscard()
+                }
                 Button(labels.keepEditing, role: .cancel) {}
             }
             .onChange(of: hasUnsavedChanges, initial: true) { _, held in
-                registration.report(hasUnsavedChanges: held, to: unsavedWork)
+                guard held || registration != nil else { return }
+                let registration = registration ?? EditorRegistration()
+                self.registration = registration
+                registration.report(hasUnsavedChanges: held, in: scope, to: unsavedWork)
             }
     }
 }

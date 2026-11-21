@@ -45,8 +45,16 @@ extension HomeView {
         if case .loaded(let content) = viewModel.state { content.settingsTitle } else { "" }
     }
 
-    func reloadAfterSheet() {
+    /// Settings closed: what "My family" or "Your hero" changed shows on home, and nothing in them holds a link back.
+    func settingsDismissed() {
+        unsavedWork.end(scope: UnsavedScope.settings)
         Task { await viewModel.reload() }
+    }
+
+    /// A quest, boss or moment sheet closed, recorded or not: nothing in it holds a link back any more (ADR-0050).
+    func homeSheetDismissed() {
+        unsavedWork.end(scope: UnsavedScope.homeSheet)
+        viewModel.sheetDismissed()
     }
 }
 

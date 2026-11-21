@@ -27,9 +27,14 @@ which buttons the question offers, its Greek "Keep editing") and ADR-0023 (when 
 4. **A link waits.** While something saves, or any editor on either tab holds unsaved changes, the link stays pending;
    it opens once the dad saves, records or discards. So a save always finishes against the sheet it came from, and
    nothing is closed with unsaved changes in it.
-   - One `UnsavedWork` for the app, owned by the root screen. Each `UnsavedChangesGuard` reports to it for as long as
-     its editor exists, not until the editor's `onDisappear`: the camera and the photo viewer cover an editor full
-     screen, and SwiftUI calls `onDisappear` on it then, although its words are still there.
+   - One `UnsavedWork` for the app, owned by `RootViewModel`. Each `UnsavedChangesGuard` reports to it while its
+     editor has something to lose. A hold ends at a moment the app controls: the editor has nothing left to lose (a
+     save kept it), the dad discards, or the sheet or screen it lives in is dismissed (its `onDismiss` ends that
+     presentation's holds). The camera and the photo viewer cover an editor without ending any of these, so it stays
+     held under them. Freeing the editor's view is only a last resort, never what a link waits for.
+   - While anything is held, the root keeps the link and stays on whichever tab is on screen, so a tab switch can't
+     hide the editor that holds it. Once nothing is held, it moves to Adventure and hands the link to home. The newest
+     link is the one that waits.
    - Home's view model does the waiting (`HomeViewModel.receive`), so it is tested: it opens the link once, after its
      own load, and only if the screen still shows the link's child. A newer link cancels the older one's wait; only a
      link that opened is reported handled, and the root clears only that one.
@@ -41,6 +46,8 @@ which buttons the question offers, its Greek "Keep editing") and ADR-0023 (when 
 - A tap on the widget while a note is half written opens nothing until the dad finishes or discards. That is the
   point: his words are worth more than the link.
 - No counter of sheet changes is needed to tell which sheet a save belongs to: only one can be open while it saves.
-- A waiting link is silent: nothing says the open editor is holding it, and it opens the moment the editor closes. The
-  timeline tab's editor holds a link too, although the link switches to the Adventure tab: the dad sees home, and the
-  link opens once he goes back and finishes or discards his note.
+- A waiting link is silent: nothing says the open editor is holding it. The dad stays where he is, on either tab, and
+  the link opens the moment he saves, records or discards.
+- "My family" always draws its own back button, which asks only when there is something to lose. The system's button
+  and its swipe are hidden on that screen even with nothing changed: swapping the two as the first letter was typed
+  left a moment where the system's button was under the dad's finger and went back without asking.

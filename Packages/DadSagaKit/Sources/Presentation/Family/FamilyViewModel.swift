@@ -17,6 +17,8 @@ public final class FamilyViewModel {
     public let latestBirthDate: Date
 
     public var canSave: Bool { family.isComplete && !isSaving }
+    /// The way back to Settings. The screen draws its own, so it can ask first when leaving would lose changes.
+    public var backTitle: String { strings.text("Settings") }
 
     /// The family as last loaded or saved: leaving with anything else would lose the dad's changes.
     private var stored: FamilyDraft?
@@ -95,7 +97,6 @@ public final class FamilyViewModel {
             title: strings.text("My family"),
             childEditor: ChildEditorLabels.make(locale: locale),
             saveTitle: strings.text("Save"),
-            backTitle: strings.text("Settings"),
             unsaved: JournalLabels(locale: locale),
             footnote: strings.text("If you remove a child, everything you earned together stays.")
         )
@@ -114,8 +115,6 @@ public struct FamilyContent: Equatable, Sendable {
     public let title: String
     public let childEditor: ChildEditorLabels
     public let saveTitle: String
-    /// The way back to Settings, while leaving would ask first.
-    public let backTitle: String
     /// "Discard the changes you just made?" and its answers.
     public let unsaved: JournalLabels
     public let footnote: String

@@ -22,15 +22,15 @@ struct FamilyView: View {
         .background(DSColor.background)
         .navigationTitle(title)
         .toolbarTitleDisplayMode(.inline)
-        // With changes not saved, the system's back button and its swipe would drop them: a back button that asks first
-        // stands in for it.
-        .navigationBarBackButtonHidden(viewModel.hasUnsavedChanges)
+        // The system's back button and its swipe would drop unsaved changes, so one back button of our own is always
+        // there, asking first only when there is something to lose. Swapping the two as the first letter is typed left a
+        // moment where the system's button was still under the dad's finger and left without asking.
+        .navigationBarBackButtonHidden(true)
         .toolbar {
-            if viewModel.hasUnsavedChanges, case .loaded(let content) = viewModel.state {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(content.backTitle, systemImage: "chevron.backward") { isConfirmingDiscard = true }
-                        .disabled(viewModel.isSaving)
-                }
+            // There while loading or after a failed load too: the system's button is hidden on every state.
+            ToolbarItem(placement: .cancellationAction) {
+                Button(viewModel.backTitle, systemImage: "chevron.backward", action: goBack)
+                    .disabled(viewModel.isSaving)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(role: .confirm) {
@@ -49,6 +49,10 @@ struct FamilyView: View {
             onDiscard: { dismiss() }
         ))
         .task { await viewModel.onAppear() }
+    }
+
+    private func goBack() {
+        if viewModel.hasUnsavedChanges { isConfirmingDiscard = true } else { dismiss() }
     }
 
     private var unsavedLabels: JournalLabels {

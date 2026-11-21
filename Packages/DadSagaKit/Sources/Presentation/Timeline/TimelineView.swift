@@ -77,20 +77,25 @@ public struct TimelineView: View {
         }
         .onChange(of: isOpeningLink) { _, opening in
             guard opening else { return }
-            if !viewModel.isSaving, unsavedWork?.isHeld != true { viewModel.closeJournal() }
+            viewModel.linkWillOpen(editorHoldsChanges: unsavedWork?.isHeld == true)
             sagaFilm = nil
             photoViewer = nil
         }
-        .sheet(item: Binding(get: { viewModel.journalEditor }, set: { if $0 == nil { viewModel.closeJournal() } })) { editor in
-            JournalEditorSheet(
-                editor: editor,
-                isSaving: viewModel.isSaving,
-                errorMessage: viewModel.errorMessage,
-                loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
-                onSave: { note, photos in Task { await viewModel.saveJournal(note: note, photos: photos) } },
-                onClose: { viewModel.closeJournal() }
-            )
-        }
+        .sheet(
+            item: Binding(get: { viewModel.journalEditor }, set: { if $0 == nil { viewModel.closeJournal() } }),
+            onDismiss: journalDismissed,
+            content: { editor in
+                JournalEditorSheet(
+                    editor: editor,
+                    isSaving: viewModel.isSaving,
+                    errorMessage: viewModel.errorMessage,
+                    loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
+                    onSave: { note, photos in Task { await viewModel.saveJournal(note: note, photos: photos) } },
+                    onClose: { viewModel.closeJournal() }
+                )
+                .environment(\.unsavedScope, UnsavedScope.timelineJournal)
+            }
+        )
         .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
         .alert(
             viewModel.errorMessage ?? "",
@@ -100,6 +105,11 @@ public struct TimelineView: View {
                 set: { _ in viewModel.dismissError() }
             )
         ) {}
+    }
+
+    /// The note sheet closed, saved or not: nothing in it holds a link back any more (ADR-0050).
+    private func journalDismissed() {
+        unsavedWork?.end(scope: UnsavedScope.timelineJournal)
     }
 
     private var title: String {

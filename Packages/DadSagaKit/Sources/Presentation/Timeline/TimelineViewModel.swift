@@ -127,6 +127,14 @@ public final class TimelineViewModel {
         errorMessage = nil
     }
 
+    /// A link from outside is about to open home. The note editor closes only if that loses nothing: not while it saves,
+    /// and not while it holds changes the dad hasn't saved (ADR-0050). The root holds a link back while the editor holds
+    /// changes, so this is the last check, not the only one.
+    public func linkWillOpen(editorHoldsChanges: Bool) {
+        guard journalEditor != nil, !isSaving, !editorHoldsChanges else { return }
+        closeJournal()
+    }
+
     public func saveJournal(note: String, photos: PhotoDrafts) async {
         guard let editor = journalEditor, !isSaving else { return }
         errorMessage = nil

@@ -18,8 +18,13 @@ public final class RootViewModel {
     public private(set) var state: State = .loading
     /// The tab on screen.
     public var selectedTab: RootTab = .adventure
-    /// A link from outside the app waiting for home to open it.
+    /// A link from outside the app, handed to home to open.
     public private(set) var pendingLink: PendingLink?
+    /// A link that came while an editor on either tab holds changes the dad hasn't saved. It waits, on whatever tab is
+    /// on screen, until nothing would be lost, and only then moves to Adventure and goes to home (ADR-0050).
+    private var waitingLink: PendingLink?
+    /// Editors on either tab holding unsaved changes. The tabs see it through the environment.
+    let unsavedWork = UnsavedWork()
     /// Light/dark and haptics, applied to every screen (ADR-0030).
     public private(set) var preferences = PreferencesChoice()
 
@@ -58,6 +63,7 @@ public final class RootViewModel {
         self.getProfile = getProfile
         self.getPreferences = getPreferences
         self.locale = locale
+        unsavedWork.onRelease = { [weak self] in self?.handOverWaitingLink() }
     }
 
     /// Only "no family" opens onboarding. A read error is not "no family": onboarding would give the children new ids
@@ -67,7 +73,7 @@ public final class RootViewModel {
         do {
             let profile = try await getProfile.execute()
             state = profile == nil ? .onboarding : .home
-            if state == .onboarding { pendingLink = nil }
+            if state == .onboarding { dropLinks() }
         } catch {
             state = .unavailable
         }
@@ -81,11 +87,24 @@ public final class RootViewModel {
     }
 
     /// A URL the app was opened with (the widget). Anything that is not a DadSaga link, or any link before the family
-    /// exists, is ignored.
+    /// exists, is ignored. While an editor holds unsaved changes the link waits where the dad is, so a tab switch can't
+    /// hide that editor from him; the newest link is the one that waits.
     public func open(url: URL) {
         guard state != .onboarding, let link = AppLink(url: url) else { return }
+        waitingLink = PendingLink(link)
+        handOverWaitingLink()
+    }
+
+    private func handOverWaitingLink() {
+        guard let waitingLink, !unsavedWork.isHeld else { return }
+        self.waitingLink = nil
         selectedTab = .adventure
-        pendingLink = PendingLink(link)
+        pendingLink = waitingLink
+    }
+
+    private func dropLinks() {
+        waitingLink = nil
+        pendingLink = nil
     }
 
     /// Home opened this link. A newer one that arrived meanwhile stays, to open next.
@@ -105,7 +124,7 @@ public final class RootViewModel {
 
     /// Settings erased the saga: onboarding opens, which closes home and its sheets.
     public func startedOver() {
-        pendingLink = nil
+        dropLinks()
         selectedTab = .adventure
         state = .onboarding
     }

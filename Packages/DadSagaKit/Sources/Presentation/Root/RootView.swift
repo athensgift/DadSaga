@@ -14,8 +14,6 @@ public struct RootView: View {
     @State private var onboarding: OnboardingViewModel?
     @State private var home: HomeViewModel?
     @State private var timeline: TimelineViewModel?
-    /// Editors on either tab holding changes the dad hasn't saved: a link from outside waits for them (ADR-0050).
-    @State private var unsavedWork = UnsavedWork()
     private let makeOnboarding: MakeOnboarding
     private let makeHome: MakeHome
     private let makeTimeline: MakeTimeline
@@ -83,7 +81,7 @@ public struct RootView: View {
                             isOpeningLink: viewModel.pendingLink != nil
                         )
                     )
-                    .environment(unsavedWork)
+                    .environment(viewModel.unsavedWork)
                     .transition(.opacity)
                 } else {
                     ProgressView()

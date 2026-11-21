@@ -88,15 +88,19 @@ public struct HomeView: View {
                 viewModel.closeMap()
             }
         }
-        .sheet(item: $settingsViewModel, onDismiss: reloadAfterSheet) { settingsModel in
+        .sheet(item: $settingsViewModel, onDismiss: settingsDismissed) { settingsModel in
             SettingsView(viewModel: settingsModel, pages: settings.pages) { settingsViewModel = nil }
+                .environment(\.unsavedScope, UnsavedScope.settings)
         }
         .sagaFilmSheet($sagaFilm)
         .task { await viewModel.onAppear() }
         .onChange(of: scenePhase) { _, phase in scenePhaseChanged(to: phase) }
         .task(id: pendingLink) { await openPendingLink() }
         .task(id: viewModel.celebration?.id) { await celebrationTime() }
-        .sheet(item: activeSheet, onDismiss: viewModel.sheetDismissed, content: sheetContent)
+        .sheet(item: activeSheet, onDismiss: homeSheetDismissed) { sheet in
+            sheetContent(sheet)
+                .environment(\.unsavedScope, UnsavedScope.homeSheet)
+        }
         .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
         // Last, so the sheets and Settings' pages see it too.
         .environment(unsavedWork)
