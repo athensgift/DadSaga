@@ -9,19 +9,22 @@ struct BundledContentRepositoryTests {
     @Test("Given the bundled JSON, when fetching, then it decodes, maps and passes validation")
     func loadsAndValidates() async throws {
         let catalog = try await repository.fetchCatalog()
-        #expect(catalog.worlds.count == 4)
-        #expect(catalog.quests.count == 55)
-        #expect(catalog.bosses.count == 16)
-        #expect(catalog.firsts.count == 24)
+        #expect(catalog.worlds.count == 5)
+        #expect(catalog.quests.count == 98)
+        #expect(catalog.bosses.count == 35)
+        #expect(catalog.firsts.count == 34)
     }
 
     @Test("Given the bundled JSON, when fetching, then tips, evergreen quests and audiences are read")
     func readsNewFields() async throws {
         let catalog = try await repository.fetchCatalog()
-        #expect(catalog.quests.compactMap(\.tip).count == 40)
-        #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 12)
-        #expect(catalog.quests.filter(\.isEvergreen).count == 14)
-        #expect(catalog.bosses.filter { !$0.onlyFor.isEmpty }.map(\.id) == ["b-w3-new-sibling"])
+        #expect(catalog.quests.compactMap(\.tip).count == 87)
+        #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 28)
+        #expect(catalog.quests.filter(\.isEvergreen).count == 30)
+        #expect(catalog.bosses.filter { !$0.onlyFor.isEmpty }.map(\.id) == [
+            "b-w0-birth-day", "b-w0-caesarean", "b-w1-fourth-trimester", "b-w3-new-sibling"
+        ])
+        #expect(catalog.boss(id: "b-w1-fourth-trimester")?.onlyFor == [.partner])
         #expect(catalog.boss(id: "b-w3-new-sibling")?.onlyFor == [.youngerSibling])
     }
 
