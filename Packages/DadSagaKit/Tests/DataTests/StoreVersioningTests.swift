@@ -61,6 +61,15 @@ struct StoreVersioningTests {
         #expect(try await store.profiles.fetchProfile() == nil)
     }
 
+    @Test("Given no folder for the saga, when reading, then it throws appGroupUnavailable, again on the next call")
+    func unknownFolderThrows() async throws {
+        let store = LocalStore.live(directory: { throw SharedContainerError.appGroupUnavailable }, readOnly: false)
+
+        await #expect(throws: SharedContainerError.appGroupUnavailable) { try await store.progress.fetchEvents() }
+        await #expect(throws: SharedContainerError.appGroupUnavailable) { try await store.profiles.fetchProfile() }
+        #expect(!FileManager.default.fileExists(atPath: directory.path()))
+    }
+
     @Test("Given a store file that is not a database, when reading, then it throws and the file is unchanged")
     func damagedFileIsLeftAlone() async throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

@@ -35,7 +35,7 @@ final class AppContainer {
 
     init(data: DeviceData = .forLaunch()) {
         store = data.store
-        photoStore = FilePhotoStore.moments(in: data.photoDirectory)
+        photoStore = data.photos
         reminderSettings = UserDefaultsReminderSettingsRepository(defaults: data.defaults)
         notificationScheduler = data.notificationScheduler
         preferencesRepository = UserDefaultsPreferencesRepository(defaults: data.defaults)

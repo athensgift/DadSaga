@@ -33,6 +33,16 @@ struct FilePhotoStoreTests {
         return (image.width, image.height)
     }
 
+    @Test("Given no folder for the photos, when saving, then it throws and reading finds nothing")
+    func unknownFolderCantSave() async throws {
+        let sut = FilePhotoStore(folder: { throw SharedContainerError.appGroupUnavailable })
+
+        await #expect(throws: SharedContainerError.appGroupUnavailable) { try await sut.save(png(width: 10, height: 10)) }
+        #expect(await sut.thumbnail(id: "any", maxPixelSize: 100) == nil)
+        await sut.delete(id: "any")
+        await sut.deleteAll()
+    }
+
     @Test("Given a large image, when saving, then a JPEG no larger than the limit is stored")
     func savesDownscaled() async throws {
         let sut = FilePhotoStore(directory: directory, maxPixelSize: 200)

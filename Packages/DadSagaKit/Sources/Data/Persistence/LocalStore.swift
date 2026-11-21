@@ -19,28 +19,25 @@ public struct LocalStore: Sendable {
         eraser = ConnectedSagaEraser(connection: connection)
     }
 
-    /// The on-disk store in `directory`, named explicitly so SwiftData never picks a location on its own (ADR-0023).
-    /// The app opens it read-write; the widget opens it read-only, so only the app ever writes or migrates it.
-    /// Never synced: sync will be its own decision, not a side effect of an iCloud entitlement.
+    /// The saga's store in the folder the app shares with the widget (ADR-0023). Without the App Group a release
+    /// build opens nothing: every call throws `SharedContainerError.appGroupUnavailable` (ADR-0048).
+    public static func shared(readOnly: Bool = false) -> LocalStore {
+        live(directory: { try SharedContainer.directory() }, readOnly: readOnly)
+    }
+
+    /// The on-disk store in `directory`. The app opens it read-write; the widget opens it read-only, so only the app
+    /// ever writes or migrates it.
     public static func live(in directory: URL, readOnly: Bool = false) -> LocalStore {
-        let configuration = ModelConfiguration(
-            schema: StoreConnection.schema,
-            url: directory.appending(path: "DadSaga.store"),
-            allowsSave: !readOnly,
-            cloudKitDatabase: .none
-        )
-        return LocalStore(connection: StoreConnection(configuration: configuration, directory: directory))
+        live(directory: { directory }, readOnly: readOnly)
+    }
+
+    /// The store in the folder `directory` finds when the store is first opened.
+    static func live(directory: @escaping @Sendable () throws -> URL, readOnly: Bool) -> LocalStore {
+        LocalStore(connection: StoreConnection(directory: directory, readOnly: readOnly))
     }
 
     /// A store that is discarded with the process. For tests and previews.
     public static func inMemory() -> LocalStore {
-        let configuration = ModelConfiguration(
-            schema: StoreConnection.schema,
-            isStoredInMemoryOnly: true,
-            allowsSave: true,
-            groupContainer: .none,
-            cloudKitDatabase: .none
-        )
-        return LocalStore(connection: StoreConnection(configuration: configuration, directory: nil))
+        LocalStore(connection: StoreConnection(directory: nil, readOnly: false))
     }
 }
