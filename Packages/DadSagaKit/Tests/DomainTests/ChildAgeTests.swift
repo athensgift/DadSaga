@@ -34,8 +34,10 @@ struct ChildAgeTests {
         let zone = try #require(TimeZone(identifier: "Europe/Athens"))
         var day = birth
         while day < birth.adding(months: 84) {
-            let age = child.ageInMonths(on: day)
-            #expect(child.day(atMonths: age) <= day && day < child.day(atMonths: age + 1), "\(day)")
+            let age = try #require(child.age(on: day).months)
+            let turned = try #require(child.day(atMonths: age))
+            let next = try #require(child.day(atMonths: age + 1))
+            #expect(turned <= day && day < next, "\(day)")
             let start = day.start(in: zone)
             let year = try #require(SagaPeriod.year(age / 12 + 1).interval(
                 for: child, catalog: saga.catalog, now: start, timeZone: zone
@@ -45,9 +47,9 @@ struct ChildAgeTests {
                 SagaPeriod.world(id: $0.id).interval(for: child, catalog: saga.catalog, now: start, timeZone: zone)?
                     .holds(start) ?? false
             }
-            let current = UnlockRules.isBeyondContent(saga.catalog, ageInMonths: age)
+            let current = UnlockRules.isBeyondContent(saga.catalog, age: .months(age))
                 ? nil
-                : UnlockRules.currentWorld(in: saga.catalog, ageInMonths: age)
+                : UnlockRules.currentWorld(in: saga.catalog, age: .months(age))
             #expect(world == current, "\(day)")
             day = day.adding(days: 1)
         }

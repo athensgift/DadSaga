@@ -488,7 +488,7 @@
     "skill": "care",
     "xp": 100,
     "minAgeMonths": 25,
-    "requiresSibling": true,
+    "onlyFor": ["youngerSibling"],
     "title": {
       "el": "Ο Νέος Συγκάτοικος",
       "en": "The New Roommate"

@@ -3,17 +3,20 @@ import Foundation
 /// The stretch of a child's life a saga film tells (ADR-0036).
 ///
 /// Every boundary is at the start of a day in the phone's time zone, on the day the child turns that many months
-/// (`Child.day(atMonths:)`), so periods agree with the child's age everywhere (ADR-0048 §2).
+/// (`Child.day(atMonths:)`), so periods agree with the child's age everywhere (ADR-0048 §2). A world before birth ends
+/// on the birth day, and no year starts before it (ADR-0053 §2).
 public enum SagaPeriod: Hashable, Sendable {
     /// The nth year of life, from birthday n − 1 to birthday n. The first year starts at birth.
     case year(Int)
-    /// The months the child spends in a world, by age: from its minimum age to the month after its maximum.
+    /// The months the child spends in a world, by age: from its minimum age to the month after its maximum. A world
+    /// before birth is everything before the birth day, or everything so far while the child is not born.
     case world(id: String)
     /// The whole saga.
     case everything
 
     /// When the period starts and ends; the end is not part of it. `nil` for a period that hasn't started, a year below
-    /// one, or a world that isn't in the catalog or has no months.
+    /// one or of a child not born yet, a world of months for a child not born yet, or a world that isn't in the catalog
+    /// or has no months.
     public func interval(
         for child: Child,
         catalog: ContentCatalog,
@@ -22,15 +25,24 @@ public enum SagaPeriod: Hashable, Sendable {
     ) -> DateInterval? {
         let start: Date
         let end: Date
+        let turning = { (months: Int) in child.day(atMonths: months)?.start(in: timeZone) }
         switch self {
         case .year(let number):
-            guard number >= 1 else { return nil }
-            start = child.day(atMonths: 12 * (number - 1)).start(in: timeZone)
-            end = child.day(atMonths: 12 * number).start(in: timeZone)
+            guard number >= 1, let first = turning(12 * (number - 1)), let last = turning(12 * number) else { return nil }
+            start = first
+            end = last
         case .world(let id):
-            guard let world = catalog.world(id: id) else { return nil }
-            start = child.day(atMonths: world.minAgeMonths).start(in: timeZone)
-            end = world.maxAgeMonths.map { child.day(atMonths: $0 + 1).start(in: timeZone) } ?? .distantFuture
+            switch catalog.world(id: id)?.span {
+            case nil:
+                return nil
+            case .beforeBirth:
+                start = .distantPast
+                end = child.birthDay?.start(in: timeZone) ?? .distantFuture
+            case .months(let min, let max)?:
+                guard let first = turning(min) else { return nil }
+                start = first
+                end = max.flatMap { turning($0 + 1) } ?? .distantFuture
+            }
         case .everything:
             start = .distantPast
             end = .distantFuture
@@ -39,9 +51,9 @@ public enum SagaPeriod: Hashable, Sendable {
         return DateInterval(start: start, end: end)
     }
 
-    /// The periods a film can tell today: every year so far (the current one included) and every world the child has
-    /// been in, each only with something the dad did with the child in it, and everything. A film is never offered
-    /// for a stretch with nothing in it (ADR-0006).
+    /// The periods a film can tell today: every year so far (the current one included, none before the birth) and every
+    /// world the child has been in, each only with something the dad did with the child in it, and everything. A film
+    /// is never offered for a stretch with nothing in it (ADR-0006).
     public static func available(
         for child: Child,
         events: [ProgressEvent],
@@ -52,9 +64,9 @@ public enum SagaPeriod: Hashable, Sendable {
         let dates = Timeline.countedEntries(from: events, catalog: catalog)
             .filter { $0.childID == child.id }
             .map(\.date)
-        let years = child.ageInMonths(on: CalendarDay(now, in: timeZone)) / 12
-        let candidates = (1...(years + 1)).map(SagaPeriod.year)
-            + catalog.worlds.map { SagaPeriod.world(id: $0.id) }
+        let months = child.age(on: CalendarDay(now, in: timeZone)).months
+        let years = months.map { Array(1...($0 / 12 + 1)) } ?? []
+        let candidates = years.map(SagaPeriod.year) + catalog.worlds.map { SagaPeriod.world(id: $0.id) }
         return candidates.filter { period in
             guard let interval = period.interval(for: child, catalog: catalog, now: now, timeZone: timeZone) else {
                 return false

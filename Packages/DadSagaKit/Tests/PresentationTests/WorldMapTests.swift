@@ -11,11 +11,11 @@ struct WorldMapTests {
 
     static let text = HeroStub.text
     static let swamp = World(id: "w1", order: 1, title: LocalizedText(el: "Βάλτος", en: "Swamp"), tagline: text,
-                             minAgeMonths: 0, maxAgeMonths: 8)
+                             span: .months(min: 0, max: 8))
     static let plains = World(id: "w2", order: 2, title: LocalizedText(el: "Πεδιάδα", en: "Plains"), tagline: text,
-                              minAgeMonths: 9, maxAgeMonths: 24)
+                              span: .months(min: 9, max: 24))
     static let land = World(id: "w3", order: 3, title: LocalizedText(el: "Χώρα", en: "Land"), tagline: text,
-                            minAgeMonths: 25, maxAgeMonths: 41)
+                            span: .months(min: 25, max: 41))
     static let swampQuest = Quest(id: "q1", worldID: "w1", title: text, description: text, skill: .care, xp: 20, minAgeMonths: 0)
     static let plainsQuest = Quest(id: "q2", worldID: "w2", title: text, description: text, skill: .play, xp: 20, minAgeMonths: 9)
     static let catalog = ContentCatalog(
@@ -26,9 +26,11 @@ struct WorldMapTests {
     )
 
     /// A child of `months` whose current world is the latest one unlocked.
-    func makeSUT(ageInMonths months: Int, profile: PlayerProfile = HeroStub.profile) -> HomeViewModel {
-        let unlocked = Self.catalog.worlds.filter { $0.minAgeMonths <= months }
-        let adventure = Adventure(ageInMonths: months, currentWorld: unlocked.last, unlockedWorlds: unlocked, availableBosses: [])
+    func makeSUT(months: Int, profile: PlayerProfile = HeroStub.profile) -> HomeViewModel {
+        let unlocked = UnlockRules.unlockedWorlds(in: Self.catalog, age: .months(months))
+        let adventure = Adventure(
+            age: .months(months), family: .everyone, currentWorld: unlocked.last, unlockedWorlds: unlocked
+        )
         return HomeViewModel(
             useCases: HomeViewModel.UseCases(
                 getOverview: FakeHomeOverview(profile: profile, catalog: Self.catalog, progress: progress) { _ in adventure },
@@ -54,7 +56,7 @@ struct WorldMapTests {
 
     @Test("Given a 10-month-old, when opening the map, then worlds show status, age ranges, progress and unlock time")
     func opensMap() async throws {
-        let sut = makeSUT(ageInMonths: 10)
+        let sut = makeSUT(months: 10)
         await sut.onAppear()
 
         sut.openMap()
@@ -72,7 +74,7 @@ struct WorldMapTests {
 
     @Test("Given an earlier world, when showing it, then home shows its quests with a way back, until going back")
     func showsEarlierWorld() async throws {
-        let sut = makeSUT(ageInMonths: 10)
+        let sut = makeSUT(months: 10)
         await sut.onAppear()
         #expect(loaded(sut)?.cards.map(\.id) == ["q2"])
         sut.openMap()
@@ -99,7 +101,7 @@ struct WorldMapTests {
 
     @Test("Given a locked world, when trying to show it, then nothing changes")
     func lockedWorld() async throws {
-        let sut = makeSUT(ageInMonths: 10)
+        let sut = makeSUT(months: 10)
         await sut.onAppear()
 
         await sut.showWorld(id: "w3")
@@ -110,7 +112,7 @@ struct WorldMapTests {
 
     @Test("Given an earlier world is shown, when choosing another child, then the current world is shown again")
     func childResetsWorld() async throws {
-        let sut = makeSUT(ageInMonths: 10, profile: HeroStub.family)
+        let sut = makeSUT(months: 10, profile: HeroStub.family)
         await sut.onAppear()
         await sut.showWorld(id: "w1")
 

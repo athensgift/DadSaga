@@ -15,7 +15,7 @@ enum Stub {
     static let catalog = ContentCatalog(
         worlds: [
             World(id: "w1", order: 1, title: LocalizedText(el: "Κόσμος", en: "World"),
-                  tagline: LocalizedText(el: "τ", en: "t"), minAgeMonths: 0, maxAgeMonths: nil)
+                  tagline: LocalizedText(el: "τ", en: "t"), span: .months(min: 0, max: nil))
         ],
         quests: [
             Quest(id: "q1", worldID: "w1", title: LocalizedText(el: "Αποστολή", en: "Quest"),

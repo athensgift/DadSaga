@@ -1,3 +1,4 @@
+import Domain
 import Presentation
 import Testing
 
@@ -11,6 +12,11 @@ struct CompanionStageTests {
         ]
     )
     func stages(months: Int, expected: CompanionStage) {
-        #expect(CompanionStage(ageInMonths: months) == expected)
+        #expect(CompanionStage(age: .months(months)) == expected)
+    }
+
+    @Test("Given a child not born yet, when choosing how they are drawn, then it is the mark for a child on the way")
+    func onTheWay() {
+        #expect(CompanionStage(age: .beforeBirth) == .onTheWay)
     }
 }

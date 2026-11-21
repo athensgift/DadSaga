@@ -6,8 +6,8 @@ import Testing
 @Suite("GetHomeOverviewUseCase")
 struct HomeOverviewUseCaseTests {
     static let text = Stub.text
-    static let swamp = World(id: "w1", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: 8)
-    static let plains = World(id: "w2", order: 2, title: text, tagline: text, minAgeMonths: 9, maxAgeMonths: 24)
+    static let swamp = World(id: "w1", order: 1, title: text, tagline: text, span: .months(min: 0, max: 8))
+    static let plains = World(id: "w2", order: 2, title: text, tagline: text, span: .months(min: 9, max: 24))
     static let catalog = ContentCatalog(
         worlds: [swamp, plains],
         quests: [
@@ -23,7 +23,7 @@ struct HomeOverviewUseCaseTests {
             BossFight(id: "b-plains", worldID: "w2", title: text, intro: text, guide: [], badge: text,
                       skill: .care, xp: 100, minAgeMonths: 9),
             BossFight(id: "b-together", worldID: "w2", title: text, intro: text, guide: [], badge: text,
-                      skill: .care, xp: 100, minAgeMonths: 9, requiresSibling: true)
+                      skill: .care, xp: 100, minAgeMonths: 9, onlyFor: [.youngerSibling])
         ],
         firsts: [],
         gear: [
@@ -130,7 +130,6 @@ struct HomeOverviewUseCaseTests {
 
         try await family([toddler, baby])
         let overview = try #require(try await sut.execute(childID: toddler.id, worldID: nil, on: today))
-        #expect(overview.childCount == 2)
         #expect(overview.bosses.map(\.id) == ["b-plains", "b-together"])
     }
 
@@ -148,7 +147,7 @@ struct HomeOverviewUseCaseTests {
         let chosen = try #require(try await sut.execute(childID: nil, worldID: "w1", on: today))
         #expect(chosen.shownWorld == Self.swamp)
         #expect(!chosen.isShowingCurrentWorld)
-        #expect(chosen.bosses.isEmpty)
+        #expect(chosen.bosses.map(\.id) == ["b-swamp"])
     }
 
     @Test("Given a boss beaten with one child, when reading home for each child, then it is defeated only for that child")

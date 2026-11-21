@@ -13,6 +13,14 @@ public enum ContentDataError: Error, Equatable {
     case unknownAppearanceOption(part: String, id: String)
     /// A look option the app can draw that the content does not name.
     case missingAppearanceOption(part: String, id: String)
+    /// An `onlyFor` word that is not an `Audience` (ADR-0053 §4).
+    case unknownAudience(itemID: String, audience: String)
+    /// A world neither before birth without ages, nor with a minimum age (ADR-0053 §7).
+    case invalidWorldAges(worldID: String)
+    /// A second world before birth, or one that isn't the first world by order.
+    case misplacedBeforeBirthWorld(worldID: String)
+    /// A card in the world before birth with a minimum age above 0 months.
+    case agedBeforeBirth(itemID: String)
 }
 
 /// `ContentRepository` backed by the JSON bundled with the app. The catalog is loaded and validated once.
@@ -27,7 +35,7 @@ public actor BundledContentRepository: ContentRepository {
     public func fetchCatalog() async throws -> ContentCatalog {
         if let cached { return cached }
         let catalog = ContentCatalog(
-            worlds: try dataSource.decode([WorldDTO].self, resource: "worlds").map { $0.toDomain() },
+            worlds: try dataSource.decode([WorldDTO].self, resource: "worlds").map { try $0.toDomain() },
             quests: try dataSource.decode([QuestDTO].self, resource: "quests").map { try $0.toDomain() },
             bosses: try dataSource.decode([BossFightDTO].self, resource: "bosses").map { try $0.toDomain() },
             firsts: try dataSource.decode([FirstMomentDTO].self, resource: "firsts").map { $0.toDomain() },

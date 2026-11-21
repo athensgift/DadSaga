@@ -13,6 +13,10 @@ public struct Quest: ContentItem, Hashable, Identifiable, Sendable {
     public let tip: QuestTip?
     /// Also shown in every later world (ADR-0020): needs that do not belong to one age.
     public let isEvergreen: Bool
+    /// Offered only to a family where every one of these holds (ADR-0053 §4). Empty: every family.
+    public let onlyFor: Set<Audience>
+    /// A shipped card that is never offered again; it stays for what the dad already did with it (ADR-0053 §6).
+    public let isRetired: Bool
 
     public init(
         id: String,
@@ -24,6 +28,8 @@ public struct Quest: ContentItem, Hashable, Identifiable, Sendable {
         minAgeMonths: Int,
         tip: QuestTip? = nil,
         isEvergreen: Bool = false,
+        onlyFor: Set<Audience> = [],
+        isRetired: Bool = false,
         formerIDs: [String] = []
     ) {
         self.id = id
@@ -36,6 +42,8 @@ public struct Quest: ContentItem, Hashable, Identifiable, Sendable {
         self.minAgeMonths = minAgeMonths
         self.tip = tip
         self.isEvergreen = isEvergreen
+        self.onlyFor = onlyFor
+        self.isRetired = isRetired
     }
 }
 

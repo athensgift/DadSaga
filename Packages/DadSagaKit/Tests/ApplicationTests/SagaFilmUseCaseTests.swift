@@ -8,9 +8,9 @@ struct SagaFilmUseCaseTests {
     static let text = Stub.text
     static let catalog = ContentCatalog(
         worlds: [
-            World(id: "w1", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: 8),
-            World(id: "w2", order: 2, title: text, tagline: text, minAgeMonths: 9, maxAgeMonths: 24),
-            World(id: "w3", order: 3, title: text, tagline: text, minAgeMonths: 25, maxAgeMonths: 41)
+            World(id: "w1", order: 1, title: text, tagline: text, span: .months(min: 0, max: 8)),
+            World(id: "w2", order: 2, title: text, tagline: text, span: .months(min: 9, max: 24)),
+            World(id: "w3", order: 3, title: text, tagline: text, span: .months(min: 25, max: 41))
         ],
         quests: [Quest(id: "q1", worldID: "w1", title: text, description: text, skill: .care, xp: 20, minAgeMonths: 0)],
         bosses: [BossFight(id: "b1", worldID: "w2", title: text, intro: text, guide: [], badge: text,
@@ -54,7 +54,8 @@ struct SagaFilmUseCaseTests {
     }
 
     func date(months: Int, days: Int = 0) -> Date {
-        let month = calendar.date(byAdding: .month, value: months, to: anna.birthDay.start(in: calendar.timeZone)) ?? .distantPast
+        let birth = anna.birthDay?.start(in: calendar.timeZone) ?? .distantPast
+        let month = calendar.date(byAdding: .month, value: months, to: birth) ?? .distantPast
         return calendar.date(byAdding: .day, value: days, to: month) ?? .distantPast
     }
 
@@ -166,7 +167,7 @@ struct SagaFilmUseCaseTests {
         #expect(film.equippedGear.map(\.id) == ["g-cloth"])
         #expect(film.medalCount == 0)
         #expect(film.childFirsts.isEmpty)
-        #expect(film.storyboard.childAgeInMonths == 11)
+        #expect(film.storyboard.childAge == .months(11))
         #expect(everything.equippedGear.map(\.id) == ["g-hat"])
         #expect(everything.childFirsts.map(\.id) == ["f-walk"])
         #expect(everything.medalCount == 1)
@@ -186,7 +187,7 @@ struct SagaFilmUseCaseTests {
         #expect(film.equippedGear.map(\.id) == ["g-hat"])
         #expect(film.medalCount == 1)
         #expect(film.childFirsts.map(\.id) == ["f-walk"])
-        #expect(film.storyboard.childAgeInMonths == 26)
+        #expect(film.storyboard.childAge == .months(26))
     }
 
     @Test("Given a boss and a first with Niko, when reading Anna's film, then the medal shows but the first is Niko's own")

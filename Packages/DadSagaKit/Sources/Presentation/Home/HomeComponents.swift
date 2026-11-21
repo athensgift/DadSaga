@@ -216,6 +216,10 @@ struct WorldHeader: View {
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)
             }
+            // Under the world it is about, aligned with it (ADR-0053 §1).
+            if let arrivalLine = content.arrivalLine, content.worldTitle != nil {
+                ArrivalLine(text: arrivalLine)
+            }
             if let back = content.backToCurrentTitle {
                 Button(back, systemImage: "arrow.uturn.backward", action: onBack)
                     .font(DSFont.subheadline)
@@ -223,6 +227,45 @@ struct WorldHeader: View {
             }
         }
         .padding(.bottom, DSSpacing.s)
+    }
+}
+
+/// "When they arrive, untick “Not born yet” in My family.": one quiet line, no card, no count, no date.
+struct ArrivalLine: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(DSFont.subheadline)
+            .foregroundStyle(DSColor.textSecondary)
+            .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+/// "When life changes": the bosses for a move, two homes or a loss, behind one closed row at the end of the world's
+/// cards (ADR-0053 §5). Closed each time home is opened, and no count: there for the dad who needs them, not on every screen.
+struct SituationalRow<Card: View>: View {
+    let cards: SituationalCards
+    @ViewBuilder let card: (CardModel) -> Card
+    @State private var isExpanded = false
+
+    var body: some View {
+        DisclosureGroup(isExpanded: $isExpanded) {
+            VStack(spacing: DSSpacing.s) {
+                ForEach(cards.cards) { card($0) }
+            }
+            .padding(.top, DSSpacing.s)
+        } label: {
+            Text(cards.title)
+                .font(DSFont.headline)
+                .foregroundStyle(DSColor.textPrimary)
+        }
+        .tint(DSColor.textSecondary)
+        .padding(.horizontal, DSSpacing.m)
+        .padding(.vertical, DSSpacing.s)
+        .frame(minHeight: 50)
+        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+        .padding(.top, DSSpacing.s)
     }
 }
 

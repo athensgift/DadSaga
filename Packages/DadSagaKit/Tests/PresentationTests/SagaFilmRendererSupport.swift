@@ -22,7 +22,8 @@ enum FilmCards {
         family: SagaFilmFamily(
             hero: .cool, heroSkin: .mediumDark, heroAppearance: .standard, heroGear: [.burpCloth, .mug], medals: 2,
             child: CompanionModel(
-                id: UUID(), name: "Άννα", stage: .toddler, gender: .girl, skin: .medium, traits: [.smile, .walks]
+                id: UUID(), name: "Άννα", spokenName: "Άννα", stage: .toddler, gender: .girl, skin: .medium,
+                traits: [.smile, .walks]
             )
         )
     )

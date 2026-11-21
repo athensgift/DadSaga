@@ -4,7 +4,8 @@ import Foundation
 import Localization
 import Observation
 
-/// Presenter for "My family": add, edit or remove children after onboarding. The dad's look is on "Your hero".
+/// Presenter for "My family": add, edit or remove children after onboarding, mark a child born, and the partner
+/// answer. The dad's look is on "Your hero".
 /// Children keep their ids, so progress with them stays linked; removing a child never takes XP away (ADR-0006).
 @MainActor
 @Observable
@@ -59,7 +60,7 @@ public final class FamilyViewModel {
                 state = .failed(message: strings.text("No profile found."))
                 return
             }
-            family = FamilyDraft(profile)
+            family = FamilyDraft(profile, today: CalendarDay(latestBirthDate, in: timeZone))
             stored = family
             state = .loaded(makeContent())
         } catch {
@@ -84,7 +85,9 @@ public final class FamilyViewModel {
         errorMessage = nil
         let saving = family
         do {
-            try await updateFamily.execute(children: saving.children.map(\.child), on: latestBirthDate)
+            try await updateFamily.execute(
+                children: saving.children.map(\.child), hasPartner: saving.hasPartner, on: latestBirthDate
+            )
             stored = saving
             if family == saving { onSaved() }
         } catch {
@@ -96,6 +99,7 @@ public final class FamilyViewModel {
         FamilyContent(
             title: strings.text("My family"),
             childEditor: ChildEditorLabels.make(locale: locale),
+            partner: PartnerRowLabels.make(locale: locale),
             saveTitle: strings.text("Save"),
             unsaved: JournalLabels(locale: locale),
             footnote: strings.text("If you remove a child, everything you earned together stays.")
@@ -114,6 +118,7 @@ public enum FamilyViewState: Equatable, Sendable {
 public struct FamilyContent: Equatable, Sendable {
     public let title: String
     public let childEditor: ChildEditorLabels
+    public let partner: PartnerRowLabels
     public let saveTitle: String
     /// "Discard the changes you just made?" and its answers.
     public let unsaved: JournalLabels

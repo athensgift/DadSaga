@@ -195,9 +195,11 @@ public struct HomeView: View {
                         Text(content.companionLine)
                             .font(DSFont.headline)
                             .foregroundStyle(DSColor.textPrimary)
-                        Text(content.heroTagline)
-                            .font(DSFont.subheadline)
-                            .foregroundStyle(DSColor.textSecondary)
+                        if let tagline = content.heroTagline {
+                            Text(tagline)
+                                .font(DSFont.subheadline)
+                                .foregroundStyle(DSColor.textSecondary)
+                        }
                     }
                     .multilineTextAlignment(.center)
                     LevelPanel(
@@ -254,25 +256,24 @@ public struct HomeView: View {
                 Task { await viewModel.showWorld(id: nil) }
             }
             if let emptyMessage = content.emptyMessage {
-                ContentUnavailableView(emptyMessage, systemImage: "map")
-                    .padding(.vertical, DSSpacing.l)
+                // With no world to show, the arrival line goes with the message, centred under it.
+                VStack(spacing: DSSpacing.xs) {
+                    ContentUnavailableView(emptyMessage, systemImage: "map")
+                    if let arrivalLine = content.arrivalLine, content.worldTitle == nil {
+                        ArrivalLine(text: arrivalLine)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .padding(.vertical, DSSpacing.l)
             }
             ForEach(content.cards) { card in
-                Button {
-                    viewModel.select(cardID: card.id)
-                } label: {
-                    QuestCard(
-                        title: card.title,
-                        subtitle: card.subtitle,
-                        badge: card.badge,
-                        symbol: card.symbol,
-                        style: card.kind.cardStyle,
-                        footnote: card.footnote,
-                        hint: card.hint,
-                        skill: card.skill
-                    )
-                }
-                .buttonStyle(.plain)
+                cardButton(card)
+            }
+            if let situational = content.situational {
+                // Closed again when home is opened or shows another child or world; open through a save.
+                SituationalRow(cards: situational) { cardButton($0) }
+                    .id(situational.id)
             }
             MomentsSectionView(
                 section: content.moments,
@@ -289,6 +290,27 @@ public struct HomeView: View {
         }
         .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.reminderOffer)
         .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.sagaOffer)
+    }
+}
+
+extension HomeView {
+    /// A quest or boss card; a tap opens its sheet.
+    func cardButton(_ card: CardModel) -> some View {
+        Button {
+            viewModel.select(cardID: card.id)
+        } label: {
+            QuestCard(
+                title: card.title,
+                subtitle: card.subtitle,
+                badge: card.badge,
+                symbol: card.symbol,
+                style: card.kind.cardStyle,
+                footnote: card.footnote,
+                hint: card.hint,
+                skill: card.skill
+            )
+        }
+        .buttonStyle(.plain)
     }
 }
 

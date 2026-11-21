@@ -20,8 +20,8 @@ struct WeeklyHighlightsUseCaseTests {
 
     static let catalog = ContentCatalog(
         worlds: [
-            World(id: "w1", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: 8),
-            World(id: "w2", order: 2, title: text, tagline: text, minAgeMonths: 9, maxAgeMonths: 24)
+            World(id: "w1", order: 1, title: text, tagline: text, span: .months(min: 0, max: 8)),
+            World(id: "w2", order: 2, title: text, tagline: text, span: .months(min: 9, max: 24))
         ],
         quests: [
             Quest(id: "q1", worldID: "w1", title: text, description: text, skill: .care, xp: 15, minAgeMonths: 0),

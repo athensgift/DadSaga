@@ -14,15 +14,16 @@ public struct Child: Hashable, Identifiable, Sendable {
     /// Stable across edits, so progress recorded with this child stays linked to them.
     public let id: UUID
     public var name: String
-    /// The day the child was born, as the dad picked it: not a moment, so it doesn't move with the time zone.
-    public var birthDay: CalendarDay
+    /// The day the child was born, as the dad picked it: not a moment, so it doesn't move with the time zone. `nil`
+    /// while the child is not born yet (ADR-0053 §1): no due date is kept.
+    public var birthDay: CalendarDay?
     public var gender: Gender
     public var skinTone: SkinTone
 
     public init(
         id: UUID = UUID(),
         name: String,
-        birthDay: CalendarDay,
+        birthDay: CalendarDay?,
         gender: Gender = .boy,
         skinTone: SkinTone = .mediumLight
     ) {
@@ -33,14 +34,17 @@ public struct Child: Hashable, Identifiable, Sendable {
         self.skinTone = skinTone
     }
 
-    /// Completed Gregorian months of age on `today`: the one age rule for worlds, quests, bosses, periods and films
-    /// (ADR-0048 §2). Never negative.
-    public func ageInMonths(on today: CalendarDay) -> Int {
-        birthDay.months(until: today)
+    public var isBorn: Bool { birthDay != nil }
+
+    /// The child's age on `day`: the one age rule for worlds, cards, periods and films (ADR-0048 §2, ADR-0053 §1).
+    /// Before the birth when there is no birth day or `day` is earlier; otherwise the completed Gregorian months.
+    public func age(on day: CalendarDay) -> ChildAge {
+        guard let birthDay, birthDay <= day else { return .beforeBirth }
+        return .months(birthDay.months(until: day))
     }
 
-    /// The day the child turns `months` months old.
-    public func day(atMonths months: Int) -> CalendarDay {
-        birthDay.adding(months: months)
+    /// The day the child turns `months` months old; `nil` while not born.
+    public func day(atMonths months: Int) -> CalendarDay? {
+        birthDay?.adding(months: months)
     }
 }

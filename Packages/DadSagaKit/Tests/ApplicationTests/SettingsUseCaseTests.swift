@@ -185,7 +185,7 @@ struct EditProfileUseCaseTests {
             .execute(heroClassID: "h1", skinTone: .light, appearance: shavedNoBeard, on: today)
 
         try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
-            .execute(children: [anna], on: today)
+            .execute(children: [anna], hasPartner: true, on: today)
 
         let profile = try #require(try await profiles.fetchProfile())
         #expect(profile == PlayerProfile(
@@ -202,7 +202,7 @@ struct EditProfileUseCaseTests {
         }
         await #expect(throws: ProfileEditError.noProfile) {
             try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
-                .execute(children: [anna], on: today)
+                .execute(children: [anna], hasPartner: true, on: today)
         }
     }
 
@@ -235,7 +235,7 @@ struct EditProfileUseCaseTests {
         try await profiles.save(PlayerProfile(children: [anna, nikos], heroClassID: "gone", dadSkinTone: .light))
 
         try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
-            .execute(children: [anna], on: today)
+            .execute(children: [anna], hasPartner: true, on: today)
 
         let profile = try #require(try await profiles.fetchProfile())
         #expect(profile.children.map(\.id) == [anna.id])

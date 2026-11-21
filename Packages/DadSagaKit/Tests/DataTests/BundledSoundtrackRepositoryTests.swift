@@ -50,13 +50,22 @@ struct BundledSoundtrackRepositoryTests {
         let catalog = try await BundledContentRepository().fetchCatalog()
         let child = Child(name: "Test", birthDay: .day(2_020, 1, 15))
         let worlds = catalog.worlds
-        let lastWorld = try #require(worlds.last)
+        let birth = try #require(child.birthDay)
         let photos = (1...ProgressEvent.photoLimit).map { "p\($0)" }
         let byID = Dictionary(uniqueKeysWithValues: worlds.map { ($0.id, $0) })
+        /// A moment in the world: from its first month, or a month before the birth for the world before birth, so
+        /// that world gets its chapter too (ADR-0053 §2).
         let inWorld = { (worldID: String, minute: Int) throws -> Date in
             let world = try #require(byID[worldID], "\(worldID) is a world")
-            return child.day(atMonths: world.minAgeMonths).start(in: .gmt).addingTimeInterval(Double(60 * minute))
+            let start: CalendarDay = switch world.span {
+            case .beforeBirth: birth.adding(days: -30)
+            case .months(let min, _): try #require(child.day(atMonths: min))
+            }
+            return start.start(in: .gmt).addingTimeInterval(Double(60 * minute))
         }
+        let lastMonths = worlds.compactMap { world -> Int? in
+            if case .months(let min, _) = world.span { min } else { nil }
+        }.max() ?? 0
         let firsts = try catalog.firsts.enumerated().map { index, first in
             ProgressEvent(
                 kind: .first(id: first.id), childID: child.id,
@@ -78,7 +87,7 @@ struct BundledSoundtrackRepositoryTests {
             child: child,
             period: .everything,
             catalog: catalog,
-            now: child.day(atMonths: lastWorld.minAgeMonths + 12).start(in: .gmt),
+            now: birth.adding(months: lastMonths + 12).start(in: .gmt),
             timeZone: .gmt
         ))
         let keptFirsts = film.scenes.count { scene in

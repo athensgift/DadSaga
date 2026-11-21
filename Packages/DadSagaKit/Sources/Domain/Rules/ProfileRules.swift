@@ -35,7 +35,8 @@ public enum ProfileRules {
             var child = child
             child.name = child.name.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !child.name.isEmpty else { throw ProfileValidationError.emptyChildName }
-            guard child.birthDay <= today else { throw ProfileValidationError.birthDateInFuture }
+            // A child not born yet has no day to check (ADR-0053 §1).
+            if let birthDay = child.birthDay, birthDay > today { throw ProfileValidationError.birthDateInFuture }
             return child
         }
     }

@@ -5,7 +5,8 @@ import Testing
 @testable import Data
 
 /// Moving a store to several photos per entry, through versions 2 and 3 (ADR-0042 §2), to the dad's look at version 4
-/// (ADR-0044 §6), and to birth days at version 5 (ADR-0048 §3).
+/// (ADR-0044 §6), to birth days at version 5 (ADR-0048 §3), and to a child who may not be born yet at version 6
+/// (ADR-0053 §8).
 @Suite("Store migration", .serialized)
 struct StoreMigrationTests {
     let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-migration-" + UUID().uuidString)
@@ -54,7 +55,7 @@ struct StoreMigrationTests {
         #expect(try await store.progress.fetchEvents() == StoreV4Fixture.events)
         #expect(try await store.outfit.fetchOutfit() == StoreV4Fixture.outfit)
         let days = try storedBirthDays()
-        #expect(days == StoreV4Fixture.profile.children.map { [$0.birthDay.year, $0.birthDay.month, $0.birthDay.day] })
+        #expect(days == StoreV4Fixture.profile.children.compactMap(\.birthDay).map { [$0.year, $0.month, $0.day] })
     }
 
     @Test("Given a migrated version 4 store, when the dad changes a birth day and the app opens it again, then the day is kept")
@@ -68,13 +69,53 @@ struct StoreMigrationTests {
         #expect(try storedBirthDays().last == [2026, 5, 22])
     }
 
-    @Test("Given a store at version 5 whose birth days were never filled, when the app opens it, then the old dates still read")
-    func version5WithoutADayReadsTheOldDate() async throws {
+    @Test("Given a store at version 5 whose birth days were never filled, when the app opens it, then the old dates become days")
+    func version5WithoutADayGetsItsDay() async throws {
         try StoreFiles.copy(from: StoreV4Fixture.directory, to: directory)
-        try openAtVersion5 { _ in }
+        let empty = try openAtVersion5 { context in
+            try context.fetch(FetchDescriptor<SchemaV5.ChildRecord>()).map { [$0.birthYear, $0.birthDay].compactMap(\.self) }
+        }
+        #expect(empty == [[], []])
 
-        #expect(try storedBirthDays() == [[], []])
         #expect(try await LocalStore.live(in: directory).profiles.fetchProfile() == StoreV4Fixture.profile)
+        #expect(try storedBirthDays().allSatisfy { $0.count == 3 })
+    }
+
+    @Test("Given a store written by version 5, when the app opens it at version 6, then both are born on their days, partner yes")
+    func version5BecomesVersion6() async throws {
+        try StoreFiles.copy(from: StoreV5Fixture.directory, to: directory)
+        let store = LocalStore.live(in: directory)
+
+        let profile = try #require(try await store.profiles.fetchProfile())
+
+        #expect(profile == StoreV5Fixture.profile)
+        #expect(profile.children.allSatisfy { $0.isBorn })
+        #expect(profile.hasPartner)
+        #expect(try await store.progress.fetchEvents() == StoreV5Fixture.events)
+        #expect(try await store.outfit.fetchOutfit() == StoreV5Fixture.outfit)
+        let petros = try #require(StoreV5Fixture.petros.birthDay)
+        #expect(try storedBirthDays() == [[2025, 9, 14], [petros.year, petros.month, petros.day]])
+    }
+
+    @Test("Given a migrated store, when a child not born yet is saved, then it reads back without a day, and born again on a day")
+    func childNotBornYetRoundTrips() async throws {
+        try StoreFiles.copy(from: StoreV5Fixture.directory, to: directory)
+        var profile = try #require(try await LocalStore.live(in: directory).profiles.fetchProfile())
+        profile.children[1].birthDay = nil
+        profile.hasPartner = false
+        try await LocalStore.live(in: directory).profiles.save(profile)
+
+        let unborn = try #require(try await LocalStore.live(in: directory).profiles.fetchProfile())
+        #expect(unborn == profile)
+        #expect(!unborn.children[1].isBorn)
+        #expect(!unborn.hasPartner)
+        #expect(try storedBirthDays().last == [])
+
+        profile.children[1].birthDay = .day(2026, 11, 20)
+        try await LocalStore.live(in: directory).profiles.save(profile)
+        let born = try #require(try await LocalStore.live(in: directory).profiles.fetchProfile())
+        #expect(born.children[1].id == StoreV5Fixture.petros.id)
+        #expect(born.children[1].birthDay == .day(2026, 11, 20))
     }
 
     @Test(
@@ -93,6 +134,16 @@ struct StoreMigrationTests {
         }
 
         #expect(days.last == [2026, 5, day])
+    }
+
+    @Test("Given a store written by version 5, when the app opens it, then everything is there, both children born")
+    func version5OpensWithEverything() async throws {
+        try StoreFiles.copy(from: StoreV5Fixture.directory, to: directory)
+        let store = LocalStore.live(in: directory)
+
+        #expect(try await store.profiles.fetchProfile() == StoreV5Fixture.profile)
+        #expect(try await store.progress.fetchEvents() == StoreV5Fixture.events)
+        #expect(try await store.outfit.fetchOutfit() == StoreV5Fixture.outfit)
     }
 
     @Test("Given a store written before versioned schemas, when the app opens it, then its photo is a one-item list")
@@ -150,12 +201,19 @@ struct StoreMigrationTests {
 }
 
 extension StoreMigrationTests {
-    /// The children's stored birth year, month and day, in family order; empty for a row without them.
+    /// The children's stored birth year, month and day at the current version, in family order; empty for a row
+    /// without them.
     func storedBirthDays() throws -> [[Int]] {
-        try openAtVersion5 { context in
-            try context.fetch(FetchDescriptor<SchemaV5.ChildRecord>(sortBy: [SortDescriptor(\.order)])).map {
-                [$0.birthYear, $0.birthMonth, $0.birthDay].compactMap(\.self)
-            }
+        let schema = Schema(versionedSchema: CurrentSchema.self)
+        let container = try ModelContainer(
+            for: schema,
+            migrationPlan: DadSagaMigrationPlan.self,
+            configurations: [
+                ModelConfiguration(schema: schema, url: directory.appending(path: "DadSaga.store"), cloudKitDatabase: .none)
+            ]
+        )
+        return try ModelContext(container).fetch(FetchDescriptor<ChildRecord>(sortBy: [SortDescriptor(\.order)])).map {
+            [$0.birthYear, $0.birthMonth, $0.birthDay].compactMap(\.self)
         }
     }
 
