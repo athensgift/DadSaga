@@ -15,13 +15,14 @@ struct BundledContentRepositoryTests {
         #expect(catalog.firsts.count == 24)
     }
 
-    @Test("Given the bundled JSON, when fetching, then tips, evergreen quests and sibling-only bosses are read")
+    @Test("Given the bundled JSON, when fetching, then tips, evergreen quests and audiences are read")
     func readsNewFields() async throws {
         let catalog = try await repository.fetchCatalog()
         #expect(catalog.quests.compactMap(\.tip).count == 40)
         #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 12)
         #expect(catalog.quests.filter(\.isEvergreen).count == 14)
-        #expect(catalog.bosses.filter(\.requiresSibling).map(\.id) == ["b-w3-new-sibling"])
+        #expect(catalog.bosses.filter { !$0.onlyFor.isEmpty }.map(\.id) == ["b-w3-new-sibling"])
+        #expect(catalog.boss(id: "b-w3-new-sibling")?.onlyFor == [.youngerSibling])
     }
 
     @Test("Given the bundled heroes, when fetching, then each dad is drawn with his own look")
@@ -42,14 +43,16 @@ struct BundledContentRepositoryTests {
     @Test("Given the bundled content, when checking ages, then no quest or boss unlocks before its world")
     func itemAgesFitTheirWorld() async throws {
         let catalog = try await repository.fetchCatalog()
-        let worlds = Dictionary(uniqueKeysWithValues: catalog.worlds.map { ($0.id, $0) })
+        let minimum = Dictionary(uniqueKeysWithValues: catalog.worlds.map { world in
+            if case .months(let min, _) = world.span { (world.id, min) } else { (world.id, 0) }
+        })
         for quest in catalog.quests {
-            let world = try #require(worlds[quest.worldID])
-            #expect(quest.minAgeMonths >= world.minAgeMonths, "\(quest.id) unlocks before its world")
+            let world = try #require(minimum[quest.worldID])
+            #expect(quest.minAgeMonths >= world, "\(quest.id) unlocks before its world")
         }
         for boss in catalog.bosses {
-            let world = try #require(worlds[boss.worldID])
-            #expect(boss.minAgeMonths >= world.minAgeMonths, "\(boss.id) unlocks before its world")
+            let world = try #require(minimum[boss.worldID])
+            #expect(boss.minAgeMonths >= world, "\(boss.id) unlocks before its world")
         }
     }
 
@@ -112,14 +115,6 @@ struct MappingTests {
         #expect(!quest.isEvergreen)
     }
 
-    @Test("Given a boss DTO marked requiresSibling, when mapping, then the Domain boss requires a sibling")
-    func mapsSibling() throws {
-        var dto = BossFightDTO(id: "b", worldID: "w", title: text, intro: text, guide: [text], badge: text,
-                               skill: "care", xp: 100, minAgeMonths: 0)
-        dto.requiresSibling = true
-        #expect(try dto.toDomain().requiresSibling)
-    }
-
     @Test("Given DTOs with former ids, when mapping, then the Domain items keep them; without, they have none")
     func mapsFormerIDs() throws {
         var quest = QuestDTO(id: "q", worldID: "w", title: text, description: text, skill: "care", xp: 10, minAgeMonths: 0)
@@ -159,7 +154,7 @@ struct ContentValidatorTests {
 
     @Test("Given a quest whose tip has no steps, when validating, then emptyTip is thrown")
     func emptyTip() {
-        let world = World(id: "w", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: nil)
+        let world = World(id: "w", order: 1, title: text, tagline: text, span: .months(min: 0, max: nil))
         let catalog = ContentCatalog(
             worlds: [world],
             quests: [Quest(id: "q", worldID: "w", title: text, description: text, skill: .care, xp: 1, minAgeMonths: 0,

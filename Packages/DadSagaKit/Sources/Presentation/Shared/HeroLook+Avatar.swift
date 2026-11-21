@@ -84,8 +84,10 @@ private extension DadAppearanceChoice.Glasses {
 }
 
 extension CompanionStage {
-    var avatarStage: ChildAvatar.Stage {
+    /// `nil` for a child not born yet, who is drawn as a mark (`CompanionFigure`).
+    var avatarStage: ChildAvatar.Stage? {
         switch self {
+        case .onTheWay: nil
         case .baby: .baby
         case .toddler: .toddler
         case .preschooler: .preschooler

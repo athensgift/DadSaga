@@ -12,10 +12,13 @@ public struct HomeOverview: Sendable {
     public let progress: DadProgress
     /// The world whose quests and bosses are shown: an earlier one the dad chose on the map, or the current one.
     public let shownWorld: World?
-    /// The shown world's quests for the child's age, evergreen ones from earlier worlds included (ADR-0020).
+    /// The shown world's quests offered to this child and family, evergreen ones from earlier worlds included
+    /// (ADR-0020, ADR-0051).
     public let quests: [Quest]
-    /// The shown world's bosses this family can meet.
+    /// The shown world's bosses offered to this child and family, evergreen ones included, without the situational ones.
     public let bosses: [BossFight]
+    /// The shown world's bosses for when life changes: home keeps them in one closed row (ADR-0051 §5).
+    public let situationalBosses: [BossFight]
     /// What the hero wears, one item per skill at most.
     public let equippedGear: [GearItem]
     /// The one film to offer the family today, if the dad hasn't answered it (ADR-0037 §5). It can be about a child
@@ -25,6 +28,8 @@ public struct HomeOverview: Sendable {
     public let today: CalendarDay
 
     public var childCount: Int { profile.children.count }
+    /// Who the cards are for in this family.
+    public var family: FamilyFacts { adventure.family }
 
     public var isShowingCurrentWorld: Bool { shownWorld?.id == adventure.currentWorld?.id }
     public var defeatedBossIDs: Set<String> { progress.defeatedBossIDs(for: child.id) }
@@ -48,8 +53,12 @@ public struct HomeOverview: Sendable {
         self.progress = progress
         let shownWorld = adventure.unlockedWorlds.first { $0.id == worldID } ?? adventure.currentWorld
         self.shownWorld = shownWorld
-        quests = shownWorld.map { UnlockRules.quests(for: $0, in: catalog, ageInMonths: adventure.ageInMonths) } ?? []
-        bosses = adventure.availableBosses.filter { $0.worldID == shownWorld?.id }
+        let age = adventure.age
+        let family = adventure.family
+        quests = shownWorld.map { UnlockRules.quests(for: $0, in: catalog, age: age, family: family) } ?? []
+        let bosses = shownWorld.map { UnlockRules.bosses(for: $0, in: catalog, age: age, family: family) } ?? []
+        self.bosses = bosses.filter { !$0.isSituational }
+        situationalBosses = bosses.filter(\.isSituational)
         equippedGear = GearRules.equipped(catalog.gear, skillXP: progress.skillXP, outfit: outfit)
         self.sagaOffer = sagaOffer
         self.today = today
@@ -101,7 +110,9 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
             profile: profile,
             child: child,
             catalog: catalog,
-            adventure: Adventure(for: child, childCount: profile.children.count, catalog: catalog, on: today),
+            adventure: Adventure(
+                for: child, family: FamilyFacts(profile: profile, child: child), catalog: catalog, on: today
+            ),
             progress: DadProgress(events: events, catalog: catalog),
             outfit: try await pendingOutfit,
             worldID: worldID,

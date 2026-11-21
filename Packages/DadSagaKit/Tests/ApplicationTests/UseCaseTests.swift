@@ -36,29 +36,27 @@ struct AdventureTests {
 
         let adventure = Adventure(
             for: Child(name: "Νίκος", birthDay: CalendarDay(birth, in: .gmt)),
-            childCount: 1,
+            family: .everyone,
             catalog: Stub.catalog,
             on: CalendarDay(today, in: .gmt)
         )
 
-        #expect(adventure.ageInMonths == 10)
+        #expect(adventure.age == .months(10))
         #expect(!adventure.isBeyondContent)
         #expect(adventure.currentWorld?.id == "w2")
         #expect(adventure.unlockedWorlds.map(\.id) == ["w1", "w2"])
-        #expect(adventure.availableBosses.isEmpty)
     }
 
-    @Test("Given one child or two, when building the adventure, then a sibling-only boss comes only with two")
-    func familySize() {
-        let birth = Date(timeIntervalSince1970: 0)
-        let today = Date(timeIntervalSince1970: 14 * 31 * 86_400)
-        let child = Child(name: "Νίκος", birthDay: CalendarDay(birth, in: .gmt))
+    @Test("Given a child not born yet and content without a world before birth, when building the adventure, then no world fits")
+    func notBornWithoutWorldZero() {
+        let child = Child(name: "Μπέμπης", birthDay: nil)
 
-        let alone = Adventure(for: child, childCount: 1, catalog: Stub.catalog, on: CalendarDay(today, in: .gmt))
-        let siblings = Adventure(for: child, childCount: 2, catalog: Stub.catalog, on: CalendarDay(today, in: .gmt))
+        let adventure = Adventure(for: child, family: .everyone, catalog: Stub.catalog, on: .day(2026, 11, 21))
 
-        #expect(alone.availableBosses.map(\.id) == ["b1"])
-        #expect(siblings.availableBosses.map(\.id) == ["b1", "b-sibling"])
+        #expect(adventure.age == .beforeBirth)
+        #expect(adventure.isBeyondContent)
+        #expect(adventure.currentWorld == nil)
+        #expect(adventure.unlockedWorlds.isEmpty)
     }
 
     @Test("Given a child older than every world, when building the adventure, then nothing is offered")
@@ -66,12 +64,11 @@ struct AdventureTests {
         let today = Date(timeIntervalSince1970: 1_000_000_000)
         let child = Child(name: "Άννα", birthDay: CalendarDay(today.addingTimeInterval(-5 * 365 * 86_400), in: .gmt))
 
-        let adventure = Adventure(for: child, childCount: 1, catalog: Stub.catalog, on: CalendarDay(today, in: .gmt))
+        let adventure = Adventure(for: child, family: .everyone, catalog: Stub.catalog, on: CalendarDay(today, in: .gmt))
 
         #expect(adventure.isBeyondContent)
         #expect(adventure.currentWorld == nil)
         #expect(adventure.unlockedWorlds.map(\.id) == ["w1", "w2"])
-        #expect(adventure.availableBosses.isEmpty)
     }
 }
 
@@ -89,8 +86,8 @@ enum Stub {
     static let text = LocalizedText(el: "x", en: "x")
     static let catalog = ContentCatalog(
         worlds: [
-            World(id: "w1", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: 8),
-            World(id: "w2", order: 2, title: text, tagline: text, minAgeMonths: 9, maxAgeMonths: 24)
+            World(id: "w1", order: 1, title: text, tagline: text, span: .months(min: 0, max: 8)),
+            World(id: "w2", order: 2, title: text, tagline: text, span: .months(min: 9, max: 24))
         ],
         quests: [
             Quest(id: "q1", worldID: "w1", title: text, description: text, skill: .care, xp: 20, minAgeMonths: 0),
@@ -101,7 +98,7 @@ enum Stub {
             BossFight(id: "b1", worldID: "w2", title: text, intro: text, guide: [], badge: text,
                       skill: .care, xp: 100, minAgeMonths: 12),
             BossFight(id: "b-sibling", worldID: "w2", title: text, intro: text, guide: [], badge: text,
-                      skill: .care, xp: 100, minAgeMonths: 12, requiresSibling: true)
+                      skill: .care, xp: 100, minAgeMonths: 12, onlyFor: [.youngerSibling])
         ],
         firsts: []
     )

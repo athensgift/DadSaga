@@ -98,32 +98,40 @@ public enum SagaOccasions {
         return newest.first { $0.date == date && answered.isDisjoint(with: $0.answerIDs) }
     }
 
-    /// Every birthday so far, and the end of every world.
+    /// Every birthday so far, and the end of every world: a world before birth ends on the birth day (ADR-0051 §2).
+    /// None before the birth.
     private static func occasions(
         for child: Child,
         catalog: ContentCatalog,
         now: Date,
         timeZone: TimeZone
     ) -> [SagaOccasion] {
-        let years = child.ageInMonths(on: CalendarDay(now, in: timeZone)) / 12
-        let birthdays = (0..<years).map { index in
+        guard let birthDay = child.birthDay, let months = child.age(on: CalendarDay(now, in: timeZone)).months else {
+            return []
+        }
+        let birthdays = (0..<(months / 12)).map { index in
             let years = index + 1
             return SagaOccasion(
                 id: "\(child.id.uuidString)/birthday/\(years)",
                 kind: .birthday(years: years),
                 childID: child.id,
-                date: child.day(atMonths: 12 * years).start(in: timeZone),
+                date: birthDay.adding(months: 12 * years).start(in: timeZone),
                 period: .year(years)
             )
         }
         let worldEnds = catalog.worlds.compactMap { world -> SagaOccasion? in
-            guard let maxAge = world.maxAgeMonths else { return nil }
+            let ends: CalendarDay
+            switch world.span {
+            case .beforeBirth: ends = birthDay
+            case .months(_, let max?): ends = birthDay.adding(months: max + 1)
+            case .months(_, nil): return nil
+            }
             let id = { (worldID: String) in "\(child.id.uuidString)/world/\(worldID)" }
             return SagaOccasion(
                 id: id(world.id),
                 kind: .newWorld(left: world),
                 childID: child.id,
-                date: child.day(atMonths: maxAge + 1).start(in: timeZone),
+                date: ends.start(in: timeZone),
                 period: .world(id: world.id),
                 formerIDs: world.formerIDs.map(id)
             )

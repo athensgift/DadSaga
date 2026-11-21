@@ -4,7 +4,8 @@ import Foundation
 import Localization
 import Observation
 
-/// Presenter for onboarding: the dad's children (1 to 4), then his hero class and skin tone.
+/// Presenter for onboarding: the dad's children (1 to 4) and whether he raises them with a partner, then his hero class
+/// and skin tone.
 @MainActor
 @Observable
 public final class OnboardingViewModel {
@@ -100,7 +101,8 @@ public final class OnboardingViewModel {
             let profile = PlayerProfile(
                 children: family.children.map(\.child),
                 heroClassID: selectedHeroID,
-                dadSkinTone: family.dadSkinTone.domain
+                dadSkinTone: family.dadSkinTone.domain,
+                hasPartner: family.hasPartner
             )
             try await saveProfile.execute(profile, on: latestBirthDate)
             onFinished()
@@ -114,6 +116,7 @@ public final class OnboardingViewModel {
             welcomeTitle: strings.text("Welcome, hero"),
             welcomeSubtitle: strings.text("Every saga needs companions. Tell us about your kids."),
             childEditor: ChildEditorLabels.make(locale: locale),
+            partner: PartnerRowLabels.make(locale: locale),
             continueTitle: strings.text("Continue"),
             heroTitle: strings.text("Choose your hero"),
             finishTitle: strings.text("Start the adventure"),

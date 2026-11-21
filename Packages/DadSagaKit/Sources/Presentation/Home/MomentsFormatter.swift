@@ -10,29 +10,48 @@ struct MomentsFormatter {
     /// For the start of the child's birth day: a moment can't be dated before it.
     let timeZone: TimeZone
 
-    func section(for child: Child, catalog: ContentCatalog, progress: DadProgress) -> MomentsSection {
+    /// Every captured moment, a retired first's too; "complete" once every first that can be offered at this age is
+    /// captured (ADR-0051 §3, §6).
+    func section(for child: Child, age: ChildAge, catalog: ContentCatalog, progress: DadProgress) -> MomentsSection {
         let moments = progress.moments(for: child.id)
+        let captured = progress.capturedFirstIDs(for: child.id)
         let viewer = PhotoViewerLabels(locale: locale)
         return MomentsSection(
             title: strings.text("Legendary moments"),
             progress: "\(moments.count)",
             addTitle: strings.text("Capture a moment"),
             cards: moments.map { card($0, viewer: viewer) },
-            emptyText: strings.text("First smile, first steps… Capture them here when they happen."),
-            isComplete: moments.count >= catalog.firsts.count,
+            emptyText: age == .beforeBirth
+                ? strings.text("The day you found out, the first picture… Capture them here.")
+                : strings.text("First smile, first steps… Capture them here when they happen."),
+            isComplete: UnlockRules.firsts(in: catalog, age: age).allSatisfy { captured.contains($0.id) },
             viewer: viewer
         )
     }
 
-    /// Step 1 for a new moment: the firsts not captured yet, and when.
-    func capture(for child: Child, catalog: ContentCatalog, progress: DadProgress, now: Date) -> MomentCapture {
+    /// Step 1 for a new moment: the firsts that can be offered at this age and aren't captured yet, and when. Each
+    /// first has its own earliest day: a first before birth any day, every other first from the birth day.
+    func capture(
+        for child: Child,
+        age: ChildAge,
+        catalog: ContentCatalog,
+        progress: DadProgress,
+        now: Date
+    ) -> MomentCapture {
         let captured = progress.capturedFirstIDs(for: child.id)
+        let options = UnlockRules.firsts(in: catalog, age: age).filter { !captured.contains($0.id) }.map { first in
+            MomentOption(
+                id: first.id,
+                emoji: first.emoji,
+                title: first.title.resolved(for: locale),
+                reward: reward(first),
+                earliestDate: earliestDate(of: first, for: child, now: now)
+            )
+        }
         let choice = MomentChoice(
-            options: catalog.firsts.filter { !captured.contains($0.id) }.map { first in
-                MomentOption(id: first.id, emoji: first.emoji, title: first.title.resolved(for: locale), reward: reward(first))
-            },
+            options: options,
             dateLabel: dateLabel,
-            earliestDate: min(child.birthDay.start(in: timeZone), now),
+            earliestDate: options.map(\.earliestDate).min() ?? now,
             latestDate: now,
             nextLine: strings.text("Next, if you like: photos or a few words."),
             saveTitle: strings.text("Save")
@@ -59,7 +78,7 @@ struct MomentsFormatter {
             note: moment.note ?? "",
             photoIDs: moment.photoIDs,
             dateLabel: dateLabel,
-            earliestDate: min(child.birthDay.start(in: timeZone), moment.date, now),
+            earliestDate: min(earliestDate(of: moment.first, for: child, now: now), moment.date),
             latestDate: now,
             notePlaceholder: strings.text("What happened? (optional)"),
             saveTitle: strings.text("Save"),
@@ -75,6 +94,13 @@ struct MomentsFormatter {
     }
 
     private var dateLabel: String { strings.text("When did it happen?") }
+
+    /// A first before birth can be dated any day up to today; every other first from the start of the birth day, or
+    /// today while the child is not born.
+    private func earliestDate(of first: FirstMoment, for child: Child, now: Date) -> Date {
+        guard !first.isBeforeBirth else { return .distantPast }
+        return min(child.birthDay?.start(in: timeZone) ?? now, now)
+    }
 
     private func reward(_ first: FirstMoment) -> String { "+\(first.xp) XP" }
 

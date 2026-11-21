@@ -64,7 +64,7 @@ struct OrphanPhotoSweepTests {
 
     /// Writes rows straight into the store, as a newer build or an old store could have left them.
     private func writeRows(_ rows: [ProgressEventRecord]) throws {
-        let schema = Schema(versionedSchema: SchemaV5.self)
+        let schema = Schema(versionedSchema: CurrentSchema.self)
         let container = try ModelContainer(
             for: schema,
             migrationPlan: DadSagaMigrationPlan.self,

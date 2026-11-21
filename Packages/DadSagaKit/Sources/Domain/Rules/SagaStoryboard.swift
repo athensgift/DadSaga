@@ -42,11 +42,12 @@ public struct SagaStoryboard: Hashable, Sendable {
     /// The moment the film tells the saga as of: the end of its period, or now if the period is still going. The
     /// opening draws the hero and the child as they were then.
     public let asOf: Date
-    /// The child's completed months of age at the last moment of the period, or now: how the film draws them.
-    public let childAgeInMonths: Int
+    /// The child's age at the last moment of the period, or now: how the film draws them. Before the birth for a film
+    /// of a child not born yet, or of the world before birth (ADR-0051 §2).
+    public let childAge: ChildAge
     /// The days the film covers, for the opening's dates (ADR-0041 §2): from the start of its period to its last
     /// moment, or to now while it is still going. The whole saga starts on the child's birth day, or on the first
-    /// entry's day if one is earlier.
+    /// entry's day if one is earlier; for a child not born yet, on the first entry's day.
     public let span: DateInterval
     public let scenes: [SagaScene]
 
@@ -74,20 +75,21 @@ public struct SagaStoryboard: Hashable, Sendable {
             bossesBeaten: entries.count { if case .boss = $0.kind { true } else { false } }
         )
         let shown = entries.filter { if case .quest = $0.kind { !$0.photoIDs.isEmpty } else { true } }
+        // An entry dated before the birth day is before birth: it belongs to the world before birth.
         let worlds = Dictionary(uniqueKeysWithValues: shown.compactMap { entry in
-            UnlockRules.currentWorld(
-                in: catalog, ageInMonths: child.ageInMonths(on: CalendarDay(entry.date, in: timeZone))
-            ).map { (entry.id, $0) }
+            UnlockRules.currentWorld(in: catalog, age: child.age(on: CalendarDay(entry.date, in: timeZone)))
+                .map { (entry.id, $0) }
         })
         let cutter = Cutter(shown: shown, worlds: worlds, pacing: pacing, credits: credits)
         let asOf = min(interval.end, now)
         let lastMoment = asOf == interval.end ? asOf.addingTimeInterval(-1) : asOf
         let firstDay = entries.map(\.date).min().map { CalendarDay($0, in: timeZone).start(in: timeZone) }
-        let start = min(max(interval.start, child.birthDay.start(in: timeZone)), firstDay ?? .distantFuture)
+        let birth = child.birthDay?.start(in: timeZone) ?? firstDay ?? lastMoment
+        let start = min(max(interval.start, birth), firstDay ?? .distantFuture)
         return SagaStoryboard(
             period: period,
             asOf: asOf,
-            childAgeInMonths: child.ageInMonths(on: CalendarDay(lastMoment, in: timeZone)),
+            childAge: child.age(on: CalendarDay(lastMoment, in: timeZone)),
             span: DateInterval(start: start, end: max(start, lastMoment)),
             scenes: cutter.cut()
         )
@@ -277,7 +279,7 @@ public extension SagaStoryboard {
             return SagaScene(kind: .photo(entry, id: photos[index]), seconds: scene.seconds)
         }
         return SagaStoryboard(
-            period: period, asOf: asOf, childAgeInMonths: childAgeInMonths, span: span, scenes: refilled
+            period: period, asOf: asOf, childAge: childAge, span: span, scenes: refilled
         )
     }
 }

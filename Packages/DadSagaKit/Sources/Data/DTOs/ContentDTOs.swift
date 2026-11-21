@@ -13,8 +13,10 @@ struct WorldDTO: Decodable, Sendable {
     let order: Int
     let title: LocalizedTextDTO
     let tagline: LocalizedTextDTO
-    let minAgeMonths: Int
-    let maxAgeMonths: Int?
+    /// `true` for the world before birth, which has no ages (ADR-0051 §2).
+    var beforeBirth: Bool?
+    var minAgeMonths: Int?
+    var maxAgeMonths: Int?
 }
 
 struct QuestDTO: Decodable, Sendable {
@@ -29,6 +31,10 @@ struct QuestDTO: Decodable, Sendable {
     let minAgeMonths: Int
     var tip: QuestTipDTO?
     var evergreen: Bool?
+    /// Who the card is for, as `Audience` raw values (ADR-0051 §4); every one must hold.
+    var onlyFor: [String]?
+    /// A shipped card never offered again (ADR-0051 §6).
+    var retired: Bool?
 }
 
 struct QuestTipDTO: Decodable, Sendable {
@@ -49,7 +55,12 @@ struct BossFightDTO: Decodable, Sendable {
     let skill: String
     let xp: Int
     let minAgeMonths: Int
-    var requiresSibling: Bool?
+    /// Who the card is for, as `Audience` raw values (ADR-0051 §4); every one must hold.
+    var onlyFor: [String]?
+    /// For when life changes: home keeps it in a closed row (ADR-0051 §5).
+    var situational: Bool?
+    /// Also shown in every later world (ADR-0051 §5).
+    var evergreen: Bool?
 }
 
 struct FirstMomentDTO: Decodable, Sendable {
@@ -61,6 +72,10 @@ struct FirstMomentDTO: Decodable, Sendable {
     let title: LocalizedTextDTO
     let xp: Int
     let companionTrait: String?
+    /// A first before the birth (ADR-0051 §3).
+    var beforeBirth: Bool?
+    /// A shipped first never offered again (ADR-0051 §6).
+    var retired: Bool?
 }
 
 struct HeroClassDTO: Decodable, Sendable {

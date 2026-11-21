@@ -2,7 +2,8 @@ import DesignSystem
 import HeroArt
 import SwiftUI
 
-/// One child's details: name, birth date, gender and skin tone. Used by onboarding and the family screen.
+/// One child's details: name, whether they are born yet, birth date, gender and skin tone. Used by onboarding and the
+/// family screen. While "Not born yet" is on, only the name is asked (ADR-0051 §1).
 struct ChildEditorCard: View {
     @Binding var child: ChildDraft
     let number: Int
@@ -17,10 +18,10 @@ struct ChildEditorCard: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: DSSpacing.s) {
-                ChildAvatar(
-                    stage: child.stage(at: latestBirthDate, timeZone: timeZone).avatarStage,
-                    gender: child.gender.avatarGender,
-                    skin: child.skinTone.avatarSkin,
+                CompanionFigure(
+                    stage: child.stage(at: latestBirthDate, timeZone: timeZone),
+                    gender: child.gender,
+                    skin: child.skinTone,
                     size: 76
                 )
                 .padding(.vertical, -DSSpacing.s)
@@ -42,32 +43,42 @@ struct ChildEditorCard: View {
             .padding(.top, DSSpacing.xs)
             .frame(minHeight: 44)
             row {
-                TextField(labels.namePlaceholder, text: $child.name)
+                TextField(child.isBorn ? labels.namePlaceholder : labels.unbornNamePlaceholder, text: $child.name)
                     .textContentType(.givenName)
                     .submitLabel(.done)
                     .onSubmit(onSubmit)
             }
             row {
-                DateRow(label: labels.birthDateLabel, date: birthDate, range: .distantPast...latestBirthDate)
+                Toggle(labels.notBornLabel, isOn: notBornYet)
             }
-            row {
-                Picker(labels.genderLabel, selection: $child.gender) {
-                    Text(labels.boy).tag(GenderChoice.boy)
-                    Text(labels.girl).tag(GenderChoice.girl)
+            if child.isBorn {
+                row {
+                    DateRow(label: labels.birthDateLabel, date: birthDate, range: .distantPast...latestBirthDate)
                 }
-                .pickerStyle(.segmented)
-            }
-            row {
-                AdaptiveStack(spacing: DSSpacing.s) {
-                    Text(labels.skinToneLabel)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    SkinTonePicker(selection: $child.skinTone, names: labels.skinToneNames)
+                row {
+                    Picker(labels.genderLabel, selection: $child.gender) {
+                        Text(labels.boy).tag(GenderChoice.boy)
+                        Text(labels.girl).tag(GenderChoice.girl)
+                    }
+                    .pickerStyle(.segmented)
+                }
+                row {
+                    AdaptiveStack(spacing: DSSpacing.s) {
+                        Text(labels.skinToneLabel)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        SkinTonePicker(selection: $child.skinTone, names: labels.skinToneNames)
+                    }
                 }
             }
         }
         .font(DSFont.body)
         .foregroundStyle(DSColor.textPrimary)
         .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+    }
+
+    /// "Not born yet" is the child not being born.
+    private var notBornYet: Binding<Bool> {
+        Binding(get: { !child.isBorn }, set: { child.isBorn = !$0 })
     }
 
     /// The picker shows and sets the stored day; the day itself never goes through a time of day.

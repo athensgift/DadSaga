@@ -20,10 +20,10 @@ struct SagaFixtures {
         let text = Fixtures.text
         catalog = ContentCatalog(
             worlds: worlds ?? [
-                World(id: "w1", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: 8),
-                World(id: "w2", order: 2, title: text, tagline: text, minAgeMonths: 9, maxAgeMonths: 24),
-                World(id: "w3", order: 3, title: text, tagline: text, minAgeMonths: 25, maxAgeMonths: 41),
-                World(id: "w4", order: 4, title: text, tagline: text, minAgeMonths: 42, maxAgeMonths: 71)
+                World(id: "w1", order: 1, title: text, tagline: text, span: .months(min: 0, max: 8)),
+                World(id: "w2", order: 2, title: text, tagline: text, span: .months(min: 9, max: 24)),
+                World(id: "w3", order: 3, title: text, tagline: text, span: .months(min: 25, max: 41)),
+                World(id: "w4", order: 4, title: text, tagline: text, span: .months(min: 42, max: 71))
             ],
             quests: [
                 Quest(id: "q1", worldID: "w1", title: text, description: text, skill: .care, xp: 20, minAgeMonths: 0)
@@ -40,7 +40,7 @@ struct SagaFixtures {
 
     /// `months` and `days` after the start of the child's birth day, plus `hours`.
     func date(months: Int, days: Int = 0, hours: Int = 0) -> Date {
-        let birthDay = child.birthDay.start(in: calendar.timeZone)
+        let birthDay = child.birthDay?.start(in: calendar.timeZone) ?? .distantPast
         let month = calendar.date(byAdding: .month, value: months, to: birthDay) ?? .distantPast
         let day = calendar.date(byAdding: .day, value: days, to: month) ?? .distantPast
         return calendar.date(byAdding: .hour, value: hours, to: day) ?? .distantPast

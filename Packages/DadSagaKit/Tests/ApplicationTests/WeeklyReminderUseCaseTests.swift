@@ -10,7 +10,7 @@ struct WeeklyReminderUseCaseTests {
 
     /// One world, three quests, so the weeks show different quests.
     static let catalog = ContentCatalog(
-        worlds: [World(id: "w1", order: 1, title: text("w"), tagline: text("w"), minAgeMonths: 0, maxAgeMonths: 24)],
+        worlds: [World(id: "w1", order: 1, title: text("w"), tagline: text("w"), span: .months(min: 0, max: 24))],
         quests: ["q1", "q2", "q3"].map {
             Quest(id: $0, worldID: "w1", title: text($0), description: text($0), skill: .care, xp: 15, minAgeMonths: 0)
         },

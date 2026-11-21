@@ -49,8 +49,8 @@ struct SagaPeriodTests {
     func openAndBrokenWorlds() {
         let text = Fixtures.text
         let odd = SagaFixtures(worlds: [
-            World(id: "open", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: nil),
-            World(id: "broken", order: 2, title: text, tagline: text, minAgeMonths: 10, maxAgeMonths: 4)
+            World(id: "open", order: 1, title: text, tagline: text, span: .months(min: 0, max: nil)),
+            World(id: "broken", order: 2, title: text, tagline: text, span: .months(min: 10, max: 4))
         ])
         let now = odd.date(months: 20)
 

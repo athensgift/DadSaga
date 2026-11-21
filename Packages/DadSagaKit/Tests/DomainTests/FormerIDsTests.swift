@@ -10,7 +10,7 @@ struct FormerIDsTests {
 
     let catalog = ContentCatalog(
         worlds: [
-            World(id: "w1", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: 8)
+            World(id: "w1", order: 1, title: text, tagline: text, span: .months(min: 0, max: 8))
         ],
         quests: [
             Quest(
@@ -85,8 +85,8 @@ struct FormerIDsTests {
     func renamedWorldKeepsItsAnswer() throws {
         let text = Self.text
         let saga = SagaFixtures(worlds: [
-            World(id: "w1-new", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: 8, formerIDs: ["w1"]),
-            World(id: "w2", order: 2, title: text, tagline: text, minAgeMonths: 9, maxAgeMonths: nil)
+            World(id: "w1-new", order: 1, title: text, tagline: text, span: .months(min: 0, max: 8), formerIDs: ["w1"]),
+            World(id: "w2", order: 2, title: text, tagline: text, span: .months(min: 9, max: nil))
         ])
         let events = [saga.event(.quest(id: "q1"), months: 3)]
         let offered = try #require(saga.occasion(events, months: 9))

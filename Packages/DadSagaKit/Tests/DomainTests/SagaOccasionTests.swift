@@ -98,7 +98,7 @@ struct SagaOccasionTests {
     func openEndedWorld() {
         let text = Fixtures.text
         let open = SagaFixtures(worlds: [
-            World(id: "w1", order: 1, title: text, tagline: text, minAgeMonths: 0, maxAgeMonths: nil)
+            World(id: "w1", order: 1, title: text, tagline: text, span: .months(min: 0, max: nil))
         ])
         let events = [open.event(.quest(id: "q1"), months: 3)]
 

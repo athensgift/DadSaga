@@ -174,7 +174,7 @@ struct SagaStoryboardTests {
                 events: [], child: born.child, period: .year(1), catalog: born.catalog, now: born.date(months: 30),
                 timeZone: born.timeZone
             ))
-            #expect(storyboard.childAgeInMonths == 11)
+            #expect(storyboard.childAge == .months(11))
         }
     }
 
@@ -184,7 +184,7 @@ struct SagaStoryboardTests {
             events: [], child: saga.child, period: .year(3), catalog: saga.catalog, now: saga.date(months: 26, days: 2),
             timeZone: saga.timeZone
         ))
-        #expect(storyboard.childAgeInMonths == 26)
+        #expect(storyboard.childAge == .months(26))
     }
 
     @Test("Given a finished year, when making its film, then it spans from the birthday to the last moment of the year")
@@ -213,8 +213,8 @@ struct SagaStoryboardTests {
     @Test("Given the last world, which never ends, when making its film, then it runs from its first day to now")
     func spanOfTheLastWorld() throws {
         let open = SagaFixtures(worlds: [
-            World(id: "w1", order: 1, title: Fixtures.text, tagline: Fixtures.text, minAgeMonths: 0, maxAgeMonths: 41),
-            World(id: "w2", order: 2, title: Fixtures.text, tagline: Fixtures.text, minAgeMonths: 42, maxAgeMonths: nil)
+            World(id: "w1", order: 1, title: Fixtures.text, tagline: Fixtures.text, span: .months(min: 0, max: 41)),
+            World(id: "w2", order: 2, title: Fixtures.text, tagline: Fixtures.text, span: .months(min: 42, max: nil))
         ])
         let storyboard = try #require(open.storyboard([], period: .world(id: "w2")))
         #expect(storyboard.span == DateInterval(start: open.date(months: 42), end: open.date(months: 80)))

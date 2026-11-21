@@ -92,6 +92,18 @@ struct ShippedContentIDsTests {
         }
     }
 
+    @Test("Given today's content, when checking its retired cards, then each is one that shipped: an unshipped card is deleted")
+    func everyRetiredCardHasShipped() {
+        let quests = Set(shipped.quests.map(\.id))
+        let firsts = Set(shipped.firsts.map(\.id))
+        for quest in catalog.quests where quest.isRetired {
+            #expect(quests.contains(quest.id), "\(quest.id) never shipped: delete it instead of retiring it")
+        }
+        for first in catalog.firsts where first.isRetired {
+            #expect(firsts.contains(first.id), "\(first.id) never shipped: delete it instead of retiring it")
+        }
+    }
+
     @Test("Given what each shipped item was worth, when reading today's content, then nothing earned goes down or moves skill")
     func nothingEarnedGoesDown() {
         for item in shipped.quests {

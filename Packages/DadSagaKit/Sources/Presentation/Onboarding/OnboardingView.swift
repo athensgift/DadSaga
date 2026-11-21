@@ -68,6 +68,7 @@ public struct OnboardingView: View {
                         .buttonStyle(.glass)
                         .controlSize(.large)
                 }
+                PartnerRow(hasPartner: $viewModel.family.hasPartner, labels: content.partner)
                 // In the content, not pinned: a pinned bar would sit on the keyboard and cover the form on small screens.
                 PrimaryButton(content.continueTitle) { viewModel.continueToHero() }
                     .disabled(!viewModel.canContinue)

@@ -160,6 +160,7 @@ struct FamilyViewModelTests {
 
 actor SpyUpdateFamily: UpdateFamilyUseCase {
     private(set) var saved: [Child]?
+    private(set) var savedHasPartner: Bool?
     private var shouldFail = false
 
     func failNext() {
@@ -180,12 +181,13 @@ actor SpyUpdateFamily: UpdateFamilyUseCase {
         held = nil
     }
 
-    func execute(children: [Child], on date: Date) async throws {
+    func execute(children: [Child], hasPartner: Bool, on date: Date) async throws {
         if holdsNext { await withCheckedContinuation { held = $0 } }
         if shouldFail {
             shouldFail = false
             throw StubError.boom
         }
         saved = children
+        savedHasPartner = hasPartner
     }
 }
