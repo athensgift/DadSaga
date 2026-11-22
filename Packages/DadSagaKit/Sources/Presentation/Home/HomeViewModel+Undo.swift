@@ -21,6 +21,8 @@ extension HomeViewModel {
             try await takeBack(offer.eventID)
             if let overview = await load() { refreshOpenSheet(from: overview) }
         } catch {
+            // The entry stayed, and its celebration is gone: its mark shows what it grew, with nothing rising.
+            showSkillMarks()
             // Only on the visit the Undo was tapped on, and only if nothing newer has taken the bar meanwhile.
             if undoOffer == nil, departures == visit {
                 undoOffer = makeUndoOffer(id: offer.id, eventID: offer.eventID, didFail: true)

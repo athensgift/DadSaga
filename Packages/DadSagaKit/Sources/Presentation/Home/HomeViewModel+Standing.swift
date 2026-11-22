@@ -23,14 +23,18 @@ public struct SkillMarksModel: Equatable, Sendable {
 
 /// One skill's mark: its symbol from the cards, its name, and how much it has grown.
 public struct SkillMarkModel: Equatable, Identifiable, Sendable {
-    /// The skill's raw value, e.g. "patience": also the key of `HomeViewModel.skillBounces`.
+    /// The skill's raw value, e.g. "patience".
     public let id: String
     /// e.g. "Υπομονή".
     public let name: String
     /// SF Symbol, as on the skill's cards.
     public let symbol: String
-    /// From 0 up to, never reaching, 1 (`SkillGrowth`).
+    /// From 0 up to, never reaching, 1 (`SkillGrowth`): how far the mark is drawn grown. After a card it stays where
+    /// it was until the card's celebration has gone.
     public let growth: Double
+    /// How many times the mark has risen after a card's celebration. A growth that changes with it rises gently; any
+    /// other change, such as an undo's or a deletion's, is drawn at once.
+    public let rises: Int
 }
 
 extension HomeViewModel {
@@ -46,11 +50,15 @@ extension HomeViewModel {
         return TitleLineModel(text: "\(level) · \(name)", spoken: "\(level), \(name)")
     }
 
+    /// The marks as home draws them now: each skill as far as the entries take it, except one whose card is still
+    /// being celebrated, which waits where it was before that card.
     func makeSkillMarks(_ skills: [SkillGrowth]) -> SkillMarksModel {
         let marks = skills.map { growth in
             SkillMarkModel(
                 id: growth.skill.rawValue, name: strings.skill(growth.skill), symbol: growth.skill.symbol,
-                growth: growth.value
+                // Never above what the entries give: a deletion meanwhile still lowers it at once.
+                growth: min(waitingSkillGrowth[growth.skill]?.first ?? growth.value, growth.value),
+                rises: skillRises[growth.skill] ?? 0
             )
         }
         return SkillMarksModel(
@@ -60,9 +68,36 @@ extension HomeViewModel {
         )
     }
 
-    /// The celebrated card's skill, once its badge has gone: its mark bounces then, so the badge never hides it.
-    func bounceSkill(grownBy celebrationID: Int) {
+    /// A card of this skill was just recorded: its mark waits where it was before the card until the card's
+    /// celebration has gone, so the badge never hides the colour rising (ADR-0059 §2). Called before home is read
+    /// again, so the mark is never drawn grown first.
+    func holdMark(of skill: Skill?, before change: ProgressChange) {
+        guard let skill, change.eventID != nil, let catalog = overview?.catalog,
+              let before = SkillGrowth.all(change.before, catalog: catalog).first(where: { $0.skill == skill })
+        else { return }
+        waitingSkillGrowth[skill, default: []].append(before.value)
+    }
+
+    /// The celebrated card's skill, once its badge has gone, by its time or by a newer celebration: its mark rises
+    /// now to where the card took it.
+    func raiseMark(grownBy celebrationID: Int) {
         guard let skill = celebratedSkills.removeValue(forKey: celebrationID) else { return }
-        skillBounces[skill.rawValue, default: 0] += 1
+        if waitingSkillGrowth[skill]?.isEmpty == false { waitingSkillGrowth[skill]?.removeFirst() }
+        skillRises[skill, default: 0] += 1
+        showSkillMarks()
+    }
+
+    /// The card's celebration was taken away before its time, as an undo does: its mark no longer waits for it, and
+    /// nothing rises. The marks are drawn again by whoever took it away, once the entry has gone or has stayed.
+    func releaseMark(heldFor celebrationID: Int) {
+        guard let skill = celebratedSkills.removeValue(forKey: celebrationID) else { return }
+        if waitingSkillGrowth[skill]?.isEmpty == false { waitingSkillGrowth[skill]?.removeLast() }
+    }
+
+    /// Draws the marks again from what home last read, without reading it again.
+    func showSkillMarks() {
+        guard let overview, case .loaded(var content) = state else { return }
+        content.skills = makeSkillMarks(overview.skills)
+        state = .loaded(content)
     }
 }

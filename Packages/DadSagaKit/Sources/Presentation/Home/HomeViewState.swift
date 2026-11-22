@@ -31,8 +31,9 @@ public struct HomeContent: Equatable, Sendable {
     public let settingsTitle: String
     /// The dad's level and title, e.g. "Επίπεδο 4 · Σίγουρα χέρια". No total and no next title (ADR-0059 §1).
     public let dadTitle: TitleLineModel?
-    /// The four skills under it, grown as far as the entries take them (ADR-0059 §2).
-    public let skills: SkillMarksModel
+    /// The four skills under it, grown as far as the entries take them; a card's skill waits at its level until the
+    /// card's celebration has gone, then rises (ADR-0059 §2).
+    public internal(set) var skills: SkillMarksModel
     public let worldTitle: String?
     public let worldTagline: String?
     public let mapTitle: String

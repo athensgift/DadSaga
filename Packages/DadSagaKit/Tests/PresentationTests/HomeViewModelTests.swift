@@ -34,12 +34,14 @@ struct HomeViewModelTests {
         #expect(sut.celebration?.skillText == "Η φροντίδα σου μεγάλωσε")
         #expect(sut.celebration?.highlight == .quest)
 
-        #expect(sut.skillBounces.isEmpty)
+        // Care's mark rises as the badge goes, not with it (ADR-0059 §2).
+        #expect(content.skills.marks.allSatisfy { $0.growth == 0 && $0.rises == 0 })
 
         sut.celebrationFinished(id: 1)
         #expect(sut.celebration == nil)
-        // Care's mark bounces as the badge goes, not with it (ADR-0059 §2).
-        #expect(sut.skillBounces == ["care": 1])
+        guard case .loaded(let after) = sut.state else { return }
+        #expect(after.skills.marks.map(\.rises) == [1, 0, 0, 0])
+        #expect(after.skills.marks[0].growth > 0)
     }
 
     @Test("Given a quest done with a note, when opening it again, then the sheet shows what he wrote last time")

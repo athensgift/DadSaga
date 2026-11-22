@@ -6,7 +6,6 @@ import SwiftUI
 struct StandingPanel: View {
     let title: TitleLineModel?
     let skills: SkillMarksModel
-    let bounces: [String: Int]
     /// Gets the width the four skills need side by side.
     var onRowWidth: (CGFloat) -> Void = { _ in }
 
@@ -18,7 +17,7 @@ struct StandingPanel: View {
             if let title {
                 TitleLine(model: title)
             }
-            SkillMarks(model: skills, bounces: bounces, onRowWidth: onRowWidth)
+            SkillMarks(model: skills, onRowWidth: onRowWidth)
         }
         .padding(.horizontal, Self.padding)
         .padding(.vertical, DSSpacing.s)

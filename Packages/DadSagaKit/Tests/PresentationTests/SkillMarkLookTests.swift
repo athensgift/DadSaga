@@ -1,71 +1,55 @@
 import Presentation
 import Testing
 
-/// How a skill's mark is drawn: its symbol sits inside its circle, and it grows but never fills, never empties and
-/// never outshines its symbol (ADR-0059 §2).
+/// How a skill's mark is drawn: its circle fills from the bottom with every card and never to the top, and its symbol
+/// never changes size (ADR-0059 §2).
 @Suite("SkillMarkLook")
 struct SkillMarkLookTests {
-    @Test("Given a skill not grown yet, when drawn, then the symbol is 44% of its circle, in colour, with some wash and no glow")
+    @Test("Given a skill not grown yet, when drawn, then nothing has filled: a pale circle with its symbol")
     func notGrown() {
-        let look = SkillMarkLook(growth: 0)
-        #expect(look.symbolScale == 0.44)
-        #expect(look.washOpacity > 0)
-        #expect(look.glowOpacity == 0)
-        #expect(look.glowRadius == 0)
+        #expect(SkillMarkLook(growth: 0).fillLevel == 0)
     }
 
-    @Test("Given any growth, when drawn, then the symbol sits inside its circle with room around it, wide or tall")
-    func symbolSitsInsideItsCircle() {
-        for growth in stride(from: 0.0, through: 1.0, by: 0.05) {
-            let scale = SkillMarkLook(growth: growth).symbolScale
-            #expect(scale >= SkillMarkLook.restingSymbolScale)
-            #expect(scale <= SkillMarkLook.largestSymbolScale)
-            // Even the corners of the symbol's square stay well inside the circle: at most 85% of the way to its edge.
-            #expect(scale * 2.0.squareRoot() <= 0.85)
+    @Test("Given ever more growth, when drawn, then the colour stands higher each time and never reaches the top")
+    func risesWithTheSkill() {
+        let levels = [0, 0.05, 0.2, 0.5, 0.75, 0.999, 1].map { SkillMarkLook(growth: $0).fillLevel }
+        for (lower, higher) in zip(levels, levels.dropFirst()) {
+            #expect(higher > lower)
         }
+        // A pale cap is always left at the top, however much the skill has grown.
+        #expect(levels.allSatisfy { $0 <= SkillMarkLook.highestLevel })
+        #expect(SkillMarkLook.highestLevel < 0.9)
     }
 
-    @Test("Given a skill from new to fully grown, when drawn, then the wash and the glow change far more than the symbol")
-    func growthShowsBehindTheSymbol() {
-        let new = SkillMarkLook(growth: 0)
-        let grown = SkillMarkLook(growth: 0.999)
-        #expect(grown.symbolScale / new.symbolScale < 1.4)
-        #expect(grown.washOpacity / new.washOpacity > 3)
-        #expect(grown.glowOpacity > 0.65)
-    }
-
-    @Test("Given ever more growth, when drawn, then symbol, wash and glow grow with it, and the symbol never reaches 60%")
-    func growsWithTheSkill() {
-        let looks = [0, 0.2, 0.5, 0.75, 0.999].map(SkillMarkLook.init(growth:))
-        for (smaller, larger) in zip(looks, looks.dropFirst()) {
-            #expect(larger.symbolScale > smaller.symbolScale)
-            #expect(larger.washOpacity > smaller.washOpacity)
-            #expect(larger.glowOpacity > smaller.glowOpacity)
-            #expect(larger.glowRadius > smaller.glowRadius)
-        }
-        #expect(looks.allSatisfy { $0.symbolScale < SkillMarkLook.largestSymbolScale })
-    }
-
-    @Test("Given any growth, when drawn, then the wash stays at or under the tint's wash, so the symbol keeps its contrast")
-    func washNeverAboveTheTint() {
-        for growth in stride(from: 0.0, through: 1.0, by: 0.05) {
-            #expect(SkillMarkLook(growth: growth).washOpacity <= SkillMarkLook.maxWashOpacity)
-        }
-        #expect(SkillMarkLook.maxWashOpacity == 0.15)
-    }
-
-    @Test("Given one quest of 20 XP on a curve half grown at 150, when drawn, then the mark has visibly changed")
+    @Test("Given one quest of 20 XP on a curve half grown at 150, when drawn, then the colour is clearly in the circle")
     func firstCardShows() {
-        let new = SkillMarkLook(growth: 0)
         let oneCard = SkillMarkLook(growth: 20.0 / 170.0)
-        // Mostly behind the symbol: the wash nearly doubles and a glow appears around it, wide enough to see.
-        #expect(oneCard.washOpacity / new.washOpacity > 1.7)
-        #expect(oneCard.washOpacity - new.washOpacity > 0.03)
-        #expect(oneCard.glowOpacity > 0.2)
-        #expect(oneCard.glowRadius > 0.1)
-        // The symbol grows a little too, never by much.
-        #expect(oneCard.symbolScale > new.symbolScale)
-        #expect(oneCard.symbolScale - new.symbolScale < 0.08)
+        // About a quarter of the way up: under that, the bottom of a circle is a sliver.
+        #expect(oneCard.fillLevel > 0.2)
+        #expect(oneCard.fillLevel < 0.3)
+        // Even the smallest growth starts from a level the eye can see.
+        #expect(SkillMarkLook(growth: 0.001).fillLevel >= SkillMarkLook.lowestLevel)
+    }
+
+    @Test("Given a second and a third quest, when drawn, then each raises the colour by a step the eye can see")
+    func eachEarlyCardShows() {
+        let levels = [20.0, 40, 60].map { SkillMarkLook(growth: $0 / ($0 + 150)).fillLevel }
+        for (lower, higher) in zip(levels, levels.dropFirst()) {
+            // More than 5% of the circle's height: about 2 pt of a 36 pt circle.
+            #expect(higher - lower > 0.05)
+        }
+    }
+
+    @Test("Given any growth, when drawn, then the symbol is the same size, inside its circle with room around it")
+    func symbolNeverChangesSize() {
+        #expect(SkillMarkLook.symbolScale == 0.5)
+        // Even the corners of the symbol's square stay well inside the circle.
+        #expect(SkillMarkLook.symbolScale * 2.0.squareRoot() < 0.75)
+    }
+
+    @Test("Given a card's celebration gone, when the colour rises, then it takes about a second")
+    func risesGently() {
+        #expect(SkillMarkLook.riseDuration == 1)
     }
 
     @Test("Given a growth out of range, when drawn, then it is held between 0 and 1")

@@ -3,19 +3,20 @@ import SwiftUI
 
 /// How a skill's mark is drawn for how much the skill has grown (ADR-0059 §2). Plain values, so tests can read them.
 ///
-/// The symbol always sits inside its circle with room around it: 44% of the circle before the skill has grown, nearing
-/// 60%. Growth shows mostly behind it: a wash of the tint that deepens and a glow that spreads, both inside the
-/// circle. The look follows the square root of the growth, so the first cards show most and later ones still show,
-/// without an end. Nothing fills up and nothing is ever grey or empty: a mark that hasn't grown is drawn in full
-/// colour, only quieter. The circle itself never changes size.
+/// The circle fills with the tint from the bottom up, like liquid, and the symbol never changes size. The first card
+/// brings the colour clearly into the circle, each card after it raises the level a little, and the level never
+/// reaches the top: a pale cap is always left, so nothing ever looks finished. A mark that hasn't grown is a pale
+/// circle with its symbol in full colour: new, not empty or grey.
 public struct SkillMarkLook: Equatable, Sendable {
-    /// The symbol's share of the circle before the skill has grown.
-    public static let restingSymbolScale = 0.44
-    /// The share of the circle the symbol nears and never reaches. A square of 60% has its corners well inside the
-    /// circle, so a wide symbol (the heart) and a tall one (the hourglass) both keep room around them.
-    public static let largestSymbolScale = 0.6
-    /// The wash's ceiling: the tint's own wash, so the symbol keeps its contrast (ADR-0032).
-    public static let maxWashOpacity = DSTint.washOpacity
+    /// The symbol's share of the circle's side, the same at every growth.
+    public static let symbolScale = 0.5
+    /// The level the first card starts from, as a share of the circle's height: a thinner cap at the bottom of a
+    /// circle would hardly show.
+    public static let lowestLevel = 0.16
+    /// The level the fill nears and never reaches.
+    public static let highestLevel = 0.88
+    /// How long the colour takes to rise after a card, in seconds.
+    public static let riseDuration = 1.0
 
     /// From 0 up to, never reaching, 1.
     public let growth: Double
@@ -24,19 +25,11 @@ public struct SkillMarkLook: Equatable, Sendable {
         self.growth = min(max(growth, 0), 1)
     }
 
-    /// What the eye is shown of the growth: one card of 20 XP, about 12% grown, already shows as a third.
-    private var shown: Double { growth.squareRoot() }
-    /// The symbol's side as a share of the circle's.
-    public var symbolScale: Double {
-        Self.restingSymbolScale + (Self.largestSymbolScale - Self.restingSymbolScale) * shown
+    /// How far up the circle the colour stands, as a share of its height: nothing before the skill has grown, then
+    /// straight with the growth from the lowest level towards the highest.
+    public var fillLevel: Double {
+        growth == 0 ? 0 : Self.lowestLevel + (Self.highestLevel - Self.lowestLevel) * growth
     }
-    /// Some wash from the start, so a new mark looks new, not missing.
-    public var washOpacity: Double { Self.maxWashOpacity * (0.3 + 0.7 * shown) }
-    /// The opacity of each of the glow's two layers.
-    public var glowOpacity: Double { 0.7 * shown }
-    /// The glow's radius as a share of the circle's side: none before the skill has grown, then wide enough from
-    /// the first card to show around the symbol.
-    public var glowRadius: Double { growth == 0 ? 0 : 0.06 + 0.16 * shown }
 }
 
 /// The dad's four skills under his title, each its symbol with its name under it (ADR-0059 §2). All four side by side
@@ -44,8 +37,6 @@ public struct SkillMarkLook: Equatable, Sendable {
 /// skills", then the four names, never a number.
 struct SkillMarks: View {
     let model: SkillMarksModel
-    /// How many times each mark has bounced (`HomeViewModel.skillBounces`).
-    let bounces: [String: Int]
     /// Gets the width the four need side by side, so home can make room for them.
     var onRowWidth: (CGFloat) -> Void = { _ in }
 
@@ -90,7 +81,7 @@ struct SkillMarks: View {
             ? AnyLayout(HStackLayout(spacing: DSSpacing.s))
             : AnyLayout(VStackLayout(spacing: DSSpacing.xs))
         return layout {
-            SkillMarkSymbol(mark: mark, bounce: bounces[mark.id] ?? 0)
+            SkillMarkSymbol(mark: mark)
             Text(mark.name)
                 .font(DSFont.caption)
                 .foregroundStyle(DSColor.textSecondary)
@@ -100,34 +91,43 @@ struct SkillMarks: View {
     }
 }
 
-/// One skill's symbol in its circle, drawn by `SkillMarkLook`.
+/// One skill's symbol in its circle, drawn by `SkillMarkLook`: the tint stands in the circle up to the skill's level.
+/// The symbol is in the tint on the pale circle and in the on-tint colour where the fill covers it, so it reads on
+/// both sides of the line, in light and dark (ADR-0032).
 private struct SkillMarkSymbol: View {
     let mark: SkillMarkModel
-    let bounce: Int
     /// 36 pt at the default text size, growing with the headline style, never with the skill.
     @ScaledMetric(relativeTo: .headline) private var side: CGFloat = 36
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         let look = SkillMarkLook(growth: mark.growth)
+        ZStack {
+            DSColor.accent.opacity(DSTint.washOpacity)
+            symbol.foregroundStyle(DSColor.accent)
+            ZStack {
+                DSColor.accent
+                symbol.foregroundStyle(DSColor.onTint)
+            }
+            // Only up to the level: the fill and the part of the symbol it covers rise together.
+            .mask(alignment: .bottom) {
+                Rectangle()
+                    .frame(height: side * look.fillLevel)
+                    // The colour rises gently once the card's celebration has gone, and only then
+                    // (`SkillMarkModel.rises`). With Reduce Motion it just changes.
+                    .animation(reduceMotion ? nil : .easeInOut(duration: SkillMarkLook.riseDuration), value: mark.rises)
+            }
+        }
+        .frame(width: side, height: side)
+        .clipShape(Circle())
+        // Lower at once after an undo or a deletion, with nothing to draw the eye to it.
+        .animation(nil, value: mark.growth)
+    }
+
+    private var symbol: some View {
         Image(systemName: mark.symbol)
             .resizable()
             .scaledToFit()
-            .foregroundStyle(DSColor.accent)
-            .frame(width: side * look.symbolScale, height: side * look.symbolScale)
-            // Twice at the same radius: a glow dense enough to see on a light background, and still soft at the
-            // symbol's edge.
-            .shadow(color: DSColor.accent.opacity(look.glowOpacity), radius: side * look.glowRadius)
-            .shadow(color: DSColor.accent.opacity(look.glowOpacity), radius: side * look.glowRadius)
-            // Once each time the skill's card is celebrated, as its badge goes; never with Reduce Motion, and not when
-            // the setting changes either.
-            .symbolEffect(.bounce, value: bounce)
-            .symbolEffectsRemoved(reduceMotion)
-            .frame(width: side, height: side)
-            .background(DSColor.accent.opacity(look.washOpacity))
-            // The glow stays in the circle with the symbol: a clean edge at every growth.
-            .clipShape(Circle())
-            // Quieter at once after an undo or a deletion, and brighter with no show: the bounce says it grew.
-            .animation(nil, value: mark.growth)
+            .frame(width: side * SkillMarkLook.symbolScale, height: side * SkillMarkLook.symbolScale)
     }
 }

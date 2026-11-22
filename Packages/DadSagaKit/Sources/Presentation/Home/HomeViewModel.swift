@@ -8,7 +8,7 @@ import Observation
 @MainActor
 @Observable
 public final class HomeViewModel {
-    public private(set) var state: HomeViewState = .loading
+    public internal(set) var state: HomeViewState = .loading
     public internal(set) var selectedQuest: QuestDetail?
     public internal(set) var selectedBoss: BossDetail?
     public internal(set) var celebration: Celebration?
@@ -40,11 +40,13 @@ public final class HomeViewModel {
     var reminderAnswered = false
     /// An earlier world the dad chose on the map, instead of the child's current one.
     var viewedWorldID: String?
-    /// How many times each skill's mark has bounced, by the mark's id: once for each card of the skill, as its
-    /// celebration goes (ADR-0059 §2).
-    public internal(set) var skillBounces: [String: Int] = [:]
     /// The skill each celebration on screen grew, by its id, until it goes. Only home's view model knows it.
     @ObservationIgnored var celebratedSkills: [Int: Skill] = [:]
+    /// Where a skill's mark waits while a card of that skill is celebrated: its growth before each such card, oldest
+    /// first. The mark rises when the celebration goes (ADR-0059 §2).
+    @ObservationIgnored var waitingSkillGrowth: [Skill: [Double]] = [:]
+    /// How many times each skill's mark has risen after a celebration (`SkillMarkModel.rises`).
+    @ObservationIgnored var skillRises: [Skill: Int] = [:]
 
     let useCases: UseCases
     let locale: Locale
@@ -129,11 +131,12 @@ public final class HomeViewModel {
         guard let quest = selectedQuest, let childID = selectedChildID else { return }
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
         let visit = departures
-        guard let change = await record({
+        let skill = overview?.catalog.quest(id: quest.id)?.skill
+        guard let change = await record(growing: skill, {
             try await self.useCases.completeQuest.execute(questID: quest.id, childID: childID, on: self.now(), journal: journal)
         }) else { return }
         selectedQuest = nil
-        celebrate(change, skill: overview?.catalog.quest(id: quest.id)?.skill, begunOn: visit)
+        celebrate(change, skill: skill, begunOn: visit)
     }
 
     /// Records the open boss as defeated, with the dad's optional note and photos.
@@ -143,32 +146,32 @@ public final class HomeViewModel {
         let badge = content?.badge.resolved(for: locale)
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
         let visit = departures
-        guard let change = await record({
+        guard let change = await record(growing: content?.skill, {
             try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now(), journal: journal)
         }) else { return }
         selectedBoss = nil
         celebrate(change, skill: content?.skill, badge: badge, begunOn: visit)
     }
 
-    /// A celebration's time is up, and the mark of the skill it grew bounces. Ignored if a newer one has replaced it.
+    /// A celebration's time is up, and the mark of the skill it grew rises. Ignored if a newer one has replaced it.
     public func celebrationFinished(id: Int) {
         guard celebration?.id == id else { return }
         celebration = nil
-        bounceSkill(grownBy: id)
+        raiseMark(grownBy: id)
     }
 
-    /// Takes a celebration away before its time, as an undo does: nothing grew, so no mark bounces. Ignored if a newer
+    /// Takes a celebration away before its time, as an undo does: nothing grew, so no mark rises. Ignored if a newer
     /// one has replaced it.
     func withdrawCelebration(id: Int) {
         guard celebration?.id == id else { return }
         celebration = nil
-        celebratedSkills[id] = nil
+        releaseMark(heldFor: id)
     }
 
     /// Puts a celebration on screen. One it replaces has gone as surely as one whose time is up, so its skill's mark
-    /// bounces now: a second card within seconds still shows on the first one's mark.
+    /// rises now: a second card within seconds still shows on the first one's mark.
     func show(_ celebration: Celebration) {
-        if let replaced = self.celebration, replaced.id != celebration.id { bounceSkill(grownBy: replaced.id) }
+        if let replaced = self.celebration, replaced.id != celebration.id { raiseMark(grownBy: replaced.id) }
         self.celebration = celebration
     }
 
@@ -184,13 +187,15 @@ public final class HomeViewModel {
     /// It closes nothing: each caller decides what the dad sees next. A link from outside waits while it runs
     /// (`receive`), so the open sheet is still the one the save came from. The last error goes as the
     /// save starts, so the same error again is read out again.
-    func record(_ action: () async throws -> ProgressChange) async -> ProgressChange? {
+    /// - Parameter skill: the skill the card grows, if any: its mark waits for the celebration (`holdMark`).
+    func record(growing skill: Skill? = nil, _ action: () async throws -> ProgressChange) async -> ProgressChange? {
         guard !isCompleting else { return nil }
         isCompleting = true
         defer { isCompleting = false }
         errorMessage = nil
         do {
             let change = try await action()
+            holdMark(of: skill, before: change)
             await load()
             return change
         } catch {

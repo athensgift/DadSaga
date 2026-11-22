@@ -35,7 +35,9 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
     - There is no total, no bar and no "X to go".
     - It comes from the title held, and nothing new is stored.
   - **The four skills on home, under the title:** small symbols that grow a little with every card, each with its
-    skill's name under it. There is no maximum, no number, no XP and no next step: progress that looks back.
+    skill's name under it. There is no maximum, no number, no XP and no next step: progress that looks back. After
+    seeing it, he chose how they grow: the symbol stays one size and its circle fills with colour from the bottom,
+    rising gently after each card, never to the top (§2).
   - **The skills follow the entries:** they come from `DadProgress.skillXP` alone. An undo or a deletion can shrink a
     mark visibly, as it takes a boss medal. A deletion keeps the title; an Undo takes back the title the card brought
     too (ADR-0055 §3).
@@ -49,7 +51,8 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
     except at the accessibility text sizes, where they stack and the pane scrolls.
   - The hero's height is what the pane's title leaves, between 120 and 260 pt.
 - **What Apple documents (checked 2026-11-22):**
-  - `symbolEffect(_:options:value:)` (iOS 17): "the animation is triggered each time the value changes".
+  - `animation(_:value:)` (iOS 13): "applies the given animation to this view when the specified value changes".
+  - `mask(alignment:_:)` (iOS 15) and `accessibilityReduceMotion` (iOS 13).
   - `@ScaledMetric(wrappedValue:relativeTo:)` is iOS 14+; `ViewThatFits(in:)` is iOS 16+ and picks the first child
     that fits.
   - `accessibilityElement(children:)` (iOS 13) and `accessibilityValue(_:)` (iOS 16).
@@ -83,7 +86,7 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
   - The film's credits keep the name alone. `SagaFilmViewModelTests` still forbids "Level" and «Επίπεδο» in a film.
   - The widget, "Your hero", the notification, the celebration and the timeline don't show it.
 
-### 2. The four skills: marks that grow with every card and never fill
+### 2. The four skills: marks that fill from the bottom with every card, and never to the top
 - **Below the title line, four marks,** always in the same order (care, play, patience, resilience, as
   `Skill.allCases`), never sorted by size.
   - Each is the skill's symbol from the cards (`Skill.symbol`), with the skill's name under it: «Φροντίδα»,
@@ -95,32 +98,42 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
   - It is half grown at `halfGrownXP` and three quarters grown at three times that.
   - There are no stages, no maximum to reach and no number.
   - Home's query returns it (`HomeOverview.skills`).
-- **How a mark is drawn** (`SkillMarkLook`, Presentation):
-  - The symbol is in the accent tint, and always sits inside its circle with room around it: 44% of the circle with
-    no growth, nearing 60% as the growth nears 1 (the owner's feedback of 2026-11-22: at 60% to 100% the heart and the
-    hourglass looked too big in their circles). Even the corners of the symbol's square stay inside the circle.
-  - Growth shows mostly behind the symbol: a wash of the tint that deepens, and a soft glow around the symbol that
-    spreads. The glow is drawn twice at the same radius, so it shows on a light background, and it is clipped to the
-    circle, so the mark keeps a clean edge.
-  - The look follows the square root of the growth, so the first card shows clearly (one quest of 20 XP: the wash
-    from 30% to about 54% of its ceiling, a glow at about a quarter in each layer and about a ninth of the circle
-    wide, the symbol from 44% to about 49%) and later cards still show, ever less, with no end.
-  - The wash never goes above the tint's wash opacity, so the symbol keeps its contrast (ADR-0032). With no growth it
-    is 30% of that, with no glow, so a new mark is quiet but never empty.
-  - The circle never changes size, so a mark growing or shrinking moves nothing on screen.
+- **How a mark is drawn** (`SkillMarkLook`, Presentation). The owner chose this on 2026-11-22, after two looks that
+  changed the symbol's size (60% to 100% of the circle, then 44% to 60% with a wash and a glow): he didn't like the
+  symbols growing ("no zoom"), and asked for the circle to fill slowly with colour.
+  - **The symbol never changes size:** half the circle's side, at every growth. Even the corners of its square stay
+    inside the circle, so the heart and the hourglass both keep room around them.
+  - **The circle fills with the accent tint from the bottom up, like liquid** (`fillLevel`, a share of the circle's
+    height). With no growth nothing has filled. From the first card the level is 16% plus 72% of the growth: under
+    16% the bottom of a circle is a sliver. So one quest of 20 XP stands at about 24%, a second at about 31%, a
+    third at about 37%, half grown at 52%, three quarters at 70%.
+  - **It never reaches the top.** The level nears 88% and stops short of it, so a pale cap is always left: nothing
+    ever looks finished, and nothing says how much is left to a top that isn't there.
+  - **The symbol reads on both sides of the line** (ADR-0032). Above the fill it is in the tint on the circle's
+    pale wash (the tint's own 15% wash); where the fill covers it, it is in `DSColor.onTint` on the tint. Both
+    pairs are ones `DSTintContrastTests` already holds to 4.5:1, in light and dark. The second symbol is drawn with
+    the fill and masked with it, so the two change places exactly at the line.
+  - The wash and the glow of the earlier looks are gone.
+  - The circle never changes size, so a mark filling or emptying moves nothing on screen.
   - The name is secondary text in the caption style (ADR-0033).
-- **A mark that hasn't grown looks new, not missing:** full colour, never grey, dashed, empty or locked.
-- **Nothing fills up:** no ring, no bar and no variable symbol. Each would show how much is left.
-- **Each card shows on its mark:**
-  - When a quest or boss is celebrated, its skill's mark bounces once.
-  - It bounces as the celebration's badge goes (`HomeViewModel.celebrationFinished`), so the badge never hides it.
+- **A mark that hasn't grown looks new, not missing:** a pale circle with its symbol in full colour, never grey,
+  dashed, empty or locked.
+- **Each card shows on its mark: the colour rises gently, after the celebration.** The owner chose the rise over the
+  bounce the mark had before.
+  - While a quest's or boss's celebration is on screen, its skill's mark waits where it was before the card
+    (`HomeViewModel.holdMark`, set before home is read again, so the mark is never drawn grown first).
+  - As the celebration's badge goes (`HomeViewModel.celebrationFinished`), the colour rises to the new level over
+    about a second, eased in and out. The badge never hides it.
   - A celebration replaced by a newer one (a second card within seconds, or a moment's as its sheet closes) has gone
-    too, so its mark bounces as it is replaced. One taken back by an undo bounces nothing.
-  - The view model keeps which skill each celebration grew; the screen's models carry only a mark's id, no Domain
-    type (ADR-0007).
-  - With Reduce Motion it doesn't bounce (`symbolEffectsRemoved`), not even when the setting changes, and the
-    celebration still says "Your patience grew".
-- **An undo or a deletion** takes back what that card gave, and the mark is drawn quieter at once, with no
+    too, so its mark rises as it is replaced, to where that card took it; the newer card's rise waits its own turn.
+  - One taken back by an undo raises nothing: the mark never moved.
+  - `SkillMarkModel.rises` counts a mark's rises. The view animates only a change of level that comes with a new
+    count, so every other change is drawn at once. The view model keeps which skill each celebration grew and
+    where its mark waits; the screen's models carry only a mark's id, no Domain type (ADR-0007).
+  - A mark never waits above what the entries give: a deletion meanwhile still lowers it at once.
+  - With Reduce Motion the colour just changes when the celebration goes, with no animation, and the celebration
+    still says "Your patience grew".
+- **An undo or a deletion** takes back what that card gave, and the mark is drawn lower at once, with no
   animation, which would only draw his eye to it. After a deletion the title and its gear stay; an Undo takes them
   back with the card, and the level with them (ADR-0055 §3).
 - **A first grows no skill,** since it has none. It counts toward cards done and the title, as now.
@@ -159,7 +172,7 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
 - **Side by side** (on its side, or two columns), the hero yields height instead: he is what his pane, inside the
   safe area, leaves after its title and what stands under him, between 120 and 260 pt. So at xxxLarge the skills sit
   above the home indicator without scrolling; at the accessibility sizes he stops at 120 pt and the pane scrolls.
-- **The bounce** is in the hero's pane, away from the fold.
+- **The rise** is in the hero's pane, away from the fold.
 - **The Undo bar takes its own room** under home's content instead of floating over it. A title card now comes with the
   Undo offer of the card that brought it, and the bar must never cover the card's button. With the bar shown, home's
   panes end above it; with it gone, they reach the bottom again.
@@ -183,8 +196,8 @@ No stored data changes: no schema version and no change to the privacy pages or 
 ## Choices made for the owner to confirm
 1. **VoiceOver hears the row as one element:** "Your skills", then the four names.
 2. **One look for all four:** the accent tint, and the name in secondary text under the symbol.
-3. **The bounce comes as the celebration's badge goes,** not with it.
-4. **A mark that shrinks after an undo or a deletion** is redrawn quieter at once, without animation.
+3. **The rise comes as the celebration's badge goes,** not with it. (First a bounce; the owner chose the rise.)
+4. **A mark that shrinks after an undo or a deletion** is redrawn lower at once, without animation.
 5. **Wording,** written by `content` before the PR: «Επίπεδο %lld» / "Level %lld" and «Οι δεξιότητές σου» / "Your
    skills".
 
@@ -199,7 +212,10 @@ No stored data changes: no schema version and no change to the privacy pages or 
   good.
 - **Named stages for a skill** («Αρχάριος», «Έμπειρος»): a ladder with a top, and a next step to read.
 - **A ring, a bar or a variable symbol that fills up** (`variableValue`, the draw mode): a full state is a cap, and it
-  shows what is left. A variable value also works only on symbols that support them.
+  shows what is left. A variable value also works only on symbols that support them. The fill the owner chose (§2)
+  is not one of these: it follows the open-ended curve, stops short of the top for good, and has no full state.
+- **A symbol that grows with the skill** (60% to 100% of its circle, then 44% to 60% with a wash and a glow behind
+  it), and a bounce after each card: both were built, and the owner didn't like the symbols changing size.
 - **A mark that grows without limit:** no screen has room for it. The curve grows without ever reaching a top instead.
 - **Symbols without names:** the dad would have to learn them from the cards.
 - **A limit on the marks' Dynamic Type:** the names are text, and text grows with every size (ADR-0033).
@@ -215,25 +231,29 @@ No stored data changes: no schema version and no change to the privacy pages or 
 ## Verification status
 Not yet checked on a device. To check:
 - **A quest, then Undo:**
-  - the mark goes back to where it was, with no animation;
+  - under its celebration the mark never moves; after it, the mark goes back to where it was, with no animation;
   - the title, its level, its card and its gear are as before the quest, after a relaunch too.
-- **Deleting an old boss** from the timeline: its skill's mark is quieter, and the title and gear stay.
+- **Deleting an old boss** from the timeline: its skill's mark is lower, and the title and gear stay.
 - **The first quest after onboarding:**
   - «Επίπεδο 0 · Μπαμπάς σε αναμονή» becomes «Επίπεδο 1 · Νέος στο ταξίδι»;
   - the title card says «Επίπεδο 1»;
-  - the quest's mark bounces after the celebration.
+  - the quest's mark waits under the celebration, then its colour rises over about a second, to about a quarter
+    of the circle.
+- **Two quests within seconds:** the mark rises once as the second badge comes and once as it goes.
+- **The marks, in light and dark:** the symbol is the same size at every growth and reads on both sides of the fill
+  line; a new mark is a pale circle; a mark with a great deal of XP still has a pale cap.
 - **On screen:**
   - el and en;
   - VoiceOver reads the title line with a comma, and "Your skills" with the four names;
-  - with Reduce Motion there is no bounce;
+  - with Reduce Motion the colour changes with no rise;
   - the largest text sizes, with nothing clipped;
   - on the iPhone Duo half-open and open upright, the panel is above the fold at the default size and at xxxLarge;
   - on the cover display, one column.
 - **No level** in a film, the widget, "Your hero" or the notification.
 
 ## Consequences
-- The dad sees a level and a name, and four marks with their names that grow with every card of their skill. Nothing
-  on home says how far away the next title is.
+- The dad sees a level and a name, and four marks with their names that fill a little with every card of their
+  skill. Nothing on home says how far away the next title is.
 - A level is a number on screen again, but it comes from the title, so it rises only with a title and falls only
   when an Undo takes back the card that brought it.
 - An undo or a deletion can shrink a mark, as it takes a boss medal. That is the dad correcting his own log

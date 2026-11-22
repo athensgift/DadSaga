@@ -29,7 +29,7 @@ extension HomeView {
                         }
                     }
                     .multilineTextAlignment(.center)
-                    StandingPanel(title: content.dadTitle, skills: content.skills, bounces: viewModel.skillBounces) {
+                    StandingPanel(title: content.dadTitle, skills: content.skills) {
                         skillsRowWidth = $0
                     }
                 }
