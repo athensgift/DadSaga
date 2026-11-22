@@ -195,17 +195,43 @@ struct BeforeBirthPresentationTests {
 
     // MARK: The map
 
-    @Test("Given a child not born yet, when opening the map, then World 0 is current and the rest open after the birth")
+    @Test("Given a child not born yet, when opening the map, then World 0 is current and the rest ahead, with an ideal start")
     func mapBeforeBirth() async throws {
         let sut = home(profile([HarbourStub.unborn]))
         await sut.onAppear()
-        sut.openMap()
         let map = try #require(sut.worldMap)
 
         #expect(map.subtitle == "Μπέμπης · έρχεται")
-        #expect(map.worlds.map(\.status) == [WorldMapItem.Status.current, .locked, .locked])
+        #expect(map.worlds.map(\.status) == [WorldMapItem.Status.current, .ahead, .ahead])
         #expect(map.worlds.map(\.ageRange) == ["πριν τη γέννα", "0–8 μηνών", "από 0½ ετών"])
-        #expect(map.worlds.dropFirst().map(\.detail) == ["Ανοίγει μετά τη γέννα", "Ανοίγει μετά τη γέννα"])
+        #expect(map.worlds.map(\.idealLine) == [nil, "Ιδανικά μετά τη γέννα", "Ιδανικά από τους 9 μήνες"])
+        #expect(map.worlds.dropFirst().map(\.progress) == [nil, nil])
+    }
+
+    @Test("Given a card of World 1 done before the birth, when the map is built, then its progress follows the ideal line")
+    func workAheadCounts() async throws {
+        let done = ProgressEvent(kind: .quest(id: "q-w1-feed"), childID: HarbourStub.unborn.id, date: HarbourStub.today)
+        let sut = home(profile([HarbourStub.unborn]), events: [done])
+        await sut.onAppear()
+
+        let swamp = try #require(sut.worldMap?.worlds[1])
+        #expect(swamp.status == .ahead)
+        #expect(swamp.idealLine == "Ιδανικά μετά τη γέννα")
+        #expect(swamp.progress == "1 αποστολή · 0 αφεντικά")
+    }
+
+    @Test("Given a child not born yet, when the dad opens World 1, then all its cards are offered, whatever their ages")
+    func worldAheadBeforeBirth() async throws {
+        let sut = home(profile([HarbourStub.unborn]))
+        await sut.onAppear()
+
+        await sut.showWorld(id: "w1")
+
+        let content = try content(sut)
+        #expect(content.worldTitle == "Βάλτος")
+        #expect(content.idealLine == "Ιδανικά μετά τη γέννα")
+        #expect(content.backToCurrentTitle == "Πίσω στον τωρινό κόσμο")
+        #expect(!content.cards.isEmpty)
     }
 
     @Test("Given a born child, when opening the map, then World 0 is a visited world that counts what was done in it")
@@ -213,12 +239,11 @@ struct BeforeBirthPresentationTests {
         let done = ProgressEvent(kind: .quest(id: "q-w0-bag"), childID: HarbourStub.born.id, date: HarbourStub.today)
         let sut = home(profile([HarbourStub.born]), events: [done])
         await sut.onAppear()
-        sut.openMap()
         let map = try #require(sut.worldMap)
 
-        #expect(map.worlds.map(\.status) == [WorldMapItem.Status.visited, .current, .locked])
-        #expect(map.worlds[0].detail == "1 αποστολή · 0 αφεντικά")
-        #expect(map.worlds[2].detail == "Ξεκλειδώνει σε 7 μήνες")
+        #expect(map.worlds.map(\.status) == [WorldMapItem.Status.visited, .current, .ahead])
+        #expect(map.worlds[0].progress == "1 αποστολή · 0 αφεντικά")
+        #expect(map.worlds.map(\.idealLine) == [nil, nil, "Ιδανικά από τους 9 μήνες"])
     }
 
     // MARK: Moments

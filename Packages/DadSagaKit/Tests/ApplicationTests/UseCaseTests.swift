@@ -44,7 +44,7 @@ struct AdventureTests {
         #expect(adventure.age == .months(10))
         #expect(!adventure.isBeyondContent)
         #expect(adventure.currentWorld?.id == "w2")
-        #expect(adventure.unlockedWorlds.map(\.id) == ["w1", "w2"])
+        #expect(adventure.reachedWorlds.map(\.id) == ["w1", "w2"])
     }
 
     @Test("Given a child not born yet and content without a world before birth, when building the adventure, then no world fits")
@@ -56,7 +56,7 @@ struct AdventureTests {
         #expect(adventure.age == .beforeBirth)
         #expect(adventure.isBeyondContent)
         #expect(adventure.currentWorld == nil)
-        #expect(adventure.unlockedWorlds.isEmpty)
+        #expect(adventure.reachedWorlds.isEmpty)
     }
 
     @Test("Given a child older than every world, when building the adventure, then nothing is offered")
@@ -68,7 +68,7 @@ struct AdventureTests {
 
         #expect(adventure.isBeyondContent)
         #expect(adventure.currentWorld == nil)
-        #expect(adventure.unlockedWorlds.map(\.id) == ["w1", "w2"])
+        #expect(adventure.reachedWorlds.map(\.id) == ["w1", "w2"])
     }
 }
 

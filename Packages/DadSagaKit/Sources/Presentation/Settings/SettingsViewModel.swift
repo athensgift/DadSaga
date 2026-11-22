@@ -5,23 +5,34 @@ import Localization
 import Observation
 
 /// Presenter for Settings (ADR-0030): language, appearance, haptics and the weekly reminder; the dad's hero and family;
-/// contact, rating and sharing; what the app is; and starting over.
+/// contact, rating and sharing; what the app is; and starting over. A tab of its own, built once by the root
+/// (ADR-0061 §2); above the fold it draws the dad's hero.
 @MainActor
 @Observable
-public final class SettingsViewModel: Identifiable {
+public final class SettingsViewModel {
     public struct UseCases: Sendable {
         let savePreferences: any SavePreferencesUseCase
         let startOver: any StartOverUseCase
+        /// "Your hero"'s own query, for the hero drawn above the fold (ADR-0061 §4).
+        let getHeroChoice: any GetHeroChoiceUseCase
 
-        public init(savePreferences: any SavePreferencesUseCase, startOver: any StartOverUseCase) {
+        public init(
+            savePreferences: any SavePreferencesUseCase,
+            startOver: any StartOverUseCase,
+            getHeroChoice: any GetHeroChoiceUseCase
+        ) {
             self.savePreferences = savePreferences
             self.startOver = startOver
+            self.getHeroChoice = getHeroChoice
         }
     }
 
     public let content: SettingsContent
-    /// The root's preferences when Settings opened, then every change the dad makes here.
+    /// The root's preferences when Settings was built, then every change the dad makes here.
     public private(set) var preferences: PreferencesChoice
+    /// The dad's hero as he chose him, without gear; `nil` until read. Read again each time Settings shows, so what
+    /// "Your hero" changed shows here.
+    public private(set) var hero: SettingsHero?
     public var isConfirmingStartOver = false
     public private(set) var isStartingOver = false
     public private(set) var errorMessage: String?
@@ -71,7 +82,25 @@ public final class SettingsViewModel: Identifiable {
         isConfirmingStartOver = true
     }
 
-    /// Erases the saga. On success the root opens onboarding, which closes this screen, so nothing runs after that.
+    /// Reads the hero again. A failed read keeps the hero drawn: he is only decoration.
+    public func loadHero() async {
+        guard let choice = try? await useCases.getHeroChoice.execute() else { return }
+        let look = choice.heroClasses.first { $0.id == choice.heroClassID }?.look
+        hero = SettingsHero(
+            look: HeroLook(look: look),
+            skinTone: SkinToneChoice(choice.skinTone),
+            appearance: DadAppearanceChoice(choice.appearance)
+        )
+    }
+
+    /// A link from outside opens on Adventure: the start-over question and the mail fallback close, and the pages stay
+    /// where they were (ADR-0061 §2).
+    public func linkWillOpen() {
+        isConfirmingStartOver = false
+        mailFallback = nil
+    }
+
+    /// Erases the saga. On success the root opens onboarding, which takes this tab away, so nothing runs after that.
     public func startOver() async {
         guard !isStartingOver else { return }
         isStartingOver = true
@@ -85,7 +114,7 @@ public final class SettingsViewModel: Identifiable {
         }
     }
 
-    /// An imported saga took the place of this one: the root rebuilds home and the timeline, which closes this screen.
+    /// An imported saga took the place of this one: the root builds every tab anew, this screen too.
     public func sagaImported() {
         actions.onSagaImported()
     }

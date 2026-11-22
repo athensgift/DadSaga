@@ -1,10 +1,10 @@
 import DesignSystem
 import SwiftUI
 
-// MARK: - Header and toolbar buttons
+// MARK: - The pane header and sheets
 
 extension HomeView {
-    /// With two panes the navigation bar shows no title (or there is none), so it sits at the top of the hero pane.
+    /// With two panes there is no navigation bar, so the title sits at the top of the hero pane.
     func paneHeader(_ content: HomeContent) -> some View {
         Text(content.heroTitle)
             .font(DSFont.largeTitle)
@@ -12,67 +12,6 @@ extension HomeView {
             .accessibilityAddTraits(.isHeader)
             .frame(maxWidth: .infinity, alignment: .leading)
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { paneHeaderHeight = $0 }
-    }
-
-    /// The map and Settings above and below a fold: one glass capsule by the tab bar, at the trailing edge, as they
-    /// are in the side bar the system draws on the Duo's cover display (ADR-0056, ADR-0058).
-    var paneButtons: some View {
-        HStack(spacing: 0) {
-            paneButton(worldMapTitle, systemImage: "map", action: openMap)
-            paneButton(settingsTitle, systemImage: "gearshape", action: openSettings)
-        }
-        .padding(.horizontal, DSSpacing.xs)
-        .glassEffect(.regular.interactive(), in: .capsule)
-        .padding(DSSpacing.m)
-        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { paneButtonsHeight = $0 }
-        .accessibilitySortPriority(1)
-    }
-
-    private func paneButton(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Label(title, systemImage: systemImage)
-                .labelStyle(.iconOnly)
-                .font(DSFont.symbol)
-                .frame(width: 48, height: 48)
-                .contentShape(.rect)
-        }
-        .buttonStyle(.plain)
-        .foregroundStyle(.tint)
-    }
-
-    var worldMapButton: some View {
-        Button(action: openMap) {
-            Label(worldMapTitle, systemImage: "map")
-        }
-    }
-
-    func openMap() {
-        viewModel.openMap()
-    }
-
-    var worldMapTitle: String {
-        if case .loaded(let content) = viewModel.state { content.mapTitle } else { "" }
-    }
-
-    var settingsButton: some View {
-        Button(action: openSettings) {
-            Label(settingsTitle, systemImage: "gearshape")
-        }
-    }
-
-    func openSettings() {
-        settingsViewModel = settings.makeSettings()
-    }
-
-    var settingsTitle: String {
-        if case .loaded(let content) = viewModel.state { content.settingsTitle } else { "" }
-    }
-
-    /// Settings closed: what "My family" or "Your hero" changed shows on home, and nothing in them holds a link back.
-    func settingsDismissed() {
-        unsavedWork.end(scope: UnsavedScope.settings)
-        settings.pages.discardExports()
-        Task { await viewModel.reload() }
     }
 
     /// A quest, boss or moment sheet closed, recorded or not: nothing in it holds a link back any more (ADR-0050).

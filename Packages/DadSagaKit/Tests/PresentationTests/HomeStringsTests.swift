@@ -16,15 +16,20 @@ struct HomeStringsTests {
         #expect(english.doneText(times: 3) == "Done 3 times")
     }
 
-    @Test("Given a locked world one and two months away, then it says month, then months; before the birth, after the birth")
-    func unlocksIn() {
-        let world = World(id: "w2", order: 2, title: HeroStub.text, tagline: HeroStub.text, span: .months(min: 9, max: 24))
-        #expect(greek.unlocks(world, at: .months(8)) == "Ξεκλειδώνει σε 1 μήνα")
-        #expect(greek.unlocks(world, at: .months(7)) == "Ξεκλειδώνει σε 2 μήνες")
-        #expect(english.unlocks(world, at: .months(8)) == "Unlocks in 1 month")
-        #expect(english.unlocks(world, at: .months(7)) == "Unlocks in 2 months")
-        #expect(greek.unlocks(world, at: .beforeBirth) == "Ανοίγει μετά τη γέννα")
-        #expect(english.unlocks(world, at: .beforeBirth) == "Opens after the birth")
+    @Test("Given worlds from the birth, 1 and 9 months, 2 and 3½ years, then each says when it is ideal, never a countdown")
+    func idealStart() {
+        func world(_ span: WorldSpan) -> World {
+            World(id: "w", order: 1, title: HeroStub.text, tagline: HeroStub.text, span: span)
+        }
+        #expect(greek.idealStart(world(.months(min: 0, max: 8))) == "Ιδανικά μετά τη γέννα")
+        #expect(english.idealStart(world(.months(min: 0, max: 8))) == "Ideally after the birth")
+        #expect(greek.idealStart(world(.months(min: 1, max: 8))) == "Ιδανικά από τον 1 μήνα")
+        #expect(greek.idealStart(world(.months(min: 9, max: 24))) == "Ιδανικά από τους 9 μήνες")
+        #expect(english.idealStart(world(.months(min: 1, max: 8))) == "Ideally from 1 month")
+        #expect(english.idealStart(world(.months(min: 9, max: 24))) == "Ideally from 9 months")
+        #expect(greek.idealStart(world(.months(min: 24, max: 41))) == "Ιδανικά από τα 2 χρόνια")
+        #expect(english.idealStart(world(.months(min: 42, max: nil))) == "Ideally from 3½ years")
+        #expect(greek.idealStart(world(.beforeBirth)) == nil)
     }
 
     @Test("Given a world with 1 quest and 2 bosses kept, then each count takes its own form")

@@ -63,11 +63,25 @@ struct HeroPicker: View {
                     // Outside a Form a menu picker shows only its value, so the row's name is a label of its own;
                     // LabeledContent reads the two together ("Beard, Full").
                     LabeledContent {
-                        Picker(row.title, selection: optionBinding(row)) {
-                            ForEach(row.options) { Text($0.title).tag($0.id) }
+                        // A menu with a label of our own: the system's menu picker measured «Κοντά» a little
+                        // short beside the row's name and broke it in two, at any width.
+                        Menu {
+                            Picker(row.title, selection: optionBinding(row)) {
+                                ForEach(row.options) { Text($0.title).tag($0.id) }
+                            }
+                        } label: {
+                            HStack(spacing: DSSpacing.xs) {
+                                Text(selectedTitle(row))
+                                Image(systemName: "chevron.up.chevron.down")
+                                    .font(DSFont.caption)
+                                    .accessibilityHidden(true)
+                            }
+                            .lineLimit(1)
+                            .fixedSize()
                         }
-                        .pickerStyle(.menu)
-                        .labelsHidden()
+                        // The menu's own label is only the value: VoiceOver reads the row's name with it.
+                        .accessibilityLabel(row.title)
+                        .accessibilityValue(selectedTitle(row))
                     } label: {
                         Text(row.title).foregroundStyle(DSColor.textPrimary)
                     }
@@ -78,6 +92,10 @@ struct HeroPicker: View {
             .padding(.horizontal, DSSpacing.m)
             .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
         }
+    }
+
+    private func selectedTitle(_ row: AppearanceRow) -> String {
+        row.options.first { $0.id == row.selectedID }?.title ?? ""
     }
 
     private func optionBinding(_ row: AppearanceRow) -> Binding<String> {

@@ -28,7 +28,6 @@ public struct HomeContent: Equatable, Sendable {
     /// Name and age of the selected child, shown above their quests when there are several children.
     public let selectedChildLine: String?
     public let familyTitle: String
-    public let settingsTitle: String
     /// The dad's level and title, e.g. "Επίπεδο 4 · Σίγουρα χέρια". No total and no next title (ADR-0059 §1).
     public let dadTitle: TitleLineModel?
     /// The four skills under it, grown as far as the entries take them; a card's skill waits at its level until the
@@ -36,8 +35,9 @@ public struct HomeContent: Equatable, Sendable {
     public internal(set) var skills: SkillMarksModel
     public let worldTitle: String?
     public let worldTagline: String?
-    public let mapTitle: String
-    /// Set while an earlier world is shown instead of the current one: the button text to go back.
+    /// When the shown world is ideal, while it lies ahead of the child: «Ιδανικά από τους 9 μήνες» (ADR-0061 §3).
+    public let idealLine: String?
+    /// Set while another world is shown instead of the current one: the button text to go back.
     public let backToCurrentTitle: String?
     /// Shown instead of quests when there is no content for the child's age yet.
     public let emptyMessage: String?
@@ -262,21 +262,28 @@ public struct ChildTab: Equatable, Identifiable, Sendable {
 }
 
 /// Every world in order, for the selected child: where they are, where they have been, what is ahead.
-public struct WorldMapContent: Equatable, Identifiable, Sendable {
-    public var id: String { title }
+public struct WorldMapContent: Equatable, Sendable {
     public let title: String
     /// e.g. "Νίκος · 10 μηνών".
     public let subtitle: String
+    /// «Άνοιξε αυτόν τον κόσμο», under the world shown above the fold (ADR-0061 §4).
+    public let openTitle: String
     public let worlds: [WorldMapItem]
+
+    /// The world home shows: the one above the fold until the dad taps another.
+    public var shownWorld: WorldMapItem? {
+        worlds.first(where: \.isShown) ?? worlds.first { $0.status == .current }
+    }
 }
 
 public struct WorldMapItem: Equatable, Identifiable, Sendable {
     public enum Status: Equatable, Sendable {
         /// The child's age is in this world.
         case current
-        /// Unlocked earlier; its quests can still be played.
+        /// Reached earlier; its quests can still be played.
         case visited
-        case locked
+        /// The child's age hasn't reached it. Open all the same, with all its cards (ADR-0061 §3).
+        case ahead
     }
 
     public let id: String
@@ -286,8 +293,12 @@ public struct WorldMapItem: Equatable, Identifiable, Sendable {
     /// e.g. "9–24 μηνών".
     public let ageRange: String
     public let status: Status
-    /// Progress ("3 / 10 αποστολές · 1 / 2 αφεντικά") or when it unlocks ("Ξεκλειδώνει σε 5 μήνες").
-    public let detail: String
+    /// When a world ahead is ideal («Ιδανικά από τους 9 μήνες»); `nil` for a world the child has reached, where nothing
+    /// is ever late.
+    public let idealLine: String?
+    /// What was kept there ("7 αποστολές · 1 αφεντικό"): always for a world reached, for one ahead once the dad has
+    /// done something there.
+    public let progress: String?
     /// "Είσαι εδώ", "Βλέπεις αυτόν τον κόσμο", or nil.
     public let tag: String?
     /// The world shown on home right now.

@@ -113,12 +113,18 @@ final class AppContainer {
                     sagaOffers: sagaOffers,
                     schedule: scheduleWeeklyReminders,
                     notificationScheduler: notificationScheduler
-                )
+                ),
+                getHeroChoice: getHeroChoice
             ),
             preferences: preferences,
             appInfo: appInfo,
             actions: actions
         )
+    }
+
+    /// "Your hero"'s query, also drawing the hero above Settings' form (ADR-0061 §4).
+    private var getHeroChoice: any GetHeroChoiceUseCase {
+        DefaultGetHeroChoiceUseCase(contentRepository: contentRepository, profileRepository: store.profiles)
     }
 
     var settingsPages: SettingsPages {
@@ -134,10 +140,7 @@ final class AppContainer {
 
     func makeHeroSettingsViewModel() -> HeroSettingsViewModel {
         HeroSettingsViewModel(
-            getHeroChoice: DefaultGetHeroChoiceUseCase(
-                contentRepository: contentRepository,
-                profileRepository: store.profiles
-            ),
+            getHeroChoice: getHeroChoice,
             updateHero: DefaultUpdateHeroUseCase(contentRepository: contentRepository, profileRepository: store.profiles)
         )
     }
