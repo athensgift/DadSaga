@@ -125,7 +125,7 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
     func formatCoversTheSchema() {
         let covered: [String: Set<String>] = [
             "ProfileRecord": ["heroClassID", "dadSkinTone", "hairStyle", "hairColor", "beard", "glasses", "hasPartner",
-                              "heldTitleID", "seenTitleID", "keptGearIDs"],
+                              "heldTitleID", "seenTitleID"],
             "ChildRecord": ["childID", "name", "birthYear", "birthMonth", "birthDay", "gender", "skinTone", "order"],
             "ProgressEventRecord": ["eventID", "kind", "contentID", "childID", "date", "note", "photoIDs"],
             "OutfitRecord": ["skill", "choice"]

@@ -10,11 +10,6 @@ struct StoreVersioningTests {
     let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-versioning-" + UUID().uuidString)
     var storeURL: URL { directory.appending(path: "DadSaga.store") }
 
-    /// A copy of the store written before versioned schemas: opening writes to it, so the original never is.
-    func copyFixture() throws {
-        try StoreFiles.copy(from: StoreFixture.directory, to: directory)
-    }
-
     /// Writes rows straight into a store, bypassing the repositories, then closes it.
     func writeRows(_ insert: (ModelContext) -> Void) throws {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -26,26 +21,6 @@ struct StoreVersioningTests {
         let context = ModelContext(container)
         insert(context)
         try context.save()
-    }
-
-    @Test("Given a store written before versioned schemas, when the app opens it, then the family, events and wardrobe are there")
-    func appOpensOldStore() async throws {
-        try copyFixture()
-        let store = LocalStore.live(in: directory)
-
-        #expect(try await store.profiles.fetchProfile() == StoreFixture.profile)
-        #expect(try await store.progress.fetchEvents() == StoreFixture.events)
-        #expect(try await store.outfit.fetchOutfit() == StoreFixture.outfit)
-    }
-
-    @Test("Given a store from before versioned schemas the app has opened, when the widget opens it, then it reads the same")
-    func widgetOpensOldStore() async throws {
-        try copyFixture()
-        _ = try await LocalStore.live(in: directory).progress.fetchEvents()
-        let widget = LocalStore.live(in: directory, readOnly: true)
-
-        #expect(try await widget.profiles.fetchProfile()?.children == StoreFixture.profile.children)
-        #expect(try await widget.progress.fetchEvents() == StoreFixture.events)
     }
 
     @Test("Given the store folder cannot be created, when reading, then it throws; once it can, the same store opens")
@@ -80,25 +55,12 @@ struct StoreVersioningTests {
         #expect(try Data(contentsOf: storeURL) == junk)
     }
 
-    @Test("Given a stored event without a child, when fetching, then it is skipped")
-    func eventWithoutChildIsSkipped() async throws {
-        let kept = ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: .distantPast)
-        try writeRows { context in
-            context.insert(ProgressEventRecord(event: kept))
-            context.insert(ProgressEventRecord(
-                eventID: UUID(), kind: "quest", contentID: "q1", childID: nil, date: .now, note: nil, photoIDs: []
-            ))
-        }
-
-        #expect(try await LocalStore.live(in: directory).progress.fetchEvents() == [kept])
-    }
-
     @Test("Given two profile rows and a child stored twice, when the family is saved, then one of each remains")
     func saveCleansDuplicates() async throws {
         let child = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
         try writeRows { context in
-            context.insert(ProfileRecord(heroClassID: "old", dadSkinTone: "light"))
-            context.insert(ProfileRecord(heroClassID: "older", dadSkinTone: "dark"))
+            context.insert(ProfileRecord(profile: PlayerProfile(children: [], heroClassID: "old", dadSkinTone: .light)))
+            context.insert(ProfileRecord(profile: PlayerProfile(children: [], heroClassID: "older", dadSkinTone: .dark)))
             context.insert(ChildRecord(child: child, order: 0))
             context.insert(ChildRecord(child: child, order: 1))
         }

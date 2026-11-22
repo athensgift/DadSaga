@@ -5,21 +5,11 @@ import SwiftData
 import Testing
 @testable import Data
 
-/// What the profile keeps for titles, from a store written before them (ADR-0055 §5).
-@Suite("Titles in the store", .serialized)
+/// What the profile keeps for titles (ADR-0055 §5).
+@Suite("Titles in the store")
 struct TitlesStoreTests {
-    let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-titles-" + UUID().uuidString)
-
-    @Test("Given a store written by version 6, when the app opens it, then everything is there and nothing is kept yet")
-    func version6BecomesVersion7() async throws {
-        try StoreFiles.copy(from: StoreV6Fixture.directory, to: directory)
-        let store = LocalStore.live(in: directory)
-
-        #expect(try await store.profiles.fetchProfile() == StoreV6Fixture.profile)
-        #expect(try await store.progress.fetchEvents() == StoreV6Fixture.events)
-        #expect(try await store.outfit.fetchOutfit() == StoreV6Fixture.outfit)
-        #expect(try await store.standing.fetchKept() == KeptStanding())
-    }
+    let eleni = Child(name: "Ελένη", birthDay: .day(2024, 3, 1))
+    var profile: PlayerProfile { PlayerProfile(children: [eleni], heroClassID: "h-cool") }
 
     @Test("Given a new saga, when the profile is saved, then nothing is kept, and edits keep the title")
     func newProfileStartsFresh() async throws {
@@ -28,11 +18,11 @@ struct TitlesStoreTests {
         try await store.standing.keep(titleID: "t1")
         #expect(try await store.standing.fetchKept() == KeptStanding())
 
-        try await store.profiles.save(StoreV6Fixture.profile)
+        try await store.profiles.save(profile)
         #expect(try await store.standing.fetchKept() == KeptStanding())
         try await store.standing.keep(titleID: "t2")
         try await store.standing.markSeen(titleID: "t2")
-        try await store.profiles.save(PlayerProfile(children: [StoreV6Fixture.eleni], heroClassID: "h-super"))
+        try await store.profiles.save(PlayerProfile(children: [eleni], heroClassID: "h-super"))
 
         #expect(try await store.standing.fetchKept() == KeptStanding(titleID: "t2", seenTitleID: "t2"))
     }
@@ -40,7 +30,7 @@ struct TitlesStoreTests {
     @Test("Given a card closed for a title an Undo takes back, when the title still held is marked seen, then it goes back")
     func markSeenGoesBackForAnUndo() async throws {
         let store = LocalStore.inMemory()
-        try await store.profiles.save(StoreV6Fixture.profile)
+        try await store.profiles.save(profile)
         try await store.standing.keep(titleID: "t1")
         try await store.standing.markSeen(titleID: "t2")
 
@@ -61,11 +51,11 @@ struct TitlesStoreTests {
     @Test("Given a kept title, when the dad starts over, then it goes with the saga")
     func startOverErasesIt() async throws {
         let store = LocalStore.inMemory()
-        try await store.profiles.save(StoreV6Fixture.profile)
+        try await store.profiles.save(profile)
         try await store.standing.keep(titleID: "t2")
 
         try await store.wholeSaga.eraseAll()
-        try await store.profiles.save(StoreV6Fixture.profile)
+        try await store.profiles.save(profile)
 
         #expect(try await store.standing.fetchKept() == KeptStanding())
     }

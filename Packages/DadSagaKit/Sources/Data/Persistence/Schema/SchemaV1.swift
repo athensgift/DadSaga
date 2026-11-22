@@ -1,8 +1,12 @@
 import Foundation
 import SwiftData
 
-/// The stored shape since ADR-0023, frozen as version 1 (ADR-0026). A released version is never edited: a change to a
-/// stored property is a new version with a stage in `DadSagaMigrationPlan`.
+/// The one stored version (ADR-0026, ADR-0060 §2). Until the first App Store release nothing has shipped, so it is
+/// changed in place: a PR that changes it says so, and devices running `develop` delete the app first. From that
+/// release on it is never edited: a change to a stored property is a new version with a stage in
+/// `DadSagaMigrationPlan`.
+/// A column is optional only where nil means something. No literal defaults, no `#Unique` and no indexes: a unique
+/// column upserts silently, and a store with duplicates would not open.
 enum SchemaV1: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
 
@@ -10,16 +14,41 @@ enum SchemaV1: VersionedSchema {
         [ProfileRecord.self, ChildRecord.self, ProgressEventRecord.self, OutfitRecord.self]
     }
 
-    /// The dad: his hero class and skin tone. The store keeps exactly one.
+    /// The dad: his hero class, skin tone, look and partner answer, and what he keeps for titles. The store keeps
+    /// exactly one.
     @Model
     final class ProfileRecord {
         var heroClassID: String
-        /// The literal default is part of version 1's shape; keep it.
-        var dadSkinTone: String = "mediumLight"
+        var dadSkinTone: String
+        /// The look's raw values (`DadAppearance`). An unknown one reads as that part of the standard look for the skin
+        /// tone (ADR-0044 §6).
+        var hairStyle: String
+        var hairColor: String
+        var beard: String
+        var glasses: String
+        /// "I have a partner" (ADR-0053 §4).
+        var hasPartner: Bool
+        /// The highest title held when an entry was last deleted (ADR-0055 §3). Nil before any deletion.
+        var heldTitleID: String?
+        /// The title whose card the dad closed last, or the one an Undo left him with. Nil until he closes one.
+        var seenTitleID: String?
 
-        init(heroClassID: String, dadSkinTone: String) {
+        init(
+            heroClassID: String,
+            dadSkinTone: String,
+            hairStyle: String,
+            hairColor: String,
+            beard: String,
+            glasses: String,
+            hasPartner: Bool
+        ) {
             self.heroClassID = heroClassID
             self.dadSkinTone = dadSkinTone
+            self.hairStyle = hairStyle
+            self.hairColor = hairColor
+            self.beard = beard
+            self.glasses = glasses
+            self.hasPartner = hasPartner
         }
     }
 
@@ -28,16 +57,31 @@ enum SchemaV1: VersionedSchema {
     final class ChildRecord {
         var childID: UUID
         var name: String
-        var birthDate: Date
+        /// The birth day the dad picked, on the Gregorian calendar (`CalendarDay`). All three nil while the child is
+        /// not born yet.
+        var birthYear: Int?
+        var birthMonth: Int?
+        var birthDay: Int?
         var gender: String
         var skinTone: String
         /// Position in the family, as the dad entered them.
         var order: Int
 
-        init(childID: UUID, name: String, birthDate: Date, gender: String, skinTone: String, order: Int) {
+        init(
+            childID: UUID,
+            name: String,
+            birthYear: Int?,
+            birthMonth: Int?,
+            birthDay: Int?,
+            gender: String,
+            skinTone: String,
+            order: Int
+        ) {
             self.childID = childID
             self.name = name
-            self.birthDate = birthDate
+            self.birthYear = birthYear
+            self.birthMonth = birthMonth
+            self.birthDay = birthDay
             self.gender = gender
             self.skinTone = skinTone
             self.order = order
@@ -51,20 +95,20 @@ enum SchemaV1: VersionedSchema {
         /// "quest", "boss" or "first".
         var kind: String
         var contentID: String
-        /// Optional only in this version; every event written since ADR-0023 has a child.
-        var childID: UUID?
+        var childID: UUID
         var date: Date
         var note: String?
-        var photoID: String?
+        /// Every photo, in the dad's order; the first is the cover. At most `ProgressEvent.photoLimit`.
+        var photoIDs: [String]
 
-        init(eventID: UUID, kind: String, contentID: String, childID: UUID?, date: Date, note: String?, photoID: String?) {
+        init(eventID: UUID, kind: String, contentID: String, childID: UUID, date: Date, note: String?, photoIDs: [String]) {
             self.eventID = eventID
             self.kind = kind
             self.contentID = contentID
             self.childID = childID
             self.date = date
             self.note = note
-            self.photoID = photoID
+            self.photoIDs = photoIDs
         }
     }
 

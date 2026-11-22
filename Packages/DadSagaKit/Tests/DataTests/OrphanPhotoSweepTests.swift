@@ -19,22 +19,20 @@ struct OrphanPhotoSweepTests {
     wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAAA//EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AN//Z
     """) ?? Data()
 
-    @Test("Given rows the app can't show, when reading the referenced photos, then theirs are included")
+    @Test("Given a row of a kind the app doesn't know, when reading the referenced photos, then its photos are included")
     func referencedPhotoIDsIncludeHiddenRows() async throws {
         defer { try? FileManager.default.removeItem(at: directory) }
         let store = LocalStore.live(in: directory)
         try await store.progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: child.id, date: .now, photoIDs: ["a"]))
         try writeRows([
             ProgressEventRecord(eventID: UUID(), kind: "dream", contentID: "d1", childID: child.id, date: .now, note: nil,
-                                photoIDs: ["b"]),
-            ProgressEventRecord(eventID: UUID(), kind: "quest", contentID: "q1", childID: nil, date: .now, note: nil,
-                                photoIDs: ["c"])
+                                photoIDs: ["b"])
         ])
 
         let reopened = LocalStore.live(in: directory)
 
         #expect(try await reopened.progress.fetchEvents().count == 1)
-        #expect(try await reopened.progress.referencedPhotoIDs() == ["a", "b", "c"])
+        #expect(try await reopened.progress.referencedPhotoIDs() == ["a", "b"])
     }
 
     @Test("""
