@@ -2,13 +2,13 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop, 'release/**']
   pull_request:
 
 permissions:
   contents: read
 
-# On a PR, a newer push stops the run it replaces. Every merge into develop or main is checked to the end.
+# On a PR, a newer push stops the run it replaces. Every push to develop, main or a release branch is checked to the end.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -40,16 +40,6 @@ jobs:
       - name: Generate Xcode project
         run: xcodegen generate
 
-      # What only a release build compiles: the `#else` of `#if DEBUG`, and the optimised build (ADR-0051).
-      - name: Build app (Release)
-        run: |
-          xcodebuild build \
-            -project DadSaga.xcodeproj \
-            -scheme DadSaga \
-            -configuration Release \
-            -destination 'generic/platform=iOS' \
-            CODE_SIGNING_ALLOWED=NO
-
       # The UI tests and the screen snapshots run on the Mac (ADR-0034); here they are only compiled, so they never
       # fall behind the app. The first also builds the app for the simulator.
       - name: Build app (simulator), UI tests and snapshots
@@ -63,4 +53,31 @@ jobs:
             -project DadSaga.xcodeproj \
             -scheme DadSagaSnapshots \
             -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO
+
+  # What only a release build compiles: the `#else` of `#if DEBUG`, and the optimised build (ADR-0051). Not on a PR
+  # into develop, which it would only slow down: after every merge into develop, on a release branch and on its way
+  # into main (ADR-0062).
+  release-build:
+    if: github.event_name == 'push' || github.base_ref == 'main'
+    runs-on: xcode-27
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tools
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        run: xcodegen generate
+
+      - name: Build app (Release)
+        run: |
+          xcodebuild build \
+            -project DadSaga.xcodeproj \
+            -scheme DadSaga \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
             CODE_SIGNING_ALLOWED=NO
