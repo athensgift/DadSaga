@@ -10,20 +10,21 @@ public struct Adventure: Hashable, Sendable {
     /// them yet.
     public let isBeyondContent: Bool
     public let currentWorld: World?
-    public let unlockedWorlds: [World]
+    /// The worlds the child's age has reached. The others lie ahead, open all the same (ADR-0061 §3).
+    public let reachedWorlds: [World]
 
     public init(
         age: ChildAge,
         family: FamilyFacts,
         currentWorld: World?,
-        unlockedWorlds: [World],
+        reachedWorlds: [World],
         isBeyondContent: Bool = false
     ) {
         self.age = age
         self.family = family
         self.isBeyondContent = isBeyondContent
         self.currentWorld = currentWorld
-        self.unlockedWorlds = unlockedWorlds
+        self.reachedWorlds = reachedWorlds
     }
 
     /// The child's adventure on `today`.
@@ -34,7 +35,7 @@ public struct Adventure: Hashable, Sendable {
             age: age,
             family: family,
             currentWorld: isBeyondContent ? nil : UnlockRules.currentWorld(in: catalog, age: age),
-            unlockedWorlds: UnlockRules.unlockedWorlds(in: catalog, age: age),
+            reachedWorlds: UnlockRules.reachedWorlds(in: catalog, age: age),
             isBeyondContent: isBeyondContent
         )
     }

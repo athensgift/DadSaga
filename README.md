@@ -19,7 +19,7 @@ So DadSaga follows a few rules (see [ADR-0006](docs/adr/0006-no-pressure-game-de
 
 1. Titles reward the **dad's actions**, never the child's development.
 2. Nothing is ever lost: no penalties and no breakable streaks.
-3. Worlds unlock by the child's **age**, never by milestones.
+3. Every world is open: the child's **age** sets the current world and paces its cards, never milestones.
 4. One skill branch, **Resilience**, is about the dad's own wellbeing.
 
 ## Architecture

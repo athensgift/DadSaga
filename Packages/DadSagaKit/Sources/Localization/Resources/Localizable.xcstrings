@@ -767,6 +767,81 @@
         }
       }
     },
+    "Ideally after the birth" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ιδανικά μετά τη γέννα"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ideally after the birth"
+          }
+        }
+      }
+    },
+    "Ideally from %@ years" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ιδανικά από τα %@ χρόνια"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ideally from %@ years"
+          }
+        }
+      }
+    },
+    "Ideally from %lld months" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ιδανικά από τον %lld μήνα"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ιδανικά από τους %lld μήνες"
+                }
+              }
+            }
+          }
+        },
+        "en" : {
+          "variations" : {
+            "plural" : {
+              "one" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ideally from %lld month"
+                }
+              },
+              "other" : {
+                "stringUnit" : {
+                  "state" : "translated",
+                  "value" : "Ideally from %lld months"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "If you have a copy of your saga from Export data, choose it here and pick up where you left off." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -921,6 +996,23 @@
         }
       }
     },
+    "Map" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Χάρτης"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map"
+          }
+        }
+      }
+    },
     "Made on %@ · %@" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1040,6 +1132,23 @@
         }
       }
     },
+    "Open this world" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Άνοιξε αυτόν τον κόσμο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open this world"
+          }
+        }
+      }
+    },
     "One file with your saga: your family and hero, your title and wardrobe, every quest, boss and moment with their notes and photos. Keep it in Files or on a computer, or send it to another iPhone." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1070,23 +1179,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Opening the copy…"
-          }
-        }
-      }
-    },
-    "Opens after the birth" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ανοίγει μετά τη γέννα"
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Opens after the birth"
           }
         }
       }
@@ -3543,47 +3635,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Undo"
-          }
-        }
-      }
-    },
-    "Unlocks in %lld months" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Ξεκλειδώνει σε %lld μήνα"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Ξεκλειδώνει σε %lld μήνες"
-                }
-              }
-            }
-          }
-        },
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Unlocks in %lld month"
-                }
-              },
-              "other" : {
-                "stringUnit" : {
-                  "state" : "translated",
-                  "value" : "Unlocks in %lld months"
-                }
-              }
-            }
           }
         }
       }

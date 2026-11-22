@@ -28,53 +28,50 @@ struct HeroSettingsView: View {
         if case .loaded(let content) = viewModel.state { content.title } else { "" }
     }
 
+    /// Like the wardrobe: on an iPhone Duo half-open like a laptop the hero stands above the fold, where each change
+    /// shows at once, and every choice lies below it (ADR-0043, ADR-0061).
     private func picker(_ content: HeroSettingsContent) -> some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: DSSpacing.m) {
-                if let look = viewModel.previewLook {
-                    preview(look.avatarStyle)
-                }
-                SheetError(message: viewModel.errorMessage)
-                HeroPicker(
-                    content: content.picker,
-                    skinTone: skinToneBinding,
-                    appearance: viewModel.appearance,
-                    looks: viewModel.looks,
-                    selectedHeroID: viewModel.selectedHeroID,
-                    onSelect: { id in Task { await viewModel.selectHero(id: id) } },
-                    onSelectOption: { row, option in
-                        Task { await viewModel.selectOption(rowID: row, optionID: option) }
-                    }
-                )
+        ReadAndActPanes(
+            alignment: .leading, spacing: DSSpacing.m, flatTitle: .inline, column: HeroSettingsColumn()
+        ) { _ in
+            if let look = viewModel.previewLook {
+                preview(look.avatarStyle)
             }
-            .frame(maxWidth: readableWidth)
-            .padding(DSSpacing.m)
-            .frame(maxWidth: .infinity)
+        } acting: { _ in
+            SheetError(message: viewModel.errorMessage)
+            HeroPicker(
+                content: content.picker,
+                skinTone: skinToneBinding,
+                appearance: viewModel.appearance,
+                looks: viewModel.looks,
+                selectedHeroID: viewModel.selectedHeroID,
+                onSelect: { id in Task { await viewModel.selectHero(id: id) } },
+                onSelectOption: { row, option in
+                    Task { await viewModel.selectOption(rowID: row, optionID: option) }
+                }
+            )
         }
     }
 
     /// Like the wardrobe's: the hero alone, without gear, so the look is what changes.
     private func preview(_ style: HeroAvatar.Style) -> some View {
-        HeroAvatar(
-            style: style,
-            size: 160,
-            skin: viewModel.skinTone.avatarSkin,
-            features: viewModel.appearance.avatarFeatures
-        )
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, DSSpacing.s)
-        .background {
-            Circle()
-                .fill(
-                    RadialGradient(colors: [style.tint.opacity(0.25), .clear], center: .center, startRadius: 10, endRadius: 110)
-                )
-                .frame(width: 220, height: 220)
-        }
-        .motion(.spring(response: 0.35, dampingFraction: 0.75), value: viewModel.appearance)
-        .accessibilityHidden(true)
+        HeroPreview(style: style, skin: viewModel.skinTone.avatarSkin, features: viewModel.appearance.avatarFeatures)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, DSSpacing.s)
+            .motion(.spring(response: 0.35, dampingFraction: 0.75), value: viewModel.appearance)
     }
 
     private var skinToneBinding: Binding<SkinToneChoice> {
         Binding(get: { viewModel.skinTone }, set: { tone in Task { await viewModel.setSkinTone(tone) } })
+    }
+}
+
+/// The hero page's column.
+private struct HeroSettingsColumn: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .frame(maxWidth: readableWidth)
+            .padding(DSSpacing.m)
+            .frame(maxWidth: .infinity)
     }
 }

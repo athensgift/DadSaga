@@ -1,4 +1,5 @@
-/// A themed stage of childhood. Unlocks by the child's real age, never by performance.
+/// A themed stage of childhood. The child's real age makes it the current world, never performance; any world can be
+/// opened at any time (ADR-0061 §3).
 public struct World: ContentItem, Hashable, Identifiable, Sendable {
     public let id: String
     /// Ids it had before a rename (ADR-0048 §5).

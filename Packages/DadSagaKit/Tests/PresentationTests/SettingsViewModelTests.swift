@@ -11,15 +11,26 @@ struct SettingsViewModelTests {
     let startOver = SpyStartOver()
     let root = SpyRoot()
 
+    static let heroChoice = HeroChoice(
+        heroClasses: HeroStub.catalog.heroClasses,
+        heroClassID: "h-cool",
+        skinTone: .mediumDark,
+        appearance: DadAppearance(hair: .curly, hairColor: .black, beard: .full, glasses: .none),
+        appearanceOptions: []
+    )
+
     func makeSUT(
         appInfo: AppInfo = AppInfo(version: "0.1.0", build: "1", systemVersion: "26.1"),
         locale: String = "el_GR",
         current: PreferencesChoice = PreferencesChoice(),
+        hero: HeroChoice? = Self.heroChoice,
         save: any SavePreferencesUseCase
     ) -> SettingsViewModel {
         let root = root
         return SettingsViewModel(
-            useCases: SettingsViewModel.UseCases(savePreferences: save, startOver: startOver),
+            useCases: SettingsViewModel.UseCases(
+                savePreferences: save, startOver: startOver, getHeroChoice: StubGetHeroChoice(choice: hero)
+            ),
             preferences: current,
             appInfo: appInfo,
             actions: SettingsActions(
@@ -34,9 +45,41 @@ struct SettingsViewModelTests {
     func makeSUT(
         appInfo: AppInfo = AppInfo(version: "0.1.0", build: "1", systemVersion: "26.1"),
         locale: String = "el_GR",
-        current: PreferencesChoice = PreferencesChoice()
+        current: PreferencesChoice = PreferencesChoice(),
+        hero: HeroChoice? = Self.heroChoice
     ) -> SettingsViewModel {
-        makeSUT(appInfo: appInfo, locale: locale, current: current, save: preferences as any SavePreferencesUseCase)
+        makeSUT(appInfo: appInfo, locale: locale, current: current, hero: hero, save: preferences as any SavePreferencesUseCase)
+    }
+
+    @Test("Given the dad's hero, when Settings shows, then it draws his class and look, as \"Your hero\" does")
+    func heroAboveTheFold() async {
+        let sut = makeSUT()
+        #expect(sut.hero == nil)
+
+        await sut.loadHero()
+
+        #expect(sut.hero?.look == .cool)
+        #expect(sut.hero?.skinTone == .mediumDark)
+    }
+
+    @Test("Given no profile to read, when Settings shows, then no hero is drawn")
+    func noHeroWithoutAProfile() async {
+        let sut = makeSUT(hero: nil)
+        await sut.loadHero()
+        #expect(sut.hero == nil)
+    }
+
+    @Test("Given the start-over question and the mail fallback, when a link opens, then both close")
+    func linkClosesQuestionAndAlert() async throws {
+        let info = AppInfo(version: "0.1.0", build: "1", systemVersion: "26.1", feedbackAddress: "hi@example.com")
+        let sut = makeSUT(appInfo: info)
+        sut.askToStartOver()
+        sut.mailOpened(false)
+
+        sut.linkWillOpen()
+
+        #expect(!sut.isConfirmingStartOver)
+        #expect(sut.mailFallback == nil)
     }
 
     @Test("Given a Greek iPhone, when opening, then the language row says Ελληνικά and the titles are Greek")

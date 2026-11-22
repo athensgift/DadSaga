@@ -11,14 +11,11 @@ extension HomeView {
         if opened { onLinkHandled(pendingLink) }
     }
 
-    /// The sheets this view owns: Settings, the film, the photo viewer and the map. Home's own close as the link opens.
+    /// The sheets this view owns: the film and the photo viewer. Home's own close as the link opens.
     private func closeOwnSheets() async {
-        let hadSheet = settingsViewModel != nil || sagaFilm != nil
-            || viewModel.worldMap != nil || photoViewer != nil
-        settingsViewModel = nil
+        let hadSheet = sagaFilm != nil || photoViewer != nil
         sagaFilm = nil
         photoViewer = nil
-        viewModel.closeMap()
         // A new sheet cannot appear while the old one is still sliding away.
         if hadSheet { try? await Task.sleep(for: .milliseconds(450)) }
     }

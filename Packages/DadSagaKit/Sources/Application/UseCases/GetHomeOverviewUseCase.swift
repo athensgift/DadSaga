@@ -10,7 +10,7 @@ public struct HomeOverview: Sendable {
     public let catalog: ContentCatalog
     public let adventure: Adventure
     public let progress: DadProgress
-    /// The world whose quests and bosses are shown: an earlier one the dad chose on the map, or the current one.
+    /// The world whose quests and bosses are shown: any world the dad chose on the map, or the current one.
     public let shownWorld: World?
     /// The shown world's quests offered to this child and family, evergreen ones from earlier worlds included
     /// (ADR-0020, ADR-0053).
@@ -36,9 +36,13 @@ public struct HomeOverview: Sendable {
     public var family: FamilyFacts { adventure.family }
 
     public var isShowingCurrentWorld: Bool { shownWorld?.id == adventure.currentWorld?.id }
+    /// The shown world lies ahead of the child: it offers all its cards, whatever their ages (ADR-0061 §3).
+    public var isShowingWorldAhead: Bool {
+        shownWorld.map { UnlockRules.isAhead($0, at: adventure.age) } ?? false
+    }
     public var defeatedBossIDs: Set<String> { progress.defeatedBossIDs(for: child.id) }
 
-    /// - Parameter worldID: a world the dad chose on the map; ignored unless it is unlocked for this child.
+    /// - Parameter worldID: a world the dad chose on the map, any of the catalog's; ignored if the catalog has none.
     public init(
         profile: PlayerProfile,
         child: Child,
@@ -56,7 +60,7 @@ public struct HomeOverview: Sendable {
         self.catalog = catalog
         self.adventure = adventure
         self.progress = progress
-        let shownWorld = adventure.unlockedWorlds.first { $0.id == worldID } ?? adventure.currentWorld
+        let shownWorld = worldID.flatMap(catalog.world(id:)) ?? adventure.currentWorld
         self.shownWorld = shownWorld
         let age = adventure.age
         let family = adventure.family
@@ -74,8 +78,9 @@ public struct HomeOverview: Sendable {
 }
 
 public protocol GetHomeOverviewUseCase: Sendable {
-    /// `childID` falls back to the first child when it is `nil` or no longer in the family, and `worldID` to the
-    /// child's current world. `nil` while there is no family.
+    /// `childID` falls back to the first child when it is `nil` or no longer in the family, and then a `worldID` chosen
+    /// for the child who left is ignored. `worldID` falls back to the child's current world. `nil` while there is no
+    /// family.
     func execute(childID: UUID?, worldID: String?, on date: Date) async throws -> HomeOverview?
 }
 
@@ -128,7 +133,8 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
             progress: DadProgress(events: events, catalog: catalog),
             kept: try await pendingKept,
             outfit: try await pendingOutfit,
-            worldID: worldID,
+            // A world chosen for a child no longer in the family is not this child's choice: the current world shows.
+            worldID: childID == nil || childID == child.id ? worldID : nil,
             sagaOffer: SagaOccasions.latest(
                 forFamily: profile.children, events: events, catalog: catalog, on: date,
                 answered: await answeredOffers, timeZone: timeZone

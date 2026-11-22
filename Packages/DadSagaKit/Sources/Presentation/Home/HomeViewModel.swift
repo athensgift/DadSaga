@@ -22,8 +22,8 @@ public final class HomeViewModel {
     public internal(set) var isCompleting = false
     /// The child whose world and quests are shown. The first child until the dad picks another.
     public internal(set) var selectedChildID: UUID?
-    /// The world map, while it is open.
-    public internal(set) var worldMap: WorldMapContent?
+    /// The world map for the child home shows, built again with every load (ADR-0061 §2).
+    public private(set) var worldMap: WorldMapContent?
     /// The offer of a saga film, until the dad answers it (ADR-0037 §5).
     public internal(set) var sagaOffer: SagaFilmOffer?
     /// The card for a new title: shown before any offer (ADR-0055 §6).
@@ -38,7 +38,7 @@ public final class HomeViewModel {
     public internal(set) var reminderOffer: ReminderOffer?
     /// The dad answered the reminder offer in this session.
     var reminderAnswered = false
-    /// An earlier world the dad chose on the map, instead of the child's current one.
+    /// A world the dad chose on the map, instead of the child's current one.
     var viewedWorldID: String?
     /// The skill each celebration on screen grew, by its id, until it goes. Only home's view model knows it.
     @ObservationIgnored var celebratedSkills: [Int: Skill] = [:]
@@ -262,6 +262,7 @@ public final class HomeViewModel {
             viewedWorldID = overview.isShowingCurrentWorld ? nil : overview.shownWorld?.id
             self.overview = overview
             state = .loaded(makeContent(overview))
+            worldMap = makeWorldMap(overview)
             return overview
         } catch {
             guard generation == loadGeneration else { return nil }
@@ -295,12 +296,11 @@ public final class HomeViewModel {
             selectedChildID: child.id,
             selectedChildLine: hasSiblings ? childLine : nil,
             familyTitle: strings.text("My family"),
-            settingsTitle: strings.text("Settings"),
             dadTitle: makeTitleLine(overview.standing),
             skills: makeSkillMarks(overview.skills),
             worldTitle: overview.shownWorld?.title.resolved(for: locale),
             worldTagline: overview.shownWorld?.tagline.resolved(for: locale),
-            mapTitle: strings.text("World map"),
+            idealLine: overview.isShowingWorldAhead ? overview.shownWorld.flatMap(strings.idealStart) : nil,
             backToCurrentTitle: overview.isShowingCurrentWorld
                 ? nil
                 : strings.text("Back to the current world"),

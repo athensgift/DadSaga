@@ -22,6 +22,21 @@ struct UnsavedWorkTests {
         #expect(!sut.isHeld)
     }
 
+    @Test("Given editors holding in two places, when endAll, then nothing is held, released once")
+    func endAllReleasesOnce() {
+        let sut = UnsavedWork()
+        var releases = 0
+        sut.onRelease = { releases += 1 }
+        sut.set(UUID(), in: UnsavedScope.settings, hasUnsavedChanges: true)
+        sut.set(UUID(), in: UnsavedScope.timelineJournal, hasUnsavedChanges: true)
+        #expect(sut.isHeld)
+
+        sut.endAll()
+
+        #expect(!sut.isHeld)
+        #expect(releases == 1)
+    }
+
     @Test("Given an editor with changes, when it closes, then nothing is held for it")
     func closedEditorHoldsNothing() {
         let sut = UnsavedWork()

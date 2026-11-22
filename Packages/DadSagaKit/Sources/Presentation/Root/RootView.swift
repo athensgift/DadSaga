@@ -1,8 +1,8 @@
 import DesignSystem
 import SwiftUI
 
-/// Switches between onboarding and home. The child ViewModels are built by the composition root, once each time their
-/// screen appears, never on every redraw.
+/// Switches between onboarding and the four tabs: Adventure, Map, Timeline and Settings (ADR-0061 §2). The child
+/// ViewModels are built by the composition root, once each time their screen appears, never on every redraw.
 public struct RootView: View {
     public typealias MakeOnboarding = @MainActor (_ onFinished: @escaping @MainActor () -> Void) -> OnboardingViewModel
     public typealias MakeHome = @MainActor () -> HomeViewModel
@@ -16,6 +16,7 @@ public struct RootView: View {
     @State private var onboarding: OnboardingViewModel?
     @State private var home: HomeViewModel?
     @State private var timeline: TimelineViewModel?
+    @State private var settings: SettingsViewModel?
     private let makeOnboarding: MakeOnboarding
     private let makeHome: MakeHome
     private let makeTimeline: MakeTimeline
@@ -71,22 +72,23 @@ public struct RootView: View {
                     ProgressView()
                 }
             case .home:
-                if let home, let timeline {
+                if let home, let timeline, let settings {
                     MainTabs(
                         tabs: viewModel.tabs,
                         selection: $viewModel.selectedTab,
                         home: HomeView(
                             viewModel: home,
                             makeSagaFilm: makeSagaFilm,
-                            settings: settingsScreens,
                             pendingLink: viewModel.pendingLink,
                             onLinkHandled: { viewModel.linkHandled($0) }
                         ),
+                        map: WorldMapView(viewModel: home) { viewModel.worldChosen() },
                         timeline: TimelineView(
                             viewModel: timeline,
                             makeSagaFilm: makeSagaFilm,
                             isOpeningLink: viewModel.pendingLink != nil
-                        )
+                        ),
+                        settings: SettingsView(viewModel: settings, pages: settingsPages)
                     )
                     .environment(viewModel.unsavedWork)
                     // A new presenter is a new home: its sheets, Settings included, close with the old one, and the
@@ -99,10 +101,9 @@ public struct RootView: View {
             }
         }
         .onChange(of: viewModel.state, initial: true) { _, state in prepareScreen(for: state) }
-        // Home's Undo ends when the dad leaves for the timeline. Told from here, not by the bar going: turning the
-        // device rebuilds home's stack with the bar still on screen (ADR-0058).
-        .onChange(of: viewModel.selectedTab) { _, tab in
-            if tab != .adventure { home?.leftForAnotherTab() }
+        // Settings closes its own question and alert as a link opens, as the timeline closes its film sheet.
+        .onChange(of: viewModel.pendingLink) { _, link in
+            if link != nil { settings?.linkWillOpen() }
         }
         .onChange(of: viewModel.sagaGeneration) { rebuildHome() }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -132,21 +133,28 @@ public struct RootView: View {
         case .onboarding:
             home = nil
             timeline = nil
+            settings = nil
+            viewModel.onLeftAdventure = nil
             if onboarding == nil { onboarding = makeOnboarding { viewModel.onboardingFinished() } }
         case .home:
             onboarding = nil
-            if home == nil {
-                home = makeHome()
-                timeline = makeTimeline()
-            }
+            if home == nil { buildTabs() }
         }
     }
 
-    /// An imported saga took the place of the one home and the timeline were showing.
+    /// An imported saga took the place of the one home, the timeline and Settings were showing.
     private func rebuildHome() {
         guard viewModel.state == .home else { return }
-        home = makeHome()
+        buildTabs()
+    }
+
+    /// One presenter per tab, the map sharing home's. Home hears each time the dad leaves Adventure.
+    private func buildTabs() {
+        let home = makeHome()
+        self.home = home
         timeline = makeTimeline()
+        settings = makeSettings(viewModel.preferences, settingsActions)
+        viewModel.onLeftAdventure = { home.leftForAnotherTab() }
     }
 
     /// Waits until the app knows whether there is a family, so a cold-launch link is not dropped while loading.
@@ -156,31 +164,38 @@ public struct RootView: View {
         onIncomingURLHandled()
     }
 
-    private var settingsScreens: SettingsScreens {
-        let actions = SettingsActions(
+    private var settingsActions: SettingsActions {
+        SettingsActions(
             onPreferencesChanged: { viewModel.preferencesChanged($0) },
             onStartedOver: { viewModel.startedOver() },
             onSagaImported: {
                 viewModel.sagaImported()
-                // Settings closes with home, whatever SwiftUI calls on the way: its exports go now (ADR-0057 §6).
+                // Settings is built anew with home, and the dad lands on Adventure: its exports go now (ADR-0057 §6).
                 settingsPages.discardExports()
             }
         )
-        return SettingsScreens(makeSettings: { makeSettings(viewModel.preferences, actions) }, pages: settingsPages)
     }
 }
 
-/// Adventure and timeline as tabs. The tab bar is Liquid Glass and shrinks while scrolling.
+/// The four tabs. The system places the bar on every display (at the side on the iPhone Duo's cover display and on
+/// its side), and it adjusts for the fold. Liquid Glass, it shrinks while scrolling.
 private struct MainTabs: View {
     let tabs: RootTabs
     @Binding var selection: RootTab
     let home: HomeView
+    let map: WorldMapView
     let timeline: TimelineView
+    let settings: SettingsView
 
     var body: some View {
         TabView(selection: $selection) {
             Tab(tabs.adventure, systemImage: "figure.and.child.holdinghands", value: RootTab.adventure) { home }
+            Tab(tabs.map, systemImage: "map", value: RootTab.map) { map }
             Tab(tabs.timeline, systemImage: "clock.arrow.circlepath", value: RootTab.timeline) { timeline }
+            // Its editors report under Settings' scope, so a link waits for "My family" (ADR-0050).
+            Tab(tabs.settings, systemImage: "gearshape", value: RootTab.settings) {
+                settings.environment(\.unsavedScope, UnsavedScope.settings)
+            }
         }
         #if os(iOS)
         .tabBarMinimizeBehavior(.onScrollDown)
