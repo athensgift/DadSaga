@@ -101,6 +101,7 @@ public struct HomeView: View {
         .onChange(of: scenePhase) { _, phase in scenePhaseChanged(to: phase) }
         .task(id: pendingLink) { await openPendingLink() }
         .task(id: viewModel.celebration?.id) { await celebrationTime() }
+        .onChange(of: viewModel.titleCard) { _, card in announce(card) }
         .sheet(item: activeSheet, onDismiss: homeSheetDismissed) { sheet in
             sheetContent(sheet)
                 .environment(\.unsavedScope, UnsavedScope.homeSheet)
@@ -187,14 +188,14 @@ public struct HomeView: View {
     }
 
     private func heroPanel(_ content: HomeContent) -> some View {
-        let stageAndLevel = isHeroBesideLevel
+        let stageAndTitle = isHeroBesideTitle
             ? AnyLayout(HStackLayout(spacing: DSSpacing.l))
             : AnyLayout(VStackLayout(spacing: DSSpacing.m))
         return VStack(spacing: HomeArrangement.headerSpacing) {
             if arrangement.hasPanes {
                 paneHeader(content)
             }
-            stageAndLevel {
+            stageAndTitle {
                 heroStage(content)
                 VStack(spacing: DSSpacing.m) {
                     VStack(spacing: DSSpacing.xs) {

@@ -38,7 +38,7 @@ public struct SagaFilm: Sendable {
         medalCount: Int,
         childFirsts: [FirstMoment],
         equippedGear: [GearItem],
-        title: DadTitle? = nil,
+        title: DadTitle?,
         soundtracks: [Soundtrack],
         soundtrack: Soundtrack,
         showsDates: Bool

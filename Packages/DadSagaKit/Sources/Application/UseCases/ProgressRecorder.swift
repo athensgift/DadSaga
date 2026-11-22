@@ -13,9 +13,6 @@ public struct ProgressChange: Hashable, Sendable {
         self.after = after
         self.eventID = eventID
     }
-
-    /// Whether something was recorded.
-    public var isRecorded: Bool { eventID != nil }
 }
 
 public enum ProgressError: Error, Equatable {

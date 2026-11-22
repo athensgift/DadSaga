@@ -84,9 +84,9 @@ extension HomeView {
 // MARK: - The stage
 
 extension HomeView {
-    /// Above a fold the pane is wider than tall: the hero stands beside his lines and level, unless the text is too
+    /// Above a fold the pane is wider than tall: the hero stands beside his lines and title, unless the text is too
     /// large for half the width.
-    var isHeroBesideLevel: Bool {
+    var isHeroBesideTitle: Bool {
         arrangement.fold != nil && !dynamicTypeSize.isAccessibilitySize
     }
 
@@ -102,7 +102,7 @@ extension HomeView {
             heroTitle: content.heroTitle,
             companions: content.companions,
             selectedChildID: content.selectedChildID,
-            maxHeroSize: arrangement.maxHeroSize(headerHeight: paneHeaderHeight, besideLevel: isHeroBesideLevel),
+            maxHeroSize: arrangement.maxHeroSize(headerHeight: paneHeaderHeight, besideTitle: isHeroBesideTitle),
             cheerTrigger: viewModel.celebration?.id ?? 0
         ) { id in
             Task { await viewModel.selectChild(id: id) }

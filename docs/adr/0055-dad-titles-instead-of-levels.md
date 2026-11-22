@@ -1,7 +1,7 @@
 # ADR-0055: Dad titles instead of levels: earned by cards done and XP, never lowered, bringing the hero's gear
 
-**Status:** Accepted (2026-11-22): the owner's decisions of 2026-11-22. The choices listed under "Choices made for the
-owner to confirm" were made by the architect while the owner was away. They are open until he confirms them. Numbered
+**Status:** Proposed (2026-11-22): the owner's decisions of 2026-11-22 are final. The choices listed under "Choices made
+for the owner to confirm" were made while he was away; it becomes Accepted when he confirms them. Numbered
 0055 because another branch takes 0054. Changes ADR-0005 (a new kind of content, `titles.json`), ADR-0012 (the dad has
 XP and a title, no level), ADR-0014 (gear comes with titles; a skill names a slot and unlocks nothing), ADR-0018 (the
 wardrobe shows only what the hero has, without XP), ADR-0021 §2 (deleting an entry no longer lowers the title or takes
@@ -157,7 +157,8 @@ is guarded by its title).
     and never regenerated. It holds:
     - a dad with a look and a partner answer;
     - a child who is born and one not born yet;
-    - quests worth more than 50 care XP, with photos and a note;
+    - one boss worth 100 care XP, with photos and a note: title 1 by cards, while the old rule had earned the burp
+      cloth;
     - the wardrobe wearing `g-burp-cloth`.
   - **The app** opens a copy read-write and finds everything:
     - the hero still wears the burp cloth, although the title is lower than the one that brings it;

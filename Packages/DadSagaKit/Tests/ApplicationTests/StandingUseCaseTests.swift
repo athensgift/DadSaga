@@ -76,10 +76,9 @@ struct StandingUseCaseTests {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
         let change = try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: .empty)
-        // The next change keeps what the first one brought.
-        let second = try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: .empty)
+        // Only the first title was kept so far: the undo itself keeps the one the quest just brought.
+        #expect(await standing.kept.titleID == "t0")
 
-        try await delete(progress, standing).execute(eventID: try #require(second.eventID))
         try await delete(progress, standing).execute(eventID: try #require(change.eventID))
         let stand = DadStanding(
             progress: DadProgress(events: try await progress.fetchEvents(), catalog: Self.catalog),

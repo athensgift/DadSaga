@@ -29,6 +29,9 @@ struct SagaFilmPhotosUseCaseTests {
         #expect(Self.photoIDs(in: original) == ["a", "b", "c"])
         #expect(Self.photoIDs(in: chosen) == ["b", "c", "d"])
         #expect(chosen.storyboard.seconds == original.storyboard.seconds)
+        // The film keeps the dad's title for its credits (ADR-0055 §9).
+        #expect(original.title?.id == "t1")
+        #expect(chosen.title == original.title)
         #expect(await store.read.sorted() == ["a", "b", "c", "d"])
     }
 

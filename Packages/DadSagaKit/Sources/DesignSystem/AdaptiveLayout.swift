@@ -26,7 +26,7 @@ public struct AdaptiveStack<Content: View>: View {
     }
 }
 
-/// A card's title with its badge, e.g. "+30 XP" or "BOSS": the badge at the trailing edge, or under the title from
+/// A card's title with its badge, e.g. "BOSS": the badge at the trailing edge, or under the title from
 /// the accessibility text sizes on, so the title keeps the whole width.
 public struct CardTitle: View {
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize

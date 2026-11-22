@@ -19,7 +19,7 @@ struct SagaFilmBeforeBirthTests {
         ))
         let film = SagaFilm(
             profile: profile, child: child, catalog: catalog, storyboard: storyboard,
-            availablePeriods: [.world(id: "w0"), .everything], medalCount: 0, childFirsts: [], equippedGear: [],
+            availablePeriods: [.world(id: "w0"), .everything], medalCount: 0, childFirsts: [], equippedGear: [], title: nil,
             soundtracks: [FilmStub.theme], soundtrack: FilmStub.theme, showsDates: false
         )
         var calendar = Calendar(identifier: .gregorian)

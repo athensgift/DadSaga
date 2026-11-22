@@ -175,14 +175,14 @@ public final class HomeViewModel {
     private func celebrate(_ change: ProgressChange, skill: Skill?, badge: String? = nil) {
         // A moment's celebration still waiting would only replace this newer one when the sheet closes.
         pendingMomentCelebration = nil
-        let celebration = makeCelebration(change, skill: skill, badge: badge)
+        let celebration = makeCelebration(skill: skill, badge: badge)
         self.celebration = celebration
         undoOffer = change.eventID.map { makeUndoOffer(id: celebration.id, eventID: $0) }
     }
 
     /// What a change grew, as a celebration with a new id: the skill, a badge or a moment, never a number. A new title
     /// has its own card (ADR-0055 §6).
-    func makeCelebration(_ change: ProgressChange, skill: Skill?, badge: String? = nil, moment: String? = nil) -> Celebration {
+    func makeCelebration(skill: Skill?, badge: String? = nil, moment: String? = nil) -> Celebration {
         celebrationCount += 1
         return Celebration(
             id: celebrationCount,

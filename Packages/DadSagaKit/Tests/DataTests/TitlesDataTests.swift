@@ -78,6 +78,15 @@ struct TitlesStoreTests {
         #expect(try await store.standing.fetchKept() == KeptStanding(titleID: "t2", gearIDs: [], seenTitleID: "t2"))
     }
 
+    @Test("Given a saga begun on disk with titles, when the store is opened again, then nothing from before is kept still")
+    func freshStaysFreshOnDisk() async throws {
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        try await LocalStore.live(in: directory).profiles.save(StoreV6Fixture.profile)
+
+        // An empty list, not "not frozen yet": skill XP must never bring gear to a dad who started with titles.
+        #expect(try await LocalStore.live(in: directory).standing.fetchKept() == .fresh)
+    }
+
     @Test("Given a kept title, when the dad starts over, then it goes with the saga")
     func startOverErasesIt() async throws {
         let store = LocalStore.inMemory()

@@ -57,27 +57,27 @@ struct HomeArrangementTests {
     @Test("Given a tall pane above the fold, when the hero is sized, then he is as big as in the two columns")
     func heroInATallPane() {
         let tall = HomeArrangement.stacked(HorizontalFold(top: 520, bottom: 550))
-        let columns = HomeArrangement.columns.maxHeroSize(headerHeight: 41, besideLevel: false)
-        #expect(tall.maxHeroSize(headerHeight: 41, besideLevel: true) == columns)
+        let columns = HomeArrangement.columns.maxHeroSize(headerHeight: 41, besideTitle: false)
+        #expect(tall.maxHeroSize(headerHeight: 41, besideTitle: true) == columns)
     }
 
     @Test("Given the iPhone Duo open upright, when the hero is sized, then he fills what the title leaves above the fold")
     func heroReachesTheFold() {
         let open = HomeArrangement.stacked(HorizontalFold(top: 393.5, bottom: 393.5))
-        #expect(open.maxHeroSize(headerHeight: 41, besideLevel: true) == 256.5)
-        #expect(open.maxHeroSize(headerHeight: 69, besideLevel: true) == 228.5)
+        #expect(open.maxHeroSize(headerHeight: 41, besideTitle: true) == 256.5)
+        #expect(open.maxHeroSize(headerHeight: 69, besideTitle: true) == 228.5)
     }
 
     @Test("Given the accessibility text sizes, when the hero is sized above a fold, then he is no taller than in one column")
     func heroOverHisLevel() {
         let open = HomeArrangement.stacked(HorizontalFold(top: 520, bottom: 520))
-        let column = HomeArrangement.column.maxHeroSize(headerHeight: 0, besideLevel: false)
-        #expect(open.maxHeroSize(headerHeight: 41, besideLevel: false) == column)
+        let column = HomeArrangement.column.maxHeroSize(headerHeight: 0, besideTitle: false)
+        #expect(open.maxHeroSize(headerHeight: 41, besideTitle: false) == column)
     }
 
     @Test("Given a short pane above the fold, when the hero is sized, then he shrinks but stays recognisable")
     func heroInAShortPane() {
         let short = HomeArrangement.stacked(HorizontalFold(top: 210, bottom: 240))
-        #expect(short.maxHeroSize(headerHeight: 41, besideLevel: true) == 120)
+        #expect(short.maxHeroSize(headerHeight: 41, besideTitle: true) == 120)
     }
 }

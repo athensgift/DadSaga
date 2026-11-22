@@ -108,10 +108,12 @@ struct HomeCelebrationTests {
         await sut.onAppear()
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
-        sut.select(cardID: "q1")
-        await sut.completeSelectedQuest()
 
         await sut.undoLastRecord()
+
+        #expect(await progress.eventCount == 0)
+        guard case .loaded(let content) = sut.state else { throw StubError.boom }
+        #expect(content.dadTitle == "Νέος στο ταξίδι")
 
         #expect(sut.titleCard?.title == "Έγινες «Νέος στο ταξίδι».")
     }

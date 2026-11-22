@@ -42,7 +42,7 @@ public struct HomeOverview: Sendable {
         catalog: ContentCatalog,
         adventure: Adventure,
         progress: DadProgress,
-        kept: KeptStanding = .fresh,
+        kept: KeptStanding,
         outfit: Outfit,
         worldID: String?,
         sagaOffer: SagaOccasion? = nil,

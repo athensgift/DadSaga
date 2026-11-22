@@ -69,6 +69,7 @@ struct HarbourOverview: GetHomeOverviewUseCase {
             catalog: catalog,
             adventure: Adventure(for: child, family: FamilyFacts(profile: profile, child: child), catalog: catalog, on: today),
             progress: DadProgress(events: events, catalog: catalog),
+            kept: .fresh,
             outfit: Outfit(),
             worldID: worldID,
             today: today

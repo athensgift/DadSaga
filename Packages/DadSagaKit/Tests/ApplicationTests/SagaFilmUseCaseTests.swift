@@ -66,13 +66,15 @@ struct SagaFilmUseCaseTests {
 
     let choices = InMemorySagaFilmChoicesRepository()
 
-    func sut(soundtracks: [Soundtrack] = [Self.music, Self.lullaby]) -> DefaultGetSagaFilmUseCase {
+    func sut(
+        soundtracks: [Soundtrack] = [Self.music, Self.lullaby], standing: InMemoryStanding = InMemoryStanding()
+    ) -> DefaultGetSagaFilmUseCase {
         DefaultGetSagaFilmUseCase(
             contentRepository: StubContentRepository(result: .success(Self.catalog)),
             profileRepository: profiles,
             progressRepository: progress,
             outfitRepository: SpyOutfitRepository(),
-            standingRepository: InMemoryStanding(),
+            standingRepository: standing,
             soundtrackRepository: StubSoundtrackRepository(soundtracks: soundtracks),
             choicesRepository: choices,
             timeZone: calendar.timeZone
@@ -177,6 +179,27 @@ struct SagaFilmUseCaseTests {
         #expect(everything.equippedGear.map(\.id) == ["g-hat"])
         #expect(everything.childFirsts.map(\.id) == ["f-walk"])
         #expect(everything.medalCount == 1)
+    }
+
+    @Test("Given a title kept above what the entries reach, when reading films, then a past one has its title then, today's his")
+    func titleAsOfTheFilmsEnd() async throws {
+        try await family()
+        try await record(.quest(id: "q1"), months: 3)
+        try await record(.boss(id: "b1"), months: 14)
+        let standing = InMemoryStanding(KeptStanding(titleID: "t2", gearIDs: [], seenTitleID: "t2"))
+        // Only the quest is left: the boss's entry was deleted after it brought t2.
+        try await progress.delete(id: try #require(try await progress.fetchEvents().last?.id))
+
+        let yearOne = try #require(try await sut(standing: standing).execute(
+            childID: nil, period: .year(1), on: date(months: 26)
+        ))
+        let everything = try #require(try await sut(standing: standing).execute(
+            childID: nil, period: .everything, on: date(months: 26)
+        ))
+
+        #expect(yearOne.title?.id == "t1")
+        #expect(everything.title?.id == "t2")
+        #expect(everything.equippedGear.map(\.id) == ["g-hat"])
     }
 
     @Test("Given gear, a medal and a first from the first year, when reading the third year's film, then they all show")
