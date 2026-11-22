@@ -25,7 +25,7 @@ extension SettingsContent {
             wardrobeTitle: strings.text("Wardrobe"),
             familyTitle: strings.text("My family"),
             dataSection: strings.text("Your data"),
-            dataExportTitle: strings.text("Export data"),
+            dataTransferTitle: strings.text("Export and import"),
             support: supportSection(appInfo: appInfo, strings: strings),
             about: AboutSection(
                 title: strings.text("About"),

@@ -30,7 +30,7 @@ public struct SettingsView: View {
             .navigationTitle(viewModel.content.title)
             // Each time Settings shows, back from "Your hero" or the wardrobe too.
             .task { await viewModel.loadHero() }
-            // Leaving Export data is its closing: the files it made were saved or sent by then (ADR-0057 §6).
+            // Leaving Export and import is its closing: the files it made were saved or sent by then (ADR-0057 §6).
             .onChange(of: page) { old, _ in
                 if case .data = old { pages.discardExports() }
             }
@@ -164,7 +164,7 @@ public struct SettingsView: View {
 
     private func dataSection(_ content: SettingsContent) -> some View {
         Section {
-            row(content.dataExportTitle, systemImage: "externaldrive") {
+            row(content.dataTransferTitle, systemImage: "externaldrive") {
                 page = .data(pages.makeDataExport { viewModel.sagaImported() })
             }
         } header: {

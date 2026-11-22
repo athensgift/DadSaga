@@ -243,12 +243,12 @@ struct SettingsViewModelTests {
         #expect(root.startedOver == 0)
     }
 
-    @Test("Given English, when opening, then Your data holds Export data and About names exported copies")
+    @Test("Given English, when opening, then Your data holds Export and import and About names exported copies")
     func dataSectionAndAbout() {
         let content = makeSUT(locale: "en_US").content
 
         #expect(content.dataSection == "Your data")
-        #expect(content.dataExportTitle == "Export data")
+        #expect(content.dataTransferTitle == "Export and import")
         #expect(content.about.privacyStatement.hasSuffix(
             "stay on this iPhone, in its backups if you make them, and in any copy of your saga you make."
         ))

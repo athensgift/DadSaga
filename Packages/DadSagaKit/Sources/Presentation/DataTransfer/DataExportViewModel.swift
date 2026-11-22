@@ -3,8 +3,8 @@ import Foundation
 import Localization
 import Observation
 
-/// Presenter for Settings › Export data (ADR-0057 §6, §8): exporting the saga to one file the dad saves or sends, and,
-/// below it, importing one. Nothing here is ever asked for or counted (ADR-0006).
+/// Presenter for Settings › Export and import (ADR-0057 §6, §8): exporting the saga to one file the dad saves or
+/// sends, and, below it, importing one. Nothing here is ever asked for or counted (ADR-0006).
 @MainActor
 @Observable
 public final class DataExportViewModel: Identifiable {
@@ -102,7 +102,10 @@ public struct ExportedData: Equatable, Sendable {
 
 /// What the export part of the page says.
 public struct DataExportContent: Equatable, Sendable {
-    public let title: String
+    /// The page's title, the same as its row in Settings: the page both exports and imports.
+    public let pageTitle: String
+    /// The export section's header, beside the import section's "Import data".
+    public let header: String
     public let explanation: String
     public let button: String
     public let exporting: String
@@ -112,7 +115,8 @@ public struct DataExportContent: Equatable, Sendable {
 
     static func make(strings: Strings) -> DataExportContent {
         DataExportContent(
-            title: strings.text("Export data"),
+            pageTitle: strings.text("Export and import"),
+            header: strings.text("Export data"),
             explanation: strings.text(
                 """
                 One file with your saga: your family and hero, your title and wardrobe, every quest, boss and moment \

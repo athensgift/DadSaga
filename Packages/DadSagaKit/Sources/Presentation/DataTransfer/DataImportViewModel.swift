@@ -195,7 +195,8 @@ public struct DataImportContent: Equatable, Sendable {
                 )
                 : strings.text(
                     """
-                    If you have a copy of your saga from Export data, choose it here and pick up where you left off.
+                    If you have a copy of your saga from Settings › Export and import, choose it here and pick up \
+                    where you left off.
                     """
                 ),
             button: strings.text("Choose a copy"),

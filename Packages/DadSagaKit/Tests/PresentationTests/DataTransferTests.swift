@@ -4,7 +4,7 @@ import Foundation
 import Testing
 @testable import Presentation
 
-/// Settings › Export data and onboarding's Import data (ADR-0057 §8), as the dad sees them.
+/// Settings › Export and import and onboarding's Import data (ADR-0057 §8), as the dad sees them.
 @MainActor
 @Suite("Exporting and importing data on screen")
 struct DataTransferTests {
@@ -323,5 +323,19 @@ struct DataTransferTests {
         sut.sagaImported()
 
         #expect(sut.state == .home)
+    }
+}
+
+// MARK: Names
+
+extension DataTransferTests {
+    @Test("Given Greek, when the page opens, then its title names both export and import, and onboarding points to it")
+    func namesSayBothInGreek() {
+        let page = exporter(FakeMakeCopy(result: .failure(SagaCopyError.nothingToCopy)), locale: "el_GR").content
+        let onboarding = importer(FakeRestore(copy: nil), replacesSaga: false, locale: "el_GR").content
+
+        #expect(page.pageTitle == "Εξαγωγή και εισαγωγή")
+        #expect(page.header == "Εξαγωγή δεδομένων")
+        #expect(onboarding.explanation.contains("Ρυθμίσεις › Εξαγωγή και εισαγωγή"))
     }
 }

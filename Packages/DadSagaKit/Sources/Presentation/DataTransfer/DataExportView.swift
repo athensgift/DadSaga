@@ -1,8 +1,8 @@
 import DesignSystem
 import SwiftUI
 
-/// Settings › Export data (ADR-0057 §8): export the saga to one file, or import one. A form, so it isn't split by a fold
-/// (ADR-0043 §8). While it works, it can't be left: Cancel is the way out. A page of its own, as the sheet it was: the
+/// Settings › Export and import (ADR-0057 §8): export the saga to one file, or import one. A form, so it isn't split
+/// by a fold (ADR-0043 §8). While it works, it can't be left: Cancel is the way out. A page of its own, as the sheet it was: the
 /// tab bar can't leave it, so its files go only when the dad leaves it by Back (ADR-0061 §2).
 struct DataExportView: View {
     @State private var viewModel: DataExportViewModel
@@ -21,7 +21,7 @@ struct DataExportView: View {
         .font(DSFont.body)
         .scrollContentBackground(.hidden)
         .background(DSColor.background)
-        .navigationTitle(viewModel.content.title)
+        .navigationTitle(viewModel.content.pageTitle)
         .toolbarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(viewModel.isWorking)
         .tabBarHidden(when: true)
@@ -64,7 +64,7 @@ struct DataExportView: View {
                 SheetError(message: message)
             }
         } header: {
-            Text(viewModel.content.title).foregroundStyle(DSColor.textSecondary)
+            Text(viewModel.content.header).foregroundStyle(DSColor.textSecondary)
         } footer: {
             // Before he chooses where to send it.
             Text(viewModel.content.noPassword).foregroundStyle(DSColor.textSecondary)

@@ -2,7 +2,7 @@ import DesignSystem
 import SwiftUI
 
 /// Importing an exported saga: the explanation, the file picker, its progress and the question (ADR-0057 §8). Used on
-/// the Export data page and in onboarding's sheet.
+/// the Export and import page and in onboarding's sheet.
 struct DataImportSection: View {
     @Bindable var viewModel: DataImportViewModel
 
