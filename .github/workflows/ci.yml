@@ -18,7 +18,7 @@ jobs:
     # Pinned to the Mac's Xcode, so an image update never changes the toolchain under us (ADR-0034). The screen
     # snapshots run on the Mac, not here.
     runs-on: xcode-27
-    # A run took about 7 minutes before the Release and test builds (ADR-0051): measure it again. A test parked in a
+    # A run took 7 to 9 minutes with the Release build in it (ADR-0062): measure it again without. A test parked in a
     # wait it can't cancel (a stalled AVAssetWriter, ADR-0036) outlives Swift Testing's time limit, so the job stops
     # here instead of after GitHub's six hours.
     timeout-minutes: 45

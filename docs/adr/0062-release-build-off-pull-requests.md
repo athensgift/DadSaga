@@ -2,7 +2,8 @@
 
 **Status:** Accepted (2026-11-22). The owner asked that a pull request no longer wait for the Release build: with
 gitflow (ADR-0009) it belongs to the release branch. He chose to keep it after every merge into `develop` too. Changes
-ADR-0051 §5 (the Release build no longer runs on a pull request into `develop`). Numbered 0062 because another branch
+ADR-0051 §5 (the Release build no longer runs on a pull request into `develop`) and ADR-0009 (CI also runs on a
+push to a `release/**` branch). Numbered 0062 because another branch
 takes 0061.
 
 ## Context
@@ -16,7 +17,8 @@ takes 0061.
 - **A pull request into `develop`** runs the lint, the package tests and the simulator builds (the app with its UI
   tests, and the snapshots), not the Release build.
 - **The Release build is its own job** (`release-build` in `.github/workflows/ci.yml`). It runs:
-  - after every push to `develop`, so a merge that breaks it is known the same day, while the pull request is fresh;
+  - after a push to `develop`, so a merge that breaks it is known the same day, while the pull request is fresh (when
+    merges come faster than runs, GitHub keeps only the latest waiting run, so the newest commit is always built);
   - on every push to a `release/**` branch;
   - on a pull request into `main`, and after the merge into `main`.
 - Nothing else changes: the snapshots and the audit still run on the Mac (ADR-0034), and archives are still made
@@ -32,3 +34,5 @@ takes 0061.
 - A merge into `develop` can break the Release build without the pull request seeing it. That run fails on `develop`,
   and the fix is the next pull request.
 - A release branch always starts from a `develop` whose Release build has been checked.
+- While a release branch's pull request into `main` is open, a push to it runs the workflow twice: once for the
+  branch and once for the merge result. Releases are rare, so the second run is accepted.
