@@ -52,7 +52,8 @@ xcodegen generate && xcodebuild build -quiet -project DadSaga.xcodeproj -scheme 
   another round.
 - `ui-check` draws every UI change in the simulator before it is called done (the iPhone Duo for the fold), and reports
   only what it saw, so the screenshots stay out of the main session. Its brief names only the states the change
-  touches (the fold only for layout, dark only for colour, English only when text length matters).
+  touches (the fold only for layout, dark only for colour, English only when text length matters). A re-check after a
+  fix names only the screen and state the fix changed, not the whole first brief again.
 - A subagent's brief names the ADRs that apply; it doesn't read the others.
 - If a fix fails twice, stop and hand it to `fable-hard`. Fable is used normally (Max plan).
 - `content` writes the cards; `fact-check` checks every card with health or safety information before the PR.
@@ -62,6 +63,9 @@ Gitflow ([ADR-0009](docs/adr/0009-gitflow.md)): `feature/<name>` from `develop`,
 - Work that touches the same files goes in one PR rather than several (e.g. the data model in one, all its UI in the next).
   Past that, keep PRs small: a feature can land in several PRs, each with its own review.
 - One session per feature or PR: start a new session for the next one rather than carrying a long history into it.
+  Every message re-sends the whole history, so a session that keeps going after its PR costs the most of anything.
+  Once a session's PR is opened, any work for a different PR (a new feature, a cleanup, a CI change) is offered as a
+  new session, not done here; only that PR's own review fixes and CI stay.
 - Alone in the repository: a `feature/<name>` branch in the main checkout, no worktree.
 - Several sessions at once: each works in its own git worktree, never in another session's checkout, which may switch
   branch under it.
