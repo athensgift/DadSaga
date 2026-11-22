@@ -90,7 +90,7 @@ struct HomeMomentsTests {
         #expect(sut.momentCapture == nil)
         #expect(loadedMoments(sut)?.cards.count == 1)
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
     }
 
     @Test("Given step 2 of a new moment, when undoing, then the moment is gone, the title stays and the sheet closes")
@@ -104,7 +104,7 @@ struct HomeMomentsTests {
         #expect(sut.momentCapture == nil)
         #expect(loadedMoments(sut)?.cards.isEmpty == true)
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
         #expect(content.companions.first?.traits.isEmpty == true)
     }
 
@@ -195,7 +195,7 @@ struct HomeMomentsTests {
         #expect(sut.momentCapture == nil)
         #expect(loadedMoments(sut)?.cards.isEmpty == true)
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
     }
 
     @Test("Given step 2 with its undo offer, when another offer's time runs out, then this one stays")

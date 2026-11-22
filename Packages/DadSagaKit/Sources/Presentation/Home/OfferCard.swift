@@ -6,7 +6,7 @@ import SwiftUI
 struct OfferCard: View {
     let symbol: String
     let title: String
-    /// What the offer is about, e.g. "Άννα · 2ος χρόνος".
+    /// What the offer is about, e.g. "Άννα · 2ος χρόνος", or a new title's level.
     var detail: String?
     let message: String
     let accept: String
@@ -59,8 +59,8 @@ extension OfferCard {
 
     init(_ card: TitleCard, onClose: @escaping () -> Void) {
         self.init(
-            symbol: "laurel.leading", title: card.title, message: card.message ?? "", accept: card.close, decline: nil,
-            onAnswer: { _ in onClose() }
+            symbol: "laurel.leading", title: card.title, detail: card.level, message: card.message ?? "",
+            accept: card.close, decline: nil, onAnswer: { _ in onClose() }
         )
     }
 

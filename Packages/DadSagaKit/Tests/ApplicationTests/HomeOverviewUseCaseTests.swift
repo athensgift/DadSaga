@@ -34,7 +34,8 @@ struct HomeOverviewUseCaseTests {
             DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
             DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["g-cloth"], name: text),
             DadTitle(id: "t2", order: 2, minCards: 50, minXP: 5000, gearIDs: ["g-duck"], name: text)
-        ]
+        ],
+        skillCurves: Skill.allCases.map { SkillCurve(skill: $0, halfGrownXP: 100) }
     )
 
     let today = Date(timeIntervalSince1970: 400 * 86_400)
@@ -126,6 +127,25 @@ struct HomeOverviewUseCaseTests {
 
         _ = try await outfit.setChoice(.hidden, for: .care)
         #expect(try await sut.execute(childID: nil, worldID: nil, on: today)?.equippedGear.isEmpty == true)
+    }
+
+    @Test("Given a care quest and a care boss, with either child, when reading home, then care has grown and the rest not")
+    func skillsFromTheEntries() async throws {
+        let baby = baby
+        let toddler = toddler
+        try await family([baby, toddler])
+        #expect(try await sut.execute(childID: nil, worldID: nil, on: today)?.skills.map(\.value) == [0, 0, 0, 0])
+
+        try await progress.add(ProgressEvent(kind: .quest(id: "q-swamp"), childID: baby.id, date: today))
+        try await progress.add(ProgressEvent(kind: .boss(id: "b-plains"), childID: toddler.id, date: today))
+
+        // The skills are the dad's, from every child: the same on either child's home (ADR-0012).
+        for child in [baby, toddler] {
+            let skills = try #require(try await sut.execute(childID: child.id, worldID: nil, on: today)?.skills)
+            #expect(skills.map(\.skill) == [.care, .play, .patience, .resilience])
+            #expect(abs(skills[0].value - 120.0 / 220.0) < 0.000_001)
+            #expect(skills.dropFirst().allSatisfy { $0.value == 0 })
+        }
     }
 
     @Test("Given one child or two, when reading home in the plains, then a sibling boss shows only with two")

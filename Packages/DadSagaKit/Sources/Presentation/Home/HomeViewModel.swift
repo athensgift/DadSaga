@@ -39,6 +39,9 @@ public final class HomeViewModel {
     var reminderAnswered = false
     /// An earlier world the dad chose on the map, instead of the child's current one.
     var viewedWorldID: String?
+    /// How many times each skill's mark has bounced, as its card's celebration went: each rise bounces it once
+    /// (ADR-0059 §2).
+    public internal(set) var skillBounces: [Skill: Int] = [:]
 
     let useCases: UseCases
     let locale: Locale
@@ -139,8 +142,16 @@ public final class HomeViewModel {
         celebrate(change, skill: content?.skill, badge: badge)
     }
 
-    /// A celebration's time is up. Ignored if a newer one has replaced it.
+    /// A celebration's time is up, and the mark of the skill it grew bounces. Ignored if a newer one has replaced it.
     public func celebrationFinished(id: Int) {
+        guard let celebration, celebration.id == id else { return }
+        self.celebration = nil
+        bounceGrownSkill(of: celebration)
+    }
+
+    /// Takes a celebration away before its time, as an undo does: nothing grew, so no mark bounces. Ignored if a newer
+    /// one has replaced it.
+    func withdrawCelebration(id: Int) {
         if celebration?.id == id { celebration = nil }
     }
 
@@ -188,7 +199,8 @@ public final class HomeViewModel {
             id: celebrationCount,
             skillText: skill.map(strings.strings.skillGrew),
             badgeText: badge,
-            momentText: moment
+            momentText: moment,
+            grownSkill: skill
         )
     }
 
@@ -259,7 +271,8 @@ public final class HomeViewModel {
             selectedChildLine: hasSiblings ? childLine : nil,
             familyTitle: strings.text("My family"),
             settingsTitle: strings.text("Settings"),
-            dadTitle: overview.standing.title?.name.resolved(for: locale),
+            dadTitle: makeTitleLine(overview.standing),
+            skills: makeSkillMarks(overview.skills),
             worldTitle: overview.shownWorld?.title.resolved(for: locale),
             worldTagline: overview.shownWorld?.tagline.resolved(for: locale),
             mapTitle: strings.text("World map"),

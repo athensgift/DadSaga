@@ -225,9 +225,7 @@ public struct HomeView: View {
                         }
                     }
                     .multilineTextAlignment(.center)
-                    if let dadTitle = content.dadTitle {
-                        TitleLine(title: dadTitle)
-                    }
+                    StandingPanel(title: content.dadTitle, skills: content.skills, bounces: viewModel.skillBounces)
                 }
             }
         }

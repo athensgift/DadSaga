@@ -1,3 +1,4 @@
+import Domain
 import Foundation
 
 /// Display-ready state for the home screen. Plain values only.
@@ -29,8 +30,10 @@ public struct HomeContent: Equatable, Sendable {
     public let selectedChildLine: String?
     public let familyTitle: String
     public let settingsTitle: String
-    /// The dad's title, e.g. "Σίγουρα χέρια". No number and no next title (ADR-0055 §6).
-    public let dadTitle: String?
+    /// The dad's level and title, e.g. "Επίπεδο 4 · Σίγουρα χέρια". No total and no next title (ADR-0059 §1).
+    public let dadTitle: TitleLineModel?
+    /// The four skills under it, grown as far as the entries take them (ADR-0059 §2).
+    public let skills: SkillMarksModel
     public let worldTitle: String?
     public let worldTagline: String?
     public let mapTitle: String
@@ -209,6 +212,8 @@ public struct Celebration: Equatable, Identifiable, Sendable {
     public let badgeText: String?
     /// A legendary moment just captured, e.g. "Πρώτα βήματα".
     public var momentText: String?
+    /// The skill the quest or boss grew, whose mark bounces as the badge goes (ADR-0059 §2).
+    public var grownSkill: Skill?
 
     /// How big a moment this is, which sets the animation and haptic. Bigger moments win when several happen at once.
     public enum Highlight: Comparable, Sendable {

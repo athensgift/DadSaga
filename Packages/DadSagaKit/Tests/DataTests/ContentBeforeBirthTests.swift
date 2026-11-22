@@ -70,6 +70,7 @@ struct ContentBeforeBirthTests {
                            minAgeMonths: questAge)],
             bosses: [],
             firsts: [],
+            skillCurves: SkillCurve.forEverySkill,
             appearanceOptions: DadAppearance.Part.allCases.flatMap { part in
                 DadAppearance.optionIDs(for: part).map { DadAppearanceOption(part: part, id: $0, title: domainText) }
             }

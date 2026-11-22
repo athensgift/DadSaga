@@ -28,14 +28,18 @@ struct HomeViewModelTests {
             return
         }
         #expect(sut.selectedQuest == nil)
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
         #expect(content.cards.last?.footnote == "Το έκανες 1 φορά")
         #expect(sut.celebration?.id == 1)
         #expect(sut.celebration?.skillText == "Η φροντίδα σου μεγάλωσε")
         #expect(sut.celebration?.highlight == .quest)
 
+        #expect(sut.skillBounces.isEmpty)
+
         sut.celebrationFinished(id: 1)
         #expect(sut.celebration == nil)
+        // Care's mark bounces as the badge goes, not with it (ADR-0059 §2).
+        #expect(sut.skillBounces == [.care: 1])
     }
 
     @Test("Given a quest done with a note, when opening it again, then the sheet shows what he wrote last time")
@@ -72,7 +76,7 @@ struct HomeViewModelTests {
             return
         }
         // A title never goes down, even when the quest that brought it is undone (ADR-0055 §3).
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
     }
 
     @Test("Given an undo offer, when an older offer expires, then the current one stays; when it expires, it closes")
@@ -199,7 +203,7 @@ struct HomeViewModelTests {
         #expect(content.heroTitle == "Cool Μπαμπάς")
         #expect(content.heroLook == .cool)
         #expect(content.companionLine == "Νίκος · 10 μηνών")
-        #expect(content.dadTitle == "Σε αναμονή")
+        #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
         #expect(content.worldTitle == "Κόσμος")
         #expect(content.cards.map(\.id) == ["b1", "q1"])
         #expect(content.cards.map(\.symbol) == ["flame.fill", "heart.fill"])

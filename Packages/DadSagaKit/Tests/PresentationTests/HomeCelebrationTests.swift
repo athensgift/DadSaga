@@ -63,10 +63,13 @@ struct HomeCelebrationTests {
 
         let card = try #require(sut.titleCard)
         #expect(card.title == "Έγινες «Νέος στο ταξίδι».")
+        #expect(card.level == "Επίπεδο 1")
         #expect(card.message == "Πήρες: Πανάκι.")
         #expect(card.close == "Ωραία")
+        // VoiceOver hears the level with the card, once (ADR-0059 §1).
+        #expect(card.announcement == "Έγινες «Νέος στο ταξίδι». Επίπεδο 1. Πήρες: Πανάκι.")
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
     }
 
     @Test("Given a title card, when the dad closes it, then it goes at once and stays gone through a reload")
@@ -113,7 +116,7 @@ struct HomeCelebrationTests {
 
         #expect(await progress.eventCount == 0)
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
 
         #expect(sut.titleCard?.title == "Έγινες «Νέος στο ταξίδι».")
     }

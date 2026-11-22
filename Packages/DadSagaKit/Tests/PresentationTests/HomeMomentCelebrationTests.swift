@@ -40,6 +40,8 @@ struct HomeMomentCelebrationTests {
         sut.sheetDismissed()
         sut.celebrationFinished(id: celebration.id)
         #expect(sut.celebration == nil)
+        // A first grows no skill, so no mark bounces (ADR-0059 §2).
+        #expect(sut.skillBounces.isEmpty)
     }
 
     @Test("Given a moment's celebration waiting, when another sheet is open as the moment's closes, then it keeps waiting")

@@ -31,12 +31,17 @@ struct CatalogTests {
         return text.matches(of: regex).map { String($0.output.2) }
     }
 
-    @Test("Given the catalog, then no key or text speaks of XP or a level: the dad sees titles (ADR-0055 §7)")
+    @Test("Given the catalog, then no key or text speaks of XP, and a level only in «Επίπεδο %lld» (ADR-0055 §7, ADR-0059 §4)")
     func noXPOrLevels() throws {
+        // Any case and any ending: "levels", "next level", «επιπέδου» or "Level 4/9" can't come back through here.
+        let level = /(?i)level|επίπεδ|επιπέδ/
         for (key, entry) in try Self.entries() {
             let texts = [key, Self.value(entry, "el") ?? "", Self.value(entry, "en") ?? ""]
-            for word in ["XP", "Level", "level", "Επίπεδο", "επίπεδο"] {
-                #expect(!texts.contains { $0.contains(word) }, "\(word) in: \(key)")
+            #expect(!texts.contains { $0.contains("XP") }, "XP in: \(key)")
+            if key == "Level %lld" {
+                #expect(texts == ["Level %lld", "Επίπεδο %lld", "Level %lld"], "the level's one key changed")
+            } else {
+                #expect(!texts.contains { $0.contains(level) }, "a level in: \(key)")
             }
         }
     }

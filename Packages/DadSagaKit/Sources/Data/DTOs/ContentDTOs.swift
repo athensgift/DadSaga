@@ -110,6 +110,12 @@ struct DadTitleDTO: Decodable, Sendable {
     let name: LocalizedTextDTO
 }
 
+/// How fast one skill's mark grows (ADR-0059 §2). No text: skill names are UI strings (ADR-0027).
+struct SkillCurveDTO: Decodable, Sendable {
+    let skill: String
+    let halfGrownXP: Int
+}
+
 /// The name of one of the dad's look options (ADR-0044 §3). `id` is unique within its `part` only.
 struct AppearanceOptionDTO: Decodable, Sendable {
     let part: String

@@ -23,6 +23,9 @@ public struct HomeOverview: Sendable {
     public let standing: DadStanding
     /// What the hero wears, one item per skill at most.
     public let equippedGear: [GearItem]
+    /// How much each of the four skills has grown, in `Skill.allCases` order (ADR-0059 §2). From the entries alone,
+    /// unlike the title: an undo or a deletion takes back what its card gave.
+    public let skills: [SkillGrowth]
     /// The one film to offer the family today, if the dad hasn't answered it (ADR-0037 §5). It can be about a child
     /// other than the one home shows.
     public let sagaOffer: SagaOccasion?
@@ -64,6 +67,7 @@ public struct HomeOverview: Sendable {
         let standing = DadStanding(progress: progress, catalog: catalog, kept: kept)
         self.standing = standing
         equippedGear = GearRules.equipped(standing.gear, outfit: outfit)
+        skills = SkillGrowth.all(progress, catalog: catalog)
         self.sagaOffer = sagaOffer
         self.today = today
     }

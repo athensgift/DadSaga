@@ -699,6 +699,23 @@
         }
       }
     },
+    "Level %lld" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Επίπεδο %lld"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Level %lld"
+          }
+        }
+      }
+    },
     "Listen to the music" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1546,6 +1563,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your resilience grew"
+          }
+        }
+      }
+    },
+    "Your skills" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οι δεξιότητές σου"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your skills"
           }
         }
       }

@@ -28,9 +28,12 @@ struct HomeWhenThingsGoWrongTests {
 
         sut.celebrationFinished(id: first.id)
         #expect(sut.celebration == second)
+        #expect(sut.skillBounces.isEmpty)
 
         sut.celebrationFinished(id: second.id)
         #expect(sut.celebration == nil)
+        // One bounce as the last badge goes: the replaced one never finished.
+        #expect(sut.skillBounces == [.care: 1])
     }
 
     @Test("Given a quest just done, when undoing it fails, then the entry stays and the bar says so and offers undo again")
@@ -166,6 +169,6 @@ struct HomeWhenThingsGoWrongTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
     }
 }

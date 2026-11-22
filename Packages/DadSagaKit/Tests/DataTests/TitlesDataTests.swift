@@ -108,6 +108,7 @@ struct TitleValidationTests {
     func catalog(_ titles: [DadTitle], gear: [GearItem]? = nil) -> ContentCatalog {
         ContentCatalog(
             worlds: [], quests: [], bosses: [], firsts: [], gear: gear ?? [mug], titles: titles,
+            skillCurves: SkillCurve.forEverySkill,
             appearanceOptions: DadAppearance.Part.allCases.flatMap { part in
                 DadAppearance.optionIDs(for: part).map { DadAppearanceOption(part: part, id: $0, title: text) }
             }
@@ -164,6 +165,46 @@ struct TitleValidationTests {
         #expect(throws: ContentDataError.emptyText(itemID: "t0")) {
             try ContentValidator.validate(catalog([
                 DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, gearIDs: ["mug"], name: LocalizedText(el: "", en: "x"))
+            ]))
+        }
+    }
+
+    @Test("Given titles whose orders run 0, 1, 2, when validating, then they pass")
+    func ordersWithoutGaps() throws {
+        try ContentValidator.validate(catalog([
+            DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
+            DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["mug"], name: text),
+            DadTitle(id: "t2", order: 2, minCards: 2, minXP: 60, name: text)
+        ]))
+    }
+
+    @Test("Given titles with a gap in their orders, when validating, then invalidTitleOrder is thrown: a level is skipped")
+    func orderWithAGap() {
+        #expect(throws: ContentDataError.invalidTitleOrder(titleID: "t2")) {
+            try ContentValidator.validate(catalog([
+                DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
+                DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["mug"], name: text),
+                DadTitle(id: "t2", order: 3, minCards: 2, minXP: 60, name: text)
+            ]))
+        }
+    }
+
+    @Test("Given two titles with one order, when validating, then invalidTitleOrder is thrown")
+    func orderRepeated() {
+        #expect(throws: ContentDataError.invalidTitleOrder(titleID: "t2")) {
+            try ContentValidator.validate(catalog([
+                DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
+                DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["mug"], name: text),
+                DadTitle(id: "t2", order: 1, minCards: 2, minXP: 60, name: text)
+            ]))
+        }
+    }
+
+    @Test("Given titles that start at 1, when validating, then invalidTitleOrder is thrown: the first is Level 0")
+    func orderStartsAtZero() {
+        #expect(throws: ContentDataError.invalidTitleOrder(titleID: "t1")) {
+            try ContentValidator.validate(catalog([
+                DadTitle(id: "t1", order: 1, minCards: 0, minXP: 0, gearIDs: ["mug"], name: text)
             ]))
         }
     }

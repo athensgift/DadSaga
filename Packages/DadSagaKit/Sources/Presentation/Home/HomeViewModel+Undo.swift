@@ -12,7 +12,7 @@ extension HomeViewModel {
         guard !isCompleting, let offer = undoOffer else { return }
         undoOffer = nil
         // Only its own celebration: a moment's may be playing by now.
-        celebrationFinished(id: offer.id)
+        withdrawCelebration(id: offer.id)
         isCompleting = true
         defer { isCompleting = false }
         do {

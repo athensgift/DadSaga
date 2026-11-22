@@ -2,15 +2,22 @@ import Application
 import Domain
 import Foundation
 
-/// The calm card for a new title, e.g. "You became “Steady hands”. You got: Changing bag." (ADR-0055 §6). No
-/// confetti, no sound, no haptic and nothing about the next title. It stays until the dad closes it.
+/// The calm card for a new title, e.g. "You became “Steady hands”. Level 4. You got: Changing bag." (ADR-0055 §6,
+/// ADR-0059 §1). No confetti, no sound, no haptic and nothing about the next title. It stays until the dad closes it.
 public struct TitleCard: Equatable, Sendable {
     public let title: String
+    /// e.g. "Επίπεδο 4", the line under the heading (ADR-0059 §1).
+    public let level: String
     /// What the titles since the last card brought the hero; `nil` when nothing is new on him.
     public let message: String?
     public let close: String
     /// The title the card is for, remembered when it is closed.
     let titleID: String
+
+    /// What VoiceOver hears once as the card appears: the heading, the level, then what the hero got.
+    public var announcement: String {
+        [title, level + ".", message].compactMap(\.self).joined(separator: " ")
+    }
 }
 
 extension HomeViewModel {
@@ -20,6 +27,7 @@ extension HomeViewModel {
         let gear = news.gear.map { $0.title.resolved(for: locale) }
         return TitleCard(
             title: strings.text("You became “\(news.title.name.resolved(for: locale))”."),
+            level: level(of: news.title),
             message: gear.isEmpty
                 ? nil
                 : strings.text("You got: \(gear.formatted(.list(type: .and).locale(locale)))."),
