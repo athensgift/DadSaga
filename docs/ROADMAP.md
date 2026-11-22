@@ -27,14 +27,14 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ iPhone Duo half-open like a laptop: home, the saga film, the note editor, the quest and boss sheets, a first's
   page, the wardrobe and the timeline put what the dad looks at above the fold and what he touches below it
   (ADR-0043). Checked on a real iPhone Duo (2026-11-21), also in Split View, at the accessibility text sizes and with
-  VoiceOver. Open flat, home is two columns again; the map and Settings are tabs and split at the fold too (ADR-0061,
-  not checked on the device yet)
+  VoiceOver. Open flat, home is two columns again; the map and Settings are tabs and split at the fold too (ADR-0061); open flat
+  and upright, the home hero sits above the hinge and the adventure below (ADR-0064). Checked on the device (2026-11-22)
 
 ### Open items from the 2026-11 architecture review
 - ✅ Checked on a device (2026-11-19): installing over a `develop` build, every screen and the widget in Greek and
   English, photos loading at their shown size.
-- The "couldn't open your saga" screen (junk store file) is covered by tests (`StoreVersioningTests`,
-  `StoreUnavailableRootTests`), not checked on a device yet. It needs a store that can't be opened: a row with nil in
+- ✅ The "couldn't open your saga" screen (junk store file): tests (`StoreVersioningTests`,
+  `StoreUnavailableRootTests`) and checked on a device (2026-11-22). It needs a store that can't be opened: a row with nil in
   a column `SchemaV1` requires, or a junk file. A `develop` store whose profile was saved since version 6 migrates silently instead (ADR-0060 §6,
   "Verification status").
 - ✅ The widget opening an older store read-only fails without touching it, tested from a test-only older schema
@@ -58,7 +58,8 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ Triggers: on demand from the timeline; on home, one calm card for the family on a birthday or when a child grows
   into the next world (by age, never by quests or bosses done), with the weekly reminder card waiting behind it
 - ✅ The dad chooses the film's music (ADR-0046): five original tracks with a mood line each, in el and en; a 20-second
-  preview before choosing, never on its own; the last choice remembered
+  preview before choosing, never on its own; the last choice remembered. ✅ Every track is at least 130 s (confirmed by
+  the owner)
 - ✅ Vision on the device chooses and frames the film's photos (ADR-0047): an entry's best further photos, not the first
   ones; the glide aims at the children's faces before the adults', closing in on them up to 1.4
 - ✅ Checked on an iPhone (2026-11-21): a 90-second film (time, memory, heat), leaving the app and locking the screen
@@ -73,12 +74,13 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   TestFlight testers start over when the store or an id changes (ADR-0060)
 - At the first App Store release: record what ships, its ids and its store (ADR-0060 §5, `docs/RELEASE.md`)
 - ✅ Privacy manifests, export compliance key, privacy URL, Release build in CI (ADR-0051, `docs/RELEASE.md`)
-- Team ID in `project.yml`, App Store Connect record, trader details (EU DSA)
+- Team ID in `project.yml`, App Store Connect record, trader details (EU DSA): the record is held up by the D-U-N-S number
 - ✅ Export and import of the saga: one `.dadsaga` file from Settings › Export and import, imported there or on
-  onboarding's first step (ADR-0057). A v1 requirement; checked on a device with a large saga before release
-- Restore from an iCloud backup tested on a device: it decides what the support page says about backups
+  onboarding's first step (ADR-0057). A v1 requirement; checked on a device with a large saga (2026-11-22)
+- Restore from an iCloud backup tested on a device: not tested, and hard for the owner to test. Until it is, the support
+  page promises no more than export and import (ADR-0057)
 - Screen snapshots and the accessibility audit run again and re-recorded
-- App Store metadata in Greek and English, screenshots, age rating
+- App Store metadata in Greek and English, screenshots, age rating: waits on the translations
 - Pricing decision (free; a one-time unlock later?), with its own ADR
 
 ## Phase 5: Playground
