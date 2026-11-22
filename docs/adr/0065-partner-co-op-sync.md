@@ -104,6 +104,22 @@ were answered by the owner on 2026-11-22 (folded in below and listed at the end;
   | `Entry` | `entry-<eventID>` | Family | `author` (a profile id), `kind`, `contentID`, `childID`, `date`, `note` (absent: none), `photoIDs` (in order) |
   | `Photo` | `photo-<photoID>` | Family | `image`: a `CKAsset` of the stored JPEG; `entryID` |
 
+- **Two iPhones on different versions.** The partners, or one dad's two iPhones, may run different versions of
+  DadSaga for weeks, so each version takes what a newer one writes without losing it:
+  - **Kept as it came.** An entry whose kind or content id this version doesn't know is stored as it arrived (the
+    store holds both as strings) and only left out of what is counted and shown, as an unknown content id already is
+    (`Timeline`, `DadProgress`). It is in every copy and is never deleted or sent back by this version.
+  - **Fields it doesn't know stay on the server.** A save carries only the fields this iPhone changed (§4), so a field
+    a newer version added keeps its value on the record. The applier ignores it and never removes it.
+  - **A value it doesn't know** in a known field (a look part, a gender, a wardrobe choice) is shown as the store
+    already reads it (the standard one) but never written back unless this parent changes that field.
+  - **Content ids are permanent after the first App Store release:** never deleted, renamed or reused. A rename
+    keeps the old one in `formerIDs`, and a card that goes is `retired`, not removed (ADR-0060 §4 keeps both mechanisms
+    for this; `ShippedContentIDs.json` and its test guard it). An entry with a former id counts as the card it became.
+  - **Record types and fields are only ever added** (as the production schema requires anyway, §8). A change that would
+    alter a field's meaning is a new field.
+  - Nothing asks a parent to update, and nothing is refused for an older partner; their iPhone shows what it knows,
+    and the rest appears after the update.
 - **No references and no `parent`:** a zone-wide share needs no hierarchy, references aren't encrypted, and removing
   a child must not cascade to its entries (ADR-0012). Records name each other by id.
 - **A photo is a record of its own,** written once and never changed, so editing a note never uploads a photo again.
@@ -289,8 +305,9 @@ stay about the saga. It sits beside the saga so an iCloud Backup brings both bac
 - **Suites:** `ChangeFeedTests` (history to pending changes on a store on disk: fields, ids kept on deletion, `sync`
   writes skipped), `FieldMergeTests`, `SyncRecordMappingTests` (real `CKRecord`s, offline), `AuthorshipTests` (§3, in
   the Domain), `FamilyEditTests`, `TwoParentsSyncTests` (both record offline; both edit a child; one removes it; a
-  first captured twice; leave; stop; purge; account switch; quota), `JoinFamilyTests`, and the import refused while
-  shared.
+  first captured twice; leave; stop; purge; account switch; quota), `JoinFamilyTests`, `VersionSkewTests` (an
+  unknown kind, content id, field and look value arrive, are kept, copied and never sent back or deleted), and the
+  import refused while shared.
 - **On devices:** two iPhones, two Apple Accounts with iCloud, Debug builds (CloudKit's development environment):
   invite through Messages; accept with DadSaga open and closed; both offline, then online; a child edited on both; 500
   photos sent and received; a push with the app in the background, and the widget after it; leave, stop and start over
