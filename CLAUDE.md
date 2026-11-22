@@ -6,10 +6,12 @@ Replies to the owner are in Greek.
 ## Commands (Done = green)
 ```bash
 swiftlint --strict
-(cd Packages/DadSagaKit && swift test --build-system swiftbuild)
-xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga \
+(cd Packages/DadSagaKit && swift test --build-system swiftbuild 2>&1 | grep -E "error:|✘|failed|passed after|Executed" | tail -40)
+xcodegen generate && xcodebuild build -quiet -project DadSaga.xcodeproj -scheme DadSaga \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ```
+- Keep command output out of the context: `xcodebuild` always with `-quiet`, tests filtered to failures and the summary
+  as above. Read the full log only when the filtered one doesn't explain a failure.
 - One suite: `swift test --build-system swiftbuild --filter DeepLinkTests` (from `Packages/DadSagaKit`).
 - **Paused until the big features are done** (owner, 2026-11-20): screen snapshots and the accessibility audit are not
   run during development. Once the work is close to final, run both, re-record the snapshots and look at every image,
@@ -43,15 +45,23 @@ xcodegen generate && xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga
 ## Subagents
 - A change across layers, or one touching persistence, sync, media or the film: `architect` plans first. A change in
   one layer only (a UI tweak, copy) skips the plan.
-- `reviewer` checks every PR before it is opened, small ones too: it finds the most.
+- `reviewer` checks every PR before it is opened, small ones too: it finds the most. It runs on Opus; for a PR touching
+  persistence, migrations, sync or the film, call it with `model: fable`.
+- One full review per PR. After fixing its findings, a re-review gets only the fixes: give it the last reviewed commit
+  so it reads `git diff <that commit>..HEAD`, not the whole branch. Stop when only nits are left; nits don't start
+  another round.
 - `ui-check` draws every UI change in the simulator before it is called done (the iPhone Duo for the fold), and reports
-  only what it saw, so the screenshots stay out of the main session.
+  only what it saw, so the screenshots stay out of the main session. Its brief names only the states the change
+  touches (the fold only for layout, dark only for colour, English only when text length matters).
+- A subagent's brief names the ADRs that apply; it doesn't read the others.
 - If a fix fails twice, stop and hand it to `fable-hard`. Fable is used normally (Max plan).
 - `content` writes the cards; `fact-check` checks every card with health or safety information before the PR.
 
 ## Git
 Gitflow ([ADR-0009](docs/adr/0009-gitflow.md)): `feature/<name>` from `develop`, PR back into `develop`.
 - Work that touches the same files goes in one PR rather than several (e.g. the data model in one, all its UI in the next).
+  Past that, keep PRs small: a feature can land in several PRs, each with its own review.
+- One session per feature or PR: start a new session for the next one rather than carrying a long history into it.
 - Alone in the repository: a `feature/<name>` branch in the main checkout, no worktree.
 - Several sessions at once: each works in its own git worktree, never in another session's checkout, which may switch
   branch under it.

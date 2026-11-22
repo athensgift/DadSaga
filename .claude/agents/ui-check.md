@@ -15,10 +15,10 @@ The brief names the change, the screen(s) and what should look right. If it does
 1. Pick the device: the simulator named exactly `iPhone 17` (iOS 27.2) by default, the one named exactly `iPhone Duo` for
    anything about the fold or a resizable layout. Never use another device, such as `iPhone Duo (dad look)`.
 2. Build for that device: `xcodegen generate`, then build the `DadSaga` scheme (the simulator's build tool, or
-   `xcodebuild build -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=<device>,OS=27.2'`).
+   `xcodebuild build -quiet -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=<device>,OS=27.2'`).
    If the build fails, stop and report the first error.
 3. Launch it and navigate to the screen by tapping, as a person would.
-4. Look at every state the change touches: empty and filled, the keyboard up and down, light and dark, Greek (the default)
+4. Look only at the states the change touches (the brief names them): empty and filled, the keyboard up and down, light and dark, Greek (the default)
    and, if text length matters, English. On the iPhone Duo look at closed, half open and open, following the
    `app-resizability` skill.
 5. Check: nothing clipped, overlapped or hidden under the keyboard, the fold or the safe area; buttons where the change
