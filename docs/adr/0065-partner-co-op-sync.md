@@ -332,7 +332,7 @@ the first App Store release, as the roadmap asks ("Sync ADR before Phase 5") and
     field cleared, so a full send from an iPhone that was off (§2) can't send the child again; an entry whose child is
     gone is deleted there, never sent. `gone` is final: a save onto a gone record (a bring-back racing a delete for
     good) is ignored, and the iPhone that sent it deletes the child when the marker arrives. `Sync.store` keeps the
-    ids of the children deleted for good, and every zone this iPhone builds carries their `gone` records, so a zone
+    ids of the children deleted for good, from this iPhone's own acts and from fetched markers, and every zone this iPhone builds carries their `gone` records, so a zone
     rebuilt after a leave, a stop or `encryptedDataReset` keeps them too. Rows a confirmed act replaces go under the
     `sync` author (above), so the change feed's only local child deletion is deleting for good, which it sends as
     the marker.
@@ -347,13 +347,18 @@ the first App Store release, as the roadmap asks ("Sync ADR before Phase 5") and
   Following applies `childMap` to the stored rows and to anything still waiting: a mapped child's row goes (under the
   `sync` author, so it is never read as deleted for good), its entries keep their ids with the family's child, and
   the offer answers are renamed (§1); then the family's records
-  arrive as for a join. Until it follows, only the family's sync is off there: `Personal` keeps fetching, or that
+  arrive as for a join. `saga` says how it changed: a follow after a join, a leave or a stop merges what was
+  waiting, as above; a follow after an import or "which to keep" replaces this iPhone's saga with the zone's, as an
+  import does (ADR-0057 §1: no merging), and its question says so. Until it follows, only the family's sync is off there: `Personal` keeps fetching, or that
   iPhone would never see `saga` change, and its saga stays. So:
   - **joining with iCloud on alone:** once their entries are in the family zone, their own Family zone is deleted and
     `saga` names the family;
   - **leaving or stopped, with iCloud on:** their saga goes to a new Family zone of theirs, and `saga` names it;
-  - **importing with iCloud on** (never while shared, §6): the Family zone is deleted and the copy goes into a new one;
-    the copy's hero is written as `hero-<its id>`, an older `hero-<id>` is deleted, and `saga` names the new zone;
+  - **importing with iCloud on** (never while shared, §6), and "which to keep" answered with this iPhone's saga: the
+    Family zone is deleted and the saga goes into a new one; `Personal`'s `Hero`, `Wardrobe` and `Offer` records are
+    deleted and written again from the store, not merged, so the copy's own title stands (ADR-0057 §7) and an
+    automatic wardrobe slot leaves no record behind. The rows are written by `replaceAll` on a context whose author is
+    `sync`; the coordinator then sends the new zones in full. `saga` names the new zone and says it was replaced;
   - **start over with iCloud alone:** the Family and Personal zones are deleted; the dad's other iPhones see Personal
     go (`deleted`), turn sync off and keep their saga.
 - **A zone that goes by itself:** `purged` (the parent deleted DadSaga's iCloud data in Settings) turns sync off on
@@ -488,7 +493,9 @@ widget stay about the saga. It sits beside the saga so an iCloud Backup brings b
   their author), `FamilyEditTests`, `TwoParentsSyncTests` (both record offline; both edit a child; one removes it; a
   first captured twice; more than four children; leave; stop; purge; a zone re-created with stale fields;
   `encryptedDataReset` on two of the owner's iPhones, one zone each; account switch; quota; an iPhone following a
-  join, with no child shown twice and no mapped child read as deleted for good), `JoinFamilyTests` (matching; a
+  join, with no child shown twice and no mapped child read as deleted for good; an import with iCloud on, then the
+  dad's other iPhone following it: its old saga replaced, never merged back, and `Personal` rewritten with the copy's
+  title), `JoinFamilyTests` (matching; a
   profile id already in the family; a rejoin after a stop, a leave and `encryptedDataReset`; on a rejoin, a current
   member's entry the family lacks is deleted here, and an earlier partner's is sent under the neutral label; a member
   with another creator written again; a rebuilt zone with only this parent's member), `VersionSkewTests` (an unknown
