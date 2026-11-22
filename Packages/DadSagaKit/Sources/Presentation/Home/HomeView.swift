@@ -3,9 +3,10 @@ import HeroArt
 import SwiftUI
 
 /// Home: the dad's hero and progress, then what he can play today.
-/// On wide screens (the iPhone Duo's inner display open flat, landscape) it splits into two equal columns. Half-open
-/// like a laptop, the fold runs across instead: the hero stands above it and the adventure lies below it (ADR-0043,
-/// ADR-0061 §1). The map and Settings are tabs of their own.
+/// On wide screens with no fold across (the iPhone Duo's inner display on its side, large iPhones in landscape) it
+/// splits into two equal columns. On the iPhone Duo held upright, open flat or half-open like a laptop, the fold
+/// runs across instead: the hero stands above it and the adventure lies below it (ADR-0043, ADR-0064).
+/// The map and Settings are tabs of their own.
 public struct HomeView: View {
     @State var viewModel: HomeViewModel
     @Environment(\.dynamicTypeSize) var dynamicTypeSize
@@ -19,6 +20,8 @@ public struct HomeView: View {
     var unsavedWork: UnsavedWork { sharedUnsavedWork ?? ownUnsavedWork }
     @State var width: CGFloat = 0
     @State private var fold: HorizontalFold?
+    /// Where the fold runs while the Duo lies flat and upright: the line home's rows meet at (ADR-0064).
+    @State private var flatFold: HorizontalFold?
     /// The two-pane header's height, so the hero takes what is left above the fold.
     @State var paneHeaderHeight: CGFloat = 0
     /// What stands under the hero in his pane, or the skills panel below him and his lines above a fold: the hero
@@ -77,7 +80,7 @@ public struct HomeView: View {
             .toolbarTitleDisplayMode(.automatic)
             // One column keeps the bar with its large title and nothing in it. Two panes scroll separately, so their
             // title heads the hero's pane, and they have no bar: above and below a fold it would shift the fold's
-            // place (ADR-0043 §3, ADR-0061 §1). With only a large bar or none, the bar comes with new scroll views
+            // place (ADR-0043 §3, ADR-0061 §1, ADR-0064). With only a large bar or none, the bar comes with new scroll views
             // each time, which is when UIKit sets their insets: one stack serves every arrangement.
             .navigationBarHidden(when: arrangement.hasPanes)
         }
@@ -85,6 +88,10 @@ public struct HomeView: View {
         // coordinates.
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
         .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum) { fold = $0 }
+        // Open flat too, so folding the upright Duo only opens a gap between the same two rows (ADR-0064).
+        .onHorizontalFoldChange(
+            minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum, whileFlat: true
+        ) { flatFold = $0 }
         .sagaFilmSheet($sagaFilm)
         .task { await viewModel.onAppear() }
         .onChange(of: scenePhase) { _, phase in scenePhaseChanged(to: phase) }
@@ -128,7 +135,7 @@ public struct HomeView: View {
     }
 
     var arrangement: HomeArrangement {
-        HomeArrangement.make(width: width, fold: fold)
+        HomeArrangement.make(width: width, fold: fold, flatFold: flatFold)
     }
 
     @ViewBuilder

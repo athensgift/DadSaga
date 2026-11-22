@@ -1,22 +1,26 @@
 import DesignSystem
 import SwiftUI
 
-/// How home lays out the hero and today's adventure (ADR-0011, ADR-0043, ADR-0061 §1).
+/// How home lays out the hero and today's adventure (ADR-0011, ADR-0043, ADR-0061 §1, ADR-0064).
 enum HomeArrangement: Equatable, Sendable {
     /// One scrolling column: iPhones in portrait, the iPhone Duo's cover display.
     case column
-    /// Two columns side by side: 600 pt and wider with no fold across (the iPhone Duo open flat, upright or on its
-    /// side, or half-open like a book; large iPhones in landscape).
+    /// Two columns side by side: 600 pt and wider with no fold across (the iPhone Duo on its side, open flat or
+    /// half-open like a book; large iPhones in landscape).
     case columns
-    /// The hero above the fold and the adventure below it: the iPhone Duo half-open like a laptop.
+    /// The hero above the fold and the adventure below it: the iPhone Duo held upright, half-open like a laptop or
+    /// open flat, where the fold is the line down the hinge's middle (ADR-0064).
     case stacked(HorizontalFold)
 
     /// - Parameters:
     ///   - width: the width home has.
     ///   - fold: the fold that runs across home while the device is half-open, if any.
-    static func make(width: CGFloat, fold: HorizontalFold?) -> HomeArrangement {
+    ///   - flatFold: where the fold runs across home while the device lies flat, as a line, if it does. It splits
+    ///     home only where there would otherwise be two columns, so a narrow window over it stays one column.
+    static func make(width: CGFloat, fold: HorizontalFold?, flatFold: HorizontalFold? = nil) -> HomeArrangement {
         if let fold { return .stacked(fold) }
-        return width >= twoColumnWidth ? .columns : .column
+        guard width >= twoColumnWidth else { return .column }
+        return flatFold.map(HomeArrangement.stacked) ?? .columns
     }
 
     /// Two panes that scroll separately. They have no navigation bar: the title heads the hero's pane, and above a

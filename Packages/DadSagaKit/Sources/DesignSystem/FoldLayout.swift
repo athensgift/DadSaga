@@ -29,6 +29,22 @@ public struct HorizontalFold: Equatable, Sendable {
         }
         return nil
     }
+
+    /// The folds to look for: the active ones while the device is half-open; otherwise, `whileFlat`, every fold
+    /// drawn as the line down its middle. The system reports a fold that lies flat with the hinge's thickness, but
+    /// there is nothing to keep clear on a flat display: two panes split there meet at the line (ADR-0056 §2,
+    /// ADR-0064).
+    /// - Parameters:
+    ///   - active: the folds of a partly open device.
+    ///   - all: the folds also while the device lies flat (`.includeInactive`).
+    public static func divisions(active: [CGRect], all: [CGRect], whileFlat: Bool) -> [CGRect] {
+        guard whileFlat, active.isEmpty else { return active }
+        return all.map { region in
+            region.width >= region.height
+                ? CGRect(x: region.minX, y: region.midY, width: region.width, height: 0)
+                : CGRect(x: region.midX, y: region.minY, width: 0, height: region.height)
+        }
+    }
 }
 
 /// Its first view above the fold and its second below it, each as wide as the container; nothing in the fold.
@@ -115,19 +131,23 @@ public enum FoldedPanes: Equatable, Sendable {
 }
 
 extension View {
-    /// Reports the fold that runs across this view, and `nil` when there is none: on a flat display, when the fold
-    /// runs down the view (the device on its side), or before iOS 27.1. Read it on the view that places the panes,
-    /// so the fold is in their coordinates.
-    /// - Parameter minimumAbove, minimumBelow: the least height each pane needs for the view to split at the fold.
+    /// Reports the fold that runs across this view, and `nil` when there is none: on a flat display (unless
+    /// `whileFlat`), when the fold runs down the view (the device on its side), or before iOS 27.1. Read it on the
+    /// view that places the panes, so the fold is in their coordinates.
+    /// - Parameters:
+    ///   - minimumAbove, minimumBelow: the least height each pane needs for the view to split at the fold.
+    ///   - whileFlat: also report where the fold is while the device lies flat, with no thickness: for a screen
+    ///     that keeps the same two panes open and half-open, so folding only opens a gap between them (ADR-0064).
     public func onHorizontalFoldChange(
         minimumAbove: CGFloat,
         minimumBelow: CGFloat,
+        whileFlat: Bool = false,
         _ action: @escaping (HorizontalFold?) -> Void
     ) -> some View {
         onGeometryChange(for: HorizontalFold?.self) { proxy in
             HorizontalFold.across(
                 proxy.size,
-                divisions: proxy.divisions,
+                divisions: proxy.divisions(whileFlat: whileFlat),
                 minimumAbove: minimumAbove,
                 minimumBelow: minimumBelow
             )
@@ -145,7 +165,7 @@ extension View {
             FoldGeometry(
                 fold: HorizontalFold.across(
                     proxy.size,
-                    divisions: proxy.divisions,
+                    divisions: proxy.divisions(whileFlat: false),
                     minimumAbove: minimumAbove,
                     minimumBelow: minimumBelow
                 ),
@@ -158,12 +178,16 @@ extension View {
 }
 
 extension GeometryProxy {
-    /// The display's active folds in the view's coordinates, while the device is half-open: Apple's default, with
-    /// none while it lies flat (ADR-0061 §1). The only availability check of the fold layouts: `macOS` is named
+    /// The display's folds in the view's coordinates: while the device is half-open, or also while it lies flat,
+    /// as a line with no thickness (ADR-0064). The only availability check of the fold layouts: `macOS` is named
     /// because the package also builds there to run its tests.
-    fileprivate var divisions: [CGRect] {
+    fileprivate func divisions(whileFlat: Bool) -> [CGRect] {
         if #available(iOS 27.1, macOS 27.1, *) {
-            reservedRegions(kind: .division).map(\.frame)
+            HorizontalFold.divisions(
+                active: reservedRegions(kind: .division).map(\.frame),
+                all: whileFlat ? reservedRegions(kind: .division, options: .includeInactive).map(\.frame) : [],
+                whileFlat: whileFlat
+            )
         } else {
             []
         }

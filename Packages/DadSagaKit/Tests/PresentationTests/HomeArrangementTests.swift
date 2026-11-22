@@ -16,10 +16,17 @@ struct HomeArrangementTests {
         #expect(HomeArrangement.make(width: 951, fold: nil) == .columns)
     }
 
-    @Test("Given the iPhone Duo open flat and upright, when home is laid out, then it is two columns, not split at the fold")
+    @Test("Given the iPhone Duo open flat and upright, when home is laid out, then the hero is above the hinge")
     func openFlatUpright() {
-        #expect(HomeArrangement.make(width: 669, fold: nil) == .columns)
-        #expect(HomeArrangement.columns.hasPanes)
+        let line = HorizontalFold(top: 440, bottom: 440)
+        #expect(HomeArrangement.make(width: 669, fold: nil, flatFold: line) == .stacked(line))
+        #expect(HomeArrangement.stacked(line).hasPanes)
+    }
+
+    @Test("Given a narrow window over the flat Duo's fold, when home is laid out, then it stays one column")
+    func narrowOverTheFlatFold() {
+        let line = HorizontalFold(top: 440, bottom: 440)
+        #expect(HomeArrangement.make(width: 330, fold: nil, flatFold: line) == .column)
     }
 
     @Test("Given home exactly as wide as two columns need, when it is laid out, then it is two columns; narrower, one")
@@ -36,12 +43,13 @@ struct HomeArrangementTests {
         #expect(HomeArrangement.stacked(fold).hasPanes)
     }
 
-    @Test("Given the upright iPhone Duo, when it folds and opens again, then the columns become rows and come back")
-    func foldingSwapsColumnsForRows() {
-        let fold = HorizontalFold(top: 430, bottom: 460)
-        #expect(HomeArrangement.make(width: 669, fold: nil) == .columns)
-        #expect(HomeArrangement.make(width: 669, fold: fold) == .stacked(fold))
-        #expect(HomeArrangement.make(width: 669, fold: nil) == .columns)
+    @Test("Given the upright iPhone Duo, when it folds and opens again, then the rows stay and only the gap at the hinge changes")
+    func foldingKeepsTheRows() {
+        let flat = HorizontalFold(top: 440, bottom: 440)
+        let halfOpen = HorizontalFold(top: 420, bottom: 460)
+        #expect(HomeArrangement.make(width: 669, fold: nil, flatFold: flat) == .stacked(flat))
+        #expect(HomeArrangement.make(width: 669, fold: halfOpen, flatFold: flat) == .stacked(halfOpen))
+        #expect(HomeArrangement.make(width: 669, fold: nil, flatFold: flat) == .stacked(flat))
     }
 
     @Test("Given a tall pane above the fold, when the hero is sized, then he is as big as in the two columns")
