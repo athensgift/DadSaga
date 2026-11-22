@@ -10,16 +10,16 @@ struct BundledContentRepositoryTests {
     func loadsAndValidates() async throws {
         let catalog = try await repository.fetchCatalog()
         #expect(catalog.worlds.count == 5)
-        #expect(catalog.quests.count == 98)
+        #expect(catalog.quests.count == 95)
         #expect(catalog.bosses.count == 35)
-        #expect(catalog.firsts.count == 34)
+        #expect(catalog.firsts.count == 33)
     }
 
     @Test("Given the bundled JSON, when fetching, then tips, evergreen quests and audiences are read")
     func readsNewFields() async throws {
         let catalog = try await repository.fetchCatalog()
-        #expect(catalog.quests.compactMap(\.tip).count == 87)
-        #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 29)
+        #expect(catalog.quests.compactMap(\.tip).count == 85)
+        #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 28)
         #expect(catalog.quests.filter(\.isEvergreen).count == 29)
         #expect(catalog.bosses.filter { !$0.onlyFor.isEmpty }.map(\.id) == [
             "b-w0-birth-day", "b-w0-caesarean", "b-w1-fourth-trimester", "b-w3-new-sibling"
@@ -37,10 +37,6 @@ struct BundledContentRepositoryTests {
             "q-w1-date-night"
         ])
         #expect(catalog.quests.filter { $0.onlyFor == [.olderSibling] }.map(\.id) == ["q-w1-meet-the-crew"])
-        #expect(Set(catalog.quests.filter(\.isRetired).map(\.id)) == [
-            "q-w1-tummy-time", "q-w2-rough-play", "q-w3-ten-breaths"
-        ])
-        #expect(catalog.firsts.filter(\.isRetired).map(\.id) == ["f-sleepover"])
         #expect(catalog.firsts.filter(\.isBeforeBirth).map(\.id) == ["f-found-out", "f-first-picture"])
         #expect(catalog.bosses.filter(\.isSituational).map(\.id) == [
             "b-w4-two-homes", "b-w4-big-goodbye", "b-w4-big-move"
