@@ -4,7 +4,7 @@ import Foundation
 import Testing
 @testable import Presentation
 
-/// Settings › Export data and onboarding's Import data (ADR-0057 §8), as the dad sees them.
+/// Settings › Export and import and onboarding's Import data (ADR-0057 §8), as the dad sees them.
 @MainActor
 @Suite("Exporting and importing data on screen")
 struct DataTransferTests {

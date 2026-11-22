@@ -243,15 +243,33 @@ struct SettingsViewModelTests {
         #expect(root.startedOver == 0)
     }
 
-    @Test("Given English, when opening, then Your data holds Export data and About names exported copies")
+    @Test("Given English, when opening, then Your data holds Export and import and About names exported copies")
     func dataSectionAndAbout() {
         let content = makeSUT(locale: "en_US").content
 
         #expect(content.dataSection == "Your data")
-        #expect(content.dataExportTitle == "Export data")
+        #expect(content.dataTransferTitle == "Export and import")
         #expect(content.about.privacyStatement.hasSuffix(
             "stay on this iPhone, in its backups if you make them, and in any copy of your saga you make."
         ))
+    }
+
+    @Test("Given either language, when Your data opens its page, then the row, the page and onboarding share one name",
+          arguments: [("el_GR", "Εξαγωγή και εισαγωγή"), ("en_US", "Export and import")])
+    func rowPageAndOnboardingShareOneName(locale: String, name: String) {
+        let onboarding = DataImportViewModel(
+            restore: FakeRestore(copy: nil), backgroundTime: ImmediateBackgroundTime(), replacesSaga: false,
+            onImported: {}, locale: Locale(identifier: locale), now: { .now }
+        )
+        let page = DataExportViewModel(
+            makeCopy: FakeMakeCopy(result: .failure(SagaCopyError.nothingToCopy)),
+            backgroundTime: ImmediateBackgroundTime(), importer: onboarding, locale: Locale(identifier: locale),
+            now: { .now }
+        )
+
+        #expect(makeSUT(locale: locale).content.dataTransferTitle == name)
+        #expect(page.content.pageTitle == name)
+        #expect(onboarding.content.explanation.contains(name))
     }
 
     @Test("Given erasing fails, when starting over, then an error shows and the dad stays on Settings")

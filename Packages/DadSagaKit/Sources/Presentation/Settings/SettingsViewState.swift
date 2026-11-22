@@ -17,7 +17,8 @@ public struct SettingsContent: Equatable, Sendable {
     public let familyTitle: String
     /// Export and import of the saga (ADR-0057 §8).
     public let dataSection: String
-    public let dataExportTitle: String
+    /// The row and its page: they both export and import, so the name says both.
+    public let dataTransferTitle: String
     /// `nil` when none of its rows can be offered yet.
     public let support: SupportSection?
     public let about: AboutSection

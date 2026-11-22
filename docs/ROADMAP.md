@@ -74,8 +74,8 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - At the first App Store release: record what ships, its ids and its store (ADR-0060 §5, `docs/RELEASE.md`)
 - ✅ Privacy manifests, export compliance key, privacy URL, Release build in CI (ADR-0051, `docs/RELEASE.md`)
 - Team ID in `project.yml`, App Store Connect record, trader details (EU DSA)
-- ✅ Export and import of the saga: one `.dadsaga` file from Settings › Export data, imported there or on onboarding's
-  first step (ADR-0057). A v1 requirement; checked on a device with a large saga before release
+- ✅ Export and import of the saga: one `.dadsaga` file from Settings › Export and import, imported there or on
+  onboarding's first step (ADR-0057). A v1 requirement; checked on a device with a large saga before release
 - Restore from an iCloud backup tested on a device: it decides what the support page says about backups
 - Screen snapshots and the accessibility audit run again and re-recorded
 - App Store metadata in Greek and English, screenshots, age rating
