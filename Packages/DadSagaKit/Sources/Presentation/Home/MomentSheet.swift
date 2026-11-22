@@ -14,7 +14,10 @@ struct MomentSheet: View {
     struct Actions {
         let onCapture: (_ firstID: String, _ date: Date) -> Void
         let onSave: (_ date: Date, _ note: String, _ photos: PhotoDrafts) -> Void
+        /// Delete, confirmed, in a moment opened to edit.
         let onDelete: () -> Void
+        /// Undo, in a new moment's sheet.
+        let onUndo: () -> Void
         let onUndoExpired: (_ id: Int) -> Void
         let onClose: () -> Void
     }

@@ -11,17 +11,18 @@ extension HomeViewModel {
     /// The bar is its only voice: it leaves any sheet open meanwhile, and that sheet's error, as they are.
     public func undoLastRecord() async {
         guard !isCompleting, let offer = undoOffer else { return }
+        let visit = departures
         undoOffer = nil
         // Only its own celebration: a moment's may be playing by now.
         withdrawCelebration(id: offer.id)
         isCompleting = true
         defer { isCompleting = false }
         do {
-            try await useCases.undoRecord.execute(undoing: offer.eventID)
+            try await takeBack(offer.eventID)
             if let overview = await load() { refreshOpenSheet(from: overview) }
         } catch {
-            // Only if nothing newer has taken the bar meanwhile.
-            if undoOffer == nil {
+            // Only on the visit the Undo was tapped on, and only if nothing newer has taken the bar meanwhile.
+            if undoOffer == nil, departures == visit {
                 undoOffer = makeUndoOffer(id: offer.id, eventID: offer.eventID, didFail: true)
             }
         }
@@ -35,6 +36,15 @@ extension HomeViewModel {
         if let open = selectedBoss, let boss = overview.catalog.boss(id: open.id) {
             selectedBoss = detail(for: boss)
         }
+    }
+
+    /// Takes an entry back through its Undo, the bar's or the sheet's. The cards closed in this session for titles the
+    /// Undo took are forgotten here, where they are taken, so each comes again when a card reaches its title
+    /// (ADR-0055 §3). Nothing else lowers the title he holds, so no load has to look for them.
+    func takeBack(_ eventID: UUID) async throws {
+        let held = try await useCases.undoRecord.execute(undoing: eventID)
+        guard let catalog = overview?.catalog else { return }
+        closedTitleCards = closedTitleCards.filter { (catalog.title(id: $0)?.order ?? 0) <= (held?.order ?? -1) }
     }
 
     /// "Saved · Undo" for what a change recorded; `nil` when it recorded nothing. Nothing else is remembered for it: an
@@ -62,8 +72,10 @@ extension HomeViewModel {
 
     /// The dad went to another tab: the bar's Undo is only for what he just recorded, on the screen he recorded it on
     /// (ADR-0021). On the timeline he can delete entries, which keeps the title he holds, the last card's included, so
-    /// an Undo waiting here could no longer take that card back whole (ADR-0055 §3).
+    /// an Undo waiting here could no longer take that card back whole (ADR-0055 §3). A save or an Undo still running
+    /// as he leaves offers none either when it ends (`departures`).
     public func leftForAnotherTab() {
+        departures += 1
         undoOffer = nil
     }
 }

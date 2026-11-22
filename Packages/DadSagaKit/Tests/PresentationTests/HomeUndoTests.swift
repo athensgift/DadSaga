@@ -34,11 +34,11 @@ struct HomeUndoTests {
 
         // The sheet covers the bar, so on screen the sheet's Undo goes first; the other order gives the same.
         if sheetFirst {
-            await sut.deleteMoment()
+            await sut.undoMoment()
             await sut.undoLastRecord()
         } else {
             await sut.undoLastRecord()
-            await sut.deleteMoment()
+            await sut.undoMoment()
         }
 
         #expect(await progress.eventCount == 0)
@@ -56,7 +56,7 @@ struct HomeUndoTests {
         await questThenMoment(sut)
         let bar = try #require(sut.undoOffer)
         await progress.slowNext()
-        let undoing = Task { await sut.deleteMoment() }
+        let undoing = Task { await sut.undoMoment() }
         while !sut.isCompleting { await Task.yield() }
 
         sut.undoOfferExpired(id: bar.id)
@@ -86,6 +86,21 @@ struct HomeUndoTests {
         #expect(content.moments.cards.count == 1)
     }
 
+    @Test("Given a new moment whose Undo time has just run out, when its Undo is tapped all the same, then the moment stays")
+    func undoAtExpiryNeverDeletes() async throws {
+        let sut = await makeSUT()
+        sut.startCapture()
+        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
+        sut.momentUndoExpired(id: try #require(sut.momentCapture?.details?.undoOffer).id)
+
+        await sut.undoMoment()
+
+        // Not a deletion in the Undo's place: that would keep the title the moment brought.
+        #expect(await progress.eventCount == 1)
+        #expect(await progress.kept == .fresh)
+        #expect(sut.momentCapture != nil)
+    }
+
     @Test("Given a quest's Undo on home, when the dad leaves for the timeline, then the offer is over when he is back")
     func leavingForTheTimelineEndsTheBar() async throws {
         let sut = await makeSUT()
@@ -101,6 +116,59 @@ struct HomeUndoTests {
         #expect(await progress.eventCount == 1)
         // The celebration is not the Undo's: it stays.
         #expect(sut.celebration != nil)
+    }
+
+    @Test("Given a quest still saving, when the dad leaves for the timeline before it is saved, then no Undo waits on home")
+    func leavingWhileAQuestSavesOffersNoUndo() async throws {
+        let sut = await makeSUT()
+        sut.select(cardID: "q1")
+        await progress.slowNext()
+        let saving = Task { await sut.completeSelectedQuest() }
+        while !sut.isCompleting { await Task.yield() }
+
+        sut.leftForAnotherTab()
+        await progress.finishSlowSave()
+        await saving.value
+
+        #expect(await progress.eventCount == 1)
+        #expect(sut.undoOffer == nil)
+        // The card is saved and still celebrated: only its Undo belongs to the visit he left.
+        #expect(sut.celebration != nil)
+    }
+
+    @Test("Given an Undo still saving, when the dad leaves for the timeline and it fails, then no Undo waits on home")
+    func leavingWhileAnUndoFailsOffersItNoMore() async throws {
+        let sut = await makeSUT()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        await progress.slowNext()
+        await progress.failNext()
+        let undoing = Task { await sut.undoLastRecord() }
+        while !sut.isCompleting { await Task.yield() }
+
+        sut.leftForAnotherTab()
+        await progress.finishSlowSave()
+        await undoing.value
+
+        #expect(await progress.eventCount == 1)
+        #expect(sut.undoOffer == nil)
+    }
+
+    @Test("Given a title card closed and its quest undone, when home can't be read just then, then the card still comes again")
+    func undoForgetsTheClosedCardWithoutAReload() async throws {
+        let sut = await makeSUT()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        await sut.closeTitleCard()
+        await progress.failOverview()
+
+        await sut.undoLastRecord()
+        #expect(await progress.eventCount == 0)
+        await progress.mendOverview()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+
+        #expect(sut.titleCard?.title == "Έγινες «Νέος στο ταξίδι».")
     }
 
     @Test("Given a quest's Undo on home, when the dad deletes a moment he opened to edit, then the Undo is over")

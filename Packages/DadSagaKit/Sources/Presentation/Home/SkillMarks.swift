@@ -3,13 +3,17 @@ import SwiftUI
 
 /// How a skill's mark is drawn for how much the skill has grown (ADR-0059 §2). Plain values, so tests can read them.
 ///
-/// The symbol is 60% of its circle before the skill has grown and nears the whole circle as it grows; a glow and a
-/// wash of the tint behind it grow with it. The look follows the square root of the growth, so the first cards show
-/// most and later ones still show, without an end. Nothing fills up and nothing is ever grey or empty: a mark that
-/// hasn't grown is drawn in full colour, only smaller and quieter. The circle itself never changes size.
+/// The symbol always sits inside its circle with room around it: 44% of the circle before the skill has grown, nearing
+/// 60%. Growth shows mostly behind it: a wash of the tint that deepens and a glow that spreads, both inside the
+/// circle. The look follows the square root of the growth, so the first cards show most and later ones still show,
+/// without an end. Nothing fills up and nothing is ever grey or empty: a mark that hasn't grown is drawn in full
+/// colour, only quieter. The circle itself never changes size.
 public struct SkillMarkLook: Equatable, Sendable {
     /// The symbol's share of the circle before the skill has grown.
-    public static let restingSymbolScale = 0.6
+    public static let restingSymbolScale = 0.44
+    /// The share of the circle the symbol nears and never reaches. A square of 60% has its corners well inside the
+    /// circle, so a wide symbol (the heart) and a tall one (the hourglass) both keep room around them.
+    public static let largestSymbolScale = 0.6
     /// The wash's ceiling: the tint's own wash, so the symbol keeps its contrast (ADR-0032).
     public static let maxWashOpacity = DSTint.washOpacity
 
@@ -23,12 +27,16 @@ public struct SkillMarkLook: Equatable, Sendable {
     /// What the eye is shown of the growth: one card of 20 XP, about 12% grown, already shows as a third.
     private var shown: Double { growth.squareRoot() }
     /// The symbol's side as a share of the circle's.
-    public var symbolScale: Double { Self.restingSymbolScale + (1 - Self.restingSymbolScale) * shown }
+    public var symbolScale: Double {
+        Self.restingSymbolScale + (Self.largestSymbolScale - Self.restingSymbolScale) * shown
+    }
     /// Some wash from the start, so a new mark looks new, not missing.
-    public var washOpacity: Double { Self.maxWashOpacity * (0.35 + 0.65 * shown) }
-    public var glowOpacity: Double { 0.8 * shown }
-    /// The glow's radius as a share of the circle's side.
-    public var glowRadius: Double { 0.3 * shown }
+    public var washOpacity: Double { Self.maxWashOpacity * (0.3 + 0.7 * shown) }
+    /// The opacity of each of the glow's two layers.
+    public var glowOpacity: Double { 0.7 * shown }
+    /// The glow's radius as a share of the circle's side: none before the skill has grown, then wide enough from
+    /// the first card to show around the symbol.
+    public var glowRadius: Double { growth == 0 ? 0 : 0.06 + 0.16 * shown }
 }
 
 /// The dad's four skills under his title, each its symbol with its name under it (ADR-0059 §2). All four side by side
@@ -107,14 +115,19 @@ private struct SkillMarkSymbol: View {
             .scaledToFit()
             .foregroundStyle(DSColor.accent)
             .frame(width: side * look.symbolScale, height: side * look.symbolScale)
+            // Twice at the same radius: a glow dense enough to see on a light background, and still soft at the
+            // symbol's edge.
+            .shadow(color: DSColor.accent.opacity(look.glowOpacity), radius: side * look.glowRadius)
             .shadow(color: DSColor.accent.opacity(look.glowOpacity), radius: side * look.glowRadius)
             // Once each time the skill's card is celebrated, as its badge goes; never with Reduce Motion, and not when
             // the setting changes either.
             .symbolEffect(.bounce, value: bounce)
             .symbolEffectsRemoved(reduceMotion)
             .frame(width: side, height: side)
-            .background(DSColor.accent.opacity(look.washOpacity), in: Circle())
-            // Smaller at once after an undo or a deletion, and larger with no show: the bounce says it grew.
+            .background(DSColor.accent.opacity(look.washOpacity))
+            // The glow stays in the circle with the symbol: a clean edge at every growth.
+            .clipShape(Circle())
+            // Quieter at once after an undo or a deletion, and brighter with no show: the bounce says it grew.
             .animation(nil, value: mark.growth)
     }
 }

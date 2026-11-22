@@ -8,7 +8,9 @@ import Foundation
 public protocol UndoRecordUseCase: Sendable {
     /// - Parameter eventID: the entry just recorded (`ProgressChange.eventID`). Throws `ProgressError.unknownEvent`
     ///   when it is no longer there.
-    func execute(undoing eventID: UUID) async throws
+    /// - Returns: the title he holds once the entry is gone, so the screen knows which title cards may come again.
+    @discardableResult
+    func execute(undoing eventID: UUID) async throws -> DadTitle?
 }
 
 public struct DefaultUndoRecordUseCase: UndoRecordUseCase {
@@ -31,16 +33,19 @@ public struct DefaultUndoRecordUseCase: UndoRecordUseCase {
 
     /// The closed card goes back first, when it is above the title he will hold. If deleting the entry then fails, it
     /// is put back as it was, so nothing has changed and the Undo can be tried again.
-    public func execute(undoing eventID: UUID) async throws {
+    @discardableResult
+    public func execute(undoing eventID: UUID) async throws -> DadTitle? {
         let remover = EntryRemover(progressRepository: progressRepository, photoStore: photoStore)
         let (event, events) = try await remover.find(eventID)
         let catalog = try await contentRepository.fetchCatalog()
         let kept = try await standingRepository.fetchKept()
         let after = DadProgress(events: events.filter { $0.id != eventID }, catalog: catalog)
-        let seen = DadStanding(progress: after, catalog: catalog, kept: kept).seenAfterUndo
+        let left = DadStanding(progress: after, catalog: catalog, kept: kept)
+        let seen = left.seenAfterUndo
         if let seen { try await standingRepository.markSeen(titleID: seen.id) }
         do {
             try await remover.remove(event)
+            return left.title
         } catch {
             if seen != nil, let closed = kept.seenTitleID { try? await standingRepository.markSeen(titleID: closed) }
             throw error

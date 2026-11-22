@@ -2,15 +2,15 @@
 
 **Status:** Accepted (2026-11-22): the owner's decisions of 2026-11-22 are final. Of the choices made while he was
 away, he confirmed 2 to 11 and reversed 1: an Undo goes back to before the card, title included (§3); choice 5 is moot,
-since nothing is released yet. Numbered
-0055 because another branch takes 0054. Changes ADR-0005 (a new kind of content, `titles.json`), ADR-0012 (the dad has
-XP and a title, no level), ADR-0014 (gear comes with titles; a skill names a slot and unlocks nothing), ADR-0018 (the
-wardrobe shows only what the hero has, without XP), ADR-0021 (§2: deleting an entry no longer lowers the title or takes
-gear; the Undo: it keeps nothing, takes back a title card closed for a title it takes, and the bar's offer ends when
-the dad leaves for the timeline or deletes a moment), ADR-0023 (the widget's quest shows its skill, no XP), ADR-0024 (the reminder card also waits while a title card
-shows), ADR-0026 (schema version 7), ADR-0037 (the title in the credits; the film card waits while a title card shows),
-ADR-0043 (the hero's pane shows the title where the level card was) and ADR-0048 §5 (titles join the shipped ids; gear
-is guarded by its title).
+since nothing is released yet. Numbered 0055 because another branch takes 0054. Changes ADR-0005 (a new kind of
+content, `titles.json`), ADR-0012 (the dad has XP and a title, no level), ADR-0014 (gear comes with titles; a skill
+names a slot and unlocks nothing), ADR-0018 (the wardrobe shows only what the hero has, without XP), ADR-0021 (§2:
+deleting an entry no longer lowers the title or takes gear; the Undo: it keeps nothing, takes back a title card closed
+for a title it takes, and the bar's offer ends when the dad leaves for the timeline or deletes a moment), ADR-0023 (the
+widget's quest shows its skill, no XP), ADR-0024 (the reminder card also waits while a title card shows), ADR-0026
+(schema version 7), ADR-0037 (the title in the credits; the film card waits while a title card shows), ADR-0043 (the
+hero's pane shows the title where the level card was) and ADR-0048 §5 (titles join the shipped ids; gear is guarded by
+its title).
 
 ## Context
 - **Today:** `LevelCurve` turns total XP into a numbered level (100, 300, 600 … XP). Home shows "Level 3" with an XP bar
@@ -119,8 +119,9 @@ is guarded by its title).
     stays closed, and the card of a title the Undo takes back comes again when a later card reaches it.
     - It is written through `StandingRepository.markSeen`, just before the entry is deleted. If the delete fails, it is
       put back as it was, so nothing has changed and the Undo can be tried again.
-    - Home forgets the cards closed in the session by the same rule, and only in the load that shows: an older load
-      that finishes late has read other entries.
+    - `UndoRecordUseCase` returns the title he still holds. Home forgets the cards closed in the session above it
+      right then (`HomeViewModel.takeBack`), where they are taken, not in a later load: the reload after an Undo can
+      fail, and an older load that finishes late has read other entries.
     - Closing a card takes its turn with the saves (`isCompleting`), so its write can't land in the middle of an Undo.
   - Two quick cards, then Undo: only the last goes, and the first's title is what his entries still reach.
   - The old gear frozen at the first change (§4) stays frozen: it is what the entries before the card gave.
@@ -134,6 +135,13 @@ is guarded by its title).
     lives. If they ever met, the title would stay, never drop.
   - The root tells home that the tab changed (`HomeViewModel.leftForAnotherTab`). The bar going from the screen isn't
     the signal: turning the device rebuilds home with the bar still on it, and its time starts again (ADR-0058).
+  - **No offer is made for a visit he has left.** Home counts the times he leaves (`departures`). A card whose save
+    began before he left is saved and celebrated, but its Undo isn't offered when the save ends; a failed Undo that
+    ends after he left doesn't come back to the bar.
+  - A quest, boss or moment sheet can't be swiped away while its save is under way (`UnsavedChangesGuard.isSaving`),
+    as its Close button already couldn't be used.
+  - **The sheet's Undo and the editor's Delete are two actions** (`undoMoment`, `deleteMoment`). An Undo tapped as
+    its time runs out does nothing: it never becomes a deletion, which would keep the title.
   - An offer that has ended can't be used later.
 - **A deletion from the timeline keeps the title** and its gear, as above: that is the rule that a title never goes
   down.
@@ -165,8 +173,8 @@ is guarded by its title).
   - A profile row from version 6 has `keptGearIDs` empty (nil) after the migration.
   - Until the dad records or deletes something, his entries are exactly the ones from before titles, so the old rule
     reads them as they are.
-  - The keeper's first write, before his first recording or deletion, freezes what the rule gives and stores it. From then on, those ids are his whatever
-    happens to his entries, and skill XP earns nothing more.
+  - The keeper's first write, before his first recording or deletion, freezes what the rule gives and stores it.
+    From then on, those ids are his whatever happens to his entries, and skill XP earns nothing more.
   - A profile created by version 7 starts with an empty list: nothing to keep, so a new dad gets gear by title only.
 - **The hero's gear** is what his title brings and what he kept, `DadStanding.gear`. `GearRules.equipped(_:outfit:)`
   applies the wardrobe. A chosen item that isn't earned falls back to automatic, as before (ADR-0018).
@@ -291,8 +299,8 @@ widget (the skill only, ADR-0023), in the wardrobe, or in any delete prompt. The
 | App | `store.standing`, `MarkTitleSeenUseCase` and `UndoRecordUseCase` wired | `AppContainer`, `SnapshotTests/SagaFixture.swift` |
 
 ## Choices made for the owner to confirm
-1. **Undo goes back to before the card** (the owner reversed this choice on 2026-11-22): the title it brought, its level,
-   its card and its gear go with it. A deletion from the timeline later keeps the title and gear (§3).
+1. **Undo goes back to before the card** (the owner reversed this choice on 2026-11-22): the title it brought, its
+   level, its card and its gear go with it. A deletion from the timeline later keeps the title and gear (§3).
 2. **No XP anywhere on screen**, not only on the cards (§7): sheets, timeline, moments, widget, wardrobe, celebration
    and delete prompts.
 3. **Wording, written by `content` before the PR:**
@@ -360,8 +368,8 @@ Not yet checked on a device. To check:
 - **A Greek film** on an English phone has «Τίτλος» and the title in Greek.
 
 ## Consequences
-- The dad sees a name, not a number. The title rises with what he does and never falls back (but for an Undo of the card that brought it), and nothing tells him
-  how far away the next one is.
+- The dad sees a name, not a number. The title rises with what he does and never falls back (but for an Undo of the
+  card that brought it), and nothing tells him how far away the next one is.
 - One early boss can't race through titles: the cards count as much as the XP.
 - Deleting an entry from the timeline no longer takes the title or gear back. This reverses ADR-0021 §2 for these two;
   boss medals and moments still follow the entries. An Undo right after recording still takes everything back.

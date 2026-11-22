@@ -99,7 +99,7 @@ struct HomeMomentsTests {
         sut.startCapture()
         await sut.captureMoment(firstID: "f1", date: HeroStub.today)
 
-        await sut.deleteMoment()
+        await sut.undoMoment()
 
         #expect(sut.momentCapture == nil)
         #expect(loadedMoments(sut)?.cards.isEmpty == true)

@@ -334,6 +334,7 @@ extension HomeView {
                     Task { await viewModel.saveMomentDetails(date: date, note: note, photos: photos) }
                 },
                 onDelete: { Task { await viewModel.deleteMoment() } },
+                onUndo: { Task { await viewModel.undoMoment() } },
                 onUndoExpired: { viewModel.momentUndoExpired(id: $0) },
                 onClose: { viewModel.dismissSelection() }
             )

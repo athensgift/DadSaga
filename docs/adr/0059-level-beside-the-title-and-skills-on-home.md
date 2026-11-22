@@ -63,7 +63,8 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
 
 ### 1. The level is the held title's order
 - **The level is `DadTitle.order`,** read from `DadStanding.title`, the title held, so a deletion never lowers it (an
-  Undo of the card that brought it does, ADR-0055 §3). There is no new property and nothing is stored. `order`'s comment says it is also the level.
+  Undo of the card that brought it does, ADR-0055 §3). There is no new property and nothing is stored. `order`'s
+  comment says it is also the level.
 - **Orders run 0, 1, 2 … with no gap and no repeat** (`ContentValidator`, `ContentDataError.invalidTitleOrder`). This
   replaces the check that two titles don't share an order.
 - **A shipped title keeps its order for good,** so a new title can only come after the highest:
@@ -95,13 +96,17 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
   - There are no stages, no maximum to reach and no number.
   - Home's query returns it (`HomeOverview.skills`).
 - **How a mark is drawn** (`SkillMarkLook`, Presentation):
-  - The symbol is in the accent tint. It is 60% of its circle with no growth, and nears 100% as the growth nears 1.
-  - A soft glow and a wash of the tint behind it grow with it.
-  - The look follows the square root of the growth, so the first card shows clearly (one quest of 20 XP: the symbol
-    from 60% to about 74%, a glow at about a third, the wash from 35% to about 57% of its ceiling) and later cards
-    still show, ever less, with no end.
+  - The symbol is in the accent tint, and always sits inside its circle with room around it: 44% of the circle with
+    no growth, nearing 60% as the growth nears 1 (the owner's feedback of 2026-11-22: at 60% to 100% the heart and the
+    hourglass looked too big in their circles). Even the corners of the symbol's square stay inside the circle.
+  - Growth shows mostly behind the symbol: a wash of the tint that deepens, and a soft glow around the symbol that
+    spreads. The glow is drawn twice at the same radius, so it shows on a light background, and it is clipped to the
+    circle, so the mark keeps a clean edge.
+  - The look follows the square root of the growth, so the first card shows clearly (one quest of 20 XP: the wash
+    from 30% to about 54% of its ceiling, a glow at about a quarter in each layer and about a ninth of the circle
+    wide, the symbol from 44% to about 49%) and later cards still show, ever less, with no end.
   - The wash never goes above the tint's wash opacity, so the symbol keeps its contrast (ADR-0032). With no growth it
-    is 35% of that, so a new mark is never empty.
+    is 30% of that, with no glow, so a new mark is quiet but never empty.
   - The circle never changes size, so a mark growing or shrinking moves nothing on screen.
   - The name is secondary text in the caption style (ADR-0033).
 - **A mark that hasn't grown looks new, not missing:** full colour, never grey, dashed, empty or locked.
@@ -115,7 +120,7 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
     type (ADR-0007).
   - With Reduce Motion it doesn't bounce (`symbolEffectsRemoved`), not even when the setting changes, and the
     celebration still says "Your patience grew".
-- **An undo or a deletion** takes back what that card gave, and the mark is drawn smaller at once, with no
+- **An undo or a deletion** takes back what that card gave, and the mark is drawn quieter at once, with no
   animation, which would only draw his eye to it. After a deletion the title and its gear stay; an Undo takes them
   back with the card, and the level with them (ADR-0055 §3).
 - **A first grows no skill,** since it has none. It counts toward cards done and the title, as now.
@@ -179,7 +184,7 @@ No stored data changes: no schema version and no change to the privacy pages or 
 1. **VoiceOver hears the row as one element:** "Your skills", then the four names.
 2. **One look for all four:** the accent tint, and the name in secondary text under the symbol.
 3. **The bounce comes as the celebration's badge goes,** not with it.
-4. **A mark that shrinks after an undo or a deletion** is redrawn smaller at once, without animation.
+4. **A mark that shrinks after an undo or a deletion** is redrawn quieter at once, without animation.
 5. **Wording,** written by `content` before the PR: «Επίπεδο %lld» / "Level %lld" and «Οι δεξιότητές σου» / "Your
    skills".
 
@@ -212,7 +217,7 @@ Not yet checked on a device. To check:
 - **A quest, then Undo:**
   - the mark goes back to where it was, with no animation;
   - the title, its level, its card and its gear are as before the quest, after a relaunch too.
-- **Deleting an old boss** from the timeline: its skill's mark is smaller, and the title and gear stay.
+- **Deleting an old boss** from the timeline: its skill's mark is quieter, and the title and gear stay.
 - **The first quest after onboarding:**
   - «Επίπεδο 0 · Μπαμπάς σε αναμονή» becomes «Επίπεδο 1 · Νέος στο ταξίδι»;
   - the title card says «Επίπεδο 1»;

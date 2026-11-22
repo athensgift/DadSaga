@@ -73,21 +73,27 @@ extension HomeViewModel {
         }
     }
 
-    /// Deletes the moment in step 2, with its photos and XP, and closes the sheet: Delete when editing, which keeps the
-    /// title; Undo when new, while its offer is in the sheet, which goes back to before it, title included
-    /// (ADR-0055 §3).
+    /// The Undo in a new moment's sheet: takes the moment back with its photos, as if it never was, title included
+    /// (ADR-0055 §3), and closes the sheet. It does nothing once its offer has gone, so a tap as its time runs out
+    /// never becomes a deletion, which would keep the title.
+    public func undoMoment() async {
+        guard let details = momentCapture?.details, details.undoOffer != nil else { return }
+        await perform {
+            try await self.takeBack(details.momentID)
+            // Gone: nothing to celebrate.
+            self.pendingMomentCelebration = nil
+        }
+    }
+
+    /// Delete, confirmed, in a moment opened to edit: the moment goes with its photos and the sheet closes. His title
+    /// stays (ADR-0055 §3).
     public func deleteMoment() async {
         guard let details = momentCapture?.details else { return }
         await perform {
-            if details.undoOffer != nil {
-                try await self.useCases.undoRecord.execute(undoing: details.momentID)
-            } else {
-                // A deletion keeps the title he holds now, the last card's included: the bar's Undo could no longer
-                // take that card back whole, so its offer ends.
-                self.undoOffer = nil
-                try await self.useCases.deleteEvent.execute(eventID: details.momentID)
-            }
-            // Gone: nothing to celebrate.
+            // A deletion keeps the title he holds now, the last card's included: the bar's Undo could no longer
+            // take that card back whole, so its offer ends.
+            self.undoOffer = nil
+            try await self.useCases.deleteEvent.execute(eventID: details.momentID)
             self.pendingMomentCelebration = nil
         }
     }

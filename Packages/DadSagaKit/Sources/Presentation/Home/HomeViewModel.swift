@@ -29,6 +29,7 @@ public final class HomeViewModel {
     /// The card for a new title: shown before any offer (ADR-0055 §6).
     public internal(set) var titleCard: TitleCard?
     /// Titles whose card was closed in this session, so a reload while the close is being saved can't bring it back.
+    /// An Undo that takes a title back forgets its card (`takeBack`).
     var closedTitleCards: Set<String> = []
     /// The film offers the dad answered in this session.
     var answeredSagaOffers: Set<String> = []
@@ -60,6 +61,9 @@ public final class HomeViewModel {
     @ObservationIgnored private var loadGeneration = 0
     /// Loads under way: coming back to the app starts none while one is.
     @ObservationIgnored private var loadsUnderWay = 0
+    /// How many times the dad has left home for another tab. The bar offers an Undo only on the visit its save began
+    /// on: one that ends after he left, or after he left and came back, offers none (ADR-0021).
+    @ObservationIgnored var departures = 0
     /// Goes up when home is opened, another child is chosen or another world is shown: "When life changes" starts
     /// closed then, and stays as the dad left it through every other reload (ADR-0053 §5).
     @ObservationIgnored var situationalVisit = 0
@@ -124,11 +128,12 @@ public final class HomeViewModel {
     public func completeSelectedQuest(note: String = "", photos: PhotoDrafts = PhotoDrafts()) async {
         guard let quest = selectedQuest, let childID = selectedChildID else { return }
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
+        let visit = departures
         guard let change = await record({
             try await self.useCases.completeQuest.execute(questID: quest.id, childID: childID, on: self.now(), journal: journal)
         }) else { return }
         selectedQuest = nil
-        celebrate(change, skill: overview?.catalog.quest(id: quest.id)?.skill)
+        celebrate(change, skill: overview?.catalog.quest(id: quest.id)?.skill, begunOn: visit)
     }
 
     /// Records the open boss as defeated, with the dad's optional note and photos.
@@ -137,11 +142,12 @@ public final class HomeViewModel {
         let content = overview?.catalog.boss(id: boss.id)
         let badge = content?.badge.resolved(for: locale)
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
+        let visit = departures
         guard let change = await record({
             try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now(), journal: journal)
         }) else { return }
         selectedBoss = nil
-        celebrate(change, skill: content?.skill, badge: badge)
+        celebrate(change, skill: content?.skill, badge: badge, begunOn: visit)
     }
 
     /// A celebration's time is up, and the mark of the skill it grew bounces. Ignored if a newer one has replaced it.
@@ -194,13 +200,15 @@ public final class HomeViewModel {
     }
 
     /// Home's celebration and "Saved · Undo" for a quest or boss.
-    private func celebrate(_ change: ProgressChange, skill: Skill?, badge: String? = nil) {
+    /// - Parameter visit: `departures` when the save began. If the dad has left home since, the card is saved and
+    ///   celebrated but its Undo is not offered: it would wait for him on a screen he left.
+    private func celebrate(_ change: ProgressChange, skill: Skill?, badge: String? = nil, begunOn visit: Int) {
         // A moment's celebration still waiting would only replace this newer one when the sheet closes.
         pendingMomentCelebration = nil
         let celebration = makeCelebration(skill: skill, badge: badge)
         show(celebration)
         // The bar shows one offer: the last card's.
-        undoOffer = offerUndo(of: change, id: celebration.id)
+        undoOffer = departures == visit ? offerUndo(of: change, id: celebration.id) : nil
     }
 
     /// What a change grew, as a celebration with a new id: the skill, a badge or a moment, never a number. A new title
@@ -242,11 +250,6 @@ public final class HomeViewModel {
                 ? await makeReminderOffer(children: overview.profile.children, progress: overview.progress)
                 : nil
             guard generation == loadGeneration else { return overview }
-            // A card closed for a title above the one held, which an Undo took back, may come again. Only the load
-            // that shows decides: a stale one read older entries, perhaps from before the card that brought the title.
-            closedTitleCards = closedTitleCards.filter { id in
-                (overview.catalog.title(id: id)?.order ?? 0) <= (overview.standing.title?.order ?? -1)
-            }
             self.titleCard = titleCard
             self.sagaOffer = sagaOffer
             self.reminderOffer = reminderOffer

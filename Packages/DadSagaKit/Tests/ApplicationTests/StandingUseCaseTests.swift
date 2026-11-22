@@ -73,7 +73,10 @@ struct StandingUseCaseTests {
     }
 
     /// Undo, as home does it: of the entry the recording returned.
-    func undo(_ change: ProgressChange, _ progress: any ProgressRepository, _ standing: InMemoryStanding) async throws {
+    @discardableResult
+    func undo(
+        _ change: ProgressChange, _ progress: any ProgressRepository, _ standing: InMemoryStanding
+    ) async throws -> DadTitle? {
         try await DefaultUndoRecordUseCase(
             contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
         )
@@ -124,13 +127,16 @@ struct StandingUseCaseTests {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
         let sut = quest(progress, standing)
-        _ = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+        let first = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
         let second = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
 
-        try await undo(second, progress, standing)
+        let held = try await undo(second, progress, standing)
 
         #expect(try await progress.fetchEvents().count == 1)
         #expect(try await self.standing(progress, standing).title?.id == "t1")
+        // The Undo says what he still holds, so home knows which closed cards may come again.
+        #expect(held?.id == "t1")
+        #expect(try await undo(first, progress, standing)?.id == "t0")
     }
 
     @Test(

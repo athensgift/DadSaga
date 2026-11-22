@@ -93,7 +93,7 @@ struct HomeMomentCelebrationTests {
         sut.startCapture()
         await sut.captureMoment(firstID: "f1", date: HeroStub.today)
 
-        await sut.deleteMoment()
+        await sut.undoMoment()
         sut.sheetDismissed()
 
         #expect(sut.celebration == nil)

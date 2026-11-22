@@ -127,6 +127,11 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         overviewFails = true
     }
 
+    /// Home's overview can be read again.
+    func mendOverview() {
+        overviewFails = false
+    }
+
     /// The progress home's overview reads, or an error once `failOverview()` was called.
     func overviewProgress() async throws -> DadProgress {
         let early = readsBeforeHolding ? current : nil
@@ -197,12 +202,13 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
     }
 
     /// Undo: the entry goes and nothing is kept for it; a card closed above the title still held goes back to it.
-    func execute(undoing eventID: UUID) async throws {
+    func execute(undoing eventID: UUID) async throws -> DadTitle? {
         await waitIfSlow()
         if shouldFail { throw StubError.boom }
         guard events.contains(where: { $0.id == eventID }) else { throw ProgressError.unknownEvent }
         events.removeAll { $0.id == eventID }
         if let seen = standing.seenAfterUndo { kept.seenTitleID = seen.id }
+        return standing.title
     }
 
     func execute(id: String, maxPixelSize: Int) async -> Data? {
