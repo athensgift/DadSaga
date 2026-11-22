@@ -5,6 +5,7 @@ the first App Store release, as the roadmap asks ("Sync ADR before Phase 5") and
 **before** that release: §5's changes to `SchemaV1` and to format 1 of a copy, since both freeze with that build
 (ADR-0060); `docs/RELEASE.md` checks it. The owner answered the product questions on 2026-11-22 (folded in, listed at
 the end); one is open: removing a child (§4). It changes:
+- **ADR-0003:** a `CloudSync` target, and its tests, hold the CloudKit code; the app links it, the widget doesn't.
 - **ADR-0004:** once a parent turns iCloud on, their saga goes to their own iCloud; once they share it, the family
   lives in the inviting parent's iCloud and reaches the partner. Still no account, backend or server of ours.
 - **ADR-0006:** with two parents, each one's XP, title and gear come only from the entries they recorded; firsts are
@@ -18,14 +19,16 @@ the end); one is open: removing a child (§4). It changes:
 - **ADR-0026 §6 and Deferred:** decided here. §3 (`cloudKitDatabase: .none`) stays, and now matters: with an iCloud
   entitlement, SwiftData would otherwise mirror the store by itself.
 - **ADR-0030 §7, §8:** the About statement names iCloud; start over with iCloud on first ends this parent's part.
+- **ADR-0036 §7, ADR-0037 §5:** the film offers answered are the parent's: kept in the defaults as now, and with iCloud
+  on also in `Personal`, so each parent is offered a film once on all their iPhones.
 - **ADR-0051 §1:** data that goes only to the parent's own iCloud and to the people in the share changes the privacy
   pages, not the manifests or the label, on §7's conditions.
 - **ADR-0053, ADR-0054:** every member sees every card the family's facts allow; a joiner's partner answer starts at
   yes.
 - **ADR-0055:** a title comes from its parent's own entries; the kept title merges as the higher.
 - **ADR-0057 §2, §3, §7:** format 1 carries the hero's id and each entry's author; a copy of a shared family holds
-  both parents' entries; a copy leaves out a kind or value this version can't name, and says so; no import while the
-  saga is shared.
+  both parents' entries; a copy leaves out a kind or value this version can't name, and says so; its reader takes any
+  number of children from one; no import while the saga is shared.
 - **ADR-0060 §1, §2 and Deferred:** `SchemaV1` gains a profile id, an author on every entry, `#Unique` ids, and ids
   kept in history; copies made by earlier builds no longer import (the two new keys are required).
 
@@ -126,8 +129,8 @@ the end); one is open: removing a child (§4). It changes:
   | `Hero` | `hero-<profileID>` | Personal | `classID`, `skinTone`, `hair`, `hairColor`, `beard`, `glasses`, `hasPartner`; `heldTitleID`, `seenTitleID` (absent: nil) |
   | `Wardrobe` | `wardrobe-<skill>` | Personal | `choice` (`hidden` or `item:<id>`); an automatic slot has no record |
   | `Offer` | `offer-<occasion id>` (its `/` escaped) | Personal | none: the film offer for that occasion was answered (ADR-0037 §5) |
-  | `Saga` | `saga` | Personal | `familyZone`, `familyOwner` (user record name); `childMap` (this parent's child ids to the family's, from the last join) |
-  | `Member` | `member-<profileID>` | Family | `userRecordName`: the Apple Account of the parent who writes it, their own only |
+  | `Saga` | `saga` | Personal | `familyZone`, `familyOwner` (the owner's real user record name); `childMap` (this parent's child ids to the family's, from the last join) |
+  | `Member` | `member-<profileID>` | Family | `userRecordName`: the real user record name of the parent who writes it, from `CKContainer.userRecordID()`; their own only |
   | `Child` | `child-<childID>` | Family | `name`, `gender`, `skinTone`, `order`; `birthDay` as `yyyy-MM-dd`, absent while not born, one field so a day moves whole |
   | `Entry` | `entry-<eventID>` | Family | `author` (a profile id), `kind`, `contentID`, `childID`, `date`, `note` (absent: none), `photoIDs` (in order) |
   | `Photo` | `photo-<photoID>` | Family | `image`: a `CKAsset` of the stored JPEG; `entryID` |
@@ -163,9 +166,15 @@ the end); one is open: removing a child (§4). It changes:
   again from `photo-<id>` when it is asked for.
 - **Offers follow the parent, the rest stays with the iPhone.** The film offers answered travel in a copy
   (ADR-0057 §2), so they are the parent's and go in `Personal`, through the offer repository: the one change not read
-  from the store's history (§2). Each parent is offered the family's film once, on whichever of their iPhones. The
-  weekly reminder (its permission is per iPhone), the preferences (ADR-0030 §3) and the film sheet's choices stay with
-  the iPhone, as ADR-0057 §2 has them.
+  from the store's history (§2). Each parent is offered the family's film once, on whichever of their iPhones.
+  - The answers stay in the defaults (ADR-0037 §5), so a kill between the answer and its record could lose one: at
+    every launch the stored answers are compared with the `offer-` records `Sync.store` knows, as photos are, and the
+    missing are sent.
+  - An occasion id begins with its child's id (`<childID>/birthday/<n>`), so `childMap` renames the answers too: the
+    old records go and the family child's are written.
+  - An import replaces the records with the copy's answers; start over deletes them with `Personal`.
+  - The weekly reminder (its permission is per iPhone), the preferences (ADR-0030 §3) and the film sheet's choices stay
+    with the iPhone, as ADR-0057 §2 has them.
 
 ### 2. Sharing, joining, and how changes move
 - **Sharing.** Settings gets a page to share the saga with a partner (words by `content`). Sharing needs iCloud on,
@@ -182,10 +191,14 @@ the end); one is open: removing a child (§4). It changes:
   anyway (the owner added one in "Manage sharing"), their DadSaga says calmly that this family already has two parents
   and doesn't join; the owner's sharing page shows the extra person to remove. Nothing in the records counts to two:
   the limit is the app's. A new partner may join once the last one has left.
-- **Members.** On sharing and on joining, each parent writes their own `member-<profileID>` with their Apple Account's
-  user record name. A partner's name is the share participant's whose user record matches that member; an author
-  with no member, or whose member is no longer in the share, gets the neutral label (§3.7). So an earlier partner's
-  entries are never shown under a new partner's name.
+- **Members.** On sharing and on joining, each parent writes their own `member-<profileID>`. CloudKit names the current
+  user `__defaultOwner__` (`CKCurrentUserDefaultName`) in their own zone ids and in the share's own participant, so a
+  member holds the real name from `CKContainer.userRecordID()`, and `saga`'s `familyOwner` holds the owner's: "is
+  this family mine" compares it with this account's, and picks the private or the shared database. A member counts
+  only when the record's `creatorUserRecordID`, resolved the same way, is the user it names. A partner's name is the
+  share participant's whose user record matches that member; an author with no member, or whose member is no longer
+  in the share, gets the neutral label (§3.7). So an earlier partner's entries are never shown under a new partner's
+  name.
 - **Accepting.** `CKSharingSupported` opens DadSaga from the invitation. A scene delegate
   (`windowScene(_:userDidAcceptCloudKitShareWith:)`, and `cloudKitShareMetadata` on a cold launch) puts it in a
   `ShareInbox`, which waits like any link while an editor holds unsaved changes (ADR-0050 §4). The app says who
@@ -201,8 +214,10 @@ the end); one is open: removing a child (§4). It changes:
   Account (a copy of the partner's saga was imported here), this iPhone takes a new profile id, and the entries it
   recorded under the old one that the family lacks move to the new one; entries the family has keep their author.
 - **Rejoining** (after a stop, a leave or `encryptedDataReset`): the same id is the same child or entry, with no
-  question and no matching. Only entries authored by the joiner that the family lacks are sent; anyone else's that
-  the family lacks stay on this iPhone only.
+  question and no matching. No row stays on this iPhone only, since a later full send would upload it anyway and no one
+  could delete it. An entry of the joiner's that the family lacks is sent. Another author's that the family lacks is
+  deleted here when that author is a current member (it is their deletion); otherwise it is sent as it is and shows
+  under the neutral label.
 - **One `CKSyncEngine` per database:** the private one (Personal, and Family for the owner) and the shared one (Family
   for a partner), reporting to one delegate actor. Each engine's state is persisted on every `stateUpdate`.
 - **Local changes come from the store's history, not from every call site.** `StoreChangeFeed` reads the SwiftData
@@ -213,8 +228,14 @@ the end); one is open: removing a child (§4). It changes:
   them are given again. A change leaves `Sync.store` once the engine reports it sent, and history is deleted up to the
   token. So a write and its sync can't come apart, and a write path added later syncs without anyone remembering to.
 - **History's two edges.** If the token has expired (`historyTokenExpired`), every row is enqueued again behind a
-  full fetch: a record the server lacks is sent, and one it has keeps the server's values. While iCloud is off,
-  `StoreChangeFeed.trim()` deletes the history at launch, beside the orphan sweep, so it never grows.
+  fetch from the engine's own change token, which reports the deletions since (a fetch from scratch reports none, and
+  would bring back rows the partner deleted): a record the server lacks is then sent, and one it has keeps the
+  server's values. While iCloud is off, `StoreChangeFeed.trim()` deletes the history at launch, beside the orphan
+  sweep, so it never grows.
+- **A full send with no change token** (iCloud turned on again, a rejoin) follows a fetch of the whole zone and the
+  rejoin's rule above: a row the family has merges as usual, an entry it lacks is sent or deleted as there, and a
+  child it lacks is sent. A parent's own entry they deleted on another iPhone while this one was off comes back: never
+  lost, at worst back.
 - **Remote changes** are written by one `@ModelActor`, `SwiftDataSyncApplier`, whose context's `author` is `sync`, so
   they never come back as local changes. It fetches each row by id and sets only the fields that came, leaving any
   field whose local change is still waiting (§4); `#Unique` guards it but is never how it writes, since an implicit
@@ -264,8 +285,8 @@ the end); one is open: removing a child (§4). It changes:
   since a kept title never goes down (ADR-0055 §3; a Domain rule on `KeptStanding`); a kept title this version doesn't
   know is never replaced. Two children with the same `order` are shown by order, then id.
 - **The limit of four children applies to adding only.** "My family" adds none while there are four or more, but a
-  family edit and `SagaCopyRules` accept the number sync produced (both parents adding offline). A removal that would
-  leave no child is not applied: the last child stays and is sent again.
+  family edit accepts the number sync produced (both parents adding offline), and so does a copy (§5). A removal that
+  would leave no child is not applied: the last child stays and is sent again.
 - **Every edit says what changed.** "My family" saves a `FamilyEdit` (children added and removed, and the fields
   changed on each), taken from what the editor showed when it opened, not the whole family as it stands; hero and
   entry edits do the same, and a row update sets only the columns whose value changes. Otherwise a family edited on one
@@ -273,8 +294,10 @@ the end); one is open: removing a child (§4). It changes:
 - **Entries rarely meet.** Only an entry's author edits it, so a conflict on one is between that parent's own iPhones,
   merged by field. A first captured twice keeps both entries, with both notes and both sets of photos (§3.3). No entry
   is merged away.
-- **Deletions** travel as CloudKit deletions; the saga store keeps no tombstone rows. **A local row is deleted only by
-  a deletion fetched from the zone.** A save that fails with `unknownItem` clears that record's system fields and
+- **Deletions** travel as CloudKit deletions; the saga store keeps no tombstone rows. **Sync deletes a local row only
+  for a deletion fetched from the zone.** The other ways rows go are the parent's confirmed acts, each replacing rows
+  on purpose: a join (§2), a follow (below), "which to keep" (§2), an import (§6) and start over. A zone that goes is
+  never one of them. A save that fails with `unknownItem` clears that record's system fields and
   stays pending behind a fetch: if the fetch reports the deletion, the change is dropped and the row deleted (a
   deletion wins over an edit made at the same time); if not, it is sent as a new record. A `Hero` is never deleted by
   sync. `Sync.store` drops a zone's system fields when the zone goes, when the account changes and when iCloud is
@@ -293,8 +316,11 @@ the end); one is open: removing a child (§4). It changes:
   without a question, and the owner keeps the zone. Afterwards each iPhone's saga is its own.
 - **Zones are deleted only by a parent's act** (start over, a join, an import, a choice they confirmed), never by a
   clean-up comparing iCloud with a list kept on the iPhone, which a stale iPhone could get wrong. **A parent's other
-  iPhones follow `saga`:** when it names another family, each asks once to follow, in "Continue from iCloud"'s words,
-  and applies `childMap` to anything it still had waiting; until then its sync is off and its saga stays. So:
+  iPhones follow `saga`:** when it names another family, each asks once to follow, in "Continue from iCloud"'s words.
+  Following applies `childMap` to the stored rows and to anything still waiting: a mapped child's row goes, its
+  entries keep their ids with the family's child, and the offer answers are renamed (§1); then the family's records
+  arrive as for a join. Until it follows, only the family's sync is off there: `Personal` keeps fetching, or that
+  iPhone would never see `saga` change, and its saga stays. So:
   - **joining with iCloud on alone:** once their entries are in the family zone, their own Family zone is deleted and
     `saga` names the family;
   - **leaving or stopped, with iCloud on:** their saga goes to a new Family zone of theirs, and `saga` names it;
@@ -338,9 +364,11 @@ running `develop` delete the app first, ADR-0060 §2):
   ids. A package test on a store on disk restores the same copy twice, and a copy over a saga that shares its ids,
   then reads everything back through each repository. If it fails, `replaceAll` updates rows by id and deletes the
   rest instead.
-- **A restore** sets the profile id to the copy's `hero.id` and keeps every entry's author. `SagaCopyRules` gains
-  nothing in PR 1: an author is any id, since a partner's entries carry theirs. In the co-op version its child count
-  accepts more than four, as sync can make (§4): a code change, not a format change.
+- **A restore** sets the profile id to the copy's `hero.id` and keeps every entry's author; an author is any id,
+  since a partner's entries carry theirs.
+- **`SagaCopyRules` takes any number of children from one,** in PR 1, when a copy is made and when it is read. The 1.0
+  reader is frozen with the release, and with today's limit of four it would call a valid five-child copy from a
+  co-op version damaged. The limit on adding stays in `ProfileRules` (§4).
 - **Earlier copies stop importing.** With two required keys, a copy made by a `develop` or TestFlight build before PR 1
   no longer reads, against ADR-0060 §1's "still reads". Nothing has shipped, so no reader is kept for them; the next
   TestFlight build's notes say it, beside "delete DadSaga first". The `SagaCopyV1` fixture is recorded again, as
@@ -353,10 +381,10 @@ running `develop` delete the app first, ADR-0060 §2):
 on, never opened by the widget, never in a copy, erased by start over. It holds each record's system fields by name;
 the pending changes and their fields; each engine's state; the history token; the family zone, whether this iPhone owns
 it or joined it, and the account's user record id; the members and the partner's name from the share; the photos known
-for each entry; and a joining family's records until the join ends, with their photos in its folder. Its shape follows
-the engine work, so it isn't guessed into `SchemaV1` now; kept apart, the copy test (every stored property in format 1,
-ADR-0057 §4), start over and the widget stay about the saga. It sits beside the saga so an iCloud Backup brings both
-back together.
+for each entry and the `offer-` records known; and a joining family's records until the join ends, with their photos
+in its folder. Its shape follows the engine work, so it isn't guessed into `SchemaV1` now; kept apart, the copy test
+(every stored property in format 1, ADR-0057 §4), start over and the widget stay about the saga. It sits beside the
+saga so an iCloud Backup brings both back together.
 
 **So co-op is expected to need no `SchemaV2`.** If it ever does, it is an additive, lightweight version from the
 `StoreV1` fixture (ADR-0060 §5).
@@ -396,9 +424,10 @@ back together.
     once shared, the family to the inviting parent's iCloud, in their storage; your hero, title and wardrobe to your
     own iCloud only); who sees it (the people in the share, and Apple under its terms); encrypted on the iPhone before
     it goes, and with Advanced Data Protection only the people in the share hold the keys; that your first name, from
-    your Apple Account, is shown on your partner's iPhone and kept there; that your entries stay on your partner's
-    iPhone and in their copies after sharing ends; how to stop (stop sharing or leave, start over, or delete DadSaga's
-    data in iCloud settings) and what stays after (§4);
+    your Apple Account, is shown on your partner's iPhone and kept there, with an identifier of your iCloud account for
+    this app (the `Member` record); that your entries stay on your partner's iPhone and in their copies after sharing
+    ends; how to stop (stop sharing or leave, start over, or delete DadSaga's data in iCloud settings) and what stays
+    after (§4);
   - "In short", the storage paragraph, "Children", "Notifications" (iCloud's silent pushes come through Apple),
     "Deleting your data", "Your rights" and "Changes" change with it.
   The About statement (ADR-0030 §7) adds iCloud; the support pages answer how to move to a new iPhone through iCloud.
@@ -406,18 +435,22 @@ back together.
 ### 8. Testing
 - **Seams.** A `SyncEngine` protocol covers what the delegate uses of `CKSyncEngine` (add pending changes, fetch,
   send, events, state), over `SyncRecord`, a `Sendable` value (type, name, fields, asset file, system fields as data).
-  Only `CloudSync` and the App's sharing views import CloudKit; a `CKRecord` never leaves `CloudKitSyncEngine`. In
+  Only `CloudSync`, and in the App the sharing views, the scene delegate and `ShareInbox` (`CKShare.Metadata`), import
+  CloudKit; a `CKRecord` never leaves `CloudKitSyncEngine`. In
   tests a `FakeCloud` keeps zones and change tags, answers `serverRecordChanged` with the server record and
   `unknownItem` for a deleted record or stale system fields in a re-created zone, deletes zones with each reason
   (`encryptedDataReset` on Personal too), changes accounts and runs out of quota; two `FakeSyncEngine`s on one
   `FakeCloud` are two iPhones.
 - **Suites:** `ChangeFeedTests` (history to pending changes on a store on disk: fields, ids kept on deletion, `sync`
-  writes skipped, an expired token), `FieldMergeTests`, `SyncRecordMappingTests` (real `CKRecord`s, offline),
+  writes skipped, an expired token), `FieldMergeTests`, `SyncRecordMappingTests` (in `CloudSyncTests`: real
+  `CKRecord`s, offline, and the creator check on a member),
   `AuthorshipTests` (§3, in the Domain: a partner's entry changes nothing of mine, and no standing is built for
   another author), `FamilyEditTests`, `TwoParentsSyncTests` (both record offline; both edit a child; one removes it;
   a first captured twice; more than four children; leave; stop; purge; a zone re-created with stale fields; account
-  switch; quota), `JoinFamilyTests` (matching; a profile id already in the family; a rejoin after a stop, a leave and
-  `encryptedDataReset`), `VersionSkewTests` (an unknown kind, content id, field and look value arrive, are kept and
+  switch; quota; an iPhone following a join, with no child shown twice), `JoinFamilyTests` (matching; a profile id
+  already in the family; a rejoin after a stop, a leave and `encryptedDataReset`; on a rejoin, a current member's
+  entry the family lacks is deleted here, and an earlier partner's is sent under the neutral label),
+  `VersionSkewTests` (an unknown kind, content id, field and look value arrive, are kept and
   never sent back or deleted; the unknown content id is copied, and the export says to update), and the import
   refused while shared. PR 1 adds the `#Unique` and `replaceAll` test (§5).
 - **On devices:** two iPhones, two Apple Accounts with iCloud, Debug builds (CloudKit's development environment):
@@ -434,24 +467,25 @@ Each PR goes Domain → Application → Data → Presentation → `AppContainer`
 and reviewed with Fable (persistence and sync). Strings by `content`; every screen through `ui-check`.
 1. **Ids and authors, before the first App Store release branch.** Domain: `PlayerProfile.id`,
    `ProgressEvent.authorID`. Application: `EventRecorder` and the three recording use cases take the author, read
-   through `ProfileRepository`; onboarding makes the id. Data: §5's `SchemaV1`, the mappers, `SagaCopyV1DTO`, the
-   fixture copy, the two subtractions, the `#Unique` and `replaceAll` test; the removed child if the owner agrees.
-   App: wiring. Nothing on screen.
+   through `ProfileRepository`; onboarding makes the id; `SagaCopyRules` takes any number of children from one. Data:
+   §5's `SchemaV1`, the mappers, `SagaCopyV1DTO`, the fixture copy, the two subtractions, the `#Unique` and
+   `replaceAll` test; the removed child if the owner agrees. App: wiring. Nothing on screen.
 2. **Two players** (co-op version, as are the rest). Domain: `DadProgress` from one author's entries; the family's
    captured firsts from all; `Timeline.countedEntries` counts a boss or a first once per child per author, and the
    timeline lists every entry of a known card; `TimelineEntry.authorID`; `FamilyEdit`; the `KeptStanding` merge;
-   `ProfileRules` checks the limit only when adding, and `SagaCopyRules` accepts more than four children.
+   `ProfileRules` checks the limit only when adding.
    Application: home, map, timeline, film, highlights and edits split into own and family; `ProfileRepository` saves
    a `FamilyEdit`; `WholeSagaRepository.readAll` says whether it left anything out. Data: `addUnlessRecorded` checks
    the author for a boss and any author for a first; updates set only changed columns. Nothing visible changes for one
    parent.
 3. **Sync core, without CloudKit.** Application: a `FamilySync` port and `ShareStatus`. Data: `Sync.store`,
    `StoreChangeFeed` (with `trim()`), `SwiftDataSyncApplier`, `SyncRecord` and its mappings, `FieldMerge`,
-   `SyncCoordinator`, the `SyncEngine` port, the offer repository's sync, `FakeCloud`. Nothing wired.
+   `SyncCoordinator`, the `SyncEngine` port, the offer repository's sync and its comparison at launch, `childMap`,
+   `FakeCloud`. Nothing wired.
 4. **CloudKit.** `CloudSync`: `CloudKitSyncEngine` (the two engines and the delegate actor), zones, members, the
-   share, accepting. Data: `FilePhotoStore.place`. App: the scene delegate, `ShareInbox`, wiring with iCloud off,
-   `project.yml` (§7). Web: both privacy pages, the About statement, the camera's words: the first PR in which data
-   could leave.
+   share, accepting; `CloudSyncTests`, a test target of its own. Data: `FilePhotoStore.place`. App: the scene
+   delegate, `ShareInbox`, wiring with iCloud off, `project.yml` (§7). Web: both privacy pages, the About statement,
+   the camera's words: the first PR in which data could leave.
 5. **The iCloud and sharing screens.** Application: `TurnOnICloudUseCase`, `StartSharingUseCase`, `JoinFamilyUseCase`
    (with the matching), `EndSharingUseCase`, `KeepAfterLeavingUseCase`, `FollowSagaUseCase`. Presentation:
    `FamilySharingViewModel`, `FamilySharingViewState`, `FamilySharingView` and the `FamilySharingViews` port;
@@ -470,7 +504,7 @@ Then §8 on devices, the schema to production, and TestFlight.
 - **SwiftData:** history, tombstones and `#Unique` are documented by declaration; every behaviour this leans on is
   pinned by a package test (PR 1 and PR 3), and a row update setting an equal value must not count as a change.
 - **Deleting by mistake:** a stale iPhone must never delete a zone or a row: zones only by a parent's act, rows only
-  by a fetched deletion (§4).
+  by a fetched deletion or a parent's confirmed act (§4), never because a zone went.
 - **CloudKit's production schema is permanent:** record types, field names and encryption are reviewed once more
   before it is deployed.
 - **ADR-0006:** every Domain query that counts says whose entries it counts; `AuthorshipTests` pin it. Review looks
