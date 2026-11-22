@@ -332,7 +332,8 @@ the first App Store release, as the roadmap asks ("Sync ADR before Phase 5") and
     field cleared, so a full send from an iPhone that was off (§2) can't send the child again; an entry whose child is
     gone is deleted there, never sent. `gone` is final: a save onto a gone record (a bring-back racing a delete for
     good) is ignored, and the iPhone that sent it deletes the child when the marker arrives. `Sync.store` keeps the
-    ids of the children deleted for good, from this iPhone's own acts and from fetched markers, and every zone this iPhone builds carries their `gone` records, so a zone
+    ids of the children deleted for good, from this iPhone's own acts and from fetched markers, and every zone
+    this iPhone builds carries their `gone` records, so a zone
     rebuilt after a leave, a stop or `encryptedDataReset` keeps them too. Rows a confirmed act replaces go under the
     `sync` author (above), so the change feed's only local child deletion is deleting for good, which it sends as
     the marker.
@@ -349,7 +350,8 @@ the first App Store release, as the roadmap asks ("Sync ADR before Phase 5") and
   the offer answers are renamed (§1); then the family's records
   arrive as for a join. `saga` says how it changed: a follow after a join, a leave or a stop merges what was
   waiting, as above; a follow after an import or "which to keep" replaces this iPhone's saga with the zone's, as an
-  import does (ADR-0057 §1: no merging), and its question says so. Until it follows, only the family's sync is off there: `Personal` keeps fetching, or that
+  import does (ADR-0057 §1: no merging), and its question says so.
+  Until it follows, only the family's sync is off there: `Personal` keeps fetching, or that
   iPhone would never see `saga` change, and its saga stays. So:
   - **joining with iCloud on alone:** once their entries are in the family zone, their own Family zone is deleted and
     `saga` names the family;
