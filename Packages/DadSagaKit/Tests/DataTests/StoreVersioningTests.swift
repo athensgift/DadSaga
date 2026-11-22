@@ -87,4 +87,45 @@ struct StoreVersioningTests {
 
         #expect(try await store.profiles.fetchProfile() == family)
     }
+
+    @Test("Given a child not born yet, when the family is saved with a birth day, then the same child reads back born on it")
+    func savingABirthDayUpdatesTheChild() async throws {
+        let baby = Child(name: "Μπέμπης", birthDay: nil)
+        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(children: [baby], heroClassID: "chef"))
+        var born = baby
+        born.birthDay = .day(2026, 11, 1)
+
+        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(children: [born], heroClassID: "chef"))
+
+        let children = try await LocalStore.live(in: directory).profiles.fetchProfile()?.children
+        #expect(children == [born])
+        #expect(children?.first?.id == baby.id)
+    }
+
+    @Test("Given a born child, when the family is saved without a birth day, then the child reads back not born yet")
+    func clearingABirthDayUpdatesTheChild() async throws {
+        let lena = Child(name: "Λένα", birthDay: .day(2025, 6, 2))
+        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(children: [lena], heroClassID: "chef"))
+        var unborn = lena
+        unborn.birthDay = nil
+
+        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(children: [unborn], heroClassID: "chef"))
+
+        let child = try await LocalStore.live(in: directory).profiles.fetchProfile()?.children.first
+        #expect(child?.id == lena.id)
+        #expect(child?.isBorn == false)
+    }
+
+    @Test("Given a saved dad, when his look and partner answer change, then the new ones come back after a reopen")
+    func savingTheLookUpdatesTheProfile() async throws {
+        let lena = Child(name: "Λένα", birthDay: .day(2025, 6, 2))
+        var dad = PlayerProfile(children: [lena], heroClassID: "chef", dadSkinTone: .medium)
+        try await LocalStore.live(in: directory).profiles.save(dad)
+        dad.dadAppearance = DadAppearance(hair: .curly, hairColor: .grey, beard: .none, glasses: .round)
+        dad.hasPartner = !dad.hasPartner
+
+        try await LocalStore.live(in: directory).profiles.save(dad)
+
+        #expect(try await LocalStore.live(in: directory).profiles.fetchProfile() == dad)
+    }
 }

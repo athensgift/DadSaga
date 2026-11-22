@@ -154,8 +154,9 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
         #expect(try kinds.map { try Names.kind(Names.names(of: $0).kind, contentID: "x") } == kinds)
     }
 
-    /// Format 1's `saga.json` written out by hand: every key, and the wardrobe's two choices.
-    @Test("Given format 1's saga.json written by hand, when reading it, then every key lands where it was meant to")
+    /// Format 1's `saga.json` written out by hand: every key, and the wardrobe's two choices. It keeps the
+    /// `standing.gearIDs` a `develop` build before ADR-0060 wrote, which is now read and ignored.
+    @Test("Given format 1's saga.json by hand, old gearIDs and all, when reading it, then every key lands where meant")
     func handWrittenSagaReads() throws {
         let json = #"""
         {"answeredOccasionIDs":["x/birthday/1"],
@@ -169,7 +170,7 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
             "photos":["11111111-1111-1111-1111-111111111111"]}],
          "hero":{"beard":"short","classID":"h-cool","glasses":"round","hair":"long","hairColor":"red",
                  "hasPartner":false,"skinTone":"medium"},
-         "standing":{"seenTitleID":"t-2","titleID":"t-3"},
+         "standing":{"gearIDs":["g-mug"],"seenTitleID":"t-2","titleID":"t-3"},
          "wardrobe":[{"choice":"hidden","skill":"play"},{"choice":"item","itemID":"g-mug","skill":"care"}]}
         """#
         let eleni = Child(id: SagaCopyV1Fixture.id("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"), name: "Ελένη",
