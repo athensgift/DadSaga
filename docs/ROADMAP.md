@@ -37,8 +37,9 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   `StoreUnavailableRootTests`), not checked on a device yet. It needs a store that can't be opened: a row with nil in
   a column `SchemaV1` requires, or a junk file. A `develop` store most likely migrates silently instead (ADR-0060 §6,
   "Verification status").
-- The widget opening an older store read-only: its test went with the old stores (ADR-0060). It comes back with the
-  first `SchemaV2`, from the `StoreV1` fixture the first App Store release writes.
+- ✅ The widget opening an older store read-only fails without touching it, tested from a test-only older schema
+  (`OlderStoreTests`, ADR-0060). The first `SchemaV2` adds the test from the `StoreV1` fixture the first App Store
+  release writes.
 - Sync ADR before Phase 5: CKSyncEngine over the event log, `#Unique` ids, photos, export/backup (ADR-0004, ADR-0026).
   `childID` is non-optional since ADR-0060.
 - ✅ The store's work runs off the main thread, now whatever the compiler's default (ADR-0034).
