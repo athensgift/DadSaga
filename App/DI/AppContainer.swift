@@ -176,6 +176,7 @@ final class AppContainer {
                     photoStore: photoStore
                 ),
                 undoRecord: DefaultUndoRecordUseCase(
+                    contentRepository: contentRepository,
                     progressRepository: store.progress,
                     standingRepository: store.standing,
                     photoStore: photoStore

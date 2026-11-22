@@ -37,8 +37,11 @@ extension HomeViewModel {
     }
 
     /// One tap closes it for good, at once and through a reload; a higher title brings a new one.
+    /// It takes its turn with the saves (`isCompleting`), so an Undo never runs while the close is being saved.
     public func closeTitleCard() async {
-        guard let card = titleCard else { return }
+        guard !isCompleting, let card = titleCard else { return }
+        isCompleting = true
+        defer { isCompleting = false }
         closedTitleCards.insert(card.titleID)
         titleCard = nil
         // A film offer or the reminder waited behind it.

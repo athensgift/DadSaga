@@ -101,6 +101,15 @@ struct TitlesStoreTests {
         #expect(try await store.standing.fetchKept() == before)
     }
 
+    @Test("Given no family yet, when an Undo puts back a record, then nothing is written")
+    func restoreWithoutAFamily() async throws {
+        let store = LocalStore.inMemory()
+
+        try await store.standing.restore(KeptStanding(titleID: "t2", gearIDs: [], seenTitleID: "t2"))
+
+        #expect(try await store.standing.fetchKept() == .fresh)
+    }
+
     @Test("Given a kept title, when the dad starts over, then it goes with the saga")
     func startOverErasesIt() async throws {
         let store = LocalStore.inMemory()

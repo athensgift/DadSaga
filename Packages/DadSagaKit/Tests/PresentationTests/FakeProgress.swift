@@ -184,11 +184,13 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         events.removeAll { $0.id == eventID }
     }
 
-    /// Undo: the entry goes and the kept record is put back, as the app's undo does.
+    /// Undo: the entry goes and the kept record is put back by the app's rule.
     func execute(eventID: UUID, restoring kept: KeptStanding) async throws {
         if shouldFail { throw StubError.boom }
-        self.kept = kept
         events.removeAll { $0.id == eventID }
+        self.kept = self.kept.undone(
+            to: kept, after: DadProgress(events: events, catalog: HeroStub.catalog), catalog: HeroStub.catalog
+        )
     }
 
     func execute(id: String, maxPixelSize: Int) async -> Data? {

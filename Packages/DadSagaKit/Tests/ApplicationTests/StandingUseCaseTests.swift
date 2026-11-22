@@ -73,8 +73,10 @@ struct StandingUseCaseTests {
 
     /// Undo, as home does it: with what the recording returned.
     func undo(_ change: ProgressChange, _ progress: any ProgressRepository, _ standing: InMemoryStanding) async throws {
-        try await DefaultUndoRecordUseCase(progressRepository: progress, standingRepository: standing, photoStore: photos)
-            .execute(eventID: try #require(change.eventID), restoring: try #require(change.keptBefore))
+        try await DefaultUndoRecordUseCase(
+            contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
+        )
+        .execute(eventID: try #require(change.eventID), restoring: try #require(change.keptBefore))
     }
 
     func standing(_ progress: any ProgressRepository, _ standing: InMemoryStanding) async throws -> DadStanding {
@@ -110,7 +112,7 @@ struct StandingUseCaseTests {
         try await standing.markSeen(titleID: "t1")
 
         try await undo(change, progress, standing)
-        #expect(await standing.kept.seenTitleID == nil)
+        #expect(await standing.kept.seenTitleID == "t0")
         _ = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
 
         #expect(try await self.standing(progress, standing).news?.title.id == "t1")
@@ -158,6 +160,65 @@ struct StandingUseCaseTests {
         #expect(try await progress.fetchEvents().isEmpty)
         #expect(stand.title?.id == "t1")
         #expect(stand.gear.map(\.id) == ["g-mug"])
+    }
+
+    @Test("Given a title's card, when a later quest is recorded, the card closed and the quest undone, then it stays closed")
+    func undoKeepsACardClosedForATitleStillHeld() async throws {
+        let progress = SpyProgressRepository()
+        let standing = InMemoryStanding()
+        let sut = quest(progress, standing)
+        _ = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+        let later = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+        try await standing.markSeen(titleID: "t1")
+
+        try await undo(later, progress, standing)
+
+        #expect(await standing.kept.seenTitleID == "t1")
+        #expect(try await self.standing(progress, standing).news == nil)
+    }
+
+    @Test("Given an entry that isn't there, when undoing it, then it throws before the kept record is touched")
+    func undoUnknownEntry() async throws {
+        let progress = SpyProgressRepository()
+        let standing = InMemoryStanding()
+        let sut = DefaultUndoRecordUseCase(
+            contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
+        )
+
+        await #expect(throws: ProgressError.unknownEvent) { try await sut.execute(eventID: UUID(), restoring: KeptStanding()) }
+        #expect(await standing.writes == 0)
+        #expect(await standing.kept == .fresh)
+    }
+
+    @Test("Given an Undo whose delete fails, when it is tried again, then the entry stays the first time and goes the second")
+    func undoRetriesAfterAFailedDelete() async throws {
+        let progress = SpyProgressRepository()
+        let standing = InMemoryStanding()
+        let change = try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: .empty)
+        try await standing.markSeen(titleID: "t1")
+        let keptBeforeUndo = await standing.kept
+        await progress.failNextDelete()
+
+        await #expect(throws: StubError.boom) { try await undo(change, progress, standing) }
+        #expect(try await progress.fetchEvents().count == 1)
+        #expect(await standing.kept == keptBeforeUndo)
+
+        try await undo(change, progress, standing)
+        #expect(try await progress.fetchEvents().isEmpty)
+        #expect(try await self.standing(progress, standing).title?.id == "t0")
+    }
+
+    @Test("Given a quest saved with photos, when it is undone, then its photos are deleted too")
+    func undoDeletesPhotos() async throws {
+        let progress = SpyProgressRepository()
+        let standing = InMemoryStanding()
+        let journal = JournalInput(note: nil, photos: [Data([1]), Data([2])])
+        let change = try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: journal)
+        #expect(await photos.stored.count == 2)
+
+        try await undo(change, progress, standing)
+
+        #expect(await photos.stored.isEmpty)
     }
 
     @Test("Given an entry from before titles that earned the cloth, when it is deleted, then the cloth stays")

@@ -63,19 +63,23 @@ public struct HomeView: View {
 
     public var body: some View {
         NavigationStack {
-            Group {
-                switch viewModel.state {
-                case .loading:
-                    ProgressView()
-                case .loaded(let content):
-                    loaded(content)
-                case .failed(let message):
-                    ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
+            // The Undo bar takes its own room under home rather than floating over it, so it never covers a card's
+            // button, such as the title card that comes with it (ADR-0059 §3).
+            VStack(spacing: 0) {
+                Group {
+                    switch viewModel.state {
+                    case .loading:
+                        ProgressView()
+                    case .loaded(let content):
+                        loaded(content)
+                    case .failed(let message):
+                        ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                undoBar
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(DSColor.background)
-            .safeAreaInset(edge: .bottom) { undoBar }
             .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
             .navigationTitle(arrangement.buttons.showsTitleInBar ? title : "")
             // Named, not left to the default: with no mode named, iOS 27.2 collapses the large title as soon as the

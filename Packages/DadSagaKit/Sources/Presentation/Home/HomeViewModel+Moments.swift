@@ -77,10 +77,10 @@ extension HomeViewModel {
     /// title; Undo when new, which goes back to before it, title included (ADR-0055 §3).
     public func deleteMoment() async {
         guard let details = momentCapture?.details else { return }
-        let kept = details.undoOffer.flatMap { keptBeforeEntries[$0.eventID] }
+        let isUndo = details.undoOffer.map { canUndo($0.eventID) } ?? false
         await perform {
-            if let kept {
-                try await self.takeBack(details.momentID, restoring: kept)
+            if isUndo {
+                try await self.takeBack(details.momentID)
             } else {
                 try await self.useCases.deleteEvent.execute(eventID: details.momentID)
             }
@@ -101,8 +101,7 @@ extension HomeViewModel {
 
     /// The undo offer in step 2 ran out. Ignored if it is not the one shown.
     public func momentUndoExpired(id: Int) {
-        guard var details = momentCapture?.details, let offer = details.undoOffer, offer.id == id else { return }
-        keptBeforeEntries[offer.eventID] = nil
+        guard var details = momentCapture?.details, details.undoOffer?.id == id else { return }
         details.undoOffer = nil
         momentCapture?.step = .details(details)
     }

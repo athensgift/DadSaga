@@ -252,7 +252,16 @@ actor SpyProgressRepository: ProgressRepository {
         events[index] = event
     }
 
+    private var deleteFails = false
+
+    /// The next delete throws; the one after works again.
+    func failNextDelete() { deleteFails = true }
+
     func delete(id: UUID) async throws {
+        if deleteFails {
+            deleteFails = false
+            throw StubError.boom
+        }
         events.removeAll { $0.id == id }
     }
 }

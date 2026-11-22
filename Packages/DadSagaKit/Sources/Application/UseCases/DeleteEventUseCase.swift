@@ -29,14 +29,11 @@ public struct DefaultDeleteEventUseCase: DeleteEventUseCase {
     }
 
     public func execute(eventID: UUID) async throws {
-        let events = try await progressRepository.fetchEvents()
-        guard let event = events.first(where: { $0.id == eventID }) else { throw ProgressError.unknownEvent }
+        let remover = EntryRemover(progressRepository: progressRepository, photoStore: photoStore)
+        let (event, events) = try await remover.find(eventID)
         let catalog = try await contentRepository.fetchCatalog()
         try await StandingKeeper(standingRepository: standingRepository)
             .keepBeforeChange(DadProgress(events: events, catalog: catalog), catalog: catalog)
-        try await progressRepository.delete(id: eventID)
-        for photoID in event.photoIDs {
-            await photoStore.delete(id: photoID)
-        }
+        try await remover.remove(event)
     }
 }

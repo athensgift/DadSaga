@@ -109,12 +109,20 @@ is guarded by its title).
   tap, not deleting his log: the title, and so its level, its card and the gear it brought go with the card.
   - Recording returns what the store kept just before the entry (`ProgressChange.keptBefore`): the record
     `StandingKeeper` wrote, or found, before storing it.
-  - `UndoRecordUseCase` puts that record back whole (`StandingRepository.restore`), the closed card's title included,
-    then deletes the entry. It writes nothing of its own, so the card it takes back is never kept. A card closed
-    before the Undo comes again when a later card reaches that title, and home forgets the cards closed in the session.
+  - `UndoRecordUseCase` puts that record's title and gear back (`StandingRepository.restore`), then deletes the entry.
+    It never keeps the card it takes back. If the delete fails, the record is put back as it was before the Undo.
+  - **The closed card** (`seenTitleID`) stays as it is now, unless it is above the title he holds once the entry is
+    gone. Only then it goes back, to the higher of that title and the card closed before the entry
+    (`KeptStanding.undone(to:after:catalog:)`). So a card closed for a title he still holds (brought by an earlier
+    card) stays closed, and the card of a title the Undo takes back comes again when a later card reaches it. Home
+    forgets the cards closed in the session by the same rule, and closing a card takes its turn with the saves, so its
+    write can't land in the middle of an Undo.
   - Two quick cards, then Undo: only the last goes, and the record before it already holds what the first brought.
   - The old gear frozen at the first change (§4) stays frozen: it is what the entries before the card gave.
-  - Undo is offered only for the last entry, for a few seconds; a moment's Undo in its sheet works the same way.
+  - Undo is offered for the last entry on home, for a few seconds, and for a new moment in its sheet. Both can be live
+    at once and either can go first: the record each puts back is absolute, so when one is undone, an entry recorded
+    after it is given the record from before the undone one. An offer that leaves the screen (its time is up, a newer
+    one replaces it, its sheet closes) can't be used later.
 - **A deletion from the timeline keeps the title** and its gear, as above: that is the rule that a title never goes
   down.
 - **Two screens never write at once:** home's recording waits for its last save (`isCompleting`), and the timeline is
@@ -262,11 +270,11 @@ widget (the skill only, ADR-0023), in the wardrobe, or in any delete prompt. The
 ### 12. Where the code goes
 | Layer | Adds | Changes or removes |
 |---|---|---|
-| Domain | `DadTitle`, `KeptStanding`, `DadStanding` and `TitleNews`, `TitleRules` | `DadProgress.cardsDone` (no `level`); `GearRules.earned(_:upTo:kept:)`, `earnedBeforeTitles`, `equipped(_:outfit:)`; `GearItem.skillXPBeforeTitles` (no `minXP`); `ContentCatalog.titles`, `title(id:)`, `title(bringing:)`; `LevelCurve` deleted |
-| Application | `StandingRepository`; `StandingKeeper`; `MarkTitleSeenUseCase` | `ProgressRecorder` and `DeleteEventUseCase` keep first; `HomeOverview.standing`; `Wardrobe`, `SetOutfitChoiceUseCase` and `SagaFilm` (`title`) read the standing; `ProgressChange` loses the level and gear |
+| Domain | `DadTitle`, `KeptStanding` (and `undone(to:after:catalog:)`), `DadStanding` and `TitleNews`, `TitleRules` | `DadProgress.cardsDone` (no `level`); `GearRules.earned(_:upTo:kept:)`, `earnedBeforeTitles`, `equipped(_:outfit:)`; `GearItem.skillXPBeforeTitles` (no `minXP`); `ContentCatalog.titles`, `title(id:)`, `title(bringing:)`; `LevelCurve` deleted |
+| Application | `StandingRepository` (with `restore`); `StandingKeeper`; `MarkTitleSeenUseCase`; `UndoRecordUseCase`; `EntryRemover`, shared by deleting and undoing | `ProgressRecorder` and `DeleteEventUseCase` keep first; `HomeOverview.standing`; `Wardrobe`, `SetOutfitChoiceUseCase` and `SagaFilm` (`title`) read the standing; `ProgressChange` loses the level and gear, and gains `keptBefore` |
 | Data | `titles.json`; `DadTitleDTO`; `SchemaV7` and its stage; `SwiftDataStandingRepository`; `ConnectedStandingRepository`; `LocalStore.standing`; the `StoreV6` fixture | `gear.json` (`skillXPBeforeTitles`); `GearItemDTO`; mappers; `ContentValidator`; `BundledContentRepository`; `ProfileRecord(profile:)`; `CurrentSchema`; `ShippedContentIDs.json` |
 | Presentation | the title line; the title card and `HomeViewModel+TitleCard` | home, its sheets, the moments, the timeline, the wardrobe, the film credits, the celebration; the widget's quest tile; DesignSystem (`XPBar` goes, badges optional); strings in el and en |
-| App | `store.standing` and `MarkTitleSeenUseCase` wired | `AppContainer`, `SnapshotTests/SagaFixture.swift` |
+| App | `store.standing`, `MarkTitleSeenUseCase` and `UndoRecordUseCase` wired | `AppContainer`, `SnapshotTests/SagaFixture.swift` |
 
 ## Choices made for the owner to confirm
 1. **Undo goes back to before the card** (the owner reversed this choice on 2026-11-22): the title it brought, its level,

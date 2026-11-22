@@ -11,7 +11,7 @@ public struct ProgressChange: Hashable, Sendable {
     /// are as they were before the card. `nil` when nothing was recorded.
     public let keptBefore: KeptStanding?
 
-    public init(before: DadProgress, after: DadProgress, eventID: UUID?, keptBefore: KeptStanding? = nil) {
+    public init(before: DadProgress, after: DadProgress, eventID: UUID?, keptBefore: KeptStanding?) {
         self.before = before
         self.after = after
         self.eventID = eventID
@@ -51,7 +51,7 @@ struct ProgressRecorder {
         guard let kind = catalog.canonical(kind) else { throw unknown }
         let events = try await progressRepository.fetchEvents()
         let before = DadProgress(events: events, catalog: catalog)
-        let unchanged = ProgressChange(before: before, after: before, eventID: nil)
+        let unchanged = ProgressChange(before: before, after: before, eventID: nil, keptBefore: nil)
         // The usual repeat stops here, before any photo is written; `record` still catches two saves at once.
         guard !before.isAlreadyCounted(kind, for: childID) else { return unchanged }
         let kept = try await StandingKeeper(standingRepository: standingRepository).keepBeforeChange(before, catalog: catalog)

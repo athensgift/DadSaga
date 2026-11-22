@@ -45,7 +45,8 @@ extension HomeView {
     private var besideColumnWidth: CGFloat? {
         guard isHeroBesideTitle else { return nil }
         let content = width - HomeArrangement.panePadding * 2 - HomeArrangement.besideSpacing
-        return min(content - HomeArrangement.smallestStageWidth, max(content / 2, skillsRowWidth + StandingPanel.padding * 2))
+        let wanted = max(content / 2, skillsRowWidth + StandingPanel.padding * 2)
+        return max(0, min(content - HomeArrangement.smallestStageWidth, wanted))
     }
 
     /// The hero's height: what his pane leaves him (ADR-0056 §3, ADR-0059 §3).

@@ -15,8 +15,13 @@ public final class HomeViewModel {
     /// "Undo" for a few seconds after the dad records something, in case he tapped by mistake.
     public internal(set) var undoOffer: UndoOffer?
     public internal(set) var errorMessage: String?
-    /// The sheet for capturing a legendary moment, while it is open.
-    public internal(set) var momentCapture: MomentCapture?
+    /// The sheet for capturing a legendary moment, while it is open. Its Undo, once gone, can't be used again.
+    public internal(set) var momentCapture: MomentCapture? {
+        didSet {
+            let offer = oldValue?.details?.undoOffer
+            if let offer, offer.eventID != momentCapture?.details?.undoOffer?.eventID { forgetUndo(of: offer) }
+        }
+    }
     /// A moment just recorded celebrates on home once its sheet has closed, not behind it (`sheetDismissed`).
     var pendingMomentCelebration: Celebration?
     public internal(set) var isCompleting = false
@@ -44,8 +49,8 @@ public final class HomeViewModel {
     public internal(set) var skillBounces: [String: Int] = [:]
     /// The skill each celebration on screen grew, by its id, until it goes. Only home's view model knows it.
     @ObservationIgnored var celebratedSkills: [Int: Skill] = [:]
-    /// What the store kept before each entry that can still be undone, by the entry's id: an Undo puts it back.
-    @ObservationIgnored var keptBeforeEntries: [UUID: KeptStanding] = [:]
+    /// The entries whose Undo is on screen, in the order they were recorded, with what the store kept before each.
+    @ObservationIgnored var undoable: [UndoableEntry] = []
 
     let useCases: UseCases
     let locale: Locale
@@ -201,6 +206,8 @@ public final class HomeViewModel {
         pendingMomentCelebration = nil
         let celebration = makeCelebration(skill: skill, badge: badge)
         show(celebration)
+        // The bar shows one offer: the one it replaces can't be used again.
+        if let replaced = undoOffer { forgetUndo(of: replaced) }
         undoOffer = offerUndo(of: change, id: celebration.id)
     }
 
@@ -236,6 +243,10 @@ public final class HomeViewModel {
                 guard generation == loadGeneration else { return nil }
                 state = .failed(message: strings.text("No profile found."))
                 return nil
+            }
+            // A card closed for a title above the one held, which an Undo took back, may come again.
+            closedTitleCards = closedTitleCards.filter { id in
+                (overview.catalog.title(id: id)?.order ?? 0) <= (overview.standing.title?.order ?? -1)
             }
             let titleCard = makeTitleCard(overview)
             let sagaOffer = titleCard == nil ? makeSagaOffer(overview) : nil

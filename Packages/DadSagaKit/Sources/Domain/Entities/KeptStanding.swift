@@ -18,3 +18,20 @@ public struct KeptStanding: Hashable, Sendable {
     /// A saga started with titles: nothing from before to keep.
     public static let fresh = KeptStanding(gearIDs: [])
 }
+
+extension KeptStanding {
+    /// What to keep once an Undo takes back an entry (ADR-0055 §3): the record from before it, `before`, with this one's
+    /// closed card unless that is above the title he holds without the entry. Then it goes back only to the higher of
+    /// that title and the card closed before, so a card he closed for a title he still holds stays closed, and one for
+    /// the title the entry brought comes again when a card reaches it.
+    /// - Parameter after: his entries without the one taken back.
+    public func undone(to before: KeptStanding, after: DadProgress, catalog: ContentCatalog) -> KeptStanding {
+        let held = DadStanding(progress: after, catalog: catalog, kept: before).title
+        var next = before
+        next.seenTitleID = seenTitleID
+        guard let seen = seenTitleID.flatMap(catalog.title(id:)), seen.order > held?.order ?? -1 else { return next }
+        let seenBefore = before.seenTitleID.flatMap(catalog.title(id:))
+        next.seenTitleID = [held, seenBefore].compactMap(\.self).max { $0.order < $1.order }?.id
+        return next
+    }
+}

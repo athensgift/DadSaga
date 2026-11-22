@@ -2,7 +2,7 @@
 
 **Status:** Accepted (2026-11-22): the owner's decisions are final, and he confirmed the choices listed under "Choices
 made for the owner to confirm" the same day. Numbered 0059 because another branch takes 0057. It changes:
-- **ADR-0055** (itself still Proposed):
+- **ADR-0055** (Accepted the same day):
   - §2: a title's order is also its level, and orders run without gaps.
   - §6: home's title line has the level, the four skills sit under it, and the title card has a level line.
   - §7: the catalog may hold the level word, still no XP.
@@ -155,6 +155,9 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
   safe area, leaves after its title and what stands under him, between 120 and 260 pt. So at xxxLarge the skills sit
   above the home indicator without scrolling; at the accessibility sizes he stops at 120 pt and the pane scrolls.
 - **The bounce** is in the hero's pane, away from the fold.
+- **The Undo bar takes its own room** under home's content instead of floating over it. A title card now comes with the
+  Undo offer of the card that brought it, and the bar must never cover the card's button. With the bar shown, home's
+  panes end above it; with it gone, they reach the bottom again.
 
 ### 4. The catalog test
 - No key or text says "XP", as now.
