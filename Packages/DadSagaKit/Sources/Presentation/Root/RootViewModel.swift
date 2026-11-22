@@ -25,6 +25,9 @@ public final class RootViewModel {
     private var waitingLink: PendingLink?
     /// Editors on either tab holding unsaved changes. The tabs see it through the environment.
     let unsavedWork = UnsavedWork()
+    /// Changes each time an imported saga takes the place of the one on screen, so home and the timeline are built
+    /// anew for it (ADR-0057 §7).
+    public private(set) var sagaGeneration = 0
     /// Light/dark and haptics, applied to every screen (ADR-0030).
     public private(set) var preferences = PreferencesChoice()
 
@@ -120,6 +123,18 @@ public final class RootViewModel {
     /// Settings stored new preferences.
     public func preferencesChanged(_ preferences: PreferencesChoice) {
         self.preferences = preferences
+    }
+
+    /// An imported saga is now the one on this iPhone, from Settings or from onboarding: home opens on it, built anew,
+    /// which closes Settings. A link waiting for the old saga is dropped.
+    public func sagaImported() {
+        dropLinks()
+        // Settings closes with the old home; nothing it held can be lost any more.
+        unsavedWork.end(scope: UnsavedScope.settings)
+        selectedTab = .adventure
+        // From onboarding, home is built as it opens; only a home already on screen is built again.
+        if state == .home { sagaGeneration += 1 }
+        state = .home
     }
 
     /// Settings erased the saga: onboarding opens, which closes home and its sheets.

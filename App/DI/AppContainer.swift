@@ -30,6 +30,9 @@ final class AppContainer {
         getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore),
         findSubject: DefaultFindPhotoSubjectUseCase(analyzer: photoAnalyzer)
     )
+    /// Writes and reads exported sagas, in a temporary folder of its own (ADR-0057 §3). One for the whole app, so the
+    /// launch clean-up and every Settings page share that folder.
+    private lazy var sagaCopyFiles: any SagaCopyFiles = AppleArchiveSagaCopyFiles(app: "\(appInfo.version) (\(appInfo.build))")
     /// Looks at the film's photos with Vision, on the device, while a film is made; keeps nothing (ADR-0047).
     private let photoAnalyzer: any PhotoAnalyzer = VisionPhotoAnalyzer()
 
@@ -123,7 +126,9 @@ final class AppContainer {
             makeHero: { [unowned self] in makeHeroSettingsViewModel() },
             makeWardrobe: { [unowned self] in makeWardrobeViewModel() },
             makeFamily: { [unowned self] in makeFamilyViewModel(onSaved: $0) },
-            makeReminder: { [unowned self] in makeReminderSettingsViewModel() }
+            makeReminder: { [unowned self] in makeReminderSettingsViewModel() },
+            makeDataExport: { [unowned self] in makeDataExportViewModel(onImported: $0) },
+            discardExports: { [unowned self] in discardLeftoverExports() }
         )
     }
 
@@ -268,5 +273,47 @@ final class AppContainer {
             ),
             updateJournal: DefaultUpdateJournalUseCase(progressRepository: store.progress, photoStore: photoStore)
         )
+    }
+}
+
+// MARK: - Exporting and importing the saga (ADR-0057)
+
+extension AppContainer {
+    private var makeSagaCopyUseCase: any MakeSagaCopyUseCase {
+        DefaultMakeSagaCopyUseCase(
+            wholeSaga: store.wholeSaga, sagaOffers: sagaOffers, photoStore: photoStore, files: sagaCopyFiles
+        )
+    }
+
+    func makeDataExportViewModel(onImported: @escaping @MainActor () -> Void) -> DataExportViewModel {
+        DataExportViewModel(
+            makeCopy: makeSagaCopyUseCase,
+            backgroundTime: UIKitBackgroundTime(),
+            importer: makeDataImportViewModel(replacesSaga: true, onImported: onImported)
+        )
+    }
+
+    /// - Parameter replacesSaga: `false` on onboarding, where there is no saga yet.
+    func makeDataImportViewModel(replacesSaga: Bool, onImported: @escaping @MainActor () -> Void) -> DataImportViewModel {
+        DataImportViewModel(
+            restore: DefaultRestoreSagaUseCase(
+                wholeSaga: store.wholeSaga,
+                progressRepository: store.progress,
+                photoStore: photoStore,
+                sagaOffers: sagaOffers,
+                files: sagaCopyFiles,
+                schedule: scheduleWeeklyReminders,
+                notificationScheduler: notificationScheduler
+            ),
+            backgroundTime: UIKitBackgroundTime(),
+            replacesSaga: replacesSaga,
+            onImported: onImported
+        )
+    }
+
+    /// Deletes exported files: once Settings closes, and at launch for what a crash or a kill left (ADR-0057 §6).
+    func discardLeftoverExports() {
+        let makeCopy = makeSagaCopyUseCase
+        Task { await makeCopy.discardCopies() }
     }
 }

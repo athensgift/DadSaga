@@ -36,6 +36,7 @@ public struct SettingsView: View {
                     case .wardrobe(let wardrobe): WardrobeView(viewModel: wardrobe)
                     case .family(let family): FamilyView(viewModel: family)
                     case .reminder(let reminder): ReminderSettingsView(viewModel: reminder)
+                    case .data(let data): DataExportView(viewModel: data)
                     }
                 }
         }
@@ -46,6 +47,7 @@ public struct SettingsView: View {
         return Form {
             preferencesSection(content)
             heroSection(content)
+            dataSection(content)
             if let support = content.support {
                 supportSection(support)
             }
@@ -144,6 +146,16 @@ public struct SettingsView: View {
         }
     }
 
+    private func dataSection(_ content: SettingsContent) -> some View {
+        Section {
+            row(content.dataExportTitle, systemImage: "externaldrive") {
+                page = .data(pages.makeDataExport { viewModel.sagaImported() })
+            }
+        } header: {
+            Text(content.dataSection).foregroundStyle(DSColor.textSecondary)
+        }
+    }
+
     private func startOverSection(_ labels: StartOverLabels) -> some View {
         Section {
             Button(role: .destructive) {
@@ -229,6 +241,7 @@ private enum SettingsPage: Hashable {
     case wardrobe(WardrobeViewModel)
     case family(FamilyViewModel)
     case reminder(ReminderSettingsViewModel)
+    case data(DataExportViewModel)
 
     private var object: AnyObject {
         switch self {
@@ -236,6 +249,7 @@ private enum SettingsPage: Hashable {
         case .wardrobe(let model): model
         case .family(let model): model
         case .reminder(let model): model
+        case .data(let model): model
         }
     }
 

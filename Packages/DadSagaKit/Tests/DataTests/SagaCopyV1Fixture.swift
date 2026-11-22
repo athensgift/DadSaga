@@ -2,7 +2,7 @@ import Domain
 import Foundation
 
 /// What the format-1 copy in `Fixtures/SagaCopyV1` holds (ADR-0057 §4), with its three photos beside it as
-/// `<id>.jpg`. It may be recorded again only until the screens for copies ship; from then on, never.
+/// `<id>.jpg`. Format 1 shipped with the screens for it: never record it again (ADR-0057 §4).
 enum SagaCopyV1Fixture {
     static func id(_ text: String) -> UUID { UUID(uuidString: text) ?? UUID() }
 

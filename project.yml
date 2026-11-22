@@ -74,6 +74,14 @@ targets:
         NSCameraUsageDescription: Take a photo for a legendary moment. Photos stay on this device.
         # The share sheet's "Save Video" for a saga film (ADR-0036 §6).
         NSPhotoLibraryAddUsageDescription: Save your saga film to Photos.
+        # An exported saga, `.dadsaga` (ADR-0057 §3): public.content lets it go over AirDrop. Opening one with the app
+        # (CFBundleDocumentTypes) waits for v1.x.
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: app.dadsaga.saga-copy
+            UTTypeDescription: DadSaga copy
+            UTTypeConformsTo: [public.data, public.content]
+            UTTypeTagSpecification:
+              public.filename-extension: [dadsaga]
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft

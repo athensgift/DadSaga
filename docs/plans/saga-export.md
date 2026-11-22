@@ -246,7 +246,7 @@ model in one, all its UI in the next").
    web pages, ROADMAP. `ui-check` draws it; `reviewer` checks it; the device checks before it is called done. Its merge
    freezes format 1.
 
-### Notes for PR 2 (from the review of PR 1)
+### Notes for PR 2 (from the review of PR 1; all done in PR 2)
 - `.notACopy` and `.incomplete` share one message on screen: a copy cut short inside its first compressed block can
   read as either.
 - Never run an export and an import at once: `discardTemporaryFiles` empties the whole `SagaCopies` folder.

@@ -12,10 +12,12 @@ extension ScreenSnapshotTests {
         arguments: Look.allCases
     )
     func datePickerWidth(look: Look) async throws {
-        let viewModel = SagaFixture(locale: look.locale).onboarding()
+        let fixture = SagaFixture(locale: look.locale)
+        let viewModel = fixture.onboarding()
         await viewModel.onAppear()
         let screen = UIHostingController(
-            rootView: OnboardingView(viewModel: viewModel).environment(\.locale, look.locale)
+            rootView: OnboardingView(viewModel: viewModel) { fixture.dataImport(replacesSaga: false) }
+                .environment(\.locale, look.locale)
         )
         screen.traitOverrides.preferredContentSizeCategory = look.traits.preferredContentSizeCategory
         let windows = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.flatMap(\.windows)

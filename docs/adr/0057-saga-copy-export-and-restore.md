@@ -175,8 +175,8 @@ copy's title: the dad's own choice, like start over).
 - **Shared with `ShareLink`** once made ("Save or send"), with the size written ("Your copy is ready · 412 MB"), read
   from the file's size once it is closed (the app's own file: `C617.1`, already declared). The receiver gets a copy of the file
   (`SentTransferredFile`, `allowAccessingOriginalFile: false`).
-- **Deleted** when Settings closes (its `onDismiss`, never `onDisappear`, ADR-0037 §4), when another copy is made, and at
-  the next launch (`discardLeftoverCopies()`, beside the films').
+- **Deleted** when Settings closes (its `onDismiss`, never `onDisappear`, ADR-0037 §4), after an import from that page, and at
+  the next launch (`discardLeftoverExports()`, beside the films').
 - **Leaving the app:** the work runs under `beginBackgroundTask`, so switching apps or locking the phone for a moment
   doesn't stop a copy that takes seconds. If that time runs out, it is cancelled, the partial file deleted, and on return
   the page says it stopped when DadSaga left the screen.
@@ -199,7 +199,7 @@ copy's title: the dad's own choice, like start over).
      so nothing the current saga has is touched before the commit. The copy's entries are given the new ids;
    - the checksums at the end.
    Any failure, Cancel or lost background time deletes every photo adopted so far: the current saga was never touched.
-3. **Ask** (a confirmation dialog): when it was made and whose saga it is ("Made on 12 March 2027 · Λένα, Μικρός"), and,
+3. **Ask** (an alert, whose every answer is a visible button): when it was made and whose saga it is ("Made on 12 March 2027 · Λένα, Μικρός"), and,
    when there is a saga here, plainly what it replaces (§8). Cancel deletes the adopted photos.
 4. **Replace, in this order:**
    1. read the photo ids the current entries point to;
@@ -222,7 +222,7 @@ copy's title: the dad's own choice, like start over).
   store, and every row they could hold was deleted, so they read the new rows. A test writes through every repository
   after a replace. No lock is added: while a restore runs, Settings covers home (or onboarding has no saga), and the page
   holds `UnsavedWork`, so a link from the widget or a notification waits until it ends (ADR-0050 §4).
-- **After the restore** the root rebuilds home and the timeline (`RootViewModel.sagaRestored()`), which closes Settings,
+- **After the restore** the root rebuilds home and the timeline (`RootViewModel.sagaImported()`), which closes Settings,
   as start over does; from onboarding it opens home. The widget reloads when the app leaves the screen, as after any
   write (ADR-0023 §4); a widget set to a child the copy doesn't have shows the first child (ADR-0023 §1).
 - **The title:** the copy brings its own. Restoring an older copy can bring back a lower title than the one on screen:
@@ -235,29 +235,33 @@ copy's title: the dad's own choice, like start over).
   it works, the sheet can't be swiped away and Back is hidden; Cancel is the way out.
 - **Onboarding:** "Import data" under Continue on the first step, the way back on a new iPhone without a
   backup. It opens the same restore flow in a small sheet; the confirmation there doesn't speak of replacing.
-- **Copy** (drafted here; `content` writes the final words before the UI PR):
+- **Copy** (the final words, by `content`):
 
   | | en | el |
   |---|---|---|
   | Section · row and page | Your data · Export data | Τα δεδομένα σου · Εξαγωγή δεδομένων |
-  | Import part | Import data | Εισαγωγή δεδομένων |
-  | Make: text | One file with your family, your hero and every entry, with its notes and photos. Keep it in Files, on a computer, or send it to your new iPhone. | Ένα αρχείο με την οικογένεια, τον ήρωά σου και κάθε καταχώριση, με τις σημειώσεις και τις φωτογραφίες της. Κράτα το στα Αρχεία, σε έναν υπολογιστή ή στείλ' το στο νέο σου iPhone. |
-  | Make · making | Make a copy · Making your copy… | Φτιάξε αντίγραφο · Φτιάχνεται το αντίγραφο… |
-  | Made · share | Your copy is ready · %@ · Save or send | Το αντίγραφο είναι έτοιμο · %@ · Αποθήκευση ή αποστολή |
-  | Made: note | It has no password: keep it where you'd keep your photos. | Δεν έχει κωδικό: κράτα το εκεί που θα κρατούσες τις φωτογραφίες σου. |
-  | Restore: text | Brings back the saga in a copy, in place of the one on this iPhone. | Φέρνει πίσω την ιστορία ενός αντιγράφου, στη θέση αυτής που είναι σε αυτό το iPhone. |
-  | Restore · opening | Choose a copy · Opening the copy… | Διάλεξε αντίγραφο · Ανοίγει το αντίγραφο… |
-  | Confirm: title · made | Restore this copy? · Made on %1$@ · %2$@ | Να γίνει επαναφορά αυτού του αντιγράφου; · Φτιάχτηκε στις %1$@ · %2$@ |
-  | Confirm: replaces | It takes the place of everything on this iPhone now: your family and hero, every quest, boss and moment with their notes and photos, and your wardrobe. This can't be undone. | Θα πάρει τη θέση όλων όσων υπάρχουν τώρα σε αυτό το iPhone: της οικογένειας και του ήρωά σου, κάθε αποστολής, αφεντικού και στιγμής με τις σημειώσεις και τις φωτογραφίες τους, και της ντουλάπας. Δεν αναιρείται. |
-  | Confirm: buttons · restoring | Restore · Cancel · Restoring your saga… | Επαναφορά · Άκυρο · Γίνεται επαναφορά της ιστορίας σου… |
-  | After any failed restore | Your saga hasn't changed. | Η ιστορία σου δεν άλλαξε. |
-  | Newer format | This copy was made by a newer DadSaga. Update the app, then try again. | Το αντίγραφο φτιάχτηκε από νεότερη έκδοση του DadSaga. Ενημέρωσε την εφαρμογή και δοκίμασε ξανά. |
-  | Not whole or damaged | This file isn't a whole DadSaga copy. It may not have finished saving or sending. | Το αρχείο δεν είναι ολόκληρο αντίγραφο του DadSaga. Ίσως δεν ολοκληρώθηκε η αποθήκευση ή η αποστολή του. |
-  | Can't read the file | The file couldn't be opened. If it's in iCloud Drive, check that you're online, then try again. | Το αρχείο δεν άνοιξε. Αν είναι στο iCloud Drive, έλεγξε ότι έχεις σύνδεση και δοκίμασε ξανά. |
+  | Export: text | One file with your saga: your family and hero, your title and wardrobe, every quest, boss and moment with their notes and photos. Keep it in Files or on a computer, or send it to another iPhone. | Ένα αρχείο με την ιστορία σου: την οικογένεια και τον ήρωά σου, τον τίτλο και την ντουλάπα σου, κάθε αποστολή, αφεντικό και στιγμή με τις σημειώσεις και τις φωτογραφίες τους. Κράτα το στα Αρχεία ή σε έναν υπολογιστή, ή στείλ' το σε άλλο iPhone. |
+  | Export · making | Make a copy · Making your copy… | Φτιάξε αντίγραφο · Το αντίγραφό σου φτιάχνεται… |
+  | Ready · share | Your copy is ready · %@ · Save or send | Το αντίγραφό σου είναι έτοιμο · %@ · Αποθήκευσε ή στείλε |
+  | Export: footer | It has no password: it always opens, for you and for anyone who has the file. Keep it where you'd keep your photos. | Δεν έχει κωδικό: ανοίγει πάντα, για σένα και για όποιον έχει το αρχείο. Κράτα το εκεί που θα κρατούσες τις φωτογραφίες σου. |
+  | Import: section, onboarding's button and sheet | Import data | Εισαγωγή δεδομένων |
+  | Import: text in Settings | Puts the saga from a copy in place of the one on this iPhone. We'll ask before anything changes. | Βάζει την ιστορία ενός αντιγράφου στη θέση αυτής που έχεις σε αυτό το iPhone. Πριν αλλάξει οτιδήποτε, θα σε ρωτήσουμε. |
+  | Import: text on onboarding | If you have a copy of your saga from Export data, choose it here and pick up where you left off. | Αν έχεις αντίγραφο της ιστορίας σου από την Εξαγωγή δεδομένων, διάλεξέ το εδώ και συνέχισε από εκεί που είχες μείνει. |
+  | Import · opening | Choose a copy · Opening the copy… | Διάλεξε αντίγραφο · Το αντίγραφο ανοίγει… |
+  | Confirm: title · made | Import this copy? · Made on %1$@ · %2$@ | Εισαγωγή αυτού του αντιγράφου; · Φτιάχτηκε: %1$@ · %2$@ |
+  | Confirm: replaces (Settings only) | Everything on this iPhone now will be replaced by what's in the copy: your family and hero, your title and wardrobe, every quest, boss and moment with their notes and photos. This can't be undone. | Ό,τι υπάρχει τώρα σε αυτό το iPhone θα αντικατασταθεί από όσα έχει το αντίγραφο: η οικογένεια και ο ήρωάς σου, ο τίτλος και η ντουλάπα σου, κάθε αποστολή, αφεντικό και στιγμή με τις σημειώσεις και τις φωτογραφίες τους. Δεν αναιρείται. |
+  | Confirm: buttons · importing | Import (destructive in Settings) · Cancel · Importing your saga… | Εισαγωγή · Άκυρο · Γίνεται εισαγωγή της ιστορίας σου… |
+  | After every failure in Settings | Your saga hasn't changed. | Η ιστορία σου δεν άλλαξε. |
+  | Newer format | This copy was made by a newer version of DadSaga. Update the app, then try again. | Το αντίγραφο φτιάχτηκε από νεότερη έκδοση του DadSaga. Ενημέρωσε την εφαρμογή και δοκίμασε ξανά. |
+  | Not whole, damaged or not a copy (one message) | This file isn't a complete DadSaga copy. It may not have finished saving or sending. | Αυτό το αρχείο δεν είναι ολόκληρο αντίγραφο του DadSaga. Ίσως δεν πρόλαβε να αποθηκευτεί ή να σταλεί ολόκληρο. |
+  | Can't read the file | The file couldn't be opened. If it's in iCloud Drive or another cloud service, check your connection and try again. | Το αρχείο δεν άνοιξε. Αν είναι στο iCloud Drive ή σε άλλη υπηρεσία cloud, έλεγξε τη σύνδεσή σου και δοκίμασε ξανά. |
   | No space | There isn't enough free space on this iPhone. Free up some space and try again. | Δεν υπάρχει αρκετός ελεύθερος χώρος σε αυτό το iPhone. Ελευθέρωσε λίγο χώρο και δοκίμασε ξανά. |
-  | Left the app | It stopped when DadSaga left the screen. Try again whenever you like. | Σταμάτησε όταν το DadSaga βγήκε από την οθόνη. Δοκίμασε ξανά όποτε θέλεις. |
-  | Other failure | The copy couldn't be made. Please try again. · The copy couldn't be restored. Please try again. | Το αντίγραφο δεν φτιάχτηκε. Δοκίμασε ξανά. · Η επαναφορά δεν έγινε. Δοκίμασε ξανά. |
-  | Onboarding | Import data | Εισαγωγή δεδομένων |
+  | Left the app | The export (import) stopped when you left DadSaga. Try again whenever you like, and keep DadSaga open until it's done. | Η εξαγωγή (εισαγωγή) σταμάτησε όταν βγήκες από το DadSaga. Δοκίμασε ξανά όποτε θέλεις και κράτα το DadSaga ανοιχτό μέχρι να τελειώσει. |
+  | Other failure | Couldn't export your data. Please try again. · Couldn't import the data. Please try again. | Η εξαγωγή δεν έγινε. Δοκίμασε ξανά. · Η εισαγωγή δεν έγινε. Δοκίμασε ξανά. |
+  | Nothing yet | There's nothing to export yet. | Δεν υπάρχει ακόμα κάτι για εξαγωγή. |
+
+  On onboarding there is no saga yet, so a failure there doesn't say it hasn't changed. VoiceOver hears "Your copy is
+  ready" and every failure as it appears.
 
   The confirmation's wording mirrors start over's (ADR-0030 §8): it says what goes, with no counts, titles or alarm.
 
@@ -275,8 +279,8 @@ copy's title: the dad's own choice, like start over).
   its iCloud Backup and Quick Start sentence stays only if the device test shows App Group data comes back (and if it
   doesn't, the privacy page's backup sentence changes too). A new question, "How do I keep a copy of my saga?".
 - **The About statement** (ADR-0030 §7) becomes: "… stay on this iPhone, in its backups if you make them, and in any
-  copy of your saga you save." / «… μένουν σε αυτό το iPhone, στα αντίγραφα ασφαλείας του αν τα κρατάς, και σε όποιο
-  αντίγραφο της ιστορίας σου αποθηκεύσεις.»
+  copy of your saga you make." / «… μένουν σε αυτό το iPhone, στα αντίγραφα ασφαλείας του αν τα κρατάς, και σε όποιο
+  αντίγραφο της ιστορίας σου φτιάξεις.»
 
 ### 10. Where the code goes
 | Layer | Adds | Changes or removes |
@@ -284,8 +288,8 @@ copy's title: the dad's own choice, like start over).
 | Domain | `StoredSaga` (profile, events, outfit, kept standing; its photo ids and `replacingPhotoIDs`); `SagaCopy` (a stored saga, the offers answered, when it was made); `SagaCopyRules` | |
 | Application | `WholeSagaRepository` (`readAll`, `replaceAll(with:)`, `eraseAll`); `SagaCopyFiles` port with `MadeSagaCopy` and `SagaCopyError`; `MakeSagaCopyUseCase`, `RestoreSagaUseCase` (`open`, `restore`, `discard`) with `OpenedSagaCopy`; `PhotoStore.storedData(id:)`, `adopt(_:)` | `SagaEraser` goes into `WholeSagaRepository`; `StartOverUseCase` takes it |
 | Data | `SwiftDataWholeSagaRepository`; `ConnectedWholeSagaRepository`; `AppleArchiveSagaCopyFiles`; `SagaCopyV1DTO` and its mappers; `FilePhotoStore.storedData`, `adopt`; the `SagaCopyV1` fixture | `SwiftDataSagaEraser` and `ConnectedSagaEraser` go; `LocalStore.wholeSaga` replaces `eraser`; `StoreConnection.Repositories` |
-| Presentation | `SagaCopyViewModel`/`SagaCopyViewState`/`SagaCopyView`; `RestoreSagaViewModel`/`RestoreSagaViewState` with its section and onboarding sheet; `SagaCopyFile` (`Transferable`, `UTType.dadSagaCopy`); `BackgroundTime` | Settings (section, page, `onSagaRestored`); onboarding's restore button; `RootViewModel.sagaRestored()` and `RootView` rebuilding home and the timeline; the About statement; strings in el and en |
-| App | `UIKitBackgroundTime`; wiring; `discardLeftoverCopies()` at launch; `UTExportedTypeDeclarations` in `project.yml` | `AppContainer` (start over through `wholeSaga`) |
+| Presentation | `DataExportViewModel`/`DataExportView`; `DataImportViewModel` with `DataImportSection` and onboarding's `DataImportSheet`; `SagaCopyFile` (`Transferable`, `UTType.dadSagaCopy`); `BackgroundTime`; `HoldsLinksWhileWorking` | Settings (section, page, `onSagaImported`); onboarding's restore button; `RootViewModel.sagaImported()` and `RootView` rebuilding home and the timeline; the About statement; strings in el and en |
+| App | `UIKitBackgroundTime`; wiring; `discardLeftoverExports()` at launch; `UTExportedTypeDeclarations` in `project.yml` | `AppContainer` (start over through `wholeSaga`) |
 | Web | | both privacy pages, both support pages |
 
 ## Rejected
@@ -328,7 +332,8 @@ copy's title: the dad's own choice, like start over).
 
 ## Verification status
 The format and the restore engine are built and tested in the package (PR 1): a round trip through two real stores, the
-format-1 fixture, files cut short, changed, hand-made and from a newer format. The screens come with PR 2. File
+format-1 fixture, files cut short, changed, hand-made and from a newer format. The screens (PR 2) are tested through
+their presenters and drawn in the simulator. Format 1 is frozen from PR 2's merge. File
 protection (`completeUnlessOpen`, iOS only: macOS refuses to open a file created with a protection class) and a full disk
 are checked only on a device. To check on a device, with a saga of 500 photos or more:
 - making a copy: time, memory (Instruments: flat, about one photo at a time), heat; saving it to iCloud Drive in Files;
