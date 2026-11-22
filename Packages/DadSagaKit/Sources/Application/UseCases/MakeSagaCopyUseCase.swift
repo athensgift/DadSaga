@@ -29,13 +29,15 @@ public struct DefaultMakeSagaCopyUseCase: MakeSagaCopyUseCase {
         self.files = files
     }
 
-    /// A photo whose file is gone travels without it, as the timeline already shows the entry without it.
+    /// A photo whose file is gone travels without it, as the timeline already shows the entry without it. A saga the
+    /// import would refuse is never written: a copy that can't come back is worse than none (ADR-0057 §6).
     @concurrent
     public func execute(on date: Date, progress: @escaping @Sendable (Double) -> Void) async throws -> MadeSagaCopy {
         do {
             guard let saga = try await wholeSaga.readAll() else { throw SagaCopyError.nothingToCopy }
             let stored = Set(try await photoStore.storedPhotos().map(\.id))
             let kept = Dictionary(uniqueKeysWithValues: Set(saga.photoIDs).intersection(stored).map { ($0, $0) })
+            do { try SagaCopyRules.checked(saga) } catch { throw SagaCopyError.failed }
             let copy = SagaCopy(
                 saga: saga.replacingPhotoIDs(kept),
                 answeredOccasionIDs: await sagaOffers.answeredOccasionIDs(),

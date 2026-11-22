@@ -28,7 +28,7 @@ extension SagaCopyBench {
         return Phone(
             store: LocalStore.live(in: folder.appending(path: "store")),
             photos: FilePhotoStore.moments(in: folder),
-            files: AppleArchiveSagaCopyFiles(folder: folder.appending(path: "tmp")),
+            files: AppleArchiveSagaCopyFiles(app: "test", folder: folder.appending(path: "tmp"), ),
             offers: MemoryOffers()
         )
     }
@@ -120,8 +120,15 @@ extension SagaCopyBench {
             data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
             space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
         ))
-        context.setFillColor(red: CGFloat(width % 7) / 7, green: 0.6, blue: CGFloat(height % 5) / 5, alpha: 1)
-        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
+        // Noise, so a copy's photos don't compress to nothing and a file spans many compression blocks.
+        var random = SystemRandomNumberGenerator()
+        for column in 0..<width {
+            for row in 0..<height {
+                let red = CGFloat.random(in: 0...1, using: &random)
+                context.setFillColor(red: red, green: 0.6, blue: .random(in: 0...1, using: &random), alpha: 1)
+                context.fill(CGRect(x: column, y: row, width: 1, height: 1))
+            }
+        }
         let image = try #require(context.makeImage())
         let output = NSMutableData()
         let destination = try #require(CGImageDestinationCreateWithData(output, UTType.png.identifier as CFString, 1, nil))

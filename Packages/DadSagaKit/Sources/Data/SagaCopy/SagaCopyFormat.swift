@@ -21,7 +21,7 @@ enum SagaCopyFormat {
     /// Each entry is refused before it is read when its header says it is larger: a copy can't make the app allocate
     /// more than this.
     static let manifestLimit = 64 * 1024
-    static let sagaLimit = 64 * 1024 * 1024
+    static let sagaLimit = 16 * 1024 * 1024
     static let photoLimit = 64 * 1024 * 1024
 
     static func photoPath(_ id: String) -> String { photoFolder + id + photoExtension }

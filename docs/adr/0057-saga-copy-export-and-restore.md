@@ -97,38 +97,46 @@ copy's title: the dad's own choice, like start over).
 ### 3. The file: Apple Archive, with a manifest first and checksums last
 - **Container:** an Apple Archive stream (`ArchiveStream.encodeStream`) inside an LZFSE compression stream, as Apple's
   sample does. Apple frameworks only, no code of ours for a container format, streaming in both directions, 64-bit
-  sizes (no 4 GB limit), readable on any Mac with `aa extract`. The reader goes through `decompressionStream`, so a later
-  writer can change the compression without a format version.
+  sizes (no 4 GB limit), readable on any Mac with `aa extract`. Apple Archive refuses a compressed stream cut short
+  anywhere at its first read, so a copy that didn't finish saving is refused before any entry; a file that starts with
+  the compressed stream's `pbz` signature is then "not whole", anything else "not a copy". Another compression needs a
+  new format version: an older app only reads what its Apple Archive knows.
 - **Type:** extension `.dadsaga`, exported type `app.dadsaga.saga-copy` conforming to `public.data` and
   `public.content` (Files, AirDrop), declared in `project.yml` (`UTExportedTypeDeclarations`).
 - **Entries, in this order,** each a regular file with only `PAT`, `TYP` and `DAT`: no dates, owners or permissions.
-  1. `manifest.json`: `{"format": "app.dadsaga.saga-copy", "formatVersion": 1, "madeAt": 1795000000.25,
-     "app": "1.0.0 (12)", "photoCount": 412}`
+  1. `manifest.json`: `{"app":"1.0 (12)","formatVersion":1,"kind":"app.dadsaga.saga-copy","madeAt":790300000.5,"photoCount":3}`
+     (`app` is the version and build that wrote it, so a later version can read around a faulty build's files)
   2. `saga.json` (below)
-  3. `photos/<photo id>.jpg`, one per photo, as stored
-  4. `checksums.json`: `{"saga": "<sha256>", "photos": {"<photo id>": "<sha256>", …}}`
-- **`saga.json`, format 1** (every key required; `null` only where shown):
+  3. `photos/<photo id>.jpg`, one per photo, as stored; the id is a UUID
+  4. `checksums.json`: `{"sha256":{"manifest.json":"<hex>","saga.json":"<hex>","photos/<id>.jpg":"<hex>",…}}`, the
+     SHA-256 of every entry before it, by path
+- **`saga.json`, format 1.** Keys are sorted; a key whose value is absent (`nil`) is left out, and the reader takes
+  absent or `null` the same:
   ```json
-  { "hero": { "classID": "h-chef", "skinTone": "mediumLight", "hair": "short", "hairColor": "brown",
-              "beard": "full", "glasses": "none" },
-    "hasPartner": true,
-    "children": [ { "id": "6F1C…", "name": "Λένα", "birthDay": "2026-03-14", "gender": "girl", "skinTone": "medium" },
-                  { "id": "A2B4…", "name": "Μικρός", "birthDay": null, "gender": "boy", "skinTone": "mediumLight" } ],
-    "entries": [ { "id": "…", "kind": "first", "contentID": "f-first-smile", "childID": "6F1C…",
-                   "date": 1781424000.5, "note": null, "photos": ["3D2E…", "77AA…"] } ],
-    "wardrobe": [ { "skill": "play", "choice": "hidden" }, { "skill": "care", "choice": "item", "itemID": "g-duck" } ],
-    "standing": { "heldTitleID": "t-steady-hands", "seenTitleID": null, "keptGearIDs": null },
-    "answeredFilmOffers": ["6F1C…/birthday/1"] }
+  { "answeredOccasionIDs": ["6F1C…/birthday/1"],
+    "children": [ { "birthDay": "2026-03-14", "gender": "girl", "id": "6F1C…", "name": "Λένα", "skinTone": "medium" },
+                  { "gender": "boy", "id": "A2B4…", "name": "Μικρός", "skinTone": "mediumLight" } ],
+    "entries": [ { "childID": "6F1C…", "contentID": "f-first-smile", "date": 781424000.5, "id": "…", "kind": "first",
+                   "note": "…", "photos": ["3D2E…", "77AA…"] } ],
+    "hero": { "beard": "full", "classID": "h-chef", "glasses": "none", "hair": "short", "hairColor": "brown",
+              "hasPartner": true, "skinTone": "mediumLight" },
+    "standing": { "gearIDs": ["g-mug"], "seenTitleID": "t-steady-hands", "titleID": "t-steady-hands" },
+    "wardrobe": [ { "choice": "hidden", "skill": "play" }, { "choice": "item", "itemID": "g-duck", "skill": "care" } ] }
   ```
-  - A birth day is `yyyy-MM-dd` on the Gregorian calendar (`CalendarDay`, ADR-0048 §2). An entry's date is seconds
-    since 1970 as a JSON number, so it reads back exactly. Children are in family order; entries by date.
-  - `keptGearIDs: null` is a saga from before titles whose gear is not frozen yet; `[]` is one with nothing to keep.
-    The difference is kept (ADR-0055 §4).
+  - Dates (`madeAt`, an entry's `date`) are seconds since 1 January 2001 as a JSON number, the value `Date` holds, so
+    they read back exactly. A birth day is `yyyy-MM-dd` on the Gregorian calendar (`CalendarDay`, ADR-0048 §2),
+    absent while the child is not born yet. Children are in family order; entries by date; photos in the dad's order.
+  - `standing.gearIDs` absent is a saga from before titles whose gear is not frozen yet; `[]` is one with nothing to
+    keep. The difference is kept (ADR-0055 §4).
+  - Every value is named by format 1 itself (`SagaCopyNamesV1`), never by a Swift case name; a value format 1 doesn't
+    have makes the copy damaged.
 - **Read in order and checked as it goes:** the manifest must come first and name the format; `saga.json` next, decoded
   and checked (§7) before any photo is written; every photo must be one `saga.json` names, once; anything else, an
-  entry out of order or a blob over its limit (64 KB manifest, 64 MB `saga.json`, 64 MB a photo) is refused before
-  it is read. The copy is whole only when `checksums.json` arrives and every photo and `saga.json` match it: a file cut
-  short at any point, or with a changed byte, is refused.
+  entry out of order or a blob over its limit (64 KB manifest, 16 MB `saga.json`, 64 MB a photo, 8192 pixels a side)
+  is refused before it is read. The copy is whole only when `checksums.json` arrives, matches every entry before it,
+  and nothing follows it.
+- **What every later format must keep,** so an older app can say "update the app" (§4): `manifest.json` first, at most
+  64 KB, with `kind` and a whole-number `formatVersion`, in an Apple Archive the oldest reader can open.
 
 ### 4. Versions: every older file is read; a newer one is refused before anything is touched
 - `formatVersion` is one whole number. A file of a version this app knows is read, however old: format *n*'s DTOs
@@ -164,15 +172,16 @@ copy's title: the dad's own choice, like start over).
 - **Written in the app's own temporary folder** (`tmp/SagaCopies/<uuid>/`), created with `.completeUnlessOpen`
   protection, so a lock mid-write doesn't stop it. Nothing of the copy goes in the App Group, which is backed up and
   read by the widget.
-- **Shared with `ShareLink`** once made ("Save or send"), with the size written ("Your copy is ready · 412 MB"), counted
-  from the bytes written, not read from the file system. The receiver gets a copy of the file
+- **Shared with `ShareLink`** once made ("Save or send"), with the size written ("Your copy is ready · 412 MB"), read
+  from the file's size once it is closed (the app's own file: `C617.1`, already declared). The receiver gets a copy of the file
   (`SentTransferredFile`, `allowAccessingOriginalFile: false`).
 - **Deleted** when Settings closes (its `onDismiss`, never `onDisappear`, ADR-0037 §4), when another copy is made, and at
   the next launch (`discardLeftoverCopies()`, beside the films').
 - **Leaving the app:** the work runs under `beginBackgroundTask`, so switching apps or locking the phone for a moment
   doesn't stop a copy that takes seconds. If that time runs out, it is cancelled, the partial file deleted, and on return
   the page says it stopped when DadSaga left the screen.
-- **No free-space check:** a full disk fails the write (`ENOSPC`), the partial file goes, and the page says to free up
+- **No free-space check:** a full disk fails the write (Apple Archive reports it only as an I/O error, so a small write
+  through Foundation in the same folder tells a full disk from another failure), the partial file goes, and the page says to free up
   space. Checking first is a disk-space required-reason API (`E174.1`) for a rare case.
 
 ### 7. Restoring: check the whole copy first, then ask, then replace in one save
@@ -318,7 +327,10 @@ copy's title: the dad's own choice, like start over).
 - Sync (ADR-0026 §6) is still its own decision; a copy is not sync.
 
 ## Verification status
-Not built yet. To check on a device, with a saga of 500 photos or more:
+The format and the restore engine are built and tested in the package (PR 1): a round trip through two real stores, the
+format-1 fixture, files cut short, changed, hand-made and from a newer format. The screens come with PR 2. File
+protection (`completeUnlessOpen`, iOS only: macOS refuses to open a file created with a protection class) and a full disk
+are checked only on a device. To check on a device, with a saga of 500 photos or more:
 - making a copy: time, memory (Instruments: flat, about one photo at a time), heat; saving it to iCloud Drive in Files;
   AirDrop to a second iPhone; locking the phone and switching apps mid-copy;
 - restoring on a fresh install from onboarding, from a file in iCloud Drive not yet downloaded, and from AirDrop's

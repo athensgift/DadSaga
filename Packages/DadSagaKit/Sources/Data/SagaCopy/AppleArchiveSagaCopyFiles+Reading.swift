@@ -6,17 +6,20 @@ import Foundation
 /// Reading a copy, entry by entry, in the order format 1 writes them (ADR-0057 §3, §7). Each step refuses what it
 /// doesn't expect before the next one starts.
 extension AppleArchiveSagaCopyFiles {
-    /// Anything that isn't a manifest is not a copy; a newer one goes no further.
+    /// Anything that isn't a manifest is not a copy; a newer one goes no further. A first entry that can't be read at
+    /// all is `unreadable`.
     static func readManifest(
-        from decoder: ArchiveStream, hashes: inout [String: String]
+        from decoder: ArchiveStream, orElse unreadable: SagaCopyError, hashes: inout [String: String]
     ) throws -> SagaCopyManifestV1 {
         let entry: Entry
         do {
             guard let first = try nextEntry(from: decoder, limit: SagaCopyFormat.manifestLimit),
                   first.path == SagaCopyFormat.manifestPath else { throw SagaCopyError.notACopy }
             entry = first
+        } catch let error as SagaCopyError {
+            throw error
         } catch {
-            throw SagaCopyError.notACopy
+            throw unreadable
         }
         let json = JSONDecoder()
         guard let head = try? json.decode(SagaCopyManifestHead.self, from: entry.data),
@@ -65,8 +68,12 @@ extension AppleArchiveSagaCopyFiles {
                 try await store(id, entry.data)
             } catch let error as CancellationError {
                 throw error
+            } catch let error as FilePhotoStore.PhotoError {
+                // The copy's photo isn't one the app could have stored.
+                throw error == .notAnImage ? SagaCopyError.damaged : SagaCopyError.failed
             } catch {
-                throw SagaCopyError(error) == .notEnoughSpace ? SagaCopyError.notEnoughSpace : SagaCopyError.damaged
+                // The phone couldn't store it: not the file's fault.
+                throw SagaCopyError(error)
             }
         }
     }

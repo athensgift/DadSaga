@@ -13,6 +13,8 @@ public actor FilePhotoStore: PhotoStore {
     /// Finds the folder the files live in; it throws when there is none (no App Group in a release build).
     private let folder: @Sendable () throws -> URL
     private let maxPixelSize: Int
+    /// The longest side of a photo `adopt` takes: generous, since the app stores 2048 at most.
+    private static let adoptedPixelLimit = 8192
 
     /// - Parameters:
     ///   - directory: where the files live; created on first save.
@@ -79,7 +81,7 @@ public actor FilePhotoStore: PhotoStore {
     public func adopt(_ jpeg: Data) async throws -> String {
         guard let source = CGImageSourceCreateWithData(jpeg as CFData, nil),
               CGImageSourceGetType(source) as String? == UTType.jpeg.identifier,
-              Self.longestSide(of: source) != nil else { throw PhotoError.notAnImage }
+              let side = Self.longestSide(of: source), side <= Self.adoptedPixelLimit else { throw PhotoError.notAnImage }
         let directory = try folder()
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         let id = UUID().uuidString

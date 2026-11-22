@@ -20,6 +20,9 @@ struct SagaCopyManifestV1: Codable, Equatable {
     let formatVersion: Int
     /// Seconds since 1 January 2001, as `Date` holds them, so a date comes back exactly.
     let madeAt: Double
+    /// The version and build that wrote it, such as `1.0 (12)`, so a later version can read around a faulty build's
+    /// files.
+    let app: String
     /// How many `photos/` entries follow `saga.json`.
     let photoCount: Int
 }
@@ -88,11 +91,12 @@ struct SagaCopyChecksumsV1: Codable, Equatable {
 // MARK: - Mapping
 
 extension SagaCopyManifestV1 {
-    init(copy: SagaCopy) {
+    init(copy: SagaCopy, app: String) {
         self.init(
             kind: SagaCopyFormat.kind,
             formatVersion: 1,
             madeAt: copy.madeAt.timeIntervalSinceReferenceDate,
+            app: app,
             photoCount: copy.saga.photoIDs.count
         )
     }

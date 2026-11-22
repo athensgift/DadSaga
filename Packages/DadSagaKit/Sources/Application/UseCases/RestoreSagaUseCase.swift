@@ -83,12 +83,15 @@ public struct DefaultRestoreSagaUseCase: RestoreSagaUseCase {
         }
     }
 
-    /// The replace is the commit. Everything after it only tidies up: it can't fail, and a kill before it is done
+    /// The replace is the commit. An opened copy whose photos are gone (it was discarded) is refused before it.
+    /// Everything after it only tidies up: it can't fail, and a kill before it is done
     /// leaves at worst old photos for the sweep and one film offer back.
     @concurrent
     public func restore(_ opened: OpenedSagaCopy, on date: Date) async throws {
         let oldPhotoIDs: Set<String>
         do {
+            let stored = Set(try await photoStore.storedPhotos().map(\.id))
+            guard stored.isSuperset(of: opened.adoptedPhotoIDs) else { throw SagaCopyError.failed }
             oldPhotoIDs = try await progressRepository.referencedPhotoIDs()
             try await wholeSaga.replaceAll(with: opened.copy.saga)
         } catch {
@@ -105,8 +108,11 @@ public struct DefaultRestoreSagaUseCase: RestoreSagaUseCase {
         await notificationScheduler.removeDelivered()
     }
 
+    /// Never a photo the saga points to: after a restore, the adopted photos are the saga's own. When the entries
+    /// can't be read, nothing is deleted, and the sweep finds the orphans later (ADR-0048 §6).
     public func discard(_ opened: OpenedSagaCopy) async {
-        await delete(opened.adoptedPhotoIDs)
+        guard let referenced = try? await progressRepository.referencedPhotoIDs() else { return }
+        await delete(opened.adoptedPhotoIDs.filter { !referenced.contains($0) })
     }
 
     private func delete(_ ids: [String]) async {

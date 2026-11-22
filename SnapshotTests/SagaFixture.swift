@@ -240,7 +240,7 @@ extension SagaFixture {
             useCases: SettingsViewModel.UseCases(
                 savePreferences: DefaultSavePreferencesUseCase(repository: preferences),
                 startOver: DefaultStartOverUseCase(
-                    eraser: store.eraser,
+                    wholeSaga: store.wholeSaga,
                     photoStore: photos,
                     reminderSettings: reminderSettings,
                     sagaOffers: sagaOffers,

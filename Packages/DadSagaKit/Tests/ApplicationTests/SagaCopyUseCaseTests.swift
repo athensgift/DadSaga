@@ -183,6 +183,43 @@ struct SagaCopyUseCaseTests {
         #expect(await restore.scheduler.delivered.count == 1)
     }
 
+    @Test("Given a restored copy, when it is discarded afterwards, then the saga keeps its photos")
+    func discardAfterRestoreKeepsThePhotos() async throws {
+        let restore = try await restore(reading: ScriptedCopyFiles(reading: nikosCopy, photos: ["a", "b"]))
+        let opened = try await restore.sut.open(fileAt: URL(filePath: "/picked.dadsaga")) { _ in }
+        try await restore.sut.restore(opened, on: today)
+
+        await restore.sut.discard(opened)
+
+        let photoIDs = try #require(await restore.store.saga?.photoIDs)
+        #expect(Set(await restore.photos.stored.keys) == Set(photoIDs))
+    }
+
+    @Test("Given a discarded copy, when the dad confirms it anyway, then it is refused and the saga stays")
+    func restoreAfterDiscardIsRefused() async throws {
+        let restore = try await restore(reading: ScriptedCopyFiles(reading: nikosCopy, photos: ["a", "b"]))
+        let opened = try await restore.sut.open(fileAt: URL(filePath: "/picked.dadsaga")) { _ in }
+        await restore.sut.discard(opened)
+
+        await #expect(throws: SagaCopyError.failed) { try await restore.sut.restore(opened, on: today) }
+
+        #expect(await restore.store.saga?.profile.children == [lena])
+        #expect(await restore.photos.stored.values.map { $0 } == [Data("old".utf8)])
+    }
+
+    @Test("Given a store holding two children with one id, when exporting, then no copy is written that couldn't come back")
+    func exportRefusesWhatImportWould() async {
+        let files = ScriptedCopyFiles()
+        var broken = saga(lena, photos: [])
+        broken.profile.children.append(lena)
+        let sut = DefaultMakeSagaCopyUseCase(
+            wholeSaga: MemorySaga(broken), sagaOffers: FakeSagaOffers(), photoStore: SpyPhotoStore(), files: files
+        )
+
+        await #expect(throws: SagaCopyError.failed) { try await sut.execute(on: today) { _ in } }
+        #expect(await files.written == nil)
+    }
+
     @Test("Given an opened copy, when the dad says no, then its photos go and nothing else changes")
     func discardingKeepsTheSaga() async throws {
         let restore = try await restore(reading: ScriptedCopyFiles(reading: nikosCopy, photos: ["a", "b"]))

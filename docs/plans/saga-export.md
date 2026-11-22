@@ -115,12 +115,12 @@ then the whole package and the simulator build before the PR.
 - `SagaCopy/SagaCopyV1DTO.swift`: frozen `Codable` DTOs for format 1 (`ManifestV1`, `SagaV1` with `HeroV1`, `ChildV1`,
   `EntryV1`, `WardrobeChoiceV1`, `StandingV1`, `ChecksumsV1`) and their mappers to and from `SagaCopy`. Enum values
   through explicit switches, never `rawValue` alone, so renaming a Swift case can't change the file. Unknown values
-  throw `.damaged`. Dates as `Double` seconds since 1970; birth days as `yyyy-MM-dd`.
+  throw `.damaged`. Dates as `Double` seconds since 2001 (`Date`'s own value, exact); birth days as `yyyy-MM-dd`.
 - `SagaCopy/AppleArchiveSagaCopyFiles.swift`: `public struct AppleArchiveSagaCopyFiles: SagaCopyFiles` with a folder
   (default `tmp/SagaCopies`).
   - `write`: creates `<uuid>/DadSaga <day>.dadsaga` empty with `.protectionKey: .completeUnlessOpen`, opens it with
     `ArchiveByteStream.fileStream`, wraps it in `compressionStream(using: .lzfse)` and `ArchiveStream.encodeStream`,
-    writes the entries with `PAT`/`TYP`/`DAT` only, hashing with `SHA256` as it goes, counts the bytes written, and
+    writes the entries with `PAT`/`TYP`/`DAT` only, hashing with `SHA256` as it goes, reads the closed file's size, and
     deletes the file on any throw. `try Task.checkCancellation()` between entries.
   - `read`: a coordinated copy of the picked file into the folder (`startAccessingSecurityScopedResource`,
     `NSFileCoordinator.coordinate(with: [.readingIntent(with:)], queue:)` on its own `OperationQueue`, bridged with
@@ -245,6 +245,13 @@ model in one, all its UI in the next").
 2. **`feature/saga-copy-ui`**, from `develop` after PR 1: steps 4–6, `project.yml`, the strings (after `content`), the
    web pages, ROADMAP. `ui-check` draws it; `reviewer` checks it; the device checks before it is called done. Its merge
    freezes format 1.
+
+### Notes for PR 2 (from the review of PR 1)
+- `.notACopy` and `.incomplete` share one message on screen: a copy cut short inside its first compressed block can
+  read as either.
+- Never run an export and an import at once: `discardTemporaryFiles` empties the whole `SagaCopies` folder.
+- `AppleArchiveSagaCopyFiles(app:)` gets `CFBundleShortVersionString (CFBundleVersion)` from the app.
+- Remove the gated `record()` in `SagaCopyV1FixtureTests` when the format freezes with this PR's merge.
 
 ## Risks
 

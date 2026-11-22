@@ -10,10 +10,17 @@ import System
 /// The archive's stream objects aren't `Sendable`: each is made, used and closed inside one function and never captured
 /// by an escaping closure. Cancelling is checked between entries.
 public struct AppleArchiveSagaCopyFiles: SagaCopyFiles {
+    private let app: String
     private let folder: URL
 
-    /// - Parameter folder: where copies are written and picked files are read; emptied by `discardTemporaryFiles`.
-    public init(folder: URL = FileManager.default.temporaryDirectory.appending(path: "SagaCopies", directoryHint: .isDirectory)) {
+    /// - Parameters:
+    ///   - app: the version and build writing the copy, such as `1.0 (12)`, written in its manifest.
+    ///   - folder: where copies are written and picked files are read; emptied by `discardTemporaryFiles`.
+    public init(
+        app: String,
+        folder: URL = FileManager.default.temporaryDirectory.appending(path: "SagaCopies", directoryHint: .isDirectory)
+    ) {
+        self.app = app
         self.folder = folder
     }
 
@@ -31,16 +38,30 @@ public struct AppleArchiveSagaCopyFiles: SagaCopyFiles {
             guard FileManager.default.createFile(atPath: url.path, contents: nil, attributes: Self.protection) else {
                 throw SagaCopyError.failed
             }
-            try await Self.writeArchive(copy, to: url, photo: photo, progress: progress)
+            try await writeArchive(copy, to: url, photo: photo, progress: progress)
             let size = try FileManager.default.attributesOfItem(atPath: url.path)[.size] as? Int64 ?? 0
             return MadeSagaCopy(url: url, byteCount: size)
         } catch {
+            let spaceLeft = error is ArchiveError ? Self.hasSpace(in: place) : true
             try? FileManager.default.removeItem(at: place)
-            throw error
+            throw spaceLeft ? error : SagaCopyError.notEnoughSpace
         }
     }
 
-    private static func writeArchive(
+    /// Apple Archive reports a full disk only as an I/O error. A small write through Foundation tells which it was,
+    /// without asking iOS for the free space, a required-reason API (ADR-0057 §6).
+    private static func hasSpace(in folder: URL) -> Bool {
+        let probe = folder.appending(path: "space-probe")
+        defer { try? FileManager.default.removeItem(at: probe) }
+        do {
+            try Data(count: 256 * 1024).write(to: probe)
+            return true
+        } catch {
+            return SagaCopyError(error) != .notEnoughSpace
+        }
+    }
+
+    private func writeArchive(
         _ copy: SagaCopy,
         to url: URL,
         photo: @Sendable (String) async throws -> Data,
@@ -64,11 +85,11 @@ public struct AppleArchiveSagaCopyFiles: SagaCopyFiles {
         json.outputFormatting = [.sortedKeys]
         var checksums: [String: String] = [:]
         func add(_ path: String, _ data: Data) throws {
-            checksums[path] = sha256(data)
-            try writeEntry(path, data, to: encoder)
+            checksums[path] = Self.sha256(data)
+            try Self.writeEntry(path, data, to: encoder)
         }
 
-        try add(SagaCopyFormat.manifestPath, json.encode(SagaCopyManifestV1(copy: copy)))
+        try add(SagaCopyFormat.manifestPath, json.encode(SagaCopyManifestV1(copy: copy, app: app)))
         try add(SagaCopyFormat.sagaPath, json.encode(SagaCopySagaV1(copy: copy)))
         let photoIDs = copy.saga.photoIDs
         for (index, id) in photoIDs.enumerated() {
@@ -77,7 +98,7 @@ public struct AppleArchiveSagaCopyFiles: SagaCopyFiles {
             progress(Double(index + 1) / Double(photoIDs.count + 1))
         }
         try Task.checkCancellation()
-        try writeEntry(SagaCopyFormat.checksumsPath, json.encode(SagaCopyChecksumsV1(sha256: checksums)), to: encoder)
+        try Self.writeEntry(SagaCopyFormat.checksumsPath, json.encode(SagaCopyChecksumsV1(sha256: checksums)), to: encoder)
         // In order, and each error surfaces: a full disk shows up here, never as a copy cut short.
         try closeEncoder()
         try closeCompressed()
@@ -130,9 +151,12 @@ public struct AppleArchiveSagaCopyFiles: SagaCopyFiles {
         defer { try? decompressed.close() }
         guard let decoder = ArchiveStream.decodeStream(readingFrom: decompressed) else { throw SagaCopyError.notACopy }
         defer { try? decoder.close() }
+        // Apple Archive refuses a compressed stream cut short anywhere at its first read, before any entry: a file
+        // that starts like one was a copy that didn't finish saving or sending; anything else isn't a copy at all.
+        let notWhole: SagaCopyError = startsLikeACompressedArchive(url) ? .incomplete : .notACopy
 
         var hashes: [String: String] = [:]
-        let manifest = try readManifest(from: decoder, hashes: &hashes)
+        let manifest = try readManifest(from: decoder, orElse: notWhole, hashes: &hashes)
         let copy = try readSaga(from: decoder, madeAt: manifest.madeAt, photoCount: manifest.photoCount, hashes: &hashes)
         let expected = Set(copy.saga.photoIDs)
         var newIDs: [String: String] = [:]
@@ -147,26 +171,40 @@ public struct AppleArchiveSagaCopyFiles: SagaCopyFiles {
         return restored
     }
 
+    /// Apple Archive's compressed streams start with `pbz` and the algorithm's letter (`pbze` for LZFSE).
+    private static func startsLikeACompressedArchive(_ url: URL) -> Bool {
+        guard let handle = try? FileHandle(forReadingFrom: url) else { return false }
+        defer { try? handle.close() }
+        return (try? handle.read(upToCount: 3)) == Data("pbz".utf8)
+    }
+
     /// A coordinated read, which downloads a file from iCloud Drive first. It may wait a long time, so it runs on a
     /// queue of its own, never on Swift's threads.
     private static func copyIn(_ url: URL, to destination: URL) async throws {
         let accessing = url.startAccessingSecurityScopedResource()
         defer { if accessing { url.stopAccessingSecurityScopedResource() } }
         let intent = NSFileAccessIntent.readingIntent(with: url, options: [.withoutChanges])
+        let coordinator = CoordinatorBox()
         let queue = OperationQueue()
         do {
-            try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
-                NSFileCoordinator().coordinate(with: [intent], queue: queue) { error in
-                    do {
-                        if let error { throw error }
-                        try FileManager.default.copyItem(at: intent.url, to: destination)
-                        continuation.resume()
-                    } catch {
-                        continuation.resume(throwing: error)
+            try await withTaskCancellationHandler {
+                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+                    coordinator.coordinator.coordinate(with: [intent], queue: queue) { error in
+                        do {
+                            if let error { throw error }
+                            try FileManager.default.copyItem(at: intent.url, to: destination)
+                            continuation.resume()
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
                     }
                 }
+            } onCancel: {
+                // A download from iCloud Drive can take minutes; Cancel stops it here.
+                coordinator.coordinator.cancel()
             }
         } catch {
+            try Task.checkCancellation()
             throw SagaCopyError(error) == .notEnoughSpace ? SagaCopyError.notEnoughSpace : SagaCopyError.unreadable
         }
     }
@@ -204,6 +242,12 @@ public struct AppleArchiveSagaCopyFiles: SagaCopyFiles {
         static var type: ArchiveHeader.FieldKey { ArchiveHeader.FieldKey("TYP") }
         static var data: ArchiveHeader.FieldKey { ArchiveHeader.FieldKey("DAT") }
     }
+}
+
+/// `NSFileCoordinator` isn't `Sendable`, but its `cancel()` is documented as callable from any thread, which is all the
+/// cancellation handler does with it.
+private final class CoordinatorBox: @unchecked Sendable {
+    let coordinator = NSFileCoordinator()
 }
 
 /// Closes a stream once: explicitly on success, so its error surfaces, and by `defer` otherwise.

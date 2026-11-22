@@ -55,7 +55,7 @@ struct SagaCopyRulesTests {
         }
     }
 
-    @Test("Given an unknown card and hero, a child born after today and an entry of a child who left, then it passes")
+    @Test("Given an unknown card and hero, a child born after today and a child who left, when checked, then it passes")
     func whatTheAppAlreadyHandlesPasses() throws {
         let tomorrow = Child(name: "Μαρία", birthDay: CalendarDay(Date().addingTimeInterval(86_400 * 2), in: .gmt))
         var copy = saga(children: [tomorrow], events: [entry(child: UUID())])

@@ -141,7 +141,7 @@ struct SagaCopyFilesTests: SagaCopyBench {
         let folder = root.appending(path: "new/store")
         let new = Phone(
             store: LocalStore.live(in: folder), photos: FilePhotoStore.moments(in: root.appending(path: "new")),
-            files: AppleArchiveSagaCopyFiles(folder: root.appending(path: "new/tmp")), offers: MemoryOffers()
+            files: AppleArchiveSagaCopyFiles(app: "test", folder: root.appending(path: "new/tmp")), offers: MemoryOffers()
         )
         try await new.store.profiles.save(PlayerProfile(children: [Child(name: "Άρης", birthDay: nil)], heroClassID: "h-coach"))
         let widget = LocalStore.live(in: folder, readOnly: true)
@@ -150,6 +150,40 @@ struct SagaCopyFilesTests: SagaCopyBench {
         try await restore(on: new).restore(try await restore(on: new).open(fileAt: made.url) { _ in }, on: madeAt)
 
         #expect(try await widget.profiles.fetchProfile()?.children.map(\.name) == ["Λένα 🌟", "Μπέμπης"])
+    }
+
+    @Test("Given a photo that can't be read, when exporting, then it fails and leaves no file behind")
+    func failedExportLeavesNoFile() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let folder = root.appending(path: "tmp")
+        let files = AppleArchiveSagaCopyFiles(app: "test", folder: folder)
+        let copy = SagaCopy(
+            saga: StoredSaga(
+                profile: PlayerProfile(children: [lena], heroClassID: "h-chef"),
+                events: [ProgressEvent(
+                    kind: .first(id: "f-steps"), childID: lena.id, date: madeAt, photoIDs: [UUID().uuidString]
+                )],
+                outfit: Outfit(), kept: .fresh
+            ),
+            answeredOccasionIDs: [], madeAt: madeAt
+        )
+        struct Unreadable: Error {}
+
+        await #expect(throws: Unreadable.self) {
+            try await files.write(copy, photo: { _ in throw Unreadable() }, progress: { _ in })
+        }
+
+        let left = (try? FileManager.default.subpathsOfDirectory(atPath: folder.path)) ?? []
+        #expect(left.isEmpty)
+    }
+
+    @Test("Given a copy made at 23:30 UTC, when naming it in Athens, then it is named for the day there")
+    func fileNameFollowsThePhonesDay() throws {
+        let lateEvening = try #require(ISO8601DateFormatter().date(from: "2026-11-22T23:30:00Z"))
+        let athens = try #require(TimeZone(identifier: "Europe/Athens"))
+
+        #expect(SagaCopyFormat.fileName(madeAt: lateEvening, in: athens) == "DadSaga 2026-11-23.dadsaga")
+        #expect(SagaCopyFormat.fileName(madeAt: lateEvening, in: .gmt) == "DadSaga 2026-11-22.dadsaga")
     }
 
     @Test("Given copies made and a file opened, when temporary files are discarded, then the folder is empty")

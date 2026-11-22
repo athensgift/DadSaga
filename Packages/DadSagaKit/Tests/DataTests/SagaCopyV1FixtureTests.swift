@@ -16,7 +16,7 @@ struct SagaCopyV1FixtureTests {
         let folder = FileManager.default.temporaryDirectory.appending(path: "dadsaga-copy-v1-" + UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: folder) }
         let photos = FilePhotoStore.moments(in: folder)
-        let files = AppleArchiveSagaCopyFiles(folder: folder.appending(path: "tmp"))
+        let files = AppleArchiveSagaCopyFiles(app: "test", folder: folder.appending(path: "tmp"))
         let adopted = AdoptedIDs()
 
         let copy = try await files.read(fileAt: SagaCopyV1Fixture.file, adopt: { data in
@@ -55,7 +55,7 @@ struct SagaCopyV1FixtureTests {
             try jpegs[id]?.write(to: SagaCopyV1Fixture.photo(id))
         }
         let pictures = jpegs
-        let made = try await AppleArchiveSagaCopyFiles(folder: scratch.appending(path: "tmp")).write(
+        let made = try await AppleArchiveSagaCopyFiles(app: "1.0 (1)", folder: scratch.appending(path: "tmp")).write(
             SagaCopyV1Fixture.copy, photo: { id in pictures[id] ?? Data() }, progress: { _ in }
         )
         try FileManager.default.copyItem(at: made.url, to: SagaCopyV1Fixture.file)

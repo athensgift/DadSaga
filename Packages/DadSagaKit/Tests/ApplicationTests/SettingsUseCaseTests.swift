@@ -6,14 +6,14 @@ import Testing
 /// Start over against the real weekly reminder, so its notifications go through the one reschedule queue.
 extension WeeklyReminderUseCaseTests {
     func startOver(
-        eraser: SpySagaEraser,
+        wholeSaga: SpyWholeSaga,
         photos: SpyPhotoStore,
         schedule: any ScheduleWeeklyRemindersUseCase,
         scheduler: any NotificationScheduler,
         offers: FakeSagaOffers = FakeSagaOffers()
     ) -> DefaultStartOverUseCase {
         DefaultStartOverUseCase(
-            wholeSaga: eraser, photoStore: photos, reminderSettings: settings, sagaOffers: offers, schedule: schedule,
+            wholeSaga: wholeSaga, photoStore: photos, reminderSettings: settings, sagaOffers: offers, schedule: schedule,
             notificationScheduler: scheduler
         )
     }
@@ -28,7 +28,7 @@ extension WeeklyReminderUseCaseTests {
         await answer.execute(occasionID: "lena/world/w1")
 
         try await startOver(
-            eraser: SpySagaEraser(), photos: SpyPhotoStore(), schedule: schedule(scheduler), scheduler: scheduler,
+            wholeSaga: SpyWholeSaga(), photos: SpyPhotoStore(), schedule: schedule(scheduler), scheduler: scheduler,
             offers: offers
         ).execute(on: today)
 
@@ -42,9 +42,9 @@ extension WeeklyReminderUseCaseTests {
         let offers = FakeSagaOffers()
         await DefaultAnswerSagaOfferUseCase(repository: offers).execute(occasionID: "lena/birthday/1")
 
-        await #expect(throws: SpySagaEraser.Failure.self) {
+        await #expect(throws: SpyWholeSaga.Failure.self) {
             try await startOver(
-                eraser: SpySagaEraser(fails: true), photos: SpyPhotoStore(), schedule: schedule(scheduler),
+                wholeSaga: SpyWholeSaga(fails: true), photos: SpyPhotoStore(), schedule: schedule(scheduler),
                 scheduler: scheduler, offers: offers
             ).execute(on: today)
         }
@@ -62,11 +62,11 @@ extension WeeklyReminderUseCaseTests {
         await scheduler.deliverNext()
         let photos = SpyPhotoStore()
         _ = try await photos.save(Data([1]))
-        let eraser = SpySagaEraser()
+        let wholeSaga = SpyWholeSaga()
 
-        try await startOver(eraser: eraser, photos: photos, schedule: schedule, scheduler: scheduler).execute(on: today)
+        try await startOver(wholeSaga: wholeSaga, photos: photos, schedule: schedule, scheduler: scheduler).execute(on: today)
 
-        #expect(await eraser.callCount == 1)
+        #expect(await wholeSaga.callCount == 1)
         #expect(await photos.stored.isEmpty)
         #expect(await settings.fetch() == .default)
         #expect(await scheduler.pending.isEmpty)
@@ -84,8 +84,8 @@ extension WeeklyReminderUseCaseTests {
         _ = try await photos.save(Data([1]))
         let reminder = await settings.fetch()
 
-        await #expect(throws: SpySagaEraser.Failure.self) {
-            try await startOver(eraser: SpySagaEraser(fails: true), photos: photos, schedule: schedule, scheduler: scheduler)
+        await #expect(throws: SpyWholeSaga.Failure.self) {
+            try await startOver(wholeSaga: SpyWholeSaga(fails: true), photos: photos, schedule: schedule, scheduler: scheduler)
                 .execute(on: today)
         }
 
@@ -116,7 +116,7 @@ extension WeeklyReminderUseCaseTests {
 
         let leaving = Task { await schedule.execute(on: today) }
         while await scheduler.calls == 0 { await Task.yield() }
-        try await startOver(eraser: SpySagaEraser(), photos: SpyPhotoStore(), schedule: schedule, scheduler: scheduler)
+        try await startOver(wholeSaga: SpyWholeSaga(), photos: SpyPhotoStore(), schedule: schedule, scheduler: scheduler)
             .execute(on: today)
         await leaving.value
 
@@ -323,7 +323,7 @@ actor InMemoryPreferences: PreferencesRepository {
     func save(_ preferences: Preferences) async { stored = preferences }
 }
 
-actor SpySagaEraser: WholeSagaRepository {
+actor SpyWholeSaga: WholeSagaRepository {
     struct Failure: Error {}
     private(set) var callCount = 0
     private let fails: Bool
