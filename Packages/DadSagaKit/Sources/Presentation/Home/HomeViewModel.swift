@@ -39,9 +39,11 @@ public final class HomeViewModel {
     var reminderAnswered = false
     /// An earlier world the dad chose on the map, instead of the child's current one.
     var viewedWorldID: String?
-    /// How many times each skill's mark has bounced, as its card's celebration went: each rise bounces it once
-    /// (ADR-0059 §2).
-    public internal(set) var skillBounces: [Skill: Int] = [:]
+    /// How many times each skill's mark has bounced, by the mark's id: once for each card of the skill, as its
+    /// celebration goes (ADR-0059 §2).
+    public internal(set) var skillBounces: [String: Int] = [:]
+    /// The skill each celebration on screen grew, by its id, until it goes. Only home's view model knows it.
+    @ObservationIgnored var celebratedSkills: [Int: Skill] = [:]
 
     let useCases: UseCases
     let locale: Locale
@@ -144,15 +146,24 @@ public final class HomeViewModel {
 
     /// A celebration's time is up, and the mark of the skill it grew bounces. Ignored if a newer one has replaced it.
     public func celebrationFinished(id: Int) {
-        guard let celebration, celebration.id == id else { return }
-        self.celebration = nil
-        bounceGrownSkill(of: celebration)
+        guard celebration?.id == id else { return }
+        celebration = nil
+        bounceSkill(grownBy: id)
     }
 
     /// Takes a celebration away before its time, as an undo does: nothing grew, so no mark bounces. Ignored if a newer
     /// one has replaced it.
     func withdrawCelebration(id: Int) {
-        if celebration?.id == id { celebration = nil }
+        guard celebration?.id == id else { return }
+        celebration = nil
+        celebratedSkills[id] = nil
+    }
+
+    /// Puts a celebration on screen. One it replaces has gone as surely as one whose time is up, so its skill's mark
+    /// bounces now: a second card within seconds still shows on the first one's mark.
+    func show(_ celebration: Celebration) {
+        if let replaced = self.celebration, replaced.id != celebration.id { bounceSkill(grownBy: replaced.id) }
+        self.celebration = celebration
     }
 
     /// Whether VoiceOver should read this celebration now: only the first time. Its time on screen starts again when
@@ -187,7 +198,7 @@ public final class HomeViewModel {
         // A moment's celebration still waiting would only replace this newer one when the sheet closes.
         pendingMomentCelebration = nil
         let celebration = makeCelebration(skill: skill, badge: badge)
-        self.celebration = celebration
+        show(celebration)
         undoOffer = change.eventID.map { makeUndoOffer(id: celebration.id, eventID: $0) }
     }
 
@@ -195,12 +206,12 @@ public final class HomeViewModel {
     /// has its own card (ADR-0055 §6).
     func makeCelebration(skill: Skill?, badge: String? = nil, moment: String? = nil) -> Celebration {
         celebrationCount += 1
+        celebratedSkills[celebrationCount] = skill
         return Celebration(
             id: celebrationCount,
             skillText: skill.map(strings.strings.skillGrew),
             badgeText: badge,
-            momentText: moment,
-            grownSkill: skill
+            momentText: moment
         )
     }
 

@@ -1,5 +1,4 @@
 import DesignSystem
-import Domain
 import SwiftUI
 
 /// The dad's level and title under the hero, then his four skills, in one panel (ADR-0059 §3). No bar, no total and no
@@ -7,16 +6,21 @@ import SwiftUI
 struct StandingPanel: View {
     let title: TitleLineModel?
     let skills: SkillMarksModel
-    let bounces: [Skill: Int]
+    let bounces: [String: Int]
+    /// Gets the width the four skills need side by side.
+    var onRowWidth: (CGFloat) -> Void = { _ in }
+
+    /// Each side.
+    static let padding = DSSpacing.m
 
     var body: some View {
-        VStack(spacing: DSSpacing.m) {
+        VStack(spacing: DSSpacing.s) {
             if let title {
                 TitleLine(model: title)
             }
-            SkillMarks(model: skills, bounces: bounces)
+            SkillMarks(model: skills, bounces: bounces, onRowWidth: onRowWidth)
         }
-        .padding(.horizontal, DSSpacing.m)
+        .padding(.horizontal, Self.padding)
         .padding(.vertical, DSSpacing.s)
         .frame(maxWidth: .infinity)
         .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))

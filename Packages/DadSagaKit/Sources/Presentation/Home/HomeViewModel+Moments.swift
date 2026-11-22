@@ -90,7 +90,7 @@ extension HomeViewModel {
         guard selectedQuest == nil, selectedBoss == nil, momentCapture == nil,
               let pending = pendingMomentCelebration else { return }
         pendingMomentCelebration = nil
-        celebration = pending
+        show(pending)
     }
 
     /// The undo offer in step 2 ran out. Ignored if it is not the one shown.

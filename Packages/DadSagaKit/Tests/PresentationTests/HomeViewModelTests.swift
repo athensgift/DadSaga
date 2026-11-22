@@ -39,7 +39,7 @@ struct HomeViewModelTests {
         sut.celebrationFinished(id: 1)
         #expect(sut.celebration == nil)
         // Care's mark bounces as the badge goes, not with it (ADR-0059 §2).
-        #expect(sut.skillBounces == [.care: 1])
+        #expect(sut.skillBounces == ["care": 1])
     }
 
     @Test("Given a quest done with a note, when opening it again, then the sheet shows what he wrote last time")
@@ -331,11 +331,12 @@ func makeHomeViewModel(
     progress: FakeProgress,
     locale: String = "el_GR",
     reminder: ReminderUseCases = .neverOffered,
-    film: FakeFilmOffers = FakeFilmOffers()
+    film: FakeFilmOffers = FakeFilmOffers(),
+    catalog: ContentCatalog = HeroStub.catalog
 ) -> HomeViewModel {
     HomeViewModel(
         useCases: HomeViewModel.UseCases(
-            getOverview: FakeHomeOverview(profile: profile, progress: progress, film: film),
+            getOverview: FakeHomeOverview(profile: profile, catalog: catalog, progress: progress, film: film),
             completeQuest: progress,
             defeatBoss: progress,
             deleteEvent: progress,

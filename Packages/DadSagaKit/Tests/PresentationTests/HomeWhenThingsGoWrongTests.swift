@@ -26,14 +26,15 @@ struct HomeWhenThingsGoWrongTests {
         await sut.completeSelectedQuest()
         let second = try #require(sut.celebration)
 
+        // The first one went as the second replaced it: its mark bounced then, and its late end changes nothing.
+        #expect(sut.skillBounces == ["care": 1])
         sut.celebrationFinished(id: first.id)
         #expect(sut.celebration == second)
-        #expect(sut.skillBounces.isEmpty)
+        #expect(sut.skillBounces == ["care": 1])
 
         sut.celebrationFinished(id: second.id)
         #expect(sut.celebration == nil)
-        // One bounce as the last badge goes: the replaced one never finished.
-        #expect(sut.skillBounces == [.care: 1])
+        #expect(sut.skillBounces == ["care": 2])
     }
 
     @Test("Given a quest just done, when undoing it fails, then the entry stays and the bar says so and offers undo again")

@@ -4,10 +4,10 @@ import Testing
 /// How a skill's mark is drawn: it grows but never fills, never empties and never outshines its symbol (ADR-0059 §2).
 @Suite("SkillMarkLook")
 struct SkillMarkLookTests {
-    @Test("Given a skill not grown yet, when drawn, then the symbol is 72% of its circle, in colour, with some wash")
+    @Test("Given a skill not grown yet, when drawn, then the symbol is 60% of its circle, in colour, with some wash")
     func notGrown() {
         let look = SkillMarkLook(growth: 0)
-        #expect(look.symbolScale == 0.72)
+        #expect(look.symbolScale == 0.6)
         #expect(look.washOpacity > 0)
         #expect(look.glowOpacity == 0)
     }
@@ -30,6 +30,15 @@ struct SkillMarkLookTests {
             #expect(SkillMarkLook(growth: growth).washOpacity <= SkillMarkLook.maxWashOpacity)
         }
         #expect(SkillMarkLook.maxWashOpacity == 0.15)
+    }
+
+    @Test("Given one quest of 20 XP on a curve half grown at 150, when drawn, then the mark has visibly changed")
+    func firstCardShows() {
+        let new = SkillMarkLook(growth: 0)
+        let oneCard = SkillMarkLook(growth: 20.0 / 170.0)
+        #expect(oneCard.symbolScale - new.symbolScale > 0.12)
+        #expect(oneCard.glowOpacity > 0.25)
+        #expect(oneCard.washOpacity - new.washOpacity > 0.03)
     }
 
     @Test("Given a growth out of range, when drawn, then it is held between 0 and 1")

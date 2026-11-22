@@ -21,13 +21,13 @@ struct SkillContentTests {
         ))
     }
 
-    @Test("Given the bundled content, when loading, then each skill has one curve, half grown at 400 for now")
+    @Test("Given the bundled content, when loading, then each skill has one curve, half grown at 150 for now")
     func bundled() async throws {
         let catalog = try await BundledContentRepository().fetchCatalog()
         #expect(catalog.skillCurves.map(\.skill).sorted { $0.rawValue < $1.rawValue }
             == Skill.allCases.sorted { $0.rawValue < $1.rawValue })
         for skill in Skill.allCases {
-            #expect(catalog.curve(for: skill)?.halfGrownXP == 400)
+            #expect(catalog.curve(for: skill)?.halfGrownXP == 150)
         }
     }
 

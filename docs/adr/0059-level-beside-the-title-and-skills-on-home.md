@@ -11,6 +11,8 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
 - **ADR-0005:** a new kind of content, `skills.json`.
 - **ADR-0012:** the dad's title has a level.
 - **ADR-0043 §3:** the hero's pane holds the level and the four skills.
+- **ADR-0056 §3:** above the fold the hero yields width to the skills; side by side he yields height, so his pane
+  fits.
 - **ADR-0048 §5:** a shipped title keeps its order, and a skill's half-grown XP never rises.
 
 ## Context
@@ -92,9 +94,13 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
   - There are no stages, no maximum to reach and no number.
   - Home's query returns it (`HomeOverview.skills`).
 - **How a mark is drawn** (`SkillMarkLook`, Presentation):
-  - The symbol is in the accent tint. It is 72% of its circle with no growth, and nears 100% as the growth nears 1.
+  - The symbol is in the accent tint. It is 60% of its circle with no growth, and nears 100% as the growth nears 1.
   - A soft glow and a wash of the tint behind it grow with it.
-  - The wash never goes above the tint's wash opacity, so the symbol keeps its contrast (ADR-0032).
+  - The look follows the square root of the growth, so the first card shows clearly (one quest of 20 XP: the symbol
+    from 60% to about 74%, a glow at about a third, the wash from 35% to about 57% of its ceiling) and later cards
+    still show, ever less, with no end.
+  - The wash never goes above the tint's wash opacity, so the symbol keeps its contrast (ADR-0032). With no growth it
+    is 35% of that, so a new mark is never empty.
   - The circle never changes size, so a mark growing or shrinking moves nothing on screen.
   - The name is secondary text in the caption style (ADR-0033).
 - **A mark that hasn't grown looks new, not missing:** full colour, never grey, dashed, empty or locked.
@@ -102,15 +108,21 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
 - **Each card shows on its mark:**
   - When a quest or boss is celebrated, its skill's mark bounces once.
   - It bounces as the celebration's badge goes (`HomeViewModel.celebrationFinished`), so the badge never hides it.
-  - With Reduce Motion it doesn't bounce, and the celebration still says "Your patience grew".
+  - A celebration replaced by a newer one (a second card within seconds, or a moment's as its sheet closes) has gone
+    too, so its mark bounces as it is replaced. One taken back by an undo bounces nothing.
+  - The view model keeps which skill each celebration grew; the screen's models carry only a mark's id, no Domain
+    type (ADR-0007).
+  - With Reduce Motion it doesn't bounce (`symbolEffectsRemoved`), not even when the setting changes, and the
+    celebration still says "Your patience grew".
 - **An undo or a deletion** takes back what that card gave, and the mark is drawn smaller at once, with no
   animation, which would only draw his eye to it. The title and its gear stay (ADR-0055 §3).
 - **A first grows no skill,** since it has none. It counts toward cards done and the title, as now.
-- **The curve is content, in `skills.json`,** with one entry per skill and 400 for all four for now:
+- **The curve is content, in `skills.json`,** with one entry per skill and 150 for all four for now:
   ```json
-  { "skill": "care", "halfGrownXP": 400 }
+  { "skill": "care", "halfGrownXP": 150 }
   ```
-  - That is about 13 quests of 30 XP, or four bosses, to half grown.
+  - Quests give 20 to 35 XP: one quest grows its skill by about 12% to 19%, about six quests bring it to half grown,
+    and about eighteen to three quarters. It never reaches the whole.
   - Checked at load:
     - each of the four skills appears exactly once, and nothing else does (`.unknownSkill`, `.missingSkillCurve`,
       `.duplicateID`);
@@ -131,8 +143,15 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
 - **The title line and the marks make one panel** under the hero's lines, where the title line is now: `TitleLine`
   with the level, then `SkillMarks`. In one column it scrolls with the hero.
 - **Above the fold** it stays in the hero's pane, beside the hero and under his lines.
+  - His column takes half the pane, or more when the four skills need it to stand side by side: the hero yields the
+    width, never less than 160 pt of stage. So at xxxLarge the marks stay in one row and the panel stays above the
+    fold, where two by two would push it and the hero's feet under it. The panel learns the row's width from a hidden
+    copy of it.
   - The hero's height rule doesn't change (ADR-0056 §3).
   - At the accessibility text sizes the panel follows the hero and the pane scrolls, as now.
+- **Side by side** (on its side, or two columns), the hero yields height instead: he is what his pane, inside the
+  safe area, leaves after its title and what stands under him, between 120 and 260 pt. So at xxxLarge the skills sit
+  above the home indicator without scrolling; at the accessibility sizes he stops at 120 pt and the pane scrolls.
 - **The bounce** is in the hero's pane, away from the fold.
 
 ### 4. The catalog test
@@ -146,7 +165,7 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
 | Domain | `SkillCurve`, `SkillGrowth` | `ContentCatalog.skillCurves` and `curve(for:)`; `DadTitle.order`'s comment |
 | Application | | `HomeOverview.skills` |
 | Data | `skills.json`; `SkillCurveDTO` | `ContentValidator` and `ContentDataError` (title order, skill curves); `BundledContentRepository`; mappers; `ShippedContentIDs.json` (title `order`, `skills`) |
-| Presentation | `SkillMarks`, `SkillMarkLook`, `SkillMarksModel`, `TitleLineModel`, `HomeViewModel+Standing` | `HomeContent.dadTitle` (a model, not a string) and `skills`; `TitleCard.level`; the skill that grew, kept after the celebration; `TitleLine`; `OfferCard`; the card's announcement; strings in el and en |
+| Presentation | `SkillMarks`, `SkillMarkLook`, `SkillMarksModel`, `TitleLineModel`, `HomeViewModel+Standing`, `HomeView+HeroPanel` | `HomeContent.dadTitle` (a model, not a string) and `skills`; `TitleCard.level`; the skill that grew, kept in the view model after the celebration; `TitleLine`; `OfferCard`; the card's announcement; `HomeArrangement.maxHeroSize` (side by side); strings in el and en |
 | App | | none: no new use case or repository |
 
 No stored data changes: no schema version and no change to the privacy pages or manifests (ADR-0051).

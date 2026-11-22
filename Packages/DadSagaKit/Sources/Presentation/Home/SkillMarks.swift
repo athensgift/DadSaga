@@ -1,15 +1,15 @@
 import DesignSystem
-import Domain
 import SwiftUI
 
 /// How a skill's mark is drawn for how much the skill has grown (ADR-0059 §2). Plain values, so tests can read them.
 ///
-/// The symbol is 72% of its circle before the skill has grown and nears the whole circle as it grows; a glow and a
-/// wash of the tint behind it grow with it. Nothing fills up and nothing is ever grey or empty: a mark that hasn't
-/// grown is drawn in full colour, only smaller and quieter. The circle itself never changes size.
+/// The symbol is 60% of its circle before the skill has grown and nears the whole circle as it grows; a glow and a
+/// wash of the tint behind it grow with it. The look follows the square root of the growth, so the first cards show
+/// most and later ones still show, without an end. Nothing fills up and nothing is ever grey or empty: a mark that
+/// hasn't grown is drawn in full colour, only smaller and quieter. The circle itself never changes size.
 public struct SkillMarkLook: Equatable, Sendable {
     /// The symbol's share of the circle before the skill has grown.
-    public static let restingSymbolScale = 0.72
+    public static let restingSymbolScale = 0.6
     /// The wash's ceiling: the tint's own wash, so the symbol keeps its contrast (ADR-0032).
     public static let maxWashOpacity = DSTint.washOpacity
 
@@ -20,13 +20,15 @@ public struct SkillMarkLook: Equatable, Sendable {
         self.growth = min(max(growth, 0), 1)
     }
 
+    /// What the eye is shown of the growth: one card of 20 XP, about 12% grown, already shows as a third.
+    private var shown: Double { growth.squareRoot() }
     /// The symbol's side as a share of the circle's.
-    public var symbolScale: Double { Self.restingSymbolScale + (1 - Self.restingSymbolScale) * growth }
+    public var symbolScale: Double { Self.restingSymbolScale + (1 - Self.restingSymbolScale) * shown }
     /// Some wash from the start, so a new mark looks new, not missing.
-    public var washOpacity: Double { Self.maxWashOpacity * (0.4 + 0.6 * growth) }
-    public var glowOpacity: Double { 0.55 * growth }
+    public var washOpacity: Double { Self.maxWashOpacity * (0.35 + 0.65 * shown) }
+    public var glowOpacity: Double { 0.8 * shown }
     /// The glow's radius as a share of the circle's side.
-    public var glowRadius: Double { 0.22 * growth }
+    public var glowRadius: Double { 0.3 * shown }
 }
 
 /// The dad's four skills under his title, each its symbol with its name under it (ADR-0059 §2). All four side by side
@@ -35,13 +37,13 @@ public struct SkillMarkLook: Equatable, Sendable {
 struct SkillMarks: View {
     let model: SkillMarksModel
     /// How many times each mark has bounced (`HomeViewModel.skillBounces`).
-    let bounces: [Skill: Int]
+    let bounces: [String: Int]
+    /// Gets the width the four need side by side, so home can make room for them.
+    var onRowWidth: (CGFloat) -> Void = { _ in }
 
     var body: some View {
         ViewThatFits(in: .horizontal) {
-            HStack(alignment: .top, spacing: DSSpacing.m) {
-                ForEach(model.marks) { mark(for: $0, nameBeside: false) }
-            }
+            row
             Grid(horizontalSpacing: DSSpacing.l, verticalSpacing: DSSpacing.s) {
                 ForEach(rows, id: \.first?.id) { row in
                     GridRow {
@@ -54,9 +56,20 @@ struct SkillMarks: View {
             }
         }
         .frame(maxWidth: .infinity)
+        .background {
+            row.fixedSize().hidden()
+                .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { onRowWidth($0) }
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(model.label))
         .accessibilityValue(Text(model.value))
+    }
+
+    /// All four side by side, each name under its symbol.
+    private var row: some View {
+        HStack(alignment: .top, spacing: DSSpacing.s) {
+            ForEach(model.marks) { mark(for: $0, nameBeside: false) }
+        }
     }
 
     /// Two by two, in the marks' order.
@@ -69,7 +82,7 @@ struct SkillMarks: View {
             ? AnyLayout(HStackLayout(spacing: DSSpacing.s))
             : AnyLayout(VStackLayout(spacing: DSSpacing.xs))
         return layout {
-            SkillMarkSymbol(mark: mark, bounce: bounces[mark.skill] ?? 0)
+            SkillMarkSymbol(mark: mark, bounce: bounces[mark.id] ?? 0)
             Text(mark.name)
                 .font(DSFont.caption)
                 .foregroundStyle(DSColor.textSecondary)
@@ -95,8 +108,10 @@ private struct SkillMarkSymbol: View {
             .foregroundStyle(DSColor.accent)
             .frame(width: side * look.symbolScale, height: side * look.symbolScale)
             .shadow(color: DSColor.accent.opacity(look.glowOpacity), radius: side * look.glowRadius)
-            // Once each time the skill's card is celebrated, as its badge goes; never with Reduce Motion.
-            .symbolEffect(.bounce, value: reduceMotion ? 0 : bounce)
+            // Once each time the skill's card is celebrated, as its badge goes; never with Reduce Motion, and not when
+            // the setting changes either.
+            .symbolEffect(.bounce, value: bounce)
+            .symbolEffectsRemoved(reduceMotion)
             .frame(width: side, height: side)
             .background(DSColor.accent.opacity(look.washOpacity), in: Circle())
             // Smaller at once after an undo or a deletion, and larger with no show: the bounce says it grew.

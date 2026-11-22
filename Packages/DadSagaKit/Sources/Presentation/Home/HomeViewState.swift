@@ -1,4 +1,3 @@
-import Domain
 import Foundation
 
 /// Display-ready state for the home screen. Plain values only.
@@ -212,8 +211,6 @@ public struct Celebration: Equatable, Identifiable, Sendable {
     public let badgeText: String?
     /// A legendary moment just captured, e.g. "Πρώτα βήματα".
     public var momentText: String?
-    /// The skill the quest or boss grew, whose mark bounces as the badge goes (ADR-0059 §2).
-    public var grownSkill: Skill?
 
     /// How big a moment this is, which sets the animation and haptic. Bigger moments win when several happen at once.
     public enum Highlight: Comparable, Sendable {

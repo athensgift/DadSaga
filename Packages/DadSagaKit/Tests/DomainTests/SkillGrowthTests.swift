@@ -62,12 +62,20 @@ struct SkillGrowthTests {
         #expect(Self.growth([.first(id: "f")]).allSatisfy { $0.value == 0 })
     }
 
-    @Test("Given a quest that is then undone, when growing, then its skill is back where it was: it follows the entries")
+    @Test("Given a quest and a boss, when the quest's entry is removed, then its skill is back where it was")
     func followsTheEntries() {
-        let before = Self.growth([.quest(id: "q")])
-        let after = Self.growth([])
-        #expect(before[2].value > 0)
+        let quest = ProgressEvent(kind: .quest(id: "q"), childID: Self.child, date: .now)
+        let boss = ProgressEvent(kind: .boss(id: "b"), childID: Self.child, date: .now)
+        let growth = { (events: [ProgressEvent]) in
+            SkillGrowth.all(DadProgress(events: events, catalog: Self.catalog), catalog: Self.catalog)
+        }
+
+        let before = growth([quest, boss])
+        let after = growth([quest, boss].filter { $0.id != quest.id })
+
+        #expect(before[2].value == 0.2)
         #expect(after[2].value == 0)
+        #expect(after[0] == before[0])
     }
 
     @Test("Given content without a curve for a skill, when growing, then it doesn't grow rather than fail")

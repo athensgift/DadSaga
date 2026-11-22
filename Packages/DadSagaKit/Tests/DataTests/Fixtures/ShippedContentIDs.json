@@ -217,9 +217,9 @@
     { "id": "t-legendary-dad", "order": 9, "minCards": 37, "minXP": 1460, "gear": [] }
   ],
   "skills": [
-    { "skill": "care", "halfGrownXP": 400 },
-    { "skill": "play", "halfGrownXP": 400 },
-    { "skill": "patience", "halfGrownXP": 400 },
-    { "skill": "resilience", "halfGrownXP": 400 }
+    { "skill": "care", "halfGrownXP": 150 },
+    { "skill": "play", "halfGrownXP": 150 },
+    { "skill": "patience", "halfGrownXP": 150 },
+    { "skill": "resilience", "halfGrownXP": 150 }
   ]
 }

@@ -72,6 +72,24 @@ struct HomeCelebrationTests {
         #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
     }
 
+    @Test("Given a title that brings no gear, when its card appears, then VoiceOver hears the heading and the level only")
+    func titleCardWithoutGear() async throws {
+        let stub = HeroStub.catalog
+        let bare = stub.titles.map { DadTitle(id: $0.id, order: $0.order, minCards: $0.minCards, minXP: $0.minXP, name: $0.name) }
+        let catalog = ContentCatalog(
+            worlds: stub.worlds, quests: stub.quests, bosses: stub.bosses, firsts: stub.firsts,
+            heroClasses: stub.heroClasses, gear: stub.gear, titles: bare, skillCurves: stub.skillCurves
+        )
+        let sut = makeHomeViewModel(profile: HeroStub.profile, progress: progress, catalog: catalog)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+
+        let card = try #require(sut.titleCard)
+        #expect(card.message == nil)
+        #expect(card.announcement == "Έγινες «Νέος στο ταξίδι». Επίπεδο 1.")
+    }
+
     @Test("Given a title card, when the dad closes it, then it goes at once and stays gone through a reload")
     func titleCardCloses() async throws {
         let sut = makeSUT(profile: HeroStub.profile)

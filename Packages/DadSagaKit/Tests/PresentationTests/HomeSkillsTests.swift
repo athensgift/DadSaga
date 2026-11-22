@@ -26,7 +26,7 @@ struct HomeSkillsTests {
 
         #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
         #expect(content.dadTitle?.spoken == "Επίπεδο 0, Σε αναμονή")
-        #expect(content.skills.marks.map(\.skill) == [.care, .play, .patience, .resilience])
+        #expect(content.skills.marks.map(\.id) == ["care", "play", "patience", "resilience"])
         #expect(content.skills.marks.map(\.name) == ["Φροντίδα", "Παιχνίδι", "Υπομονή", "Αντοχή"])
         #expect(content.skills.marks.map(\.symbol) == ["heart.fill", "puzzlepiece.fill", "hourglass", "figure.mind.and.body"])
         #expect(content.skills.marks.allSatisfy { $0.growth == 0 })
@@ -36,8 +36,7 @@ struct HomeSkillsTests {
     func voiceOver() async throws {
         let greek = try content(await makeSUT()).skills
         #expect(greek.label == "Οι δεξιότητές σου")
-        let names = ["Φροντίδα", "Παιχνίδι", "Υπομονή", "Αντοχή"]
-        #expect(greek.value == names.formatted(.list(type: .and).locale(Locale(identifier: "el_GR"))))
+        #expect(greek.value == "Φροντίδα, Παιχνίδι, Υπομονή και Αντοχή")
         let english = try content(await makeSUT(locale: "en_US")).skills
         #expect(english.label == "Your skills")
         #expect(english.value == "Care, Play, Patience, and Resilience")
@@ -65,7 +64,7 @@ struct HomeSkillsTests {
         await sut.completeSelectedQuest()
 
         let afterQuest = try content(sut).skills.marks.map(\.growth)
-        #expect(abs(afterQuest[0] - 0.2) < 0.000_001)
+        #expect(abs(afterQuest[0] - 20.0 / 100.0) < 0.000_001)
         #expect(afterQuest.dropFirst().allSatisfy { $0 == 0 })
 
         sut.select(cardID: "b1")
@@ -108,16 +107,58 @@ struct HomeSkillsTests {
         sut.select(cardID: "b1")
         await sut.defeatSelectedBoss()
         let boss = try #require(sut.celebration)
-        #expect(boss.grownSkill == .care)
         #expect(sut.skillBounces.isEmpty)
 
         sut.celebrationFinished(id: boss.id)
         sut.celebrationFinished(id: boss.id)
-        #expect(sut.skillBounces == [.care: 1])
+        #expect(sut.skillBounces == ["care": 1])
 
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
         sut.celebrationFinished(id: try #require(sut.celebration).id)
-        #expect(sut.skillBounces == [.care: 2])
+        #expect(sut.skillBounces == ["care": 2])
+    }
+
+    @Test("Given a care boss replaced by a play quest within seconds, when the badges go, then each mark bounces once")
+    func replacedCelebrationStillBounces() async throws {
+        let play = Quest(
+            id: "q-play", worldID: "w1", title: LocalizedText(el: "Παιχνίδι", en: "Play"),
+            description: LocalizedText(el: "δ", en: "d"), skill: .play, xp: 20, minAgeMonths: 0
+        )
+        let stub = HeroStub.catalog
+        let catalog = ContentCatalog(
+            worlds: stub.worlds, quests: stub.quests + [play], bosses: stub.bosses, firsts: stub.firsts,
+            heroClasses: stub.heroClasses, gear: stub.gear, titles: stub.titles, skillCurves: stub.skillCurves
+        )
+        let sut = makeHomeViewModel(profile: HeroStub.profile, progress: progress, catalog: catalog)
+        await sut.onAppear()
+
+        sut.select(cardID: "b1")
+        await sut.defeatSelectedBoss()
+        let boss = try #require(sut.celebration)
+        sut.select(cardID: "q-play")
+        await sut.completeSelectedQuest()
+        // The boss's badge went as the quest's came: care's mark bounces now, not never.
+        #expect(sut.skillBounces == ["care": 1])
+
+        sut.celebrationFinished(id: boss.id)
+        sut.celebrationFinished(id: try #require(sut.celebration).id)
+        #expect(sut.skillBounces == ["care": 1, "play": 1])
+    }
+
+    @Test("Given a quest's celebration, when a moment's replaces it as its sheet closes, then the quest's mark bounces")
+    func momentReplacesAQuest() async throws {
+        let sut = await makeSUT()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        sut.startCapture()
+        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
+        #expect(sut.skillBounces.isEmpty)
+
+        sut.dismissSelection()
+        sut.sheetDismissed()
+
+        #expect(sut.celebration?.momentText != nil)
+        #expect(sut.skillBounces == ["care": 1])
     }
 }

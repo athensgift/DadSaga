@@ -23,15 +23,14 @@ public struct SkillMarksModel: Equatable, Sendable {
 
 /// One skill's mark: its symbol from the cards, its name, and how much it has grown.
 public struct SkillMarkModel: Equatable, Identifiable, Sendable {
-    public let skill: Skill
+    /// The skill's raw value, e.g. "patience": also the key of `HomeViewModel.skillBounces`.
+    public let id: String
     /// e.g. "Υπομονή".
     public let name: String
     /// SF Symbol, as on the skill's cards.
     public let symbol: String
     /// From 0 up to, never reaching, 1 (`SkillGrowth`).
     public let growth: Double
-
-    public var id: Skill { skill }
 }
 
 extension HomeViewModel {
@@ -50,7 +49,7 @@ extension HomeViewModel {
     func makeSkillMarks(_ skills: [SkillGrowth]) -> SkillMarksModel {
         let marks = skills.map { growth in
             SkillMarkModel(
-                skill: growth.skill, name: strings.skill(growth.skill), symbol: growth.skill.symbol,
+                id: growth.skill.rawValue, name: strings.skill(growth.skill), symbol: growth.skill.symbol,
                 growth: growth.value
             )
         }
@@ -62,8 +61,8 @@ extension HomeViewModel {
     }
 
     /// The celebrated card's skill, once its badge has gone: its mark bounces then, so the badge never hides it.
-    func bounceGrownSkill(of celebration: Celebration) {
-        guard let skill = celebration.grownSkill else { return }
-        skillBounces[skill, default: 0] += 1
+    func bounceSkill(grownBy celebrationID: Int) {
+        guard let skill = celebratedSkills.removeValue(forKey: celebrationID) else { return }
+        skillBounces[skill.rawValue, default: 0] += 1
     }
 }
