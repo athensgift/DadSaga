@@ -75,8 +75,8 @@ struct HomeViewModelTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        // A title never goes down, even when the quest that brought it is undone (ADR-0055 §3).
-        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
+        // Back to before the quest, the title it brought included (ADR-0055 §3).
+        #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
     }
 
     @Test("Given an undo offer, when an older offer expires, then the current one stays; when it expires, it closes")
@@ -340,6 +340,7 @@ func makeHomeViewModel(
             completeQuest: progress,
             defeatBoss: progress,
             deleteEvent: progress,
+            undoRecord: progress,
             moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
             reminder: reminder,
             answerSagaOffer: film,

@@ -175,6 +175,11 @@ final class AppContainer {
                     standingRepository: store.standing,
                     photoStore: photoStore
                 ),
+                undoRecord: DefaultUndoRecordUseCase(
+                    progressRepository: store.progress,
+                    standingRepository: store.standing,
+                    photoStore: photoStore
+                ),
                 moments: HomeViewModel.MomentUseCases(
                     capture: DefaultCaptureMomentUseCase(
                         contentRepository: contentRepository,

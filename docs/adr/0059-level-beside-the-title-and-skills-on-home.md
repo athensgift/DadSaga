@@ -37,7 +37,8 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
   - **The four skills on home, under the title:** small symbols that grow a little with every card, each with its
     skill's name under it. There is no maximum, no number, no XP and no next step: progress that looks back.
   - **The skills follow the entries:** they come from `DadProgress.skillXP` alone. An undo or a deletion can shrink a
-    mark visibly, as it takes a boss medal. The title still stays (ADR-0055).
+    mark visibly, as it takes a boss medal. A deletion keeps the title; an Undo takes back the title the card brought
+    too (ADR-0055 §3).
   - **A first grows no skill.**
   - **One curve for all four skills for now,** in the content.
   - **The catalog test** allows the level word, but still no XP.
@@ -61,8 +62,8 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
 ## Decision
 
 ### 1. The level is the held title's order
-- **The level is `DadTitle.order`,** read from `DadStanding.title`, the title held, so it never goes down. There is no
-  new property and nothing is stored. `order`'s comment says it is also the level.
+- **The level is `DadTitle.order`,** read from `DadStanding.title`, the title held, so a deletion never lowers it (an
+  Undo of the card that brought it does, ADR-0055 §3). There is no new property and nothing is stored. `order`'s comment says it is also the level.
 - **Orders run 0, 1, 2 … with no gap and no repeat** (`ContentValidator`, `ContentDataError.invalidTitleOrder`). This
   replaces the check that two titles don't share an order.
 - **A shipped title keeps its order for good,** so a new title can only come after the highest:
@@ -115,7 +116,8 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
   - With Reduce Motion it doesn't bounce (`symbolEffectsRemoved`), not even when the setting changes, and the
     celebration still says "Your patience grew".
 - **An undo or a deletion** takes back what that card gave, and the mark is drawn smaller at once, with no
-  animation, which would only draw his eye to it. The title and its gear stay (ADR-0055 §3).
+  animation, which would only draw his eye to it. After a deletion the title and its gear stay; an Undo takes them
+  back with the card, and the level with them (ADR-0055 §3).
 - **A first grows no skill,** since it has none. It counts toward cards done and the title, as now.
 - **The curve is content, in `skills.json`,** with one entry per skill and 150 for all four for now:
   ```json
@@ -206,7 +208,7 @@ No stored data changes: no schema version and no change to the privacy pages or 
 Not yet checked on a device. To check:
 - **A quest, then Undo:**
   - the mark goes back to where it was, with no animation;
-  - the title and its card stay, after a relaunch too.
+  - the title, its level, its card and its gear are as before the quest, after a relaunch too.
 - **Deleting an old boss** from the timeline: its skill's mark is smaller, and the title and gear stay.
 - **The first quest after onboarding:**
   - «Επίπεδο 0 · Μπαμπάς σε αναμονή» becomes «Επίπεδο 1 · Νέος στο ταξίδι»;
@@ -224,9 +226,10 @@ Not yet checked on a device. To check:
 ## Consequences
 - The dad sees a level and a name, and four marks with their names that grow with every card of their skill. Nothing
   on home says how far away the next title is.
-- A level is a number on screen again, but it comes from the title, so it rises only with a title and never falls.
+- A level is a number on screen again, but it comes from the title, so it rises only with a title and falls only
+  when an Undo takes back the card that brought it.
 - An undo or a deletion can shrink a mark, as it takes a boss medal. That is the dad correcting his own log
-  (ADR-0021); his title and gear stay.
+  (ADR-0021). After a deletion his title and gear stay; an Undo takes back what its card brought, level included.
 - **No stored change:** no schema version, no fixture, no privacy-page change.
 - **New titles can only be added above the highest.**
 - **A skill's `halfGrownXP` can only be lowered once it has shipped.**

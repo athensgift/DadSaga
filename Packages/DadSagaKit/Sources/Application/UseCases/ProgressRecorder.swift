@@ -7,11 +7,15 @@ public struct ProgressChange: Hashable, Sendable {
     public let after: DadProgress
     /// The event that was recorded, so the dad can undo it. `nil` when nothing was recorded.
     public let eventID: UUID?
+    /// What the store kept just before the event was stored: an Undo puts it back, so the title, its card and its gear
+    /// are as they were before the card. `nil` when nothing was recorded.
+    public let keptBefore: KeptStanding?
 
-    public init(before: DadProgress, after: DadProgress, eventID: UUID?) {
+    public init(before: DadProgress, after: DadProgress, eventID: UUID?, keptBefore: KeptStanding? = nil) {
         self.before = before
         self.after = after
         self.eventID = eventID
+        self.keptBefore = keptBefore
     }
 }
 
@@ -50,7 +54,7 @@ struct ProgressRecorder {
         let unchanged = ProgressChange(before: before, after: before, eventID: nil)
         // The usual repeat stops here, before any photo is written; `record` still catches two saves at once.
         guard !before.isAlreadyCounted(kind, for: childID) else { return unchanged }
-        try await StandingKeeper(standingRepository: standingRepository).keepBeforeChange(before, catalog: catalog)
+        let kept = try await StandingKeeper(standingRepository: standingRepository).keepBeforeChange(before, catalog: catalog)
         let recorder = EventRecorder(progressRepository: progressRepository, photoStore: photoStore)
         guard let event = try await recorder.record(kind, childID: childID, date: date, journal: journal) else {
             return unchanged
@@ -58,7 +62,8 @@ struct ProgressRecorder {
         return ProgressChange(
             before: before,
             after: DadProgress(events: events + [event], catalog: catalog),
-            eventID: event.id
+            eventID: event.id,
+            keptBefore: kept
         )
     }
 }

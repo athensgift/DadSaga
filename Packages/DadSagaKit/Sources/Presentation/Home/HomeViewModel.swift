@@ -44,6 +44,8 @@ public final class HomeViewModel {
     public internal(set) var skillBounces: [String: Int] = [:]
     /// The skill each celebration on screen grew, by its id, until it goes. Only home's view model knows it.
     @ObservationIgnored var celebratedSkills: [Int: Skill] = [:]
+    /// What the store kept before each entry that can still be undone, by the entry's id: an Undo puts it back.
+    @ObservationIgnored var keptBeforeEntries: [UUID: KeptStanding] = [:]
 
     let useCases: UseCases
     let locale: Locale
@@ -199,7 +201,7 @@ public final class HomeViewModel {
         pendingMomentCelebration = nil
         let celebration = makeCelebration(skill: skill, badge: badge)
         show(celebration)
-        undoOffer = change.eventID.map { makeUndoOffer(id: celebration.id, eventID: $0) }
+        undoOffer = offerUndo(of: change, id: celebration.id)
     }
 
     /// What a change grew, as a celebration with a new id: the skill, a badge or a moment, never a number. A new title

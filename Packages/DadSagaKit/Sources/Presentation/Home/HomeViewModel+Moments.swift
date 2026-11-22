@@ -41,7 +41,7 @@ extension HomeViewModel {
             for: child,
             now: now(),
             isNew: true,
-            undoOffer: makeUndoOffer(id: celebration.id, eventID: eventID)
+            undoOffer: offerUndo(of: change, id: celebration.id)
         ))
     }
 
@@ -73,12 +73,18 @@ extension HomeViewModel {
         }
     }
 
-    /// Deletes the moment in step 2, with its photos and XP, and closes the sheet: Delete when editing, Undo when new.
+    /// Deletes the moment in step 2, with its photos and XP, and closes the sheet: Delete when editing, which keeps the
+    /// title; Undo when new, which goes back to before it, title included (ADR-0055 §3).
     public func deleteMoment() async {
         guard let details = momentCapture?.details else { return }
+        let kept = details.undoOffer.flatMap { keptBeforeEntries[$0.eventID] }
         await perform {
-            try await self.useCases.deleteEvent.execute(eventID: details.momentID)
-            // Undone: nothing to celebrate.
+            if let kept {
+                try await self.takeBack(details.momentID, restoring: kept)
+            } else {
+                try await self.useCases.deleteEvent.execute(eventID: details.momentID)
+            }
+            // Gone: nothing to celebrate.
             self.pendingMomentCelebration = nil
         }
     }
@@ -95,7 +101,8 @@ extension HomeViewModel {
 
     /// The undo offer in step 2 ran out. Ignored if it is not the one shown.
     public func momentUndoExpired(id: Int) {
-        guard var details = momentCapture?.details, details.undoOffer?.id == id else { return }
+        guard var details = momentCapture?.details, let offer = details.undoOffer, offer.id == id else { return }
+        keptBeforeEntries[offer.eventID] = nil
         details.undoOffer = nil
         momentCapture?.step = .details(details)
     }

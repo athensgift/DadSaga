@@ -127,6 +127,11 @@ actor InMemoryStanding: StandingRepository {
         kept.seenTitleID = titleID
     }
 
+    func restore(_ kept: KeptStanding) async throws {
+        writes += 1
+        self.kept = kept
+    }
+
     func failKeeping() { failsToKeep = true }
 }
 

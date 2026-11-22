@@ -26,6 +26,15 @@ actor SwiftDataStandingRepository: StandingRepository {
         }
     }
 
+    func restore(_ kept: KeptStanding) async throws {
+        try modelContext.saveAllOrNothing {
+            guard let record = try record() else { return }
+            record.heldTitleID = kept.titleID
+            record.keptGearIDs = kept.gearIDs
+            record.seenTitleID = kept.seenTitleID
+        }
+    }
+
     private func record() throws -> ProfileRecord? {
         try modelContext.fetch(FetchDescriptor<ProfileRecord>()).first
     }

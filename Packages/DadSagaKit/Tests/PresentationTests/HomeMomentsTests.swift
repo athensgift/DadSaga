@@ -93,7 +93,7 @@ struct HomeMomentsTests {
         #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
     }
 
-    @Test("Given step 2 of a new moment, when undoing, then the moment is gone, the title stays and the sheet closes")
+    @Test("Given step 2 of a new moment, when undoing, then the moment and the title it brought are gone and the sheet closes")
     func undoInStepTwo() async throws {
         let sut = await makeSUT()
         sut.startCapture()
@@ -104,7 +104,7 @@ struct HomeMomentsTests {
         #expect(sut.momentCapture == nil)
         #expect(loadedMoments(sut)?.cards.isEmpty == true)
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
         #expect(content.companions.first?.traits.isEmpty == true)
     }
 

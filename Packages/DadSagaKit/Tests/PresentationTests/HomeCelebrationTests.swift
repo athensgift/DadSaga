@@ -123,19 +123,53 @@ struct HomeCelebrationTests {
         #expect(sut.sagaOffer != nil)
     }
 
-    @Test("Given a title, when the quest that brought it is undone, then the title and its card stay")
-    func undoKeepsTheTitle() async throws {
+    @Test("Given a quest that crossed a title, when it is undone, then the title, level, card and gear are as before it")
+    func undoReturnsToBefore() async throws {
         let sut = makeSUT(profile: HeroStub.profile)
         await sut.onAppear()
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
+        #expect(sut.titleCard != nil)
 
         await sut.undoLastRecord()
 
         #expect(await progress.eventCount == 0)
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
+        #expect(content.heroGear.isEmpty)
+        #expect(sut.titleCard == nil)
+    }
+
+    @Test("Given a title card closed, when its quest is undone and done again, then the card comes again")
+    func closedCardComesAgainAfterUndo() async throws {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        await sut.closeTitleCard()
+
+        await sut.undoLastRecord()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
 
         #expect(sut.titleCard?.title == "Έγινες «Νέος στο ταξίδι».")
+        #expect(sut.titleCard?.level == "Επίπεδο 1")
+    }
+
+    @Test("Given two quests, the first crossing a title, when the second is undone, then the first's title stays")
+    func undoOnlyTheLast() async throws {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+
+        await sut.undoLastRecord()
+
+        #expect(await progress.eventCount == 1)
+        guard case .loaded(let content) = sut.state else { throw StubError.boom }
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
+        #expect(content.heroGear == [.burpCloth])
     }
 }

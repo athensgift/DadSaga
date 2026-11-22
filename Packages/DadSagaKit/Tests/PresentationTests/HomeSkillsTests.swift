@@ -75,8 +75,8 @@ struct HomeSkillsTests {
         #expect(afterBoss[0] < 1)
     }
 
-    @Test("Given a quest just recorded, when it is undone, then its mark is back where it was, and the level stays")
-    func undoShrinksTheMarkNotTheLevel() async throws {
+    @Test("Given a quest just recorded, when it is undone, then its mark and the level are back where they were")
+    func undoReturnsMarkAndLevel() async throws {
         let sut = await makeSUT()
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
@@ -85,7 +85,7 @@ struct HomeSkillsTests {
 
         let content = try content(sut)
         #expect(content.skills.marks.allSatisfy { $0.growth == 0 })
-        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
         // An undone card bounces nothing: its celebration never finished.
         #expect(sut.skillBounces.isEmpty)
     }

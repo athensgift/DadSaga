@@ -188,6 +188,9 @@ extension SagaFixture {
                     standingRepository: store.standing,
                     photoStore: photos
                 ),
+                undoRecord: DefaultUndoRecordUseCase(
+                    progressRepository: store.progress, standingRepository: store.standing, photoStore: photos
+                ),
                 moments: HomeViewModel.MomentUseCases(
                     capture: DefaultCaptureMomentUseCase(
                         contentRepository: content, progressRepository: store.progress,

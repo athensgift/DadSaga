@@ -4,14 +4,16 @@ import Foundation
 
 /// An in-memory stand-in for both progress use cases, backed by the stub catalog.
 actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCase,
-    UpdateMomentUseCase, DeleteEventUseCase, GetPhotoUseCase, MarkTitleSeenUseCase {
+    UpdateMomentUseCase, DeleteEventUseCase, UndoRecordUseCase, GetPhotoUseCase, MarkTitleSeenUseCase {
     private(set) var events: [ProgressEvent] = []
     /// What the store keeps for titles, kept before each change as the app does (ADR-0055 §3).
     private(set) var kept = KeptStanding.fresh
 
-    private func keepBeforeChange() {
+    @discardableResult
+    private func keepBeforeChange() -> KeptStanding {
         let progress = DadProgress(events: events, catalog: HeroStub.catalog)
         if let next = DadStanding(progress: progress, catalog: HeroStub.catalog, kept: kept).toKeep { kept = next }
+        return kept
     }
 
     func execute(titleID: String) async throws {
@@ -137,13 +139,14 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         await waitIfSlow()
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        keepBeforeChange()
+        let keptBefore = keepBeforeChange()
         let event = ProgressEvent(kind: .first(id: request.firstID), childID: request.childID, date: request.date)
         events.append(event)
         return ProgressChange(
             before: before,
             after: DadProgress(events: events, catalog: HeroStub.catalog),
-            eventID: event.id
+            eventID: event.id,
+            keptBefore: keptBefore
         )
     }
 
@@ -181,6 +184,13 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         events.removeAll { $0.id == eventID }
     }
 
+    /// Undo: the entry goes and the kept record is put back, as the app's undo does.
+    func execute(eventID: UUID, restoring kept: KeptStanding) async throws {
+        if shouldFail { throw StubError.boom }
+        self.kept = kept
+        events.removeAll { $0.id == eventID }
+    }
+
     func execute(id: String, maxPixelSize: Int) async -> Data? {
         photos[id]
     }
@@ -191,13 +201,14 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
     private func record(_ kind: ProgressEvent.Kind, childID: UUID, on date: Date, note: String?) throws -> ProgressChange {
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        keepBeforeChange()
+        let keptBefore = keepBeforeChange()
         let event = ProgressEvent(kind: kind, childID: childID, date: date, note: note)
         events.append(event)
         return ProgressChange(
             before: before,
             after: DadProgress(events: events, catalog: HeroStub.catalog),
-            eventID: event.id
+            eventID: event.id,
+            keptBefore: keptBefore
         )
     }
 }

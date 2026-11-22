@@ -6,8 +6,10 @@ extension HomeViewModel {
         let getOverview: any GetHomeOverviewUseCase
         let completeQuest: any CompleteQuestUseCase
         let defeatBoss: any DefeatBossUseCase
-        /// Undo right after recording, and deleting a moment.
+        /// Deleting a moment opened to edit.
         let deleteEvent: any DeleteEventUseCase
+        /// Undo right after recording: back to before the card, title included (ADR-0055 §3).
+        let undoRecord: any UndoRecordUseCase
         let moments: MomentUseCases
         /// The weekly reminder offer.
         let reminder: ReminderUseCases
@@ -21,6 +23,7 @@ extension HomeViewModel {
             completeQuest: any CompleteQuestUseCase,
             defeatBoss: any DefeatBossUseCase,
             deleteEvent: any DeleteEventUseCase,
+            undoRecord: any UndoRecordUseCase,
             moments: MomentUseCases,
             reminder: ReminderUseCases,
             answerSagaOffer: any AnswerSagaOfferUseCase,
@@ -30,6 +33,7 @@ extension HomeViewModel {
             self.completeQuest = completeQuest
             self.defeatBoss = defeatBoss
             self.deleteEvent = deleteEvent
+            self.undoRecord = undoRecord
             self.moments = moments
             self.reminder = reminder
             self.answerSagaOffer = answerSagaOffer

@@ -1,5 +1,5 @@
-/// What the store keeps so a title never goes down and gear already earned stays (ADR-0055 §3, §4). Each field only
-/// grows.
+/// What the store keeps so a deletion never lowers the title and gear already earned stays (ADR-0055 §3, §4). Each
+/// field only grows, except when an Undo puts back the record from before the card it takes back.
 public struct KeptStanding: Hashable, Sendable {
     /// The highest title the dad held when his entries last changed. `nil` before any change.
     public var titleID: String?

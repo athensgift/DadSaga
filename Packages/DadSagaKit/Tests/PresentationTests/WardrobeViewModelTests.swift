@@ -143,6 +143,7 @@ struct WardrobeViewModelTests {
                 completeQuest: progress,
                 defeatBoss: progress,
                 deleteEvent: progress,
+                undoRecord: progress,
                 moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
                 reminder: .neverOffered,
                 answerSagaOffer: FakeFilmOffers(),

@@ -87,6 +87,20 @@ struct TitlesStoreTests {
         #expect(try await LocalStore.live(in: directory).standing.fetchKept() == .fresh)
     }
 
+    @Test("Given a kept title and a closed card, when an Undo puts back an earlier record, then the store holds it, lower")
+    func restoreLowersForAnUndo() async throws {
+        let store = LocalStore.inMemory()
+        try await store.profiles.save(StoreV6Fixture.profile)
+        let before = KeptStanding(titleID: "t0", gearIDs: ["g-cloth"], seenTitleID: nil)
+        try await store.standing.restore(before)
+        try await store.standing.keep(titleID: "t1", gearIDs: ["g-cloth"])
+        try await store.standing.markSeen(titleID: "t1")
+
+        try await store.standing.restore(before)
+
+        #expect(try await store.standing.fetchKept() == before)
+    }
+
     @Test("Given a kept title, when the dad starts over, then it goes with the saga")
     func startOverErasesIt() async throws {
         let store = LocalStore.inMemory()

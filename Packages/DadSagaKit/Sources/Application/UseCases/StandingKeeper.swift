@@ -6,9 +6,12 @@ import Domain
 struct StandingKeeper {
     let standingRepository: any StandingRepository
 
-    func keepBeforeChange(_ progress: DadProgress, catalog: ContentCatalog) async throws {
+    /// - Returns: what the store keeps now, for an Undo to put back (`UndoRecordUseCase`).
+    @discardableResult
+    func keepBeforeChange(_ progress: DadProgress, catalog: ContentCatalog) async throws -> KeptStanding {
         let kept = try await standingRepository.fetchKept()
-        guard let next = DadStanding(progress: progress, catalog: catalog, kept: kept).toKeep else { return }
+        guard let next = DadStanding(progress: progress, catalog: catalog, kept: kept).toKeep else { return kept }
         try await standingRepository.keep(titleID: next.titleID, gearIDs: next.gearIDs ?? [])
+        return next
     }
 }
