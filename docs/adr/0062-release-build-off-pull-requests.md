@@ -3,8 +3,7 @@
 **Status:** Accepted (2026-11-22). The owner asked that a pull request no longer wait for the Release build: with
 gitflow (ADR-0009) it belongs to the release branch. He chose to keep it after every merge into `develop` too. Changes
 ADR-0051 §5 (the Release build no longer runs on a pull request into `develop`) and ADR-0009 (CI also runs on a
-push to a `release/**` branch). Numbered 0062 because another branch
-takes 0061.
+push to a `release/**` branch). Numbered 0062 because another branch takes 0061.
 
 ## Context
 - Since ADR-0051 §5, every CI run builds the app three times: Release for the device, Debug for the simulator with the
