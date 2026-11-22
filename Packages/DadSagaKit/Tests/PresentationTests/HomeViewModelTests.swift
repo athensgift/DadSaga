@@ -39,7 +39,7 @@ struct HomeViewModelTests {
 
         sut.celebrationFinished(id: 1)
         #expect(sut.celebration == nil)
-        guard case .loaded(let after) = sut.state else { return }
+        guard case .loaded(let after) = sut.state else { Issue.record("Home isn't loaded"); return }
         #expect(after.skills.marks.map(\.rises) == [1, 0, 0, 0])
         #expect(after.skills.marks[0].growth > 0)
     }
