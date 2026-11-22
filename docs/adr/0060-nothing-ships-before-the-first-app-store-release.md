@@ -85,7 +85,8 @@ Drafted by the architect. It changes:
   TestFlight tester starts over when a build changes the store or an id (§6).
 - **A copy of the saga** (ADR-0057) follows the same rule: format 1 changes in place until that release. Its
   `standing.gearIDs` goes (§3). A copy made by an earlier `develop` build still reads, since an unknown key is ignored,
-  and the `SagaCopyV1` fixture has no such key, so it isn't regenerated.
+  and the `SagaCopyV1` fixture has no such key, so it isn't regenerated. The hand-written format-1 test keeps a
+  `gearIDs` key to pin that.
 - **From the first App Store release,** the rules of ADR-0026 §2, ADR-0048 §5, ADR-0053 §6, ADR-0055 §11 and ADR-0059
   §1–§2 apply to what that build carried (§5).
 
@@ -181,9 +182,13 @@ the build is released. It adds:
   - a kept title and a closed title card.
 - **Its tests:**
   - The app opens a copy read-write and finds everything.
-  - The widget opens a copy read-only and reads it. While `SchemaV1` is current, this shows that the released shape
-    hasn't been edited. The first `SchemaV2` turns it into the test of ADR-0034 §6: the widget fails without touching
-    the store until the app has migrated it.
+  - The widget opens a copy read-only and reads it. While `SchemaV1` is current, this is the test that shows the
+    released shape hasn't been edited: the app's read-write open would migrate an edited shape silently whenever
+    SwiftData can infer the change (§6), so only the read-only open, which never migrates, fails on it. The first
+    `SchemaV2` turns it into the test of ADR-0034 §6: the widget fails without touching the store until the app has
+    migrated it.
+- **`Tests/DataTests/Fixtures/SagaCopyV1`,** the copy of the saga in format 1 (ADR-0057 §4), recorded again with that
+  build and fixed from then on, never recorded again.
 - **The two rule files** (`.claude/rules/domain-and-data.md`, `.claude/agents/content.md`) lose their "until the first
   App Store release" rules.
 - **From then on,** every stored change is a new version with a stage and a fixture (ADR-0026 §2). Content follows
@@ -199,16 +204,24 @@ the build is released. It adds:
   - Deleting the app removes the store, the photos and the app's defaults: iOS removes the group's folder once its
     apps are gone.
 - **A tester who installs without deleting:**
-  - If the store changed, the app is expected to show "We couldn't open your saga", change nothing and offer only Try
-    again. Deleting the app is the way out. Nothing on that screen deletes the store (ADR-0026 §1).
+  - If the store changed, what happens depends on his rows (measured on 2026-11-22, `OlderStoreTests`). The app opens
+    the store with a plan of `[SchemaV1]` only, so SwiftData migrates it by inference when it can: a column made
+    non-optional is inferred whenever no row holds nil in it, and a dropped column is dropped. A `develop` store
+    from before this change opens that way, silently, without `keptGearIDs`. When a row holds nil in a column that is
+    now required, opening throws, the store is left unchanged, and the app shows "We couldn't open your saga" with
+    only Try again. Deleting the app is the way out. Nothing on that screen deletes the store (ADR-0026 §1).
+  - The widget opens the store read-only, without the plan, so it never migrates: on a changed store it always
+    fails and leaves the store as it was, until the app has opened it.
+  - So a silent migration is not a promise either: "delete the app first" stays the rule for every build that
+    changes the store.
   - If only an id changed, the app opens. Entries under the old id drop out of the timeline, the XP and the film, as
     for any id the content doesn't know (ADR-0005). His kept title stays, unless that title's id changed.
 - **Devices running `develop`:** delete DadSaga before installing the build with this change, and again whenever a
   `develop` build changes the store. Running from Xcode installs over the app and keeps its data, so delete the app
   first. The simulators that `ui-check` and the snapshots use are cleared the same way.
-- **Why the calm screen is expected but not promised:** what SwiftData does with a store whose shape no schema in the
-  plan has is not documented. Version 1 differs from version 7 in changes it can't infer: `childID` and `hasPartner`
-  stop being optional, with no default.
+- **Why neither outcome is promised:** what SwiftData does with a store whose shape no schema in the plan has is not
+  documented. What `OlderStoreTests` pins, from a test-only older schema: the widget's read-only open throws and
+  changes nothing, and a nil in a column `SchemaV1` requires makes the app's open throw.
 - **The first TestFlight build** is installed on phones with no `develop` build, so it starts from onboarding as a
   dad's would.
 
@@ -218,7 +231,7 @@ the build is released. It adds:
 | Domain | `GearItem.skillXPBeforeTitles`; `GearRules.earnedBeforeTitles`; `KeptStanding.gearIDs` and `.fresh`; `DadStanding.gearBeforeTitles` and `toKeepBeforeRecording` | `DadStanding`'s initializer, `asOf(_:catalog:)` (no `kept`), `news`; `toKeepBeforeDeleting` becomes `titleToKeep` |
 | Application | `StandingKeeper`; the gear argument of `StandingRepository.keep`; the `StandingRepository` of `ProgressRecorder`, `DefaultCompleteQuestUseCase`, `DefaultDefeatBossUseCase` and `DefaultCaptureMomentUseCase` | `DeleteEventUseCase` keeps `titleToKeep`; `GetSagaFilmUseCase`'s call to `asOf` |
 | Data | `SchemaV2` … `SchemaV7` (version 7's models become `SchemaV1`'s), the six stages, `copyPhotoIDs`, `fillBirthDays`; `GearItemDTO.skillXPBeforeTitles`; the former ids and retired cards in `quests.json` and `firsts.json`; the eight thresholds in `gear.json` | `SchemaV1` (§2); `DadSagaMigrationPlan`; `CurrentSchema`; the `ProfileRecord` and `ProgressEventRecord` mappings; `SwiftDataProgressRepository` (its predicate's `UUID?`); `SwiftDataStandingRepository`; `ConnectedStandingRepository`; `SwiftDataWholeSagaRepository`; `SagaCopyV1DTO` (no `standing.gearIDs`); the gear mapper |
-| Data tests | `StoreMigrationTests`; `WidgetBeforeMigrationTests` with `StoreFiles`; `StoreFixture`, `StoreV1Fixture`, `StoreV3Fixture` … `StoreV6Fixture` and the six `Fixtures/Store…` folders; `ShippedContentIDs.json` and `ShippedContentIDsTests`; `CalendarDay.migrated`; in `StoreVersioningTests`, the two tests of the store from before versions and the one of an event without a child; the three version 6 tests in `TitlesStoreTests` | the rest of `TitlesStoreTests` saves a profile of its own; `OrphanPhotoSweepTests` keeps its row of an unknown kind and loses the row without a child; `BundledContentRepositoryTests` loses its list of retired cards and counts the cards left; the copy's tests of gear never frozen and of gear none go, and the hand-written format 1 has no `gearIDs`; the test of an unknown look part stores an unknown beard, not a missing one |
+| Data tests | `StoreMigrationTests`; `WidgetBeforeMigrationTests` with `StoreFiles`; `StoreFixture`, `StoreV1Fixture`, `StoreV3Fixture` … `StoreV6Fixture` and the six `Fixtures/Store…` folders; `ShippedContentIDs.json` and `ShippedContentIDsTests`; `CalendarDay.migrated`; in `StoreVersioningTests`, the two tests of the store from before versions and the one of an event without a child; the three version 6 tests in `TitlesStoreTests` | the rest of `TitlesStoreTests` saves a profile of its own; `OrphanPhotoSweepTests` keeps its row of an unknown kind and loses the row without a child; `BundledContentRepositoryTests` loses its list of retired cards and counts the cards left; the copy's tests of gear never frozen and of gear none go, and the hand-written format 1 has no `gearIDs`; the test of an unknown look part stores an unknown beard, not a missing one; new: `OlderStoreTests`, from a test-only older schema and no fixture (the widget's read-only open throws and changes nothing; a nil in a required column makes the app's open throw), and three `StoreVersioningTests` of updating a stored child's birth day and the dad's look and partner answer, which the migration tests used to cover |
 | Other tests | `GearRulesTests`' three tests of the old rule; the tests "from before titles" in `TitleTests` and `StandingUseCaseTests` | made-up `GearItem`s lose `skillXPBeforeTitles:`; `KeptStanding.fresh` becomes `KeptStanding()` (`FakeProgress`, `UseCaseTests` and others); a failed keep is tested on a deletion only |
 | Presentation | | none. Nothing on screen changes |
 | App | | `AppContainer` and the snapshots' `SagaFixture`: the recording use cases without a `StandingRepository` |
@@ -255,12 +268,13 @@ the build is released. It adds:
 
 ## Verification status
 Not yet checked on a device. To check:
-- **On one device still on a `develop` build,** install over it once:
-  - the calm screen in Greek and English, with Try again, and trying again on returning to the foreground;
-  - the widget's "Open DadSaga".
-
-  This is also the screen's first check on a device (ROADMAP, "not checked on a device: it needs a damaged store").
-  Then delete the app.
+- **On one device still on a `develop` build,** install over it once. Its store most likely migrates silently (§6):
+  check that the saga reads back, and that the widget shows "Open DadSaga" until the app has opened once. Then
+  delete the app.
+- **The calm screen** needs a store that can't be opened: a row with nil in a column `SchemaV1` requires (a debug
+  build can write one), or a junk store file. Check it in Greek and English, with Try again, and trying again on
+  returning to the foreground. This is also the screen's first check on a device (ROADMAP, "not checked on a
+  device: it needs a damaged store").
 - **On every device running `develop`:** delete the app, install, and check onboarding, a first quest (Level 1 and the
   mug), a first with photos, the widget, the film and start over.
 
@@ -274,8 +288,8 @@ Not yet checked on a device. To check:
   nothing to keep in step.
 - TestFlight testers keep their saga from build to build only while the store and the ids stay as they are. A build
   that changes either asks them in its notes to delete the app first.
-- A tester who misses that note and installs over a changed store sees the calm screen, whose copy speaks of free
-  storage. Only deleting the app helps him.
+- A tester who misses that note and installs over a changed store may keep his saga through a silent migration, or
+  see the calm screen, whose copy speaks of free storage. Then only deleting the app helps him.
 - The first App Store release has one more step. If it is missed, the first rename after release goes unguarded.
 - After it, everything ADR-0026 and ADR-0048 promise holds again, from a shorter start: the first migration starts
   from `StoreV1`.

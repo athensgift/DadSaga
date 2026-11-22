@@ -33,8 +33,9 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ Checked on a device (2026-11-19): installing over a `develop` build, every screen and the widget in Greek and
   English, photos loading at their shown size.
 - The "couldn't open your saga" screen (junk store file) is covered by tests (`StoreVersioningTests`,
-  `StoreUnavailableRootTests`), not checked on a device yet: the build with ADR-0060, installed once over a `develop`
-  build, is expected to show it (ADR-0060, "Verification status").
+  `StoreUnavailableRootTests`), not checked on a device yet. It needs a store that can't be opened: a row with nil in
+  a column `SchemaV1` requires, or a junk file. A `develop` store most likely migrates silently instead (ADR-0060 §6,
+  "Verification status").
 - The widget opening an older store read-only: its test went with the old stores (ADR-0060). It comes back with the
   first `SchemaV2`, from the `StoreV1` fixture the first App Store release writes.
 - Sync ADR before Phase 5: CKSyncEngine over the event log, `#Unique` ids, photos, export/backup (ADR-0004, ADR-0026).

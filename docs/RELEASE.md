@@ -32,6 +32,8 @@ record follows that build; it is fixed once the build is released, and reaches `
       answer; a child born and one not born yet; a quest, a boss and a first, with photos and a note; a wardrobe
       choice; a kept title and a closed title card. Its tests: the app opens a copy read-write and finds everything;
       the widget opens a copy read-only and reads it.
+- [ ] `Tests/DataTests/Fixtures/SagaCopyV1`: recorded again with that build (a format-1 copy of the saga, ADR-0057 §4),
+      then fixed: never recorded again.
 - [ ] `.claude/rules/domain-and-data.md` and `.claude/agents/content.md`: drop the "until the first App Store release"
       rules.
 

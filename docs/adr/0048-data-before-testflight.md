@@ -1,8 +1,6 @@
 # ADR-0048: The saga's data before TestFlight: failed saves leave nothing behind, a birth date is a day, no silent new store, content ids that never go, and a careful sweep of orphan photos
 
-**Status:** Accepted (2026-11-21; merged while still marked Proposed, recorded as Accepted on 2026-11-22). Changed by
-[ADR-0060](0060-nothing-ships-before-the-first-app-store-release.md): an id ships with the first App Store release, not
-with `develop` (§5), and version 5 is folded, with the others, into the one `SchemaV1` until that release (§3).
+**Status:** Accepted (2026-11-21; merged while still marked Proposed, recorded as Accepted on 2026-11-22).
 
 From the review of 2026-11-21 (its second pass, which overrides the first where they
 differ). The owner asked for these five in one PR before the first TestFlight build; drafted by the architect. Changes
