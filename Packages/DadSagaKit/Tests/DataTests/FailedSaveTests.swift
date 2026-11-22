@@ -94,7 +94,7 @@ struct FailedSaveTests {
         let stored = entry()
         let store = try await unwritableStore(with: [stored])
 
-        await #expect(throws: (any Error).self) { try await store.eraser.eraseAll() }
+        await #expect(throws: (any Error).self) { try await store.wholeSaga.eraseAll() }
 
         #expect(try await store.progress.fetchEvents() == [stored])
         #expect(try await store.profiles.fetchProfile()?.children == [child])

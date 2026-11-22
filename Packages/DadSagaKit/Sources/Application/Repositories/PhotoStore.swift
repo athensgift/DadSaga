@@ -8,6 +8,11 @@ public protocol PhotoStore: Sendable {
     /// sits in memory.
     /// `nil` if there is no photo with that id or it cannot be read.
     func thumbnail(id: String, maxPixelSize: Int) async -> Data?
+    /// The photo's file as stored, byte for byte, for a copy of the saga (ADR-0057 §6).
+    func storedData(id: String) async throws -> Data
+    /// Stores a photo from a copy of the saga as it is, never re-encoded (ADR-0042 §1), under a new id. Throws when the
+    /// data isn't a JPEG.
+    func adopt(_ jpeg: Data) async throws -> String
     func delete(id: String) async
     /// Wipes every photo. Only starting over uses this.
     func deleteAll() async

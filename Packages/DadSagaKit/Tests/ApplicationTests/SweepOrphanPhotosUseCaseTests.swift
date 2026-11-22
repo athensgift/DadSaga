@@ -132,6 +132,8 @@ actor DatedPhotoStore: PhotoStore {
 
     func save(_ imageData: Data) async throws -> String { "" }
     func thumbnail(id: String, maxPixelSize: Int) async -> Data? { nil }
+    func storedData(id: String) async throws -> Data { Data() }
+    func adopt(_ jpeg: Data) async throws -> String { "" }
     func delete(id: String) async { files[id] = nil }
     func deleteAll() async { files = [:] }
 }

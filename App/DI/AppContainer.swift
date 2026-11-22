@@ -104,7 +104,7 @@ final class AppContainer {
             useCases: SettingsViewModel.UseCases(
                 savePreferences: DefaultSavePreferencesUseCase(repository: preferencesRepository),
                 startOver: DefaultStartOverUseCase(
-                    eraser: store.eraser,
+                    wholeSaga: store.wholeSaga,
                     photoStore: photoStore,
                     reminderSettings: reminderSettings,
                     sagaOffers: sagaOffers,
