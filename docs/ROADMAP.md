@@ -40,8 +40,8 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ The widget opening an older store read-only fails without touching it, tested from a test-only older schema
   (`OlderStoreTests`, ADR-0060). The first `SchemaV2` adds the test from the `StoreV1` fixture the first App Store
   release writes.
-- Sync ADR before Phase 5: CKSyncEngine over the event log, `#Unique` ids, photos, export/backup (ADR-0004, ADR-0026).
-  `childID` is non-optional since ADR-0060.
+- iCloud and partner co-op: designed in ADR-0065 (Proposed). Its PR 1 (a profile id, the entries' authors and `#Unique`
+  ids in `SchemaV1`; the copy's authors) lands before the first App Store release branch; the rest is Phase 5.
 - ✅ The store's work runs off the main thread, now whatever the compiler's default (ADR-0034).
 - ✅ CI pinned to Xcode 27.2 (ADR-0034).
 
