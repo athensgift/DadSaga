@@ -22,8 +22,9 @@ The checklist for a TestFlight build and an App Store release. The decisions beh
 ## Once, at the first App Store release
 On the first release branch, for the build submitted for review (ADR-0060 §5). If review asks for another build, the
 record follows that build; it is fixed once the build is released, and reaches `develop` when `main` is merged back.
-- [ ] ADR-0065's PR 1 merged into `develop` before the release branch: the profile id, the entries' authors, `#Unique`
-      ids and ids kept in history in `SchemaV1`, and `hero.id` and `author` in format 1. Both freeze with this build.
+- [ ] ADR-0065's PR 1 merged into `develop` before the release branch: the profile id, the entries' authors, a child's
+      `isRemoved`, `#Unique` ids and ids kept in history in `SchemaV1`; `hero.id`, `author` and each child's `removed`
+      in format 1, whose reader takes any number of children from one. Both freeze with this build.
 - [ ] `Tests/DataTests/Fixtures/ShippedContentIDs.json`, from the bundled content: every world, hero, quest, boss,
       first, gear item and title id; each quest's and boss's skill and XP, and each first's XP; each gear item's skill;
       each title's order, cards, XP and gear; each skill's `halfGrownXP`. From then on it only grows.
