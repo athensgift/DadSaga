@@ -78,20 +78,22 @@ struct BeforeBirthTests {
     @Test("Given a child not born yet, when unlocking, then World 0 is current and the only one, with its own cards")
     func notBornHasWorldZero() {
         let family = FamilyFacts.everyone
-        #expect(UnlockRules.unlockedWorlds(in: catalog, age: .beforeBirth).map(\.id) == ["w0"])
+        #expect(UnlockRules.reachedWorlds(in: catalog, age: .beforeBirth).map(\.id) == ["w0"])
         #expect(UnlockRules.currentWorld(in: catalog, age: .beforeBirth)?.id == "w0")
         #expect(!UnlockRules.isBeyondContent(catalog, age: .beforeBirth))
         #expect(UnlockRules.quests(for: harbour, in: catalog, age: .beforeBirth, family: family).map(\.id)
             == ["q-w0-talk", "q-w0-aid"])
         #expect(UnlockRules.bosses(for: harbour, in: catalog, age: .beforeBirth, family: family).map(\.id)
             == ["b-w0-birth"])
-        #expect(UnlockRules.quests(for: swamp, in: catalog, age: .beforeBirth, family: family).allSatisfy { $0.worldID == "w0" })
+        // World 1 lies ahead, open all the same: its own cards come too (ADR-0061 §3).
+        #expect(UnlockRules.isAhead(swamp, at: .beforeBirth))
+        #expect(UnlockRules.quests(for: swamp, in: catalog, age: .beforeBirth, family: family).contains { $0.worldID == "w1" })
     }
 
     @Test("Given a child born today, when unlocking, then World 1 is current, World 0 visited, only evergreen W0 cards follow")
     func bornTodayMovesOn() {
         let family = FamilyFacts.everyone
-        #expect(UnlockRules.unlockedWorlds(in: catalog, age: .months(0)).map(\.id) == ["w0", "w1"])
+        #expect(UnlockRules.reachedWorlds(in: catalog, age: .months(0)).map(\.id) == ["w0", "w1"])
         #expect(UnlockRules.currentWorld(in: catalog, age: .months(0))?.id == "w1")
         #expect(UnlockRules.quests(for: harbour, in: catalog, age: .months(0), family: family).map(\.id)
             == ["q-w0-talk", "q-w0-aid"])

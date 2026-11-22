@@ -104,7 +104,7 @@ struct UnlockRulesTests {
 
     @Test("Given a newborn, when unlocking, then only the first world and its age-0 quests are available")
     func newborn() throws {
-        #expect(UnlockRules.unlockedWorlds(in: catalog, age: .months(0)).map(\.id) == ["w1"])
+        #expect(UnlockRules.reachedWorlds(in: catalog, age: .months(0)).map(\.id) == ["w1"])
         let first = try #require(catalog.worlds.first { $0.id == "w1" })
         #expect(UnlockRules.quests(for: first, in: catalog, age: .months(0), family: .everyone).map(\.id) == ["q1"])
         #expect(UnlockRules.bosses(for: first, in: catalog, age: .months(0), family: .everyone).map(\.id) == ["b1"])
@@ -112,7 +112,7 @@ struct UnlockRulesTests {
 
     @Test("Given a 10-month-old, when unlocking, then both worlds are open and the current world is the second")
     func tenMonths() throws {
-        #expect(UnlockRules.unlockedWorlds(in: catalog, age: .months(10)).count == 2)
+        #expect(UnlockRules.reachedWorlds(in: catalog, age: .months(10)).count == 2)
         #expect(UnlockRules.currentWorld(in: catalog, age: .months(10))?.id == "w2")
         let first = try #require(catalog.worlds.first { $0.id == "w1" })
         let second = try #require(catalog.worlds.first { $0.id == "w2" })

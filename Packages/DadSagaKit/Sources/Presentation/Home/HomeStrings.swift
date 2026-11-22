@@ -51,12 +51,15 @@ struct HomeStrings {
         }
     }
 
-    /// When a locked world opens: in so many months, or after the birth for a child not born yet, who has no months
-    /// to count (ADR-0053 §2).
-    func unlocks(_ world: World, at age: ChildAge) -> String {
-        guard let months = age.months else { return strings.text("Opens after the birth") }
-        guard case .months(let min, _) = world.span else { return "" }
-        return strings.text("Unlocks in \(min - months) months")
+    /// When a world ahead is ideal, from its own start: a start, never an end or a countdown (ADR-0061 §3).
+    /// Nothing for a world before birth, which is never ahead.
+    func idealStart(_ world: World) -> String? {
+        guard case .months(let min, _) = world.span else { return nil }
+        return switch min {
+        case 0: strings.text("Ideally after the birth")
+        case ..<24: strings.text("Ideally from \(min) months")
+        default: strings.text("Ideally from \(years(min)) years")
+        }
     }
 
     /// What was kept in a world, never what was left undone (ADR-0020), e.g. "7 quests · 1 boss".

@@ -76,6 +76,13 @@ public struct StartOverLabels: Equatable, Sendable {
     public let cancel: String
 }
 
+/// The dad's hero drawn above the fold, as on "Your hero": class and look, no gear.
+public struct SettingsHero: Equatable, Sendable {
+    public let look: HeroLook
+    public let skinTone: SkinToneChoice
+    public let appearance: DadAppearanceChoice
+}
+
 /// Shown when Mail could not open: the address to write to by hand.
 public struct MailFallback: Equatable, Identifiable, Sendable {
     public var id: String { address }

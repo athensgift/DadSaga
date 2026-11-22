@@ -1,7 +1,7 @@
 import UIKit
 import XCTest
 
-/// Settings follows the Appearance the dad picks while it is open, Automatic included: back on Automatic, Settings
+/// Settings follows the Appearance the dad picks while it is on screen, Automatic included: back on Automatic, Settings
 /// draws in the iPhone's look, not in the last look it was given. Runs in whichever look the simulator has: on iOS 27.2
 /// the simulator only applies a change of look after a reboot, so the test reads the iPhone's look from home.
 @MainActor
@@ -47,9 +47,10 @@ final class SettingsAppearanceTests: XCTestCase {
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "home did not open")
     }
 
+    /// Settings is a tab (ADR-0061 §2).
     private func openSettings() {
-        app.navigationBars.buttons["Settings"].tap()
-        XCTAssertTrue(app.buttons["Close"].firstMatch.waitForExistence(timeout: 5), "Settings did not open")
+        app.tabBars.buttons["Settings"].firstMatch.tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5), "Settings did not open")
         sleep(1)
     }
 

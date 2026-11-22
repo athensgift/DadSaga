@@ -41,7 +41,6 @@ extension HomeViewModel {
     /// another, whose quest this one must not open.
     public func open(_ link: AppLink) async {
         dismissSelection()
-        worldMap = nil
         selectedChildID = link.childID
         viewedWorldID = nil
         guard let overview = await load(),

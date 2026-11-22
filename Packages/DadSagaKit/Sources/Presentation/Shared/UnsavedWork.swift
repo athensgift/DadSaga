@@ -3,14 +3,16 @@ import Observation
 import SwiftUI
 
 /// Which open editors hold changes the dad hasn't saved, so a link from outside the app waits instead of closing them
-/// (ADR-0050). One for the whole app: `RootViewModel` owns it, and each `UnsavedChangesGuard` on either tab reports to it
+/// (ADR-0050). One for the whole app: `RootViewModel` owns it, and each `UnsavedChangesGuard` on any tab reports to it
 /// through the environment.
 ///
 /// A hold ends at a moment the app controls, never only when SwiftUI happens to free a view:
 /// - the editor has nothing left to lose (a save kept it, or the dad undid his change);
 /// - the dad discards;
-/// - the presentation the editor lives in is dismissed (`end(scope:)`, from the sheet's `onDismiss`).
-/// A covering camera or photo viewer ends none of these, so the editor stays held under it.
+/// - the presentation the editor lives in is dismissed (`end(scope:)`, from the sheet's `onDismiss`);
+/// - the saga is erased and onboarding takes the tabs away (`endAll()`, ADR-0061 §2).
+/// A pushed page that is freed ends its own hold. A covering camera or photo viewer ends none of these, so the editor
+/// stays held under it, and so does a tab the dad leaves.
 @MainActor
 @Observable
 final class UnsavedWork {
@@ -40,6 +42,11 @@ final class UnsavedWork {
         release { editors = editors.filter { $0.value != scope } }
     }
 
+    /// Nothing is held any more: the saga those editors belonged to is gone.
+    func endAll() {
+        release { editors.removeAll() }
+    }
+
     private func release(_ change: () -> Void) {
         let wasHeld = isHeld
         change()
@@ -51,7 +58,7 @@ final class UnsavedWork {
 enum UnsavedScope {
     /// Home's quest, boss or moment sheet.
     static let homeSheet = "home-sheet"
-    /// Settings and the pages pushed from it, such as "My family".
+    /// The Settings tab and the pages pushed in it, such as "My family".
     static let settings = "settings"
     /// The timeline's note and photos editor.
     static let timelineJournal = "timeline-journal"

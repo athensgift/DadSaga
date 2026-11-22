@@ -6,8 +6,8 @@ import SwiftUI
 import Testing
 import UIKit
 
-/// The main screens (onboarding, home with and without the film offer, the wardrobe, the timeline, settings and the
-/// film sheet) as images, so a change to how one looks shows up in review (ADR-0034). Each is drawn in Greek and
+/// The main screens (onboarding, home with and without the film offer, the wardrobe, the map, the timeline, settings
+/// and the film sheet) as images, so a change to how one looks shows up in review (ADR-0034). Each is drawn in Greek and
 /// light mode, in English and dark mode, and in English at the largest accessibility text size, which the
 /// accessibility audit does not check (ADR-0033).
 ///
@@ -50,8 +50,7 @@ struct ScreenSnapshotTests {
         await viewModel.onAppear()
         let view = HomeView(
             viewModel: viewModel,
-            makeSagaFilm: { saga.sagaFilm(request: $0) },
-            settings: saga.settingsScreens
+            makeSagaFilm: { saga.sagaFilm(request: $0) }
         )
         verify(view, look: look, named: "home")
     }
@@ -63,8 +62,7 @@ struct ScreenSnapshotTests {
         await viewModel.onAppear()
         let view = HomeView(
             viewModel: viewModel,
-            makeSagaFilm: { saga.sagaFilm(request: $0) },
-            settings: saga.settingsScreens
+            makeSagaFilm: { saga.sagaFilm(request: $0) }
         )
         verify(view, look: look, named: "home-film-offer")
     }
@@ -111,8 +109,17 @@ struct ScreenSnapshotTests {
     @Test("Given a few weeks of play, when settings open, then they look as recorded", arguments: Look.allCases)
     func settings(look: Look) async throws {
         let saga = try await SagaFixture(locale: look.locale).played()
-        let view = SettingsView(viewModel: saga.settings(), pages: saga.settingsPages, onClose: {})
-        verify(view, look: look, named: "settings")
+        let viewModel = saga.settings()
+        await viewModel.loadHero()
+        verify(SettingsView(viewModel: viewModel, pages: saga.settingsPages), look: look, named: "settings")
+    }
+
+    @Test("Given a few weeks of play, when the map opens, then it looks as recorded", arguments: Look.allCases)
+    func worldMap(look: Look) async throws {
+        let saga = try await SagaFixture(locale: look.locale).played()
+        let viewModel = saga.home()
+        await viewModel.onAppear()
+        verify(WorldMapView(viewModel: viewModel) {}, look: look, named: "world-map")
     }
 
     /// A 390 × 844 pt screen drawn in the app's window, where Liquid Glass is drawn, and still: avatars at rest and no
