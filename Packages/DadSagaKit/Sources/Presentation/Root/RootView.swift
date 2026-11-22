@@ -89,8 +89,9 @@ public struct RootView: View {
                         )
                     )
                     .environment(viewModel.unsavedWork)
-                    // A new saga is a new home: its sheets, Settings included, close with the old one.
-                    .id(viewModel.sagaGeneration)
+                    // A new presenter is a new home: its sheets, Settings included, close with the old one, and the
+                    // new one is the one on screen (an id from a counter would hand the old presenter to the new view).
+                    .id(ObjectIdentifier(home))
                     .transition(.opacity)
                 } else {
                     ProgressView()
@@ -154,7 +155,11 @@ public struct RootView: View {
         let actions = SettingsActions(
             onPreferencesChanged: { viewModel.preferencesChanged($0) },
             onStartedOver: { viewModel.startedOver() },
-            onSagaImported: { viewModel.sagaImported() }
+            onSagaImported: {
+                viewModel.sagaImported()
+                // Settings closes with home, whatever SwiftUI calls on the way: its exports go now (ADR-0057 §6).
+                settingsPages.discardExports()
+            }
         )
         return SettingsScreens(makeSettings: { makeSettings(viewModel.preferences, actions) }, pages: settingsPages)
     }

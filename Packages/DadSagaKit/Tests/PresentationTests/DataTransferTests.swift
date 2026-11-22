@@ -13,11 +13,12 @@ struct DataTransferTests {
     private func importer(
         _ restore: FakeRestore,
         replacesSaga: Bool = true,
+        backgroundTime: any BackgroundTime = ImmediateBackgroundTime(),
         locale: String = "en_US",
         onImported: @escaping @MainActor () -> Void = {}
     ) -> DataImportViewModel {
         DataImportViewModel(
-            restore: restore, backgroundTime: ImmediateBackgroundTime(), replacesSaga: replacesSaga,
+            restore: restore, backgroundTime: backgroundTime, replacesSaga: replacesSaga,
             onImported: onImported, locale: Locale(identifier: locale), now: { Date(timeIntervalSince1970: 1_800_000_000) }
         )
     }
@@ -198,7 +199,7 @@ struct DataTransferTests {
         #expect(messages.count == 1)
     }
 
-    @Test("Given an answered question left open, when the page closes, then what was read is let go")
+    @Test("Given an unanswered question, when the page closes, then what was read is let go")
     func closingDiscards() async {
         let restore = FakeRestore(copy: copy(names: ["Lena"]))
         let sut = importer(restore)
@@ -227,6 +228,71 @@ struct DataTransferTests {
         importer.cancel()
         await reading.value
         #expect(!sut.isWorking)
+        #expect(importer.state == .ready)
+        #expect(await restore.restored.isEmpty)
+    }
+
+    @Test("Given a commit that fails in Settings, when the dad confirms, then he's told his saga hasn't changed")
+    func failedCommitInSettings() async {
+        var imported = 0
+        let sut = importer(FakeRestore(copy: copy(names: ["Lena"]), restoreFailure: SagaCopyError.failed)) { imported += 1 }
+        await sut.picked(URL(filePath: "/picked.dadsaga"))
+
+        await sut.confirm()
+
+        #expect(sut.state == .failed("Couldn't import the data. Please try again. Your saga hasn't changed."))
+        #expect(imported == 0)
+    }
+
+    @Test("Given a commit that fails on onboarding, when the dad confirms, then the message has no saga to speak of")
+    func failedCommitOnOnboarding() async {
+        let sut = importer(FakeRestore(copy: copy(names: ["Lena"]), restoreFailure: SagaCopyError.failed),
+                           replacesSaga: false)
+        await sut.picked(URL(filePath: "/picked.dadsaga"))
+
+        await sut.confirm()
+
+        #expect(sut.state == .failed("Couldn't import the data. Please try again."))
+    }
+
+    @Test("Given each way opening can fail in Settings, when picked, then it says what to do and that nothing changed",
+          arguments: [
+            (SagaCopyError.unreadable as any Error & Sendable,
+             "The file couldn't be opened. If it's in iCloud Drive or another cloud service, check your connection "
+                + "and try again."),
+            (SagaCopyError.notEnoughSpace, "There isn't enough free space on this iPhone. Free up some space and try again."),
+            (CocoaError(.fileReadUnknown), "Couldn't import the data. Please try again.")
+          ])
+    func importMessages(failure: any Error & Sendable, reason: String) async {
+        let sut = importer(FakeRestore(copy: nil, failure: failure))
+
+        await sut.picked(URL(filePath: "/picked.dadsaga"))
+
+        #expect(sut.state == .failed(reason + " Your saga hasn't changed."))
+    }
+
+    @Test("Given the dad leaving the app too long, when importing, then the page says it stopped and to keep DadSaga open")
+    func importLeftTheApp() async {
+        let sut = importer(FakeRestore(copy: copy(names: ["Lena"])), backgroundTime: ExpiringBackgroundTime())
+
+        await sut.picked(URL(filePath: "/picked.dadsaga"))
+
+        guard case .failed(let message) = sut.state else { Issue.record("\(sut.state)"); return }
+        #expect(message.hasPrefix("The import stopped when you left DadSaga."))
+        #expect(message.hasSuffix("Your saga hasn't changed."))
+    }
+
+    @Test("Given no saga or another failure, when exporting, then the page says so calmly",
+          arguments: [
+            (SagaCopyError.nothingToCopy as any Error & Sendable, "There's nothing to export yet."),
+            (CocoaError(.fileWriteUnknown), "Couldn't export your data. Please try again.")
+          ])
+    func exportMessages(failure: any Error & Sendable, reason: String) async {
+        let sut = exporter(FakeMakeCopy(result: .failure(failure)))
+
+        await sut.export()
+
+        #expect(sut.state == .failed(reason + " Your saga hasn't changed."))
     }
 
     // MARK: The root
@@ -241,8 +307,8 @@ struct DataTransferTests {
         let generation = sut.sagaGeneration
 
         sut.sagaImported()
-        sut.unsavedWork.end(scope: UnsavedScope.settings)
 
+        #expect(!sut.unsavedWork.isHeld)
         #expect(sut.sagaGeneration == generation + 1)
         #expect(sut.selectedTab == .adventure)
         #expect(sut.pendingLink == nil)
@@ -257,81 +323,5 @@ struct DataTransferTests {
         sut.sagaImported()
 
         #expect(sut.state == .home)
-    }
-}
-
-// MARK: - Doubles
-
-actor FakeMakeCopy: MakeSagaCopyUseCase {
-    private let result: Result<MadeSagaCopy, any Error>
-    private let waits: Bool
-    private var startWaiters: [CheckedContinuation<Void, Never>] = []
-    private var hasStarted = false
-
-    init(result: Result<MadeSagaCopy, any Error>, waits: Bool = false) {
-        self.result = result
-        self.waits = waits
-    }
-
-    func execute(on date: Date, progress: @escaping @Sendable (Double) -> Void) async throws -> MadeSagaCopy {
-        hasStarted = true
-        startWaiters.forEach { $0.resume() }
-        startWaiters = []
-        progress(0.5)
-        if waits { try await Task.sleep(for: .seconds(60)) }
-        return try result.get()
-    }
-
-    func discardCopies() async {}
-
-    func started() async {
-        if hasStarted { return }
-        await withCheckedContinuation { startWaiters.append($0) }
-    }
-}
-
-actor FakeRestore: RestoreSagaUseCase {
-    private let copy: OpenedSagaCopy?
-    private let failure: (any Error)?
-    private let waits: Bool
-    private(set) var restored: [OpenedSagaCopy] = []
-    private(set) var discarded: [OpenedSagaCopy] = []
-    private var startWaiters: [CheckedContinuation<Void, Never>] = []
-    private var hasStarted = false
-
-    init(copy: OpenedSagaCopy?, failure: (any Error)? = nil, waits: Bool = false) {
-        self.copy = copy
-        self.failure = failure
-        self.waits = waits
-    }
-
-    func open(fileAt url: URL, progress: @escaping @Sendable (Double) -> Void) async throws -> OpenedSagaCopy {
-        hasStarted = true
-        startWaiters.forEach { $0.resume() }
-        startWaiters = []
-        if waits { try await Task.sleep(for: .seconds(60)) }
-        if let failure { throw failure }
-        guard let copy else { throw SagaCopyError.notACopy }
-        return copy
-    }
-
-    func restore(_ opened: OpenedSagaCopy, on date: Date) async throws {
-        restored.append(opened)
-    }
-
-    func discard(_ opened: OpenedSagaCopy) async {
-        discarded.append(opened)
-    }
-
-    func started() async {
-        if hasStarted { return }
-        await withCheckedContinuation { startWaiters.append($0) }
-    }
-}
-
-/// iOS's time running out as soon as the work starts.
-struct ExpiringBackgroundTime: BackgroundTime {
-    func run<T: Sendable>(_ name: String, _ work: @escaping @Sendable () async throws -> T) async throws -> T {
-        throw BackgroundTimeExpired()
     }
 }

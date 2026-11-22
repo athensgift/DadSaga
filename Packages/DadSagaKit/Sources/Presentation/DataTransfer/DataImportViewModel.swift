@@ -173,7 +173,7 @@ public struct DataImportQuestion: Equatable, Sendable {
     public let message: String
     public let confirm: String
     public let cancel: String
-    /// It takes the place of a saga: shown as start over is (ADR-0030 §8).
+    /// It takes the place of a saga, so its button is marked destructive, as start over's is (ADR-0030 §8).
     public let confirmIsDestructive: Bool
 }
 

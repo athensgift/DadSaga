@@ -129,6 +129,8 @@ public final class RootViewModel {
     /// which closes Settings. A link waiting for the old saga is dropped.
     public func sagaImported() {
         dropLinks()
+        // Settings closes with the old home; nothing it held can be lost any more.
+        unsavedWork.end(scope: UnsavedScope.settings)
         selectedTab = .adventure
         // From onboarding, home is built as it opens; only a home already on screen is built again.
         if state == .home { sagaGeneration += 1 }

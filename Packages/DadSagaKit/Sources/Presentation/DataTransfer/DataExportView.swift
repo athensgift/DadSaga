@@ -25,6 +25,10 @@ struct DataExportView: View {
         .navigationBarBackButtonHidden(viewModel.isWorking)
         .holdsLinks(whileWorking: viewModel.isWorking)
         .onDisappear { Task { await viewModel.importer.closed() } }
+        // Once, when the copy is ready: VoiceOver otherwise doesn't hear that the work ended.
+        .onChange(of: viewModel.state) { _, state in
+            if case .exported(let exported) = state { AccessibilityNotification.Announcement(exported.readyLine).post() }
+        }
     }
 
     private var isExporting: Bool {
@@ -47,7 +51,6 @@ struct DataExportView: View {
             case .exported(let exported):
                 Text(exported.readyLine)
                     .foregroundStyle(DSColor.textPrimary)
-                    .onAppear { AccessibilityNotification.Announcement(exported.readyLine).post() }
                 ShareLink(
                     item: SagaCopyFile(url: exported.file),
                     preview: SharePreview(exported.file.lastPathComponent)
