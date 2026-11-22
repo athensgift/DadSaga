@@ -3,7 +3,7 @@
 **Status:** Proposed (2026-11-22). Drafted by the architect for the version after the first App Store release, as the
 roadmap asks ("Sync ADR before Phase 5") and ADR-0026 §6 deferred. One part is for **before** that release: §5's
 changes to `SchemaV1` and to format 1 of a copy, since both freeze with that build (ADR-0060). The product questions
-were answered by the owner on 2026-11-22 (folded in below; the answers are listed at the end). It changes:
+were answered by the owner on 2026-11-22 (folded in below and listed at the end; none is open). It changes:
 - **ADR-0004:** once a parent turns sharing on, the family leaves the iPhone for the inviting parent's iCloud and
   reaches the partner, and each hero goes to its own parent's iCloud. Still no account, backend or server of ours.
 - **ADR-0006:** with two parents, each one's XP, title and gear come only from the entries they recorded; firsts are
@@ -13,12 +13,10 @@ were answered by the owner on 2026-11-22 (folded in below; the answers are liste
   entitlement, SwiftData would otherwise mirror the store by itself.
 - **ADR-0030 §7, §8:** the About statement names iCloud; start over on a shared family first ends this parent's part
   in it.
-- **ADR-0053 §4:** a new `onlyFor` word, `notBirthParent`, and the fact behind it, whether this player is the parent
-  who gave birth (§3).
 - **ADR-0057 §2, §3, §7:** format 1 carries the hero's id and each entry's author; a copy of a shared family holds
   both parents' entries; no import while the saga is shared.
-- **ADR-0060 §2 and Deferred:** `SchemaV1` gains a profile id, an author on every entry, the birth-parent answer,
-  `#Unique` ids, and ids kept in history.
+- **ADR-0060 §2 and Deferred:** `SchemaV1` gains a profile id, an author on every entry, `#Unique` ids, and ids
+  kept in history.
 
 ## Context
 - **What is stored** (`SchemaV1`, ADR-0060 §2): one `ProfileRecord` (hero, look, partner answer, `heldTitleID`,
@@ -100,7 +98,7 @@ were answered by the owner on 2026-11-22 (folded in below; the answers are liste
 
   | Type | Name | Zone | Fields |
   |---|---|---|---|
-  | `Hero` | `hero-<profileID>` | Personal | `classID`, `skinTone`, `hair`, `hairColor`, `beard`, `glasses`, `hasPartner`, `isBirthParent`; `heldTitleID`, `seenTitleID` (absent: nil) |
+  | `Hero` | `hero-<profileID>` | Personal | `classID`, `skinTone`, `hair`, `hairColor`, `beard`, `glasses`, `hasPartner`; `heldTitleID`, `seenTitleID` (absent: nil) |
   | `Wardrobe` | `wardrobe-<skill>` | Personal | `choice` (`hidden` or `item:<id>`); an automatic slot has no record |
   | `Child` | `child-<childID>` | Family | `name`, `gender`, `skinTone`, `order`; `birthDay` as `yyyy-MM-dd`, absent while not born, one field so a day moves whole |
   | `Entry` | `entry-<eventID>` | Family | `author` (a profile id), `kind`, `contentID`, `childID`, `date`, `note` (absent: none), `photoIDs` (in order) |
@@ -133,9 +131,6 @@ were answered by the owner on 2026-11-22 (folded in below; the answers are liste
   invited them and asks; only a yes accepts. The family's records reach the store only once the join is finished;
   until then they wait in `Sync.store` (§5).
 - **Joining an iPhone with no saga:** the partner chooses their own hero and look; the family comes from the share.
-- **Both are asked one question** when they turn sharing on or join, in neutral words (by `content`): some cards speak
-  about the parent who gave birth; is that you? The answer is theirs alone, in their Personal zone, and they can change
-  it in "Your hero" (§3.8).
 - **Joining an iPhone with a saga:** their hero, look, wardrobe and title stay theirs. Each of their children is
   matched to one of the family's (by name first; they confirm), and its entries move to that child and join the family
   as theirs. A child they don't match joins the family as a new one; past four children, one is matched or removed
@@ -177,15 +172,9 @@ were answered by the owner on 2026-11-22 (folded in below; the answers are liste
    or a gendered word. The app never asks a member's gender or whether they are a dad. A partner who isn't a dad joins
    the same game, heroes and cards (owner, 2026-11-22). Each member's partner-only cards follow their own partner
    answer, which starts at yes for a joiner.
-8. **A card about the parent who gave birth is hidden from that parent** (owner, 2026-11-22). Such cards (bosses such
-   as "The Big Day", quests that speak of "her" recovering or feeding) carry `"onlyFor": ["partner", "notBirthParent"]`
-   in the content. `Audience.notBirthParent` holds when the player's `isBirthParent` is false; `FamilyFacts` takes it
-   from the profile, so `UnlockRules` needs no change. The fact is the one question of §2, not a gender: it asks
-   nothing the cards don't need, and it fits a dad who gave birth, two dads, or a family where no one did (every
-   answer no: the cards show, as today). It is a fact about the player, not the family, so it lives on the profile
-   and never reaches the partner. `content` marks the cards, and the owner reviews the list; a content rule checks that
-   `notBirthParent` comes only with `partner`. The mark changes no stored id. A card already done stays in the
-   timeline, whatever the answer.
+8. **Every member sees every card** the family's facts allow (owner, 2026-11-22), including cards that speak of
+   "her", such as "The Big Day": nothing hides a card from the member it is about, and the app asks nothing to know who
+   that is.
 
 ### 4. Conflicts, and when sharing ends
 - **Merge by field.** A pending save carries only the fields this iPhone changed, set on the record rebuilt from the
@@ -234,10 +223,9 @@ first, ADR-0060 §2):
 |---|---|
 | `ProfileRecord.profileID: UUID`, made at onboarding; Domain `PlayerProfile.id` | An author needs an identity. Later: a custom stage to make one, or an optional column whose nil means nothing |
 | `ProgressEventRecord.authorID: UUID`, the profile's id on every entry; Domain `ProgressEvent.authorID`, set by `EventRecorder` | The same. Later: a stage that fills every row |
-| `ProfileRecord.isBirthParent: Bool`, false; Domain `PlayerProfile.isBirthParent`. Nothing asks it until co-op (§3.8) | Later: an additive `SchemaV2` and a copy format 2 for one Bool. Now: a column every saga holds as false |
 | `#Unique` on `ChildRecord.childID`, `ProgressEventRecord.eventID`, `OutfitRecord.skill`, `ProfileRecord.profileID` | The applier upserts by id. Later: a released store with one duplicate fails to open at the migration and shows a real dad the calm screen (ADR-0026 §1), unless a stage removes duplicates first |
 | `@Attribute(.preserveValueOnDeletion)` on those four ids | The change feed names a deleted row by its id (§2). Later: one more change to a released model, with its version and fixture test (ADR-0026 §2), for one option |
-| Format 1 of a copy: `hero.id`, `hero.isBirthParent` and each entry's `author`, all required | The format freezes with the same build (ADR-0060 §1). Later: a format 2, read forever (ADR-0057 §4) |
+| Format 1 of a copy: `hero.id` and each entry's `author`, both required | The format freezes with the same build (ADR-0060 §1). Later: a format 2, read forever (ADR-0057 §4) |
 
 - **Subtracted with it:** the duplicate-child clean-up in `SwiftDataProfileRepository.save` (a duplicate can't exist
   any more); `SwiftDataOutfitRepository.setChoice`'s delete-then-insert becomes an update or a delete of the one row;
@@ -315,7 +303,7 @@ stay about the saga. It sits beside the saga so an iCloud Backup brings both bac
 Each PR goes Domain → Application → Data → Presentation → `AppContainer` (ADR-0007), is planned by `architect` and
 reviewed with Fable (persistence and sync). Strings by `content`; every screen through `ui-check`.
 1. **Ids and authors, before the first App Store release branch.** Domain: `PlayerProfile.id`,
-   `PlayerProfile.isBirthParent` (false, asked by nothing yet), `ProgressEvent.authorID`. Application: `EventRecorder` and the three recording use cases take the author, read
+   `ProgressEvent.authorID`. Application: `EventRecorder` and the three recording use cases take the author, read
    through `ProfileRepository`; onboarding makes the id. Data: §5's `SchemaV1`, the mappers, `SagaCopyV1DTO`, the
    fixture copy, the two subtractions. App: wiring. Nothing on screen.
 2. **Two players** (co-op version, as are the rest). Domain: `DadProgress` from one author's entries, family firsts
@@ -328,8 +316,7 @@ reviewed with Fable (persistence and sync). Strings by `content`; every screen t
 4. **CloudKit.** Data: `CloudKitSyncEngine` (the two engines and the delegate actor), zones, the share, accepting,
    `FilePhotoStore.place`. App: the scene delegate, `ShareInbox`, wiring with sync off, `project.yml` (§7). Web: both
    privacy pages, the About statement, the camera's words: the first PR in which data could leave.
-5. **The sharing screens, and iCloud alone.** The iCloud switch for a dad alone; the birth-parent question;
-   `content` marks the cards with `notBirthParent` (Domain `Audience` gains it, with its content rule). Application: `StartSharingUseCase`, `JoinFamilyUseCase` (with the matching),
+5. **The sharing screens, and iCloud alone.** The iCloud switch for a dad alone. Application: `StartSharingUseCase`, `JoinFamilyUseCase` (with the matching),
    `EndSharingUseCase`, `KeepAfterLeavingUseCase`. Presentation: `FamilySharingViewModel`, `FamilySharingViewState`,
    `FamilySharingView`; `JoinFamilyViewModel` and its view; the leaving question; the partner's name on timeline rows
    and their entries opened to read; the import page's note. App: `FamilyShareLink` (`Transferable` with
@@ -357,6 +344,8 @@ Then §8 on devices, the schema to production, and TestFlight.
   mirroring every attribute: no field rules (the kept title) and no say in what stays when sharing ends.
 - **A share per child, or a record hierarchy** (`CKShare(rootRecord:)`): a parent chain on every record for what one
   zone-wide share does.
+- **Hiding a card from the member it is about** (an `onlyFor` word and a birth-parent answer on the profile): the
+  owner chose that everyone sees every card, which spares a stored field and a question.
 - **Heroes and titles in the family zone:** a partner's iPhone would hold everything a comparison needs.
 - **An outbox row written at every call site:** every write path would have to remember it; history comes with the
   write.
@@ -383,16 +372,12 @@ Then §8 on devices, the schema to production, and TestFlight.
 ## The owner's answers (2026-11-22)
 1. iCloud without a partner: yes, in the same version as co-op (§1).
 2. A partner who leaves is asked "Keep everything" or "Keep only what I recorded" (§4).
-3. A partner who isn't a dad plays the same game, heroes and cards (§3.7); a card about the parent who gave birth is
-   hidden from that parent (§3.8, §5).
+3. A partner who isn't a dad plays the same game, heroes and cards (§3.7), and every member sees every card,
+   those that speak of "her" included (§3.8; first asked hidden, then changed the same day).
 4. Two parents only (§2).
 5. Either parent's copy holds the whole family, the partner's entries and photos included (§6).
 6. The partner is shown by the first name from their Apple Account (§3.7).
 7. Price: later, with the pricing ADR (Deferred).
-
-## Open questions for the owner
-1. **The words of the birth-parent question** (§2), and **the list of cards** `content` marks `notBirthParent`: both
-   for the owner to read before PR 5.
 
 ## Verification status
 Not built. The APIs above were checked against Apple's documentation on 2026-11-22. What the documentation doesn't
