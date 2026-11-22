@@ -36,8 +36,8 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
     - It comes from the title held, and nothing new is stored.
   - **The four skills on home, under the title:** small symbols that grow a little with every card, each with its
     skill's name under it. There is no maximum, no number, no XP and no next step: progress that looks back. After
-    seeing it, he chose how they grow: the symbol stays one size and its circle fills with colour from the bottom,
-    rising gently after each card, never to the top (§2).
+    seeing it, he chose how they grow: the symbol stays one size and fills with colour from its own bottom, rising
+    gently after each card, never to its top, on a circle that stays pale (§2).
   - **The skills follow the entries:** they come from `DadProgress.skillXP` alone. An undo or a deletion can shrink a
     mark visibly, as it takes a boss medal. A deletion keeps the title; an Undo takes back the title the card brought
     too (ADR-0055 §3).
@@ -86,7 +86,7 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
   - The film's credits keep the name alone. `SagaFilmViewModelTests` still forbids "Level" and «Επίπεδο» in a film.
   - The widget, "Your hero", the notification, the celebration and the timeline don't show it.
 
-### 2. The four skills: marks that fill from the bottom with every card, and never to the top
+### 2. The four skills: symbols that fill with colour from the bottom with every card, and never to the top
 - **Below the title line, four marks,** always in the same order (care, play, patience, resilience, as
   `Skill.allCases`), never sorted by size.
   - Each is the skill's symbol from the cards (`Skill.symbol`), with the skill's name under it: «Φροντίδα»,
@@ -98,25 +98,31 @@ made for the owner to confirm" the same day. Numbered 0059 because another branc
   - It is half grown at `halfGrownXP` and three quarters grown at three times that.
   - There are no stages, no maximum to reach and no number.
   - Home's query returns it (`HomeOverview.skills`).
-- **How a mark is drawn** (`SkillMarkLook`, Presentation). The owner chose this on 2026-11-22, after two looks that
-  changed the symbol's size (60% to 100% of the circle, then 44% to 60% with a wash and a glow): he didn't like the
-  symbols growing ("no zoom"), and asked for the circle to fill slowly with colour.
-  - **The symbol never changes size:** half the circle's side, at every growth. Even the corners of its square stay
+- **How a mark is drawn** (`SkillMarkLook`, Presentation). The owner chose this on 2026-11-22, in three steps. He
+  didn't like the symbols growing ("no zoom"), as they did in the first two looks (60% to 100% of the circle, then
+  44% to 60% with a wash and a glow), and asked for colour that fills slowly. He liked the circle filling from the
+  bottom, then refined it: the symbol itself fills, and the circle doesn't.
+  - **The symbol never changes size:** 56% of the circle's side, at every growth. Even the corners of its square stay
     inside the circle, so the heart and the hourglass both keep room around them.
-  - **The circle fills with the accent tint from the bottom up, like liquid** (`fillLevel`, a share of the circle's
-    height). With no growth nothing has filled. From the first card the level is 16% plus 72% of the growth: under
-    16% the bottom of a circle is a sliver. So one quest of 20 XP stands at about 24%, a second at about 31%, a
-    third at about 37%, half grown at 52%, three quarters at 70%.
-  - **It never reaches the top.** The level nears 88% and stops short of it, so a pale cap is always left: nothing
-    ever looks finished, and nothing says how much is left to a top that isn't there.
-  - **The symbol reads on both sides of the line** (ADR-0032). Above the fill it is in the tint on the circle's
-    pale wash (the tint's own 15% wash); where the fill covers it, it is in `DSColor.onTint` on the tint. Both
-    pairs are ones `DSTintContrastTests` already holds to 4.5:1, in light and dark. The second symbol is drawn with
-    the fill and masked with it, so the two change places exactly at the line.
-  - The wash and the glow of the earlier looks are gone.
-  - The circle never changes size, so a mark filling or emptying moves nothing on screen.
+  - **The circle stays the same pale wash** at every growth: the tint's own 15% wash.
+  - **The symbol fills with the accent tint from its own bottom up, like liquid** (`fillLevel`, a share of the
+    symbol's own height, whatever its shape). Above the level it is drawn pale, as if not coloured in yet. With no
+    growth the whole symbol is pale. From the first card the level is 25% plus 60% of the growth: under a quarter,
+    only the tip of the heart would be coloured. So one quest of 20 XP stands at about 32%, a second at about 38%,
+    a third at about 42%, half grown at 55%, three quarters at 70%.
+  - **It never reaches the top.** The level nears 85% and stops short of it, so the top of the symbol always stays
+    pale: nothing ever looks finished, and nothing says how much is left to a top that isn't there.
+  - **What can be read** (ADR-0032):
+    - The coloured part is the tint on its own wash, a pair `DSTintContrastTests` already holds to 4.5:1.
+    - The pale part is the tint at half strength (`DSTint.ghostOpacity`). On the panel's surface it is 2.1:1 against
+      the wash in light and 2.2:1 in dark, and the tint beside it is 2.4:1 and 2.1:1: the whole shape shows, and so
+      does the level.
+    - The pale part can't reach 3:1 against the wash without the level falling under 2:1. The name under each mark
+      carries the meaning; the symbol's level is a picture of it.
+  - The filling circle, the `onTint` symbol on it, and the wash and glow of the earlier looks are gone.
+  - Nothing changes size, so a mark filling or emptying moves nothing on screen.
   - The name is secondary text in the caption style (ADR-0033).
-- **A mark that hasn't grown looks new, not missing:** a pale circle with its symbol in full colour, never grey,
+- **A mark that hasn't grown looks new, not missing:** a pale symbol on its pale circle, in the tint, never grey,
   dashed, empty or locked.
 - **Each card shows on its mark: the colour rises gently, after the celebration.** The owner chose the rise over the
   bounce the mark had before.
@@ -214,6 +220,8 @@ No stored data changes: no schema version and no change to the privacy pages or 
 - **A ring, a bar or a variable symbol that fills up** (`variableValue`, the draw mode): a full state is a cap, and it
   shows what is left. A variable value also works only on symbols that support them. The fill the owner chose (§2)
   is not one of these: it follows the open-ended curve, stops short of the top for good, and has no full state.
+- **The circle filling with colour behind a symbol of one size,** the symbol in the on-tint colour where the fill
+  covered it: built, and the owner liked it, then chose the symbol itself filling on a circle that stays pale.
 - **A symbol that grows with the skill** (60% to 100% of its circle, then 44% to 60% with a wash and a glow behind
   it), and a bounce after each card: both were built, and the owner didn't like the symbols changing size.
 - **A mark that grows without limit:** no screen has room for it. The curve grows without ever reaching a top instead.
@@ -237,11 +245,12 @@ Not yet checked on a device. To check:
 - **The first quest after onboarding:**
   - «Επίπεδο 0 · Μπαμπάς σε αναμονή» becomes «Επίπεδο 1 · Νέος στο ταξίδι»;
   - the title card says «Επίπεδο 1»;
-  - the quest's mark waits under the celebration, then its colour rises over about a second, to about a quarter
-    of the circle.
+  - the quest's mark waits under the celebration, then its colour rises over about a second, to about a third
+    of the symbol.
 - **Two quests within seconds:** the mark rises once as the second badge comes and once as it goes.
-- **The marks, in light and dark:** the symbol is the same size at every growth and reads on both sides of the fill
-  line; a new mark is a pale circle; a mark with a great deal of XP still has a pale cap.
+- **The marks, in light and dark:** the symbol is the same size at every growth; its pale part shows its whole shape
+  on the circle, and the level reads on each of the four symbols; a new mark is all pale; a mark with a great deal
+  of XP still has a pale top; the circle never changes.
 - **On screen:**
   - el and en;
   - VoiceOver reads the title line with a comma, and "Your skills" with the four names;
@@ -252,8 +261,8 @@ Not yet checked on a device. To check:
 - **No level** in a film, the widget, "Your hero" or the notification.
 
 ## Consequences
-- The dad sees a level and a name, and four marks with their names that fill a little with every card of their
-  skill. Nothing on home says how far away the next title is.
+- The dad sees a level and a name, and four symbols with their names that fill with colour a little with every card
+  of their skill. Nothing on home says how far away the next title is.
 - A level is a number on screen again, but it comes from the title, so it rises only with a title and falls only
   when an Undo takes back the card that brought it.
 - An undo or a deletion can shrink a mark, as it takes a boss medal. That is the dad correcting his own log

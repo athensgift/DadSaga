@@ -1,11 +1,11 @@
 import Presentation
 import Testing
 
-/// How a skill's mark is drawn: its circle fills from the bottom with every card and never to the top, and its symbol
-/// never changes size (ADR-0059 §2).
+/// How a skill's mark is drawn: its symbol fills from its own bottom with every card and never to its top, and never
+/// changes size (ADR-0059 §2).
 @Suite("SkillMarkLook")
 struct SkillMarkLookTests {
-    @Test("Given a skill not grown yet, when drawn, then nothing has filled: a pale circle with its symbol")
+    @Test("Given a skill not grown yet, when drawn, then nothing is coloured in: the whole symbol is pale")
     func notGrown() {
         #expect(SkillMarkLook(growth: 0).fillLevel == 0)
     }
@@ -16,17 +16,17 @@ struct SkillMarkLookTests {
         for (lower, higher) in zip(levels, levels.dropFirst()) {
             #expect(higher > lower)
         }
-        // A pale cap is always left at the top, however much the skill has grown.
+        // The top of the symbol always stays pale, however much the skill has grown.
         #expect(levels.allSatisfy { $0 <= SkillMarkLook.highestLevel })
         #expect(SkillMarkLook.highestLevel < 0.9)
     }
 
-    @Test("Given one quest of 20 XP on a curve half grown at 150, when drawn, then the colour is clearly in the circle")
+    @Test("Given one quest of 20 XP on a curve half grown at 150, when drawn, then the colour is clearly in the symbol")
     func firstCardShows() {
         let oneCard = SkillMarkLook(growth: 20.0 / 170.0)
-        // About a quarter of the way up: under that, the bottom of a circle is a sliver.
-        #expect(oneCard.fillLevel > 0.2)
-        #expect(oneCard.fillLevel < 0.3)
+        // About a third of the way up the symbol: under a quarter, only the tip of the heart would be coloured.
+        #expect(oneCard.fillLevel > 0.3)
+        #expect(oneCard.fillLevel < 0.4)
         // Even the smallest growth starts from a level the eye can see.
         #expect(SkillMarkLook(growth: 0.001).fillLevel >= SkillMarkLook.lowestLevel)
     }
@@ -35,16 +35,16 @@ struct SkillMarkLookTests {
     func eachEarlyCardShows() {
         let levels = [20.0, 40, 60].map { SkillMarkLook(growth: $0 / ($0 + 150)).fillLevel }
         for (lower, higher) in zip(levels, levels.dropFirst()) {
-            // More than 5% of the circle's height: about 2 pt of a 36 pt circle.
-            #expect(higher - lower > 0.05)
+            // More than 4% of the symbol's height: about 1 pt of a symbol 20 pt tall.
+            #expect(higher - lower > 0.04)
         }
     }
 
     @Test("Given any growth, when drawn, then the symbol is the same size, inside its circle with room around it")
     func symbolNeverChangesSize() {
-        #expect(SkillMarkLook.symbolScale == 0.5)
+        #expect(SkillMarkLook.symbolScale == 0.56)
         // Even the corners of the symbol's square stay well inside the circle.
-        #expect(SkillMarkLook.symbolScale * 2.0.squareRoot() < 0.75)
+        #expect(SkillMarkLook.symbolScale * 2.0.squareRoot() < 0.8)
     }
 
     @Test("Given a card's celebration gone, when the colour rises, then it takes about a second")
