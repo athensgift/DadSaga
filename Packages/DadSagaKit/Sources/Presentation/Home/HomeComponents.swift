@@ -191,6 +191,12 @@ struct WorldHeader: View {
             if let arrivalLine = content.arrivalLine, content.worldTitle != nil {
                 ArrivalLine(text: arrivalLine)
             }
+            // A world ahead says when it is ideal, above the way back (ADR-0061 §3).
+            if let idealLine = content.idealLine {
+                Text(idealLine)
+                    .font(DSFont.subheadline)
+                    .foregroundStyle(DSColor.textSecondary)
+            }
             if let back = content.backToCurrentTitle {
                 Button(back, systemImage: "arrow.uturn.backward", action: onBack)
                     .font(DSFont.subheadline)

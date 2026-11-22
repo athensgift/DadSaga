@@ -48,14 +48,3 @@ public struct SettingsPages {
         self.discardExports = discardExports
     }
 }
-
-/// The Settings sheet and its pages, as home builds them.
-public struct SettingsScreens {
-    let makeSettings: @MainActor () -> SettingsViewModel
-    let pages: SettingsPages
-
-    public init(makeSettings: @escaping @MainActor () -> SettingsViewModel, pages: SettingsPages) {
-        self.makeSettings = makeSettings
-        self.pages = pages
-    }
-}

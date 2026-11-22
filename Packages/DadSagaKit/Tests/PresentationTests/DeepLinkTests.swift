@@ -75,17 +75,16 @@ struct DeepLinkTests {
         #expect(sut.selectedChildID == HeroStub.niko.id)
     }
 
-    @Test("Given an open sheet and the map, when a child link arrives, then they close and that child shows")
+    @Test("Given an open sheet, when a child link arrives, then it closes and that child shows, on home and the map")
     func childLinkClosesSheets() async {
         let sut = await makeSUT()
         sut.select(cardID: "q1")
-        sut.openMap()
 
         await sut.open(.child(HeroStub.eleni.id))
 
         #expect(sut.selectedQuest == nil)
-        #expect(sut.worldMap == nil)
         #expect(sut.selectedChildID == HeroStub.eleni.id)
+        #expect(sut.worldMap?.subtitle.hasPrefix(HeroStub.eleni.name) == true)
     }
 }
 
@@ -139,6 +138,88 @@ struct RootLinkTests {
         sut.unsavedWork.closed(editor)
 
         #expect(sut.pendingLink == nil)
+    }
+
+    @Test("Given \"My family\" holding changes on Settings, when a link arrives, then it waits there, and goes on after")
+    func linkWaitsForMyFamily() async {
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
+        await sut.onAppear()
+        sut.selectedTab = .settings
+        let family = UUID()
+        sut.unsavedWork.set(family, in: UnsavedScope.settings, hasUnsavedChanges: true)
+        let link = AppLink.child(HeroStub.niko.id)
+
+        sut.open(url: link.url)
+        #expect(sut.selectedTab == .settings)
+        #expect(sut.pendingLink == nil)
+
+        sut.unsavedWork.set(family, in: UnsavedScope.settings, hasUnsavedChanges: false)
+        #expect(sut.selectedTab == .adventure)
+        #expect(sut.pendingLink == PendingLink(link))
+    }
+
+    @Test("Given Adventure, when the dad goes to any other tab, then home is told once each time he leaves it")
+    func leavingAdventureIsTold() async {
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
+        await sut.onAppear()
+        var departures = 0
+        sut.onLeftAdventure = { departures += 1 }
+
+        for tab in [RootTab.map, .timeline, .settings] {
+            sut.selectedTab = .adventure
+            sut.selectedTab = tab
+        }
+        sut.selectedTab = .timeline
+
+        #expect(departures == 3)
+    }
+
+    @Test("Given Settings, when a link opens home, then nothing is told: the dad wasn't on Adventure")
+    func comingBackToAdventureIsNotALeave() async {
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
+        await sut.onAppear()
+        sut.selectedTab = .settings
+        var departures = 0
+        sut.onLeftAdventure = { departures += 1 }
+
+        sut.open(url: AppLink.child(HeroStub.niko.id).url)
+
+        #expect(sut.selectedTab == .adventure)
+        #expect(departures == 0)
+    }
+
+    @Test("Given editors holding changes, when the dad starts over, then nothing is held and Adventure is selected")
+    func startOverEndsEveryHold() async {
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
+        await sut.onAppear()
+        sut.selectedTab = .settings
+        sut.unsavedWork.set(UUID(), in: UnsavedScope.settings, hasUnsavedChanges: true)
+
+        sut.startedOver()
+
+        #expect(!sut.unsavedWork.isHeld)
+        #expect(sut.selectedTab == .adventure)
+        #expect(sut.state == .onboarding)
+    }
+
+    @Test("Given the map tab, when a world is chosen, then Adventure shows")
+    func choosingAWorldShowsAdventure() async {
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
+        await sut.onAppear()
+        sut.selectedTab = .map
+
+        sut.worldChosen()
+
+        #expect(sut.selectedTab == .adventure)
+    }
+
+    @Test("Given the root in Greek, when naming the tabs, then they are the four single words")
+    func fourTabs() {
+        let sut = RootViewModel(
+            getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences(),
+            locale: Locale(identifier: "el_GR")
+        )
+        #expect(sut.tabs == RootTabs(adventure: "Περιπέτεια", map: "Χάρτης", timeline: "Χρονολόγιο", settings: "Ρυθμίσεις"))
     }
 
     @Test("Given a link while the app is still loading, when there turns out to be no family, then it is dropped")

@@ -17,13 +17,21 @@ public final class RootViewModel {
 
     public private(set) var state: State = .loading
     /// The tab on screen.
-    public var selectedTab: RootTab = .adventure
+    public var selectedTab: RootTab = .adventure {
+        didSet {
+            if oldValue == .adventure, selectedTab != .adventure { onLeftAdventure?() }
+        }
+    }
+    /// Runs each time the dad leaves Adventure for another tab, the map and Settings included: home's Undo ends then,
+    /// as a Settings page can remove the child the card belongs to (ADR-0055 §3, ADR-0061 §2).
+    @ObservationIgnored public var onLeftAdventure: (@MainActor () -> Void)?
     /// A link from outside the app, handed to home to open.
     public private(set) var pendingLink: PendingLink?
-    /// A link that came while an editor on either tab holds changes the dad hasn't saved. It waits, on whatever tab is
-    /// on screen, until nothing would be lost, and only then moves to Adventure and goes to home (ADR-0050).
+    /// A link that came while an editor holds changes the dad hasn't saved. It waits until nothing would be lost, and
+    /// only then moves to Adventure and goes to home (ADR-0050). The holding editor is always on screen: home's and the
+    /// timeline's are sheets over the tab bar, and "My family" hides it while it holds (ADR-0061 §2).
     private var waitingLink: PendingLink?
-    /// Editors on either tab holding unsaved changes. The tabs see it through the environment.
+    /// Editors on any tab holding unsaved changes. The tabs see it through the environment.
     let unsavedWork = UnsavedWork()
     /// Changes each time an imported saga takes the place of the one on screen, so home and the timeline are built
     /// anew for it (ADR-0057 §7).
@@ -35,7 +43,9 @@ public final class RootViewModel {
     public var tabs: RootTabs {
         RootTabs(
             adventure: strings.text("Adventure"),
-            timeline: strings.text("Timeline")
+            map: strings.text("Map"),
+            timeline: strings.text("Timeline"),
+            settings: strings.text("Settings")
         )
     }
 
@@ -90,8 +100,8 @@ public final class RootViewModel {
     }
 
     /// A URL the app was opened with (the widget). Anything that is not a DadSaga link, or any link before the family
-    /// exists, is ignored. While an editor holds unsaved changes the link waits where the dad is, so a tab switch can't
-    /// hide that editor from him; the newest link is the one that waits.
+    /// exists, is ignored. While an editor holds unsaved changes the link waits in front of it; the newest link is the
+    /// one that waits.
     public func open(url: URL) {
         guard state != .onboarding, let link = AppLink(url: url) else { return }
         waitingLink = PendingLink(link)
@@ -125,11 +135,11 @@ public final class RootViewModel {
         self.preferences = preferences
     }
 
-    /// An imported saga is now the one on this iPhone, from Settings or from onboarding: home opens on it, built anew,
-    /// which closes Settings. A link waiting for the old saga is dropped.
+    /// An imported saga is now the one on this iPhone, from Settings or from onboarding: home opens on it, and every tab
+    /// is built anew, Settings back at its first page. A link waiting for the old saga is dropped.
     public func sagaImported() {
         dropLinks()
-        // Settings closes with the old home; nothing it held can be lost any more.
+        // Settings is built anew with the old saga gone; nothing it held can be lost any more.
         unsavedWork.end(scope: UnsavedScope.settings)
         selectedTab = .adventure
         // From onboarding, home is built as it opens; only a home already on screen is built again.
@@ -137,21 +147,31 @@ public final class RootViewModel {
         state = .home
     }
 
-    /// Settings erased the saga: onboarding opens, which closes home and its sheets.
+    /// A world was chosen on the map: home shows it, on Adventure.
+    public func worldChosen() {
+        selectedTab = .adventure
+    }
+
+    /// Settings erased the saga: onboarding opens, which takes the tabs away and closes home and its sheets. No hold
+    /// of the old saga's editors is left to keep the new saga's links waiting.
     public func startedOver() {
         dropLinks()
+        unsavedWork.endAll()
         selectedTab = .adventure
         state = .onboarding
     }
 }
 
+/// The four tabs, in their order (ADR-0061 §2).
 public enum RootTab: Hashable, Sendable {
-    case adventure, timeline
+    case adventure, map, timeline, settings
 }
 
 public struct RootTabs: Equatable, Sendable {
     public let adventure: String
+    public let map: String
     public let timeline: String
+    public let settings: String
 }
 
 /// A link from outside the app waiting to be opened. Views only pass it along and never look inside.

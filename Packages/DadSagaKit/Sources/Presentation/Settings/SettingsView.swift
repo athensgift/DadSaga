@@ -1,44 +1,60 @@
 import DesignSystem
+import HeroArt
 import SwiftUI
 #if canImport(UIKit)
 import UIKit
 #endif
 
-/// Settings, as a sheet from home (ADR-0030). The weekly reminder, hero, wardrobe and family are pushed inside it.
+/// Settings, a tab of its own (ADR-0030, ADR-0061 §2): no close button, and like every tab it is where the dad left
+/// it when he comes back. The weekly reminder, hero, wardrobe and family are pushed inside it. On an iPhone Duo
+/// half-open like a laptop the dad's hero stands above the fold and the whole form lies below it (ADR-0061 §4).
 public struct SettingsView: View {
     @State private var viewModel: SettingsViewModel
     @State private var page: SettingsPage?
     @Environment(\.openURL) private var openURL
     private let pages: SettingsPages
-    private let onClose: () -> Void
 
-    public init(viewModel: SettingsViewModel, pages: SettingsPages, onClose: @escaping () -> Void) {
+    public init(viewModel: SettingsViewModel, pages: SettingsPages) {
         _viewModel = State(initialValue: viewModel)
         self.pages = pages
-        self.onClose = onClose
     }
 
     public var body: some View {
         NavigationStack {
-            form(viewModel.content)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(DSColor.background)
-                .navigationTitle(viewModel.content.title)
-                .toolbarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .cancellationAction) {
-                        Button(role: .close, action: onClose)
-                    }
+            FormBelowFold {
+                heroAboveTheFold
+            } lower: {
+                form(viewModel.content)
+            }
+            .background(DSColor.background)
+            .navigationTitle(viewModel.content.title)
+            // Each time Settings shows, back from "Your hero" or the wardrobe too.
+            .task { await viewModel.loadHero() }
+            // Leaving Export data is its closing: the files it made were saved or sent by then (ADR-0057 §6).
+            .onChange(of: page) { old, _ in
+                if case .data = old { pages.discardExports() }
+            }
+            .navigationDestination(item: $page) { page in
+                switch page {
+                case .hero(let hero): HeroSettingsView(viewModel: hero)
+                case .wardrobe(let wardrobe): WardrobeView(viewModel: wardrobe)
+                case .family(let family): FamilyView(viewModel: family)
+                case .reminder(let reminder): ReminderSettingsView(viewModel: reminder)
+                case .data(let data): DataExportView(viewModel: data)
                 }
-                .navigationDestination(item: $page) { page in
-                    switch page {
-                    case .hero(let hero): HeroSettingsView(viewModel: hero)
-                    case .wardrobe(let wardrobe): WardrobeView(viewModel: wardrobe)
-                    case .family(let family): FamilyView(viewModel: family)
-                    case .reminder(let reminder): ReminderSettingsView(viewModel: reminder)
-                    case .data(let data): DataExportView(viewModel: data)
-                    }
-                }
+            }
+        }
+    }
+
+    /// Who Settings is about, drawn as on "Your hero".
+    @ViewBuilder private var heroAboveTheFold: some View {
+        if let hero = viewModel.hero {
+            HeroPreview(
+                style: hero.look.avatarStyle, skin: hero.skinTone.avatarSkin, features: hero.appearance.avatarFeatures
+            )
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            Color.clear
         }
     }
 

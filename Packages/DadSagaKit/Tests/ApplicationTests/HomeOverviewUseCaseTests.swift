@@ -81,6 +81,17 @@ struct HomeOverviewUseCaseTests {
         #expect(try await sut.execute(childID: UUID(), worldID: nil, on: today)?.child == baby)
     }
 
+    @Test("Given a world chosen for a child no longer in the family, when reading home, then the first child's own world shows")
+    func worldOfARemovedChildIsDropped() async throws {
+        let baby = baby
+        try await family([baby])
+
+        let overview = try #require(try await sut.execute(childID: UUID(), worldID: "w2", on: today))
+
+        #expect(overview.child == baby)
+        #expect(overview.isShowingCurrentWorld)
+    }
+
     @Test("Given a toddler, when reading home, then the current world's quests for the age and the evergreen ones show")
     func currentWorld() async throws {
         let toddler = toddler
@@ -107,14 +118,28 @@ struct HomeOverviewUseCaseTests {
         #expect(overview.bosses.map(\.id) == ["b-swamp"])
     }
 
-    @Test("Given a world the child has not reached, when reading home, then the current world shows instead")
-    func lockedWorldIgnored() async throws {
+    @Test("Given a world the child has not reached, when reading home, then it shows, ahead, with all its cards (ADR-0061)")
+    func worldAheadShows() async throws {
         try await family([baby])
 
         let overview = try #require(try await sut.execute(childID: nil, worldID: "w2", on: today))
 
+        #expect(overview.shownWorld == Self.plains)
+        #expect(!overview.isShowingCurrentWorld)
+        #expect(overview.isShowingWorldAhead)
+        #expect(overview.quests.map(\.id) == ["q-plains", "q-later", "q-evergreen"])
+        #expect(overview.bosses.map(\.id) == ["b-plains"])
+    }
+
+    @Test("Given a world the catalog doesn't have, when reading home, then the current world shows, not ahead")
+    func unknownWorldIgnored() async throws {
+        try await family([baby])
+
+        let overview = try #require(try await sut.execute(childID: nil, worldID: "w9", on: today))
+
         #expect(overview.shownWorld == Self.swamp)
         #expect(overview.isShowingCurrentWorld)
+        #expect(!overview.isShowingWorldAhead)
     }
 
     @Test("Given earned gear, when reading home, then the hero wears it unless the dad chose nothing for that slot")

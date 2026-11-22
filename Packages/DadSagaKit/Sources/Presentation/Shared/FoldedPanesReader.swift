@@ -7,7 +7,7 @@ struct FoldedPanesReader: ViewModifier {
     @Binding var panes: FoldedPanes
     @State private var sizeWhenSplit = CGSize.zero
     /// The least room the lower part needs below the fold, more at larger text sizes.
-    @ScaledMetric(relativeTo: .body) private var minimumBelow: CGFloat = 160
+    @ScaledMetric(relativeTo: .body) private var minimumBelow = foldActingPaneMinimum
 
     func body(content: Content) -> some View {
         // Read where the panes are placed, so the fold is in their coordinates.

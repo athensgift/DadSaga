@@ -103,4 +103,42 @@ struct EvergreenAndAudienceTests {
             == WorldProgress(questsDone: 1, bossesDone: 0))
         #expect(progress.progress(in: first, catalog: catalog, childID: UUID()) == WorldProgress(questsDone: 0, bossesDone: 0))
     }
+
+    // MARK: - Worlds ahead (ADR-0061 §3)
+
+    @Test("Given a world the child's age hasn't reached, when asking, then it is ahead; reached worlds never are")
+    func worldAhead() {
+        #expect(UnlockRules.isAhead(third, at: .months(10)))
+        #expect(UnlockRules.isAhead(second, at: .beforeBirth))
+        #expect(!UnlockRules.isAhead(second, at: .months(10)))
+        #expect(!UnlockRules.isAhead(first, at: .months(30)))
+    }
+
+    @Test("Given a world ahead, when its quests are offered, then every one of its own and the evergreen ones before it show")
+    func worldAheadLiftsTheAge() {
+        let ids = UnlockRules.quests(for: third, in: catalog, age: .months(10), family: .everyone).map(\.id)
+        #expect(ids == ["w3-own", "w3-ever", "w1-late", "w1-ever", "w2-ever"])
+    }
+
+    @Test("Given a world ahead, when its bosses are offered, then the age goes but who a card is for stays")
+    func worldAheadKeepsTheAudience() {
+        let family = FamilyFacts(hasPartner: true, hasOlderSibling: true, hasYoungerSibling: false)
+        #expect(UnlockRules.bosses(for: second, in: catalog, age: .beforeBirth, family: family).map(\.id)
+            == ["b-w2", "b-ever"])
+    }
+
+    @Test("Given a retired quest in a world ahead, when its quests are offered, then it still doesn't show")
+    func worldAheadKeepsRetiredOut() {
+        let retired = Quest(id: "w3-old", worldID: "w3", title: Self.text, description: Self.text, skill: .care, xp: 10,
+                            minAgeMonths: 25, isRetired: true)
+        let catalog = ContentCatalog(worlds: [first, second, third], quests: [retired], bosses: [], firsts: [])
+        #expect(UnlockRules.quests(for: third, in: catalog, age: .months(10), family: .everyone).isEmpty)
+    }
+
+    @Test("Given a link to a card of a world ahead, when asking whether it is offered, then the child's age still decides")
+    func linksKeepTheAge() throws {
+        let quest = try #require(catalog.quest(id: "w3-own"))
+        #expect(!UnlockRules.isOffered(quest, in: catalog, age: .months(10), family: .everyone))
+        #expect(UnlockRules.isOffered(quest, in: catalog, age: .months(26), family: .everyone))
+    }
 }

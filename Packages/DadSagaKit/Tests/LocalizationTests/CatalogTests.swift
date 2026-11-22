@@ -49,6 +49,19 @@ struct CatalogTests {
         }
     }
 
+    /// Any case and accent: "unlocks", "Locked", «ξεκλειδώνει», «κλειδωμένος»; never "clock" or "block".
+    static func speaksOfALock(_ text: String) -> Bool {
+        text.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil).contains(/\b(un)?lock|κλειδ/)
+    }
+
+    @Test("Given the catalog, then no key or text speaks of unlocking or locks: every world is open (ADR-0061 §3)")
+    func noLocks() throws {
+        for (key, entry) in try Self.entries() {
+            let texts = [key, Self.value(entry, "el") ?? "", Self.value(entry, "en") ?? ""]
+            #expect(!texts.contains(where: Self.speaksOfALock), "a lock in: \(key)")
+        }
+    }
+
     @Test("Given level words in any case or accent, when folded as the test folds them, then each is caught")
     func levelWordsAreCaught() {
         for word in ["ΕΠΙΠΕΔΟ 3", "επιπεδο", "Επιπέδου", "LEVELS", "next Level"] {

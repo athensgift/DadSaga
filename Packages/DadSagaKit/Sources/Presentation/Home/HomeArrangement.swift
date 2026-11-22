@@ -1,42 +1,27 @@
 import DesignSystem
 import SwiftUI
 
-/// How home lays out the hero and today's adventure (ADR-0011, ADR-0043).
+/// How home lays out the hero and today's adventure (ADR-0011, ADR-0043, ADR-0061 §1).
 enum HomeArrangement: Equatable, Sendable {
     /// One scrolling column: iPhones in portrait, the iPhone Duo's cover display.
     case column
-    /// Two columns side by side: wide with the fold running down (iPhone Duo on its side, flat or half-open like a
-    /// book, where it runs between them), or wide with no fold at all.
+    /// Two columns side by side: 600 pt and wider with no fold across (the iPhone Duo open flat, upright or on its
+    /// side, or half-open like a book; large iPhones in landscape).
     case columns
-    /// The hero above the fold and the adventure below it: the iPhone Duo held upright, half-open like a laptop or
-    /// open flat, where the fold has no thickness (ADR-0045).
+    /// The hero above the fold and the adventure below it: the iPhone Duo half-open like a laptop.
     case stacked(HorizontalFold)
 
     /// - Parameters:
     ///   - width: the width home has.
     ///   - fold: the fold that runs across home while the device is half-open, if any.
-    ///   - flatFold: where the fold runs across home while the device lies flat, if it does. It splits home only
-    ///     where there would otherwise be two columns.
-    static func make(width: CGFloat, fold: HorizontalFold?, flatFold: HorizontalFold?) -> HomeArrangement {
+    static func make(width: CGFloat, fold: HorizontalFold?) -> HomeArrangement {
         if let fold { return .stacked(fold) }
-        guard width >= twoColumnWidth else { return .column }
-        return flatFold.map(HomeArrangement.stacked) ?? .columns
+        return width >= twoColumnWidth ? .columns : .column
     }
 
-    /// Two panes that scroll separately.
+    /// Two panes that scroll separately. They have no navigation bar: the title heads the hero's pane, and above a
+    /// fold a bar would move the fold's place (ADR-0043 §3). One column keeps the bar with its large title.
     var hasPanes: Bool { self != .column }
-
-    /// Where the map and Settings go (ADR-0058). Side by side, home keeps the navigation bar, inline and with no title
-    /// (the hero's pane holds it), and the system places them: in the side bar's column on the iPhone Duo, at the top
-    /// on other iPhones. Above and below a fold, where the tab bar is at the bottom and a bar would shift the fold's
-    /// place, they float as one capsule just above the tab bar (ADR-0056).
-    var buttons: HomeButtonsPlacement {
-        switch self {
-        case .column: .navigationBar
-        case .columns: .inlineNavigationBar
-        case .stacked: .floating
-        }
-    }
 
     var fold: HorizontalFold? {
         if case .stacked(let fold) = self { fold } else { nil }
@@ -85,22 +70,4 @@ enum HomeArrangement: Equatable, Sendable {
     private static let smallestHero: CGFloat = 120
     /// What the upper pane spends besides its title and the hero.
     private static let upperPaneSpacing = panePadding * 2 + headerSpacing + stageTopPadding
-}
-
-/// Where home puts the map and Settings. Each place is a navigation bar of another kind, so home builds a navigation
-/// stack for each (ADR-0058): turning the device builds home anew, folding it doesn't.
-enum HomeButtonsPlacement: Hashable, Sendable {
-    /// In the navigation bar, with its large title.
-    case navigationBar
-    /// In a navigation bar with no title of its own: the system puts them where it puts a bar's buttons.
-    case inlineNavigationBar
-    /// One glass capsule of home's own over the adventure, just above the tab bar.
-    case floating
-
-    /// Whether home has a navigation bar at all.
-    var hasNavigationBar: Bool { self != .floating }
-    /// Whether the navigation bar shows home's title; with two panes the hero's pane shows it instead.
-    var showsTitleInBar: Bool { self == .navigationBar }
-    /// Whether home draws its own capsule, and keeps room for it under the adventure.
-    var isFloating: Bool { self == .floating }
 }

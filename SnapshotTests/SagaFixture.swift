@@ -245,7 +245,8 @@ extension SagaFixture {
                     sagaOffers: sagaOffers,
                     schedule: NoSchedule(),
                     notificationScheduler: scheduler
-                )
+                ),
+                getHeroChoice: DefaultGetHeroChoiceUseCase(contentRepository: content, profileRepository: store.profiles)
             ),
             preferences: PreferencesChoice(),
             appInfo: AppInfo(version: "1.0", build: "1", systemVersion: "27.2", feedbackAddress: "hello@dadsaga.app"),
@@ -310,10 +311,6 @@ extension SagaFixture {
             locale: locale,
             now: { Self.today }
         )
-    }
-
-    var settingsScreens: SettingsScreens {
-        SettingsScreens(makeSettings: { settings() }, pages: settingsPages)
     }
 
     func wardrobe() -> WardrobeViewModel {

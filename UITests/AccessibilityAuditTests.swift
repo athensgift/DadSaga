@@ -1,6 +1,6 @@
 import XCTest
 
-/// Runs Xcode's accessibility audit on the main screens (onboarding, home, the world map, a quest, settings,
+/// Runs Xcode's accessibility audit on the main screens (onboarding, home, the map tab, a quest, the Settings tab,
 /// "Your hero", the wardrobe, the timeline with an entry, and the film sheet before and after a film is made):
 /// VoiceOver labels and traits, contrast, hit regions (ADR-0033, ADR-0037 §7, ADR-0044).
 /// The app starts on data of its own (`DeviceData`), empty, so each run begins in onboarding. It completes the quest
@@ -32,9 +32,10 @@ final class AccessibilityAuditTests: XCTestCase {
         XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 10), "home did not open")
         audit("Home")
 
-        tap(app.buttons["World map"].firstMatch)
+        // The map and Settings are tabs (ADR-0061 §2).
+        tab("Map")
         audit("World map")
-        close()
+        tab("Adventure")
 
         // A quest card names the skill it grows; a boss card doesn't (ADR-0055 §7).
         let quest = NSPredicate(
@@ -46,7 +47,7 @@ final class AccessibilityAuditTests: XCTestCase {
         tap(app.buttons["I did it!"])
         sleep(1)
 
-        app.navigationBars.buttons["Settings"].tap()
+        tab("Settings")
         audit("Settings")
         // Your hero and the wardrobe are pages inside Settings (ADR-0044).
         tap(app.buttons["Your hero"])
@@ -55,11 +56,8 @@ final class AccessibilityAuditTests: XCTestCase {
         tap(app.buttons["Wardrobe"])
         audit("Wardrobe")
         back(from: "Wardrobe")
-        close()
 
-        // Home scrolled down for the quest, which shrinks the tab bar to its current tab.
-        for _ in 0..<4 { app.swipeDown() }
-        app.tabBars.buttons["Timeline"].firstMatch.tap()
+        tab("Timeline")
         audit("Timeline")
 
         tap(app.buttons["Make a film"].firstMatch)
@@ -144,7 +142,19 @@ final class AccessibilityAuditTests: XCTestCase {
         sleep(1)
     }
 
-    /// The back button of a page pushed inside a sheet, found in that page's own bar: home's bar is underneath.
+    /// Opens a tab. A screen scrolled down shrinks the tab bar to its current tab: scrolled back up, it shows them all.
+    private func tab(_ title: String) {
+        let button = app.tabBars.buttons[title].firstMatch
+        var swipes = 0
+        while !button.isHittable, swipes < 6 {
+            app.swipeDown()
+            swipes += 1
+        }
+        button.tap()
+        sleep(1)
+    }
+
+    /// The back button of a pushed page, found in that page's own bar.
     private func back(from title: String) {
         app.navigationBars[title].buttons.firstMatch.tap()
         sleep(1)

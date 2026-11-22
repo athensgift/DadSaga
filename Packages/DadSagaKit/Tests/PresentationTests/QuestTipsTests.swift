@@ -30,7 +30,7 @@ struct QuestTipsTests {
 
     func makeSUT() -> HomeViewModel {
         let adventure = Adventure(
-            age: .months(10), family: .everyone, currentWorld: Self.plains, unlockedWorlds: [Self.swamp, Self.plains]
+            age: .months(10), family: .everyone, currentWorld: Self.plains, reachedWorlds: [Self.swamp, Self.plains]
         )
         return HomeViewModel(
             useCases: HomeViewModel.UseCases(
@@ -102,9 +102,7 @@ struct QuestTipsTests {
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
 
-        sut.openMap()
-
         let map = try #require(sut.worldMap)
-        #expect(map.worlds.map(\.detail) == ["1 αποστολή · 0 αφεντικά", "0 αποστολές · 0 αφεντικά"])
+        #expect(map.worlds.map(\.progress) == ["1 αποστολή · 0 αφεντικά", "0 αποστολές · 0 αφεντικά"])
     }
 }

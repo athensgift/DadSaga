@@ -1,14 +1,19 @@
-/// Age-based unlocking, and who a card is for (ADR-0019, ADR-0020, ADR-0053). The child's development never locks the dad
-/// out of anything.
+/// What age paces, and who a card is for (ADR-0019, ADR-0020, ADR-0053, ADR-0061). No world is locked: age sets the
+/// current world and paces its cards, and the child's development never locks the dad out of anything.
 public enum UnlockRules {
     /// Every world the child has reached: a world before birth at every age, a world of months from its minimum age.
-    public static func unlockedWorlds(in catalog: ContentCatalog, age: ChildAge) -> [World] {
+    public static func reachedWorlds(in catalog: ContentCatalog, age: ChildAge) -> [World] {
         catalog.worlds.filter { $0.span.isReached(at: age) }
     }
 
     /// The world the child is in right now: the last reached, by order.
     public static func currentWorld(in catalog: ContentCatalog, age: ChildAge) -> World? {
-        unlockedWorlds(in: catalog, age: age).last
+        reachedWorlds(in: catalog, age: age).last
+    }
+
+    /// Whether a world lies ahead of the child: his age hasn't reached it. It is open all the same (ADR-0061 §3).
+    public static func isAhead(_ world: World, at age: ChildAge) -> Bool {
+        !world.span.isReached(at: age)
     }
 
     /// True when no world fits this age: the child is older than every world, or not born yet and the content has no
@@ -23,23 +28,32 @@ public enum UnlockRules {
     }
 
     /// The quests offered in one world: its own, then every evergreen quest from an earlier world (ADR-0020), each
-    /// offered to this child and family (`isOffered`).
+    /// offered to this child and family (`isOffered`). In a world ahead the age goes: every one of them is offered,
+    /// as if the child were at its end (ADR-0061 §3).
     public static func quests(for world: World, in catalog: ContentCatalog, age: ChildAge, family: FamilyFacts) -> [Quest] {
-        shown(in: world, catalog: catalog, from: catalog.quests.filter { isOffered($0, in: catalog, age: age, family: family) })
+        let ahead = isAhead(world, at: age)
+        return shown(in: world, catalog: catalog, from: catalog.quests.filter { quest in
+            ahead ? !quest.isRetired && family.allows(quest.onlyFor) : isOffered(quest, in: catalog, age: age, family: family)
+        })
     }
 
     /// The bosses offered in one world: its own, then every evergreen boss from an earlier world (ADR-0053 §5), each
-    /// offered to this child and family. Situational bosses are included; home keeps them apart.
+    /// offered to this child and family. Situational bosses are included; home keeps them apart. In a world ahead the
+    /// age goes, as for quests.
     public static func bosses(
         for world: World,
         in catalog: ContentCatalog,
         age: ChildAge,
         family: FamilyFacts
     ) -> [BossFight] {
-        shown(in: world, catalog: catalog, from: catalog.bosses.filter { isOffered($0, in: catalog, age: age, family: family) })
+        let ahead = isAhead(world, at: age)
+        return shown(in: world, catalog: catalog, from: catalog.bosses.filter { boss in
+            ahead ? family.allows(boss.onlyFor) : isOffered(boss, in: catalog, age: age, family: family)
+        })
     }
 
-    /// Whether a quest is offered at all: not retired, reached at this age, and for this family.
+    /// Whether a quest is offered at all: not retired, reached at this age, and for this family. For a link from outside,
+    /// which comes from the current world.
     public static func isOffered(_ quest: Quest, in catalog: ContentCatalog, age: ChildAge, family: FamilyFacts) -> Bool {
         !quest.isRetired
             && isReached(minAgeMonths: quest.minAgeMonths, worldID: quest.worldID, in: catalog, at: age)

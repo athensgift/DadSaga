@@ -3,10 +3,9 @@ import HeroArt
 import SwiftUI
 
 /// Home: the dad's hero and progress, then what he can play today.
-/// On wide screens (iPhone Duo inner display, landscape) it splits into two equal columns, so neither column
-/// runs across the middle of the display, where the Duo folds like a book. Half-open like a laptop, the fold runs
-/// across instead: the hero stands above it and the adventure lies below it (ADR-0043), and the same two panes stay
-/// when the Duo is opened flat and held upright (ADR-0045).
+/// On wide screens (the iPhone Duo's inner display open flat, landscape) it splits into two equal columns. Half-open
+/// like a laptop, the fold runs across instead: the hero stands above it and the adventure lies below it (ADR-0043,
+/// ADR-0061 §1). The map and Settings are tabs of their own.
 public struct HomeView: View {
     @State var viewModel: HomeViewModel
     @Environment(\.dynamicTypeSize) var dynamicTypeSize
@@ -20,12 +19,8 @@ public struct HomeView: View {
     var unsavedWork: UnsavedWork { sharedUnsavedWork ?? ownUnsavedWork }
     @State var width: CGFloat = 0
     @State private var fold: HorizontalFold?
-    /// Where the fold runs across home, also while the device lies flat.
-    @State private var flatFold: HorizontalFold?
     /// The two-pane header's height, so the hero takes what is left above the fold.
     @State var paneHeaderHeight: CGFloat = 0
-    /// The map and Settings' height over the adventure's pane, so its last card scrolls clear of them.
-    @State var paneButtonsHeight: CGFloat = 0
     /// What stands under the hero in his pane, or the skills panel below him and his lines above a fold: the hero
     /// yields that height, so the pane fits (ADR-0059 §3).
     @State var underHeroHeight: CGFloat = 0
@@ -33,30 +28,25 @@ public struct HomeView: View {
     @State var heroPaneHeight: CGFloat = 0
     /// The width the four skills need side by side: beside the hero, his column is at least that wide.
     @State var skillsRowWidth: CGFloat = 0
-    @State var settingsViewModel: SettingsViewModel?
     /// The film sheet, opened from the film offer.
     @State var sagaFilm: SagaFilmViewModel?
     /// A moment's photos, full screen.
     @State var photoViewer: PhotoViewerContent?
     let makeSagaFilm: SagaFilmSheet.MakeViewModel
-    let settings: SettingsScreens
     let pendingLink: PendingLink?
     let onLinkHandled: @MainActor (PendingLink) -> Void
 
     /// - Parameters:
-    ///   - settings: builds Settings, behind its toolbar button.
     ///   - makeSagaFilm: builds the film sheet for the film home offers.
     ///   - pendingLink: a link from outside the app (the widget) to open; `onLinkHandled` gets it once it is open.
     public init(
         viewModel: HomeViewModel,
         makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
-        settings: SettingsScreens,
         pendingLink: PendingLink? = nil,
         onLinkHandled: @escaping @MainActor (PendingLink) -> Void = { _ in }
     ) {
         _viewModel = State(initialValue: viewModel)
         self.makeSagaFilm = makeSagaFilm
-        self.settings = settings
         self.pendingLink = pendingLink
         self.onLinkHandled = onLinkHandled
     }
@@ -81,43 +71,20 @@ public struct HomeView: View {
             }
             .background(DSColor.background)
             .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
-            .navigationTitle(arrangement.buttons.showsTitleInBar ? title : "")
+            .navigationTitle(arrangement.hasPanes ? "" : title)
             // Named, not left to the default: with no mode named, iOS 27.2 collapses the large title as soon as the
-            // loaded home replaces the spinner.
-            .toolbarTitleDisplayMode(arrangement.buttons.showsTitleInBar ? .automatic : .inline)
-            // Two panes scroll separately, so their title lives in the hero pane. Side by side the bar stays, with no
-            // title, for the system to place the map and Settings by the tab bar (ADR-0058). Above and below a fold
-            // a bar would shift the fold's place, so there is none (ADR-0043).
-            .navigationBarHidden(when: !arrangement.buttons.hasNavigationBar)
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) { worldMapButton }
-                ToolbarItem(placement: .primaryAction) { settingsButton }
-            }
+            // loaded home replaces the spinner (ADR-0058 §7).
+            .toolbarTitleDisplayMode(.automatic)
+            // One column keeps the bar with its large title and nothing in it. Two panes scroll separately, so their
+            // title heads the hero's pane, and they have no bar: above and below a fold it would shift the fold's
+            // place (ADR-0043 §3, ADR-0061 §1). With only a large bar or none, the bar comes with new scroll views
+            // each time, which is when UIKit sets their insets: one stack serves every arrangement.
+            .navigationBarHidden(when: arrangement.hasPanes)
         }
-        // A stack of its own for each bar: large title, inline or none (ADR-0058). UIKit sets scrolling content
-        // against a bar when its screen appears. Under a bar that changes on a screen that stays, an inline bar turned
-        // large keeps its title collapsed, and a pane brought up from below the fold stays scrolled past its top by
-        // the safe area it was moved under. Folding keeps the bar, so it keeps the stack and where each pane was.
-        .id(arrangement.buttons)
-        // Read around the stack, not in it: a stack built for what was read must not start the reading again. Home
-        // fills the stack while it has no bar, which is whenever a fold splits it, so the fold is in the panes'
+        // Read around the stack, not in it. With two panes home fills the stack, so the fold is in the panes'
         // coordinates.
         .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
         .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum) { fold = $0 }
-        .onHorizontalFoldChange(
-            minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum, whileFlat: true
-        ) { flatFold = $0 }
-        .sheet(item: worldMapBinding) { map in
-            WorldMapSheet(map: map) { id in
-                Task { await viewModel.showWorld(id: id) }
-            } onClose: {
-                viewModel.closeMap()
-            }
-        }
-        .sheet(item: $settingsViewModel, onDismiss: settingsDismissed) { settingsModel in
-            SettingsView(viewModel: settingsModel, pages: settings.pages) { settingsViewModel = nil }
-                .environment(\.unsavedScope, UnsavedScope.settings)
-        }
         .sagaFilmSheet($sagaFilm)
         .task { await viewModel.onAppear() }
         .onChange(of: scenePhase) { _, phase in scenePhaseChanged(to: phase) }
@@ -129,7 +96,7 @@ public struct HomeView: View {
                 .environment(\.unsavedScope, UnsavedScope.homeSheet)
         }
         .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
-        // Last, so the sheets and Settings' pages see it too.
+        // Last, so the sheets see it too.
         .environment(unsavedWork)
     }
 
@@ -160,19 +127,15 @@ public struct HomeView: View {
         )
     }
 
-    var worldMapBinding: Binding<WorldMapContent?> {
-        Binding(get: { viewModel.worldMap }, set: { if $0 == nil { viewModel.closeMap() } })
-    }
-
     var arrangement: HomeArrangement {
-        HomeArrangement.make(width: width, fold: fold, flatFold: flatFold)
+        HomeArrangement.make(width: width, fold: fold)
     }
 
     @ViewBuilder
     private func loaded(_ content: HomeContent) -> some View {
         if arrangement.hasPanes {
-            // Above and below a fold these stay the same two scroll views as it opens and closes, so folding keeps
-            // where each was scrolled to and a celebration in flight. Side by side is another stack (see `body`).
+            // Rows above and below a fold or columns side by side, these stay the same two scroll views as the device
+            // folds and opens, so each keeps where it was scrolled to and a celebration in flight (ADR-0061 §1).
             let panes = arrangement.fold.map { AnyLayout(FoldedStackLayout(fold: $0)) }
                 ?? AnyLayout(HStackLayout(alignment: .top, spacing: 0))
             panes {
@@ -182,18 +145,8 @@ public struct HomeView: View {
                     .frame(maxWidth: .infinity)
                     .modifier(celebrationOverlay)
                 ScrollView { adventure(content).padding(HomeArrangement.panePadding) }
-                    // The last card scrolls clear of the map and Settings.
-                    .contentMargins(
-                        .bottom, arrangement.buttons.isFloating ? paneButtonsHeight : 0, for: .scrollContent
-                    )
                     .frame(maxWidth: .infinity)
             }
-            // Over the adventure's pane, just above the tab bar: within the dad's reach, wherever home is scrolled.
-            .overlay(alignment: .bottomTrailing) {
-                if arrangement.buttons.isFloating { paneButtons }
-            }
-            // Above and below a fold, VoiceOver reads the floating map and Settings first, as when they stood by the title.
-            .accessibilityElement(children: .contain)
             .motion(.smooth, value: arrangement)
         } else {
             ScrollView {

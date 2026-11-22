@@ -2,7 +2,8 @@ import DesignSystem
 import SwiftUI
 
 /// Settings › Export data (ADR-0057 §8): export the saga to one file, or import one. A form, so it isn't split by a fold
-/// (ADR-0043 §8). While it works, it can't be left: Cancel is the way out.
+/// (ADR-0043 §8). While it works, it can't be left: Cancel is the way out. A page of its own, as the sheet it was: the
+/// tab bar can't leave it, so its files go only when the dad leaves it by Back (ADR-0061 §2).
 struct DataExportView: View {
     @State private var viewModel: DataExportViewModel
 
@@ -23,6 +24,7 @@ struct DataExportView: View {
         .navigationTitle(viewModel.content.title)
         .toolbarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(viewModel.isWorking)
+        .tabBarHidden(when: true)
         .holdsLinks(whileWorking: viewModel.isWorking)
         .onDisappear { Task { await viewModel.importer.closed() } }
         // Once, when the copy is ready: VoiceOver otherwise doesn't hear that the work ended.

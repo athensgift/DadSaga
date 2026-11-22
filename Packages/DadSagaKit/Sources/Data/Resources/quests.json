@@ -1947,8 +1947,8 @@
       "en": "The chef"
     },
     "description": {
-      "el": "Μαγείρεψε ένα φαγητό που θα φάτε και οι δύο.",
-      "en": "Cook a meal you both eat."
+      "el": "Όταν τρώει πια στερεές τροφές, μαγείρεψε ένα φαγητό που θα φάτε και οι δύο.",
+      "en": "Once they're eating solid food, cook a meal you both eat."
     },
     "tip": {
       "title": {
@@ -1957,11 +1957,19 @@
       },
       "steps": [
         {
+          "el": "Η αποστολή αυτή είναι για παιδί που τρώει ήδη στερεές τροφές. Το πότε ξεκινά το λέει ο γιατρός του, συνήθως γύρω στους έξι μήνες· ως τότε το γάλα του είναι όλο το γεύμα.",
+          "en": "This one is for a child who already eats solids. When they start is for their doctor to say, usually at around six months; until then their milk is the whole meal."
+        },
+        {
           "el": "Βγάλε τη μερίδα του πριν ρίξεις αλάτι.",
           "en": "Take their portion out before you add salt."
         },
         {
-          "el": "Όχι μέλι πριν τον πρώτο χρόνο.",
+          "el": "Το δικό του πιάτο: τόσο μαλακό που λιώνει ανάμεσα στα δάχτυλά σου, λιωμένο ή ψιλοκομμένο.",
+          "en": "Their plate: soft enough to squash between your fingers, mashed or cut small."
+        },
+        {
+          "el": "Όχι μέλι πριν κλείσει τον πρώτο χρόνο.",
           "en": "No honey before their first birthday."
         },
         {
@@ -2088,6 +2096,10 @@
       },
       "steps": [
         {
+          "el": "Με μωρό στους πρώτους μήνες, ρώτα πρώτα τον γιατρό του: το από πότε μπαίνει σε πισίνα διαφέρει από χώρα σε χώρα. Και τότε ζεστό νερό, λίγα λεπτά, και έξω μόλις αρχίσει να τρέμει.",
+          "en": "With a baby in their first months, ask their doctor first: from when a pool is fine differs by country. Then warm water, a short dip, and out as soon as they shiver."
+        },
+        {
           "el": "Τώρα ο στόχος είναι να αγαπήσει το νερό: πιτσίλισμα, τραγούδια, αγκαλιά. Το πότε αρχίζουν τα μαθήματα διαφέρει από χώρα σε χώρα και από παιδί σε παιδί.",
           "en": "For now the goal is to enjoy the water: splashing, songs, being held. When lessons start differs by country and by child."
         },
@@ -2191,8 +2203,8 @@
       "en": "Blanket fort"
     },
     "description": {
-      "el": "Χτίστε ένα κάστρο από κουβέρτες και μαξιλάρια και διαβάστε μέσα ένα βιβλίο.",
-      "en": "Build a fort from blankets and pillows and read a book inside it."
+      "el": "Χτίστε ένα κάστρο από κουβέρτες και μαξιλάρια και διαβάστε μέσα ένα βιβλίο. Είναι για παιχνίδι όσο είστε ξύπνιοι: ο ύπνος μένει στο δικό του κρεβάτι.",
+      "en": "Build a fort from blankets and pillows and read a book inside it. It's for playing awake: sleep stays in their own bed."
     }
   },
   {
@@ -2577,6 +2589,10 @@
           "en": "The order matters: shade around the middle of the day, clothes and a hat with a brim all the way round, and then sunscreen. A cap leaves the ears and neck bare."
         },
         {
+          "el": "Μωρό κάτω των έξι μηνών μένει εκτός άμεσου ήλιου: σκιά και ελαφριά ρούχα κάνουν τη δουλειά. Το αν μπαίνει αντηλιακό τόσο νωρίς διαφέρει ανά χώρα: ρώτα τον γιατρό του.",
+          "en": "A baby under six months stays out of direct sun: shade and light clothes do the job. Whether sunscreen is used that young differs by country: ask their doctor."
+        },
+        {
           "el": "Αντηλιακό υψηλής προστασίας, άφθονο, και στα αυτιά, στον σβέρκο και πάνω στα πόδια. Ξανά κάθε δύο ώρες περίπου και μετά το νερό.",
           "en": "High-protection sunscreen, plenty of it, on ears, the back of the neck and the tops of feet too. Again about every two hours, and after water."
         },
@@ -2722,8 +2738,8 @@
       "en": "Let them climb"
     },
     "description": {
-      "el": "Στην παιδική χαρά μέτρα ως το δέκα πριν πεις «πρόσεχε». Κοντά του, με τα χέρια κάτω.",
-      "en": "At the playground, count to ten before you say “careful”. Stay close, hands down."
+      "el": "Στην παιδική χαρά, σε όργανα για την ηλικία του, μέτρα ως το δέκα πριν πεις «πρόσεχε». Κοντά του, με τα χέρια κάτω.",
+      "en": "At the playground, on equipment made for their age, count to ten before you say “careful”. Stay close, hands down."
     },
     "tip": {
       "title": {
@@ -2931,6 +2947,10 @@
         "en": "Don't always let them win"
       },
       "steps": [
+        {
+          "el": "Αν στο τραπέζι ή τριγύρω υπάρχει παιδί κάτω των τριών, διάλεξε παιχνίδι με μεγάλα κομμάτια: τα μικρά πιόνια και τα ζάρια μένουν μακριά του.",
+          "en": "With a child under three at the table or nearby, choose a game with big pieces: small pieces and dice stay out of reach."
+        },
         {
           "el": "Το να χάνει μαζί σου είναι η ασφαλής προπόνηση για όταν θα χάσει αλλού.",
           "en": "Losing with you is the safe practice for losing somewhere else."
@@ -3205,7 +3225,11 @@
           "en": "They stay in the seat with its own harness for as long as the label allows. You don't move up because of a birthday, or because a friend did."
         },
         {
-          "el": "Στο ανυψωτικό κάθισμα (booster) η ζώνη του αυτοκινήτου περνά από τη μέση του ώμου και του στήθους, όχι από τον λαιμό, και χαμηλά στους γοφούς, όχι στην κοιλιά.",
+          "el": "Και το επόμενο κάθισμα έχει ετικέτα: και το ανυψωτικό κάθισμα (booster) έχει κατώτατο ύψος ή βάρος. Αν το παιδί δεν χωρά πια στο μικρό κάθισμα αλλά δεν έχει φτάσει ακόμα εκεί, πάει σε μεγαλύτερο κάθισμα με δικές του ζώνες, όχι σε booster.",
+          "en": "The next seat has its own label: a booster has a lowest height or weight too. A child who has outgrown a small seat but isn't there yet moves to a bigger seat with a harness, not to a booster."
+        },
+        {
+          "el": "Στο booster η ζώνη του αυτοκινήτου περνά από τη μέση του ώμου και του στήθους, όχι από τον λαιμό, και χαμηλά στους γοφούς, όχι στην κοιλιά.",
           "en": "In a booster seat, the car's belt crosses the middle of the shoulder and chest, not the neck, and sits low on the hips, not on the tummy."
         },
         {
@@ -3290,6 +3314,10 @@
         {
           "el": "Ξεκίνα με κατσαβίδι, γυαλόχαρτο και μέτρο. Δώσε μία δουλειά που είναι ολόκληρη δική του.",
           "en": "Start with a screwdriver, sandpaper and a tape measure. Give one job that is entirely theirs."
+        },
+        {
+          "el": "Βίδες, καρφιά και άλλα μικρά κομμάτια μένουν σε κλειστό κουτί, μακριά από παιδί κάτω των τριών.",
+          "en": "Screws, nails and other small parts stay in a closed box, away from any child under three."
         },
         {
           "el": "Θα βγει στραβό. Άφησέ το στραβό.",
@@ -3393,8 +3421,8 @@
           "en": "A shared family device rather than a tablet of their own. That way you see what they see, and you watch together."
         },
         {
-          "el": "Το τι βλέπει και με ποιον μετράει περισσότερο από τα λεπτά. Κράτα ό,τι το αφήνει με όρεξη για παιχνίδι.",
-          "en": "What they watch and who with matters more than the minutes. Keep the things that leave them wanting to play."
+          "el": "Από τα πέντε και πάνω, το τι βλέπει και με ποιον μετράει όσο και τα λεπτά. Κράτα ό,τι το αφήνει με όρεξη για παιχνίδι.",
+          "en": "From five up, what they watch and who with matters as much as the minutes. Keep the things that leave them wanting to play."
         },
         {
           "el": "Οι κανόνες πιάνουν κι εσένα: το κινητό σου κάτω στο φαγητό και στην ώρα του ύπνου.",
@@ -3427,6 +3455,10 @@
         "en": "Let them get it wrong"
       },
       "steps": [
+        {
+          "el": "Τα κέρματα είναι για παιδί που δεν βάζει πια πράγματα στο στόμα. Αν υπάρχει μικρότερο στο σπίτι, τα βαζάκια μένουν ψηλά.",
+          "en": "Coins are for a child who no longer puts things in their mouth. With a smaller one in the house, the jars live up high."
+        },
         {
           "el": "Το ποσό δεν έχει σημασία. Σημασία έχει να είναι σταθερό και να ξέρει πότε έρχεται το επόμενο.",
           "en": "The amount doesn't matter. What matters is that it's regular and they know when the next one comes."
