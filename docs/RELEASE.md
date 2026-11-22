@@ -2,7 +2,8 @@
 
 The checklist for a TestFlight build and an App Store release. The decisions behind it are in
 [ADR-0009](adr/0009-gitflow.md) (Gitflow) and [ADR-0051](adr/0051-signing-versioning-and-privacy-manifest.md)
-(signing, versioning, privacy manifest).
+(signing, versioning, privacy manifest). What counts as shipped is in
+[ADR-0060](adr/0060-nothing-ships-before-the-first-app-store-release.md): only an App Store release.
 
 ## Once, before the first upload
 - [ ] The app record in App Store Connect, with bundle id `com.athinodoros.dadsaga` (and the widget's
@@ -18,6 +19,28 @@ The checklist for a TestFlight build and an App Store release. The decisions beh
 - [ ] App Store text says "from birth" until the world before birth exists.
 - [ ] Privacy policy URL `https://dadsaga.app/privacy/`, support URL `https://dadsaga.app/support/`.
 
+## Once, at the first App Store release
+On the first release branch, for the build submitted for review (ADR-0060 §5). If review asks for another build, the
+record follows that build; it is fixed once the build is released, and reaches `develop` when `main` is merged back.
+- [ ] `Tests/DataTests/Fixtures/ShippedContentIDs.json`, from the bundled content: every world, hero, quest, boss,
+      first, gear item and title id; each quest's and boss's skill and XP, and each first's XP; each gear item's skill;
+      each title's order, cards, XP and gear; each skill's `halfGrownXP`. From then on it only grows.
+- [ ] `ShippedContentIDsTests` (as ADR-0060 deleted it, without the `skillXPBeforeTitles` checks): every shipped id
+      stays, as an id or a former id; every current id is listed; every former id and retired card shipped; nothing
+      earned goes down or moves skill; no title asks for more or moves; no curve grows slower.
+- [ ] `Tests/DataTests/Fixtures/StoreV1`, written by that build and never regenerated: a dad with a look and a partner
+      answer; a child born and one not born yet; a quest, a boss and a first, with photos and a note; a wardrobe
+      choice; a kept title and a closed title card. Its tests: the app opens a copy read-write and finds everything;
+      the widget opens a copy read-only and reads it.
+- [ ] `.claude/rules/domain-and-data.md` and `.claude/agents/content.md`: drop the "until the first App Store release"
+      rules.
+
+## Every TestFlight build before the first App Store release
+- [ ] Compare with the last uploaded build: the release branch's commit that set its build number (ADR-0060 §6). The
+      build "changes the store or the ids" if `SchemaV1` changed, or a content id was renamed or removed, since then.
+- [ ] If it does, its notes for testers ("What to Test") say, in Greek and English, to delete DadSaga before installing
+      it, and that what was recorded in earlier builds isn't kept.
+
 ## Every release
 1. **Branch.** `git switch develop && git pull`, then `git switch -c release/<version>`.
 2. **Number it** in `project.yml`: `MARKETING_VERSION` to `<version>`, `CURRENT_PROJECT_VERSION` to the last uploaded
@@ -30,7 +53,8 @@ The checklist for a TestFlight build and an App Store release. The decisions beh
    App Store label agree (ADR-0051 §1).
 5. **Archive** in Xcode: scheme `DadSaga`, destination "Any iOS Device", Product → Archive, then Distribute App →
    App Store Connect.
-6. **TestFlight.** Install it, and repeat the device checks on the build Apple processed.
+6. **TestFlight.** Install it, and repeat the device checks on the build Apple processed. Before the first App Store
+   release, install it on a phone without a `develop` build, so it starts from onboarding as a dad's would.
 7. **Submit** for review with release notes in Greek and English.
 8. **Merge** once Apple approves: `release/<version>` into `main` through a PR, tag `v<version>` on `main`, then merge
    `main` back into `develop`.
