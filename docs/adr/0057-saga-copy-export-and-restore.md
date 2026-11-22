@@ -10,7 +10,7 @@ v1 whatever the iCloud Backup restore test shows: it is a v1 requirement and gat
 plan is [`docs/plans/saga-export.md`](../plans/saga-export.md). Changes ADR-0004 (the export it asked for: a copy the
 dad makes is how his data leaves the device), ADR-0016 (photos leave the device only in that copy), ADR-0026 (export
 and backup decided; a restore replaces every row in one save; `SagaEraser` becomes part of `WholeSagaRepository`),
-ADR-0030 (§1 a "Your saga" section; §7 the About statement; §8 start over through `WholeSagaRepository`), ADR-0037 §5
+ADR-0030 (§1 a "Your data" section; §7 the About statement; §8 start over through `WholeSagaRepository`), ADR-0037 §5
 (a restore brings the copy's answers to the film offers) and ADR-0055 §3 (restoring an older copy brings back that
 copy's title: the dad's own choice, like start over).
 

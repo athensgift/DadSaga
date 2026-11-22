@@ -4,7 +4,7 @@ import SwiftUI
 // MARK: - Header and toolbar buttons
 
 extension HomeView {
-    /// The two-pane layouts have no navigation bar, so their title sits at the top of the hero pane.
+    /// With two panes the navigation bar shows no title (or there is none), so it sits at the top of the hero pane.
     func paneHeader(_ content: HomeContent) -> some View {
         Text(content.heroTitle)
             .font(DSFont.largeTitle)
@@ -14,8 +14,8 @@ extension HomeView {
             .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { paneHeaderHeight = $0 }
     }
 
-    /// The map and Settings in the two-pane layouts: one glass capsule by the tab bar, at the trailing edge, as they
-    /// are in the side bar the system draws on the Duo's cover display (ADR-0056).
+    /// The map and Settings above and below a fold: one glass capsule by the tab bar, at the trailing edge, as they
+    /// are in the side bar the system draws on the Duo's cover display (ADR-0056, ADR-0058).
     var paneButtons: some View {
         HStack(spacing: 0) {
             paneButton(worldMapTitle, systemImage: "map", action: openMap)

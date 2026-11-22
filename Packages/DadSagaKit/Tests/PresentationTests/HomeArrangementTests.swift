@@ -54,6 +54,50 @@ struct HomeArrangementTests {
         #expect(HomeArrangement.stacked(fold).hasPanes)
     }
 
+    @Test("Given one column, when home places the map and Settings, then they are in the bar with home's title")
+    func buttonsInOneColumn() {
+        let buttons = HomeArrangement.make(width: 390, fold: nil, flatFold: nil).buttons
+        #expect(buttons.hasNavigationBar && buttons.showsTitleInBar && !buttons.isFloating)
+    }
+
+    @Test("Given two columns side by side, when home places the map and Settings, then they are in a bar with no title")
+    func buttonsSideBySide() {
+        let buttons = HomeArrangement.make(width: 951, fold: nil, flatFold: nil).buttons
+        #expect(buttons.hasNavigationBar && !buttons.showsTitleInBar && !buttons.isFloating)
+    }
+
+    @Test("Given a fold across home, when home places the map and Settings, then they float above the tab bar")
+    func buttonsAboveAFold() {
+        let fold = HorizontalFold(top: 430, bottom: 460)
+        let flatFold = HorizontalFold(top: 440, bottom: 440)
+        for buttons in [
+            HomeArrangement.make(width: 669, fold: fold, flatFold: nil).buttons,
+            HomeArrangement.make(width: 669, fold: nil, flatFold: flatFold).buttons
+        ] {
+            #expect(!buttons.hasNavigationBar && buttons.isFloating)
+        }
+    }
+
+    @Test("Given home above and below a fold, when the device opens flat, then the buttons stay put and so do the panes")
+    func foldingKeepsTheButtonsPlace() {
+        let halfOpen = HomeArrangement.make(
+            width: 669, fold: HorizontalFold(top: 430, bottom: 460), flatFold: HorizontalFold(top: 445, bottom: 445)
+        )
+        let flat = HomeArrangement.make(width: 669, fold: nil, flatFold: HorizontalFold(top: 445, bottom: 445))
+        #expect(halfOpen != flat)
+        #expect(halfOpen.buttons == flat.buttons)
+    }
+
+    @Test("Given home turned to another arrangement, when the buttons are placed, then the place changes and home is built anew")
+    func turningChangesTheButtonsPlace() {
+        let column = HomeArrangement.make(width: 402, fold: nil, flatFold: nil).buttons
+        let columns = HomeArrangement.make(width: 750, fold: nil, flatFold: nil).buttons
+        let stacked = HomeArrangement.make(width: 669, fold: nil, flatFold: HorizontalFold(top: 445, bottom: 445)).buttons
+        #expect(column != columns)
+        #expect(columns != stacked)
+        #expect(stacked != column)
+    }
+
     @Test("Given a tall pane above the fold, when the hero is sized, then he is as big as in the two columns")
     func heroInATallPane() {
         let tall = HomeArrangement.stacked(HorizontalFold(top: 520, bottom: 550))

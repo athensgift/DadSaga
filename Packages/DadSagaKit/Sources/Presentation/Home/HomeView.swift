@@ -67,24 +67,35 @@ public struct HomeView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            // Read where the panes are placed, so the fold is in their coordinates.
-            .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
-            .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum) { fold = $0 }
-            .onHorizontalFoldChange(
-                minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum, whileFlat: true
-            ) { flatFold = $0 }
             .background(DSColor.background)
             .safeAreaInset(edge: .bottom) { undoBar }
             .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
-            .navigationTitle(title)
-            // Two panes scroll separately. A navigation bar collapses or hides with whichever pane scrolls and
-            // shifts the other, so the two-pane layouts have no bar: their title lives in the hero pane.
-            .navigationBarHidden(when: arrangement.hasPanes)
+            .navigationTitle(arrangement.buttons.showsTitleInBar ? title : "")
+            // Named, not left to the default: with no mode named, iOS 27.2 collapses the large title as soon as the
+            // loaded home replaces the spinner.
+            .toolbarTitleDisplayMode(arrangement.buttons.showsTitleInBar ? .automatic : .inline)
+            // Two panes scroll separately, so their title lives in the hero pane. Side by side the bar stays, with no
+            // title, for the system to place the map and Settings by the tab bar (ADR-0058). Above and below a fold
+            // a bar would shift the fold's place, so there is none (ADR-0043).
+            .navigationBarHidden(when: !arrangement.buttons.hasNavigationBar)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) { worldMapButton }
                 ToolbarItem(placement: .primaryAction) { settingsButton }
             }
         }
+        // A stack of its own for each bar: large title, inline or none (ADR-0058). UIKit sets scrolling content
+        // against a bar when its screen appears. Under a bar that changes on a screen that stays, an inline bar turned
+        // large keeps its title collapsed, and a pane brought up from below the fold stays scrolled past its top by
+        // the safe area it was moved under. Folding keeps the bar, so it keeps the stack and where each pane was.
+        .id(arrangement.buttons)
+        // Read around the stack, not in it: a stack built for what was read must not start the reading again. Home
+        // fills the stack while it has no bar, which is whenever a fold splits it, so the fold is in the panes'
+        // coordinates.
+        .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width = $0 }
+        .onHorizontalFoldChange(minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum) { fold = $0 }
+        .onHorizontalFoldChange(
+            minimumAbove: foldPaneMinimum, minimumBelow: foldScrollingPaneMinimum, whileFlat: true
+        ) { flatFold = $0 }
         .sheet(item: worldMapBinding) { map in
             WorldMapSheet(map: map) { id in
                 Task { await viewModel.showWorld(id: id) }
@@ -149,8 +160,8 @@ public struct HomeView: View {
     @ViewBuilder
     private func loaded(_ content: HomeContent) -> some View {
         if arrangement.hasPanes {
-            // The same two scroll views side by side or above and below the fold, so folding keeps where each
-            // was scrolled to and a celebration in flight.
+            // Above and below a fold these stay the same two scroll views as it opens and closes, so folding keeps
+            // where each was scrolled to and a celebration in flight. Side by side is another stack (see `body`).
             let panes = arrangement.fold.map { AnyLayout(FoldedStackLayout(fold: $0)) }
                 ?? AnyLayout(HStackLayout(alignment: .top, spacing: 0))
             panes {
@@ -159,12 +170,16 @@ public struct HomeView: View {
                     .modifier(celebrationOverlay)
                 ScrollView { adventure(content).padding(HomeArrangement.panePadding) }
                     // The last card scrolls clear of the map and Settings.
-                    .contentMargins(.bottom, paneButtonsHeight, for: .scrollContent)
+                    .contentMargins(
+                        .bottom, arrangement.buttons.isFloating ? paneButtonsHeight : 0, for: .scrollContent
+                    )
                     .frame(maxWidth: .infinity)
             }
             // Over the adventure's pane, just above the tab bar: within the dad's reach, wherever home is scrolled.
-            .overlay(alignment: .bottomTrailing) { paneButtons }
-            // VoiceOver reads the map and Settings first, as it did when they stood by the title.
+            .overlay(alignment: .bottomTrailing) {
+                if arrangement.buttons.isFloating { paneButtons }
+            }
+            // Above and below a fold, VoiceOver reads the floating map and Settings first, as when they stood by the title.
             .accessibilityElement(children: .contain)
             .motion(.smooth, value: arrangement)
         } else {

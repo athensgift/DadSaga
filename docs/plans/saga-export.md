@@ -152,10 +152,10 @@ then the whole package and the simulator build before the PR.
 - `SagaCopy/SagaCopyView.swift` (the Settings page: a `Form`, two sections, `interactiveDismissDisabled` and the back
   button hidden while working), `SagaCopy/RestoreSagaSection.swift` (the picker button, `fileImporter`, progress,
   `confirmationDialog`), `SagaCopy/RestoreSagaSheet.swift` (onboarding's small sheet around the same section).
-- `Settings/SettingsView.swift`: the "Your saga" section and `SettingsPage.sagaCopy`. `Settings/SettingsScreens.swift`:
+- `Settings/SettingsView.swift`: the "Your data" section and `SettingsPage.sagaCopy`. `Settings/SettingsScreens.swift`:
   `SettingsPages.makeSagaCopy` and `SettingsActions.onSagaRestored`. `Settings/SettingsContent+Make.swift`,
   `SettingsViewState.swift`: labels, and the About statement's new text.
-- `Onboarding/OnboardingView.swift`, `OnboardingViewState.swift`: "Restore from a copy" under Continue, opening
+- `Onboarding/OnboardingView.swift`, `OnboardingViewState.swift`: "Import data" under Continue, opening
   `RestoreSagaSheet` with a view model built by the root (`replacesSaga: false`).
 - `Root/RootViewModel.swift`: `sagaRestored()` drops waiting links, selects Adventure, sets `.home` and bumps
   `sagaGeneration`. `Root/RootView.swift`: `prepareScreen` rebuilds home and the timeline when the generation changes
