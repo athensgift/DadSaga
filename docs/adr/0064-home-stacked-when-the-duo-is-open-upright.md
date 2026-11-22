@@ -7,8 +7,8 @@ ADR-0056 §2 for home.
 
 ## Context
 - ADR-0061 §1 took out the flat fold (`whileFlat`, `.includeInactive`) so that home would not split "at a hinge the dad
-  can't feel", and made the Duo open flat and upright two columns of 334 pt each. That undid ADR-0045, which the owner
-  had asked for; ADR-0061 recorded the request about the flat fold, not the layout the owner wanted in its place.
+  can't feel", and made the Duo open flat and upright two columns of 334 pt each, the owner choosing the columns. Having
+  tried them, the owner reverses that choice and wants ADR-0045's rows back.
 - Open flat, `reservedRegions(kind: .division, options: .includeInactive)` reports the fold as a band 40 pt high in the
   iPhone Duo simulator (iOS 27.2); ADR-0056 §2 reads it as the line down the band's middle.
 
@@ -21,6 +21,8 @@ ADR-0056 §2 for home.
 - On its side the Duo keeps two columns (the fold runs down between them), and a large iPhone in landscape too.
 - Only home reads the flat fold. The map, Settings, "Your hero", "My family", the sheets, the film and the timeline split
   only while half-open (ADR-0043, ADR-0061 §4).
+- Folding moves the upper pane's end from the line to the gap's top (about 20 pt), so the hero, who fills that pane
+  (ADR-0056 §3), shrinks a little as it folds; the panes themselves stay.
 - Everything else in ADR-0061 stays: the four tabs, no navigation bar on two panes, the open worlds.
 
 ## Rejected

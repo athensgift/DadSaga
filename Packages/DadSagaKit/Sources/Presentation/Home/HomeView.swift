@@ -80,8 +80,8 @@ public struct HomeView: View {
             .toolbarTitleDisplayMode(.automatic)
             // One column keeps the bar with its large title and nothing in it. Two panes scroll separately, so their
             // title heads the hero's pane, and they have no bar: above and below a fold it would shift the fold's
-            // place (ADR-0043 §3, ADR-0061 §1, ADR-0064). With only a large bar or none, the bar comes with new scroll views
-            // each time, which is when UIKit sets their insets: one stack serves every arrangement.
+            // place (ADR-0043 §3, ADR-0061 §1, ADR-0064). With only a large bar or none, the bar comes with new scroll
+            // views each time, which is when UIKit sets their insets: one stack serves every arrangement.
             .navigationBarHidden(when: arrangement.hasPanes)
         }
         // Read around the stack, not in it. With two panes home fills the stack, so the fold is in the panes'
@@ -142,7 +142,8 @@ public struct HomeView: View {
     private func loaded(_ content: HomeContent) -> some View {
         if arrangement.hasPanes {
             // Rows above and below a fold or columns side by side, these stay the same two scroll views as the device
-            // folds and opens, so each keeps where it was scrolled to and a celebration in flight (ADR-0061 §1).
+            // folds and opens, so each keeps where it was scrolled to and a celebration in flight (ADR-0061 §1,
+            // ADR-0064).
             let panes = arrangement.fold.map { AnyLayout(FoldedStackLayout(fold: $0)) }
                 ?? AnyLayout(HStackLayout(alignment: .top, spacing: 0))
             panes {
