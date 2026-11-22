@@ -13,7 +13,9 @@ struct DataExportView: View {
     var body: some View {
         Form {
             exportSection
+            // Never both at once: they share one temporary folder.
             DataImportSection(viewModel: viewModel.importer)
+                .disabled(isExporting)
         }
         .font(DSFont.body)
         .scrollContentBackground(.hidden)
@@ -23,6 +25,10 @@ struct DataExportView: View {
         .navigationBarBackButtonHidden(viewModel.isWorking)
         .holdsLinks(whileWorking: viewModel.isWorking)
         .onDisappear { Task { await viewModel.importer.closed() } }
+    }
+
+    private var isExporting: Bool {
+        if case .exporting = viewModel.state { true } else { false }
     }
 
     private var exportSection: some View {

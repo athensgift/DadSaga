@@ -66,8 +66,9 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ Dad titles instead of levels: no XP on screen, gear by title, a calm title card, the title in the film (ADR-0055)
 - ✅ Privacy manifests, export compliance key, privacy URL, Release build in CI (ADR-0051, `docs/RELEASE.md`)
 - Team ID in `project.yml`, App Store Connect record, trader details (EU DSA)
-- Restore from an iCloud backup tested on a device: it decides whether export ships in v1 or v1.1
-- Export and restore of the saga
+- ✅ Export and import of the saga: one `.dadsaga` file from Settings › Export data, imported there or on onboarding's
+  first step (ADR-0057). A v1 requirement; checked on a device with a large saga before release
+- Restore from an iCloud backup tested on a device: it decides what the support page says about backups
 - Screen snapshots and the accessibility audit run again and re-recorded
 - App Store metadata in Greek and English, screenshots, age rating
 - Pricing decision (free; a one-time unlock later?), with its own ADR
