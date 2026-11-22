@@ -37,9 +37,10 @@ struct ScreenSnapshotTests {
 
     @Test("Given a new dad, when onboarding opens, then it looks as recorded", arguments: Look.allCases)
     func onboarding(look: Look) async throws {
-        let viewModel = SagaFixture(locale: look.locale).onboarding()
+        let fixture = SagaFixture(locale: look.locale)
+        let viewModel = fixture.onboarding()
         await viewModel.onAppear()
-        verify(OnboardingView(viewModel: viewModel), look: look, named: "onboarding")
+        verify(OnboardingView(viewModel: viewModel) { fixture.dataImport(replacesSaga: false) }, look: look, named: "onboarding")
     }
 
     @Test("Given a few weeks of play, when home opens, then it looks as recorded", arguments: Look.allCases)

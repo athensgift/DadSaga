@@ -5,10 +5,16 @@ import SwiftUI
 /// Two steps in a navigation stack: the dad's children, then which hero he plays and how he looks.
 /// The second step is pushed, so it gets the system back button and swipe-back gesture.
 public struct OnboardingView: View {
-    @State private var viewModel: OnboardingViewModel
+    public typealias MakeImport = @MainActor () -> DataImportViewModel
 
-    public init(viewModel: OnboardingViewModel) {
+    @State private var viewModel: OnboardingViewModel
+    @State private var importer: DataImportViewModel?
+    private let makeImport: MakeImport
+
+    /// - Parameter makeImport: builds the import sheet's presenter when the dad taps Import data.
+    public init(viewModel: OnboardingViewModel, makeImport: @escaping MakeImport) {
         _viewModel = State(initialValue: viewModel)
+        self.makeImport = makeImport
     }
 
     public var body: some View {
@@ -28,6 +34,9 @@ public struct OnboardingView: View {
             .background(DSColor.background)
         }
         .task { await viewModel.onAppear() }
+        .sheet(item: $importer) { importer in
+            DataImportSheet(viewModel: importer) { self.importer = nil }
+        }
     }
 
     private var isOnHeroStep: Binding<Bool> {
@@ -72,6 +81,8 @@ public struct OnboardingView: View {
                 // In the content, not pinned: a pinned bar would sit on the keyboard and cover the form on small screens.
                 PrimaryButton(content.continueTitle) { viewModel.continueToHero() }
                     .disabled(!viewModel.canContinue)
+                Button(content.importTitle, systemImage: "square.and.arrow.down") { importer = makeImport() }
+                    .font(DSFont.body)
             }
             .frame(maxWidth: readableWidth)
             .padding(DSSpacing.l)

@@ -103,7 +103,7 @@ struct LocalStoreTests {
         try await store.progress.add(ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth))
         _ = try await store.outfit.setChoice(.hidden, for: .care)
 
-        try await store.eraser.eraseAll()
+        try await store.wholeSaga.eraseAll()
 
         #expect(try await store.profiles.fetchProfile() == nil)
         #expect(try await store.progress.fetchEvents().isEmpty)
@@ -118,7 +118,7 @@ struct LocalStoreTests {
             dadAppearance: DadAppearance(hair: .shaved, beard: .none)
         ))
 
-        try await store.eraser.eraseAll()
+        try await store.wholeSaga.eraseAll()
         try await store.profiles.save(PlayerProfile(children: [Child(name: "Άννα", birthDay: birthDay)], heroClassID: "h-cool"))
 
         #expect(try await store.profiles.fetchProfile()?.dadAppearance == .standard(for: .mediumLight))

@@ -11,15 +11,15 @@ public struct LocalStore: Sendable {
     public let outfit: any OutfitRepository
     /// What the profile keeps so the dad's title never goes down (ADR-0055 §3).
     public let standing: any StandingRepository
-    /// Starting over: the whole saga in one write.
-    public let eraser: any SagaEraser
+    /// The saga as a whole, in one write: start over erases it, a copy reads it, importing one replaces it (ADR-0057).
+    public let wholeSaga: any WholeSagaRepository
 
     private init(connection: StoreConnection) {
         profiles = ConnectedProfileRepository(connection: connection)
         progress = ConnectedProgressRepository(connection: connection)
         outfit = ConnectedOutfitRepository(connection: connection)
         standing = ConnectedStandingRepository(connection: connection)
-        eraser = ConnectedSagaEraser(connection: connection)
+        wholeSaga = ConnectedWholeSagaRepository(connection: connection)
     }
 
     /// The saga's store in the folder the app shares with the widget (ADR-0023). Without the App Group a release

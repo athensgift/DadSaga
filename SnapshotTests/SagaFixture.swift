@@ -166,12 +166,9 @@ extension SagaFixture {
         HomeViewModel(
             useCases: HomeViewModel.UseCases(
                 getOverview: DefaultGetHomeOverviewUseCase(
-                    contentRepository: content,
-                    profileRepository: store.profiles,
-                    progressRepository: store.progress,
-                    outfitRepository: store.outfit,
-                    standingRepository: store.standing,
-                    sagaOfferRepository: sagaOffers,
+                    contentRepository: content, profileRepository: store.profiles,
+                    progressRepository: store.progress, outfitRepository: store.outfit,
+                    standingRepository: store.standing, sagaOfferRepository: sagaOffers,
                     timeZone: Self.calendar.timeZone
                 ),
                 completeQuest: DefaultCompleteQuestUseCase(
@@ -183,10 +180,8 @@ extension SagaFixture {
                     standingRepository: store.standing, photoStore: photos
                 ),
                 deleteEvent: DefaultDeleteEventUseCase(
-                    contentRepository: content,
-                    progressRepository: store.progress,
-                    standingRepository: store.standing,
-                    photoStore: photos
+                    contentRepository: content, progressRepository: store.progress,
+                    standingRepository: store.standing, photoStore: photos
                 ),
                 undoRecord: DefaultUndoRecordUseCase(
                     contentRepository: content, progressRepository: store.progress,
@@ -244,7 +239,7 @@ extension SagaFixture {
             useCases: SettingsViewModel.UseCases(
                 savePreferences: DefaultSavePreferencesUseCase(repository: preferences),
                 startOver: DefaultStartOverUseCase(
-                    eraser: store.eraser,
+                    wholeSaga: store.wholeSaga,
                     photoStore: photos,
                     reminderSettings: reminderSettings,
                     sagaOffers: sagaOffers,
@@ -254,7 +249,7 @@ extension SagaFixture {
             ),
             preferences: PreferencesChoice(),
             appInfo: AppInfo(version: "1.0", build: "1", systemVersion: "27.2", feedbackAddress: "hello@dadsaga.app"),
-            actions: SettingsActions(onPreferencesChanged: { _ in }, onStartedOver: {}),
+            actions: SettingsActions(onPreferencesChanged: { _ in }, onStartedOver: {}, onSagaImported: {}),
             locale: locale,
             now: { Self.today }
         )
@@ -285,7 +280,35 @@ extension SagaFixture {
                     onSaved: onSaved
                 )
             },
-            makeReminder: { ReminderSettingsViewModel(useCases: reminder, locale: locale, now: { Self.today }) }
+            makeReminder: { ReminderSettingsViewModel(useCases: reminder, locale: locale, now: { Self.today }) },
+            makeDataExport: { onImported in
+                DataExportViewModel(
+                    makeCopy: DefaultMakeSagaCopyUseCase(
+                        wholeSaga: store.wholeSaga, sagaOffers: sagaOffers, photoStore: photos, files: sagaCopyFiles
+                    ),
+                    backgroundTime: ImmediateBackgroundTime(),
+                    importer: dataImport(replacesSaga: true, onImported: onImported),
+                    locale: locale,
+                    now: { Self.today }
+                )
+            },
+            discardExports: {}
+        )
+    }
+
+    private var sagaCopyFiles: AppleArchiveSagaCopyFiles { AppleArchiveSagaCopyFiles(app: "1.0 (1)") }
+
+    func dataImport(replacesSaga: Bool, onImported: @escaping @MainActor () -> Void = {}) -> DataImportViewModel {
+        DataImportViewModel(
+            restore: DefaultRestoreSagaUseCase(
+                wholeSaga: store.wholeSaga, progressRepository: store.progress, photoStore: photos,
+                sagaOffers: sagaOffers, files: sagaCopyFiles, schedule: NoSchedule(), notificationScheduler: scheduler
+            ),
+            backgroundTime: ImmediateBackgroundTime(),
+            replacesSaga: replacesSaga,
+            onImported: onImported,
+            locale: locale,
+            now: { Self.today }
         )
     }
 

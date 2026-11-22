@@ -118,6 +118,7 @@ public final class OnboardingViewModel {
             childEditor: ChildEditorLabels.make(locale: locale),
             partner: PartnerRowLabels.make(locale: locale),
             continueTitle: strings.text("Continue"),
+            importTitle: strings.text("Import data"),
             heroTitle: strings.text("Choose your hero"),
             finishTitle: strings.text("Start the adventure"),
             hero: HeroPickerContent.make(heroClasses: catalog.heroClasses, locale: locale)

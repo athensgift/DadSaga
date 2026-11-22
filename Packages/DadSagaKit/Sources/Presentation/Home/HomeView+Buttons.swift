@@ -71,6 +71,7 @@ extension HomeView {
     /// Settings closed: what "My family" or "Your hero" changed shows on home, and nothing in them holds a link back.
     func settingsDismissed() {
         unsavedWork.end(scope: UnsavedScope.settings)
+        settings.pages.discardExports()
         Task { await viewModel.reload() }
     }
 

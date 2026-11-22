@@ -7,7 +7,7 @@ public protocol StartOverUseCase: Sendable {
 }
 
 public struct DefaultStartOverUseCase: StartOverUseCase {
-    private let eraser: any SagaEraser
+    private let wholeSaga: any WholeSagaRepository
     private let photoStore: any PhotoStore
     private let reminderSettings: any ReminderSettingsRepository
     private let sagaOffers: any SagaOfferRepository
@@ -17,14 +17,14 @@ public struct DefaultStartOverUseCase: StartOverUseCase {
     /// - Parameter schedule: the app's one reschedule, so a run already under way cannot put notifications back after
     ///   this one cleared them (ADR-0024).
     public init(
-        eraser: any SagaEraser,
+        wholeSaga: any WholeSagaRepository,
         photoStore: any PhotoStore,
         reminderSettings: any ReminderSettingsRepository,
         sagaOffers: any SagaOfferRepository,
         schedule: any ScheduleWeeklyRemindersUseCase,
         notificationScheduler: any NotificationScheduler
     ) {
-        self.eraser = eraser
+        self.wholeSaga = wholeSaga
         self.photoStore = photoStore
         self.reminderSettings = reminderSettings
         self.sagaOffers = sagaOffers
@@ -34,7 +34,7 @@ public struct DefaultStartOverUseCase: StartOverUseCase {
 
     /// The store goes first, in one write. If it fails nothing else is touched, so the saga is still whole.
     public func execute(on date: Date) async throws {
-        try await eraser.eraseAll()
+        try await wholeSaga.eraseAll()
         await reminderSettings.deleteAll()
         // The answers were about the saga that is gone (ADR-0036 §7).
         await sagaOffers.deleteAll()

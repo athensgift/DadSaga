@@ -24,7 +24,8 @@ struct SettingsViewModelTests {
             appInfo: appInfo,
             actions: SettingsActions(
                 onPreferencesChanged: { root.preferences.append($0) },
-                onStartedOver: { root.startedOver += 1 }
+                onStartedOver: { root.startedOver += 1 },
+                onSagaImported: { root.sagaImported += 1 }
             ),
             locale: Locale(identifier: locale)
         )
@@ -189,6 +190,27 @@ struct SettingsViewModelTests {
         #expect(root.startedOver == 1)
     }
 
+    @Test("Given an imported saga, when Settings hears of it, then the root is told once")
+    func importTellsTheRoot() {
+        let sut = makeSUT()
+
+        sut.sagaImported()
+
+        #expect(root.sagaImported == 1)
+        #expect(root.startedOver == 0)
+    }
+
+    @Test("Given English, when opening, then Your data holds Export data and About names exported copies")
+    func dataSectionAndAbout() {
+        let content = makeSUT(locale: "en_US").content
+
+        #expect(content.dataSection == "Your data")
+        #expect(content.dataExportTitle == "Export data")
+        #expect(content.about.privacyStatement.hasSuffix(
+            "stay on this iPhone, in its backups if you make them, and in any copy of your saga you make."
+        ))
+    }
+
     @Test("Given erasing fails, when starting over, then an error shows and the dad stays on Settings")
     func startOverFailure() async throws {
         let sut = makeSUT()
@@ -206,6 +228,7 @@ struct SettingsViewModelTests {
 final class SpyRoot {
     var preferences: [PreferencesChoice] = []
     var startedOver = 0
+    var sagaImported = 0
 }
 
 actor FakePreferences: SavePreferencesUseCase {

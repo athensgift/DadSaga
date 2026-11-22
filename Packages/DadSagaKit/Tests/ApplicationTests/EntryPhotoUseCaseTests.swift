@@ -239,6 +239,15 @@ actor SpyPhotoStore: PhotoStore {
         stored[id].map { Data("thumb\(maxPixelSize):".utf8) + $0 }
     }
 
+    func storedData(id: String) async throws -> Data {
+        guard let data = stored[id] else { throw Failure() }
+        return data
+    }
+
+    func adopt(_ jpeg: Data) async throws -> String {
+        try await save(jpeg)
+    }
+
     func delete(id: String) async {
         stored[id] = nil
     }
