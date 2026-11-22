@@ -2,8 +2,8 @@ import DesignSystem
 import SwiftUI
 
 /// Settings › Export and import (ADR-0057 §8): export the saga to one file, or import one. A form, so it isn't split
-/// by a fold (ADR-0043 §8). While it works, it can't be left: Cancel is the way out. A page of its own, as the sheet it was: the
-/// tab bar can't leave it, so its files go only when the dad leaves it by Back (ADR-0061 §2).
+/// by a fold (ADR-0043 §8). While it works, it can't be left: Cancel is the way out. A page of its own, as the sheet it
+/// was: the tab bar can't leave it, so its files go only when the dad leaves it by Back (ADR-0061 §2).
 struct DataExportView: View {
     @State private var viewModel: DataExportViewModel
 

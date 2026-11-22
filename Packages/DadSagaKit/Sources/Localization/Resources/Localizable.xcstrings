@@ -859,19 +859,19 @@
         }
       }
     },
-    "If you have a copy of your saga from Settings › Export and import, choose it here and pick up where you left off." : {
+    "If you have a copy of your saga from Export and import in Settings, choose it here and pick up where you left off." : {
       "extractionState" : "manual",
       "localizations" : {
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Αν έχεις αντίγραφο της ιστορίας σου από τις Ρυθμίσεις › Εξαγωγή και εισαγωγή, διάλεξέ το εδώ και συνέχισε από εκεί που είχες μείνει."
+            "value" : "Αν έχεις αντίγραφο της ιστορίας σου από την Εξαγωγή και εισαγωγή στις Ρυθμίσεις, διάλεξέ το εδώ και συνέχισε από εκεί που είχες μείνει."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "If you have a copy of your saga from Settings › Export and import, choose it here and pick up where you left off."
+            "value" : "If you have a copy of your saga from Export and import in Settings, choose it here and pick up where you left off."
           }
         }
       }

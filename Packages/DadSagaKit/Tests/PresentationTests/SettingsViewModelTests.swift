@@ -254,6 +254,24 @@ struct SettingsViewModelTests {
         ))
     }
 
+    @Test("Given either language, when Your data opens its page, then the row, the page and onboarding share one name",
+          arguments: [("el_GR", "Εξαγωγή και εισαγωγή"), ("en_US", "Export and import")])
+    func rowPageAndOnboardingShareOneName(locale: String, name: String) {
+        let onboarding = DataImportViewModel(
+            restore: FakeRestore(copy: nil), backgroundTime: ImmediateBackgroundTime(), replacesSaga: false,
+            onImported: {}, locale: Locale(identifier: locale), now: { .now }
+        )
+        let page = DataExportViewModel(
+            makeCopy: FakeMakeCopy(result: .failure(SagaCopyError.nothingToCopy)),
+            backgroundTime: ImmediateBackgroundTime(), importer: onboarding, locale: Locale(identifier: locale),
+            now: { .now }
+        )
+
+        #expect(makeSUT(locale: locale).content.dataTransferTitle == name)
+        #expect(page.content.pageTitle == name)
+        #expect(onboarding.content.explanation.contains(name))
+    }
+
     @Test("Given erasing fails, when starting over, then an error shows and the dad stays on Settings")
     func startOverFailure() async throws {
         let sut = makeSUT()

@@ -195,7 +195,7 @@ public struct DataImportContent: Equatable, Sendable {
                 )
                 : strings.text(
                     """
-                    If you have a copy of your saga from Settings › Export and import, choose it here and pick up \
+                    If you have a copy of your saga from Export and import in Settings, choose it here and pick up \
                     where you left off.
                     """
                 ),
