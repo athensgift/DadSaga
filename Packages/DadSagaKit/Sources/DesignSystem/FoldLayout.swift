@@ -15,7 +15,8 @@ public struct HorizontalFold: Equatable, Sendable {
 
     /// The fold that runs across a view of this size, or `nil` when none does or when it leaves less than
     /// `minimumAbove` above it (a short sheet) or `minimumBelow` below it (the keyboard over the lower half).
-    /// - Parameter divisions: the display's folds (active, or a flat one as a line), in the view's coordinates. They may reach past the view.
+    /// - Parameter divisions: the display's folds (active, or a flat one as a line), in the view's coordinates.
+    ///   They may reach past the view.
     public static func across(
         _ size: CGSize, divisions: [CGRect], minimumAbove: CGFloat, minimumBelow: CGFloat
     ) -> HorizontalFold? {
