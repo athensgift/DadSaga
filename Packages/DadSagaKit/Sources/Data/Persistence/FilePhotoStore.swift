@@ -70,6 +70,23 @@ public actor FilePhotoStore: PhotoStore {
         return max(width, height)
     }
 
+    public func storedData(id: String) async throws -> Data {
+        try Data(contentsOf: url(for: id, in: folder()))
+    }
+
+    /// Only a JPEG whose header gives its size, so a copy can't bring in a file the app couldn't have written. Written
+    /// as `save` writes, with today's date, so the sweep leaves it alone for a day (ADR-0048 §6).
+    public func adopt(_ jpeg: Data) async throws -> String {
+        guard let source = CGImageSourceCreateWithData(jpeg as CFData, nil),
+              CGImageSourceGetType(source) as String? == UTType.jpeg.identifier,
+              Self.longestSide(of: source) != nil else { throw PhotoError.notAnImage }
+        let directory = try folder()
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let id = UUID().uuidString
+        try jpeg.write(to: url(for: id, in: directory), options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+        return id
+    }
+
     public func delete(id: String) async {
         guard let directory = try? folder() else { return }
         try? FileManager.default.removeItem(at: url(for: id, in: directory))

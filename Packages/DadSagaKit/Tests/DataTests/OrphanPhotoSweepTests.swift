@@ -48,7 +48,7 @@ struct OrphanPhotoSweepTests {
         let old = try await photos.save(jpeg)
         try await store.profiles.save(PlayerProfile(children: [child], heroClassID: "h-chef"))
         try await store.progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: child.id, date: .now, photoIDs: [old]))
-        try await store.eraser.eraseAll()
+        try await store.wholeSaga.eraseAll()
         try await store.profiles.save(PlayerProfile(children: [child], heroClassID: "h-chef"))
         let new = try await photos.save(jpeg)
         try await store.progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: child.id, date: .now, photoIDs: [new]))

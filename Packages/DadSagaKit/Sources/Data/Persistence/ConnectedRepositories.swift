@@ -50,8 +50,12 @@ struct ConnectedStandingRepository: StandingRepository {
     }
 }
 
-struct ConnectedSagaEraser: SagaEraser {
+struct ConnectedWholeSagaRepository: WholeSagaRepository {
     let connection: StoreConnection
 
-    @concurrent func eraseAll() async throws { try await connection.open().eraser.eraseAll() }
+    @concurrent func readAll() async throws -> StoredSaga? { try await connection.open().wholeSaga.readAll() }
+    @concurrent func replaceAll(with saga: StoredSaga) async throws {
+        try await connection.open().wholeSaga.replaceAll(with: saga)
+    }
+    @concurrent func eraseAll() async throws { try await connection.open().wholeSaga.eraseAll() }
 }

@@ -93,7 +93,7 @@ struct TitlesStoreTests {
         try await store.profiles.save(StoreV6Fixture.profile)
         try await store.standing.keep(titleID: "t2", gearIDs: ["g-mug"])
 
-        try await store.eraser.eraseAll()
+        try await store.wholeSaga.eraseAll()
         try await store.profiles.save(StoreV6Fixture.profile)
 
         #expect(try await store.standing.fetchKept() == .fresh)

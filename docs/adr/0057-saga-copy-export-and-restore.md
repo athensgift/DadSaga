@@ -1,6 +1,9 @@
 # ADR-0057: A copy of the saga: one file the dad saves anywhere, and a restore that replaces the whole saga
 
-**Status:** Proposed (2026-11-22). Drafted by the architect from the owner's direction in an earlier review (one file,
+**Status:** Accepted (2026-11-22). The owner chose, on 2026-11-22: Apple Archive, no password, what travels as in §2,
+restore on onboarding's first step, "Open with DadSaga" in v1.x, its own Settings section, the file name with no names
+in it, no free-space check, the copy's size shown when it is ready, and plain names for the feature: "Export data" and
+"Import data" (§8). Drafted by the architect from the owner's direction in an earlier review (one file,
 saved or shared through the share sheet; a file picker to restore; the whole saga replaced, never merged; a clear
 confirmation; nothing nags; never behind a paywall; photos as stored). The owner decided on 2026-11-22 that it ships in
 v1 whatever the iCloud Backup restore test shows: it is a v1 requirement and gates the first App Store release. The
@@ -217,16 +220,18 @@ copy's title: the dad's own choice, like start over).
   that is the dad's choice, said in the confirmation, as start over is (ADR-0030 §8). Nothing in the game lowers it.
 
 ### 8. Where it lives, and what it says
-- **Settings:** a section "Your saga" after "Hero & family", with one row, "Copy of your saga", pushing a page with two
-  parts: making a copy and restoring one. A Settings page is a form, so it is not split by a fold (ADR-0043 §8). While
+- **Settings:** a section "Your data" after "Hero & family", with one row, "Export data", pushing a page with two
+  parts: exporting the saga to a file and importing one. The owner chose plain words over "a copy of your saga":
+  «Εξαγωγή δεδομένων» / «Εισαγωγή δεδομένων». The file is still called a copy in the text around them. A Settings page is a form, so it is not split by a fold (ADR-0043 §8). While
   it works, the sheet can't be swiped away and Back is hidden; Cancel is the way out.
-- **Onboarding:** "Restore from a copy" under Continue on the first step, the way back on a new iPhone without a
+- **Onboarding:** "Import data" under Continue on the first step, the way back on a new iPhone without a
   backup. It opens the same restore flow in a small sheet; the confirmation there doesn't speak of replacing.
 - **Copy** (drafted here; `content` writes the final words before the UI PR):
 
   | | en | el |
   |---|---|---|
-  | Section · row and page | Your saga · Copy of your saga | Η ιστορία σου · Αντίγραφο της ιστορίας σου |
+  | Section · row and page | Your data · Export data | Τα δεδομένα σου · Εξαγωγή δεδομένων |
+  | Import part | Import data | Εισαγωγή δεδομένων |
   | Make: text | One file with your family, your hero and every entry, with its notes and photos. Keep it in Files, on a computer, or send it to your new iPhone. | Ένα αρχείο με την οικογένεια, τον ήρωά σου και κάθε καταχώριση, με τις σημειώσεις και τις φωτογραφίες της. Κράτα το στα Αρχεία, σε έναν υπολογιστή ή στείλ' το στο νέο σου iPhone. |
   | Make · making | Make a copy · Making your copy… | Φτιάξε αντίγραφο · Φτιάχνεται το αντίγραφο… |
   | Made · share | Your copy is ready · %@ · Save or send | Το αντίγραφο είναι έτοιμο · %@ · Αποθήκευση ή αποστολή |
@@ -243,7 +248,7 @@ copy's title: the dad's own choice, like start over).
   | No space | There isn't enough free space on this iPhone. Free up some space and try again. | Δεν υπάρχει αρκετός ελεύθερος χώρος σε αυτό το iPhone. Ελευθέρωσε λίγο χώρο και δοκίμασε ξανά. |
   | Left the app | It stopped when DadSaga left the screen. Try again whenever you like. | Σταμάτησε όταν το DadSaga βγήκε από την οθόνη. Δοκίμασε ξανά όποτε θέλεις. |
   | Other failure | The copy couldn't be made. Please try again. · The copy couldn't be restored. Please try again. | Το αντίγραφο δεν φτιάχτηκε. Δοκίμασε ξανά. · Η επαναφορά δεν έγινε. Δοκίμασε ξανά. |
-  | Onboarding | Restore from a copy | Επαναφορά από αντίγραφο |
+  | Onboarding | Import data | Εισαγωγή δεδομένων |
 
   The confirmation's wording mirrors start over's (ADR-0030 §8): it says what goes, with no counts, titles or alarm.
 

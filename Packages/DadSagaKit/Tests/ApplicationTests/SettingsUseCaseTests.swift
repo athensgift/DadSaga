@@ -13,7 +13,7 @@ extension WeeklyReminderUseCaseTests {
         offers: FakeSagaOffers = FakeSagaOffers()
     ) -> DefaultStartOverUseCase {
         DefaultStartOverUseCase(
-            eraser: eraser, photoStore: photos, reminderSettings: settings, sagaOffers: offers, schedule: schedule,
+            wholeSaga: eraser, photoStore: photos, reminderSettings: settings, sagaOffers: offers, schedule: schedule,
             notificationScheduler: scheduler
         )
     }
@@ -323,7 +323,7 @@ actor InMemoryPreferences: PreferencesRepository {
     func save(_ preferences: Preferences) async { stored = preferences }
 }
 
-actor SpySagaEraser: SagaEraser {
+actor SpySagaEraser: WholeSagaRepository {
     struct Failure: Error {}
     private(set) var callCount = 0
     private let fails: Bool
@@ -331,6 +331,9 @@ actor SpySagaEraser: SagaEraser {
     init(fails: Bool = false) {
         self.fails = fails
     }
+
+    func readAll() async throws -> StoredSaga? { nil }
+    func replaceAll(with saga: StoredSaga) async throws {}
 
     func eraseAll() async throws {
         if fails { throw Failure() }

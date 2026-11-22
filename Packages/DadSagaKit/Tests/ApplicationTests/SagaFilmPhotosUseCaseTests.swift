@@ -117,6 +117,8 @@ actor NamedPhotoStore: PhotoStore {
         return Data(id.utf8)
     }
 
+    func storedData(id: String) async throws -> Data { Data(id.utf8) }
+    func adopt(_ jpeg: Data) async throws -> String { UUID().uuidString }
     func delete(id: String) async {}
     func deleteAll() async {}
     func storedPhotos() async throws -> [StoredPhoto] { [] }

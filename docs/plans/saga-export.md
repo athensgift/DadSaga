@@ -1,6 +1,6 @@
 # Plan: a copy of the saga (export and restore)
 
-Implements [ADR-0057](../adr/0057-saga-copy-export-and-restore.md) (Proposed). ROADMAP Phase 4, "Export and restore of
+Implements [ADR-0057](../adr/0057-saga-copy-export-and-restore.md) (Accepted). ROADMAP Phase 4, "Export and restore of
 the saga". **A v1 requirement** (owner, 2026-11-22): it gates the first App Store release whatever the iCloud Backup
 test shows. Scope is kept lean; what doesn't touch the safety of the data or the file format waits for v1.x.
 
@@ -20,8 +20,8 @@ Read before starting: ADR-0004, 0006, 0007, 0026, 0030, 0034, 0042, 0043 §8, 00
 5. **Restore = check everything, then ask, then one save.** Photos are adopted byte for byte under new ids before the
    question; the commit is `replaceAll(with:)` in one `saveAllOrNothing`; the old photos go after it. Any failure before
    the commit deletes the adopted photos and leaves the saga as it was.
-6. **Where:** Settings › "Your saga" › "Copy of your saga" (one page, make and restore), and "Restore from a copy" on
-   onboarding's first step.
+6. **Where:** Settings › "Your data" › "Export data" (one page, export and import), and "Import data" on
+   onboarding's first step (owner's names: «Εξαγωγή δεδομένων», «Εισαγωγή δεδομένων»).
 7. **No nag, no paywall, no password, no free-space check, no new required-reason API.**
 8. **Redesign, not bolt-on:** `SagaEraser` becomes part of `WholeSagaRepository` (erase, read all, replace all), the one
    port for the saga as a whole. Start over erases through it; a restore replaces through it.
@@ -382,21 +382,9 @@ change (ADR-0057 §9).
   `Tests/DataTests/Fixtures/SagaCopyV<n>` is never regenerated. A new stored property or enum case is a new format
   version in the same PR (ADR-0057 §4).
 
-## Questions for the owner
-1. **Container:** Apple Archive (recommended: Apple's own, streaming, no code of ours for the container, opens on a Mac
-   with `aa`), or ZIP, which a Windows PC can open but needs code of our own (with ZIP64) or a dependency?
-2. **No password on the file** (recommended)? A password protects a lost file but loses the copy if forgotten.
-3. **What travels:** the reminder, appearance, haptics and film choices stay with the iPhone; the film offers answered
-   travel. Agreed?
-4. **Restore on onboarding's first screen** (recommended: it is the way back on a new iPhone without a backup)?
-5. **"Open with DadSaga"** (tapping a `.dadsaga` file) in v1.x, not v1 (recommended)?
-6. **Placement:** a "Your saga" section with one page (recommended), or two rows in "Hero & family"?
-7. **The file name** `DadSaga 2027-03-12.dadsaga`, with no names in it (recommended: file names show in AirDrop and
-   Files)?
-8. **No free-space check** before writing (recommended: a full disk already fails safely, and the check is a
-   required-reason API)?
-9. **The size shown** when a copy is ready ("· 412 MB")?
-10. **iCloud Backup wording:** the support page keeps "iCloud Backup or Quick Start" only if the device test shows App
-    Group data comes back; if it doesn't, the privacy page's sentence about backups changes too.
-11. **Wording:** `content` writes the final el and en text; is «Αντίγραφο της ιστορίας σου» the right name for the
-    page, next to the web pages' «saga»?
+## The owner's answers (2026-11-22)
+1. Apple Archive. 2. No password. 3. What travels, as above. 4. Import on onboarding's first step. 5. "Open with
+DadSaga" in v1.x. 6. Its own section in Settings. 7. `DadSaga <yyyy-MM-dd>.dadsaga`. 8. No free-space check. 9. The
+size is shown when the copy is ready. 10. The backup sentence follows the device test. 11. Plain names: "Export data"
+and "Import data" («Εξαγωγή δεδομένων», «Εισαγωγή δεδομένων»); `content` writes the final text, and the web text above
+takes the same names in PR 2.
