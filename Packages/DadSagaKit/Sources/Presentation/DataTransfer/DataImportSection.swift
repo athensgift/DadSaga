@@ -29,17 +29,17 @@ struct DataImportSection: View {
             guard case .success(let url) = result else { return }
             Task { await viewModel.picked(url) }
         }
-        .confirmationDialog(
+        // An alert, not a confirmation dialog: as a popover a dialog has no Cancel, and a tap beside it answers
+        // nothing. Here every answer is a visible button.
+        .alert(
             question?.title ?? "",
-            // Only the buttons answer: closing the dialog any other way is its Cancel button.
             isPresented: Binding(get: { question != nil }, set: { _ in }),
-            titleVisibility: .visible,
             presenting: question
         ) { question in
+            Button(question.cancel, role: .cancel) { Task { await viewModel.decline() } }
             Button(question.confirm, role: question.confirmIsDestructive ? .destructive : nil) {
                 Task { await viewModel.confirm() }
             }
-            Button(question.cancel, role: .cancel) { Task { await viewModel.decline() } }
         } message: { question in
             Text(question.message)
         }
