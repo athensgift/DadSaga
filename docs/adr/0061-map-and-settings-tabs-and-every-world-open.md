@@ -1,6 +1,7 @@
 # ADR-0061: The world map and Settings as tabs, two columns when open flat, every world open, and the map and Settings above and below the fold
 
-**Status:** Proposed (2026-11-22). The owner tried home on the iPhone Duo and asked for four things: no split at the fold
+**Status:** Accepted (2026-11-22; the owner accepted the open worlds, the tab order and "Map", the hero above
+Settings and tap-to-preview on the folded map). The owner tried home on the iPhone Duo and asked for four things: no split at the fold
 while the Duo lies open flat; the map and Settings as tabs instead of buttons placed per device; every world open at any
 time, saying when it is ideal instead of when it unlocks; and laptop layouts for the map, Settings, "Your hero" and "My
 family". Designed by the architect. Supersedes ADR-0045, and ADR-0058 §1–§5. Changes ADR-0006 §3, ADR-0011, ADR-0017,
