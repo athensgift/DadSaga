@@ -48,9 +48,6 @@ struct ConnectedStandingRepository: StandingRepository {
     @concurrent func markSeen(titleID: String) async throws {
         try await connection.open().standing.markSeen(titleID: titleID)
     }
-    @concurrent func restore(_ kept: KeptStanding) async throws {
-        try await connection.open().standing.restore(kept)
-    }
 }
 
 struct ConnectedSagaEraser: SagaEraser {

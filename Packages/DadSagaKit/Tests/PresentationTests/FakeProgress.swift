@@ -6,17 +6,23 @@ import Foundation
 actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCase,
     UpdateMomentUseCase, DeleteEventUseCase, UndoRecordUseCase, GetPhotoUseCase, MarkTitleSeenUseCase {
     private(set) var events: [ProgressEvent] = []
-    /// What the store keeps for titles, kept before each change as the app does (ADR-0055 §3).
+    /// What the store keeps for titles, kept as the app does (ADR-0055 §3): the title before a deletion only.
     private(set) var kept = KeptStanding.fresh
 
-    @discardableResult
-    private func keepBeforeChange() -> KeptStanding {
-        let progress = DadProgress(events: events, catalog: HeroStub.catalog)
-        if let next = DadStanding(progress: progress, catalog: HeroStub.catalog, kept: kept).toKeep { kept = next }
-        return kept
+    /// The dad's standing by the app's own rules, from the log and the kept record.
+    private var standing: DadStanding {
+        DadStanding(progress: DadProgress(events: events, catalog: HeroStub.catalog), catalog: HeroStub.catalog, kept: kept)
+    }
+
+    private var failsToMarkSeen = false
+
+    /// Closing a title card can't be saved from now on, as if the store couldn't be written.
+    func failMarkingSeen() {
+        failsToMarkSeen = true
     }
 
     func execute(titleID: String) async throws {
+        if failsToMarkSeen { throw StubError.boom }
         kept.seenTitleID = titleID
     }
     private var shouldFail = false
@@ -35,7 +41,7 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
     private var slowSaveReleased = false
     private var slowSave: CheckedContinuation<Void, Never>?
 
-    /// The next quest or moment waits to save, like a slow disk, until `finishSlowSave()`.
+    /// The next quest, moment or undo waits to save, like a slow disk, until `finishSlowSave()`.
     func slowNext() {
         isSlow = true
         slowSaveReleased = false
@@ -57,11 +63,14 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
 
     /// Home's overview loads wait, each until released, so two loads can be made to finish in a chosen order.
     private var holdsOverviews = false
+    /// A waiting load has already read the log, as a slow read would: released late, it shows what was true then.
+    private var readsBeforeHolding = false
     private var heldOverviews: [CheckedContinuation<Void, Never>] = []
     private var heldWaiters: [(count: Int, continuation: CheckedContinuation<Void, Never>)] = []
 
-    func holdOverviews() {
+    func holdOverviews(afterReading: Bool = false) {
         holdsOverviews = true
+        readsBeforeHolding = afterReading
     }
 
     /// Returns once `count` overview loads are waiting.
@@ -76,6 +85,12 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
     func releaseOldestOverview() {
         guard !heldOverviews.isEmpty else { return }
         heldOverviews.removeFirst().resume()
+    }
+
+    /// The newest waiting load goes on, ahead of the older ones.
+    func releaseNewestOverview() {
+        guard !heldOverviews.isEmpty else { return }
+        heldOverviews.removeLast().resume()
     }
 
     /// Every waiting load goes on, and later ones no longer wait.
@@ -114,9 +129,10 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
 
     /// The progress home's overview reads, or an error once `failOverview()` was called.
     func overviewProgress() async throws -> DadProgress {
+        let early = readsBeforeHolding ? current : nil
         await waitIfHeld()
         if overviewFails { throw StubError.boom }
-        return current
+        return early ?? current
     }
 
     /// The photos each quest or boss was recorded with.
@@ -139,15 +155,10 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         await waitIfSlow()
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        let keptBefore = keepBeforeChange()
+        if let next = standing.toKeepBeforeRecording { kept = next }
         let event = ProgressEvent(kind: .first(id: request.firstID), childID: request.childID, date: request.date)
         events.append(event)
-        return ProgressChange(
-            before: before,
-            after: DadProgress(events: events, catalog: HeroStub.catalog),
-            eventID: event.id,
-            keptBefore: keptBefore
-        )
+        return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog), eventID: event.id)
     }
 
     func execute(momentID: UUID, happenedOn date: Date, note: String?, photos: [EntryPhoto], now: Date) async throws {
@@ -178,19 +189,20 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         return id
     }
 
+    /// A deletion: what the dad holds is kept first, so his title stays.
     func execute(eventID: UUID) async throws {
         if shouldFail { throw StubError.boom }
-        keepBeforeChange()
+        if let next = standing.toKeepBeforeDeleting { kept = next }
         events.removeAll { $0.id == eventID }
     }
 
-    /// Undo: the entry goes and the kept record is put back by the app's rule.
-    func execute(eventID: UUID, restoring kept: KeptStanding) async throws {
+    /// Undo: the entry goes and nothing is kept for it; a card closed above the title still held goes back to it.
+    func execute(undoing eventID: UUID) async throws {
+        await waitIfSlow()
         if shouldFail { throw StubError.boom }
+        guard events.contains(where: { $0.id == eventID }) else { throw ProgressError.unknownEvent }
         events.removeAll { $0.id == eventID }
-        self.kept = self.kept.undone(
-            to: kept, after: DadProgress(events: events, catalog: HeroStub.catalog), catalog: HeroStub.catalog
-        )
+        if let seen = standing.seenAfterUndo { kept.seenTitleID = seen.id }
     }
 
     func execute(id: String, maxPixelSize: Int) async -> Data? {
@@ -203,14 +215,9 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
     private func record(_ kind: ProgressEvent.Kind, childID: UUID, on date: Date, note: String?) throws -> ProgressChange {
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        let keptBefore = keepBeforeChange()
+        if let next = standing.toKeepBeforeRecording { kept = next }
         let event = ProgressEvent(kind: kind, childID: childID, date: date, note: note)
         events.append(event)
-        return ProgressChange(
-            before: before,
-            after: DadProgress(events: events, catalog: HeroStub.catalog),
-            eventID: event.id,
-            keptBefore: keptBefore
-        )
+        return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog), eventID: event.id)
     }
 }

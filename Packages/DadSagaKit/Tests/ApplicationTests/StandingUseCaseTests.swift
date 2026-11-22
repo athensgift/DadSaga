@@ -50,7 +50,8 @@ struct StandingUseCaseTests {
         _ = try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: .empty)
 
         #expect(await standing.kept.gearIDs == ["g-cloth"])
-        #expect(await standing.kept.titleID == "t1")
+        // The title is kept before a deletion only, so an Undo can take back the one a card brings.
+        #expect(await standing.kept.titleID == nil)
     }
 
     @Test("Given a saga begun with titles, when skill XP passes an old threshold, then it earns nothing")
@@ -71,12 +72,12 @@ struct StandingUseCaseTests {
         #expect(stand.gear.map(\.id) == ["g-mug"])
     }
 
-    /// Undo, as home does it: with what the recording returned.
+    /// Undo, as home does it: of the entry the recording returned.
     func undo(_ change: ProgressChange, _ progress: any ProgressRepository, _ standing: InMemoryStanding) async throws {
         try await DefaultUndoRecordUseCase(
             contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
         )
-        .execute(eventID: try #require(change.eventID), restoring: try #require(change.keptBefore))
+        .execute(undoing: try #require(change.eventID))
     }
 
     func standing(_ progress: any ProgressRepository, _ standing: InMemoryStanding) async throws -> DadStanding {
@@ -130,7 +131,46 @@ struct StandingUseCaseTests {
 
         #expect(try await progress.fetchEvents().count == 1)
         #expect(try await self.standing(progress, standing).title?.id == "t1")
-        #expect(await standing.kept.titleID == "t1")
+    }
+
+    @Test(
+        "Given two entries just recorded, the first bringing a title, when both are undone, then nothing is left of either",
+        arguments: [true, false]
+    )
+    func twoUndosInEitherOrder(lastFirst: Bool) async throws {
+        let progress = SpyProgressRepository()
+        let standing = InMemoryStanding()
+        let sut = quest(progress, standing)
+        let first = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+        let second = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+        try await standing.markSeen(titleID: "t1")
+
+        for change in lastFirst ? [second, first] : [first, second] {
+            try await undo(change, progress, standing)
+        }
+        let stand = try await self.standing(progress, standing)
+
+        #expect(try await progress.fetchEvents().isEmpty)
+        #expect(stand.title?.id == "t0")
+        #expect(stand.gear.isEmpty)
+        #expect(await standing.kept == KeptStanding(gearIDs: [], seenTitleID: "t0"))
+    }
+
+    @Test("Given a card recorded after the one being undone and deleted since, when the Undo runs, then the kept title stays")
+    func undoNeverLowersWhatADeletionKept() async throws {
+        let progress = SpyProgressRepository()
+        let standing = InMemoryStanding()
+        let sut = quest(progress, standing)
+        let first = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+        let later = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+
+        try await delete(progress, standing).execute(eventID: try #require(later.eventID))
+        try await undo(first, progress, standing)
+
+        // "Your title and what you got stay", the deletion said. Home ends the bar's Undo when the dad leaves for
+        // the timeline or deletes a moment, so the two don't meet on screen; if they ever did, the title stays.
+        #expect(try await progress.fetchEvents().isEmpty)
+        #expect(try await self.standing(progress, standing).title?.id == "t1")
     }
 
     @Test("Given a store from before titles, when the first quest after them is undone, then the old gear stays frozen")
@@ -185,7 +225,7 @@ struct StandingUseCaseTests {
             contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
         )
 
-        await #expect(throws: ProgressError.unknownEvent) { try await sut.execute(eventID: UUID(), restoring: KeptStanding()) }
+        await #expect(throws: ProgressError.unknownEvent) { try await sut.execute(undoing: UUID()) }
         #expect(await standing.writes == 0)
         #expect(await standing.kept == .fresh)
     }
@@ -221,6 +261,9 @@ struct StandingUseCaseTests {
         #expect(await photos.stored.isEmpty)
     }
 
+}
+
+extension StandingUseCaseTests {
     @Test("Given an entry from before titles that earned the cloth, when it is deleted, then the cloth stays")
     func deletingAnOldEntryKeepsGear() async throws {
         let progress = SpyProgressRepository()
@@ -264,8 +307,24 @@ struct StandingUseCaseTests {
             _ = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
         }
 
-        // The first record had title 0 to keep; the second keeps title 1; the third has nothing new.
-        #expect(await standing.writes == 2)
+        // Recording keeps only the gear from before titles, and a saga begun with titles has none.
+        #expect(await standing.writes == 0)
+        #expect(await standing.kept == .fresh)
+    }
+
+    @Test("Given a title held, when entries are deleted one after another, then it is written once")
+    func deletionKeepsATitleOnce() async throws {
+        let progress = SpyProgressRepository()
+        let standing = InMemoryStanding()
+        let sut = quest(progress, standing)
+        let first = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+        let second = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
+
+        try await delete(progress, standing).execute(eventID: try #require(first.eventID))
+        try await delete(progress, standing).execute(eventID: try #require(second.eventID))
+
+        #expect(await standing.writes == 1)
+        #expect(await standing.kept.titleID == "t1")
     }
 
     @Test("Given a title card, when the dad closes it, then the title is remembered as seen")

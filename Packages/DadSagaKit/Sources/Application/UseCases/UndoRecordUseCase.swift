@@ -1,15 +1,14 @@
 import Domain
 import Foundation
 
-/// Takes back what the dad just recorded, as if he never had: the entry with its photos, and what the store kept for
-/// his title and gear goes back to how it was just before (ADR-0055 §3). So a quest that brought a title takes the
-/// title, its level and its gear with it. A closed title card goes back only as far as the title he still holds.
-/// Deleting an entry later, from the timeline, keeps the title instead (`DeleteEventUseCase`).
+/// Takes back what the dad just recorded, as if he never had (ADR-0055 §3): the entry goes with its photos, and
+/// nothing is kept for it. The store keeps a title only before a deletion (`DeleteEventUseCase`), so a title this
+/// entry brought goes with it, and its level and gear too. A title card he closed goes back only as far as the title
+/// he still holds.
 public protocol UndoRecordUseCase: Sendable {
-    /// - Parameters:
-    ///   - eventID: the entry just recorded (`ProgressChange.eventID`).
-    ///   - kept: what the store kept before it (`ProgressChange.keptBefore`).
-    func execute(eventID: UUID, restoring kept: KeptStanding) async throws
+    /// - Parameter eventID: the entry just recorded (`ProgressChange.eventID`). Throws `ProgressError.unknownEvent`
+    ///   when it is no longer there.
+    func execute(undoing eventID: UUID) async throws
 }
 
 public struct DefaultUndoRecordUseCase: UndoRecordUseCase {
@@ -30,19 +29,20 @@ public struct DefaultUndoRecordUseCase: UndoRecordUseCase {
         self.photoStore = photoStore
     }
 
-    /// The kept record goes back first. If deleting the entry then fails, it is put back as it was, so nothing has
-    /// changed and the Undo can be tried again.
-    public func execute(eventID: UUID, restoring kept: KeptStanding) async throws {
+    /// The closed card goes back first, when it is above the title he will hold. If deleting the entry then fails, it
+    /// is put back as it was, so nothing has changed and the Undo can be tried again.
+    public func execute(undoing eventID: UUID) async throws {
         let remover = EntryRemover(progressRepository: progressRepository, photoStore: photoStore)
         let (event, events) = try await remover.find(eventID)
         let catalog = try await contentRepository.fetchCatalog()
-        let now = try await standingRepository.fetchKept()
+        let kept = try await standingRepository.fetchKept()
         let after = DadProgress(events: events.filter { $0.id != eventID }, catalog: catalog)
-        try await standingRepository.restore(now.undone(to: kept, after: after, catalog: catalog))
+        let seen = DadStanding(progress: after, catalog: catalog, kept: kept).seenAfterUndo
+        if let seen { try await standingRepository.markSeen(titleID: seen.id) }
         do {
             try await remover.remove(event)
         } catch {
-            try? await standingRepository.restore(now)
+            if seen != nil, let closed = kept.seenTitleID { try? await standingRepository.markSeen(titleID: closed) }
             throw error
         }
     }

@@ -74,14 +74,17 @@ extension HomeViewModel {
     }
 
     /// Deletes the moment in step 2, with its photos and XP, and closes the sheet: Delete when editing, which keeps the
-    /// title; Undo when new, which goes back to before it, title included (ADR-0055 §3).
+    /// title; Undo when new, while its offer is in the sheet, which goes back to before it, title included
+    /// (ADR-0055 §3).
     public func deleteMoment() async {
         guard let details = momentCapture?.details else { return }
-        let isUndo = details.undoOffer.map { canUndo($0.eventID) } ?? false
         await perform {
-            if isUndo {
-                try await self.takeBack(details.momentID)
+            if details.undoOffer != nil {
+                try await self.useCases.undoRecord.execute(undoing: details.momentID)
             } else {
+                // A deletion keeps the title he holds now, the last card's included: the bar's Undo could no longer
+                // take that card back whole, so its offer ends.
+                self.undoOffer = nil
                 try await self.useCases.deleteEvent.execute(eventID: details.momentID)
             }
             // Gone: nothing to celebrate.

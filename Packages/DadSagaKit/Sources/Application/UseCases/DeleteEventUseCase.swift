@@ -5,7 +5,7 @@ import Foundation
 /// entry from the timeline, or a moment he opened to edit. This is the dad correcting his own log, not the game taking
 /// something away (ADR-0006, ADR-0021): badges and moments follow from the events, so they go back to what they would
 /// be without this one. His title and gear never do: they are kept first (ADR-0055 §3). An Undo right after
-/// recording is `UndoRecordUseCase`.
+/// recording is `UndoRecordUseCase`, which keeps nothing.
 public protocol DeleteEventUseCase: Sendable {
     func execute(eventID: UUID) async throws
 }
@@ -33,7 +33,7 @@ public struct DefaultDeleteEventUseCase: DeleteEventUseCase {
         let (event, events) = try await remover.find(eventID)
         let catalog = try await contentRepository.fetchCatalog()
         try await StandingKeeper(standingRepository: standingRepository)
-            .keepBeforeChange(DadProgress(events: events, catalog: catalog), catalog: catalog)
+            .keepBeforeDeleting(DadProgress(events: events, catalog: catalog), catalog: catalog)
         try await remover.remove(event)
     }
 }

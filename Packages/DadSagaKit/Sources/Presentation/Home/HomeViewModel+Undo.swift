@@ -17,7 +17,7 @@ extension HomeViewModel {
         isCompleting = true
         defer { isCompleting = false }
         do {
-            try await takeBack(offer.eventID)
+            try await useCases.undoRecord.execute(undoing: offer.eventID)
             if let overview = await load() { refreshOpenSheet(from: overview) }
         } catch {
             // Only if nothing newer has taken the bar meanwhile.
@@ -37,34 +37,11 @@ extension HomeViewModel {
         }
     }
 
-    /// "Saved · Undo" for what a change recorded, remembering what to put back; `nil` when it recorded nothing.
+    /// "Saved · Undo" for what a change recorded; `nil` when it recorded nothing. Nothing else is remembered for it: an
+    /// Undo deletes the entry and keeps nothing, so the title is again what the other entries and the store give
+    /// (ADR-0055 §3).
     func offerUndo(of change: ProgressChange, id: Int) -> UndoOffer? {
-        guard let eventID = change.eventID, let kept = change.keptBefore else { return nil }
-        undoable.append(UndoableEntry(eventID: eventID, keptBefore: kept))
-        return makeUndoOffer(id: id, eventID: eventID)
-    }
-
-    /// Whether the entry's Undo is still on screen.
-    func canUndo(_ eventID: UUID) -> Bool {
-        undoable.contains { $0.eventID == eventID }
-    }
-
-    /// Takes the entry back. Home and a moment's sheet can each offer an Undo at once, and either may go first: an entry
-    /// recorded after this one now goes back to what was kept before this one, which no longer holds anything this one
-    /// gave.
-    func takeBack(_ eventID: UUID) async throws {
-        guard let index = undoable.firstIndex(where: { $0.eventID == eventID }) else { return }
-        let kept = undoable[index].keptBefore
-        try await useCases.undoRecord.execute(eventID: eventID, restoring: kept)
-        undoable.remove(at: index)
-        for later in undoable.indices where later >= index {
-            undoable[later].keptBefore = kept
-        }
-    }
-
-    /// An Undo off the screen: its time ran out, or a newer one or the sheet's closing took its place.
-    func forgetUndo(of offer: UndoOffer) {
-        undoable.removeAll { $0.eventID == offer.eventID }
+        change.eventID.map { makeUndoOffer(id: id, eventID: $0) }
     }
 
     func makeUndoOffer(id: Int, eventID: UUID, didFail: Bool = false) -> UndoOffer {
@@ -79,14 +56,14 @@ extension HomeViewModel {
 
     /// The offer's time is up. Ignored if a newer offer has replaced it.
     public func undoOfferExpired(id: Int) {
-        guard let offer = undoOffer, offer.id == id else { return }
+        guard undoOffer?.id == id else { return }
         undoOffer = nil
-        forgetUndo(of: offer)
     }
-}
 
-/// An entry whose Undo is on screen, and what the store kept just before it.
-struct UndoableEntry {
-    let eventID: UUID
-    var keptBefore: KeptStanding
+    /// The dad went to another tab: the bar's Undo is only for what he just recorded, on the screen he recorded it on
+    /// (ADR-0021). On the timeline he can delete entries, which keeps the title he holds, the last card's included, so
+    /// an Undo waiting here could no longer take that card back whole (ADR-0055 §3).
+    public func leftForAnotherTab() {
+        undoOffer = nil
+    }
 }

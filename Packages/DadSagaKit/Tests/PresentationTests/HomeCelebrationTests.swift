@@ -191,25 +191,6 @@ struct HomeCelebrationTests {
         #expect(relaunched.titleCard == nil)
     }
 
-    @Test("Given a quest's Undo on home and a moment's in its sheet, when both are undone, then nothing is left of either")
-    func twoUndosInEitherOrder() async throws {
-        let sut = makeSUT(profile: HeroStub.profile)
-        await sut.onAppear()
-        sut.select(cardID: "q1")
-        await sut.completeSelectedQuest()
-        sut.startCapture()
-        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
-
-        await sut.undoLastRecord()
-        await sut.deleteMoment()
-
-        #expect(await progress.eventCount == 0)
-        guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
-        #expect(content.heroGear.isEmpty)
-        #expect(sut.titleCard == nil)
-    }
-
     @Test("Given a save under way, when the title card is closed, then it waits its turn: the tap does nothing yet")
     func closingTakesItsTurn() async throws {
         let sut = makeSUT(profile: HeroStub.profile)

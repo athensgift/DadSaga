@@ -27,9 +27,9 @@ enum SchemaV7: VersionedSchema {
         var glasses: String?
         /// "I have a partner" (ADR-0053 §4). Nil in rows from version 5, and nil reads yes.
         var hasPartner: Bool?
-        /// The highest title held when the entries last changed (ADR-0055 §3). Nil before any change.
+        /// The highest title held when an entry was last deleted (ADR-0055 §3). Nil before any deletion.
         var heldTitleID: String?
-        /// The title whose card the dad closed last. Nil until he closes one.
+        /// The title whose card the dad closed last, or the one an Undo left him with. Nil until he closes one.
         var seenTitleID: String?
         /// The gear the rule from before titles had earned, frozen at the first change. Nil in rows from version 6
         /// until then; empty in rows created since.

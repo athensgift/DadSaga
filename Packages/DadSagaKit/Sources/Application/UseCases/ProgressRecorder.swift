@@ -7,15 +7,11 @@ public struct ProgressChange: Hashable, Sendable {
     public let after: DadProgress
     /// The event that was recorded, so the dad can undo it. `nil` when nothing was recorded.
     public let eventID: UUID?
-    /// What the store kept just before the event was stored: an Undo puts it back, so the title, its card and its gear
-    /// are as they were before the card. `nil` when nothing was recorded.
-    public let keptBefore: KeptStanding?
 
-    public init(before: DadProgress, after: DadProgress, eventID: UUID?, keptBefore: KeptStanding?) {
+    public init(before: DadProgress, after: DadProgress, eventID: UUID?) {
         self.before = before
         self.after = after
         self.eventID = eventID
-        self.keptBefore = keptBefore
     }
 }
 
@@ -31,7 +27,8 @@ public enum ProgressError: Error, Equatable {
 
 /// The one way a quest, a boss or a first is recorded: check the content exists, store the event with the dad's note
 /// and photos, and say what it changed. A boss or a first counts once per child; when the child already has it, nothing
-/// is stored and the change has no `eventID`. What the dad holds is kept first (ADR-0055 §3).
+/// is stored and the change has no `eventID`. The gear from before titles is kept first; the title never is, so an
+/// Undo can take it back (ADR-0055 §3, §4).
 struct ProgressRecorder {
     let contentRepository: any ContentRepository
     let progressRepository: any ProgressRepository
@@ -51,19 +48,14 @@ struct ProgressRecorder {
         guard let kind = catalog.canonical(kind) else { throw unknown }
         let events = try await progressRepository.fetchEvents()
         let before = DadProgress(events: events, catalog: catalog)
-        let unchanged = ProgressChange(before: before, after: before, eventID: nil, keptBefore: nil)
+        let unchanged = ProgressChange(before: before, after: before, eventID: nil)
         // The usual repeat stops here, before any photo is written; `record` still catches two saves at once.
         guard !before.isAlreadyCounted(kind, for: childID) else { return unchanged }
-        let kept = try await StandingKeeper(standingRepository: standingRepository).keepBeforeChange(before, catalog: catalog)
+        try await StandingKeeper(standingRepository: standingRepository).keepBeforeRecording(before, catalog: catalog)
         let recorder = EventRecorder(progressRepository: progressRepository, photoStore: photoStore)
         guard let event = try await recorder.record(kind, childID: childID, date: date, journal: journal) else {
             return unchanged
         }
-        return ProgressChange(
-            before: before,
-            after: DadProgress(events: events + [event], catalog: catalog),
-            eventID: event.id,
-            keptBefore: kept
-        )
+        return ProgressChange(before: before, after: DadProgress(events: events + [event], catalog: catalog), eventID: event.id)
     }
 }

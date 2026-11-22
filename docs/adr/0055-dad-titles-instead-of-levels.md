@@ -5,8 +5,9 @@ away, he confirmed 2 to 11 and reversed 1: an Undo goes back to before the card,
 since nothing is released yet. Numbered
 0055 because another branch takes 0054. Changes ADR-0005 (a new kind of content, `titles.json`), ADR-0012 (the dad has
 XP and a title, no level), ADR-0014 (gear comes with titles; a skill names a slot and unlocks nothing), ADR-0018 (the
-wardrobe shows only what the hero has, without XP), ADR-0021 §2 (deleting an entry no longer lowers the title or takes
-gear), ADR-0023 (the widget's quest shows its skill, no XP), ADR-0024 (the reminder card also waits while a title card
+wardrobe shows only what the hero has, without XP), ADR-0021 (§2: deleting an entry no longer lowers the title or takes
+gear; the Undo: it keeps nothing, takes back a title card closed for a title it takes, and the bar's offer ends when
+the dad leaves for the timeline or deletes a moment), ADR-0023 (the widget's quest shows its skill, no XP), ADR-0024 (the reminder card also waits while a title card
 shows), ADR-0026 (schema version 7), ADR-0037 (the title in the credits; the film card waits while a title card shows),
 ADR-0043 (the hero's pane shows the title where the level card was) and ADR-0048 §5 (titles join the shipped ids; gear
 is guarded by its title).
@@ -90,52 +91,65 @@ is guarded by its title).
   every emergency (7). "The best" item in a slot is the one the highest title brings.
 
 ### 3. A title never goes down: what the store keeps
-- **Only a deletion lowers what the events give** (Context). So before any change to the dad's entries (recording one
-  or deleting one), the app writes what he holds. The title he has is then never lowered by a deletion.
+- **Only a deletion lowers what the events give** (Context). So before an entry is deleted for good, the app writes the
+  title he holds. A deletion then never lowers it.
 - **`KeptStanding`** (Domain), stored on the profile row:
-  - `titleID`: the highest title he held when his entries last changed;
+  - `titleID`: the highest title he held when he last deleted an entry;
   - `gearIDs`: the gear the old rule had earned him, frozen (§4);
   - `seenTitleID`: the title whose card he closed last (§6).
 - **His title** is the higher of the title his entries reach and the kept one (`DadStanding`). A kept id the content
   doesn't know, even as a former id, is ignored.
-- **One writer, before the change** (`StandingKeeper` in Application, used by `ProgressRecorder` and
-  `DeleteEventUseCase`; an Undo is the one exception, below):
-  - It reads the entries and the kept record.
-  - It writes only when the title is higher than the kept one, or the old gear isn't frozen yet. That is at most once
-    per title, plus once ever.
+- **One writer, before the change** (`StandingKeeper` in Application). It reads the entries and the kept record, then:
+  - **before a deletion** (`DeleteEventUseCase`), it writes the title when it is higher than the kept one, and the old
+    gear when it isn't frozen yet (`DadStanding.toKeepBeforeDeleting`). That is at most once per title;
+  - **before a recording** (`ProgressRecorder`), it writes only the old gear, the first time
+    (`DadStanding.toKeepBeforeRecording`, §4). It never writes the title: recording can't lower it, and an Undo must
+    still be able to take back the one the card brings.
   - Then the change happens. If the write fails, nothing is recorded or deleted, and the screen says it couldn't save,
     as it does now. If the change fails after the write, the kept record holds only what he already had.
 - **Undo goes back to before the card** (the owner's decision). Undo, right after recording, is the dad taking back a
   tap, not deleting his log: the title, and so its level, its card and the gear it brought go with the card.
-  - Recording returns what the store kept just before the entry (`ProgressChange.keptBefore`): the record
-    `StandingKeeper` wrote, or found, before storing it.
-  - `UndoRecordUseCase` puts that record's title and gear back (`StandingRepository.restore`), then deletes the entry.
-    It never keeps the card it takes back. If the delete fails, the record is put back as it was before the Undo.
-  - **The closed card** (`seenTitleID`) stays as it is now, unless it is above the title he holds once the entry is
-    gone. Only then it goes back, to the higher of that title and the card closed before the entry
-    (`KeptStanding.undone(to:after:catalog:)`). So a card closed for a title he still holds (brought by an earlier
-    card) stays closed, and the card of a title the Undo takes back comes again when a later card reaches it. Home
-    forgets the cards closed in the session by the same rule, and closing a card takes its turn with the saves, so its
-    write can't land in the middle of an Undo.
-  - Two quick cards, then Undo: only the last goes, and the record before it already holds what the first brought.
+  - **`UndoRecordUseCase` deletes the entry and keeps nothing.** The store holds nothing the card brought, since a
+    recording keeps no title. So his title is again the higher of what his other entries reach and what earlier
+    deletions kept: as if the card had never been recorded.
+  - **Nothing from before the card is remembered or put back.** There is no record to go stale, and Undos in any
+    order give the same.
+  - **The closed card** (`seenTitleID`) stays as it is, unless it is above the title he holds once the entry is gone.
+    Only then it goes back, to that title (`DadStanding.seenAfterUndo`). So a card closed for a title he still holds
+    stays closed, and the card of a title the Undo takes back comes again when a later card reaches it.
+    - It is written through `StandingRepository.markSeen`, just before the entry is deleted. If the delete fails, it is
+      put back as it was, so nothing has changed and the Undo can be tried again.
+    - Home forgets the cards closed in the session by the same rule, and only in the load that shows: an older load
+      that finishes late has read other entries.
+    - Closing a card takes its turn with the saves (`isCompleting`), so its write can't land in the middle of an Undo.
+  - Two quick cards, then Undo: only the last goes, and the first's title is what his entries still reach.
   - The old gear frozen at the first change (§4) stays frozen: it is what the entries before the card gave.
-  - Undo is offered for the last entry on home, for a few seconds, and for a new moment in its sheet. Both can be live
-    at once and either can go first: the record each puts back is absolute, so when one is undone, an entry recorded
-    after it is given the record from before the undone one. An offer that leaves the screen (its time is up, a newer
-    one replaces it, its sheet closes) can't be used later.
+- **Where Undo is offered, and what ends an offer:**
+  - For the last quest or boss, on home's bar, for a few seconds; and for a new moment, in its sheet. Both can be on
+    screen at once. The sheet covers the bar, so the sheet's goes first; the other order would give the same.
+  - An offer ends when its time is up, when a newer card takes the bar, or when its sheet closes.
+  - **The bar's offer also ends when the dad leaves for the timeline, or deletes a moment he opened to edit on home.**
+    A deletion keeps the title he holds at that moment, the last card's included, so an Undo after it would take the
+    card and leave its title. With the offer over, an Undo and a deletion never meet: nothing is kept while an offer
+    lives. If they ever met, the title would stay, never drop.
+  - The root tells home that the tab changed (`HomeViewModel.leftForAnotherTab`). The bar going from the screen isn't
+    the signal: turning the device rebuilds home with the bar still on it, and its time starts again (ADR-0058).
+  - An offer that has ended can't be used later.
 - **A deletion from the timeline keeps the title** and its gear, as above: that is the rule that a title never goes
   down.
-- **Two screens never write at once:** home's recording waits for its last save (`isCompleting`), and the timeline is
-  another tab. A stale write could only lower the kept title, never the one shown, which is the higher of the two.
-  A timeline deletion during an Undo's few seconds keeps the card about to be undone; the Undo then puts back the
-  record from before that card, which still holds everything the deleted entry had given.
+- **Two screens never write at once:** home's saves take turns (`isCompleting`), and the timeline is another tab,
+  which ends home's Undo. A stale write could only keep a title, never lower the one shown, which is the higher of the
+  kept one and what the entries reach.
 - **Why stored, and why in the store:**
   - Derived alone, any delete lowers the title.
   - In the app's defaults, a start over cut short between the store and the defaults would give a new saga an old
     title.
   - On the profile row, start over erases it in the same write (ADR-0030), and export takes it with the saga.
-  - Each field only ever grows, except when an Undo puts back the record from before its card: the title by order, the
-    gear as a union, and the seen title by order. Sync merges them with the sync ADR, which must carry an Undo too.
+  - The title and the gear only ever grow: the title by order, the gear as a union. The seen title grows by order,
+    except when an Undo takes back the title it was for. Sync merges them with the sync ADR, which must carry that.
+- **Tests:** `UndoSequencesTests` runs every order of steps the screens allow (cards, both Undos, offers ending, a
+  card closed, deletions) through the real use cases, and again with the undone cards never recorded: the title, the
+  kept title and the entries must be the same.
 
 ### 4. Gear comes with titles; gear the old rule earned stays
 - **An item is earned when the dad holds the title that brings it, or a later one.** `GearItem.minXP` goes, and
@@ -151,7 +165,7 @@ is guarded by its title).
   - A profile row from version 6 has `keptGearIDs` empty (nil) after the migration.
   - Until the dad records or deletes something, his entries are exactly the ones from before titles, so the old rule
     reads them as they are.
-  - The keeper's first write freezes what the rule gives and stores it. From then on, those ids are his whatever
+  - The keeper's first write, before his first recording or deletion, freezes what the rule gives and stores it. From then on, those ids are his whatever
     happens to his entries, and skill XP earns nothing more.
   - A profile created by version 7 starts with an empty list: nothing to keep, so a new dad gets gear by title only.
 - **The hero's gear** is what his title brings and what he kept, `DadStanding.gear`. `GearRules.equipped(_:outfit:)`
@@ -270,10 +284,10 @@ widget (the skill only, ADR-0023), in the wardrobe, or in any delete prompt. The
 ### 12. Where the code goes
 | Layer | Adds | Changes or removes |
 |---|---|---|
-| Domain | `DadTitle`, `KeptStanding` (and `undone(to:after:catalog:)`), `DadStanding` and `TitleNews`, `TitleRules` | `DadProgress.cardsDone` (no `level`); `GearRules.earned(_:upTo:kept:)`, `earnedBeforeTitles`, `equipped(_:outfit:)`; `GearItem.skillXPBeforeTitles` (no `minXP`); `ContentCatalog.titles`, `title(id:)`, `title(bringing:)`; `LevelCurve` deleted |
-| Application | `StandingRepository` (with `restore`); `StandingKeeper`; `MarkTitleSeenUseCase`; `UndoRecordUseCase`; `EntryRemover`, shared by deleting and undoing | `ProgressRecorder` and `DeleteEventUseCase` keep first; `HomeOverview.standing`; `Wardrobe`, `SetOutfitChoiceUseCase` and `SagaFilm` (`title`) read the standing; `ProgressChange` loses the level and gear, and gains `keptBefore` |
+| Domain | `DadTitle`, `KeptStanding`, `DadStanding` (with `toKeepBeforeRecording`, `toKeepBeforeDeleting` and `seenAfterUndo`) and `TitleNews`, `TitleRules` | `DadProgress.cardsDone` (no `level`); `GearRules.earned(_:upTo:kept:)`, `earnedBeforeTitles`, `equipped(_:outfit:)`; `GearItem.skillXPBeforeTitles` (no `minXP`); `ContentCatalog.titles`, `title(id:)`, `title(bringing:)`; `LevelCurve` deleted |
+| Application | `StandingRepository`; `StandingKeeper`; `MarkTitleSeenUseCase`; `UndoRecordUseCase`; `EntryRemover`, shared by deleting and undoing | `DeleteEventUseCase` keeps the title first, `ProgressRecorder` only the old gear; `HomeOverview.standing`; `Wardrobe`, `SetOutfitChoiceUseCase` and `SagaFilm` (`title`) read the standing; `ProgressChange` loses the level and gear |
 | Data | `titles.json`; `DadTitleDTO`; `SchemaV7` and its stage; `SwiftDataStandingRepository`; `ConnectedStandingRepository`; `LocalStore.standing`; the `StoreV6` fixture | `gear.json` (`skillXPBeforeTitles`); `GearItemDTO`; mappers; `ContentValidator`; `BundledContentRepository`; `ProfileRecord(profile:)`; `CurrentSchema`; `ShippedContentIDs.json` |
-| Presentation | the title line; the title card and `HomeViewModel+TitleCard` | home, its sheets, the moments, the timeline, the wardrobe, the film credits, the celebration; the widget's quest tile; DesignSystem (`XPBar` goes, badges optional); strings in el and en |
+| Presentation | the title line; the title card and `HomeViewModel+TitleCard`; `HomeViewModel.leftForAnotherTab`, told by `RootView` | home, its sheets, the moments, the timeline, the wardrobe, the film credits, the celebration; the widget's quest tile; DesignSystem (`XPBar` goes, badges optional); strings in el and en |
 | App | `store.standing`, `MarkTitleSeenUseCase` and `UndoRecordUseCase` wired | `AppContainer`, `SnapshotTests/SagaFixture.swift` |
 
 ## Choices made for the owner to confirm
@@ -301,6 +315,11 @@ widget (the skill only, ADR-0023), in the wardrobe, or in any delete prompt. The
 ## Rejected
 - **Deriving the title from the entries alone:** a deletion would lower it.
 - **Undo keeping the title it brought,** as first proposed: the owner wants an Undo to leave nothing of a mistaken tap.
+- **Keeping the title before every recording too, and an Undo putting back the record from before its card**
+  (`ProgressChange.keptBefore`, `StandingRepository.restore`, `KeptStanding.undone`), as first built: home had to hold
+  each card's record, in order, and rewrite the later ones when an earlier card was undone. An offer that outlived a
+  deletion put back a record from before it and lowered a title the deletion had kept. Keeping the title only before
+  a deletion needs none of it.
 - **Keeping deleted entries as hidden tombstones** that still count: the dad's delete must delete (ADR-0021 §4, the
   privacy pages).
 - **"Title reached" as events in the progress log:** every reader of the log would have to skip them, and the card's
@@ -330,6 +349,8 @@ Not yet checked on a device. To check:
   - the widget shows "Open DadSaga" until the app has migrated, then the skill without XP.
 - **Crossing a title, then Undo:** the title, the card and the gear are as before the card, after a relaunch too; the
   card closed before the Undo comes again with the next card that reaches the title.
+- **A card, then the timeline tab and back:** the Undo bar is gone. Turning the device with the bar on screen keeps
+  it.
 - **Deleting an old entry** from the timeline: the title and gear stay.
 - **The first quest after onboarding:** title 1, the mug, and the reminder offer after the card is closed.
 - **On screen:**

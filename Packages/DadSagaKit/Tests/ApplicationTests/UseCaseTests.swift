@@ -124,12 +124,8 @@ actor InMemoryStanding: StandingRepository {
     }
 
     func markSeen(titleID: String) async throws {
-        kept.seenTitleID = titleID
-    }
-
-    func restore(_ kept: KeptStanding) async throws {
         writes += 1
-        self.kept = kept
+        kept.seenTitleID = titleID
     }
 
     func failKeeping() { failsToKeep = true }
