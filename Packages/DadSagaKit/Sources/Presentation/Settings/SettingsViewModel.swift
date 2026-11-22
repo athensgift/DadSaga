@@ -85,6 +85,11 @@ public final class SettingsViewModel: Identifiable {
         }
     }
 
+    /// An imported saga took the place of this one: the root rebuilds home and the timeline, which closes this screen.
+    public func sagaImported() {
+        actions.onSagaImported()
+    }
+
     /// iOS reports whether Mail opened. If not, the dad gets the address to write to by hand.
     public func mailOpened(_ accepted: Bool) {
         guard !accepted, let contact = content.support?.contact else { return }

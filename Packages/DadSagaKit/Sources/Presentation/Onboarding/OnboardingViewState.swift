@@ -11,6 +11,8 @@ public struct OnboardingContent: Equatable, Sendable {
     public let childEditor: ChildEditorLabels
     public let partner: PartnerRowLabels
     public let continueTitle: String
+    /// The way back to a saga exported from another iPhone (ADR-0057 §8).
+    public let importTitle: String
     public let heroTitle: String
     public let finishTitle: String
     public let hero: HeroPickerContent

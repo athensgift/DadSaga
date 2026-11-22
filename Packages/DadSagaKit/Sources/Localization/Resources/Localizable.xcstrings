@@ -359,6 +359,23 @@
         }
       }
     },
+    "Choose a copy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Διάλεξε αντίγραφο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a copy"
+          }
+        }
+      }
+    },
     "Close" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -427,6 +444,40 @@
         }
       }
     },
+    "Couldn't export your data. Please try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η εξαγωγή δεν έγινε. Δοκίμασε ξανά."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't export your data. Please try again."
+          }
+        }
+      }
+    },
+    "Couldn't import the data. Please try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η εισαγωγή δεν έγινε. Δοκίμασε ξανά."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't import the data. Please try again."
+          }
+        }
+      }
+    },
     "Cover" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -461,19 +512,19 @@
         }
       }
     },
-    "DadSaga has no account and no tracking. Your family, quests, moments and photos stay on this iPhone, and in its backups if you make them." : {
+    "DadSaga has no account and no tracking. Your family, quests, moments and photos stay on this iPhone, in its backups if you make them, and in any copy of your saga you make." : {
       "extractionState" : "manual",
       "localizations" : {
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Το DadSaga δεν έχει λογαριασμό ούτε παρακολούθηση. Η οικογένεια, οι αποστολές, οι στιγμές και οι φωτογραφίες σου μένουν σε αυτό το iPhone, και στα αντίγραφα ασφαλείας του αν τα κρατάς."
+            "value" : "Το DadSaga δεν έχει λογαριασμό ούτε παρακολούθηση. Η οικογένεια, οι αποστολές, οι στιγμές και οι φωτογραφίες σου μένουν σε αυτό το iPhone, στα αντίγραφα ασφαλείας του αν τα κρατάς, και σε όποιο αντίγραφο της ιστορίας σου φτιάξεις."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "DadSaga has no account and no tracking. Your family, quests, moments and photos stay on this iPhone, and in its backups if you make them."
+            "value" : "DadSaga has no account and no tracking. Your family, quests, moments and photos stay on this iPhone, in its backups if you make them, and in any copy of your saga you make."
           }
         }
       }
@@ -563,6 +614,23 @@
         }
       }
     },
+    "Everything on this iPhone now will be replaced by what's in the copy: your family and hero, your title and wardrobe, every quest, boss and moment with their notes and photos. This can't be undone." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ό,τι υπάρχει τώρα σε αυτό το iPhone θα αντικατασταθεί από όσα έχει το αντίγραφο: η οικογένεια και ο ήρωάς σου, ο τίτλος και η ντουλάπα σου, κάθε αποστολή, αφεντικό και στιγμή με τις σημειώσεις και τις φωτογραφίες τους. Δεν αναιρείται."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Everything on this iPhone now will be replaced by what's in the copy: your family and hero, your title and wardrobe, every quest, boss and moment with their notes and photos. This can't be undone."
+          }
+        }
+      }
+    },
     "Everything will be deleted from this iPhone: your family and hero, every quest, boss and moment with their notes and photos, your wardrobe and the weekly reminder. This can't be undone." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -576,6 +644,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Everything will be deleted from this iPhone: your family and hero, every quest, boss and moment with their notes and photos, your wardrobe and the weekly reminder. This can't be undone."
+          }
+        }
+      }
+    },
+    "Export data" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εξαγωγή δεδομένων"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export data"
           }
         }
       }
@@ -682,6 +767,109 @@
         }
       }
     },
+    "If you have a copy of your saga from Export data, choose it here and pick up where you left off." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αν έχεις αντίγραφο της ιστορίας σου από την Εξαγωγή δεδομένων, διάλεξέ το εδώ και συνέχισε από εκεί που είχες μείνει."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "If you have a copy of your saga from Export data, choose it here and pick up where you left off."
+          }
+        }
+      }
+    },
+    "Import" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εισαγωγή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import"
+          }
+        }
+      },
+      "generatesSymbol" : false
+    },
+    "Import data" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εισαγωγή δεδομένων"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import data"
+          }
+        }
+      }
+    },
+    "Import this copy?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Εισαγωγή αυτού του αντιγράφου;"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Import this copy?"
+          }
+        }
+      }
+    },
+    "Importing your saga…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Γίνεται εισαγωγή της ιστορίας σου…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importing your saga…"
+          }
+        }
+      }
+    },
+    "It has no password: it always opens, for you and for anyone who has the file. Keep it where you'd keep your photos." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν έχει κωδικό: ανοίγει πάντα, για σένα και για όποιον έχει το αρχείο. Κράτα το εκεί που θα κρατούσες τις φωτογραφίες σου."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "It has no password: it always opens, for you and for anyone who has the file. Keep it where you'd keep your photos."
+          }
+        }
+      }
+    },
     "Its badge will be removed. Your title and what you got stay." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -712,6 +900,57 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Listen to the music"
+          }
+        }
+      }
+    },
+    "Made on %@ · %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Φτιάχτηκε στις %1$@ · %2$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Made on %@ · %@"
+          }
+        }
+      }
+    },
+    "Make a copy" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Φτιάξε αντίγραφο"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make a copy"
+          }
+        }
+      }
+    },
+    "Making your copy…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το αντίγραφό σου φτιάχνεται…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Making your copy…"
           }
         }
       }
@@ -784,6 +1023,40 @@
         }
       }
     },
+    "One file with your saga: your family and hero, your title and wardrobe, every quest, boss and moment with their notes and photos. Keep it in Files or on a computer, or send it to another iPhone." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ένα αρχείο με την ιστορία σου: την οικογένεια και τον ήρωά σου, τον τίτλο και την ντουλάπα σου, κάθε αποστολή, αφεντικό και στιγμή με τις σημειώσεις και τις φωτογραφίες τους. Κράτα το στα Αρχεία ή σε έναν υπολογιστή, ή στείλ' το σε άλλο iPhone."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One file with your saga: your family and hero, your title and wardrobe, every quest, boss and moment with their notes and photos. Keep it in Files or on a computer, or send it to another iPhone."
+          }
+        }
+      }
+    },
+    "Opening the copy…" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το αντίγραφο ανοίγει…"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opening the copy…"
+          }
+        }
+      }
+    },
     "Opens after the birth" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -797,6 +1070,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Opens after the birth"
+          }
+        }
+      }
+    },
+    "Puts the saga from a copy in place of the one on this iPhone. We'll ask before anything changes." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Βάζει την ιστορία ενός αντιγράφου στη θέση αυτής που έχεις σε αυτό το iPhone. Πριν αλλάξει οτιδήποτε, θα σε ρωτήσουμε."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Puts the saga from a copy in place of the one on this iPhone. We'll ask before anything changes."
+          }
+        }
+      }
+    },
+    "Save or send" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αποθήκευσε ή στείλε"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save or send"
           }
         }
       }
@@ -852,6 +1159,57 @@
         }
       }
     },
+    "The export stopped when you left DadSaga. Try again whenever you like, and keep DadSaga open until it's done." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η εξαγωγή σταμάτησε όταν βγήκες από το DadSaga. Δοκίμασε ξανά όποτε θέλεις και κράτα το DadSaga ανοιχτό μέχρι να τελειώσει."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The export stopped when you left DadSaga. Try again whenever you like, and keep DadSaga open until it's done."
+          }
+        }
+      }
+    },
+    "The file couldn't be opened. If it's in iCloud Drive or another cloud service, check your connection and try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το αρχείο δεν άνοιξε. Αν είναι στο iCloud Drive ή σε άλλη υπηρεσία cloud, έλεγξε τη σύνδεσή σου και δοκίμασε ξανά."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file couldn't be opened. If it's in iCloud Drive or another cloud service, check your connection and try again."
+          }
+        }
+      }
+    },
+    "The import stopped when you left DadSaga. Try again whenever you like, and keep DadSaga open until it's done." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η εισαγωγή σταμάτησε όταν βγήκες από το DadSaga. Δοκίμασε ξανά όποτε θέλεις και κράτα το DadSaga ανοιχτό μέχρι να τελειώσει."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The import stopped when you left DadSaga. Try again whenever you like, and keep DadSaga open until it's done."
+          }
+        }
+      }
+    },
     "The moment and its photos will be removed. Your title and what you got stay." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -865,6 +1223,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The moment and its photos will be removed. Your title and what you got stay."
+          }
+        }
+      }
+    },
+    "There isn't enough free space on this iPhone. Free up some space and try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν υπάρχει αρκετός ελεύθερος χώρος σε αυτό το iPhone. Ελευθέρωσε λίγο χώρο και δοκίμασε ξανά."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There isn't enough free space on this iPhone. Free up some space and try again."
+          }
+        }
+      }
+    },
+    "There's nothing to export yet." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Δεν υπάρχει ακόμα κάτι για εξαγωγή."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "There's nothing to export yet."
+          }
+        }
+      }
+    },
+    "This copy was made by a newer version of DadSaga. Update the app, then try again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το αντίγραφο φτιάχτηκε από νεότερη έκδοση του DadSaga. Ενημέρωσε την εφαρμογή και δοκίμασε ξανά."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This copy was made by a newer version of DadSaga. Update the app, then try again."
+          }
+        }
+      }
+    },
+    "This file isn't a complete DadSaga copy. It may not have finished saving or sending." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αυτό το αρχείο δεν είναι ολόκληρο αντίγραφο του DadSaga. Ίσως δεν πρόλαβε να αποθηκευτεί ή να σταλεί ολόκληρο."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This file isn't a complete DadSaga copy. It may not have finished saving or sending."
           }
         }
       }
@@ -984,6 +1410,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your care grew"
+          }
+        }
+      }
+    },
+    "Your copy is ready · %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Το αντίγραφό σου είναι έτοιμο · %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your copy is ready · %@"
+          }
+        }
+      }
+    },
+    "Your data" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Τα δεδομένα σου"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your data"
           }
         }
       }
@@ -1546,6 +2006,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your resilience grew"
+          }
+        }
+      }
+    },
+    "Your saga hasn't changed." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η ιστορία σου δεν άλλαξε."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your saga hasn't changed."
           }
         }
       }

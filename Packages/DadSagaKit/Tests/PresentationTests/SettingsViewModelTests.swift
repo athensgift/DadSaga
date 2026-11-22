@@ -24,7 +24,8 @@ struct SettingsViewModelTests {
             appInfo: appInfo,
             actions: SettingsActions(
                 onPreferencesChanged: { root.preferences.append($0) },
-                onStartedOver: { root.startedOver += 1 }
+                onStartedOver: { root.startedOver += 1 },
+                onSagaImported: { root.sagaImported += 1 }
             ),
             locale: Locale(identifier: locale)
         )
@@ -206,6 +207,7 @@ struct SettingsViewModelTests {
 final class SpyRoot {
     var preferences: [PreferencesChoice] = []
     var startedOver = 0
+    var sagaImported = 0
 }
 
 actor FakePreferences: SavePreferencesUseCase {

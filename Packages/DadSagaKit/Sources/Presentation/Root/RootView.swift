@@ -8,6 +8,8 @@ public struct RootView: View {
     public typealias MakeHome = @MainActor () -> HomeViewModel
     public typealias MakeTimeline = @MainActor () -> TimelineViewModel
     public typealias MakeSettings = @MainActor (PreferencesChoice, SettingsActions) -> SettingsViewModel
+    /// The import on onboarding's first step; it calls back once the imported saga is on this iPhone.
+    public typealias MakeDataImport = @MainActor (_ onImported: @escaping @MainActor () -> Void) -> DataImportViewModel
 
     @State private var viewModel: RootViewModel
     @Environment(\.scenePhase) private var scenePhase
@@ -19,6 +21,7 @@ public struct RootView: View {
     private let makeTimeline: MakeTimeline
     private let makeSagaFilm: SagaFilmSheet.MakeViewModel
     private let makeSettings: MakeSettings
+    private let makeDataImport: MakeDataImport
     private let settingsPages: SettingsPages
     private let incomingURL: URL?
     private let onIncomingURLHandled: @MainActor () -> Void
@@ -33,6 +36,7 @@ public struct RootView: View {
         makeTimeline: @escaping MakeTimeline,
         makeSagaFilm: @escaping SagaFilmSheet.MakeViewModel,
         makeSettings: @escaping MakeSettings,
+        makeDataImport: @escaping MakeDataImport,
         settingsPages: SettingsPages,
         incomingURL: URL? = nil,
         onIncomingURLHandled: @escaping @MainActor () -> Void = {}
@@ -43,6 +47,7 @@ public struct RootView: View {
         self.makeTimeline = makeTimeline
         self.makeSagaFilm = makeSagaFilm
         self.makeSettings = makeSettings
+        self.makeDataImport = makeDataImport
         self.settingsPages = settingsPages
         self.incomingURL = incomingURL
         self.onIncomingURLHandled = onIncomingURLHandled
@@ -58,7 +63,9 @@ public struct RootView: View {
                     .transition(.opacity)
             case .onboarding:
                 if let onboarding {
-                    OnboardingView(viewModel: onboarding)
+                    OnboardingView(viewModel: onboarding) {
+                        makeDataImport { viewModel.sagaImported() }
+                    }
                         .transition(.opacity)
                 } else {
                     ProgressView()
@@ -82,6 +89,8 @@ public struct RootView: View {
                         )
                     )
                     .environment(viewModel.unsavedWork)
+                    // A new saga is a new home: its sheets, Settings included, close with the old one.
+                    .id(viewModel.sagaGeneration)
                     .transition(.opacity)
                 } else {
                     ProgressView()
@@ -89,6 +98,7 @@ public struct RootView: View {
             }
         }
         .onChange(of: viewModel.state, initial: true) { _, state in prepareScreen(for: state) }
+        .onChange(of: viewModel.sagaGeneration) { rebuildHome() }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DSColor.background)
         .tint(DSColor.accent)
@@ -126,6 +136,13 @@ public struct RootView: View {
         }
     }
 
+    /// An imported saga took the place of the one home and the timeline were showing.
+    private func rebuildHome() {
+        guard viewModel.state == .home else { return }
+        home = makeHome()
+        timeline = makeTimeline()
+    }
+
     /// Waits until the app knows whether there is a family, so a cold-launch link is not dropped while loading.
     private func openIncomingURL() {
         guard let incomingURL, viewModel.state != .loading else { return }
@@ -136,7 +153,8 @@ public struct RootView: View {
     private var settingsScreens: SettingsScreens {
         let actions = SettingsActions(
             onPreferencesChanged: { viewModel.preferencesChanged($0) },
-            onStartedOver: { viewModel.startedOver() }
+            onStartedOver: { viewModel.startedOver() },
+            onSagaImported: { viewModel.sagaImported() }
         )
         return SettingsScreens(makeSettings: { makeSettings(viewModel.preferences, actions) }, pages: settingsPages)
     }

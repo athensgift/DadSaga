@@ -24,6 +24,8 @@ extension SettingsContent {
             heroTitle: strings.text("Your hero"),
             wardrobeTitle: strings.text("Wardrobe"),
             familyTitle: strings.text("My family"),
+            dataSection: strings.text("Your data"),
+            dataExportTitle: strings.text("Export data"),
             support: supportSection(appInfo: appInfo, strings: strings),
             about: AboutSection(
                 title: strings.text("About"),
@@ -32,7 +34,7 @@ extension SettingsContent {
                 privacyStatement: strings.text(
                     """
                     DadSaga has no account and no tracking. Your family, quests, moments and photos stay on this \
-                    iPhone, and in its backups if you make them.
+                    iPhone, in its backups if you make them, and in any copy of your saga you make.
                     """
                 ),
                 privacyPolicy: appInfo.privacyPolicyURL.map { LinkRow(title: strings.text("Privacy policy"), url: $0) }

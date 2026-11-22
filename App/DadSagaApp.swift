@@ -15,6 +15,7 @@ struct DadSagaApp: App {
         self.container = container
         rootViewModel = container.makeRootViewModel()
         container.discardLeftoverFilms()
+        container.discardLeftoverExports()
         container.sweepOrphanPhotos()
     }
 
@@ -27,6 +28,7 @@ struct DadSagaApp: App {
                 makeTimeline: { container.makeTimelineViewModel() },
                 makeSagaFilm: { container.makeSagaFilmViewModel(request: $0) },
                 makeSettings: { container.makeSettingsViewModel(preferences: $0, actions: $1) },
+                makeDataImport: { container.makeDataImportViewModel(replacesSaga: false, onImported: $0) },
                 settingsPages: container.settingsPages,
                 incomingURL: NotificationInbox.shared.url,
                 onIncomingURLHandled: { NotificationInbox.shared.url = nil }
