@@ -2,7 +2,7 @@
 
 **Status:** Accepted (2026-11-22). The owner tested the page and found its name misleading: the row and the title said
 only "Export data", though the page also imports. Changes ADR-0057 §8 (the row and page name, and the onboarding
-sentence that points to it) and the "Your data" row of ADR-0030. Numbered 0063 because another branch takes 0060.
+sentence that points to it) and the "Your data" row of ADR-0030.
 
 ## Context
 - ADR-0057 §8 names the Settings row and its page "Export data" / «Εξαγωγή δεδομένων». The page has two parts:

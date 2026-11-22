@@ -8,14 +8,13 @@ import SwiftData
 @ModelActor
 actor SwiftDataStandingRepository: StandingRepository {
     func fetchKept() async throws -> KeptStanding {
-        try record()?.kept ?? .fresh
+        try record()?.kept ?? KeptStanding()
     }
 
-    func keep(titleID: String?, gearIDs: [String]) async throws {
+    func keep(titleID: String) async throws {
         try modelContext.saveAllOrNothing {
             guard let record = try record() else { return }
-            record.heldTitleID = titleID ?? record.heldTitleID
-            record.keptGearIDs = gearIDs
+            record.heldTitleID = titleID
         }
     }
 

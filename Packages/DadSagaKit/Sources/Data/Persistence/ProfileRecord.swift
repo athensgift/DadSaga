@@ -58,17 +58,23 @@ extension ChildRecord {
 
 extension ProfileRecord {
     convenience init(profile: PlayerProfile) {
-        // A saga started with titles has nothing from before them to keep (ADR-0055 §4).
-        self.init(heroClassID: profile.heroClassID, dadSkinTone: profile.dadSkinTone.rawValue, keptGearIDs: [])
-        update(from: profile)
+        let look = profile.dadAppearance
+        self.init(
+            heroClassID: profile.heroClassID,
+            dadSkinTone: profile.dadSkinTone.rawValue,
+            hairStyle: look.hair.rawValue,
+            hairColor: look.hairColor.rawValue,
+            beard: look.beard.rawValue,
+            glasses: look.glasses.rawValue,
+            hasPartner: profile.hasPartner
+        )
     }
 
     /// What the store keeps for titles. Never written by `update(from:)`, so editing the family can't lower it.
     var kept: KeptStanding {
-        KeptStanding(titleID: heldTitleID, gearIDs: keptGearIDs, seenTitleID: seenTitleID)
+        KeptStanding(titleID: heldTitleID, seenTitleID: seenTitleID)
     }
 
-    /// Every save writes the whole look and the partner answer, so a row never keeps a part from an earlier version.
     func update(from profile: PlayerProfile) {
         heroClassID = profile.heroClassID
         dadSkinTone = profile.dadSkinTone.rawValue
@@ -79,20 +85,19 @@ extension ProfileRecord {
         hasPartner = profile.hasPartner
     }
 
-    /// A part missing (a row from version 3) or unknown to this version reads as the standard look for the skin tone.
-    /// No partner answer (a row from version 5) reads yes, so no one loses a card he saw (ADR-0053 §4).
+    /// A part unknown to this version reads as the standard look for the skin tone: the look is stored as strings,
+    /// not as enums (ADR-0044 §6).
     func toDomain(children: [Child]) -> PlayerProfile {
         let tone = SkinTone(rawValue: dadSkinTone) ?? .mediumLight
         let standard = DadAppearance.standard(for: tone)
         let look = DadAppearance(
-            hair: hairStyle.flatMap(DadAppearance.Hair.init(rawValue:)) ?? standard.hair,
-            hairColor: hairColor.flatMap(DadAppearance.HairColor.init(rawValue:)) ?? standard.hairColor,
-            beard: beard.flatMap(DadAppearance.Beard.init(rawValue:)) ?? standard.beard,
-            glasses: glasses.flatMap(DadAppearance.Glasses.init(rawValue:)) ?? standard.glasses
+            hair: DadAppearance.Hair(rawValue: hairStyle) ?? standard.hair,
+            hairColor: DadAppearance.HairColor(rawValue: hairColor) ?? standard.hairColor,
+            beard: DadAppearance.Beard(rawValue: beard) ?? standard.beard,
+            glasses: DadAppearance.Glasses(rawValue: glasses) ?? standard.glasses
         )
         return PlayerProfile(
-            children: children, heroClassID: heroClassID, dadSkinTone: tone, dadAppearance: look,
-            hasPartner: hasPartner ?? true
+            children: children, heroClassID: heroClassID, dadSkinTone: tone, dadAppearance: look, hasPartner: hasPartner
         )
     }
 }

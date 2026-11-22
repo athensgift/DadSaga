@@ -19,10 +19,8 @@ extension ProgressEventRecord {
         )
     }
 
-    /// `nil` for a kind this version does not know, so newer data never crashes an older build, and for a row with no
-    /// child, which no store since ADR-0023 holds.
+    /// `nil` for a kind this version does not know, so newer data never crashes an older build.
     func toDomain() -> ProgressEvent? {
-        guard let childID else { return nil }
         let eventKind: ProgressEvent.Kind
         switch kind {
         case "quest": eventKind = .quest(id: contentID)

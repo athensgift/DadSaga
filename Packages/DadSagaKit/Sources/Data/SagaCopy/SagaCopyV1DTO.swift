@@ -2,8 +2,9 @@ import Application
 import Domain
 import Foundation
 
-// Format 1 of a copy of the saga (ADR-0057 §3, §4). FROZEN once released: a copy written by any version that wrote
-// format 1 is read with exactly these types. A change to what a copy holds is `SagaCopyV2DTO`, not an edit here.
+// Format 1 of a copy of the saga (ADR-0057 §3, §4). FROZEN once released on the App Store: a copy written by any
+// version that wrote format 1 is read with exactly these types. A change to what a copy holds is then `SagaCopyV2DTO`,
+// not an edit here. Until that first release nothing has shipped, and format 1 changes in place (ADR-0060 §1).
 //
 // Every value is spelled out by a switch, never by a Swift `rawValue` alone, so renaming a case in the Domain can't
 // change the file. A value format 1 doesn't know throws `.damaged`: an older app never restores less than the file holds
@@ -70,8 +71,6 @@ struct SagaCopySagaV1: Codable, Equatable {
 
     struct Standing: Codable, Equatable {
         let titleID: String?
-        /// Absent for a saga from before titles whose gear was never frozen, which is not the same as none (ADR-0055 §4).
-        let gearIDs: [String]?
         let seenTitleID: String?
     }
 
@@ -135,7 +134,7 @@ extension SagaCopySagaV1 {
             }
         }
         let kept = copy.saga.kept
-        standing = Standing(titleID: kept.titleID, gearIDs: kept.gearIDs, seenTitleID: kept.seenTitleID)
+        standing = Standing(titleID: kept.titleID, seenTitleID: kept.seenTitleID)
         answeredOccasionIDs = copy.answeredOccasionIDs.sorted()
     }
 
@@ -179,7 +178,7 @@ extension SagaCopySagaV1 {
             ),
             events: events,
             outfit: outfit,
-            kept: KeptStanding(titleID: standing.titleID, gearIDs: standing.gearIDs, seenTitleID: standing.seenTitleID)
+            kept: KeptStanding(titleID: standing.titleID, seenTitleID: standing.seenTitleID)
         )
         return SagaCopy(saga: saga, answeredOccasionIDs: Set(answeredOccasionIDs), madeAt: madeAt)
     }

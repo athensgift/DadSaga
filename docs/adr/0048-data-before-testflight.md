@@ -1,6 +1,8 @@
 # ADR-0048: The saga's data before TestFlight: failed saves leave nothing behind, a birth date is a day, no silent new store, content ids that never go, and a careful sweep of orphan photos
 
-**Status:** Proposed (2026-11-21). From the review of 2026-11-21 (its second pass, which overrides the first where they
+**Status:** Accepted (2026-11-21; merged while still marked Proposed, recorded as Accepted on 2026-11-22).
+
+From the review of 2026-11-21 (its second pass, which overrides the first where they
 differ). The owner asked for these five in one PR before the first TestFlight build; drafted by the architect. Changes
 ADR-0005 (an id that has shipped never leaves the content; renames go through `formerIDs`), ADR-0023 §2 (no fallback
 folder in a release build), ADR-0026 §1–§2 (the folder is found when the store opens; version 5), ADR-0028 §1

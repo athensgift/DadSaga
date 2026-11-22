@@ -15,7 +15,7 @@
   { "id": "f-steps", "order": 14, "emoji": "👣", "xp": 30, "companionTrait": "walk", "title": { "el": "Πρώτα βήματα", "en": "First steps" } },
   { "id": "f-haircut", "order": 15, "emoji": "✂️", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο κούρεμα", "en": "First haircut" } },
   { "id": "f-sea", "order": 16, "emoji": "🌊", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη φορά σε θάλασσα, λίμνη ή ποτάμι", "en": "First time at the sea, a lake or a river" } },
-  { "id": "f-celebration", "formerIDs": ["f-christmas"], "order": 17, "emoji": "🎉", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη μεγάλη γιορτή", "en": "First big celebration" } },
+  { "id": "f-celebration", "order": 17, "emoji": "🎉", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη μεγάλη γιορτή", "en": "First big celebration" } },
   { "id": "f-birthday", "order": 18, "emoji": "🎂", "xp": 30, "companionTrait": "party-hat", "title": { "el": "Πρώτα γενέθλια", "en": "First birthday" } },
   { "id": "f-i-love-you", "order": 19, "emoji": "❤️", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο «σ' αγαπώ»", "en": "First \"I love you\"" } },
   { "id": "f-joke", "order": 20, "emoji": "😜", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο αστείο", "en": "First joke" } },
@@ -31,6 +31,5 @@
   { "id": "f-story", "order": 30, "emoji": "📚", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη ιστορία που μου είπε", "en": "First story they told me" } },
   { "id": "f-song", "order": 31, "emoji": "🎤", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο ολόκληρο τραγούδι", "en": "First whole song" } },
   { "id": "f-read-word", "order": 32, "emoji": "📖", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη λέξη που διάβασε", "en": "First word they read" } },
-  { "id": "f-dressed", "order": 33, "emoji": "👕", "xp": 30, "companionTrait": null, "title": { "el": "Ντύθηκε μόνο του", "en": "Got dressed alone" } },
-  { "id": "f-sleepover", "order": 34, "retired": true, "emoji": "🌙", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη νύχτα στη γιαγιά και τον παππού", "en": "First night at the grandparents'" } }
+  { "id": "f-dressed", "order": 33, "emoji": "👕", "xp": 30, "companionTrait": null, "title": { "el": "Ντύθηκε μόνο του", "en": "Got dressed alone" } }
 ]

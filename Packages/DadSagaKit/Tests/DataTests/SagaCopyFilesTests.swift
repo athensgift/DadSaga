@@ -47,21 +47,7 @@ struct SagaCopyFilesTests: SagaCopyBench {
         #expect(try await new.store.progress.fetchEvents() == restored.events)
         #expect(try await new.store.outfit.fetchOutfit() == original.outfit)
         #expect(try await new.store.standing.fetchKept() == original.kept)
-        #expect(try await new.store.standing.fetchKept().gearIDs == nil)
         #expect(await new.offers.answeredOccasionIDs() == ["lena/birthday/1", "lena/world/w2"])
-    }
-
-    @Test("Given a saga started with titles, when it goes through a copy, then its gear stays none, not unfrozen")
-    func emptyGearStaysEmpty() async throws {
-        defer { try? FileManager.default.removeItem(at: root) }
-        let old = phone("old")
-        _ = try await fill(old, kept: .fresh)
-        let made = try await make(on: old).execute(on: madeAt) { _ in }
-
-        let new = phone("new")
-        try await restore(on: new).restore(try await restore(on: new).open(fileAt: made.url) { _ in }, on: madeAt)
-
-        #expect(try await new.store.standing.fetchKept() == .fresh)
     }
 
     @Test("Given a phone with its own saga, when a copy is imported, then the old saga and its photos are gone")
@@ -104,7 +90,7 @@ struct SagaCopyFilesTests: SagaCopyBench {
         let quest = ProgressEvent(kind: .quest(id: "q-w1-skin-to-skin"), childID: lena.id, date: madeAt)
         try await new.store.progress.add(quest)
         _ = try await new.store.outfit.setChoice(.automatic, for: .play)
-        try await new.store.standing.keep(titleID: "t-second", gearIDs: ["g-mug"])
+        try await new.store.standing.keep(titleID: "t-second")
         try await new.store.standing.markSeen(titleID: "t-second")
 
         #expect(try await new.store.profiles.fetchProfile()?.children.map(\.name) == ["Λενάκι", "Μπέμπης"])
@@ -124,7 +110,7 @@ struct SagaCopyFilesTests: SagaCopyBench {
         let before = try await app.wholeSaga.readAll()
         let readOnly = LocalStore.live(in: folder, readOnly: true)
         let other = StoredSaga(
-            profile: PlayerProfile(children: [unborn], heroClassID: "h-coach"), events: [], outfit: Outfit(), kept: .fresh
+            profile: PlayerProfile(children: [unborn], heroClassID: "h-coach"), events: [], outfit: Outfit(), kept: KeptStanding()
         )
 
         await #expect(throws: (any Error).self) { try await readOnly.wholeSaga.replaceAll(with: other) }
@@ -163,7 +149,7 @@ struct SagaCopyFilesTests: SagaCopyBench {
                 events: [ProgressEvent(
                     kind: .first(id: "f-steps"), childID: lena.id, date: madeAt, photoIDs: [UUID().uuidString]
                 )],
-                outfit: Outfit(), kept: .fresh
+                outfit: Outfit(), kept: KeptStanding()
             ),
             answeredOccasionIDs: [], madeAt: madeAt
         )

@@ -28,15 +28,13 @@ actor SwiftDataWholeSagaRepository: WholeSagaRepository {
         )
     }
 
-    /// The kept standing is written column by column: `ProfileRecord(profile:)` keeps no gear, which would freeze a saga
-    /// from before titles with nothing and take away the gear the old rule earned (ADR-0055 §4).
+    /// The kept standing is written column by column: `ProfileRecord(profile:)` keeps nothing.
     func replaceAll(with saga: StoredSaga) async throws {
         try modelContext.saveAllOrNothing {
             try deleteEveryRow()
             let profile = ProfileRecord(profile: saga.profile)
             profile.heldTitleID = saga.kept.titleID
             profile.seenTitleID = saga.kept.seenTitleID
-            profile.keptGearIDs = saga.kept.gearIDs
             modelContext.insert(profile)
             for (order, child) in saga.profile.children.enumerated() {
                 modelContext.insert(ChildRecord(child: child, order: order))

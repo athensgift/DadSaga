@@ -20,7 +20,7 @@ struct EntryPhotoUseCaseTests {
     ) async throws -> ProgressChange {
         try await DefaultCompleteQuestUseCase(
             contentRepository: content, progressRepository: repository ?? self.repository,
-            standingRepository: InMemoryStanding(), photoStore: store
+            photoStore: store
         ).execute(questID: "q1", childID: child, on: today, journal: JournalInput(photos: photos))
     }
 
@@ -85,7 +85,6 @@ struct EntryPhotoUseCaseTests {
         let sut = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: LosesRace(),
-            standingRepository: InMemoryStanding(),
             photoStore: store
         )
 

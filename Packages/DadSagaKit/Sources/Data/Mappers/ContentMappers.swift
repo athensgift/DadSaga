@@ -126,7 +126,6 @@ extension GearItemDTO {
         GearItem(
             id: id,
             skill: try QuestDTO.skill(skill, itemID: id),
-            skillXPBeforeTitles: skillXPBeforeTitles,
             look: look,
             title: title.toDomain(),
             formerIDs: formerIDs ?? []

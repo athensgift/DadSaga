@@ -165,9 +165,6 @@
   },
   {
     "id": "q-w0-first-aid",
-    "formerIDs": [
-      "q-w1-first-aid"
-    ],
     "worldID": "w0-harbour",
     "skill": "care",
     "xp": 35,
@@ -871,9 +868,6 @@
   },
   {
     "id": "q-w1-car-seat",
-    "formerIDs": [
-      "q-w2-car-seat"
-    ],
     "worldID": "w1-swamp",
     "skill": "care",
     "xp": 25,
@@ -1464,9 +1458,6 @@
   },
   {
     "id": "q-w1-check-in",
-    "formerIDs": [
-      "q-w4-check-in"
-    ],
     "worldID": "w1-swamp",
     "skill": "resilience",
     "xp": 30,
@@ -1598,9 +1589,6 @@
   },
   {
     "id": "q-w1-date-night",
-    "formerIDs": [
-      "q-w2-date-night"
-    ],
     "worldID": "w1-swamp",
     "skill": "resilience",
     "xp": 35,
@@ -1682,9 +1670,6 @@
   },
   {
     "id": "q-w1-toothbrush",
-    "formerIDs": [
-      "q-w2-toothbrush"
-    ],
     "worldID": "w1-swamp",
     "skill": "care",
     "xp": 20,
@@ -1723,43 +1708,6 @@
         {
           "el": "Πρώτη επίσκεψη στον οδοντίατρο ως τα πρώτα γενέθλια περίπου. Πρώτα για γνωριμία, όχι για πρόβλημα.",
           "en": "First dentist visit by about the first birthday. To get acquainted, not because something is wrong."
-        }
-      ],
-      "medical": true
-    }
-  },
-  {
-    "id": "q-w1-tummy-time",
-    "worldID": "w1-swamp",
-    "skill": "play",
-    "xp": 20,
-    "minAgeMonths": 0,
-    "retired": true,
-    "title": {
-      "el": "Προπονητής tummy time",
-      "en": "Tummy time coach"
-    },
-    "description": {
-      "el": "Ξάπλωσε στο πάτωμα απέναντί του και κάνε μαζί tummy time.",
-      "en": "Lie on the floor facing them and do tummy time together."
-    },
-    "tip": {
-      "title": {
-        "el": "Λίγο και συχνά",
-        "en": "Little and often"
-      },
-      "steps": [
-        {
-          "el": "Ξεκινά από τις πρώτες μέρες. Δύο-τρία λεπτά τη φορά φτάνουν, και ο στόχος είναι γύρω στα 30 λεπτά μέσα στη μέρα.",
-          "en": "It starts in the first days. Two or three minutes at a time is enough, building to about 30 minutes across the day."
-        },
-        {
-          "el": "Μετράει και μπρούμυτα πάνω στο στήθος σου.",
-          "en": "Lying on your chest counts."
-        },
-        {
-          "el": "Μόνο όταν είναι ξύπνιο και το βλέπεις. Αν γκρινιάξει, σταμάτα και δοκίμασε αργότερα.",
-          "en": "Only while they're awake and you're watching. If they fuss, stop and try again later."
         }
       ],
       "medical": true
@@ -2128,9 +2076,6 @@
   },
   {
     "id": "q-w2-swim",
-    "formerIDs": [
-      "q-w4-swim"
-    ],
     "worldID": "w2-plains",
     "skill": "play",
     "xp": 30,
@@ -2214,42 +2159,6 @@
     "description": {
       "el": "Άφησέ το να «βοηθήσει» σε μια δουλειά του σπιτιού. Θα πάρει τριπλάσιο χρόνο.",
       "en": "Let them \"help\" with a chore. It will take three times as long."
-    }
-  },
-  {
-    "id": "q-w2-rough-play",
-    "worldID": "w2-plains",
-    "skill": "play",
-    "xp": 25,
-    "minAgeMonths": 12,
-    "retired": true,
-    "title": {
-      "el": "Πάλη στο χαλί",
-      "en": "Wrestle on the rug"
-    },
-    "description": {
-      "el": "Κυνηγητό, αλογάκι, πάλη στο χαλί. Όταν πει «στοπ», σταματάς αμέσως.",
-      "en": "Chase, horsey rides, wrestling on the rug. When they say “stop”, you stop at once."
-    },
-    "tip": {
-      "title": {
-        "el": "Ο κανόνας του «στοπ»",
-        "en": "The “stop” rule"
-      },
-      "steps": [
-        {
-          "el": "Το «στοπ» ισχύει και για τους δύο. Όταν το πεις εσύ, σταματά κι εκείνο.",
-          "en": "“Stop” works both ways. When you say it, they stop too."
-        },
-        {
-          "el": "Άφησέ το να κερδίζει συχνά, όχι πάντα.",
-          "en": "Let them win often, not always."
-        },
-        {
-          "el": "Όχι ακριβώς πριν τον ύπνο. Κλείστε με κάτι ήρεμο.",
-          "en": "Not right before bed. Finish with something calm."
-        }
-      ]
     }
   },
   {
@@ -2977,22 +2886,6 @@
           "en": "Every feeling is allowed. Not every action is: “You can be angry. You can't hit.”"
         }
       ]
-    }
-  },
-  {
-    "id": "q-w3-ten-breaths",
-    "worldID": "w3-no-land",
-    "skill": "patience",
-    "xp": 30,
-    "minAgeMonths": 26,
-    "retired": true,
-    "title": {
-      "el": "Δέκα ανάσες",
-      "en": "Ten breaths"
-    },
-    "description": {
-      "el": "Πριν απαντήσεις σε ένα ξέσπασμα, πάρε δέκα αργές ανάσες.",
-      "en": "Before you respond to a meltdown, take ten slow breaths."
     }
   },
   {

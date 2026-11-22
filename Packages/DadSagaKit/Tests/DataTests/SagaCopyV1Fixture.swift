@@ -2,7 +2,9 @@ import Domain
 import Foundation
 
 /// What the format-1 copy in `Fixtures/SagaCopyV1` holds (ADR-0057 §4), with its three photos beside it as
-/// `<id>.jpg`. Format 1 shipped with the screens for it: never record it again (ADR-0057 §4).
+/// `<id>.jpg`. Until the first App Store release format 1 changes in place, and the copy is recorded again when it
+/// changes; that release records it once more with the build submitted, and from then on it is never recorded again
+/// (ADR-0057 §4, ADR-0060 §1, §5).
 enum SagaCopyV1Fixture {
     static func id(_ text: String) -> UUID { UUID(uuidString: text) ?? UUID() }
 
@@ -35,7 +37,7 @@ enum SagaCopyV1Fixture {
                               photoIDs: [photoIDs[2]])
             ],
             outfit: Outfit(choices: [.care: .item("g-burp-cloth"), .play: .hidden]),
-            kept: KeptStanding(titleID: "t-new-to-the-journey", gearIDs: nil, seenTitleID: "t-new-to-the-journey")
+            kept: KeptStanding(titleID: "t-new-to-the-journey", seenTitleID: "t-new-to-the-journey")
         ),
         answeredOccasionIDs: ["eleni/birthday/1", "eleni/world/w2"],
         madeAt: Date(timeIntervalSinceReferenceDate: 790_300_000.5)

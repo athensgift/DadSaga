@@ -139,7 +139,7 @@ struct EditProfileUseCaseTests {
             HeroClass(id: "h1", order: 1, title: text, tagline: text, look: "hero"),
             HeroClass(id: "h2", order: 2, title: text, tagline: text, look: "chef")
         ],
-        gear: [GearItem(id: "cloth", skill: .care, skillXPBeforeTitles: 20, look: "burpCloth", title: text)],
+        gear: [GearItem(id: "cloth", skill: .care, look: "burpCloth", title: text)],
         titles: [
             DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
             DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["cloth"], name: text)

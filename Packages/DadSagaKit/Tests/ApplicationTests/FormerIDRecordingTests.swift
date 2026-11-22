@@ -27,7 +27,6 @@ struct FormerIDRecordingTests {
         let sut = DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
 
@@ -58,7 +57,6 @@ struct FormerIDRecordingTests {
         DefaultCaptureMomentUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
     }

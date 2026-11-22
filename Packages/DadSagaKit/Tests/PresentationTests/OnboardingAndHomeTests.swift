@@ -245,10 +245,10 @@ enum HeroStub {
         ],
         gear: [
             GearItem(
-                id: "g1", skill: .care, skillXPBeforeTitles: 50, look: "burpCloth",
+                id: "g1", skill: .care, look: "burpCloth",
                 title: LocalizedText(el: "Πανάκι", en: "Burp cloth"), formerIDs: ["g1-before"]
             ),
-            GearItem(id: "g2", skill: .care, skillXPBeforeTitles: 200, look: "unknownLook", title: text)
+            GearItem(id: "g2", skill: .care, look: "unknownLook", title: text)
         ],
         titles: [
             DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: LocalizedText(el: "Σε αναμονή", en: "In waiting")),

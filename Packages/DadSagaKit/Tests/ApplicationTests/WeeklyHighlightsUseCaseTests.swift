@@ -187,7 +187,7 @@ struct AppLinkTests {
     @Test("Given each kind of link, when turned into a URL and back, then it is the same link")
     func roundTrip() {
         let links: [AppLink] = [
-            .quest(id: "q-w1-first-aid", childID: child),
+            .quest(id: "q-w0-first-aid", childID: child),
             .moment(eventID: UUID(), childID: child),
             .child(child)
         ]

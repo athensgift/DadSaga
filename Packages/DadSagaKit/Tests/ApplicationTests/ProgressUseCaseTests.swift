@@ -16,7 +16,6 @@ struct ProgressUseCaseTests {
         let sut = DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
 
@@ -38,7 +37,6 @@ struct ProgressUseCaseTests {
         _ = try await DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
             .execute(questID: "q1", childID: child, on: today, journal: JournalInput(note: "a", photos: [Data([1])]))
@@ -60,7 +58,6 @@ struct ProgressUseCaseTests {
         let sut = DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
 
@@ -77,7 +74,6 @@ struct ProgressUseCaseTests {
         let sut = DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
 
@@ -93,7 +89,6 @@ struct ProgressUseCaseTests {
         let sut = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
 
@@ -110,7 +105,6 @@ struct ProgressUseCaseTests {
         let sut = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
         _ = try await sut.execute(bossID: "b1", childID: child, on: today, journal: .empty)
@@ -129,7 +123,6 @@ struct ProgressUseCaseTests {
         let sut = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
         _ = try await sut.execute(bossID: "b1", childID: child, on: today, journal: .empty)
@@ -146,7 +139,6 @@ struct ProgressUseCaseTests {
         let sut = DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
         _ = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
@@ -162,7 +154,6 @@ struct ProgressUseCaseTests {
         let sut = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: LosesRace(),
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
 
@@ -179,13 +170,11 @@ struct ProgressUseCaseTests {
         let quest = DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: failing,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
         let boss = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: failing,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
 
@@ -205,7 +194,6 @@ struct ProgressUseCaseTests {
         let sut = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
 

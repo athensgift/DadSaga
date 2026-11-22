@@ -11,7 +11,7 @@ struct SagaCopyRulesTests {
     private func saga(children: [Child]? = nil, events: [ProgressEvent] = []) -> StoredSaga {
         StoredSaga(
             profile: PlayerProfile(children: children ?? [lena], heroClassID: "h-chef"),
-            events: events, outfit: Outfit(), kept: .fresh
+            events: events, outfit: Outfit(), kept: KeptStanding()
         )
     }
 

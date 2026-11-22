@@ -104,23 +104,22 @@ enum Stub {
     )
 }
 
-/// The profile's kept standing, in memory (ADR-0055 §3). Starts as a saga begun with titles.
+/// The profile's kept standing, in memory (ADR-0055 §3). Starts with nothing kept.
 actor InMemoryStanding: StandingRepository {
     private(set) var kept: KeptStanding
     private(set) var writes = 0
     var failsToKeep = false
 
-    init(_ kept: KeptStanding = .fresh) {
+    init(_ kept: KeptStanding = KeptStanding()) {
         self.kept = kept
     }
 
     func fetchKept() async throws -> KeptStanding { kept }
 
-    func keep(titleID: String?, gearIDs: [String]) async throws {
+    func keep(titleID: String) async throws {
         if failsToKeep { throw StubError.boom }
         writes += 1
-        kept.titleID = titleID ?? kept.titleID
-        kept.gearIDs = gearIDs
+        kept.titleID = titleID
     }
 
     func markSeen(titleID: String) async throws {
