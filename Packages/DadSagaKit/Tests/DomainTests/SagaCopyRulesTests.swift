@@ -8,10 +8,10 @@ struct SagaCopyRulesTests {
     let lena = Child(name: "Λένα", birthDay: .day(2023, 11, 14))
     let nikos = Child(name: "Νίκος", birthDay: nil)
 
-    private func saga(children: [Child]? = nil, events: [ProgressEvent] = []) -> StoredSaga {
+    private func saga(children: [Child]? = nil, removed: [Child] = [], events: [ProgressEvent] = []) -> StoredSaga {
         StoredSaga(
             profile: PlayerProfile(children: children ?? [lena], heroClassID: "h-chef"),
-            events: events, outfit: Outfit(), kept: KeptStanding()
+            removedChildren: removed, events: events, outfit: Outfit(), kept: KeptStanding()
         )
     }
 
@@ -20,17 +20,32 @@ struct SagaCopyRulesTests {
                       photoIDs: photos)
     }
 
-    @Test("Given one to four children with their own ids, when checked, then the saga passes")
+    @Test("Given one, four or six children with their own ids, when checked, then the saga passes")
     func validFamiliesPass() throws {
         try SagaCopyRules.checked(saga(children: [lena]))
         try SagaCopyRules.checked(saga(children: [lena, nikos, Child(name: "Α", birthDay: nil), Child(name: "Β", birthDay: nil)]))
+        try SagaCopyRules.checked(saga(children: (1...6).map { Child(name: "Παιδί \($0)", birthDay: nil) }))
     }
 
-    @Test("Given no children or five, when checked, then it is refused")
-    func childCountIsRefused() {
-        #expect(throws: SagaCopyRuleError.childCount) { try SagaCopyRules.checked(saga(children: [])) }
-        let five = (1...5).map { Child(name: "Παιδί \($0)", birthDay: nil) }
-        #expect(throws: SagaCopyRuleError.childCount) { try SagaCopyRules.checked(saga(children: five)) }
+    @Test("Given no child, or only removed ones, when checked, then it is refused")
+    func noChildIsRefused() {
+        #expect(throws: SagaCopyRuleError.noChild) { try SagaCopyRules.checked(saga(children: [])) }
+        #expect(throws: SagaCopyRuleError.noChild) { try SagaCopyRules.checked(saga(children: [], removed: [lena])) }
+    }
+
+    @Test("Given a removed child beside the family, when checked, then it passes; with a family child's id or no name, not")
+    func removedChildrenAreChecked() throws {
+        try SagaCopyRules.checked(saga(children: [lena], removed: [nikos]))
+        let twin = Child(id: lena.id, name: "Άλλη", birthDay: nil)
+        #expect(throws: SagaCopyRuleError.duplicateChild) { try SagaCopyRules.checked(saga(removed: [twin])) }
+        let unnamed = Child(name: " ", birthDay: nil)
+        #expect(throws: SagaCopyRuleError.emptyChildName) { try SagaCopyRules.checked(saga(removed: [unnamed])) }
+    }
+
+    @Test("Given entries by two authors, when checked, then it passes")
+    func anyAuthorPasses() throws {
+        let partners = ProgressEvent(authorID: UUID(), kind: .boss(id: "b-colic"), childID: lena.id, date: Date())
+        try SagaCopyRules.checked(saga(events: [entry(), partners]))
     }
 
     @Test("Given two children with one id or an empty name, when checked, then it is refused")
@@ -70,10 +85,14 @@ struct SagaCopyRulesTests {
         let first = entry(photos: ["a", "b", "c"])
         let second = entry(photos: ["d"])
 
-        let replaced = saga(events: [first, second]).replacingPhotoIDs(["a": "A", "c": "C"])
+        let partners = ProgressEvent(authorID: UUID(), kind: .boss(id: "b-colic"), childID: lena.id, date: Date())
 
-        #expect(replaced.events.map(\.photoIDs) == [["A", "C"], []])
+        let replaced = saga(removed: [nikos], events: [first, second, partners]).replacingPhotoIDs(["a": "A", "c": "C"])
+
+        #expect(replaced.events.map(\.photoIDs) == [["A", "C"], [], []])
+        #expect(replaced.events.map(\.authorID) == [.testDad, .testDad, partners.authorID])
+        #expect(replaced.removedChildren == [nikos])
         #expect(replaced.events.first?.coverPhotoID == "A")
-        #expect(replaced.events.map(\.id) == [first.id, second.id])
+        #expect(replaced.events.map(\.id) == [first.id, second.id, partners.id])
     }
 }

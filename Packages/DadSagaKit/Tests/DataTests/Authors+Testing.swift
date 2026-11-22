@@ -1,0 +1,45 @@
+import Domain
+import Foundation
+
+extension UUID {
+    /// The one player of a test saga: until the co-op version every entry's author is the one profile (ADR-0065 §5).
+    /// Fixed, since a stored profile keeps its id across saves.
+    static let testDad = UUID(uuid: (0xD0, 0xD0, 0xD0, 0xD0, 0, 0, 0x40, 0, 0x80, 0, 0, 0, 0, 0, 0, 0x01))
+}
+
+extension PlayerProfile {
+    /// The test dad's profile. Tests about identity pass `id:` themselves.
+    init(
+        children: [Child],
+        heroClassID: String,
+        dadSkinTone: SkinTone = .mediumLight,
+        dadAppearance: DadAppearance? = nil,
+        hasPartner: Bool = true
+    ) {
+        self.init(
+            id: .testDad, children: children, heroClassID: heroClassID, dadSkinTone: dadSkinTone,
+            dadAppearance: dadAppearance, hasPartner: hasPartner
+        )
+    }
+}
+
+extension ProgressEvent {
+    /// An entry by the test dad. Tests about authors pass `authorID:` themselves.
+    init(
+        id: UUID = UUID(),
+        kind: Kind,
+        childID: UUID,
+        date: Date,
+        note: String? = nil,
+        photoIDs: [String] = []
+    ) {
+        self.init(id: id, authorID: .testDad, kind: kind, childID: childID, date: date, note: note, photoIDs: photoIDs)
+    }
+}
+
+extension StoredSaga {
+    /// A saga with no removed child, as every saga the app itself makes until the co-op version.
+    init(profile: PlayerProfile, events: [ProgressEvent], outfit: Outfit, kept: KeptStanding) {
+        self.init(profile: profile, removedChildren: [], events: events, outfit: outfit, kept: kept)
+    }
+}

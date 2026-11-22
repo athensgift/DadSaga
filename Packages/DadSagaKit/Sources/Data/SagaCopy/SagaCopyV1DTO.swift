@@ -6,6 +6,9 @@ import Foundation
 // version that wrote format 1 is read with exactly these types. A change to what a copy holds is then `SagaCopyV2DTO`,
 // not an edit here. Until that first release nothing has shipped, and format 1 changes in place (ADR-0060 §1).
 //
+// `hero.id`, each child's `removed` and each entry's `author` are required (ADR-0065 §5), so a copy made before they
+// were added is damaged: nothing had shipped, and no reader is kept for those.
+//
 // Every value is spelled out by a switch, never by a Swift `rawValue` alone, so renaming a case in the Domain can't
 // change the file. A value format 1 doesn't know throws `.damaged`: an older app never restores less than the file holds
 // without saying so.
@@ -30,6 +33,8 @@ struct SagaCopyManifestV1: Codable, Equatable {
 
 struct SagaCopySagaV1: Codable, Equatable {
     struct Hero: Codable, Equatable {
+        /// `PlayerProfile.id`: whoever restores the copy becomes this player (ADR-0065 §6).
+        let id: UUID
         let classID: String
         let skinTone: String
         let hair: String
@@ -46,10 +51,14 @@ struct SagaCopySagaV1: Codable, Equatable {
         let birthDay: String?
         let gender: String
         let skinTone: String
+        /// Removed from the family (ADR-0065 §4). Removed children may sit anywhere in `children`.
+        let removed: Bool
     }
 
     struct Entry: Codable, Equatable {
         let id: UUID
+        /// Who recorded it: a hero's id, this copy's or a partner's (ADR-0065 §5).
+        let author: UUID
         /// `quest`, `boss` or `first`.
         let kind: String
         /// As stored, known to this version or not (ADR-0057 §5).
@@ -105,6 +114,7 @@ extension SagaCopySagaV1 {
     init(copy: SagaCopy) {
         let profile = copy.saga.profile
         hero = Hero(
+            id: profile.id,
             classID: profile.heroClassID,
             skinTone: SagaCopyNamesV1.name(of: profile.dadSkinTone),
             hair: SagaCopyNamesV1.name(of: profile.dadAppearance.hair),
@@ -113,16 +123,18 @@ extension SagaCopySagaV1 {
             glasses: SagaCopyNamesV1.name(of: profile.dadAppearance.glasses),
             hasPartner: profile.hasPartner
         )
-        children = profile.children.map { child in
+        let family = profile.children.map { ($0, false) } + copy.saga.removedChildren.map { ($0, true) }
+        children = family.map { child, removed in
             Child(
                 id: child.id, name: child.name, birthDay: child.birthDay.map(SagaCopyNamesV1.name(of:)),
-                gender: SagaCopyNamesV1.name(of: child.gender), skinTone: SagaCopyNamesV1.name(of: child.skinTone)
+                gender: SagaCopyNamesV1.name(of: child.gender), skinTone: SagaCopyNamesV1.name(of: child.skinTone),
+                removed: removed
             )
         }
         entries = copy.saga.events.map { event in
             let (kind, contentID) = SagaCopyNamesV1.names(of: event.kind)
             return Entry(
-                id: event.id, kind: kind, contentID: contentID, childID: event.childID,
+                id: event.id, author: event.authorID, kind: kind, contentID: contentID, childID: event.childID,
                 date: event.date.timeIntervalSinceReferenceDate, note: event.note, photos: event.photoIDs
             )
         }
@@ -146,18 +158,21 @@ extension SagaCopySagaV1 {
             beard: try SagaCopyNamesV1.beard(hero.beard), glasses: try SagaCopyNamesV1.glasses(hero.glasses)
         )
         var family: [Domain.Child] = []
+        var removed: [Domain.Child] = []
         for child in children {
-            family.append(Domain.Child(
+            let read = Domain.Child(
                 id: child.id, name: child.name, birthDay: try child.birthDay.map { day throws(SagaCopyError) in
                     try SagaCopyNamesV1.day(day)
                 },
                 gender: try SagaCopyNamesV1.gender(child.gender), skinTone: try SagaCopyNamesV1.skinTone(child.skinTone)
-            ))
+            )
+            if child.removed { removed.append(read) } else { family.append(read) }
         }
         var events: [ProgressEvent] = []
         for entry in entries {
             events.append(ProgressEvent(
-                id: entry.id, kind: try SagaCopyNamesV1.kind(entry.kind, contentID: entry.contentID), childID: entry.childID,
+                id: entry.id, authorID: entry.author, kind: try SagaCopyNamesV1.kind(entry.kind, contentID: entry.contentID),
+                childID: entry.childID,
                 date: Date(timeIntervalSinceReferenceDate: entry.date), note: entry.note, photoIDs: entry.photos
             ))
         }
@@ -173,9 +188,10 @@ extension SagaCopySagaV1 {
         }
         let saga = StoredSaga(
             profile: PlayerProfile(
-                children: family, heroClassID: hero.classID, dadSkinTone: tone, dadAppearance: look,
+                id: hero.id, children: family, heroClassID: hero.classID, dadSkinTone: tone, dadAppearance: look,
                 hasPartner: hero.hasPartner
             ),
+            removedChildren: removed,
             events: events,
             outfit: outfit,
             kept: KeptStanding(titleID: standing.titleID, seenTitleID: standing.seenTitleID)

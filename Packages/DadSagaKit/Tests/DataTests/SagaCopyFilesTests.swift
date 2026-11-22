@@ -39,6 +39,9 @@ struct SagaCopyFilesTests: SagaCopyBench {
         let restored = try #require(try await new.store.wholeSaga.readAll())
         let renamed = Dictionary(uniqueKeysWithValues: zip(original.photoIDs, restored.photoIDs))
         #expect(restored == original.replacingPhotoIDs(renamed))
+        #expect(restored.profile.id == SagaCopyPeople.dadID)
+        #expect(restored.removedChildren == [removed])
+        #expect(Set(restored.events.map(\.authorID)) == [SagaCopyPeople.dadID, SagaCopyPeople.partnerID])
         #expect(Set(restored.photoIDs).isDisjoint(with: original.photoIDs))
         for (oldID, newID) in renamed {
             #expect(try await new.photos.storedData(id: newID) == old.photos.storedData(id: oldID))
@@ -95,7 +98,7 @@ struct SagaCopyFilesTests: SagaCopyBench {
 
         #expect(try await new.store.profiles.fetchProfile()?.children.map(\.name) == ["Λενάκι", "Μπέμπης"])
         #expect(try await new.store.progress.fetchEvents().contains(quest))
-        #expect(try await new.store.progress.fetchEvents().count == 6)
+        #expect(try await new.store.progress.fetchEvents().count == 7)
         #expect(try await new.store.outfit.fetchOutfit() == Outfit(choices: [.care: .item("g-mug")]))
         #expect(try await new.store.standing.fetchKept().seenTitleID == "t-second")
     }

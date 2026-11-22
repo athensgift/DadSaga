@@ -11,13 +11,14 @@ public enum ProfileValidationError: Error, Equatable {
 /// What makes a profile acceptable before it is stored.
 public enum ProfileRules {
     /// Returns the profile with the children's names trimmed, or throws the first problem found. The hero must be one
-    /// the content has now: this is for a hero the dad picks.
+    /// the content has now: this is for a hero the dad picks. `storedCount` is as in `validatedChildren`.
     public static func validated(
         _ profile: PlayerProfile,
         on today: CalendarDay,
-        heroClasses: [HeroClass]
+        heroClasses: [HeroClass],
+        storedCount: Int = 0
     ) throws -> PlayerProfile {
-        let children = try validatedChildren(profile.children, on: today)
+        let children = try validatedChildren(profile.children, on: today, storedCount: storedCount)
         guard heroClasses.contains(where: { $0.id == profile.heroClassID }) else {
             throw ProfileValidationError.unknownHeroClass(profile.heroClassID)
         }
@@ -28,9 +29,14 @@ public enum ProfileRules {
 
     /// Returns the children with their names trimmed, or throws the first problem found. The hero is not looked at, so
     /// a family can always be edited, even when the stored hero is one the content no longer has (ADR-0048 §5).
-    public static func validatedChildren(_ children: [Child], on today: CalendarDay) throws -> [Child] {
+    ///
+    /// The limit of `PlayerProfile.maxChildren` is on adding only (ADR-0065 §4): `storedCount` is how many the family
+    /// holds now, and a family a copy brought with more keeps them and can still be edited.
+    public static func validatedChildren(_ children: [Child], on today: CalendarDay, storedCount: Int = 0) throws -> [Child] {
         guard !children.isEmpty else { throw ProfileValidationError.noChildren }
-        guard children.count <= PlayerProfile.maxChildren else { throw ProfileValidationError.tooManyChildren }
+        guard children.count <= max(PlayerProfile.maxChildren, storedCount) else {
+            throw ProfileValidationError.tooManyChildren
+        }
         return try children.map { child in
             var child = child
             child.name = child.name.trimmingCharacters(in: .whitespacesAndNewlines)

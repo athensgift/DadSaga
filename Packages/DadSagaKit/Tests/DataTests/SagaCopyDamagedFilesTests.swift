@@ -108,6 +108,38 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
         try await expectRefused(try ArchiveFiles.write(entries, in: root), on: target, as: [.damaged])
     }
 
+    @Test("Given a saga.json from before ids and authors, when importing it, then it is damaged and nothing changes",
+          arguments: [("hero", "id"), ("entries", "author"), ("children", "removed")])
+    func copiesWithoutIDsOrAuthorsAreRefused(part: String, key: String) async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        var (entries, target) = try await entries()
+        var saga = try #require(try JSONSerialization.jsonObject(with: entries[1].1) as? [String: Any])
+        switch saga[part] {
+        case var object as [String: Any]:
+            #expect(object.removeValue(forKey: key) != nil)
+            saga[part] = object
+        case let list as [[String: Any]]:
+            #expect(list.allSatisfy { $0[key] != nil })
+            saga[part] = list.map { $0.filter { $0.key != key } }
+        default:
+            Issue.record("No \(part) in saga.json")
+        }
+        entries[1].1 = try JSONSerialization.data(withJSONObject: saga)
+
+        try await expectRefused(try ArchiveFiles.write(entries, in: root), on: target, as: [.damaged])
+    }
+
+    @Test("Given a copy whose children are all removed, when importing it, then it is damaged and nothing changes")
+    func everyChildRemovedIsRefused() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        var (entries, target) = try await entries()
+        let saga = try #require(String(data: entries[1].1, encoding: .utf8))
+        entries[1].1 = Data(saga.replacingOccurrences(of: #""removed":false"#, with: #""removed":true"#).utf8)
+        #expect(entries[1].1 != Data(saga.utf8))
+
+        try await expectRefused(try ArchiveFiles.write(entries, in: root), on: target, as: [.damaged])
+    }
+
     @Test("Given a manifest larger than its limit, when importing, then it is refused before it is read")
     func oversizedEntriesAreRefused() async throws {
         defer { try? FileManager.default.removeItem(at: root) }
@@ -124,10 +156,12 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
     @Test("Given the current schema, when listing its stored properties, then format 1 covers every one")
     func formatCoversTheSchema() {
         let covered: [String: Set<String>] = [
-            "ProfileRecord": ["heroClassID", "dadSkinTone", "hairStyle", "hairColor", "beard", "glasses", "hasPartner",
+            "ProfileRecord": ["profileID", "heroClassID", "dadSkinTone", "hairStyle", "hairColor", "beard", "glasses",
+                              "hasPartner",
                               "heldTitleID", "seenTitleID"],
-            "ChildRecord": ["childID", "name", "birthYear", "birthMonth", "birthDay", "gender", "skinTone", "order"],
-            "ProgressEventRecord": ["eventID", "kind", "contentID", "childID", "date", "note", "photoIDs"],
+            "ChildRecord": ["childID", "name", "birthYear", "birthMonth", "birthDay", "gender", "skinTone", "order",
+                            "isRemoved"],
+            "ProgressEventRecord": ["eventID", "authorID", "kind", "contentID", "childID", "date", "note", "photoIDs"],
             "OutfitRecord": ["skill", "choice"]
         ]
         let schema = Schema(versionedSchema: CurrentSchema.self)
@@ -162,14 +196,16 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
         {"answeredOccasionIDs":["x/birthday/1"],
          "children":[
            {"birthDay":"2024-02-29","gender":"girl","id":"AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA","name":"Ελένη",
-            "skinTone":"dark"},
-           {"gender":"boy","id":"BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB","name":"Μπέμπης","skinTone":"light"}],
+            "removed":false,"skinTone":"dark"},
+           {"gender":"girl","id":"CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC","name":"Ίρις","removed":true,"skinTone":"medium"},
+           {"gender":"boy","id":"BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB","name":"Μπέμπης","removed":false,"skinTone":"light"}],
          "entries":[
-           {"childID":"AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA","contentID":"f-steps","date":790000000.5,
+           {"author":"F0000000-0000-0000-0000-00000000000F","childID":"AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA",
+            "contentID":"f-steps","date":790000000.5,
             "id":"E0000000-0000-0000-0000-000000000001","kind":"first","note":"Μπράβο",
             "photos":["11111111-1111-1111-1111-111111111111"]}],
          "hero":{"beard":"short","classID":"h-cool","glasses":"round","hair":"long","hairColor":"red",
-                 "hasPartner":false,"skinTone":"medium"},
+                 "hasPartner":false,"id":"D0000000-0000-0000-0000-00000000000D","skinTone":"medium"},
          "standing":{"gearIDs":["g-mug"],"seenTitleID":"t-2","titleID":"t-3"},
          "wardrobe":[{"choice":"hidden","skill":"play"},{"choice":"item","itemID":"g-mug","skill":"care"}]}
         """#
@@ -177,6 +213,8 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
                           birthDay: .day(2024, 2, 29), gender: .girl, skinTone: .dark)
         let baby = Child(id: SagaCopyV1Fixture.id("BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB"), name: "Μπέμπης", birthDay: nil,
                          skinTone: .light)
+        let iris = Child(id: SagaCopyV1Fixture.id("CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC"), name: "Ίρις", birthDay: nil,
+                         gender: .girl, skinTone: .medium)
         let madeAt = Date(timeIntervalSinceReferenceDate: 1)
 
         let copy = try JSONDecoder().decode(SagaCopySagaV1.self, from: Data(json.utf8)).toDomain(madeAt: madeAt)
@@ -184,12 +222,15 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
         #expect(copy == SagaCopy(
             saga: StoredSaga(
                 profile: PlayerProfile(
+                    id: SagaCopyV1Fixture.id("D0000000-0000-0000-0000-00000000000D"),
                     children: [eleni, baby], heroClassID: "h-cool", dadSkinTone: .medium,
                     dadAppearance: DadAppearance(hair: .long, hairColor: .red, beard: .short, glasses: .round),
                     hasPartner: false
                 ),
+                removedChildren: [iris],
                 events: [ProgressEvent(
-                    id: SagaCopyV1Fixture.id("E0000000-0000-0000-0000-000000000001"), kind: .first(id: "f-steps"),
+                    id: SagaCopyV1Fixture.id("E0000000-0000-0000-0000-000000000001"),
+                    authorID: SagaCopyV1Fixture.id("F0000000-0000-0000-0000-00000000000F"), kind: .first(id: "f-steps"),
                     childID: eleni.id, date: Date(timeIntervalSinceReferenceDate: 790_000_000.5), note: "Μπράβο",
                     photoIDs: ["11111111-1111-1111-1111-111111111111"]
                 )],

@@ -10,16 +10,19 @@ actor SwiftDataOutfitRepository: OutfitRepository {
         try currentOutfit()
     }
 
-    /// Synchronous inside the actor between the delete, the insert and the read. The rows are fetched and deleted on
-    /// the context, not by a batch delete, which runs against the store at once and is not undone by a rollback.
+    /// Updates or deletes the skill's one row, or inserts it (ADR-0065 §5). Synchronous inside the actor between the
+    /// fetch, the write and the read.
     func setChoice(_ choice: OutfitChoice, for skill: Skill) async throws -> Outfit {
         let raw = skill.rawValue
         try modelContext.saveAllOrNothing {
-            for record in try modelContext.fetch(FetchDescriptor<OutfitRecord>(predicate: #Predicate { $0.skill == raw })) {
-                modelContext.delete(record)
-            }
-            if let encoded = OutfitCoding.encode(choice) {
-                modelContext.insert(OutfitRecord(skill: raw, choice: encoded))
+            var descriptor = FetchDescriptor<OutfitRecord>(predicate: #Predicate { $0.skill == raw })
+            descriptor.fetchLimit = 1
+            let record = try modelContext.fetch(descriptor).first
+            switch (record, OutfitCoding.encode(choice)) {
+            case (let record?, let encoded?): record.choice = encoded
+            case (nil, let encoded?): modelContext.insert(OutfitRecord(skill: raw, choice: encoded))
+            case (let record?, nil): modelContext.delete(record)
+            case (nil, nil): break
             }
         }
         return try currentOutfit()

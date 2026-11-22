@@ -25,7 +25,8 @@ struct OrphanPhotoSweepTests {
         let store = LocalStore.live(in: directory)
         try await store.progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: child.id, date: .now, photoIDs: ["a"]))
         try writeRows([
-            ProgressEventRecord(eventID: UUID(), kind: "dream", contentID: "d1", childID: child.id, date: .now, note: nil,
+            ProgressEventRecord(eventID: UUID(), authorID: .testDad,
+                                kind: "dream", contentID: "d1", childID: child.id, date: .now, note: nil,
                                 photoIDs: ["b"])
         ])
 

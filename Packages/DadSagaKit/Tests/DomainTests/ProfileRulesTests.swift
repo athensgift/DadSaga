@@ -35,10 +35,24 @@ struct ProfileRulesTests {
         }
     }
 
-    @Test("Given five children, when validating, then tooManyChildren is thrown")
+    @Test("Given four children stored, when validating five, then tooManyChildren is thrown")
     func tooManyChildren() {
+        let five = (0..<5).map { _ in child() }
         #expect(throws: ProfileValidationError.tooManyChildren) {
-            try ProfileRules.validated(profile((0..<5).map { _ in child() }), on: today, heroClasses: heroes)
+            try ProfileRules.validated(profile(five), on: today, heroClasses: heroes)
+        }
+        #expect(throws: ProfileValidationError.tooManyChildren) {
+            try ProfileRules.validatedChildren(five, on: today, storedCount: 4)
+        }
+    }
+
+    @Test("Given five children stored (from a copy), when validating five or four, then they pass; six do not")
+    func theLimitIsOnAddingOnly() throws {
+        let five = (0..<5).map { _ in child() }
+        #expect(try ProfileRules.validated(profile(five), on: today, heroClasses: heroes, storedCount: 5).children.count == 5)
+        #expect(try ProfileRules.validatedChildren(Array(five.prefix(4)), on: today, storedCount: 5).count == 4)
+        #expect(throws: ProfileValidationError.tooManyChildren) {
+            try ProfileRules.validatedChildren(five + [child()], on: today, storedCount: 5)
         }
     }
 

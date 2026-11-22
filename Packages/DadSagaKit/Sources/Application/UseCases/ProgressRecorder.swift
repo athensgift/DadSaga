@@ -23,14 +23,18 @@ public enum ProgressError: Error, Equatable {
     case tooManyPhotos
     /// An edit kept a photo the entry doesn't have.
     case unknownPhoto
+    /// Recording before onboarding: there is no player to be the entry's author.
+    case noProfile
 }
 
 /// The one way a quest, a boss or a first is recorded: check the content exists, store the event with the dad's note
 /// and photos, and say what it changed. A boss or a first counts once per child; when the child already has it, nothing
 /// is stored and the change has no `eventID`. Nothing is kept for the title, so an Undo can take it back (ADR-0055 §3).
+/// The entry's author is the stored player (ADR-0065 §5).
 struct ProgressRecorder {
     let contentRepository: any ContentRepository
     let progressRepository: any ProgressRepository
+    let profileRepository: any ProfileRepository
     let photoStore: any PhotoStore
 
     /// - Parameter unknown: thrown when the catalog has no such content.
@@ -41,6 +45,7 @@ struct ProgressRecorder {
         journal: JournalInput,
         unknown: some Error
     ) async throws -> ProgressChange {
+        guard let authorID = try await profileRepository.fetchProfile()?.id else { throw ProgressError.noProfile }
         let catalog = try await contentRepository.fetchCatalog()
         // Stored under the content's current id, even when asked by a former one (e.g. an old widget link).
         guard let kind = catalog.canonical(kind) else { throw unknown }
@@ -50,7 +55,9 @@ struct ProgressRecorder {
         // The usual repeat stops here, before any photo is written; `record` still catches two saves at once.
         guard !before.isAlreadyCounted(kind, for: childID) else { return unchanged }
         let recorder = EventRecorder(progressRepository: progressRepository, photoStore: photoStore)
-        guard let event = try await recorder.record(kind, childID: childID, date: date, journal: journal) else {
+        guard let event = try await recorder.record(
+            kind, authorID: authorID, childID: childID, date: date, journal: journal
+        ) else {
             return unchanged
         }
         return ProgressChange(before: before, after: DadProgress(events: events + [event], catalog: catalog), eventID: event.id)

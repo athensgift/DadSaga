@@ -19,6 +19,7 @@ struct MomentUseCaseTests {
         DefaultCaptureMomentUseCase(
             contentRepository: content,
             progressRepository: repository,
+            profileRepository: TheDad(),
             photoStore: photos
         )
     }
@@ -107,6 +108,24 @@ struct MomentUseCaseTests {
         #expect(updated.photoIDs.count == 1)
         #expect(updated.photoIDs != moment.photoIDs)
         #expect(await photos.stored == [try #require(updated.coverPhotoID): Data([2])])
+    }
+
+    @Test("Given a moment captured by the dad, then it is his; given a partner's entry, when edited, then it stays theirs")
+    func authorsStay() async throws {
+        let moment = try await captured()
+        #expect(moment.authorID == .testDad)
+
+        let partner = UUID()
+        let theirs = ProgressEvent(authorID: partner, kind: .quest(id: "q1"), childID: child, date: today)
+        try await repository.add(theirs)
+        try await DefaultUpdateJournalUseCase(progressRepository: repository, photoStore: photos)
+            .execute(eventID: theirs.id, note: "μαζί", photos: [.added(Data([3]))])
+        try await update.execute(momentID: moment.id, happenedOn: moment.date, note: "x", photos: [], now: today)
+
+        let events = try await repository.fetchEvents()
+        #expect(events.first { $0.id == theirs.id }?.authorID == partner)
+        #expect(events.first { $0.id == theirs.id }?.note == "μαζί")
+        #expect(events.first { $0.id == moment.id }?.authorID == .testDad)
     }
 
     @Test("Given saving fails, when replacing a moment's photo, then the new photo is removed and the old one stays")
@@ -234,14 +253,37 @@ struct GetTimelineUseCaseTests {
     func buildsTimeline() async throws {
         let repository = SpyProgressRepository()
         let quest = try #require(Stub.catalog.quests.first)
-        try await repository.add(ProgressEvent(kind: .quest(id: quest.id), childID: UUID(), date: .now))
+        let dad = TheDad()
+        try await repository.add(ProgressEvent(kind: .quest(id: quest.id), childID: dad.profile.children[0].id, date: .now))
         let sut = DefaultGetTimelineUseCase(
             contentRepository: StubContentRepository(result: .success(Stub.catalog)),
-            progressRepository: repository
+            progressRepository: repository,
+            profileRepository: dad
         )
 
         let entries = try await sut.execute()
 
         #expect(entries.map(\.xp) == [quest.xp])
+    }
+
+    @Test("Given entries of a child no longer in the family, when executing, then only the family's are listed")
+    func onlyTheFamilysEntries() async throws {
+        let repository = SpyProgressRepository()
+        let quest = try #require(Stub.catalog.quests.first)
+        let dad = TheDad()
+        let family = ProgressEvent(kind: .quest(id: quest.id), childID: dad.profile.children[0].id, date: .now)
+        try await repository.add(family)
+        try await repository.add(ProgressEvent(kind: .quest(id: quest.id), childID: UUID(), date: .now))
+        let content = StubContentRepository(result: .success(Stub.catalog))
+
+        let entries = try await DefaultGetTimelineUseCase(
+            contentRepository: content, progressRepository: repository, profileRepository: dad
+        ).execute()
+        let none = try await DefaultGetTimelineUseCase(
+            contentRepository: content, progressRepository: repository, profileRepository: SpyProfileRepository()
+        ).execute()
+
+        #expect(entries.map(\.id) == [family.id])
+        #expect(none.isEmpty)
     }
 }

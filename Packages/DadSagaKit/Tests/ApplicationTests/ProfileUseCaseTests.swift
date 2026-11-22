@@ -61,3 +61,27 @@ actor SpyProfileRepository: ProfileRepository {
         self.profile = profile
     }
 }
+
+extension ProfileUseCaseTests {
+    @Test("Given five children from a copy, when the hero and the family are edited, then both save and the id stays")
+    func aFamilyOfFiveCanBeEdited() async throws {
+        let repository = SpyProfileRepository()
+        let id = UUID()
+        let five = (1...5).map { Child(name: "Παιδί \($0)", birthDay: nil) }
+        try await repository.save(PlayerProfile(id: id, children: five, heroClassID: "h1"))
+
+        try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: repository)
+            .execute(heroClassID: "h1", skinTone: .dark, appearance: .standard(for: .dark), on: today)
+        try await DefaultUpdateFamilyUseCase(profileRepository: repository)
+            .execute(children: Array(five.dropLast()), hasPartner: false, on: today)
+
+        let stored = try #require(try await repository.fetchProfile())
+        #expect(stored.id == id)
+        #expect(stored.children == Array(five.dropLast()))
+        #expect(stored.dadSkinTone == .dark)
+        await #expect(throws: ProfileValidationError.tooManyChildren) {
+            try await DefaultUpdateFamilyUseCase(profileRepository: repository)
+                .execute(children: five, hasPartner: false, on: today)
+        }
+    }
+}

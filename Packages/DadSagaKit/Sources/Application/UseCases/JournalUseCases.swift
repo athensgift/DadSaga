@@ -22,13 +22,20 @@ struct EventRecorder {
     let progressRepository: any ProgressRepository
     let photoStore: any PhotoStore
 
-    /// Stores the event with the journal. A boss or a first that this child already has is not stored again: then the
-    /// result is `nil` and no photo is kept.
-    func record(_ kind: ProgressEvent.Kind, childID: UUID, date: Date, journal: JournalInput) async throws -> ProgressEvent? {
+    /// Stores the event by `authorID` with the journal. A boss or a first that this child already has is not stored
+    /// again: then the result is `nil` and no photo is kept.
+    func record(
+        _ kind: ProgressEvent.Kind,
+        authorID: UUID,
+        childID: UUID,
+        date: Date,
+        journal: JournalInput
+    ) async throws -> ProgressEvent? {
         guard journal.photos.count <= ProgressEvent.photoLimit else { throw ProgressError.tooManyPhotos }
         let photoIDs = try await save(journal.photos)
         let event = ProgressEvent(
-            kind: kind, childID: childID, date: date, note: journal.note.trimmedOrNil, photoIDs: photoIDs
+            authorID: authorID, kind: kind, childID: childID, date: date, note: journal.note.trimmedOrNil,
+            photoIDs: photoIDs
         )
         let added: Bool
         do {
@@ -49,7 +56,7 @@ struct EventRecorder {
         return event
     }
 
-    /// Saves `event` with a new date, note and photos. Its id, what it was and the child stay the same.
+    /// Saves `event` with a new date, note and photos. Its id, its author, what it was and the child stay the same.
     /// - Parameter photos: every photo it keeps, in order. More than `ProgressEvent.photoLimit`, or a kept id the event
     ///   doesn't have, throws before anything is written.
     func update(_ event: ProgressEvent, date: Date, note: String?, photos: [EntryPhoto]) async throws {
@@ -72,8 +79,8 @@ struct EventRecorder {
                 }
             }
             try await progressRepository.update(ProgressEvent(
-                id: event.id, kind: event.kind, childID: event.childID, date: date, note: note.trimmedOrNil,
-                photoIDs: photoIDs
+                id: event.id, authorID: event.authorID, kind: event.kind, childID: event.childID, date: date,
+                note: note.trimmedOrNil, photoIDs: photoIDs
             ))
         } catch {
             await delete(addedIDs)

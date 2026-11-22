@@ -12,9 +12,9 @@ actor SwiftDataWholeSagaRepository: WholeSagaRepository {
     /// In one actor turn, so no write lands between the reads.
     func readAll() async throws -> StoredSaga? {
         guard let profile = try modelContext.fetch(FetchDescriptor<ProfileRecord>()).first else { return nil }
-        let children = try modelContext
-            .fetch(FetchDescriptor<ChildRecord>(sortBy: [SortDescriptor(\.order)]))
-            .map { try $0.toDomain() }
+        let rows = try modelContext.fetch(FetchDescriptor<ChildRecord>(sortBy: [SortDescriptor(\.order)]))
+        let children = try rows.filter { !$0.isRemoved }.map { try $0.toDomain() }
+        let removedChildren = try rows.filter(\.isRemoved).map { try $0.toDomain() }
         let events = try modelContext
             .fetch(FetchDescriptor<ProgressEventRecord>(sortBy: [SortDescriptor(\.date)]))
             .compactMap { $0.toDomain() }
@@ -24,11 +24,13 @@ actor SwiftDataWholeSagaRepository: WholeSagaRepository {
             outfit.choices[skill] = choice
         }
         return StoredSaga(
-            profile: profile.toDomain(children: children), events: events, outfit: outfit, kept: profile.kept
+            profile: profile.toDomain(children: children), removedChildren: removedChildren, events: events,
+            outfit: outfit, kept: profile.kept
         )
     }
 
-    /// The kept standing is written column by column: `ProfileRecord(profile:)` keeps nothing.
+    /// The kept standing is written column by column: `ProfileRecord(profile:)` keeps nothing. The profile's id is the
+    /// copy's, and every entry keeps its author (ADR-0065 §5). The removed children follow the family in order.
     func replaceAll(with saga: StoredSaga) async throws {
         try modelContext.saveAllOrNothing {
             try deleteEveryRow()
@@ -36,8 +38,9 @@ actor SwiftDataWholeSagaRepository: WholeSagaRepository {
             profile.heldTitleID = saga.kept.titleID
             profile.seenTitleID = saga.kept.seenTitleID
             modelContext.insert(profile)
-            for (order, child) in saga.profile.children.enumerated() {
-                modelContext.insert(ChildRecord(child: child, order: order))
+            let children = saga.profile.children.map { ($0, false) } + saga.removedChildren.map { ($0, true) }
+            for (order, (child, isRemoved)) in children.enumerated() {
+                modelContext.insert(ChildRecord(child: child, order: order, isRemoved: isRemoved))
             }
             for event in saga.events {
                 modelContext.insert(ProgressEventRecord(event: event))

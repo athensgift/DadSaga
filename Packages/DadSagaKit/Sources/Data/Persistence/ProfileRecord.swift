@@ -8,7 +8,8 @@ enum StoredDataError: Error, Equatable {
 }
 
 extension ChildRecord {
-    convenience init(child: Child, order: Int) {
+    /// `isRemoved` is false for every child the app itself writes; only a copy brings a removed one (ADR-0065 §5).
+    convenience init(child: Child, order: Int, isRemoved: Bool) {
         self.init(
             childID: child.id,
             name: child.name,
@@ -17,10 +18,12 @@ extension ChildRecord {
             birthDay: child.birthDay?.day,
             gender: child.gender.rawValue,
             skinTone: child.skinTone.rawValue,
-            order: order
+            order: order,
+            isRemoved: isRemoved
         )
     }
 
+    /// Never writes `childID` or `isRemoved`.
     func update(from child: Child, order: Int) {
         name = child.name
         birthYear = child.birthDay?.year
@@ -60,6 +63,7 @@ extension ProfileRecord {
     convenience init(profile: PlayerProfile) {
         let look = profile.dadAppearance
         self.init(
+            profileID: profile.id,
             heroClassID: profile.heroClassID,
             dadSkinTone: profile.dadSkinTone.rawValue,
             hairStyle: look.hair.rawValue,
@@ -75,6 +79,7 @@ extension ProfileRecord {
         KeptStanding(titleID: heldTitleID, seenTitleID: seenTitleID)
     }
 
+    /// Never writes `profileID`: the stored player keeps who they are.
     func update(from profile: PlayerProfile) {
         heroClassID = profile.heroClassID
         dadSkinTone = profile.dadSkinTone.rawValue
@@ -97,7 +102,8 @@ extension ProfileRecord {
             glasses: DadAppearance.Glasses(rawValue: glasses) ?? standard.glasses
         )
         return PlayerProfile(
-            children: children, heroClassID: heroClassID, dadSkinTone: tone, dadAppearance: look, hasPartner: hasPartner
+            id: profileID, children: children, heroClassID: heroClassID, dadSkinTone: tone, dadAppearance: look,
+            hasPartner: hasPartner
         )
     }
 }
