@@ -9,8 +9,9 @@ deleting an entry no longer lowers the title or takes gear; the Undo: it keeps n
 for a title it takes, and the bar's offer ends when the dad leaves for the timeline or deletes a moment), ADR-0023 (the
 widget's quest shows its skill, no XP), ADR-0024 (the reminder card also waits while a title card shows), ADR-0026
 (schema version 7), ADR-0037 (the title in the credits; the film card waits while a title card shows), ADR-0043 (the
-hero's pane shows the title where the level card was) and ADR-0048 §5 (titles join the shipped ids; gear is guarded by
-its title).
+hero's pane shows the title where the level card was), ADR-0048 §5 (titles join the shipped ids; gear is guarded by
+its title) and ADR-0050 (a sheet can't be swiped away while its save is under way either, not only while it holds
+unsaved changes).
 
 ## Context
 - **Today:** `LevelCurve` turns total XP into a numbered level (100, 300, 600 … XP). Home shows "Level 3" with an XP bar
@@ -121,7 +122,8 @@ its title).
       put back as it was, so nothing has changed and the Undo can be tried again.
     - `UndoRecordUseCase` returns the title he still holds. Home forgets the cards closed in the session above it
       right then (`HomeViewModel.takeBack`), where they are taken, not in a later load: the reload after an Undo can
-      fail, and an older load that finishes late has read other entries.
+      fail, and an older load that finishes late has read other entries. A card still open for a title the Undo took
+      is taken down there too, so he can't close it, and mark it seen, for a title he no longer holds.
     - Closing a card takes its turn with the saves (`isCompleting`), so its write can't land in the middle of an Undo.
   - Two quick cards, then Undo: only the last goes, and the first's title is what his entries still reach.
   - The old gear frozen at the first change (§4) stays frozen: it is what the entries before the card gave.
@@ -138,8 +140,9 @@ its title).
   - **No offer is made for a visit he has left.** Home counts the times he leaves (`departures`). A card whose save
     began before he left is saved and celebrated, but its Undo isn't offered when the save ends; a failed Undo that
     ends after he left doesn't come back to the bar.
-  - A quest, boss or moment sheet can't be swiped away while its save is under way (`UnsavedChangesGuard.isSaving`),
-    as its Close button already couldn't be used.
+  - A quest, boss or moment sheet can't be swiped away while its save is under way (`UnsavedChangesGuard.isSaving`;
+    step 1 of a new moment by its own modifier), and its Close button can't be used then. This adds to ADR-0050.
+  - A failed Undo says "Couldn't undo. Please try again.", on the bar and in the moment's sheet.
   - **The sheet's Undo and the editor's Delete are two actions** (`undoMoment`, `deleteMoment`). An Undo tapped as
     its time runs out does nothing: it never becomes a deletion, which would keep the title.
   - An offer that has ended can't be used later.

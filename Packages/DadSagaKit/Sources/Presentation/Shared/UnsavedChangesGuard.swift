@@ -1,9 +1,10 @@
 import SwiftUI
 
-/// Keeps a sheet or screen from losing what the dad changed and hasn't saved: while there is something to lose, or a
-/// save is under way, a swipe can't close it, and Close asks first. The question is an alert, so every answer is a
-/// visible button: discard, keep editing, and save where saving only keeps his edit (ADR-0042 §5, ADR-0050). It also
-/// tells the app's `UnsavedWork` while there is something to lose, so a link from outside waits for it.
+/// Keeps a sheet or screen from losing what the dad changed and hasn't saved: while there is something to lose, a swipe
+/// can't close it, and Close asks first. The question is an alert, so every answer is a visible button: discard, keep
+/// editing, and save where saving only keeps his edit (ADR-0042 §5, ADR-0050). A swipe can't close it while a save is
+/// under way either; each sheet disables its own Close button then (ADR-0055 §3). It also tells the app's
+/// `UnsavedWork` while there is something to lose, so a link from outside waits for it.
 struct UnsavedChangesGuard: ViewModifier {
     let hasUnsavedChanges: Bool
     @Binding var isAsking: Bool

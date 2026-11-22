@@ -38,13 +38,18 @@ extension HomeViewModel {
         }
     }
 
-    /// Takes an entry back through its Undo, the bar's or the sheet's. The cards closed in this session for titles the
-    /// Undo took are forgotten here, where they are taken, so each comes again when a card reaches its title
-    /// (ADR-0055 §3). Nothing else lowers the title he holds, so no load has to look for them.
+    /// Takes an entry back through its Undo, the bar's or the sheet's. The cards of titles the Undo took go here, where
+    /// they are taken (ADR-0055 §3): the ones closed in this session are forgotten, so each comes again when a card
+    /// reaches its title, and one still open is taken down, so he can't close it for a title he no longer holds.
+    /// Nothing else lowers the title he holds, so no load has to look for them, and the reload after may fail.
     func takeBack(_ eventID: UUID) async throws {
         let held = try await useCases.undoRecord.execute(undoing: eventID)
         guard let catalog = overview?.catalog else { return }
-        closedTitleCards = closedTitleCards.filter { (catalog.title(id: $0)?.order ?? 0) <= (held?.order ?? -1) }
+        func isStillHeld(_ titleID: String) -> Bool {
+            (catalog.title(id: titleID)?.order ?? 0) <= (held?.order ?? -1)
+        }
+        closedTitleCards = closedTitleCards.filter(isStillHeld)
+        if let card = titleCard, !isStillHeld(card.titleID) { titleCard = nil }
     }
 
     /// "Saved · Undo" for what a change recorded; `nil` when it recorded nothing. Nothing else is remembered for it: an
@@ -54,11 +59,15 @@ extension HomeViewModel {
         change.eventID.map { makeUndoOffer(id: id, eventID: $0) }
     }
 
+    var undoFailedMessage: String {
+        strings.text("Couldn't undo. Please try again.")
+    }
+
     func makeUndoOffer(id: Int, eventID: UUID, didFail: Bool = false) -> UndoOffer {
         UndoOffer(
             id: id,
             eventID: eventID,
-            message: didFail ? strings.text("Couldn't undo. Please try again.") : strings.text("Saved"),
+            message: didFail ? undoFailedMessage : strings.text("Saved"),
             actionTitle: strings.text("Undo"),
             didFail: didFail
         )

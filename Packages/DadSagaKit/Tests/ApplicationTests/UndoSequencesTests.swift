@@ -129,11 +129,13 @@ struct UndoSequencesTests {
         /// Undoes the entry, and checks the two rules of the closed card on the way.
         func undo(_ eventID: UUID, in steps: [Step]) async throws {
             let had = try await stand()
-            try await DefaultUndoRecordUseCase(
+            let held = try await DefaultUndoRecordUseCase(
                 contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
             )
             .execute(undoing: eventID)
             let has = try await stand()
+            // The Undo says what he still holds.
+            #expect(held == has.title, "\(steps)")
             // A card he closed never comes back for a title he still holds.
             #expect(had.news != nil || has.news == nil, "\(steps)")
             // And the card of a title the Undo took is no longer closed, so it comes again with the title.

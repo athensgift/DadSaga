@@ -59,10 +59,14 @@ struct MomentChoiceStep: View {
         }
         .background(DSColor.background)
         .navigationTitle(title)
+        // Nor swiped away while it saves: step 2, with the moment's Undo, comes in this sheet.
+        .interactiveDismissDisabled(isSaving)
         .toolbarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .cancellationAction) {
                 Button(role: .close, action: onClose)
+                    // A save under way can't be discarded: it records the moment anyway.
+                    .disabled(isSaving)
             }
             ToolbarItem(placement: .confirmationAction) {
                 Button(role: .confirm) {

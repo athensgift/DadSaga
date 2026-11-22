@@ -78,7 +78,7 @@ extension HomeViewModel {
     /// never becomes a deletion, which would keep the title.
     public func undoMoment() async {
         guard let details = momentCapture?.details, details.undoOffer != nil else { return }
-        await perform {
+        await perform(orSay: undoFailedMessage) {
             try await self.takeBack(details.momentID)
             // Gone: nothing to celebrate.
             self.pendingMomentCelebration = nil
@@ -122,7 +122,8 @@ extension HomeViewModel {
 
     /// Runs a change to the open moment that earns nothing: closes its sheet and refreshes, or shows an error and keeps
     /// it open. A link from outside waits while it runs (`receive`), so the sheet is still the moment's.
-    func perform(_ action: () async throws -> Void) async {
+    /// - Parameter failure: what the sheet says if it fails; "Couldn't save" unless given.
+    func perform(orSay failure: String? = nil, _ action: () async throws -> Void) async {
         guard !isCompleting else { return }
         isCompleting = true
         defer { isCompleting = false }
@@ -132,7 +133,7 @@ extension HomeViewModel {
             momentCapture = nil
             await load()
         } catch {
-            errorMessage = saveFailedMessage
+            errorMessage = failure ?? saveFailedMessage
         }
     }
 }

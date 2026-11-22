@@ -9,7 +9,6 @@ public protocol UndoRecordUseCase: Sendable {
     /// - Parameter eventID: the entry just recorded (`ProgressChange.eventID`). Throws `ProgressError.unknownEvent`
     ///   when it is no longer there.
     /// - Returns: the title he holds once the entry is gone, so the screen knows which title cards may come again.
-    @discardableResult
     func execute(undoing eventID: UUID) async throws -> DadTitle?
 }
 
@@ -33,7 +32,6 @@ public struct DefaultUndoRecordUseCase: UndoRecordUseCase {
 
     /// The closed card goes back first, when it is above the title he will hold. If deleting the entry then fails, it
     /// is put back as it was, so nothing has changed and the Undo can be tried again.
-    @discardableResult
     public func execute(undoing eventID: UUID) async throws -> DadTitle? {
         let remover = EntryRemover(progressRepository: progressRepository, photoStore: photoStore)
         let (event, events) = try await remover.find(eventID)

@@ -171,6 +171,41 @@ struct HomeUndoTests {
         #expect(sut.titleCard?.title == "Έγινες «Νέος στο ταξίδι».")
     }
 
+    @Test("Given a title card still open and its quest undone, when home can't be read just then, then the card goes too")
+    func undoTakesTheOpenCardWithoutAReload() async throws {
+        let sut = await makeSUT()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        #expect(sut.titleCard != nil)
+        await progress.failOverview()
+
+        await sut.undoLastRecord()
+        #expect(await progress.eventCount == 0)
+        // Nothing to close for a title he no longer holds: closing it would mark it seen for good.
+        #expect(sut.titleCard == nil)
+        await sut.closeTitleCard()
+        #expect(await progress.kept.seenTitleID == nil)
+        await progress.mendOverview()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+
+        #expect(sut.titleCard?.title == "Έγινες «Νέος στο ταξίδι».")
+    }
+
+    @Test("Given a new moment's Undo in its sheet, when undoing fails, then the sheet stays and says it couldn't undo")
+    func failedMomentUndoSaysSo() async throws {
+        let sut = await makeSUT()
+        sut.startCapture()
+        await sut.captureMoment(firstID: "f1", date: HeroStub.today)
+        await progress.failNext()
+
+        await sut.undoMoment()
+
+        #expect(await progress.eventCount == 1)
+        #expect(sut.momentCapture?.details?.undoOffer != nil)
+        #expect(sut.errorMessage == "Δεν αναιρέθηκε. Δοκίμασε ξανά.")
+    }
+
     @Test("Given a quest's Undo on home, when the dad deletes a moment he opened to edit, then the Undo is over")
     func deletingAMomentEndsTheBar() async throws {
         await progress.seedMoment(photos: [])
