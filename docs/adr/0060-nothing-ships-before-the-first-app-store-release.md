@@ -207,11 +207,13 @@ the build is released. It adds:
   - If the store changed, what happens depends on his rows (measured on 2026-11-22, `OlderStoreTests`). The app opens
     the store with a plan of `[SchemaV1]` only, so SwiftData migrates it by inference when it can: a column made
     non-optional is inferred whenever no row holds nil in it, and a dropped column is dropped. A `develop` store
-    from before this change opens that way, silently, without `keptGearIDs`. When a row holds nil in a column that is
-    now required, opening throws, the store is left unchanged, and the app shows "We couldn't open your saga" with
+    from before this change opens that way, silently, without `keptGearIDs`, if its profile was saved since version
+    6 (rows from versions 3 and 5 keep a nil look or partner answer until then). When a row holds nil in a column
+    that is now required, opening throws, the store is left unchanged, and the app shows "We couldn't open your saga" with
     only Try again. Deleting the app is the way out. Nothing on that screen deletes the store (ADR-0026 §1).
-  - The widget opens the store read-only, without the plan, so it never migrates: on a changed store it always
-    fails and leaves the store as it was, until the app has opened it.
+  - The widget opens the store read-only (`allowsSave: false`): SwiftData tries the same inferred migration and
+    SQLite refuses the write, so on a changed store it always fails and leaves the store as it was, until the app
+    has opened it.
   - So a silent migration is not a promise either: "delete the app first" stays the rule for every build that
     changes the store.
   - If only an id changed, the app opens. Entries under the old id drop out of the timeline, the XP and the film, as
@@ -231,7 +233,7 @@ the build is released. It adds:
 | Domain | `GearItem.skillXPBeforeTitles`; `GearRules.earnedBeforeTitles`; `KeptStanding.gearIDs` and `.fresh`; `DadStanding.gearBeforeTitles` and `toKeepBeforeRecording` | `DadStanding`'s initializer, `asOf(_:catalog:)` (no `kept`), `news`; `toKeepBeforeDeleting` becomes `titleToKeep` |
 | Application | `StandingKeeper`; the gear argument of `StandingRepository.keep`; the `StandingRepository` of `ProgressRecorder`, `DefaultCompleteQuestUseCase`, `DefaultDefeatBossUseCase` and `DefaultCaptureMomentUseCase` | `DeleteEventUseCase` keeps `titleToKeep`; `GetSagaFilmUseCase`'s call to `asOf` |
 | Data | `SchemaV2` … `SchemaV7` (version 7's models become `SchemaV1`'s), the six stages, `copyPhotoIDs`, `fillBirthDays`; `GearItemDTO.skillXPBeforeTitles`; the former ids and retired cards in `quests.json` and `firsts.json`; the eight thresholds in `gear.json` | `SchemaV1` (§2); `DadSagaMigrationPlan`; `CurrentSchema`; the `ProfileRecord` and `ProgressEventRecord` mappings; `SwiftDataProgressRepository` (its predicate's `UUID?`); `SwiftDataStandingRepository`; `ConnectedStandingRepository`; `SwiftDataWholeSagaRepository`; `SagaCopyV1DTO` (no `standing.gearIDs`); the gear mapper |
-| Data tests | `StoreMigrationTests`; `WidgetBeforeMigrationTests` with `StoreFiles`; `StoreFixture`, `StoreV1Fixture`, `StoreV3Fixture` … `StoreV6Fixture` and the six `Fixtures/Store…` folders; `ShippedContentIDs.json` and `ShippedContentIDsTests`; `CalendarDay.migrated`; in `StoreVersioningTests`, the two tests of the store from before versions and the one of an event without a child; the three version 6 tests in `TitlesStoreTests` | the rest of `TitlesStoreTests` saves a profile of its own; `OrphanPhotoSweepTests` keeps its row of an unknown kind and loses the row without a child; `BundledContentRepositoryTests` loses its list of retired cards and counts the cards left; the copy's tests of gear never frozen and of gear none go, and the hand-written format 1 has no `gearIDs`; the test of an unknown look part stores an unknown beard, not a missing one; new: `OlderStoreTests`, from a test-only older schema and no fixture (the widget's read-only open throws and changes nothing; a nil in a required column makes the app's open throw), and three `StoreVersioningTests` of updating a stored child's birth day and the dad's look and partner answer, which the migration tests used to cover |
+| Data tests | `StoreMigrationTests`; `WidgetBeforeMigrationTests` with `StoreFiles`; `StoreFixture`, `StoreV1Fixture`, `StoreV3Fixture` … `StoreV6Fixture` and the six `Fixtures/Store…` folders; `ShippedContentIDs.json` and `ShippedContentIDsTests`; `CalendarDay.migrated`; in `StoreVersioningTests`, the two tests of the store from before versions and the one of an event without a child; the three version 6 tests in `TitlesStoreTests` | the rest of `TitlesStoreTests` saves a profile of its own; `OrphanPhotoSweepTests` keeps its row of an unknown kind and loses the row without a child; `BundledContentRepositoryTests` loses its list of retired cards and counts the cards left; the copy's tests of gear never frozen and of gear none go, and the hand-written format 1 keeps `gearIDs`, read and ignored; the test of an unknown look part stores an unknown beard, not a missing one; new: `OlderStoreTests`, from a test-only older schema and no fixture (the widget's read-only open throws and changes nothing; a nil in a required column makes the app's open throw), and three `StoreVersioningTests` of updating a stored child's birth day and the dad's look and partner answer, which the migration tests used to cover |
 | Other tests | `GearRulesTests`' three tests of the old rule; the tests "from before titles" in `TitleTests` and `StandingUseCaseTests` | made-up `GearItem`s lose `skillXPBeforeTitles:`; `KeptStanding.fresh` becomes `KeptStanding()` (`FakeProgress`, `UseCaseTests` and others); a failed keep is tested on a deletion only |
 | Presentation | | none. Nothing on screen changes |
 | App | | `AppContainer` and the snapshots' `SagaFixture`: the recording use cases without a `StandingRepository` |
@@ -268,9 +270,9 @@ the build is released. It adds:
 
 ## Verification status
 Not yet checked on a device. To check:
-- **On one device still on a `develop` build,** install over it once. Its store most likely migrates silently (§6):
-  check that the saga reads back, and that the widget shows "Open DadSaga" until the app has opened once. Then
-  delete the app.
+- **On one device still on a `develop` build,** install over it once. Its store migrates silently if the profile was
+  saved since version 6, else it stops at the calm screen (§6): check whichever it does, that the saga reads back, and
+  that the widget shows "Open DadSaga" until the app has opened once. Then delete the app.
 - **The calm screen** needs a store that can't be opened: a row with nil in a column `SchemaV1` requires (a debug
   build can write one), or a junk store file. Check it in Greek and English, with Try again, and trying again on
   returning to the foreground. This is also the screen's first check on a device (ROADMAP, "not checked on a

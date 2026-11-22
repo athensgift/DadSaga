@@ -35,7 +35,7 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   English, photos loading at their shown size.
 - The "couldn't open your saga" screen (junk store file) is covered by tests (`StoreVersioningTests`,
   `StoreUnavailableRootTests`), not checked on a device yet. It needs a store that can't be opened: a row with nil in
-  a column `SchemaV1` requires, or a junk file. A `develop` store most likely migrates silently instead (ADR-0060 §6,
+  a column `SchemaV1` requires, or a junk file. A `develop` store whose profile was saved since version 6 migrates silently instead (ADR-0060 §6,
   "Verification status").
 - ✅ The widget opening an older store read-only fails without touching it, tested from a test-only older schema
   (`OlderStoreTests`, ADR-0060). The first `SchemaV2` adds the test from the `StoreV1` fixture the first App Store
