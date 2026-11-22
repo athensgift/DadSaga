@@ -134,6 +134,12 @@ extension GearItemDTO {
     }
 }
 
+extension SkillCurveDTO {
+    func toDomain() throws -> SkillCurve {
+        SkillCurve(skill: try QuestDTO.skill(skill, itemID: "skills"), halfGrownXP: halfGrownXP)
+    }
+}
+
 extension DadTitleDTO {
     func toDomain() -> DadTitle {
         DadTitle(

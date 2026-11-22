@@ -63,10 +63,31 @@ struct HomeCelebrationTests {
 
         let card = try #require(sut.titleCard)
         #expect(card.title == "Έγινες «Νέος στο ταξίδι».")
+        #expect(card.level == "Επίπεδο 1")
         #expect(card.message == "Πήρες: Πανάκι.")
         #expect(card.close == "Ωραία")
+        // VoiceOver hears the level with the card, once (ADR-0059 §1).
+        #expect(card.announcement == "Έγινες «Νέος στο ταξίδι». Επίπεδο 1. Πήρες: Πανάκι.")
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
+    }
+
+    @Test("Given a title that brings no gear, when its card appears, then VoiceOver hears the heading and the level only")
+    func titleCardWithoutGear() async throws {
+        let stub = HeroStub.catalog
+        let bare = stub.titles.map { DadTitle(id: $0.id, order: $0.order, minCards: $0.minCards, minXP: $0.minXP, name: $0.name) }
+        let catalog = ContentCatalog(
+            worlds: stub.worlds, quests: stub.quests, bosses: stub.bosses, firsts: stub.firsts,
+            heroClasses: stub.heroClasses, gear: stub.gear, titles: bare, skillCurves: stub.skillCurves
+        )
+        let sut = makeHomeViewModel(profile: HeroStub.profile, progress: progress, catalog: catalog)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+
+        let card = try #require(sut.titleCard)
+        #expect(card.message == nil)
+        #expect(card.announcement == "Έγινες «Νέος στο ταξίδι». Επίπεδο 1.")
     }
 
     @Test("Given a title card, when the dad closes it, then it goes at once and stays gone through a reload")
@@ -102,19 +123,91 @@ struct HomeCelebrationTests {
         #expect(sut.sagaOffer != nil)
     }
 
-    @Test("Given a title, when the quest that brought it is undone, then the title and its card stay")
-    func undoKeepsTheTitle() async throws {
+    @Test("Given a quest that crossed a title, when it is undone, then the title, level, card and gear are as before it")
+    func undoReturnsToBefore() async throws {
         let sut = makeSUT(profile: HeroStub.profile)
         await sut.onAppear()
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
+        #expect(sut.titleCard != nil)
 
         await sut.undoLastRecord()
 
         #expect(await progress.eventCount == 0)
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
+        #expect(content.heroGear.isEmpty)
+        #expect(sut.titleCard == nil)
+    }
+
+    @Test("Given a title card closed, when its quest is undone and done again, then the card comes again")
+    func closedCardComesAgainAfterUndo() async throws {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        await sut.closeTitleCard()
+
+        await sut.undoLastRecord()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
 
         #expect(sut.titleCard?.title == "Έγινες «Νέος στο ταξίδι».")
+        #expect(sut.titleCard?.level == "Επίπεδο 1")
+    }
+
+    @Test("Given two quests, the first crossing a title, when the second is undone, then the first's title stays")
+    func undoOnlyTheLast() async throws {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+
+        await sut.undoLastRecord()
+
+        #expect(await progress.eventCount == 1)
+        guard case .loaded(let content) = sut.state else { throw StubError.boom }
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
+        #expect(content.heroGear == [.burpCloth])
+    }
+
+    @Test("Given a title card, when a second quest is recorded, the card closed and the quest undone, then it stays closed")
+    func undoKeepsACardClosedForATitleStillHeld() async throws {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        await sut.closeTitleCard()
+
+        await sut.undoLastRecord()
+
+        #expect(sut.titleCard == nil)
+        let relaunched = makeSUT(profile: HeroStub.profile)
+        await relaunched.onAppear()
+        #expect(relaunched.titleCard == nil)
+    }
+
+    @Test("Given a save under way, when the title card is closed, then it waits its turn: the tap does nothing yet")
+    func closingTakesItsTurn() async throws {
+        let sut = makeSUT(profile: HeroStub.profile)
+        await sut.onAppear()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        sut.select(cardID: "q1")
+        await progress.slowNext()
+        let saving = Task { await sut.completeSelectedQuest() }
+        while !sut.isCompleting { await Task.yield() }
+
+        await sut.closeTitleCard()
+        #expect(sut.titleCard != nil)
+
+        await progress.finishSlowSave()
+        await saving.value
+        await sut.closeTitleCard()
+        #expect(sut.titleCard == nil)
     }
 }

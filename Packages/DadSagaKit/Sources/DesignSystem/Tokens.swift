@@ -95,6 +95,10 @@ package enum DSTint {
     package static let all: [ColorPair] = [accent, xp, legendary, boss]
     /// How strongly a tint washes the ground behind its own text, as in the reward pill.
     package static let washOpacity = 0.15
+    /// How strongly a tint draws, on its own wash, a shape it hasn't coloured in yet, as the part of a skill's symbol
+    /// above its level (ADR-0059 §2). Half: the whole shape still shows on the wash, and the tint itself stands out
+    /// from it, each at 2:1 or more in both modes. Neither can reach 3:1 without the other falling under 2:1.
+    package static let ghostOpacity = 0.5
 }
 
 public enum DSSpacing {

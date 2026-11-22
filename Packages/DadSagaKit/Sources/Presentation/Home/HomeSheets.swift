@@ -65,6 +65,7 @@ struct QuestSheet: View {
                 hasUnsavedChanges: hasUnsavedChanges,
                 isAsking: $isConfirmingDiscard,
                 labels: quest.journal,
+                isSaving: isCompleting,
                 onSave: nil,
                 onDiscard: onClose
             ))
@@ -143,6 +144,7 @@ struct BossSheet: View {
                 hasUnsavedChanges: hasUnsavedChanges,
                 isAsking: $isConfirmingDiscard,
                 labels: boss.journal,
+                isSaving: isCompleting,
                 onSave: nil,
                 onDiscard: onClose
             ))

@@ -166,12 +166,9 @@ extension SagaFixture {
         HomeViewModel(
             useCases: HomeViewModel.UseCases(
                 getOverview: DefaultGetHomeOverviewUseCase(
-                    contentRepository: content,
-                    profileRepository: store.profiles,
-                    progressRepository: store.progress,
-                    outfitRepository: store.outfit,
-                    standingRepository: store.standing,
-                    sagaOfferRepository: sagaOffers,
+                    contentRepository: content, profileRepository: store.profiles,
+                    progressRepository: store.progress, outfitRepository: store.outfit,
+                    standingRepository: store.standing, sagaOfferRepository: sagaOffers,
                     timeZone: Self.calendar.timeZone
                 ),
                 completeQuest: DefaultCompleteQuestUseCase(
@@ -183,10 +180,12 @@ extension SagaFixture {
                     standingRepository: store.standing, photoStore: photos
                 ),
                 deleteEvent: DefaultDeleteEventUseCase(
-                    contentRepository: content,
-                    progressRepository: store.progress,
-                    standingRepository: store.standing,
-                    photoStore: photos
+                    contentRepository: content, progressRepository: store.progress,
+                    standingRepository: store.standing, photoStore: photos
+                ),
+                undoRecord: DefaultUndoRecordUseCase(
+                    contentRepository: content, progressRepository: store.progress,
+                    standingRepository: store.standing, photoStore: photos
                 ),
                 moments: HomeViewModel.MomentUseCases(
                     capture: DefaultCaptureMomentUseCase(

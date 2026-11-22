@@ -16,6 +16,12 @@ struct HomeWhenThingsGoWrongTests {
         return sut
     }
 
+    /// How many times care's mark has risen (ADR-0059 §2).
+    func careRises(_ sut: HomeViewModel) -> Int? {
+        guard case .loaded(let content) = sut.state else { return nil }
+        return content.skills.marks.first?.rises
+    }
+
     @Test("Given two quests done within seconds, when the first celebration's time ends, then the second still shows")
     func secondCelebrationOutlivesTheFirst() async throws {
         let sut = await makeSUT()
@@ -26,11 +32,15 @@ struct HomeWhenThingsGoWrongTests {
         await sut.completeSelectedQuest()
         let second = try #require(sut.celebration)
 
+        // The first one went as the second replaced it: its mark rose then, and its late end changes nothing.
+        #expect(careRises(sut) == 1)
         sut.celebrationFinished(id: first.id)
         #expect(sut.celebration == second)
+        #expect(careRises(sut) == 1)
 
         sut.celebrationFinished(id: second.id)
         #expect(sut.celebration == nil)
+        #expect(careRises(sut) == 2)
     }
 
     @Test("Given a quest just done, when undoing it fails, then the entry stays and the bar says so and offers undo again")
@@ -166,6 +176,6 @@ struct HomeWhenThingsGoWrongTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
     }
 }

@@ -92,7 +92,10 @@ struct TitleTests {
         let standing = DadStanding(progress: Self.progress(bosses: ["b"]), catalog: Self.catalog, kept: KeptStanding())
         #expect(standing.title?.id == "t1")
         #expect(standing.gear.map(\.id) == ["g-burp-cloth", "g-mug"])
-        #expect(standing.toKeep == KeptStanding(titleID: "t1", gearIDs: ["g-burp-cloth"]))
+        // Before a recording only the old gear is frozen: the title is kept before a deletion alone, so an Undo
+        // can still take back the one a card brings.
+        #expect(standing.toKeepBeforeRecording == KeptStanding(gearIDs: ["g-burp-cloth"]))
+        #expect(standing.toKeepBeforeDeleting == KeptStanding(titleID: "t1", gearIDs: ["g-burp-cloth"]))
     }
 
     @Test("Given old gear frozen, when the skill XP would earn more, then only the frozen items stay")
@@ -100,7 +103,59 @@ struct TitleTests {
         let kept = KeptStanding(titleID: "t2", gearIDs: ["g-burp-cloth"])
         let standing = DadStanding(progress: Self.progress(bosses: ["b", "b2"]), catalog: Self.catalog, kept: kept)
         #expect(standing.gear.map(\.id) == ["g-burp-cloth", "g-mug"])
-        #expect(standing.toKeep == nil)
+        #expect(standing.toKeepBeforeRecording == nil)
+        #expect(standing.toKeepBeforeDeleting == nil)
+    }
+
+    @Test("Given a saga begun with titles, when a card brings a title, then only a deletion keeps it")
+    func onlyADeletionKeepsTheTitle() {
+        let standing = DadStanding(progress: Self.progress(quests: 3), catalog: Self.catalog, kept: .fresh)
+        #expect(standing.title?.id == "t2")
+        #expect(standing.toKeepBeforeRecording == nil)
+        #expect(standing.toKeepBeforeDeleting == KeptStanding(titleID: "t2", gearIDs: []))
+    }
+
+    /// The dad once an Undo has taken an entry back, and the title his closed card should go back to, if any.
+    struct AfterUndo: Sendable {
+        let quests: Int
+        var keptTitle: String?
+        var seen: String?
+        var goesBackTo: String?
+    }
+
+    @Test(
+        "Given a closed card, when an Undo has taken an entry back, then it goes back only to the title still held",
+        arguments: [
+            // The card of the title the Undo took: back to the title he holds, so it comes again.
+            AfterUndo(quests: 1, seen: "t2", goesBackTo: "t1"),
+            // A jump of two titles closed as one card, then undone to the lower: that one stays closed.
+            AfterUndo(quests: 3, seen: "t3", goesBackTo: "t2"),
+            // Closed for a title he still holds, by his entries or by what a deletion kept: it stays as it is.
+            AfterUndo(quests: 3, seen: "t2"),
+            AfterUndo(quests: 1, keptTitle: "t2", seen: "t2"),
+            AfterUndo(quests: 0, keptTitle: "t3", seen: "t2"),
+            // No card closed yet, or one the content no longer knows: nothing to take back.
+            AfterUndo(quests: 0),
+            AfterUndo(quests: 0, seen: "gone")
+        ]
+    )
+    func closedCardAfterAnUndo(_ dad: AfterUndo) {
+        let kept = KeptStanding(titleID: dad.keptTitle, gearIDs: [], seenTitleID: dad.seen)
+        let after = DadStanding(progress: Self.progress(quests: dad.quests), catalog: Self.catalog, kept: kept)
+        #expect(after.seenAfterUndo?.id == dad.goesBackTo)
+    }
+
+    @Test("Given the card a title's Undo took back, when a card reaches the title again, then its card comes again")
+    func cardComesAgainAfterAnUndo() throws {
+        // Three quests brought t2 and its card was closed; the Undo of the third leaves t1.
+        var kept = KeptStanding(gearIDs: [], seenTitleID: "t2")
+        let undone = DadStanding(progress: Self.progress(quests: 2), catalog: Self.catalog, kept: kept)
+        kept.seenTitleID = try #require(undone.seenAfterUndo).id
+        #expect(DadStanding(progress: Self.progress(quests: 2), catalog: Self.catalog, kept: kept).news == nil)
+
+        let again = DadStanding(progress: Self.progress(quests: 3), catalog: Self.catalog, kept: kept)
+        #expect(again.news?.title.id == "t2")
+        #expect(again.news?.gear.map(\.id) == ["g-burp-cloth"])
     }
 
     @Test("Given a jump of two titles, when making the card, then it names the higher one and both new items")

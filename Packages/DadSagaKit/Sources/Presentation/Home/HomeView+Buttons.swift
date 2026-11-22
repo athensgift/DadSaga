@@ -103,7 +103,7 @@ extension HomeView {
             heroTitle: content.heroTitle,
             companions: content.companions,
             selectedChildID: content.selectedChildID,
-            maxHeroSize: arrangement.maxHeroSize(headerHeight: paneHeaderHeight, besideTitle: isHeroBesideTitle),
+            maxHeroSize: maxHeroSize,
             cheerTrigger: viewModel.celebration?.id ?? 0
         ) { id in
             Task { await viewModel.selectChild(id: id) }

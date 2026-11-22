@@ -124,4 +124,15 @@ struct HomeArrangementTests {
         let short = HomeArrangement.stacked(HorizontalFold(top: 210, bottom: 240))
         #expect(short.maxHeroSize(headerHeight: 41, besideTitle: true) == 120)
     }
+
+    @Test("Given two columns, when the hero is sized, then he yields what stands under him so the pane fits, down to 120")
+    func heroYieldsInColumns() {
+        let columns = HomeArrangement.columns
+        // 611 pt of pane, a 41 pt title and 250 pt under him: 611 − 41 − 250 − 96 − 16.
+        #expect(columns.maxHeroSize(headerHeight: 41, besideTitle: false, under: 250, paneHeight: 611) == 208)
+        #expect(columns.maxHeroSize(headerHeight: 41, besideTitle: false, under: 100, paneHeight: 611) == 260)
+        #expect(columns.maxHeroSize(headerHeight: 41, besideTitle: false, under: 400, paneHeight: 611) == 120)
+        // Until the pane's height is known he is drawn at his widest.
+        #expect(columns.maxHeroSize(headerHeight: 41, besideTitle: false, under: 250) == 260)
+    }
 }

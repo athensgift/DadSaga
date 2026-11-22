@@ -260,6 +260,7 @@ enum HeroStub {
                 id: "t2", order: 2, minCards: 5, minXP: 500, gearIDs: ["g2"],
                 name: LocalizedText(el: "Σίγουρα χέρια", en: "Steady hands")
             )
-        ]
+        ],
+        skillCurves: Skill.allCases.map { SkillCurve(skill: $0, halfGrownXP: 80) }
     )
 }

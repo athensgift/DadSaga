@@ -1,19 +1,42 @@
 import DesignSystem
 import SwiftUI
 
-/// The dad's title under the hero, where a level was: a name, no bar and no number (ADR-0055 §6).
-struct TitleLine: View {
-    let title: String
+/// The dad's level and title under the hero, then his four skills, in one panel (ADR-0059 §3). No bar, no total and no
+/// next title.
+struct StandingPanel: View {
+    let title: TitleLineModel?
+    let skills: SkillMarksModel
+    /// Gets the width the four skills need side by side.
+    var onRowWidth: (CGFloat) -> Void = { _ in }
+
+    /// Each side.
+    static let padding = DSSpacing.m
 
     var body: some View {
-        Label(title, systemImage: "laurel.leading")
+        VStack(spacing: DSSpacing.s) {
+            if let title {
+                TitleLine(model: title)
+            }
+            SkillMarks(model: skills, onRowWidth: onRowWidth)
+        }
+        .padding(.horizontal, Self.padding)
+        .padding(.vertical, DSSpacing.s)
+        .frame(maxWidth: .infinity)
+        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+    }
+}
+
+/// "Επίπεδο 4 · Σίγουρα χέρια": the level is the title's order (ADR-0059 §1). VoiceOver hears a comma for the dot.
+struct TitleLine: View {
+    let model: TitleLineModel
+
+    var body: some View {
+        Label(model.text, systemImage: "laurel.leading")
             .font(DSFont.headline)
             .foregroundStyle(DSColor.textPrimary)
-            .padding(.horizontal, DSSpacing.m)
-            .padding(.vertical, DSSpacing.s)
-            .frame(maxWidth: .infinity)
-            .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
-            .accessibilityElement(children: .combine)
+            .multilineTextAlignment(.center)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(Text(model.spoken))
     }
 }
 

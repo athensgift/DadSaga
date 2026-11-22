@@ -40,6 +40,9 @@ struct HomeMomentCelebrationTests {
         sut.sheetDismissed()
         sut.celebrationFinished(id: celebration.id)
         #expect(sut.celebration == nil)
+        // A first grows no skill, so no mark rises (ADR-0059 §2).
+        guard case .loaded(let content) = sut.state else { throw StubError.boom }
+        #expect(content.skills.marks.allSatisfy { $0.rises == 0 && $0.growth == 0 })
     }
 
     @Test("Given a moment's celebration waiting, when another sheet is open as the moment's closes, then it keeps waiting")
@@ -91,7 +94,7 @@ struct HomeMomentCelebrationTests {
         sut.startCapture()
         await sut.captureMoment(firstID: "f1", date: HeroStub.today)
 
-        await sut.deleteMoment()
+        await sut.undoMoment()
         sut.sheetDismissed()
 
         #expect(sut.celebration == nil)

@@ -252,7 +252,9 @@ struct AppearanceContentTests {
     }
 
     func validate(_ options: [DadAppearanceOption]) throws {
-        try ContentValidator.validate(ContentCatalog(worlds: [], quests: [], bosses: [], firsts: [], appearanceOptions: options))
+        try ContentValidator.validate(ContentCatalog(
+            worlds: [], quests: [], bosses: [], firsts: [], skillCurves: SkillCurve.forEverySkill, appearanceOptions: options
+        ))
     }
 
     @Test("Given an option DTO with an unknown part, when mapping, then unknownAppearanceOption is thrown")

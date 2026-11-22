@@ -19,14 +19,23 @@ struct ShippedContentIDs: Decodable {
     let bosses: [Item]
     let firsts: [Item]
     let gear: [Item]
-    /// Each title as it shipped: what it needed and the gear it brought (ADR-0055 §11).
+    /// Each title as it shipped: its order, which is its level, what it needed and the gear it brought (ADR-0055 §11,
+    /// ADR-0059 §1).
     let titles: [Title]
+    /// Each skill's curve as it shipped (ADR-0059 §2).
+    let skills: [SkillCurve]
 
     struct Title: Decodable {
         let id: String
+        let order: Int
         let minCards: Int
         let minXP: Int
         let gear: [String]
+    }
+
+    struct SkillCurve: Decodable {
+        let skill: String
+        let halfGrownXP: Int
     }
 
     static func load() throws -> ShippedContentIDs {
@@ -155,6 +164,25 @@ struct ShippedContentIDsTests {
                 let bringing = catalog.title(bringing: gearID)
                 #expect((bringing?.order ?? .max) <= title.order, "\(gearID) moved to a later title")
             }
+        }
+    }
+
+    @Test("Given each shipped title, when reading today's titles, then it keeps its order, so a level always names it")
+    func titlesKeepTheirOrder() {
+        for shippedTitle in shipped.titles {
+            guard let title = catalog.title(id: shippedTitle.id) else { continue }
+            #expect(title.order == shippedTitle.order, "\(shippedTitle.id) moved: a new title goes after the highest")
+        }
+    }
+
+    @Test("Given each shipped skill curve, when reading today's curves, then none grows slower, and every skill shipped one")
+    func skillsNeverGrowSlower() {
+        for skill in Skill.allCases {
+            let shippedCurve = shipped.skills.first { $0.skill == skill.rawValue }
+            #expect(shippedCurve != nil, "\(skill.rawValue): add its curve to ShippedContentIDs.json")
+            guard let shippedCurve, let curve = catalog.curve(for: skill) else { continue }
+            // A higher value would shrink every dad's mark without him doing anything (ADR-0059 §2).
+            #expect(curve.halfGrownXP <= shippedCurve.halfGrownXP, "\(skill.rawValue)'s halfGrownXP went up")
         }
     }
 }

@@ -1,0 +1,6 @@
+[
+  { "skill": "care", "halfGrownXP": 150 },
+  { "skill": "play", "halfGrownXP": 150 },
+  { "skill": "patience", "halfGrownXP": 150 },
+  { "skill": "resilience", "halfGrownXP": 150 }
+]

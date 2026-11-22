@@ -101,6 +101,7 @@ struct MomentDetailsStep: View {
             isAsking: $isConfirmingDiscard,
             labels: details.labels.journal,
             canSave: !isSaving && !photos.isLoading,
+            isSaving: isSaving,
             onSave: { actions.onSave(date, note, photos) },
             onDiscard: actions.onClose
         ))
@@ -150,7 +151,7 @@ struct MomentDetailsStep: View {
 
     @ViewBuilder private var undoBar: some View {
         if let offer = details.undoOffer {
-            UndoBar(offer: offer, onUndo: actions.onDelete) {
+            UndoBar(offer: offer, onUndo: actions.onUndo) {
                 actions.onUndoExpired(offer.id)
             }
             // While Save runs, an Undo would be refused: it waits instead of being lost.

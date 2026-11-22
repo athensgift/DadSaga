@@ -8,14 +8,14 @@ import Observation
 @MainActor
 @Observable
 public final class HomeViewModel {
-    public private(set) var state: HomeViewState = .loading
+    public internal(set) var state: HomeViewState = .loading
     public internal(set) var selectedQuest: QuestDetail?
     public internal(set) var selectedBoss: BossDetail?
     public internal(set) var celebration: Celebration?
     /// "Undo" for a few seconds after the dad records something, in case he tapped by mistake.
     public internal(set) var undoOffer: UndoOffer?
     public internal(set) var errorMessage: String?
-    /// The sheet for capturing a legendary moment, while it is open.
+    /// The sheet for capturing a legendary moment, while it is open. Its Undo lives in it and goes with it.
     public internal(set) var momentCapture: MomentCapture?
     /// A moment just recorded celebrates on home once its sheet has closed, not behind it (`sheetDismissed`).
     var pendingMomentCelebration: Celebration?
@@ -29,6 +29,7 @@ public final class HomeViewModel {
     /// The card for a new title: shown before any offer (ADR-0055 §6).
     public internal(set) var titleCard: TitleCard?
     /// Titles whose card was closed in this session, so a reload while the close is being saved can't bring it back.
+    /// An Undo that takes a title back forgets its card (`takeBack`).
     var closedTitleCards: Set<String> = []
     /// The film offers the dad answered in this session.
     var answeredSagaOffers: Set<String> = []
@@ -39,6 +40,13 @@ public final class HomeViewModel {
     var reminderAnswered = false
     /// An earlier world the dad chose on the map, instead of the child's current one.
     var viewedWorldID: String?
+    /// The skill each celebration on screen grew, by its id, until it goes. Only home's view model knows it.
+    @ObservationIgnored var celebratedSkills: [Int: Skill] = [:]
+    /// Where a skill's mark waits while a card of that skill is celebrated: its growth before each such card, oldest
+    /// first. The mark rises when the celebration goes (ADR-0059 §2).
+    @ObservationIgnored var waitingSkillGrowth: [Skill: [Double]] = [:]
+    /// How many times each skill's mark has risen after a celebration (`SkillMarkModel.rises`).
+    @ObservationIgnored var skillRises: [Skill: Int] = [:]
 
     let useCases: UseCases
     let locale: Locale
@@ -55,6 +63,9 @@ public final class HomeViewModel {
     @ObservationIgnored private var loadGeneration = 0
     /// Loads under way: coming back to the app starts none while one is.
     @ObservationIgnored private var loadsUnderWay = 0
+    /// How many times the dad has left home for another tab. The bar offers an Undo only on the visit its save began
+    /// on: one that ends after he left, or after he left and came back, offers none (ADR-0021).
+    @ObservationIgnored var departures = 0
     /// Goes up when home is opened, another child is chosen or another world is shown: "When life changes" starts
     /// closed then, and stays as the dad left it through every other reload (ADR-0053 §5).
     @ObservationIgnored var situationalVisit = 0
@@ -119,11 +130,13 @@ public final class HomeViewModel {
     public func completeSelectedQuest(note: String = "", photos: PhotoDrafts = PhotoDrafts()) async {
         guard let quest = selectedQuest, let childID = selectedChildID else { return }
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
-        guard let change = await record({
+        let visit = departures
+        let skill = overview?.catalog.quest(id: quest.id)?.skill
+        guard let change = await record(growing: skill, {
             try await self.useCases.completeQuest.execute(questID: quest.id, childID: childID, on: self.now(), journal: journal)
         }) else { return }
         selectedQuest = nil
-        celebrate(change, skill: overview?.catalog.quest(id: quest.id)?.skill)
+        celebrate(change, skill: skill, begunOn: visit)
     }
 
     /// Records the open boss as defeated, with the dad's optional note and photos.
@@ -132,16 +145,34 @@ public final class HomeViewModel {
         let content = overview?.catalog.boss(id: boss.id)
         let badge = content?.badge.resolved(for: locale)
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
-        guard let change = await record({
+        let visit = departures
+        guard let change = await record(growing: content?.skill, {
             try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now(), journal: journal)
         }) else { return }
         selectedBoss = nil
-        celebrate(change, skill: content?.skill, badge: badge)
+        celebrate(change, skill: content?.skill, badge: badge, begunOn: visit)
     }
 
-    /// A celebration's time is up. Ignored if a newer one has replaced it.
+    /// A celebration's time is up, and the mark of the skill it grew rises. Ignored if a newer one has replaced it.
     public func celebrationFinished(id: Int) {
-        if celebration?.id == id { celebration = nil }
+        guard celebration?.id == id else { return }
+        celebration = nil
+        raiseMark(grownBy: id)
+    }
+
+    /// Takes a celebration away before its time, as an undo does: nothing grew, so no mark rises. Ignored if a newer
+    /// one has replaced it.
+    func withdrawCelebration(id: Int) {
+        guard celebration?.id == id else { return }
+        celebration = nil
+        releaseMark(heldFor: id)
+    }
+
+    /// Puts a celebration on screen. One it replaces has gone as surely as one whose time is up, so its skill's mark
+    /// rises now: a second card within seconds still shows on the first one's mark.
+    func show(_ celebration: Celebration) {
+        if let replaced = self.celebration, replaced.id != celebration.id { raiseMark(grownBy: replaced.id) }
+        self.celebration = celebration
     }
 
     /// Whether VoiceOver should read this celebration now: only the first time. Its time on screen starts again when
@@ -156,13 +187,15 @@ public final class HomeViewModel {
     /// It closes nothing: each caller decides what the dad sees next. A link from outside waits while it runs
     /// (`receive`), so the open sheet is still the one the save came from. The last error goes as the
     /// save starts, so the same error again is read out again.
-    func record(_ action: () async throws -> ProgressChange) async -> ProgressChange? {
+    /// - Parameter skill: the skill the card grows, if any: its mark waits for the celebration (`holdMark`).
+    func record(growing skill: Skill? = nil, _ action: () async throws -> ProgressChange) async -> ProgressChange? {
         guard !isCompleting else { return nil }
         isCompleting = true
         defer { isCompleting = false }
         errorMessage = nil
         do {
             let change = try await action()
+            holdMark(of: skill, before: change)
             await load()
             return change
         } catch {
@@ -172,18 +205,22 @@ public final class HomeViewModel {
     }
 
     /// Home's celebration and "Saved · Undo" for a quest or boss.
-    private func celebrate(_ change: ProgressChange, skill: Skill?, badge: String? = nil) {
+    /// - Parameter visit: `departures` when the save began. If the dad has left home since, the card is saved and
+    ///   celebrated but its Undo is not offered: it would wait for him on a screen he left.
+    private func celebrate(_ change: ProgressChange, skill: Skill?, badge: String? = nil, begunOn visit: Int) {
         // A moment's celebration still waiting would only replace this newer one when the sheet closes.
         pendingMomentCelebration = nil
         let celebration = makeCelebration(skill: skill, badge: badge)
-        self.celebration = celebration
-        undoOffer = change.eventID.map { makeUndoOffer(id: celebration.id, eventID: $0) }
+        show(celebration)
+        // The bar shows one offer: the last card's.
+        undoOffer = departures == visit ? offerUndo(of: change, id: celebration.id) : nil
     }
 
     /// What a change grew, as a celebration with a new id: the skill, a badge or a moment, never a number. A new title
     /// has its own card (ADR-0055 §6).
     func makeCelebration(skill: Skill?, badge: String? = nil, moment: String? = nil) -> Celebration {
         celebrationCount += 1
+        celebratedSkills[celebrationCount] = skill
         return Celebration(
             id: celebrationCount,
             skillText: skill.map(strings.strings.skillGrew),
@@ -259,7 +296,8 @@ public final class HomeViewModel {
             selectedChildLine: hasSiblings ? childLine : nil,
             familyTitle: strings.text("My family"),
             settingsTitle: strings.text("Settings"),
-            dadTitle: overview.standing.title?.name.resolved(for: locale),
+            dadTitle: makeTitleLine(overview.standing),
+            skills: makeSkillMarks(overview.skills),
             worldTitle: overview.shownWorld?.title.resolved(for: locale),
             worldTagline: overview.shownWorld?.tagline.resolved(for: locale),
             mapTitle: strings.text("World map"),

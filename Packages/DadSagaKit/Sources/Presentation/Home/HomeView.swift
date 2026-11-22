@@ -18,7 +18,7 @@ public struct HomeView: View {
     @Environment(UnsavedWork.self) private var sharedUnsavedWork: UnsavedWork?
     @State private var ownUnsavedWork = UnsavedWork()
     var unsavedWork: UnsavedWork { sharedUnsavedWork ?? ownUnsavedWork }
-    @State private var width: CGFloat = 0
+    @State var width: CGFloat = 0
     @State private var fold: HorizontalFold?
     /// Where the fold runs across home, also while the device lies flat.
     @State private var flatFold: HorizontalFold?
@@ -26,6 +26,13 @@ public struct HomeView: View {
     @State var paneHeaderHeight: CGFloat = 0
     /// The map and Settings' height over the adventure's pane, so its last card scrolls clear of them.
     @State var paneButtonsHeight: CGFloat = 0
+    /// What stands under the hero in his pane, or the skills panel below him and his lines above a fold: the hero
+    /// yields that height, so the pane fits (ADR-0059 §3).
+    @State var underHeroHeight: CGFloat = 0
+    /// The hero pane's height inside the safe area, side by side.
+    @State var heroPaneHeight: CGFloat = 0
+    /// The width the four skills need side by side: beside the hero, his column is at least that wide.
+    @State var skillsRowWidth: CGFloat = 0
     @State var settingsViewModel: SettingsViewModel?
     /// The film sheet, opened from the film offer.
     @State var sagaFilm: SagaFilmViewModel?
@@ -56,19 +63,23 @@ public struct HomeView: View {
 
     public var body: some View {
         NavigationStack {
-            Group {
-                switch viewModel.state {
-                case .loading:
-                    ProgressView()
-                case .loaded(let content):
-                    loaded(content)
-                case .failed(let message):
-                    ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
+            // The Undo bar takes its own room under home rather than floating over it, so it never covers a card's
+            // button, such as the title card that comes with it (ADR-0059 §3).
+            VStack(spacing: 0) {
+                Group {
+                    switch viewModel.state {
+                    case .loading:
+                        ProgressView()
+                    case .loaded(let content):
+                        loaded(content)
+                    case .failed(let message):
+                        ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
+                    }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                undoBar
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(DSColor.background)
-            .safeAreaInset(edge: .bottom) { undoBar }
             .motion(.spring(response: 0.35, dampingFraction: 0.8), value: viewModel.undoOffer)
             .navigationTitle(arrangement.buttons.showsTitleInBar ? title : "")
             // Named, not left to the default: with no mode named, iOS 27.2 collapses the large title as soon as the
@@ -166,6 +177,8 @@ public struct HomeView: View {
                 ?? AnyLayout(HStackLayout(alignment: .top, spacing: 0))
             panes {
                 ScrollView { heroPanel(content).padding(HomeArrangement.panePadding) }
+                    // Laid out inside the safe area, so its height is what the dad sees without scrolling.
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { heroPaneHeight = $0 }
                     .frame(maxWidth: .infinity)
                     .modifier(celebrationOverlay)
                 ScrollView { adventure(content).padding(HomeArrangement.panePadding) }
@@ -200,38 +213,6 @@ public struct HomeView: View {
     /// With two panes it stays in the hero's, away from the Duo's fold.
     private var celebrationOverlay: CelebrationOverlay {
         CelebrationOverlay(celebration: viewModel.celebration)
-    }
-
-    private func heroPanel(_ content: HomeContent) -> some View {
-        let stageAndTitle = isHeroBesideTitle
-            ? AnyLayout(HStackLayout(spacing: DSSpacing.l))
-            : AnyLayout(VStackLayout(spacing: DSSpacing.m))
-        return VStack(spacing: HomeArrangement.headerSpacing) {
-            if arrangement.hasPanes {
-                paneHeader(content)
-            }
-            stageAndTitle {
-                heroStage(content)
-                VStack(spacing: DSSpacing.m) {
-                    VStack(spacing: DSSpacing.xs) {
-                        // Text in the primary colour: several hero colours are below 3:1 as text (ADR-0033).
-                        Text(content.companionLine)
-                            .font(DSFont.headline)
-                            .foregroundStyle(DSColor.textPrimary)
-                        if let tagline = content.heroTagline {
-                            Text(tagline)
-                                .font(DSFont.subheadline)
-                                .foregroundStyle(DSColor.textSecondary)
-                        }
-                    }
-                    .multilineTextAlignment(.center)
-                    if let dadTitle = content.dadTitle {
-                        TitleLine(title: dadTitle)
-                    }
-                }
-            }
-        }
-        .frame(maxWidth: .infinity)
     }
 
     private func adventure(_ content: HomeContent) -> some View {
@@ -353,6 +334,7 @@ extension HomeView {
                     Task { await viewModel.saveMomentDetails(date: date, note: note, photos: photos) }
                 },
                 onDelete: { Task { await viewModel.deleteMoment() } },
+                onUndo: { Task { await viewModel.undoMoment() } },
                 onUndoExpired: { viewModel.momentUndoExpired(id: $0) },
                 onClose: { viewModel.dismissSelection() }
             )

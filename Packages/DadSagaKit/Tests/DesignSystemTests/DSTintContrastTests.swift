@@ -41,6 +41,20 @@ struct DSTintContrastTests {
         #expect(WCAG.contrast(0xFFFFFF, DSTint.accent.dark) >= 3)
     }
 
+    @Test("Given a skill's symbol half coloured in, when drawn on its wash, then its pale part and its level both show")
+    func ghostOnWash() {
+        // On the surface, where the skills' panel draws them (ADR-0059 §2).
+        for (accent, surface) in [(DSTint.accent.light, UInt32(0xFFFFFF)), (DSTint.accent.dark, 0x1C1C1E)] {
+            let wash = WCAG.blend(accent, over: surface, opacity: DSTint.washOpacity)
+            let ghost = WCAG.blend(accent, over: wash, opacity: DSTint.ghostOpacity)
+            // The whole shape shows on the circle, and the coloured part stands out from the pale part: 2:1 each.
+            // 3:1 for one would leave the other under 2:1.
+            #expect(WCAG.contrast(ghost, wash) >= 2, "pale \(hex(ghost)) on \(hex(wash))")
+            #expect(WCAG.contrast(accent, ghost) >= 2, "\(hex(accent)) beside \(hex(ghost))")
+            #expect(WCAG.contrast(ghost, wash) * WCAG.contrast(accent, ghost) < 6)
+        }
+    }
+
     // MARK: Grounds
 
     /// The plain grounds, and each one under the tint's own wash.

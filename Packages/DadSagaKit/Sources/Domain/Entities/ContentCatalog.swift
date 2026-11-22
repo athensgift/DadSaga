@@ -1,5 +1,5 @@
-/// All game content: worlds, quests, boss fights, legendary moments, hero classes, hero gear, the dad's titles and the
-/// names of the dad's look options.
+/// All game content: worlds, quests, boss fights, legendary moments, hero classes, hero gear, the dad's titles, how fast
+/// each skill's mark grows and the names of the dad's look options.
 public struct ContentCatalog: Hashable, Sendable {
     public let worlds: [World]
     public let quests: [Quest]
@@ -9,6 +9,8 @@ public struct ContentCatalog: Hashable, Sendable {
     public let gear: [GearItem]
     /// Lowest first.
     public let titles: [DadTitle]
+    /// One per skill, in the content's order (ADR-0059 §2).
+    public let skillCurves: [SkillCurve]
     /// In the order the menus show them.
     public let appearanceOptions: [DadAppearanceOption]
     /// Every current and former id of each kind, so an id stored before a rename still finds its item (ADR-0048 §5).
@@ -29,6 +31,7 @@ public struct ContentCatalog: Hashable, Sendable {
         heroClasses: [HeroClass] = [],
         gear: [GearItem] = [],
         titles: [DadTitle] = [],
+        skillCurves: [SkillCurve] = [],
         appearanceOptions: [DadAppearanceOption] = []
     ) {
         self.worlds = worlds.sorted { $0.order < $1.order }
@@ -38,6 +41,7 @@ public struct ContentCatalog: Hashable, Sendable {
         self.heroClasses = heroClasses.sorted { $0.order < $1.order }
         self.gear = gear
         self.titles = titles.sorted { $0.order < $1.order }
+        self.skillCurves = skillCurves
         self.appearanceOptions = appearanceOptions
         questsByID = Self.index(quests)
         bossesByID = Self.index(bosses)
@@ -65,6 +69,8 @@ public struct ContentCatalog: Hashable, Sendable {
     public func gearItem(id: String) -> GearItem? { gearByID[id] }
     public func heroClass(id: String) -> HeroClass? { heroesByID[id] }
     public func title(id: String) -> DadTitle? { titlesByID[id] }
+    /// The skill's curve, the first if the content lists it twice (the validator rejects that).
+    public func curve(for skill: Skill) -> SkillCurve? { skillCurves.first { $0.skill == skill } }
     /// The title that brings the item, by its id or a former one.
     public func title(bringing gearID: String) -> DadTitle? { titlesByGearID[gearID] }
 

@@ -6,6 +6,11 @@ public struct DadStanding: Hashable, Sendable {
     public let gear: [GearItem]
     /// Set while his title is above the last one whose card he closed.
     public let news: TitleNews?
+    /// The title to remember as the last card closed once an Undo has taken an entry back, when `progress` is his
+    /// entries without it; `nil` when the closed card stays as it is. Only a card closed for a title above the one he
+    /// still holds goes back, to that title. So a card closed for a title he still holds stays closed, and the card of
+    /// a title the Undo took comes again when a card reaches it (ADR-0055 §3).
+    public let seenAfterUndo: DadTitle?
     /// What the rule from before titles gave him, by id: kept, or read from his entries until it is.
     let gearBeforeTitles: [String]
     private let kept: KeptStanding
@@ -35,7 +40,9 @@ public struct DadStanding: Hashable, Sendable {
         let byTitle = Self.brought(by: catalog.titles.filter { $0.order <= title?.order ?? -1 }, in: catalog)
         let byTitleIDs = Set(byTitle.map(\.id))
         gear = GearRules.ordered(byTitle + before.filter { !byTitleIDs.contains($0.id) }, in: catalog)
-        let seen = kept.seenTitleID.flatMap(catalog.title(id:)) ?? catalog.titles.first
+        let closed = kept.seenTitleID.flatMap(catalog.title(id:))
+        if let title, let closed, closed.order > title.order { seenAfterUndo = title } else { seenAfterUndo = nil }
+        let seen = closed ?? catalog.titles.first
         if let title, let seen, title.order > seen.order {
             let since = catalog.titles.filter { $0.order > seen.order && $0.order <= title.order }
             let had = Set(gearBeforeTitles)
@@ -45,9 +52,19 @@ public struct DadStanding: Hashable, Sendable {
         }
     }
 
-    /// What the store should keep now that the entries are about to change, or `nil` when it already keeps it: the
-    /// title when it is higher, and the gear from before titles the first time.
-    public var toKeep: KeptStanding? {
+    /// What the store should keep before an entry is recorded, or `nil` when it already keeps it: the gear from before
+    /// titles, the first time. Never the title: recording can't lower it, and an Undo must still be able to take back
+    /// the one the entry brings.
+    public var toKeepBeforeRecording: KeptStanding? {
+        guard kept.gearIDs == nil else { return nil }
+        var next = kept
+        next.gearIDs = gearBeforeTitles
+        return next
+    }
+
+    /// What the store should keep before an entry is deleted for good, or `nil` when it already keeps it: the title
+    /// when it is higher than the kept one, and the gear from before titles the first time.
+    public var toKeepBeforeDeleting: KeptStanding? {
         let titleIsNew = title.map { title in kept.titleID.map { !title.has(id: $0) } ?? true } ?? false
         guard titleIsNew || kept.gearIDs == nil else { return nil }
         var next = kept

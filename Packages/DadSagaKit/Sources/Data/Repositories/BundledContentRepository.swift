@@ -21,6 +21,12 @@ public enum ContentDataError: Error, Equatable {
     case misplacedBeforeBirthWorld(worldID: String)
     /// A card in the world before birth with a minimum age above 0 months.
     case agedBeforeBirth(itemID: String)
+    /// Title orders that don't run 0, 1, 2… without a gap or a repeat: the order is the dad's level (ADR-0059 §1).
+    case invalidTitleOrder(titleID: String)
+    /// A skill `skills.json` doesn't give a curve (ADR-0059 §2).
+    case missingSkillCurve(skill: String)
+    /// A skill curve whose `halfGrownXP` isn't above 0.
+    case invalidSkillCurve(skill: String)
     /// Titles whose first needs anything, or one that doesn't need more cards and more XP than the one before
     /// (ADR-0055 §2).
     case invalidTitleThresholds(titleID: String)
@@ -51,6 +57,7 @@ public actor BundledContentRepository: ContentRepository {
             heroClasses: try dataSource.decode([HeroClassDTO].self, resource: "heroes").map { $0.toDomain() },
             gear: try dataSource.decode([GearItemDTO].self, resource: "gear").map { try $0.toDomain() },
             titles: try dataSource.decode([DadTitleDTO].self, resource: "titles").map { $0.toDomain() },
+            skillCurves: try dataSource.decode([SkillCurveDTO].self, resource: "skills").map { try $0.toDomain() },
             appearanceOptions: try dataSource.decode([AppearanceOptionDTO].self, resource: "appearance")
                 .map { try $0.toDomain() }
         )

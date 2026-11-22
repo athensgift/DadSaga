@@ -44,13 +44,21 @@ enum HomeArrangement: Equatable, Sendable {
 
     /// The tallest the hero is drawn. Above a fold, standing beside his level, he takes what the pane's header
     /// leaves of the upper pane, so the stage reaches down to the fold. Stacked over his level (the accessibility text
-    /// sizes) he is no taller than in one column, so the level follows him and the pane scrolls.
+    /// sizes) he is no taller than in one column, so the level follows him and the pane scrolls. Side by side he
+    /// yields what stands under him, so his pane fits without scrolling while he can stay recognisable (ADR-0059 §3).
     /// - Parameters:
     ///   - headerHeight: the height the pane's title is drawn at.
     ///   - besideTitle: whether the hero stands beside his lines and title rather than above them.
-    func maxHeroSize(headerHeight: CGFloat, besideTitle: Bool) -> CGFloat {
+    ///   - under: the height of his lines, level and skills under him.
+    ///   - paneHeight: his pane's height inside the safe area; 0 until it is known.
+    func maxHeroSize(headerHeight: CGFloat, besideTitle: Bool, under: CGFloat = 0, paneHeight: CGFloat = 0) -> CGFloat {
         switch self {
         case .column: Self.columnHero
+        case .columns where paneHeight > 0:
+            min(
+                Self.widestHero,
+                max(Self.smallestHero, paneHeight - headerHeight - under - Self.upperPaneSpacing - DSSpacing.m)
+            )
         case .columns: Self.widestHero
         case .stacked(let fold):
             min(
@@ -62,6 +70,10 @@ enum HomeArrangement: Equatable, Sendable {
 
     /// Padding around each pane's content.
     static let panePadding = DSSpacing.l
+    /// Between the hero and his column, when he stands beside it.
+    static let besideSpacing = DSSpacing.l
+    /// The narrowest the hero's stage gets beside his column.
+    static let smallestStageWidth: CGFloat = 160
     /// Space between the hero pane's title and the stage.
     static let headerSpacing = DSSpacing.m
     /// Space above the family, for the hero's glow and a child's cheer.

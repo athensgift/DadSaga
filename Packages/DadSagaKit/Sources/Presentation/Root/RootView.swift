@@ -99,6 +99,11 @@ public struct RootView: View {
             }
         }
         .onChange(of: viewModel.state, initial: true) { _, state in prepareScreen(for: state) }
+        // Home's Undo ends when the dad leaves for the timeline. Told from here, not by the bar going: turning the
+        // device rebuilds home's stack with the bar still on screen (ADR-0058).
+        .onChange(of: viewModel.selectedTab) { _, tab in
+            if tab != .adventure { home?.leftForAnotherTab() }
+        }
         .onChange(of: viewModel.sagaGeneration) { rebuildHome() }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DSColor.background)

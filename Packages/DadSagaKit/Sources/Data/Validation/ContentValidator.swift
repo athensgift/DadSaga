@@ -27,17 +27,33 @@ enum ContentValidator {
         try validateBeforeBirth(catalog)
         try validateAppearance(catalog.appearanceOptions)
         try validateTitles(catalog)
+        try validateSkillCurves(catalog.skillCurves)
     }
 
-    /// The first title needs nothing, each later one more cards and more XP, every item comes with exactly one title,
-    /// and every name says something (ADR-0055 §2).
+    /// Each skill has exactly one curve, and each half-grown XP is above 0 (ADR-0059 §2).
+    private static func validateSkillCurves(_ curves: [SkillCurve]) throws {
+        var seen: Set<Skill> = []
+        for curve in curves {
+            guard seen.insert(curve.skill).inserted else { throw ContentDataError.duplicateID(curve.skill.rawValue) }
+            guard curve.halfGrownXP > 0 else { throw ContentDataError.invalidSkillCurve(skill: curve.skill.rawValue) }
+        }
+        if let missing = Skill.allCases.first(where: { !seen.contains($0) }) {
+            throw ContentDataError.missingSkillCurve(skill: missing.rawValue)
+        }
+    }
+
+    /// Orders run 0, 1, 2… (ADR-0059 §1), the first title needs nothing, each later one more cards and more XP, every
+    /// item comes with exactly one title, and every name says something (ADR-0055 §2).
     private static func validateTitles(_ catalog: ContentCatalog) throws {
         let titles = catalog.titles
+        for (index, title) in titles.enumerated() where title.order != index {
+            throw ContentDataError.invalidTitleOrder(titleID: title.id)
+        }
         if let first = titles.first, first.minCards != 0 || first.minXP != 0 {
             throw ContentDataError.invalidTitleThresholds(titleID: first.id)
         }
         for (lower, higher) in zip(titles, titles.dropFirst())
-        where higher.order == lower.order || higher.minCards <= lower.minCards || higher.minXP <= lower.minXP {
+        where higher.minCards <= lower.minCards || higher.minXP <= lower.minXP {
             throw ContentDataError.invalidTitleThresholds(titleID: higher.id)
         }
         for title in titles where title.name.el.isEmpty || title.name.en.isEmpty {

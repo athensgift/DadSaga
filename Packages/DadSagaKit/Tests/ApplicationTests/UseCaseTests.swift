@@ -124,6 +124,7 @@ actor InMemoryStanding: StandingRepository {
     }
 
     func markSeen(titleID: String) async throws {
+        writes += 1
         kept.seenTitleID = titleID
     }
 

@@ -4,7 +4,8 @@ public struct DadTitle: ContentItem, Hashable, Identifiable, Sendable {
     public let id: String
     /// Ids it had before a rename (ADR-0048 §5).
     public let formerIDs: [String]
-    /// The first title is 0; a higher order is a higher title.
+    /// The first title is 0, and orders run 0, 1, 2… with no gap; a higher order is a higher title. It is also the
+    /// dad's level, shown beside the title on home (ADR-0059 §1), so a shipped title keeps its order for good.
     public let order: Int
     /// Counted timeline entries needed: a quest every time, a boss or a first once per child.
     public let minCards: Int

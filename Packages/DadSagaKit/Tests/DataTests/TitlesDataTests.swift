@@ -59,7 +59,8 @@ struct TitlesStoreTests {
         let reopened = LocalStore.live(in: directory)
         let kept = try await reopened.standing.fetchKept()
         #expect(kept.gearIDs == ["g-burp-cloth"])
-        #expect(kept.titleID == "t-new-to-the-journey")
+        // The title is kept before a deletion only (ADR-0055 §3).
+        #expect(kept.titleID == nil)
     }
 
     @Test("Given a new saga, when the profile is saved, then nothing from before titles is kept, and edits keep the title")
@@ -87,6 +88,27 @@ struct TitlesStoreTests {
         #expect(try await LocalStore.live(in: directory).standing.fetchKept() == .fresh)
     }
 
+    @Test("Given a card closed for a title an Undo takes back, when the title still held is marked seen, then it goes back")
+    func markSeenGoesBackForAnUndo() async throws {
+        let store = LocalStore.inMemory()
+        try await store.profiles.save(StoreV6Fixture.profile)
+        try await store.standing.keep(titleID: "t1", gearIDs: ["g-cloth"])
+        try await store.standing.markSeen(titleID: "t2")
+
+        try await store.standing.markSeen(titleID: "t1")
+
+        #expect(try await store.standing.fetchKept() == KeptStanding(titleID: "t1", gearIDs: ["g-cloth"], seenTitleID: "t1"))
+    }
+
+    @Test("Given no family yet, when a title is marked seen, then nothing is written")
+    func markSeenWithoutAFamily() async throws {
+        let store = LocalStore.inMemory()
+
+        try await store.standing.markSeen(titleID: "t2")
+
+        #expect(try await store.standing.fetchKept() == .fresh)
+    }
+
     @Test("Given a kept title, when the dad starts over, then it goes with the saga")
     func startOverErasesIt() async throws {
         let store = LocalStore.inMemory()
@@ -108,6 +130,7 @@ struct TitleValidationTests {
     func catalog(_ titles: [DadTitle], gear: [GearItem]? = nil) -> ContentCatalog {
         ContentCatalog(
             worlds: [], quests: [], bosses: [], firsts: [], gear: gear ?? [mug], titles: titles,
+            skillCurves: SkillCurve.forEverySkill,
             appearanceOptions: DadAppearance.Part.allCases.flatMap { part in
                 DadAppearance.optionIDs(for: part).map { DadAppearanceOption(part: part, id: $0, title: text) }
             }
@@ -164,6 +187,46 @@ struct TitleValidationTests {
         #expect(throws: ContentDataError.emptyText(itemID: "t0")) {
             try ContentValidator.validate(catalog([
                 DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, gearIDs: ["mug"], name: LocalizedText(el: "", en: "x"))
+            ]))
+        }
+    }
+
+    @Test("Given titles whose orders run 0, 1, 2, when validating, then they pass")
+    func ordersWithoutGaps() throws {
+        try ContentValidator.validate(catalog([
+            DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
+            DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["mug"], name: text),
+            DadTitle(id: "t2", order: 2, minCards: 2, minXP: 60, name: text)
+        ]))
+    }
+
+    @Test("Given titles with a gap in their orders, when validating, then invalidTitleOrder is thrown: a level is skipped")
+    func orderWithAGap() {
+        #expect(throws: ContentDataError.invalidTitleOrder(titleID: "t2")) {
+            try ContentValidator.validate(catalog([
+                DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
+                DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["mug"], name: text),
+                DadTitle(id: "t2", order: 3, minCards: 2, minXP: 60, name: text)
+            ]))
+        }
+    }
+
+    @Test("Given two titles with one order, when validating, then invalidTitleOrder is thrown")
+    func orderRepeated() {
+        #expect(throws: ContentDataError.invalidTitleOrder(titleID: "t2")) {
+            try ContentValidator.validate(catalog([
+                DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
+                DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["mug"], name: text),
+                DadTitle(id: "t2", order: 1, minCards: 2, minXP: 60, name: text)
+            ]))
+        }
+    }
+
+    @Test("Given titles that start at 1, when validating, then invalidTitleOrder is thrown: the first is Level 0")
+    func orderStartsAtZero() {
+        #expect(throws: ContentDataError.invalidTitleOrder(titleID: "t1")) {
+            try ContentValidator.validate(catalog([
+                DadTitle(id: "t1", order: 1, minCards: 0, minXP: 0, gearIDs: ["mug"], name: text)
             ]))
         }
     }

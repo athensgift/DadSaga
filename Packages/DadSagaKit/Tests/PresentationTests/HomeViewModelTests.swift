@@ -28,14 +28,20 @@ struct HomeViewModelTests {
             return
         }
         #expect(sut.selectedQuest == nil)
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
         #expect(content.cards.last?.footnote == "Το έκανες 1 φορά")
         #expect(sut.celebration?.id == 1)
         #expect(sut.celebration?.skillText == "Η φροντίδα σου μεγάλωσε")
         #expect(sut.celebration?.highlight == .quest)
 
+        // Care's mark rises as the badge goes, not with it (ADR-0059 §2).
+        #expect(content.skills.marks.allSatisfy { $0.growth == 0 && $0.rises == 0 })
+
         sut.celebrationFinished(id: 1)
         #expect(sut.celebration == nil)
+        guard case .loaded(let after) = sut.state else { Issue.record("Home isn't loaded"); return }
+        #expect(after.skills.marks.map(\.rises) == [1, 0, 0, 0])
+        #expect(after.skills.marks[0].growth > 0)
     }
 
     @Test("Given a quest done with a note, when opening it again, then the sheet shows what he wrote last time")
@@ -71,8 +77,8 @@ struct HomeViewModelTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        // A title never goes down, even when the quest that brought it is undone (ADR-0055 §3).
-        #expect(content.dadTitle == "Νέος στο ταξίδι")
+        // Back to before the quest, the title it brought included (ADR-0055 §3).
+        #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
     }
 
     @Test("Given an undo offer, when an older offer expires, then the current one stays; when it expires, it closes")
@@ -199,7 +205,7 @@ struct HomeViewModelTests {
         #expect(content.heroTitle == "Cool Μπαμπάς")
         #expect(content.heroLook == .cool)
         #expect(content.companionLine == "Νίκος · 10 μηνών")
-        #expect(content.dadTitle == "Σε αναμονή")
+        #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
         #expect(content.worldTitle == "Κόσμος")
         #expect(content.cards.map(\.id) == ["b1", "q1"])
         #expect(content.cards.map(\.symbol) == ["flame.fill", "heart.fill"])
@@ -327,14 +333,16 @@ func makeHomeViewModel(
     progress: FakeProgress,
     locale: String = "el_GR",
     reminder: ReminderUseCases = .neverOffered,
-    film: FakeFilmOffers = FakeFilmOffers()
+    film: FakeFilmOffers = FakeFilmOffers(),
+    catalog: ContentCatalog = HeroStub.catalog
 ) -> HomeViewModel {
     HomeViewModel(
         useCases: HomeViewModel.UseCases(
-            getOverview: FakeHomeOverview(profile: profile, progress: progress, film: film),
+            getOverview: FakeHomeOverview(profile: profile, catalog: catalog, progress: progress, film: film),
             completeQuest: progress,
             defeatBoss: progress,
             deleteEvent: progress,
+            undoRecord: progress,
             moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
             reminder: reminder,
             answerSagaOffer: film,
