@@ -22,6 +22,9 @@ The checklist for a TestFlight build and an App Store release. The decisions beh
 ## Once, at the first App Store release
 On the first release branch, for the build submitted for review (ADR-0060 §5). If review asks for another build, the
 record follows that build; it is fixed once the build is released, and reaches `develop` when `main` is merged back.
+- [ ] ADR-0065's PR 1 merged into `develop` before the release branch: the profile id, the entries' authors, a child's
+      `isRemoved`, `#Unique` ids and ids kept in history in `SchemaV1`; `hero.id`, `author` and each child's `removed`
+      in format 1, whose reader takes any number of children from one. Both freeze with this build.
 - [ ] `Tests/DataTests/Fixtures/ShippedContentIDs.json`, from the bundled content: every world, hero, quest, boss,
       first, gear item and title id; each quest's and boss's skill and XP, and each first's XP; each gear item's skill;
       each title's order, cards, XP and gear; each skill's `halfGrownXP`. From then on it only grows.
@@ -42,6 +45,8 @@ record follows that build; it is fixed once the build is released, and reaches `
       build "changes the store or the ids" if `SchemaV1` changed, or a content id was renamed or removed, since then.
 - [ ] If it does, its notes for testers ("What to Test") say, in Greek and English, to delete DadSaga before installing
       it, and that what was recorded in earlier builds isn't kept.
+- [ ] If it changes format 1 of a copy so that copies from earlier builds no longer import (ADR-0065's PR 1 does), its
+      notes say that too.
 
 ## Every release
 1. **Branch.** `git switch develop && git pull`, then `git switch -c release/<version>`.
