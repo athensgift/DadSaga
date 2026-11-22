@@ -24,7 +24,12 @@ struct FormerIDRecordingTests {
 
     @Test("Given a quest renamed from q-old, when completing it as q-old, then it is stored as q-new with its XP")
     func questUnderFormerIDStoresTheCurrentID() async throws {
-        let sut = DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        let sut = DefaultCompleteQuestUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
 
         let change = try await sut.execute(questID: "q-old", childID: child, on: today, journal: .empty)
 
@@ -50,6 +55,11 @@ struct FormerIDRecordingTests {
     }
 
     private var capture: DefaultCaptureMomentUseCase {
-        DefaultCaptureMomentUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        DefaultCaptureMomentUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
     }
 }

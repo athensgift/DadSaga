@@ -230,8 +230,8 @@ struct ContentValidatorTests {
             bosses: [],
             firsts: [],
             gear: [
-                GearItem(id: "mug", skill: .care, minXP: 1, look: "mug", title: text, formerIDs: ["cup"]),
-                GearItem(id: "flask", skill: .care, minXP: 2, look: "mug", title: text, formerIDs: ["cup"])
+                GearItem(id: "mug", skill: .care, skillXPBeforeTitles: 1, look: "mug", title: text, formerIDs: ["cup"]),
+                GearItem(id: "flask", skill: .care, skillXPBeforeTitles: 2, look: "mug", title: text, formerIDs: ["cup"])
             ]
         )
         #expect(throws: ContentDataError.duplicateID("cup")) {

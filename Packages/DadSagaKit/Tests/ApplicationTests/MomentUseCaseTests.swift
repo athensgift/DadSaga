@@ -16,7 +16,12 @@ struct MomentUseCaseTests {
     let firstID = Self.first.id
 
     var capture: DefaultCaptureMomentUseCase {
-        DefaultCaptureMomentUseCase(contentRepository: content, progressRepository: repository, photoStore: photos)
+        DefaultCaptureMomentUseCase(
+            contentRepository: content,
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        )
     }
 
     var update: DefaultUpdateMomentUseCase {
@@ -149,7 +154,12 @@ struct MomentUseCaseTests {
     func deletes() async throws {
         let moment = try await captured(photos: [Data([1])])
 
-        try await DefaultDeleteEventUseCase(progressRepository: repository, photoStore: photos).execute(eventID: moment.id)
+        try await DefaultDeleteEventUseCase(
+            contentRepository: StubContentRepository(result: .success(Stub.catalog)),
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        ).execute(eventID: moment.id)
 
         #expect(try await repository.fetchEvents().isEmpty)
         #expect(await photos.stored.isEmpty)
@@ -160,7 +170,12 @@ struct MomentUseCaseTests {
         try await repository.add(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today))
         let quest = try #require(try await repository.fetchEvents().first)
 
-        try await DefaultDeleteEventUseCase(progressRepository: repository, photoStore: photos).execute(eventID: quest.id)
+        try await DefaultDeleteEventUseCase(
+            contentRepository: StubContentRepository(result: .success(Stub.catalog)),
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: photos
+        ).execute(eventID: quest.id)
 
         #expect(try await repository.fetchEvents().isEmpty)
     }
@@ -170,7 +185,12 @@ struct MomentUseCaseTests {
         try await repository.add(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today))
 
         await #expect(throws: ProgressError.unknownEvent) {
-            try await DefaultDeleteEventUseCase(progressRepository: repository, photoStore: photos).execute(eventID: UUID())
+            try await DefaultDeleteEventUseCase(
+                contentRepository: StubContentRepository(result: .success(Stub.catalog)),
+                progressRepository: repository,
+                standingRepository: InMemoryStanding(),
+                photoStore: photos
+            ).execute(eventID: UUID())
         }
         #expect(try await repository.fetchEvents().count == 1)
     }

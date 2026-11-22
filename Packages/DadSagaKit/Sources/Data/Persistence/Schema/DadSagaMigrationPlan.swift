@@ -12,10 +12,11 @@ import SwiftData
 /// the zone the dad picked it in (ADR-0048 §3). V5 → V6 drops `birthDate`, so an empty day can mean "not born yet"
 /// (ADR-0053 §8): on version 5, before the column goes, every child still without a day gets the one its moment falls
 /// on, as V4 → V5 would have; then the stage drops it and adds the partner answer. If that fails the store stays at
-/// version 5 with every `birthDate`, and the next launch tries again, so a born child can't come out as not born.
+/// version 5 with every `birthDate`, and the next launch tries again, so a born child can't come out as not born. V6 → V7
+/// adds what the profile keeps for titles as three optional columns (ADR-0055 §5); nothing is computed while migrating.
 enum DadSagaMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [SchemaV1.self, SchemaV2.self, SchemaV3.self, SchemaV4.self, SchemaV5.self, SchemaV6.self]
+        [SchemaV1.self, SchemaV2.self, SchemaV3.self, SchemaV4.self, SchemaV5.self, SchemaV6.self, SchemaV7.self]
     }
 
     static var stages: [MigrationStage] {
@@ -34,7 +35,8 @@ enum DadSagaMigrationPlan: SchemaMigrationPlan {
                 toVersion: SchemaV6.self,
                 willMigrate: { try fillBirthDays(in: $0, timeZone: .autoupdatingCurrent) },
                 didMigrate: nil
-            )
+            ),
+            .lightweight(fromVersion: SchemaV6.self, toVersion: SchemaV7.self)
         ]
     }
 
@@ -60,7 +62,7 @@ enum DadSagaMigrationPlan: SchemaMigrationPlan {
 }
 
 /// The version the app reads and writes. The rest of Data names records through these.
-typealias CurrentSchema = SchemaV6
+typealias CurrentSchema = SchemaV7
 typealias ProfileRecord = CurrentSchema.ProfileRecord
 typealias ChildRecord = CurrentSchema.ChildRecord
 typealias ProgressEventRecord = CurrentSchema.ProgressEventRecord

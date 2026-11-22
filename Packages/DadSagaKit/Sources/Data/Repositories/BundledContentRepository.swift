@@ -21,6 +21,15 @@ public enum ContentDataError: Error, Equatable {
     case misplacedBeforeBirthWorld(worldID: String)
     /// A card in the world before birth with a minimum age above 0 months.
     case agedBeforeBirth(itemID: String)
+    /// Titles whose first needs anything, or one that doesn't need more cards and more XP than the one before
+    /// (ADR-0055 §2).
+    case invalidTitleThresholds(titleID: String)
+    /// A title brings an item the content doesn't have.
+    case unknownGear(titleID: String, gearID: String)
+    /// No title brings the item.
+    case gearWithoutTitle(gearID: String)
+    /// Two titles bring the item.
+    case gearInTwoTitles(gearID: String)
 }
 
 /// `ContentRepository` backed by the JSON bundled with the app. The catalog is loaded and validated once.
@@ -41,6 +50,7 @@ public actor BundledContentRepository: ContentRepository {
             firsts: try dataSource.decode([FirstMomentDTO].self, resource: "firsts").map { $0.toDomain() },
             heroClasses: try dataSource.decode([HeroClassDTO].self, resource: "heroes").map { $0.toDomain() },
             gear: try dataSource.decode([GearItemDTO].self, resource: "gear").map { try $0.toDomain() },
+            titles: try dataSource.decode([DadTitleDTO].self, resource: "titles").map { $0.toDomain() },
             appearanceOptions: try dataSource.decode([AppearanceOptionDTO].self, resource: "appearance")
                 .map { try $0.toDomain() }
         )

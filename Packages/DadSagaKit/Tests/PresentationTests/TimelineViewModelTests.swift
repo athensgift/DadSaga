@@ -64,7 +64,6 @@ struct TimelineViewModelTests {
         let february = try #require(content.sections.first)
         #expect(february.items.map(\.title) == ["👣 Βήματα", "Αφεντικό"])
         #expect(february.items.map(\.kind) == [.moment, .boss])
-        #expect(february.items.map(\.badge) == ["+30 XP", "+100 XP"])
         #expect(february.items.first?.photoIDs == ["p1"])
         #expect(february.items.first?.photoCount == "1 φωτογραφία")
         #expect(february.items.first?.subtitle.hasPrefix("Ελένη · ") == true)
@@ -131,7 +130,7 @@ struct TimelineViewModelTests {
         let prompt = try #require(sut.deletion)
         #expect(prompt.title == "Διαγραφή από το χρονολόγιο;")
         #expect(prompt.message.hasPrefix("Οι φωτογραφίες και η σημείωσή σου θα σβηστούν μαζί του, χωρίς επιστροφή."))
-        #expect(prompt.message.hasSuffix(" Θα αφαιρεθούν τα 30 XP."))
+        #expect(prompt.message.hasSuffix(" Ο τίτλος σου και ό,τι πήρες μένουν."))
     }
 
     @Test("Given a quest with photos and a boss with a note, when asking to delete them, then both warn, in English too")
@@ -150,12 +149,10 @@ struct TimelineViewModelTests {
         await sut.onAppear()
 
         sut.requestDeletion(id: quest.id)
-        #expect(sut.deletion?.message == "Your photos and note will be deleted with it, for good. Its 20 XP will be removed.")
+        let photosGo = "Your photos and note will be deleted with it, for good."
+        #expect(sut.deletion?.message == photosGo + " Your title and what you got stay.")
         sut.requestDeletion(id: boss.id)
-        #expect(
-            sut.deletion?.message
-                == "Your photos and note will be deleted with it, for good. The badge and its 100 XP will be removed."
-        )
+        #expect(sut.deletion?.message == photosGo + " Its badge will be removed. Your title and what you got stay.")
     }
 
     @Test("Given a quest entry, when deleting it and confirming, then it leaves the timeline")
@@ -165,7 +162,7 @@ struct TimelineViewModelTests {
         let quest = try #require(loadedContent(sut)?.sections.last?.items.first)
 
         sut.requestDeletion(id: quest.id)
-        #expect(sut.deletion?.message == "Θα αφαιρεθούν τα 20 XP.")
+        #expect(sut.deletion?.message == "Ο τίτλος σου και ό,τι πήρες μένουν.")
         let prompt = try #require(sut.deletion)
         sut.cancelDeletion() // what the dialog does to its binding before the button's action runs
         await sut.confirmDeletion(id: prompt.id)

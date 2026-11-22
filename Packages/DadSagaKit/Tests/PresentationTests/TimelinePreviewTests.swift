@@ -6,7 +6,7 @@ import Testing
 struct TimelinePreviewTests {
     private static func item(_ title: String) -> TimelineItem {
         TimelineItem(
-            id: UUID(), kind: .quest, title: title, subtitle: "", badge: "", symbol: "heart", photoIDs: [], photoCount: nil
+            id: UUID(), kind: .quest, title: title, subtitle: "", symbol: "heart", photoIDs: [], photoCount: nil
         )
     }
 

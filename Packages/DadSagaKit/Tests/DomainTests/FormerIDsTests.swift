@@ -32,8 +32,8 @@ struct FormerIDsTests {
             HeroClass(id: "h2", order: 2, title: text, tagline: text, look: "chef", formerIDs: ["h-old"])
         ],
         gear: [
-            GearItem(id: "mug", skill: .care, minXP: 10, look: "mug", title: text),
-            GearItem(id: "cloth", skill: .care, minXP: 20, look: "burpCloth", title: text, formerIDs: ["rag"])
+            GearItem(id: "mug", skill: .care, skillXPBeforeTitles: 10, look: "mug", title: text),
+            GearItem(id: "cloth", skill: .care, skillXPBeforeTitles: 20, look: "burpCloth", title: text, formerIDs: ["rag"])
         ]
     )
 
@@ -74,9 +74,7 @@ struct FormerIDsTests {
 
     @Test("Given an item chosen before it was renamed, when dressing the hero, then it is still worn")
     func renamedGearStaysWorn() {
-        let worn = GearRules.equipped(
-            catalog.gear, skillXP: [.care: 30], outfit: Outfit(choices: [.care: .item("rag")])
-        )
+        let worn = GearRules.equipped(catalog.gear, outfit: Outfit(choices: [.care: .item("rag")]))
 
         #expect(worn.map(\.id) == ["cloth"])
     }

@@ -65,6 +65,11 @@ public struct WardrobeView: View {
             .motion(.spring(response: 0.35, dampingFraction: 0.75), value: content.gear)
             .accessibilityHidden(true)
         } acting: { _ in
+            if let empty = content.emptyMessage {
+                Text(empty)
+                    .font(DSFont.body)
+                    .foregroundStyle(DSColor.textSecondary)
+            }
             ForEach(content.slots) { slot in
                 slotView(slot)
             }
@@ -77,18 +82,10 @@ public struct WardrobeView: View {
 
     private func slotView(_ slot: WardrobeSlot) -> some View {
         VStack(alignment: .leading, spacing: DSSpacing.s) {
-            HStack(alignment: .firstTextBaseline) {
-                Label(slot.title, systemImage: slot.symbol)
-                    .font(DSFont.headline)
-                    .foregroundStyle(DSColor.textPrimary)
-                Spacer()
-                Text(slot.xpText)
-                    .font(DSFont.caption)
-                    .foregroundStyle(DSColor.textSecondary)
-                    .monospacedDigit()
-            }
-            .accessibilityElement(children: .combine)
-            .accessibilityAddTraits(.isHeader)
+            Label(slot.title, systemImage: slot.symbol)
+                .font(DSFont.headline)
+                .foregroundStyle(DSColor.textPrimary)
+                .accessibilityAddTraits(.isHeader)
             let columns = [GridItem(.adaptive(minimum: optionMinimumWidth), spacing: DSSpacing.s)]
             LazyVGrid(columns: columns, spacing: DSSpacing.s) {
                 ForEach(slot.options) { option in
@@ -106,29 +103,16 @@ public struct WardrobeView: View {
             VStack(spacing: DSSpacing.xs) {
                 if let item = option.item {
                     HeroItemIcon(item: item.heroItem, size: 60)
-                        .grayscale(option.isLocked ? 1 : 0)
-                        .opacity(option.isLocked ? 0.55 : 1)
                 }
-                HStack(spacing: DSSpacing.xs) {
-                    if option.isLocked {
-                        Image(systemName: "lock.fill").font(DSFont.caption)
-                    }
-                    Text(option.title)
-                        .font(DSFont.subheadline)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .foregroundStyle(DSColor.textPrimary)
+                Text(option.title)
+                    .font(DSFont.subheadline)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .foregroundStyle(DSColor.textPrimary)
                 if let detail = option.detail {
                     Text(detail)
                         .font(DSFont.caption)
                         .foregroundStyle(DSColor.textSecondary)
-                        .monospacedDigit()
-                }
-                if let progress = option.progress {
-                    ProgressView(value: progress)
-                        .tint(DSColor.xp)
-                        .accessibilityHidden(true)
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 52)
@@ -137,10 +121,8 @@ public struct WardrobeView: View {
             .background(DSColor.surface, in: shape)
             .overlay { shape.strokeBorder(DSColor.accent, lineWidth: option.isSelected ? 2.5 : 0) }
             .contentShape(shape)
-            .opacity(option.isLocked ? 0.7 : 1)
         }
         .buttonStyle(.plain)
-        .disabled(option.isLocked)
         .accessibilityAddTraits(option.isSelected ? .isSelected : [])
         .animation(.easeOut(duration: 0.15), value: option.isSelected)
     }

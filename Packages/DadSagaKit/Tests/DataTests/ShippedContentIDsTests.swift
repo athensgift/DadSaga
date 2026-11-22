@@ -19,6 +19,15 @@ struct ShippedContentIDs: Decodable {
     let bosses: [Item]
     let firsts: [Item]
     let gear: [Item]
+    /// Each title as it shipped: what it needed and the gear it brought (ADR-0055 §11).
+    let titles: [Title]
+
+    struct Title: Decodable {
+        let id: String
+        let minCards: Int
+        let minXP: Int
+        let gear: [String]
+    }
 
     static func load() throws -> ShippedContentIDs {
         let url = URL(filePath: #filePath).deletingLastPathComponent().appending(path: "Fixtures/ShippedContentIDs.json")
@@ -50,14 +59,16 @@ struct ShippedContentIDsTests {
             Kind(name: "quests", shipped: shipped.quests) { catalog.quest(id: $0) },
             Kind(name: "bosses", shipped: shipped.bosses) { catalog.boss(id: $0) },
             Kind(name: "firsts", shipped: shipped.firsts) { catalog.first(id: $0) },
-            Kind(name: "gear", shipped: shipped.gear) { catalog.gearItem(id: $0) }
+            Kind(name: "gear", shipped: shipped.gear) { catalog.gearItem(id: $0) },
+            Kind(name: "titles", shipped: shipped.titles.map { ShippedContentIDs.Item(id: $0.id) }) { catalog.title(id: $0) }
         ]
     }
 
     var current: [(name: String, items: [any ContentItem])] {
         [
             ("worlds", catalog.worlds), ("heroes", catalog.heroClasses), ("quests", catalog.quests),
-            ("bosses", catalog.bosses), ("firsts", catalog.firsts), ("gear", catalog.gear)
+            ("bosses", catalog.bosses), ("firsts", catalog.firsts), ("gear", catalog.gear),
+            ("titles", catalog.titles)
         ]
     }
 
@@ -123,7 +134,27 @@ struct ShippedContentIDsTests {
         for item in shipped.gear {
             guard let gear = catalog.gearItem(id: item.id) else { continue }
             #expect(gear.skill.rawValue == item.skill, "\(item.id) moved skill")
-            #expect(gear.minXP <= item.minXP ?? .max, "\(item.id) needs more XP: earned gear would lock again")
+            // The rule from before titles only ever reads these, so a dad from then keeps his gear (ADR-0055 §4).
+            #expect(
+                gear.skillXPBeforeTitles == item.minXP,
+                "\(item.id): its threshold from before titles must stay as it shipped, and only shipped items have one"
+            )
+        }
+        for item in catalog.gear where !shipped.gear.contains(where: { gear in item.has(id: gear.id) }) {
+            #expect(item.skillXPBeforeTitles == nil, "\(item.id) came after titles: no skill XP brings it")
+        }
+    }
+
+    @Test("Given each shipped title, when reading today's titles, then none needs more and no item comes later")
+    func titlesNeverAskForMore() {
+        for shippedTitle in shipped.titles {
+            guard let title = catalog.title(id: shippedTitle.id) else { continue }
+            #expect(title.minCards <= shippedTitle.minCards, "\(shippedTitle.id) needs more cards")
+            #expect(title.minXP <= shippedTitle.minXP, "\(shippedTitle.id) needs more XP")
+            for gearID in shippedTitle.gear {
+                let bringing = catalog.title(bringing: gearID)
+                #expect((bringing?.order ?? .max) <= title.order, "\(gearID) moved to a later title")
+            }
         }
     }
 }

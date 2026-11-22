@@ -34,7 +34,7 @@ extension HomeViewModel {
             momentCapture = nil
             return
         }
-        let celebration = makeCelebration(change, moment: "\(option.emoji) \(option.title)")
+        let celebration = makeCelebration(skill: nil, moment: "\(option.emoji) \(option.title)")
         pendingMomentCelebration = celebration
         momentCapture?.step = .details(momentsFormatter.details(
             moment,

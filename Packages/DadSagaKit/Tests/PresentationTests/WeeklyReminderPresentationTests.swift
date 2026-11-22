@@ -53,9 +53,11 @@ struct WeeklyReminderPresentationTests {
         )
     }
 
+    /// The first quest brings the first title: its card shows first, and the dad closes it (ADR-0055 §6).
     func completeFirstQuest(_ sut: HomeViewModel) async {
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
+        await sut.closeTitleCard()
     }
 
     @Test("Given no quest done yet, when home opens, then there is no offer; after the first quest, there is")
@@ -63,8 +65,13 @@ struct WeeklyReminderPresentationTests {
         let sut = makeHome(FakeReminder())
         await sut.onAppear()
         #expect(sut.reminderOffer == nil)
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        // The title card first: the reminder waits behind it.
+        #expect(sut.titleCard != nil)
+        #expect(sut.reminderOffer == nil)
 
-        await completeFirstQuest(sut)
+        await sut.closeTitleCard()
 
         #expect(sut.reminderOffer?.title == "Μια υπενθύμιση την εβδομάδα;")
         #expect(sut.reminderOffer?.message.contains("Σάββατο 10:00") == true)

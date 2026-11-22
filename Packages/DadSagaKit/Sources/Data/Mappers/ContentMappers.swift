@@ -126,9 +126,23 @@ extension GearItemDTO {
         GearItem(
             id: id,
             skill: try QuestDTO.skill(skill, itemID: id),
-            minXP: minXP,
+            skillXPBeforeTitles: skillXPBeforeTitles,
             look: look,
             title: title.toDomain(),
+            formerIDs: formerIDs ?? []
+        )
+    }
+}
+
+extension DadTitleDTO {
+    func toDomain() -> DadTitle {
+        DadTitle(
+            id: id,
+            order: order,
+            minCards: minCards,
+            minXP: minXP,
+            gearIDs: gear,
+            name: name.toDomain(),
             formerIDs: formerIDs ?? []
         )
     }

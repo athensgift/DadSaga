@@ -35,14 +35,14 @@ enum HomeArrangement: Equatable, Sendable {
     /// sizes) he is no taller than in one column, so the level follows him and the pane scrolls.
     /// - Parameters:
     ///   - headerHeight: the height the pane's title is drawn at.
-    ///   - besideLevel: whether the hero stands beside his lines and level rather than above them.
-    func maxHeroSize(headerHeight: CGFloat, besideLevel: Bool) -> CGFloat {
+    ///   - besideTitle: whether the hero stands beside his lines and title rather than above them.
+    func maxHeroSize(headerHeight: CGFloat, besideTitle: Bool) -> CGFloat {
         switch self {
         case .column: Self.columnHero
         case .columns: Self.widestHero
         case .stacked(let fold):
             min(
-                besideLevel ? Self.widestHero : Self.columnHero,
+                besideTitle ? Self.widestHero : Self.columnHero,
                 max(Self.smallestHero, fold.top - headerHeight - Self.upperPaneSpacing)
             )
         }

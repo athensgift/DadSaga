@@ -44,7 +44,6 @@ struct MomentsFormatter {
                 id: first.id,
                 emoji: first.emoji,
                 title: first.title.resolved(for: locale),
-                reward: reward(first),
                 earliestDate: earliestDate(of: first, for: child, now: now)
             )
         }
@@ -70,7 +69,6 @@ struct MomentsFormatter {
         MomentDetails(
             momentID: moment.eventID,
             title: "\(moment.first.emoji) \(moment.first.title.resolved(for: locale))",
-            reward: reward(moment.first),
             isNew: isNew,
             heading: isNew ? strings.text("Saved! Want to keep something more?") : nil,
             line: isNew ? strings.text("Photos or a few words, now or whenever you like.") : nil,
@@ -86,7 +84,7 @@ struct MomentsFormatter {
             labels: MomentLabels(
                 journal: JournalLabels(locale: locale),
                 delete: strings.text("Delete moment"),
-                deleteConfirmation: strings.text("The moment, its photos and its XP will be removed."),
+                deleteConfirmation: strings.text("The moment and its photos will be removed. Your title and what you got stay."),
                 cancel: strings.text("Cancel")
             ),
             undoOffer: undoOffer
@@ -101,8 +99,6 @@ struct MomentsFormatter {
         guard !first.isBeforeBirth else { return .distantPast }
         return min(child.birthDay?.start(in: timeZone) ?? now, now)
     }
-
-    private func reward(_ first: FirstMoment) -> String { "+\(first.xp) XP" }
 
     /// Visible changes earned by the child's captured firsts.
     func traits(for child: Child, catalog: ContentCatalog, progress: DadProgress) -> Set<CompanionTrait> {
@@ -120,7 +116,6 @@ struct MomentsFormatter {
             id: moment.eventID,
             title: "\(moment.first.emoji) \(moment.first.title.resolved(for: locale))",
             subtitle: [date, moment.note].compactMap(\.self).joined(separator: " · "),
-            badge: reward(moment.first),
             photoIDs: moment.photoIDs,
             photoCount: viewer.photoCount(moment.photoIDs.count)
         )

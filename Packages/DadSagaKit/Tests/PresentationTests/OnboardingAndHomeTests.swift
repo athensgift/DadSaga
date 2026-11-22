@@ -244,9 +244,22 @@ enum HeroStub {
             )
         ],
         gear: [
-            GearItem(id: "g1", skill: .care, minXP: 50, look: "burpCloth", title: LocalizedText(el: "Πανάκι", en: "Burp cloth"),
-                     formerIDs: ["g1-before"]),
-            GearItem(id: "g2", skill: .care, minXP: 200, look: "unknownLook", title: text)
+            GearItem(
+                id: "g1", skill: .care, skillXPBeforeTitles: 50, look: "burpCloth",
+                title: LocalizedText(el: "Πανάκι", en: "Burp cloth"), formerIDs: ["g1-before"]
+            ),
+            GearItem(id: "g2", skill: .care, skillXPBeforeTitles: 200, look: "unknownLook", title: text)
+        ],
+        titles: [
+            DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: LocalizedText(el: "Σε αναμονή", en: "In waiting")),
+            DadTitle(
+                id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["g1"],
+                name: LocalizedText(el: "Νέος στο ταξίδι", en: "New to the journey")
+            ),
+            DadTitle(
+                id: "t2", order: 2, minCards: 5, minXP: 500, gearIDs: ["g2"],
+                name: LocalizedText(el: "Σίγουρα χέρια", en: "Steady hands")
+            )
         ]
     )
 }

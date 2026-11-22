@@ -19,7 +19,8 @@ struct EntryPhotoUseCaseTests {
         photos: [Data], store: SpyPhotoStore, repository: (any ProgressRepository)? = nil
     ) async throws -> ProgressChange {
         try await DefaultCompleteQuestUseCase(
-            contentRepository: content, progressRepository: repository ?? self.repository, photoStore: store
+            contentRepository: content, progressRepository: repository ?? self.repository,
+            standingRepository: InMemoryStanding(), photoStore: store
         ).execute(questID: "q1", childID: child, on: today, journal: JournalInput(photos: photos))
     }
 
@@ -81,7 +82,12 @@ struct EntryPhotoUseCaseTests {
     @Test("Given another save of the same boss landed first, when defeating it with photos, then no photo is kept")
     func alreadyCountedKeepsNoPhotos() async throws {
         let store = SpyPhotoStore()
-        let sut = DefaultDefeatBossUseCase(contentRepository: content, progressRepository: LosesRace(), photoStore: store)
+        let sut = DefaultDefeatBossUseCase(
+            contentRepository: content,
+            progressRepository: LosesRace(),
+            standingRepository: InMemoryStanding(),
+            photoStore: store
+        )
 
         let change = try await sut.execute(
             bossID: "b1", childID: child, on: today, journal: JournalInput(photos: photoData(2))
@@ -178,7 +184,12 @@ struct EntryPhotoUseCaseTests {
         let store = SpyPhotoStore()
         let event = try await questWithThreePhotos(store: store)
 
-        try await DefaultDeleteEventUseCase(progressRepository: repository, photoStore: store).execute(eventID: event.id)
+        try await DefaultDeleteEventUseCase(
+            contentRepository: StubContentRepository(result: .success(Stub.catalog)),
+            progressRepository: repository,
+            standingRepository: InMemoryStanding(),
+            photoStore: store
+        ).execute(eventID: event.id)
 
         #expect(await store.stored.isEmpty)
     }

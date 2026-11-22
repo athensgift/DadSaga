@@ -50,11 +50,4 @@ struct HomeStringsTests {
         #expect(greek.ageRange(.beforeBirth) == "πριν τη γέννα")
         #expect(english.ageRange(.beforeBirth) == "before birth")
     }
-
-    @Test("Given a quest, then the reward names the skill in each language")
-    func reward() {
-        let quest = HeroStub.catalog.quests[0]
-        #expect(greek.reward(for: quest) == "+\(quest.xp) XP · Φροντίδα")
-        #expect(english.reward(for: quest) == "+\(quest.xp) XP · Care")
-    }
 }

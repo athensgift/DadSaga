@@ -1,5 +1,5 @@
-/// All game content: worlds, quests, boss fights, legendary moments, hero classes, hero gear and the names of the
-/// dad's look options.
+/// All game content: worlds, quests, boss fights, legendary moments, hero classes, hero gear, the dad's titles and the
+/// names of the dad's look options.
 public struct ContentCatalog: Hashable, Sendable {
     public let worlds: [World]
     public let quests: [Quest]
@@ -7,6 +7,8 @@ public struct ContentCatalog: Hashable, Sendable {
     public let firsts: [FirstMoment]
     public let heroClasses: [HeroClass]
     public let gear: [GearItem]
+    /// Lowest first.
+    public let titles: [DadTitle]
     /// In the order the menus show them.
     public let appearanceOptions: [DadAppearanceOption]
     /// Every current and former id of each kind, so an id stored before a rename still finds its item (ADR-0048 §5).
@@ -16,6 +18,8 @@ public struct ContentCatalog: Hashable, Sendable {
     private let worldsByID: [String: World]
     private let gearByID: [String: GearItem]
     private let heroesByID: [String: HeroClass]
+    private let titlesByID: [String: DadTitle]
+    private let titlesByGearID: [String: DadTitle]
 
     public init(
         worlds: [World],
@@ -24,6 +28,7 @@ public struct ContentCatalog: Hashable, Sendable {
         firsts: [FirstMoment],
         heroClasses: [HeroClass] = [],
         gear: [GearItem] = [],
+        titles: [DadTitle] = [],
         appearanceOptions: [DadAppearanceOption] = []
     ) {
         self.worlds = worlds.sorted { $0.order < $1.order }
@@ -32,6 +37,7 @@ public struct ContentCatalog: Hashable, Sendable {
         self.firsts = firsts.sorted { $0.order < $1.order }
         self.heroClasses = heroClasses.sorted { $0.order < $1.order }
         self.gear = gear
+        self.titles = titles.sorted { $0.order < $1.order }
         self.appearanceOptions = appearanceOptions
         questsByID = Self.index(quests)
         bossesByID = Self.index(bosses)
@@ -39,6 +45,17 @@ public struct ContentCatalog: Hashable, Sendable {
         worldsByID = Self.index(worlds)
         gearByID = Self.index(gear)
         heroesByID = Self.index(heroClasses)
+        titlesByID = Self.index(titles)
+        var byGear: [String: DadTitle] = [:]
+        for title in self.titles {
+            for gearID in title.gearIDs {
+                for id in gear.first(where: { $0.has(id: gearID) }).map({ [$0.id] + $0.formerIDs }) ?? [gearID]
+                    where byGear[id] == nil {
+                    byGear[id] = title
+                }
+            }
+        }
+        titlesByGearID = byGear
     }
 
     public func quest(id: String) -> Quest? { questsByID[id] }
@@ -47,6 +64,9 @@ public struct ContentCatalog: Hashable, Sendable {
     public func world(id: String) -> World? { worldsByID[id] }
     public func gearItem(id: String) -> GearItem? { gearByID[id] }
     public func heroClass(id: String) -> HeroClass? { heroesByID[id] }
+    public func title(id: String) -> DadTitle? { titlesByID[id] }
+    /// The title that brings the item, by its id or a former one.
+    public func title(bringing gearID: String) -> DadTitle? { titlesByGearID[gearID] }
 
     /// The dad's hero. A stored id the content no longer knows shows as the first hero: no error and nothing to choose
     /// again (ADR-0006). The stored id changes only when the dad changes something on "Your hero".

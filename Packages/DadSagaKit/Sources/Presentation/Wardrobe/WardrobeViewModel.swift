@@ -4,7 +4,8 @@ import Foundation
 import Localization
 import Observation
 
-/// Presenter for the wardrobe: choose, per slot, which earned item the hero wears, or nothing, or "automatic".
+/// Presenter for the wardrobe: choose, per slot, which earned item the hero wears, or nothing, or "automatic". Only
+/// what the hero has is shown, without XP: nothing hints at what the next title brings (ADR-0055 §8).
 @MainActor
 @Observable
 public final class WardrobeViewModel {
@@ -42,7 +43,7 @@ public final class WardrobeViewModel {
         }
     }
 
-    /// Wears an option. Locked items cannot be chosen.
+    /// Wears an option. Only an item the hero has can be chosen.
     public func select(slotID: String, optionID: String) async {
         guard let skill = Skill(rawValue: slotID), let wardrobe else { return }
         let choice: OutfitChoice
@@ -82,15 +83,17 @@ public final class WardrobeViewModel {
                 heroAppearance: profile.map { DadAppearanceChoice($0.dadAppearance) } ?? .standard,
                 gear: wardrobe.equipped.compactMap { HeroGearLook(look: $0.look) },
                 medalCount: wardrobe.progress.allDefeatedBossIDs.count,
-                slots: Skill.allCases.map { slot(for: $0, in: wardrobe) },
-                footnote: strings.text("You earn items with each skill's XP. What you earn stays yours.")
+                slots: Skill.allCases.compactMap { slot(for: $0, in: wardrobe) },
+                emptyMessage: wardrobe.earned.isEmpty ? strings.text("What your hero earns will be here.") : nil,
+                footnote: strings.text("Your titles bring these. What you have stays yours.")
             )
         )
     }
 
-    private func slot(for skill: Skill, in wardrobe: Wardrobe) -> WardrobeSlot {
-        let xp = wardrobe.progress.skillXP[skill, default: 0]
-        let items = wardrobe.gear.filter { $0.skill == skill }.sorted { $0.minXP < $1.minXP }
+    /// `nil` while the hero has nothing for this slot.
+    private func slot(for skill: Skill, in wardrobe: Wardrobe) -> WardrobeSlot? {
+        let items = wardrobe.earned.filter { $0.skill == skill }
+        guard !items.isEmpty else { return nil }
         let choice = wardrobe.outfit.choice(for: skill)
         var options = [
             WardrobeOption(
@@ -98,8 +101,6 @@ public final class WardrobeViewModel {
                 title: strings.text("Automatic"),
                 detail: strings.text("The best one"),
                 isSelected: choice == .automatic,
-                isLocked: false,
-                progress: nil,
                 item: nil
             ),
             WardrobeOption(
@@ -107,32 +108,21 @@ public final class WardrobeViewModel {
                 title: strings.text("Nothing"),
                 detail: nil,
                 isSelected: choice == .hidden,
-                isLocked: false,
-                progress: nil,
                 item: nil
             )
         ]
         // An item chosen before a rename is still the one shown as chosen (ADR-0048 §5).
         let chosenID: String? = if case .item(let id) = choice { id } else { nil }
         options += items.map { item in
-            let isLocked = item.minXP > xp
-            return WardrobeOption(
+            WardrobeOption(
                 id: item.id,
                 title: item.title.resolved(for: locale),
-                detail: isLocked ? "\(xp) / \(item.minXP) XP" : nil,
+                detail: nil,
                 isSelected: chosenID.map(item.has(id:)) ?? false,
-                isLocked: isLocked,
-                progress: isLocked ? Double(xp) / Double(item.minXP) : nil,
                 item: HeroGearLook(look: item.look)
             )
         }
-        return WardrobeSlot(
-            id: skill.rawValue,
-            title: strings.skill(skill),
-            symbol: skill.symbol,
-            xpText: "\(xp) XP",
-            options: options
-        )
+        return WardrobeSlot(id: skill.rawValue, title: strings.skill(skill), symbol: skill.symbol, options: options)
     }
 
     private var strings: Strings { Strings(locale: locale) }
@@ -152,8 +142,10 @@ public struct WardrobeContent: Equatable, Sendable {
     /// What the hero wears with the current choices.
     public let gear: [HeroGearLook]
     public let medalCount: Int
-    /// One per skill.
+    /// One per skill the hero has an item for.
     public let slots: [WardrobeSlot]
+    /// Set while the hero has nothing yet.
+    public let emptyMessage: String?
     public let footnote: String
 }
 
@@ -161,21 +153,16 @@ public struct WardrobeSlot: Equatable, Identifiable, Sendable {
     public let id: String
     public let title: String
     public let symbol: String
-    /// The skill's XP, e.g. "120 XP".
-    public let xpText: String
-    /// Automatic, nothing, then every item of the slot, earned or not.
+    /// Automatic, nothing, then every item the hero has for the slot.
     public let options: [WardrobeOption]
 }
 
 public struct WardrobeOption: Equatable, Identifiable, Sendable {
     public let id: String
     public let title: String
-    /// The skill's XP towards a locked item, e.g. "120 / 200 XP".
+    /// e.g. "The best one", for "automatic".
     public let detail: String?
     public let isSelected: Bool
-    public let isLocked: Bool
-    /// How far the skill is towards a locked item, 0 to 1. `nil` when nothing is locked.
-    public let progress: Double?
     /// The item's drawing, for real items; `nil` for "automatic" and "nothing".
     public let item: HeroGearLook?
 }

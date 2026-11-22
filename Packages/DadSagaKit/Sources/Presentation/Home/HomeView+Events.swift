@@ -49,6 +49,12 @@ extension HomeView {
     /// A celebration's time on screen, kept here rather than in its badge, so drawing the badge again (one pane to
     /// two) doesn't restart it. VoiceOver reads it once, a moment in, when the card's sheet has finished closing and
     /// moving focus would no longer cut it off. Cancelled when a newer celebration replaces it: that one keeps its own.
+    /// VoiceOver hears a new title card once, as it appears; closing it says nothing (ADR-0055 §6).
+    func announce(_ card: TitleCard?) {
+        guard let card else { return }
+        AccessibilityNotification.Announcement([card.title, card.message].compactMap(\.self).joined(separator: " ")).post()
+    }
+
     func celebrationTime() async {
         guard let celebration = viewModel.celebration else { return }
         do {
@@ -56,7 +62,7 @@ extension HomeView {
             if viewModel.shouldAnnounce(celebration) {
                 AccessibilityNotification.Announcement(celebration.announcement).post()
             }
-            try await Task.sleep(for: .seconds(celebration.highlight >= .unlock ? 2.6 : 1.6))
+            try await Task.sleep(for: .seconds(celebration.highlight >= .moment ? 2.6 : 1.6))
         } catch {
             return
         }

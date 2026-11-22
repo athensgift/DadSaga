@@ -33,7 +33,7 @@ public struct HomeWidgetPresenter: Sendable {
         .tiles(
             HomeWidgetContent.Tiles(
                 childName: nil,
-                quest: .init(header: questHeader, title: " ", reward: " ", doneText: nil, link: Self.appURL),
+                quest: .init(header: questHeader, title: " ", skill: " ", doneText: nil, link: Self.appURL),
                 moment: .init(header: momentHeader, emoji: "⭐️", title: " ", date: " ", photo: nil,
                               link: Self.appURL)
             )
@@ -48,7 +48,7 @@ public struct HomeWidgetPresenter: Sendable {
                 quest: .init(
                     header: questHeader,
                     title: strings.text("Cuddle time"),
-                    reward: strings.reward(xp: 15, skill: .care),
+                    skill: strings.skill(.care),
                     doneText: nil,
                     link: Self.appURL
                 ),
@@ -74,7 +74,7 @@ public struct HomeWidgetPresenter: Sendable {
             return .init(
                 header: questHeader,
                 title: quest.title.resolved(for: locale),
-                reward: strings.reward(xp: quest.xp, skill: quest.skill),
+                skill: strings.skill(quest.skill),
                 doneText: isDone ? strings.text("✓ Done this week") : nil,
                 link: AppLink.quest(id: quest.id, childID: childID).url
             )
@@ -82,7 +82,7 @@ public struct HomeWidgetPresenter: Sendable {
             return .init(
                 header: questHeader,
                 title: strings.text("Adventures for your child's age are coming soon."),
-                reward: nil,
+                skill: nil,
                 doneText: nil,
                 link: AppLink.child(childID).url
             )

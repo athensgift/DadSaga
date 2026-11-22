@@ -38,6 +38,18 @@ struct ConnectedOutfitRepository: OutfitRepository {
     }
 }
 
+struct ConnectedStandingRepository: StandingRepository {
+    let connection: StoreConnection
+
+    @concurrent func fetchKept() async throws -> KeptStanding { try await connection.open().standing.fetchKept() }
+    @concurrent func keep(titleID: String?, gearIDs: [String]) async throws {
+        try await connection.open().standing.keep(titleID: titleID, gearIDs: gearIDs)
+    }
+    @concurrent func markSeen(titleID: String) async throws {
+        try await connection.open().standing.markSeen(titleID: titleID)
+    }
+}
+
 struct ConnectedSagaEraser: SagaEraser {
     let connection: StoreConnection
 

@@ -84,9 +84,9 @@ extension HomeView {
 // MARK: - The stage
 
 extension HomeView {
-    /// Above a fold the pane is wider than tall: the hero stands beside his lines and level, unless the text is too
+    /// Above a fold the pane is wider than tall: the hero stands beside his lines and title, unless the text is too
     /// large for half the width.
-    var isHeroBesideLevel: Bool {
+    var isHeroBesideTitle: Bool {
         arrangement.fold != nil && !dynamicTypeSize.isAccessibilitySize
     }
 
@@ -102,7 +102,7 @@ extension HomeView {
             heroTitle: content.heroTitle,
             companions: content.companions,
             selectedChildID: content.selectedChildID,
-            maxHeroSize: arrangement.maxHeroSize(headerHeight: paneHeaderHeight, besideLevel: isHeroBesideLevel),
+            maxHeroSize: arrangement.maxHeroSize(headerHeight: paneHeaderHeight, besideTitle: isHeroBesideTitle),
             cheerTrigger: viewModel.celebration?.id ?? 0
         ) { id in
             Task { await viewModel.selectChild(id: id) }
@@ -126,9 +126,12 @@ extension HomeView {
 // MARK: - Offers
 
 extension HomeView {
-    /// At most one offer at a time: the weekly reminder waits while a film is offered (ADR-0037 §5).
+    /// At most one card at a time: a new title first, then a film, then the weekly reminder (ADR-0055 §6, ADR-0037 §5).
     @ViewBuilder var offerCard: some View {
-        if let offer = viewModel.sagaOffer {
+        if let card = viewModel.titleCard {
+            OfferCard(card) { Task { await viewModel.closeTitleCard() } }
+                .transition(.opacity.combined(with: .scale(scale: 0.95)))
+        } else if let offer = viewModel.sagaOffer {
             OfferCard(offer) { accept in
                 Task {
                     guard let request = await viewModel.answerSagaOffer(accept: accept) else { return }

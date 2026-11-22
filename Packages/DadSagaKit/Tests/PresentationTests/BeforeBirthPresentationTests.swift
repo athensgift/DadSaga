@@ -69,6 +69,7 @@ struct HarbourOverview: GetHomeOverviewUseCase {
             catalog: catalog,
             adventure: Adventure(for: child, family: FamilyFacts(profile: profile, child: child), catalog: catalog, on: today),
             progress: DadProgress(events: events, catalog: catalog),
+            kept: .fresh,
             outfit: Outfit(),
             worldID: worldID,
             today: today
@@ -90,7 +91,8 @@ struct BeforeBirthPresentationTests {
                 deleteEvent: progress,
                 moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
                 reminder: .neverOffered,
-                answerSagaOffer: FakeFilmOffers()
+                answerSagaOffer: FakeFilmOffers(),
+                markTitleSeen: FakeTitleSeen()
             ),
             locale: Locale(identifier: locale),
             timeZone: .gmt,

@@ -9,6 +9,7 @@ actor StoreConnection {
         let profiles: SwiftDataProfileRepository
         let progress: SwiftDataProgressRepository
         let outfit: SwiftDataOutfitRepository
+        let standing: SwiftDataStandingRepository
         let eraser: SwiftDataSagaEraser
     }
 
@@ -43,6 +44,7 @@ actor StoreConnection {
                 profiles: SwiftDataProfileRepository(modelContainer: container),
                 progress: SwiftDataProgressRepository(modelContainer: container),
                 outfit: SwiftDataOutfitRepository(modelContainer: container),
+                standing: SwiftDataStandingRepository(modelContainer: container),
                 eraser: SwiftDataSagaEraser(modelContainer: container)
             )
             opened = repositories

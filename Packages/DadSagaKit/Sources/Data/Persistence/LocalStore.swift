@@ -9,6 +9,8 @@ public struct LocalStore: Sendable {
     public let profiles: any ProfileRepository
     public let progress: any ProgressRepository
     public let outfit: any OutfitRepository
+    /// What the profile keeps so the dad's title never goes down (ADR-0055 §3).
+    public let standing: any StandingRepository
     /// Starting over: the whole saga in one write.
     public let eraser: any SagaEraser
 
@@ -16,6 +18,7 @@ public struct LocalStore: Sendable {
         profiles = ConnectedProfileRepository(connection: connection)
         progress = ConnectedProgressRepository(connection: connection)
         outfit = ConnectedOutfitRepository(connection: connection)
+        standing = ConnectedStandingRepository(connection: connection)
         eraser = ConnectedSagaEraser(connection: connection)
     }
 

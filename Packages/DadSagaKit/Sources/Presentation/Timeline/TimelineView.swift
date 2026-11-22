@@ -305,7 +305,7 @@ private struct TimelineRow: View {
                     ThumbnailSlot()
                 }
                 VStack(alignment: .leading, spacing: DSSpacing.xs) {
-                    CardTitle(item.title, badge: item.badge, tint: tint)
+                    CardTitle(item.title, tint: tint)
                     Text(item.subtitle)
                         .font(DSFont.subheadline)
                         .foregroundStyle(DSColor.textSecondary)

@@ -68,6 +68,8 @@ struct SagaFilmTexts {
                     role: strings.text("The hero"),
                     name: hero?.title.resolved(for: locale) ?? strings.text("Hero")
                 ),
+                // The dad's title then, in the film's language (ADR-0055 §9).
+                film.title.map { SagaFilmCreditLine(role: strings.text("Title"), name: $0.name.resolved(for: locale)) },
                 done.isEmpty ? nil : SagaFilmCreditLine(role: strings.text("Together"), name: done.joined(separator: " · ")),
                 SagaFilmCreditLine(role: strings.text("Music"), name: musicCredit.joined(separator: " · "))
             ].compactMap(\.self),

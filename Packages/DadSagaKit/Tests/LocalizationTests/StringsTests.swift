@@ -27,9 +27,9 @@ struct StringsTests {
         #expect(english.text("Done \(3) times") == "Done 3 times")
     }
 
-    @Test("Given a quest's XP and skill, when formatting the reward, then it reads in each language")
-    func reward() {
-        #expect(greek.reward(xp: 15, skill: .care) == "+15 XP · Φροντίδα")
-        #expect(english.reward(xp: 15, skill: .care) == "+15 XP · Care")
+    @Test("Given a skill, when saying it grew, then it reads in each language, with no number")
+    func skillGrew() {
+        #expect(greek.skillGrew(.patience) == "Η υπομονή σου μεγάλωσε")
+        #expect(english.skillGrew(.patience) == "Your patience grew")
     }
 }

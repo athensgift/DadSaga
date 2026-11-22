@@ -10,10 +10,10 @@ struct WardrobeViewModelTests {
     let progress = FakeProgress()
     let outfit = FakeOutfit()
 
-    func makeSUT() -> WardrobeViewModel {
+    func makeSUT(catalog: ContentCatalog = HeroStub.catalog) -> WardrobeViewModel {
         WardrobeViewModel(
             useCases: WardrobeViewModel.UseCases(
-                getWardrobe: FakeWardrobe(progress: progress, outfit: outfit),
+                getWardrobe: FakeWardrobe(progress: progress, outfit: outfit, catalog: catalog),
                 setChoice: outfit
             ),
             locale: Locale(identifier: "el_GR")
@@ -28,7 +28,7 @@ struct WardrobeViewModelTests {
         return content
     }
 
-    @Test("Given 60 care XP, when appearing, then the burp cloth is worn automatically and the next tier shows the XP towards it")
+    @Test("Given the first title, when appearing, then the burp cloth it brought is worn, with no XP and nothing locked")
     func loads() async throws {
         await progress.seed(times: 3)
         let sut = makeSUT()
@@ -41,18 +41,25 @@ struct WardrobeViewModelTests {
         #expect(content.heroAppearance.hairColor == .black)
         #expect(content.heroAppearance.beard == .full)
         #expect(content.gear == [.burpCloth])
-        #expect(content.slots.map(\.id) == ["care", "play", "patience", "resilience"])
+        // Only slots the hero has something for; the next title's item isn't shown (ADR-0055 §8).
+        #expect(content.slots.map(\.id) == ["care"])
+        #expect(content.emptyMessage == nil)
+        #expect(content.footnote == "Τα φέρνουν οι τίτλοι σου. Ό,τι έχεις μένει δικό σου.")
         let care = try #require(content.slots.first)
         #expect(care.title == "Φροντίδα")
-        #expect(care.xpText == "60 XP")
-        #expect(care.options.map(\.title) == ["Αυτόματα", "Τίποτα", "Πανάκι", "x"])
-        #expect(care.options.map(\.isSelected) == [true, false, false, false])
-        #expect(care.options.map(\.isLocked) == [false, false, false, true])
-        #expect(care.options.last?.detail == "60 / 200 XP")
-        #expect(care.options.last?.progress == 0.3)
-        #expect(care.options.dropLast().allSatisfy { $0.progress == nil })
-        // Real items carry their drawing for the wardrobe icon; a look the app cannot draw carries none.
-        #expect(care.options.map(\.item) == [nil, nil, .burpCloth, nil])
+        #expect(care.options.map(\.title) == ["Αυτόματα", "Τίποτα", "Πανάκι"])
+        #expect(care.options.map(\.isSelected) == [true, false, false])
+        #expect(care.options.map(\.item) == [nil, nil, .burpCloth])
+    }
+
+    @Test("Given nothing earned yet, when appearing, then one calm line shows and no slot")
+    func emptyWardrobe() async throws {
+        let sut = makeSUT()
+        await sut.onAppear()
+        let content = try #require(loaded(sut))
+
+        #expect(content.slots.isEmpty)
+        #expect(content.emptyMessage == "Ό,τι κερδίζει ο ήρωάς σου θα είναι εδώ.")
     }
 
     @Test("Given an earned item, when choosing nothing then the item, then the preview and storage follow")
@@ -67,7 +74,7 @@ struct WardrobeViewModelTests {
 
         await sut.select(slotID: "care", optionID: "g1")
         #expect(loaded(sut)?.gear == [.burpCloth])
-        #expect(loaded(sut)?.slots.first?.options.map(\.isSelected) == [false, false, true, false])
+        #expect(loaded(sut)?.slots.first?.options.map(\.isSelected) == [false, false, true])
         #expect(await outfit.stored == Outfit(choices: [.care: .item("g1")]))
     }
 
@@ -80,10 +87,10 @@ struct WardrobeViewModelTests {
         let content = try #require(loaded(sut))
 
         #expect(content.gear == [.burpCloth])
-        #expect(content.slots.first?.options.map(\.isSelected) == [false, false, true, false])
+        #expect(content.slots.first?.options.map(\.isSelected) == [false, false, true])
     }
 
-    @Test("Given a locked item, when choosing it, then nothing changes")
+    @Test("Given an item the next title brings, when choosing it anyway, then nothing changes")
     func lockedIgnored() async throws {
         await progress.seed(times: 3)
         let sut = makeSUT()
@@ -98,7 +105,7 @@ struct WardrobeViewModelTests {
     @Test("Given a slow save for one slot, when another slot is chosen meanwhile, then both choices stay on screen")
     func overlappingTaps() async throws {
         await progress.seed(times: 3)
-        let sut = makeSUT()
+        let sut = makeSUT(catalog: Self.withDuck)
         await sut.onAppear()
         await outfit.slowNext()
 
@@ -138,7 +145,8 @@ struct WardrobeViewModelTests {
                 deleteEvent: progress,
                 moments: HomeViewModel.MomentUseCases(capture: progress, update: progress, getPhoto: progress),
                 reminder: .neverOffered,
-                answerSagaOffer: FakeFilmOffers()
+                answerSagaOffer: FakeFilmOffers(),
+                markTitleSeen: FakeTitleSeen()
             ),
             locale: Locale(identifier: "el_GR"),
             now: { HeroStub.today }
@@ -152,17 +160,38 @@ struct WardrobeViewModelTests {
     }
 }
 
+extension WardrobeViewModelTests {
+    /// The hero stub's content, with a duck the first title also brings: two slots to choose in.
+    static let withDuck: ContentCatalog = {
+        let catalog = HeroStub.catalog
+        let titles = catalog.titles.map { title in
+            title.order == 1
+                ? DadTitle(id: title.id, order: 1, minCards: title.minCards, minXP: title.minXP,
+                           gearIDs: title.gearIDs + ["g-duck"], name: title.name)
+                : title
+        }
+        return ContentCatalog(
+            worlds: catalog.worlds, quests: catalog.quests, bosses: catalog.bosses, firsts: catalog.firsts,
+            heroClasses: catalog.heroClasses,
+            gear: catalog.gear + [GearItem(id: "g-duck", skill: .play, look: "duck", title: HeroStub.text)],
+            titles: titles
+        )
+    }()
+}
+
 /// The hero stub's wardrobe, read from the fake log and the fake outfit.
 struct FakeWardrobe: GetWardrobeUseCase {
     let progress: FakeProgress
     let outfit: FakeOutfit
+    var catalog = HeroStub.catalog
 
     func execute() async throws -> Wardrobe {
-        Wardrobe(
+        let progress = DadProgress(events: await self.progress.events, catalog: catalog)
+        return Wardrobe(
             profile: HeroStub.profile,
-            hero: HeroStub.catalog.heroClasses.first { $0.id == HeroStub.profile.heroClassID },
-            gear: HeroStub.catalog.gear,
-            progress: await progress.current,
+            hero: catalog.heroClasses.first { $0.id == HeroStub.profile.heroClassID },
+            earned: DadStanding(progress: progress, catalog: catalog, kept: await self.progress.kept).gear,
+            progress: progress,
             outfit: await outfit.stored
         )
     }

@@ -29,12 +29,8 @@ public struct HomeContent: Equatable, Sendable {
     public let selectedChildLine: String?
     public let familyTitle: String
     public let settingsTitle: String
-    public let level: Int
-    /// e.g. "Επίπεδο 2".
-    public let levelTitle: String
-    public let levelFraction: Double
-    /// XP inside the current level, e.g. "40 / 100 XP".
-    public let xpLine: String
+    /// The dad's title, e.g. "Σίγουρα χέρια". No number and no next title (ADR-0055 §6).
+    public let dadTitle: String?
     public let worldTitle: String?
     public let worldTagline: String?
     public let mapTitle: String
@@ -113,8 +109,6 @@ public struct MomentDetails: Equatable, Sendable {
     public let momentID: UUID
     /// Emoji and name, e.g. "👣 Πρώτα βήματα".
     public let title: String
-    /// e.g. "+30 XP".
-    public let reward: String
     /// Just recorded: it says so, offers "Not now", and celebrates. Otherwise it was opened to edit, with Delete.
     public let isNew: Bool
     /// "Saved! Want to keep something more?", for a new moment.
@@ -150,7 +144,6 @@ public struct MomentCardModel: Equatable, Identifiable, Sendable {
     public let title: String
     /// Date and note.
     public let subtitle: String
-    public let badge: String
     /// In the dad's order; the first is the cover.
     public let photoIDs: [String]
     /// How many photos, for VoiceOver, e.g. "3 φωτογραφίες"; `nil` without photos.
@@ -161,7 +154,6 @@ public struct MomentOption: Equatable, Identifiable, Sendable {
     public let id: String
     public let emoji: String
     public let title: String
-    public let reward: String
     /// The earliest day this first can be dated (ADR-0053 §3).
     public let earliestDate: Date
 }
@@ -171,6 +163,7 @@ public struct QuestDetail: Equatable, Identifiable, Sendable {
     public let id: String
     public let title: String
     public let description: String
+    /// The skill it grows, e.g. "Care". No XP (ADR-0055 §7).
     public let reward: String
     /// How to do it well, when the quest has a tip.
     public let tip: TipDetail?
@@ -195,6 +188,7 @@ public struct BossDetail: Equatable, Identifiable, Sendable {
     public let intro: String
     public let guideTitle: String
     public let guide: [String]
+    /// The badge it brings, e.g. "Θερμόμετρο". No XP (ADR-0055 §7).
     public let reward: String
     public let disclaimer: String
     public let isDefeated: Bool
@@ -209,30 +203,25 @@ public struct BossDetail: Equatable, Identifiable, Sendable {
 public struct Celebration: Equatable, Identifiable, Sendable {
     /// Increases with every completion, so it also works as an animation trigger.
     public let id: Int
-    public let xpText: String
-    /// Set only when the completion reached a new level.
-    public let levelUpText: String?
+    /// What grew, e.g. "Your patience grew". Never XP, a level or a title: the title has its own card (ADR-0055 §6).
+    public let skillText: String?
     /// The badge earned, for boss fights.
     public let badgeText: String?
-    /// Gear the hero just earned, e.g. "Νέο: Κούπα καφέ".
-    public let unlockText: String?
     /// A legendary moment just captured, e.g. "Πρώτα βήματα".
     public var momentText: String?
 
     /// How big a moment this is, which sets the animation and haptic. Bigger moments win when several happen at once.
     public enum Highlight: Comparable, Sendable {
-        case quest, boss, unlock, moment, levelUp
+        case quest, boss, moment
     }
 
     /// Everything the badge shows, in its order, for VoiceOver to read out as it appears.
     public var announcement: String {
-        [xpText, levelUpText, badgeText, momentText, unlockText].compactMap(\.self).joined(separator: ", ")
+        [skillText, badgeText, momentText].compactMap(\.self).joined(separator: ", ")
     }
 
     public var highlight: Highlight {
-        if levelUpText != nil { return .levelUp }
         if momentText != nil { return .moment }
-        if unlockText != nil { return .unlock }
         if badgeText != nil { return .boss }
         return .quest
     }
@@ -243,8 +232,8 @@ public struct Celebration: Equatable, Identifiable, Sendable {
         guard isEnabled else { return nil }
         return switch highlight {
         case .quest: nil
-        case .boss, .unlock: .heavy
-        case .moment, .levelUp: .success
+        case .boss: .heavy
+        case .moment: .success
         }
     }
 }

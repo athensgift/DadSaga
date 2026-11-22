@@ -74,11 +74,14 @@ public final class TimelineViewModel {
         guard let entry = entries.first(where: { $0.id == id }) else { return }
         errorMessage = nil
         let isBoss = if case .boss = entry.kind { true } else { false }
-        let xp = isBoss
-            ? strings.text("The badge and its \(entry.xp) XP will be removed.")
-            : strings.text("Its \(entry.xp) XP will be removed.")
+        // Only the entry, and a boss's badge, go: the title and gear stay (ADR-0055 §3, §7).
+        let stays = isBoss
+            ? strings.text("Its badge will be removed. Your title and what you got stay.")
+            : strings.text("Your title and what you got stay.")
         let hasJournal = !entry.photoIDs.isEmpty || entry.note != nil
-        let message = hasJournal ? strings.text("Your photos and note will be deleted with it, for good.") + " " + xp : xp
+        let message = hasJournal
+            ? strings.text("Your photos and note will be deleted with it, for good.") + " " + stays
+            : stays
         deletion = DeletionPrompt(
             id: id,
             title: strings.text("Delete from the timeline?"),
@@ -223,7 +226,6 @@ public final class TimelineViewModel {
             kind: kind,
             title: title,
             subtitle: [child, day, detail].compactMap(\.self).joined(separator: " · "),
-            badge: "+\(entry.xp) XP",
             symbol: symbol,
             photoIDs: entry.photoIDs,
             photoCount: PhotoViewerLabels(locale: locale).photoCount(entry.photoIDs.count)

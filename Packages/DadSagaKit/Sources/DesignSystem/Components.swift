@@ -1,30 +1,5 @@
 import SwiftUI
 
-/// Horizontal XP progress bar.
-public struct XPBar: View {
-    /// What VoiceOver reads, in the dad's language, e.g. "Επίπεδο 3".
-    let label: String
-    let fraction: Double
-
-    public init(label: String, fraction: Double) {
-        self.label = label
-        self.fraction = min(max(fraction, 0), 1)
-    }
-
-    public var body: some View {
-        GeometryReader { proxy in
-            ZStack(alignment: .leading) {
-                Capsule().fill(DSColor.xp.opacity(0.18))
-                Capsule().fill(DSColor.xp.gradient).frame(width: proxy.size.width * fraction)
-            }
-        }
-        .frame(height: 8)
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(label)
-        .accessibilityValue("\(Int(fraction * 100))%")
-    }
-}
-
 /// The app's main call to action: full width, Liquid Glass, tinted with the app's accent colour.
 public struct PrimaryButton: View {
     let title: String
@@ -63,7 +38,7 @@ public struct QuestCard: View {
 
     let title: String
     let subtitle: String
-    let badge: String
+    let badge: String?
     let symbol: String
     let style: Style
     let footnote: String?
@@ -78,7 +53,7 @@ public struct QuestCard: View {
     public init(
         title: String,
         subtitle: String,
-        badge: String,
+        badge: String? = nil,
         symbol: String,
         style: Style = .quest,
         footnote: String? = nil,
@@ -176,10 +151,8 @@ public struct IconTile: View {
 
 #Preview("Components") {
     VStack(spacing: DSSpacing.m) {
-        XPBar(label: "Επίπεδο 3", fraction: 0.4)
         QuestCard(title: "Νυχτερινή βάρδια", subtitle: "Ανάλαβε μια ολόκληρη νυχτερινή βάρδια.",
-                  badge: "+30 XP", symbol: "hourglass", footnote: "Το έκανες 1 φορά",
-                  hint: "Ο καναπές είναι παγίδα")
+                  symbol: "hourglass", footnote: "Το έκανες 1 φορά", hint: "Ο καναπές είναι παγίδα", skill: "Υπομονή")
         QuestCard(title: "Ο Πρώτος Πυρετός", subtitle: "Δεν είσαι μόνος.", badge: "BOSS", symbol: "flame.fill", style: .boss)
         PrimaryButton("Συνέχεια") {}
     }

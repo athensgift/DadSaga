@@ -81,6 +81,7 @@ extension SagaFilm {
             medalCount: medalCount,
             childFirsts: childFirsts,
             equippedGear: equippedGear,
+            title: title,
             soundtracks: soundtracks,
             soundtrack: soundtrack,
             showsDates: showsDates

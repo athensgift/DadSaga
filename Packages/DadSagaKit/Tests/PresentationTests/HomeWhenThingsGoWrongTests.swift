@@ -166,6 +166,6 @@ struct HomeWhenThingsGoWrongTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        #expect(content.xpLine == "20 / 100 XP")
+        #expect(content.dadTitle == "Νέος στο ταξίδι")
     }
 }

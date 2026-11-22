@@ -34,7 +34,7 @@ struct HomeMomentCelebrationTests {
 
         let celebration = try #require(sut.celebration)
         #expect(celebration.momentText == "👣 Βήματα")
-        #expect(celebration.xpText == "+30 XP")
+        #expect(celebration.skillText == nil)
         #expect(celebration.highlight == .moment)
         #expect(celebration.id == details.undoOffer?.id)
         sut.sheetDismissed()
@@ -82,7 +82,7 @@ struct HomeMomentCelebrationTests {
         await sut.saveMomentDetails(date: HeroStub.today, note: "!", photos: PhotoDrafts())
         sut.sheetDismissed()
 
-        #expect(sut.celebration?.xpText == "+30 XP")
+        #expect(sut.celebration?.momentText == "👣 Βήματα")
     }
 
     @Test("Given step 2 of a new moment, when undoing it, then nothing celebrates when the sheet closes")

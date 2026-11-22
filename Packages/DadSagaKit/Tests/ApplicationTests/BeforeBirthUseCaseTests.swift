@@ -43,6 +43,7 @@ struct BeforeBirthUseCaseTests {
             profileRepository: profiles,
             progressRepository: SpyProgressRepository(),
             outfitRepository: SpyOutfitRepository(),
+            standingRepository: InMemoryStanding(),
             sagaOfferRepository: FakeSagaOffers(),
             timeZone: .gmt
         )

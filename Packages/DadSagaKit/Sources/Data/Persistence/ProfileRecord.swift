@@ -58,8 +58,14 @@ extension ChildRecord {
 
 extension ProfileRecord {
     convenience init(profile: PlayerProfile) {
-        self.init(heroClassID: profile.heroClassID, dadSkinTone: profile.dadSkinTone.rawValue)
+        // A saga started with titles has nothing from before them to keep (ADR-0055 §4).
+        self.init(heroClassID: profile.heroClassID, dadSkinTone: profile.dadSkinTone.rawValue, keptGearIDs: [])
         update(from: profile)
+    }
+
+    /// What the store keeps for titles. Never written by `update(from:)`, so editing the family can't lower it.
+    var kept: KeptStanding {
+        KeptStanding(titleID: heldTitleID, gearIDs: keptGearIDs, seenTitleID: seenTitleID)
     }
 
     /// Every save writes the whole look and the partner answer, so a row never keeps a part from an earlier version.

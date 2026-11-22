@@ -12,8 +12,13 @@ struct OutfitUseCaseTests {
         bosses: [],
         firsts: [],
         gear: [
-            GearItem(id: "cloth", skill: .care, minXP: 20, look: "burpCloth", title: text),
-            GearItem(id: "golden", skill: .care, minXP: 500, look: "burpClothGold", title: text)
+            GearItem(id: "cloth", skill: .care, skillXPBeforeTitles: 20, look: "burpCloth", title: text),
+            GearItem(id: "golden", skill: .care, skillXPBeforeTitles: 500, look: "burpClothGold", title: text)
+        ],
+        titles: [
+            DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
+            DadTitle(id: "t1", order: 1, minCards: 1, minXP: 20, gearIDs: ["cloth"], name: text),
+            DadTitle(id: "t2", order: 2, minCards: 50, minXP: 5000, gearIDs: ["golden"], name: text)
         ]
     )
     let repository = SpyOutfitRepository()
@@ -24,7 +29,8 @@ struct OutfitUseCaseTests {
             contentRepository: StubContentRepository(result: .success(Self.catalog)),
             profileRepository: SpyProfileRepository(),
             progressRepository: progress,
-            outfitRepository: repository
+            outfitRepository: repository,
+            standingRepository: InMemoryStanding()
         )
     }
 
@@ -32,7 +38,8 @@ struct OutfitUseCaseTests {
         DefaultSetOutfitChoiceUseCase(
             contentRepository: StubContentRepository(result: .success(Self.catalog)),
             progressRepository: progress,
-            outfitRepository: repository
+            outfitRepository: repository,
+            standingRepository: InMemoryStanding()
         )
     }
 
@@ -63,7 +70,8 @@ struct OutfitUseCaseTests {
             contentRepository: StubContentRepository(result: .success(catalog)),
             profileRepository: profiles,
             progressRepository: progress,
-            outfitRepository: repository
+            outfitRepository: repository,
+            standingRepository: InMemoryStanding()
         )
         let child = Child(name: "Νίκος", birthDay: CalendarDay(.now, in: .gmt))
 

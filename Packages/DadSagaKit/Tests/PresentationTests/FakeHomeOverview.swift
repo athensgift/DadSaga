@@ -21,6 +21,7 @@ struct FakeHomeOverview: GetHomeOverviewUseCase {
             catalog: catalog,
             adventure: adventure(child),
             progress: try await progress.overviewProgress(),
+            kept: await progress.kept,
             outfit: await outfit.stored,
             worldID: worldID,
             sagaOffer: await film.pending,
