@@ -35,7 +35,7 @@ enum SagaCopyV1Fixture {
                               photoIDs: [photoIDs[2]])
             ],
             outfit: Outfit(choices: [.care: .item("g-burp-cloth"), .play: .hidden]),
-            kept: KeptStanding(titleID: "t-new-to-the-journey", gearIDs: nil, seenTitleID: "t-new-to-the-journey")
+            kept: KeptStanding(titleID: "t-new-to-the-journey", seenTitleID: "t-new-to-the-journey")
         ),
         answeredOccasionIDs: ["eleni/birthday/1", "eleni/world/w2"],
         madeAt: Date(timeIntervalSinceReferenceDate: 790_300_000.5)

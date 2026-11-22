@@ -59,7 +59,7 @@ struct SagaFixture {
             .execute(profile, on: Self.today.addingTimeInterval(-30 * 86_400))
         let quest = DefaultCompleteQuestUseCase(
             contentRepository: content, progressRepository: store.progress,
-            standingRepository: store.standing, photoStore: photos
+            photoStore: photos
         )
         let quests = [("q-w1-skin-to-skin", 28.0), ("q-w1-bath-master", 20), ("q-w1-lullaby", 9)]
         for (id, daysAgo) in quests {
@@ -79,7 +79,7 @@ struct SagaFixture {
         try await captureMoment("f-laugh", daysAgo: 12, photos: Self.photo().map { [$0] } ?? [])
         let boss = DefaultDefeatBossUseCase(
             contentRepository: content, progressRepository: store.progress,
-            standingRepository: store.standing, photoStore: photos
+            photoStore: photos
         )
         _ = try await boss.execute(
             bossID: "b-w1-first-fever", childID: Self.child.id, on: Self.day(15), journal: JournalInput()
@@ -107,13 +107,13 @@ struct SagaFixture {
             .execute(profile, on: Self.day(30))
         _ = try await DefaultCompleteQuestUseCase(
             contentRepository: content, progressRepository: store.progress,
-            standingRepository: store.standing, photoStore: photos
+            photoStore: photos
         ).execute(
             questID: "q-w2-book-hero", childID: alex.id, on: Self.day(20), journal: JournalInput(note: "The bear book, twice")
         )
         _ = try await DefaultCaptureMomentUseCase(
             contentRepository: content, progressRepository: store.progress,
-            standingRepository: store.standing, photoStore: photos
+            photoStore: photos
         ).execute(CaptureMomentRequest(firstID: "f-first-word", childID: alex.id, date: Self.day(45)), now: Self.today)
         return self
     }
@@ -124,7 +124,7 @@ struct SagaFixture {
     private func captureMoment(_ firstID: String, daysAgo: Double, note: String? = nil, photos added: [Data] = []) async throws {
         let change = try await DefaultCaptureMomentUseCase(
             contentRepository: content, progressRepository: store.progress,
-            standingRepository: store.standing, photoStore: photos
+            photoStore: photos
         ).execute(CaptureMomentRequest(firstID: firstID, childID: Self.child.id, date: Self.day(daysAgo)), now: Self.today)
         guard let id = change.eventID, note != nil || !added.isEmpty else { return }
         try await DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photos).execute(
@@ -173,11 +173,11 @@ extension SagaFixture {
                 ),
                 completeQuest: DefaultCompleteQuestUseCase(
                     contentRepository: content, progressRepository: store.progress,
-                    standingRepository: store.standing, photoStore: photos
+                    photoStore: photos
                 ),
                 defeatBoss: DefaultDefeatBossUseCase(
                     contentRepository: content, progressRepository: store.progress,
-                    standingRepository: store.standing, photoStore: photos
+                    photoStore: photos
                 ),
                 deleteEvent: DefaultDeleteEventUseCase(
                     contentRepository: content, progressRepository: store.progress,
@@ -190,7 +190,7 @@ extension SagaFixture {
                 moments: HomeViewModel.MomentUseCases(
                     capture: DefaultCaptureMomentUseCase(
                         contentRepository: content, progressRepository: store.progress,
-                        standingRepository: store.standing, photoStore: photos
+                        photoStore: photos
                     ),
                     update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photos),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photos)

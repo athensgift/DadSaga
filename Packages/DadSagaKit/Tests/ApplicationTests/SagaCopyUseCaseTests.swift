@@ -17,7 +17,7 @@ struct SagaCopyUseCaseTests {
                 ProgressEvent(kind: .quest(id: "q\(index)"), childID: child.id, date: today, photoIDs: ids)
             },
             outfit: Outfit(choices: [.play: .hidden]),
-            kept: KeptStanding(titleID: "t-rookie", gearIDs: nil)
+            kept: KeptStanding(titleID: "t-rookie")
         )
     }
 

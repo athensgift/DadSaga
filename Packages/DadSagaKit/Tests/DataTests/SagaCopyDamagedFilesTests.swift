@@ -154,8 +154,7 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
         #expect(try kinds.map { try Names.kind(Names.names(of: $0).kind, contentID: "x") } == kinds)
     }
 
-    /// Format 1's `saga.json` as released, written out by hand: every key, the wardrobe's two choices, and kept gear
-    /// present, the one key whose absence means something (ADR-0055 §4).
+    /// Format 1's `saga.json` written out by hand: every key, and the wardrobe's two choices.
     @Test("Given format 1's saga.json written by hand, when reading it, then every key lands where it was meant to")
     func handWrittenSagaReads() throws {
         let json = #"""
@@ -170,7 +169,7 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
             "photos":["11111111-1111-1111-1111-111111111111"]}],
          "hero":{"beard":"short","classID":"h-cool","glasses":"round","hair":"long","hairColor":"red",
                  "hasPartner":false,"skinTone":"medium"},
-         "standing":{"gearIDs":["g-mug"],"seenTitleID":"t-2","titleID":"t-3"},
+         "standing":{"seenTitleID":"t-2","titleID":"t-3"},
          "wardrobe":[{"choice":"hidden","skill":"play"},{"choice":"item","itemID":"g-mug","skill":"care"}]}
         """#
         let eleni = Child(id: SagaCopyV1Fixture.id("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"), name: "Ελένη",
@@ -194,21 +193,11 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
                     photoIDs: ["11111111-1111-1111-1111-111111111111"]
                 )],
                 outfit: Outfit(choices: [.play: .hidden, .care: .item("g-mug")]),
-                kept: KeptStanding(titleID: "t-3", gearIDs: ["g-mug"], seenTitleID: "t-2")
+                kept: KeptStanding(titleID: "t-3", seenTitleID: "t-2")
             ),
             answeredOccasionIDs: ["x/birthday/1"],
             madeAt: madeAt
         ))
-    }
-
-    @Test("Given gear never frozen, when writing format 1, then its key is left out, not written empty")
-    func unfrozenGearIsLeftOut() throws {
-        let json = try JSONEncoder().encode(SagaCopySagaV1(copy: SagaCopyV1Fixture.copy))
-        let standing = try #require(
-            try JSONSerialization.jsonObject(with: json) as? [String: Any]
-        )["standing"] as? [String: Any]
-
-        #expect(standing?.keys.sorted() == ["seenTitleID", "titleID"])
     }
 
     @Test("Given format 1, when naming the Domain's values, then each name is the one format 1 was released with")

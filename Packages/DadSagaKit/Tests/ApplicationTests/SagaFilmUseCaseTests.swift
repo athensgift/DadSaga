@@ -17,8 +17,8 @@ struct SagaFilmUseCaseTests {
                            skill: .care, xp: 100, minAgeMonths: 9)],
         firsts: [FirstMoment(id: "f-walk", order: 1, emoji: "👣", title: text, xp: 30, companionTrait: "walk")],
         gear: [
-            GearItem(id: "g-cloth", skill: .care, skillXPBeforeTitles: 20, look: "burpCloth", title: text),
-            GearItem(id: "g-hat", skill: .care, skillXPBeforeTitles: 100, look: "hat", title: text)
+            GearItem(id: "g-cloth", skill: .care, look: "burpCloth", title: text),
+            GearItem(id: "g-hat", skill: .care, look: "hat", title: text)
         ],
         titles: [
             DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),
@@ -186,7 +186,7 @@ struct SagaFilmUseCaseTests {
         try await family()
         try await record(.quest(id: "q1"), months: 3)
         try await record(.boss(id: "b1"), months: 14)
-        let standing = InMemoryStanding(KeptStanding(titleID: "t2", gearIDs: [], seenTitleID: "t2"))
+        let standing = InMemoryStanding(KeptStanding(titleID: "t2", seenTitleID: "t2"))
         // Only the quest is left: the boss's entry was deleted after it brought t2.
         try await progress.delete(id: try #require(try await progress.fetchEvents().last?.id))
 

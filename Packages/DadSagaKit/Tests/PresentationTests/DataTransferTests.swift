@@ -36,7 +36,7 @@ struct DataTransferTests {
         return OpenedSagaCopy(
             copy: SagaCopy(
                 saga: StoredSaga(profile: PlayerProfile(children: children, heroClassID: "h-chef"), events: [],
-                                 outfit: Outfit(), kept: .fresh),
+                                 outfit: Outfit(), kept: KeptStanding()),
                 answeredOccasionIDs: [], madeAt: made
             ),
             adoptedPhotoIDs: ["p1"]

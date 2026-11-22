@@ -12,8 +12,8 @@ struct OutfitUseCaseTests {
         bosses: [],
         firsts: [],
         gear: [
-            GearItem(id: "cloth", skill: .care, skillXPBeforeTitles: 20, look: "burpCloth", title: text),
-            GearItem(id: "golden", skill: .care, skillXPBeforeTitles: 500, look: "burpClothGold", title: text)
+            GearItem(id: "cloth", skill: .care, look: "burpCloth", title: text),
+            GearItem(id: "golden", skill: .care, look: "burpClothGold", title: text)
         ],
         titles: [
             DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),

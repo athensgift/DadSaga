@@ -165,13 +165,11 @@ final class AppContainer {
                 completeQuest: DefaultCompleteQuestUseCase(
                     contentRepository: contentRepository,
                     progressRepository: store.progress,
-                    standingRepository: store.standing,
                     photoStore: photoStore
                 ),
                 defeatBoss: DefaultDefeatBossUseCase(
                     contentRepository: contentRepository,
                     progressRepository: store.progress,
-                    standingRepository: store.standing,
                     photoStore: photoStore
                 ),
                 deleteEvent: DefaultDeleteEventUseCase(
@@ -190,7 +188,6 @@ final class AppContainer {
                     capture: DefaultCaptureMomentUseCase(
                         contentRepository: contentRepository,
                         progressRepository: store.progress,
-                        standingRepository: store.standing,
                         photoStore: photoStore
                     ),
                     update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photoStore),

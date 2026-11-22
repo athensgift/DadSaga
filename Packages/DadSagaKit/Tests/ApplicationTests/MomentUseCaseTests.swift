@@ -19,7 +19,6 @@ struct MomentUseCaseTests {
         DefaultCaptureMomentUseCase(
             contentRepository: content,
             progressRepository: repository,
-            standingRepository: InMemoryStanding(),
             photoStore: photos
         )
     }

@@ -133,7 +133,7 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
         // A film that runs to today shows the dad as home does, so it never shows a lower title (ADR-0055 §9).
         let standing = storyboard.asOf >= date
             ? DadStanding(progress: DadProgress(events: events, catalog: catalog), catalog: catalog, kept: kept)
-            : DadStanding.asOf(progress, catalog: catalog, kept: kept)
+            : DadStanding.asOf(progress, catalog: catalog)
         return SagaFilm(
             profile: profile,
             child: child,

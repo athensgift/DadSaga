@@ -7,7 +7,7 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
     UpdateMomentUseCase, DeleteEventUseCase, UndoRecordUseCase, GetPhotoUseCase, MarkTitleSeenUseCase {
     private(set) var events: [ProgressEvent] = []
     /// What the store keeps for titles, kept as the app does (ADR-0055 §3): the title before a deletion only.
-    private(set) var kept = KeptStanding.fresh
+    private(set) var kept = KeptStanding()
 
     /// The dad's standing by the app's own rules, from the log and the kept record.
     private var standing: DadStanding {
@@ -160,7 +160,6 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         await waitIfSlow()
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        if let next = standing.toKeepBeforeRecording { kept = next }
         let event = ProgressEvent(kind: .first(id: request.firstID), childID: request.childID, date: request.date)
         events.append(event)
         return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog), eventID: event.id)
@@ -197,7 +196,7 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
     /// A deletion: what the dad holds is kept first, so his title stays.
     func execute(eventID: UUID) async throws {
         if shouldFail { throw StubError.boom }
-        if let next = standing.toKeepBeforeDeleting { kept = next }
+        if let title = standing.titleToKeep { kept.titleID = title.id }
         events.removeAll { $0.id == eventID }
     }
 
@@ -221,7 +220,6 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
     private func record(_ kind: ProgressEvent.Kind, childID: UUID, on date: Date, note: String?) throws -> ProgressChange {
         if shouldFail { throw StubError.boom }
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
-        if let next = standing.toKeepBeforeRecording { kept = next }
         let event = ProgressEvent(kind: kind, childID: childID, date: date, note: note)
         events.append(event)
         return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog), eventID: event.id)

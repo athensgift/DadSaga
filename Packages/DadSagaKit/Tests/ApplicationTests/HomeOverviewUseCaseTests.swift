@@ -27,8 +27,8 @@ struct HomeOverviewUseCaseTests {
         ],
         firsts: [],
         gear: [
-            GearItem(id: "g-cloth", skill: .care, skillXPBeforeTitles: 20, look: "burpCloth", title: text),
-            GearItem(id: "g-duck", skill: .play, skillXPBeforeTitles: 500, look: "duck", title: text)
+            GearItem(id: "g-cloth", skill: .care, look: "burpCloth", title: text),
+            GearItem(id: "g-duck", skill: .play, look: "duck", title: text)
         ],
         titles: [
             DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: text),

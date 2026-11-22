@@ -32,8 +32,8 @@ struct FormerIDsTests {
             HeroClass(id: "h2", order: 2, title: text, tagline: text, look: "chef", formerIDs: ["h-old"])
         ],
         gear: [
-            GearItem(id: "mug", skill: .care, skillXPBeforeTitles: 10, look: "mug", title: text),
-            GearItem(id: "cloth", skill: .care, skillXPBeforeTitles: 20, look: "burpCloth", title: text, formerIDs: ["rag"])
+            GearItem(id: "mug", skill: .care, look: "mug", title: text),
+            GearItem(id: "cloth", skill: .care, look: "burpCloth", title: text, formerIDs: ["rag"])
         ]
     )
 
