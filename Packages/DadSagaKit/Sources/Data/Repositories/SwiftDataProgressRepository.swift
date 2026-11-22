@@ -26,7 +26,7 @@ actor SwiftDataProgressRepository: ProgressRepository {
         let record = ProgressEventRecord(event: event)
         let kind = record.kind
         let contentID = record.contentID
-        let childID: UUID? = event.childID
+        let childID = event.childID
         var existing = FetchDescriptor<ProgressEventRecord>(
             predicate: #Predicate { $0.kind == kind && $0.contentID == contentID && $0.childID == childID }
         )

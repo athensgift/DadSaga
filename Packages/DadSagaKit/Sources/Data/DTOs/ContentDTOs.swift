@@ -93,8 +93,6 @@ struct GearItemDTO: Decodable, Sendable {
     /// Ids it had before a rename (ADR-0048 §5). Once shipped, an id is never dropped.
     var formerIDs: [String]?
     let skill: String
-    /// Only on the eight items that shipped before titles (ADR-0055 §4).
-    var skillXPBeforeTitles: Int?
     let look: String
     let title: LocalizedTextDTO
 }

@@ -42,7 +42,7 @@ struct HomeUndoTests {
         }
 
         #expect(await progress.eventCount == 0)
-        #expect(await progress.kept == .fresh)
+        #expect(await progress.kept == KeptStanding())
         guard case .loaded(let content) = sut.state else { throw StubError.boom }
         #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
         #expect(content.heroGear.isEmpty)
@@ -97,7 +97,7 @@ struct HomeUndoTests {
 
         // Not a deletion in the Undo's place: that would keep the title the moment brought.
         #expect(await progress.eventCount == 1)
-        #expect(await progress.kept == .fresh)
+        #expect(await progress.kept == KeptStanding())
         #expect(sut.momentCapture != nil)
     }
 

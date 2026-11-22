@@ -127,7 +127,8 @@ struct LocalStoreTests {
     @Test("Given a stored look part this version doesn't know, when reading, then that part is the standard one")
     func unknownStoredPart() {
         let record = ProfileRecord(
-            heroClassID: "h-cool", dadSkinTone: "dark", hairStyle: "mohawk", hairColor: "grey", beard: nil, glasses: "round"
+            heroClassID: "h-cool", dadSkinTone: "dark", hairStyle: "mohawk", hairColor: "grey", beard: "braided",
+            glasses: "round", hasPartner: true
         )
 
         let look = record.toDomain(children: []).dadAppearance

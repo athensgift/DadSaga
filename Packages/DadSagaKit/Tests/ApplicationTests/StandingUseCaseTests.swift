@@ -3,14 +3,14 @@ import Domain
 import Foundation
 import Testing
 
-/// What the store keeps so a title never goes down and gear from before titles stays (ADR-0055 §3, §4).
+/// What the store keeps so a deletion never lowers the title (ADR-0055 §3), and gear only with titles (ADR-0060 §3).
 @Suite("Standing use cases")
 struct StandingUseCaseTests {
     let today = Date(timeIntervalSince1970: 1_000_000)
     let child = UUID()
     let photos = SpyPhotoStore()
 
-    /// Two titles: the first card of 20 XP brings the mug. The cloth shipped before titles at 30 care XP.
+    /// Two titles: the first card of 20 XP brings the mug, the second the cloth.
     static let catalog = ContentCatalog(
         worlds: Stub.catalog.worlds,
         quests: Stub.catalog.quests,
@@ -18,7 +18,7 @@ struct StandingUseCaseTests {
         firsts: [],
         gear: [
             GearItem(id: "g-mug", skill: .patience, look: "mug", title: Stub.text),
-            GearItem(id: "g-cloth", skill: .care, skillXPBeforeTitles: 30, look: "burpCloth", title: Stub.text)
+            GearItem(id: "g-cloth", skill: .care, look: "burpCloth", title: Stub.text)
         ],
         titles: [
             DadTitle(id: "t0", order: 0, minCards: 0, minXP: 0, name: Stub.text),
@@ -28,10 +28,8 @@ struct StandingUseCaseTests {
     )
     let content = StubContentRepository(result: .success(Self.catalog))
 
-    func quest(_ progress: any ProgressRepository, _ standing: InMemoryStanding) -> DefaultCompleteQuestUseCase {
-        DefaultCompleteQuestUseCase(
-            contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
-        )
+    func quest(_ progress: any ProgressRepository) -> DefaultCompleteQuestUseCase {
+        DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: progress, photoStore: photos)
     }
 
     func delete(_ progress: any ProgressRepository, _ standing: InMemoryStanding) -> DefaultDeleteEventUseCase {
@@ -40,25 +38,11 @@ struct StandingUseCaseTests {
         )
     }
 
-    @Test("Given a store from before titles with 40 care XP, when recording a quest, then the cloth is frozen first")
-    func firstRecordFreezesOldGear() async throws {
-        let progress = SpyProgressRepository()
-        try await progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: child, date: today))
-        try await progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: child, date: today))
-        let standing = InMemoryStanding(KeptStanding())
-
-        _ = try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: .empty)
-
-        #expect(await standing.kept.gearIDs == ["g-cloth"])
-        // The title is kept before a deletion only, so an Undo can take back the one a card brings.
-        #expect(await standing.kept.titleID == nil)
-    }
-
-    @Test("Given a saga begun with titles, when skill XP passes an old threshold, then it earns nothing")
+    @Test("Given care XP growing with every quest, when reading the hero, then he has only what his title brings")
     func skillXPEarnsNothingNew() async throws {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
-        let sut = quest(progress, standing)
+        let sut = quest(progress)
 
         for _ in 0..<3 {
             _ = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
@@ -95,7 +79,7 @@ struct StandingUseCaseTests {
     func undoReturnsToBefore() async throws {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
-        let change = try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: .empty)
+        let change = try await quest(progress).execute(questID: "q1", childID: child, on: today, journal: .empty)
         #expect(try await self.standing(progress, standing).title?.id == "t1")
 
         try await undo(change, progress, standing)
@@ -111,7 +95,7 @@ struct StandingUseCaseTests {
     func undoForgetsTheClosedCard() async throws {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
-        let sut = quest(progress, standing)
+        let sut = quest(progress)
         let change = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
         try await standing.markSeen(titleID: "t1")
 
@@ -126,7 +110,7 @@ struct StandingUseCaseTests {
     func undoOnlyTheLast() async throws {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
-        let sut = quest(progress, standing)
+        let sut = quest(progress)
         let first = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
         let second = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
 
@@ -146,7 +130,7 @@ struct StandingUseCaseTests {
     func twoUndosInEitherOrder(lastFirst: Bool) async throws {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
-        let sut = quest(progress, standing)
+        let sut = quest(progress)
         let first = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
         let second = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
         try await standing.markSeen(titleID: "t1")
@@ -159,14 +143,14 @@ struct StandingUseCaseTests {
         #expect(try await progress.fetchEvents().isEmpty)
         #expect(stand.title?.id == "t0")
         #expect(stand.gear.isEmpty)
-        #expect(await standing.kept == KeptStanding(gearIDs: [], seenTitleID: "t0"))
+        #expect(await standing.kept == KeptStanding(seenTitleID: "t0"))
     }
 
     @Test("Given a card recorded after the one being undone and deleted since, when the Undo runs, then the kept title stays")
     func undoNeverLowersWhatADeletionKept() async throws {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
-        let sut = quest(progress, standing)
+        let sut = quest(progress)
         let first = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
         let later = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
 
@@ -179,26 +163,11 @@ struct StandingUseCaseTests {
         #expect(try await self.standing(progress, standing).title?.id == "t1")
     }
 
-    @Test("Given a store from before titles, when the first quest after them is undone, then the old gear stays frozen")
-    func undoKeepsTheFirstFreeze() async throws {
-        let progress = SpyProgressRepository()
-        try await progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: child, date: today))
-        try await progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: child, date: today))
-        let standing = InMemoryStanding(KeptStanding())
-        let change = try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: .empty)
-
-        try await undo(change, progress, standing)
-
-        // What his entries before the quest gave him, frozen as the quest's save froze it (ADR-0055 §4).
-        #expect(await standing.kept.gearIDs == ["g-cloth"])
-        #expect(try await self.standing(progress, standing).gear.map(\.id).sorted() == ["g-cloth", "g-mug"])
-    }
-
     @Test("Given a quest that brought a title, when it is deleted from the timeline later, then the title stays")
     func deletionKeepsTheTitle() async throws {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
-        let change = try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: .empty)
+        let change = try await quest(progress).execute(questID: "q1", childID: child, on: today, journal: .empty)
 
         try await delete(progress, standing).execute(eventID: try #require(change.eventID))
         let stand = try await self.standing(progress, standing)
@@ -212,7 +181,7 @@ struct StandingUseCaseTests {
     func undoKeepsACardClosedForATitleStillHeld() async throws {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
-        let sut = quest(progress, standing)
+        let sut = quest(progress)
         _ = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
         let later = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
         try await standing.markSeen(titleID: "t1")
@@ -233,14 +202,14 @@ struct StandingUseCaseTests {
 
         await #expect(throws: ProgressError.unknownEvent) { try await sut.execute(undoing: UUID()) }
         #expect(await standing.writes == 0)
-        #expect(await standing.kept == .fresh)
+        #expect(await standing.kept == KeptStanding())
     }
 
     @Test("Given an Undo whose delete fails, when it is tried again, then the entry stays the first time and goes the second")
     func undoRetriesAfterAFailedDelete() async throws {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
-        let change = try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: .empty)
+        let change = try await quest(progress).execute(questID: "q1", childID: child, on: today, journal: .empty)
         try await standing.markSeen(titleID: "t1")
         let keptBeforeUndo = await standing.kept
         await progress.failNextDelete()
@@ -259,7 +228,7 @@ struct StandingUseCaseTests {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
         let journal = JournalInput(note: nil, photos: [Data([1]), Data([2])])
-        let change = try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: journal)
+        let change = try await quest(progress).execute(questID: "q1", childID: child, on: today, journal: journal)
         #expect(await photos.stored.count == 2)
 
         try await undo(change, progress, standing)
@@ -270,25 +239,7 @@ struct StandingUseCaseTests {
 }
 
 extension StandingUseCaseTests {
-    @Test("Given an entry from before titles that earned the cloth, when it is deleted, then the cloth stays")
-    func deletingAnOldEntryKeepsGear() async throws {
-        let progress = SpyProgressRepository()
-        let old = ProgressEvent(kind: .quest(id: "q1"), childID: child, date: today)
-        try await progress.add(old)
-        try await progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: child, date: today))
-        let standing = InMemoryStanding(KeptStanding())
-
-        try await delete(progress, standing).execute(eventID: old.id)
-        let stand = DadStanding(
-            progress: DadProgress(events: try await progress.fetchEvents(), catalog: Self.catalog),
-            catalog: Self.catalog,
-            kept: await standing.kept
-        )
-
-        #expect(stand.gear.map(\.id).sorted() == ["g-cloth", "g-mug"])
-    }
-
-    @Test("Given keeping fails, when deleting or recording, then nothing is deleted or recorded")
+    @Test("Given keeping the title fails, when deleting, then nothing is deleted")
     func failedKeepChangesNothing() async throws {
         let progress = SpyProgressRepository()
         let event = ProgressEvent(kind: .quest(id: "q1"), childID: child, date: today)
@@ -297,32 +248,29 @@ extension StandingUseCaseTests {
         await standing.failKeeping()
 
         await #expect(throws: StubError.boom) { try await delete(progress, standing).execute(eventID: event.id) }
-        await #expect(throws: StubError.boom) {
-            try await quest(progress, standing).execute(questID: "q1", childID: child, on: today, journal: .empty)
-        }
         #expect(try await progress.fetchEvents() == [event])
     }
 
-    @Test("Given nothing changes, when recording a quest at the kept title, then the store is not written again")
+    @Test("Given quests that bring a title, when recording them, then nothing is kept")
     func keepsOnlyWhatChanged() async throws {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
-        let sut = quest(progress, standing)
+        let sut = quest(progress)
 
         for _ in 0..<3 {
             _ = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
         }
 
-        // Recording keeps only the gear from before titles, and a saga begun with titles has none.
+        // The title is kept before a deletion only, so an Undo can take back the one a card brings.
         #expect(await standing.writes == 0)
-        #expect(await standing.kept == .fresh)
+        #expect(await standing.kept == KeptStanding())
     }
 
     @Test("Given a title held, when entries are deleted one after another, then it is written once")
     func deletionKeepsATitleOnce() async throws {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
-        let sut = quest(progress, standing)
+        let sut = quest(progress)
         let first = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
         let second = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
 

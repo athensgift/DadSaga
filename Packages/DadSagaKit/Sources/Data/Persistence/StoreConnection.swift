@@ -32,9 +32,9 @@ actor StoreConnection {
     func open() throws -> Repositories {
         if let opened { return opened }
         do {
-            // Only the app migrates (ADR-0026). Read-only, no stage may run: a stage's own work (V5 → V6 fills birth days
-            // before the column goes) would write to a store the widget must leave as it found it (ADR-0053 §8). An
-            // older store then fails to open, untouched, until the app has migrated it.
+            // Only the app migrates (ADR-0026). Read-only, no stage may run: a stage's own work would write to a store
+            // the widget must leave as it found it (ADR-0053 §8). An older store then fails to open, untouched, until
+            // the app has migrated it. Until the first App Store release there is one version and no stage (ADR-0060).
             let container = try ModelContainer(
                 for: Self.schema,
                 migrationPlan: readOnly ? nil : DadSagaMigrationPlan.self,

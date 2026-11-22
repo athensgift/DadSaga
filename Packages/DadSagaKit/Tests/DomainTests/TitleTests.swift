@@ -26,14 +26,14 @@ struct TitleTests {
         ],
         firsts: [],
         gear: [
-            GearItem(id: "g-burp-cloth", skill: .care, skillXPBeforeTitles: 50, look: "burpCloth", title: text),
-            GearItem(id: "g-burp-cloth-gold", skill: .care, skillXPBeforeTitles: 200, look: "burpClothGold", title: text),
-            GearItem(id: "g-mug", skill: .patience, skillXPBeforeTitles: 50, look: "mug", title: text),
-            GearItem(id: "g-thermos", skill: .patience, skillXPBeforeTitles: 200, look: "thermos", title: text),
-            GearItem(id: "g-duck", skill: .play, skillXPBeforeTitles: 50, look: "duck", title: text),
-            GearItem(id: "g-blocks", skill: .play, skillXPBeforeTitles: 200, look: "blocks", title: text),
-            GearItem(id: "g-diaper-bag", skill: .resilience, skillXPBeforeTitles: 50, look: "diaperBag", title: text),
-            GearItem(id: "g-mega-bag", skill: .resilience, skillXPBeforeTitles: 200, look: "megaBag", title: text)
+            GearItem(id: "g-burp-cloth", skill: .care, look: "burpCloth", title: text),
+            GearItem(id: "g-burp-cloth-gold", skill: .care, look: "burpClothGold", title: text),
+            GearItem(id: "g-mug", skill: .patience, look: "mug", title: text),
+            GearItem(id: "g-thermos", skill: .patience, look: "thermos", title: text),
+            GearItem(id: "g-duck", skill: .play, look: "duck", title: text),
+            GearItem(id: "g-blocks", skill: .play, look: "blocks", title: text),
+            GearItem(id: "g-diaper-bag", skill: .resilience, look: "diaperBag", title: text),
+            GearItem(id: "g-mega-bag", skill: .resilience, look: "megaBag", title: text)
         ],
         titles: titles
     )
@@ -69,7 +69,7 @@ struct TitleTests {
     @Test("Given a kept title above what the entries reach, when reading the standing, then the kept one is his")
     func keptTitleWins() {
         let standing = DadStanding(
-            progress: Self.progress(quests: 1), catalog: Self.catalog, kept: KeptStanding(titleID: "t3", gearIDs: [])
+            progress: Self.progress(quests: 1), catalog: Self.catalog, kept: KeptStanding(titleID: "t3")
         )
         #expect(standing.title?.id == "t3")
         #expect(standing.gear.map(\.id) == ["g-burp-cloth", "g-duck", "g-mug"])
@@ -78,41 +78,24 @@ struct TitleTests {
     @Test("Given a kept title below what the entries reach, or one the content doesn't know, then the entries' title is his")
     func derivedTitleWins() {
         let higher = DadStanding(
-            progress: Self.progress(quests: 13), catalog: Self.catalog, kept: KeptStanding(titleID: "t1", gearIDs: [])
+            progress: Self.progress(quests: 13), catalog: Self.catalog, kept: KeptStanding(titleID: "t1")
         )
         let unknown = DadStanding(
-            progress: Self.progress(quests: 1), catalog: Self.catalog, kept: KeptStanding(titleID: "gone", gearIDs: [])
+            progress: Self.progress(quests: 1), catalog: Self.catalog, kept: KeptStanding(titleID: "gone")
         )
         #expect(higher.title?.id == "t4")
         #expect(unknown.title?.id == "t1")
     }
 
-    @Test("Given a store from before titles, when not frozen yet, then the old rule reads the entries")
-    func oldRuleBeforeFreezing() {
-        let standing = DadStanding(progress: Self.progress(bosses: ["b"]), catalog: Self.catalog, kept: KeptStanding())
-        #expect(standing.title?.id == "t1")
-        #expect(standing.gear.map(\.id) == ["g-burp-cloth", "g-mug"])
-        // Before a recording only the old gear is frozen: the title is kept before a deletion alone, so an Undo
-        // can still take back the one a card brings.
-        #expect(standing.toKeepBeforeRecording == KeptStanding(gearIDs: ["g-burp-cloth"]))
-        #expect(standing.toKeepBeforeDeleting == KeptStanding(titleID: "t1", gearIDs: ["g-burp-cloth"]))
-    }
-
-    @Test("Given old gear frozen, when the skill XP would earn more, then only the frozen items stay")
-    func frozenGearStays() {
-        let kept = KeptStanding(titleID: "t2", gearIDs: ["g-burp-cloth"])
-        let standing = DadStanding(progress: Self.progress(bosses: ["b", "b2"]), catalog: Self.catalog, kept: kept)
-        #expect(standing.gear.map(\.id) == ["g-burp-cloth", "g-mug"])
-        #expect(standing.toKeepBeforeRecording == nil)
-        #expect(standing.toKeepBeforeDeleting == nil)
-    }
-
-    @Test("Given a saga begun with titles, when a card brings a title, then only a deletion keeps it")
-    func onlyADeletionKeepsTheTitle() {
-        let standing = DadStanding(progress: Self.progress(quests: 3), catalog: Self.catalog, kept: .fresh)
+    @Test("Given a card that brings a title, when reading what to keep before a deletion, then it is that title once")
+    func onlyANewTitleIsKept() {
+        let standing = DadStanding(progress: Self.progress(quests: 3), catalog: Self.catalog, kept: KeptStanding())
         #expect(standing.title?.id == "t2")
-        #expect(standing.toKeepBeforeRecording == nil)
-        #expect(standing.toKeepBeforeDeleting == KeptStanding(titleID: "t2", gearIDs: []))
+        #expect(standing.titleToKeep?.id == "t2")
+
+        let kept = KeptStanding(titleID: "t2")
+        #expect(DadStanding(progress: Self.progress(quests: 3), catalog: Self.catalog, kept: kept).titleToKeep == nil)
+        #expect(DadStanding(progress: Self.progress(), catalog: Self.catalog, kept: kept).titleToKeep == nil)
     }
 
     /// The dad once an Undo has taken an entry back, and the title his closed card should go back to, if any.
@@ -140,7 +123,7 @@ struct TitleTests {
         ]
     )
     func closedCardAfterAnUndo(_ dad: AfterUndo) {
-        let kept = KeptStanding(titleID: dad.keptTitle, gearIDs: [], seenTitleID: dad.seen)
+        let kept = KeptStanding(titleID: dad.keptTitle, seenTitleID: dad.seen)
         let after = DadStanding(progress: Self.progress(quests: dad.quests), catalog: Self.catalog, kept: kept)
         #expect(after.seenAfterUndo?.id == dad.goesBackTo)
     }
@@ -148,7 +131,7 @@ struct TitleTests {
     @Test("Given the card a title's Undo took back, when a card reaches the title again, then its card comes again")
     func cardComesAgainAfterAnUndo() throws {
         // Three quests brought t2 and its card was closed; the Undo of the third leaves t1.
-        var kept = KeptStanding(gearIDs: [], seenTitleID: "t2")
+        var kept = KeptStanding(seenTitleID: "t2")
         let undone = DadStanding(progress: Self.progress(quests: 2), catalog: Self.catalog, kept: kept)
         kept.seenTitleID = try #require(undone.seenAfterUndo).id
         #expect(DadStanding(progress: Self.progress(quests: 2), catalog: Self.catalog, kept: kept).news == nil)
@@ -161,33 +144,23 @@ struct TitleTests {
     @Test("Given a jump of two titles, when making the card, then it names the higher one and both new items")
     func cardForAJump() {
         let standing = DadStanding(
-            progress: Self.progress(quests: 3), catalog: Self.catalog, kept: KeptStanding(gearIDs: [], seenTitleID: "t0")
+            progress: Self.progress(quests: 3), catalog: Self.catalog, kept: KeptStanding(seenTitleID: "t0")
         )
         #expect(standing.news?.title.id == "t2")
         #expect(standing.news?.gear.map(\.id) == ["g-mug", "g-burp-cloth"])
     }
 
-    @Test("Given an item the hero had before titles, when its title comes, then the card doesn't list it")
-    func cardListsOnlyWhatIsNew() {
-        let kept = KeptStanding(titleID: "t1", gearIDs: ["g-burp-cloth"], seenTitleID: "t1")
-        let standing = DadStanding(progress: Self.progress(quests: 3), catalog: Self.catalog, kept: kept)
-        #expect(standing.news?.title.id == "t2")
-        #expect(standing.news?.gear.isEmpty == true)
-    }
-
     @Test("Given the card for his title closed, when reading the standing, then there is no card")
     func noCardOnceSeen() {
-        let kept = KeptStanding(gearIDs: [], seenTitleID: "t1")
+        let kept = KeptStanding(seenTitleID: "t1")
         #expect(DadStanding(progress: Self.progress(quests: 1), catalog: Self.catalog, kept: kept).news == nil)
-        #expect(DadStanding(progress: Self.progress(), catalog: Self.catalog, kept: .fresh).news == nil)
+        #expect(DadStanding(progress: Self.progress(), catalog: Self.catalog, kept: KeptStanding()).news == nil)
     }
 
     @Test("Given a film that ended before the dad's later cards, when reading the dad then, then it is his title then")
     func asOfAFilmsEnd() {
-        let kept = KeptStanding(titleID: "t4", gearIDs: ["g-burp-cloth-gold"])
-        let then = DadStanding.asOf(Self.progress(bosses: ["b"]), catalog: Self.catalog, kept: kept)
+        let then = DadStanding.asOf(Self.progress(bosses: ["b"]), catalog: Self.catalog)
         #expect(then.title?.id == "t1")
-        // The gold cloth was kept, but the old rule hadn't earned it by then (100 care XP < 200).
         #expect(then.gear.map(\.id) == ["g-mug"])
         #expect(then.news == nil)
     }

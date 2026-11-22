@@ -47,8 +47,8 @@ extension SagaCopyBench {
     }
 
     /// A saga with every kind of thing a copy carries: a born child and one not born yet, a quest, a boss and firsts;
-    /// a former id, a retired card and one from the future; notes in Greek with emoji; none to five photos; a hidden
-    /// slot and a chosen item; a title kept with gear never frozen; film offers answered.
+    /// two ids the content no longer has and one from the future; notes in Greek with emoji; none to five photos; a
+    /// hidden slot and a chosen item; a title kept; film offers answered.
     func fill(
         _ phone: Phone,
         kept: KeptStanding = KeptStanding(titleID: "t-new-to-the-journey", seenTitleID: "t-new-to-the-journey")

@@ -5,99 +5,38 @@ import SwiftData
 import Testing
 @testable import Data
 
-/// What the profile keeps for titles, from a store written before them (ADR-0055 §5).
-@Suite("Titles in the store", .serialized)
+/// What the profile keeps for titles (ADR-0055 §5).
+@Suite("Titles in the store")
 struct TitlesStoreTests {
-    let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-titles-" + UUID().uuidString)
+    let eleni = Child(name: "Ελένη", birthDay: .day(2024, 3, 1))
+    var profile: PlayerProfile { PlayerProfile(children: [eleni], heroClassID: "h-cool") }
 
-    @Test("Given a store written by version 6, when the app opens it, then everything is there and nothing is kept yet")
-    func version6BecomesVersion7() async throws {
-        try StoreFiles.copy(from: StoreV6Fixture.directory, to: directory)
-        let store = LocalStore.live(in: directory)
-
-        #expect(try await store.profiles.fetchProfile() == StoreV6Fixture.profile)
-        #expect(try await store.progress.fetchEvents() == StoreV6Fixture.events)
-        #expect(try await store.outfit.fetchOutfit() == StoreV6Fixture.outfit)
-        #expect(try await store.standing.fetchKept() == KeptStanding())
-    }
-
-    @Test("Given a migrated version 6 store, when reading the hero, then he still wears the cloth the old rule gave him")
-    func version6KeepsItsGear() async throws {
-        try StoreFiles.copy(from: StoreV6Fixture.directory, to: directory)
-        let store = LocalStore.live(in: directory)
-        let catalog = try await BundledContentRepository().fetchCatalog()
-
-        let standing = DadStanding(
-            progress: DadProgress(events: try await store.progress.fetchEvents(), catalog: catalog),
-            catalog: catalog,
-            kept: try await store.standing.fetchKept()
-        )
-
-        // One boss: the first title, which brings the mug; the cloth came from 100 care XP before titles.
-        #expect(standing.title?.id == "t-new-to-the-journey")
-        #expect(Set(standing.gear.map(\.id)) == ["g-burp-cloth", "g-mug"])
-        let worn = GearRules.equipped(standing.gear, outfit: try await store.outfit.fetchOutfit())
-        #expect(worn.map(\.id).contains("g-burp-cloth"))
-        #expect(standing.news?.title.id == "t-new-to-the-journey")
-        #expect(standing.news?.gear.map(\.id) == ["g-mug"])
-    }
-
-    @Test("Given a migrated store, when the dad records a quest, then the cloth is kept for good, across a reopen")
-    func firstChangeFreezesGear() async throws {
-        try StoreFiles.copy(from: StoreV6Fixture.directory, to: directory)
-        let store = LocalStore.live(in: directory)
-        let content = BundledContentRepository()
-        let quest = DefaultCompleteQuestUseCase(
-            contentRepository: content, progressRepository: store.progress, standingRepository: store.standing,
-            photoStore: FilePhotoStore.moments(in: directory.appending(path: "photos"))
-        )
-
-        _ = try await quest.execute(
-            questID: "q-w1-bath-master", childID: StoreV6Fixture.eleni.id, on: .now, journal: .empty
-        )
-
-        let reopened = LocalStore.live(in: directory)
-        let kept = try await reopened.standing.fetchKept()
-        #expect(kept.gearIDs == ["g-burp-cloth"])
-        // The title is kept before a deletion only (ADR-0055 §3).
-        #expect(kept.titleID == nil)
-    }
-
-    @Test("Given a new saga, when the profile is saved, then nothing from before titles is kept, and edits keep the title")
+    @Test("Given a new saga, when the profile is saved, then nothing is kept, and edits keep the title")
     func newProfileStartsFresh() async throws {
         let store = LocalStore.inMemory()
-        #expect(try await store.standing.fetchKept() == .fresh)
-        try await store.standing.keep(titleID: "t1", gearIDs: [])
-        #expect(try await store.standing.fetchKept() == .fresh)
+        #expect(try await store.standing.fetchKept() == KeptStanding())
+        try await store.standing.keep(titleID: "t1")
+        #expect(try await store.standing.fetchKept() == KeptStanding())
 
-        try await store.profiles.save(StoreV6Fixture.profile)
-        #expect(try await store.standing.fetchKept() == .fresh)
-        try await store.standing.keep(titleID: "t2", gearIDs: [])
+        try await store.profiles.save(profile)
+        #expect(try await store.standing.fetchKept() == KeptStanding())
+        try await store.standing.keep(titleID: "t2")
         try await store.standing.markSeen(titleID: "t2")
-        try await store.profiles.save(PlayerProfile(children: [StoreV6Fixture.eleni], heroClassID: "h-super"))
+        try await store.profiles.save(PlayerProfile(children: [eleni], heroClassID: "h-super"))
 
-        #expect(try await store.standing.fetchKept() == KeptStanding(titleID: "t2", gearIDs: [], seenTitleID: "t2"))
-    }
-
-    @Test("Given a saga begun on disk with titles, when the store is opened again, then nothing from before is kept still")
-    func freshStaysFreshOnDisk() async throws {
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        try await LocalStore.live(in: directory).profiles.save(StoreV6Fixture.profile)
-
-        // An empty list, not "not frozen yet": skill XP must never bring gear to a dad who started with titles.
-        #expect(try await LocalStore.live(in: directory).standing.fetchKept() == .fresh)
+        #expect(try await store.standing.fetchKept() == KeptStanding(titleID: "t2", seenTitleID: "t2"))
     }
 
     @Test("Given a card closed for a title an Undo takes back, when the title still held is marked seen, then it goes back")
     func markSeenGoesBackForAnUndo() async throws {
         let store = LocalStore.inMemory()
-        try await store.profiles.save(StoreV6Fixture.profile)
-        try await store.standing.keep(titleID: "t1", gearIDs: ["g-cloth"])
+        try await store.profiles.save(profile)
+        try await store.standing.keep(titleID: "t1")
         try await store.standing.markSeen(titleID: "t2")
 
         try await store.standing.markSeen(titleID: "t1")
 
-        #expect(try await store.standing.fetchKept() == KeptStanding(titleID: "t1", gearIDs: ["g-cloth"], seenTitleID: "t1"))
+        #expect(try await store.standing.fetchKept() == KeptStanding(titleID: "t1", seenTitleID: "t1"))
     }
 
     @Test("Given no family yet, when a title is marked seen, then nothing is written")
@@ -106,19 +45,19 @@ struct TitlesStoreTests {
 
         try await store.standing.markSeen(titleID: "t2")
 
-        #expect(try await store.standing.fetchKept() == .fresh)
+        #expect(try await store.standing.fetchKept() == KeptStanding())
     }
 
     @Test("Given a kept title, when the dad starts over, then it goes with the saga")
     func startOverErasesIt() async throws {
         let store = LocalStore.inMemory()
-        try await store.profiles.save(StoreV6Fixture.profile)
-        try await store.standing.keep(titleID: "t2", gearIDs: ["g-mug"])
+        try await store.profiles.save(profile)
+        try await store.standing.keep(titleID: "t2")
 
         try await store.wholeSaga.eraseAll()
-        try await store.profiles.save(StoreV6Fixture.profile)
+        try await store.profiles.save(profile)
 
-        #expect(try await store.standing.fetchKept() == .fresh)
+        #expect(try await store.standing.fetchKept() == KeptStanding())
     }
 }
 

@@ -27,12 +27,10 @@ public enum ProgressError: Error, Equatable {
 
 /// The one way a quest, a boss or a first is recorded: check the content exists, store the event with the dad's note
 /// and photos, and say what it changed. A boss or a first counts once per child; when the child already has it, nothing
-/// is stored and the change has no `eventID`. The gear from before titles is kept first; the title never is, so an
-/// Undo can take it back (ADR-0055 §3, §4).
+/// is stored and the change has no `eventID`. Nothing is kept for the title, so an Undo can take it back (ADR-0055 §3).
 struct ProgressRecorder {
     let contentRepository: any ContentRepository
     let progressRepository: any ProgressRepository
-    let standingRepository: any StandingRepository
     let photoStore: any PhotoStore
 
     /// - Parameter unknown: thrown when the catalog has no such content.
@@ -51,7 +49,6 @@ struct ProgressRecorder {
         let unchanged = ProgressChange(before: before, after: before, eventID: nil)
         // The usual repeat stops here, before any photo is written; `record` still catches two saves at once.
         guard !before.isAlreadyCounted(kind, for: childID) else { return unchanged }
-        try await StandingKeeper(standingRepository: standingRepository).keepBeforeRecording(before, catalog: catalog)
         let recorder = EventRecorder(progressRepository: progressRepository, photoStore: photoStore)
         guard let event = try await recorder.record(kind, childID: childID, date: date, journal: journal) else {
             return unchanged

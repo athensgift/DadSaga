@@ -192,7 +192,7 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
         guard let storyboard else { return nil }
         let progress = DadProgress(events: events.filter { $0.date < storyboard.asOf }, catalog: catalog)
         let firsts = progress.capturedFirstIDs(for: child.id)
-        let standing = DadStanding.asOf(progress, catalog: catalog, kept: .fresh)
+        let standing = DadStanding.asOf(progress, catalog: catalog)
         return SagaFilm(
             profile: profile,
             child: child,

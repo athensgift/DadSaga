@@ -6,9 +6,6 @@ public struct GearItem: ContentItem, Hashable, Identifiable, Sendable {
     public let formerIDs: [String]
     /// Its slot on the hero (ADR-0014) and its section in the wardrobe. It unlocks nothing.
     public let skill: Skill
-    /// The skill XP that earned it before titles, for the eight items that shipped then; `nil` for items added since.
-    /// Only says what a dad from before titles had already earned.
-    public let skillXPBeforeTitles: Int?
     /// Which drawing the avatar uses. Unknown looks are simply not drawn.
     public let look: String
     public let title: LocalizedText
@@ -16,7 +13,6 @@ public struct GearItem: ContentItem, Hashable, Identifiable, Sendable {
     public init(
         id: String,
         skill: Skill,
-        skillXPBeforeTitles: Int? = nil,
         look: String,
         title: LocalizedText,
         formerIDs: [String] = []
@@ -24,7 +20,6 @@ public struct GearItem: ContentItem, Hashable, Identifiable, Sendable {
         self.id = id
         self.formerIDs = formerIDs
         self.skill = skill
-        self.skillXPBeforeTitles = skillXPBeforeTitles
         self.look = look
         self.title = title
     }

@@ -34,10 +34,14 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ Checked on a device (2026-11-19): installing over a `develop` build, every screen and the widget in Greek and
   English, photos loading at their shown size.
 - The "couldn't open your saga" screen (junk store file) is covered by tests (`StoreVersioningTests`,
-  `StoreUnavailableRootTests`), not checked on a device: it needs a damaged store, which is unlikely in practice.
-- ✅ The widget opening an older store read-only fails without touching it, tested with a draft V2 (ADR-0034).
-- Sync ADR before Phase 5: CKSyncEngine over the event log, V2 schema (non-optional `childID` column, `#Unique` ids),
-  photos, export/backup (ADR-0004, ADR-0026).
+  `StoreUnavailableRootTests`), not checked on a device yet. It needs a store that can't be opened: a row with nil in
+  a column `SchemaV1` requires, or a junk file. A `develop` store whose profile was saved since version 6 migrates silently instead (ADR-0060 §6,
+  "Verification status").
+- ✅ The widget opening an older store read-only fails without touching it, tested from a test-only older schema
+  (`OlderStoreTests`, ADR-0060). The first `SchemaV2` adds the test from the `StoreV1` fixture the first App Store
+  release writes.
+- Sync ADR before Phase 5: CKSyncEngine over the event log, `#Unique` ids, photos, export/backup (ADR-0004, ADR-0026).
+  `childID` is non-optional since ADR-0060.
 - ✅ The store's work runs off the main thread, now whatever the compiler's default (ADR-0034).
 - ✅ CI pinned to Xcode 27.2 (ADR-0034).
 
@@ -65,6 +69,9 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 ## Phase 4: Ship
 - TestFlight / App Store, demo video (made by the app itself), case study write-up
 - ✅ Dad titles instead of levels: no XP on screen, gear by title, a calm title card, the title in the film (ADR-0055)
+- ✅ Nothing ships before the first App Store release: one store version, no shipped ids, gear only with titles;
+  TestFlight testers start over when the store or an id changes (ADR-0060)
+- At the first App Store release: record what ships, its ids and its store (ADR-0060 §5, `docs/RELEASE.md`)
 - ✅ Privacy manifests, export compliance key, privacy URL, Release build in CI (ADR-0051, `docs/RELEASE.md`)
 - Team ID in `project.yml`, App Store Connect record, trader details (EU DSA)
 - ✅ Export and import of the saga: one `.dadsaga` file from Settings › Export data, imported there or on onboarding's
