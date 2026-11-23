@@ -29,7 +29,7 @@ struct HomeViewModelTests {
         }
         #expect(sut.selectedQuest == nil)
         #expect(content.dadTitle?.text == "Επίπεδο 1 · Νέος στο ταξίδι")
-        #expect(content.cards.last?.footnote == "Το έκανες 1 φορά")
+        #expect(content.cards.first { $0.id == "q1" }?.footnote == "Το έκανες 1 φορά")
         #expect(sut.celebration?.id == 1)
         #expect(sut.celebration?.skillText == "Η φροντίδα σου μεγάλωσε")
         #expect(sut.celebration?.highlight == .quest)
@@ -164,7 +164,7 @@ struct HomeViewModelTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        #expect(content.cards.first?.footnote == "Νικήθηκε · β")
+        #expect(content.cards.first { $0.id == "b1" }?.footnote == "Νικήθηκε · β")
 
         sut.select(cardID: "b1")
         #expect(sut.selectedBoss?.isDefeated == true)
@@ -193,7 +193,7 @@ struct HomeViewModelTests {
         #expect(content.heroLook == .hero)
     }
 
-    @Test("Given a cool dad with a 10-month-old, when appearing, then hero, companion and current-world cards are shown")
+    @Test("Given a cool dad with a 10-month-old, when appearing, then hero, companion and the world's cards show, bosses last")
     func loaded() async {
         let sut = makeSUT(profile: HeroStub.profile)
         await sut.onAppear()
@@ -207,10 +207,10 @@ struct HomeViewModelTests {
         #expect(content.companionLine == "Νίκος · 10 μηνών")
         #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
         #expect(content.worldTitle == "Κόσμος")
-        #expect(content.cards.map(\.id) == ["b1", "q1"])
-        #expect(content.cards.map(\.symbol) == ["flame.fill", "heart.fill"])
-        #expect(content.cards.map(\.badge) == ["BOSS", nil])
-        #expect(content.cards.map(\.skill) == [nil, "Φροντίδα"])
+        #expect(content.cards.map(\.id) == ["q1", "b1"])
+        #expect(content.cards.map(\.symbol) == ["heart.fill", "flame.fill"])
+        #expect(content.cards.map(\.badge) == [nil, "BOSS"])
+        #expect(content.cards.map(\.skill) == ["Φροντίδα", nil])
     }
 
     @Test("Given an English locale, when appearing, then the companion line is English")
@@ -285,14 +285,14 @@ struct HomeViewModelTests {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        #expect(content.cards.last?.footnote == "Το έκανες 1 φορά")
+        #expect(content.cards.first { $0.id == "q1" }?.footnote == "Το έκανες 1 φορά")
 
         await sut.selectChild(id: HeroStub.niko.id)
         guard case .loaded(let niko) = sut.state else {
             Issue.record("Expected loaded state, got \(sut.state)")
             return
         }
-        #expect(niko.cards.last?.footnote == nil)
+        #expect(niko.cards.first { $0.id == "q1" }?.footnote == nil)
     }
 
     @Test("Given no profile, when appearing, then state is failed")

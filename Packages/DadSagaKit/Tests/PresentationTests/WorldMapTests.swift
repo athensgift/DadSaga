@@ -114,7 +114,7 @@ struct WorldMapTests {
         await sut.showWorld(id: "w3")
 
         #expect(loaded(sut)?.worldTitle == "Χώρα")
-        #expect(loaded(sut)?.cards.map(\.id) == ["b3", "q3"])
+        #expect(loaded(sut)?.cards.map(\.id) == ["q3", "b3"])
         #expect(loaded(sut)?.idealLine == "Ιδανικά από τα 2 χρόνια")
         #expect(loaded(sut)?.backToCurrentTitle == "Πίσω στον τωρινό κόσμο")
         #expect(sut.worldMap?.worlds.last?.tag == "Σε προβολή")

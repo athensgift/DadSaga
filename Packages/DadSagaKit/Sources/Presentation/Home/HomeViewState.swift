@@ -43,6 +43,7 @@ public struct HomeContent: Equatable, Sendable {
     public let emptyMessage: String?
     /// One quiet line under the world while the child is not born yet: how to say they've arrived (ADR-0053 §1).
     public let arrivalLine: String?
+    /// Today's quests, then the world's bosses.
     public let cards: [CardModel]
     /// The bosses for when life changes, in one closed row after the cards (ADR-0053 §5); `nil` when there are none.
     public let situational: SituationalCards?

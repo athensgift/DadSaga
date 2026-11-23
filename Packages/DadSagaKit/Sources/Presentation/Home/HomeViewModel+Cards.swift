@@ -2,7 +2,7 @@ import Application
 import Domain
 import Foundation
 
-/// The cards home shows for the selected child: the companions beside the hero, bosses, quests and the bosses for when
+/// The cards home shows for the selected child: the companions beside the hero, quests, bosses and the bosses for when
 /// life changes.
 extension HomeViewModel {
     /// Every child as drawn beside the dad today: the mark for a child on the way (ADR-0053 §2).

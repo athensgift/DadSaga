@@ -124,7 +124,7 @@ struct BeforeBirthPresentationTests {
         #expect(content.companions.first?.spokenName == "Μπέμπης, έρχεται")
         #expect(content.worldTitle == "Λιμάνι")
         #expect(content.arrivalLine == "Όταν έρθει, κλείσε το «Δεν έχει γεννηθεί ακόμα» στο «Η οικογένειά μου».")
-        #expect(content.cards.map(\.id) == ["b-w0-birth", "q-w0-bag", "q-w0-talk"])
+        #expect(content.cards.map(\.id) == ["q-w0-bag", "q-w0-talk", "b-w0-birth"])
         #expect(content.situational == nil)
         #expect(content.emptyMessage == nil)
     }
@@ -137,7 +137,7 @@ struct BeforeBirthPresentationTests {
 
         #expect(content.arrivalLine == nil)
         #expect(content.heroTagline != nil)
-        #expect(content.cards.map(\.id) == ["b-w1-fever", "b-w1-double", "q-w1-feed", "q-w1-date"])
+        #expect(content.cards.map(\.id) == ["q-w1-feed", "q-w1-date", "b-w1-fever", "b-w1-double"])
         #expect(content.situational?.title == "When life changes")
         #expect(content.situational?.cards.map(\.id) == ["b-w1-move"])
 
@@ -175,7 +175,7 @@ struct BeforeBirthPresentationTests {
         let sut = home(profile([HarbourStub.born], partner: false))
         await sut.onAppear()
 
-        #expect(try content(sut).cards.map(\.id) == ["b-w1-fever", "b-w1-double", "q-w1-feed"])
+        #expect(try content(sut).cards.map(\.id) == ["q-w1-feed", "b-w1-fever", "b-w1-double"])
     }
 
     @Test("Given an evergreen boss beaten in its own world, when home shows a later world, then it reads Defeated there")
