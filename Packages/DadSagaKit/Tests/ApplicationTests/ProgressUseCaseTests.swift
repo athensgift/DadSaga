@@ -44,7 +44,7 @@ struct ProgressUseCaseTests {
             .execute(questID: "q1", childID: child, on: today, journal: JournalInput(note: "a", photos: [Data([1])]))
         let event = try #require(try await repository.fetchEvents().first)
 
-        try await DefaultUpdateJournalUseCase(progressRepository: repository, photoStore: photos)
+        try await DefaultUpdateJournalUseCase(profileRepository: TheDad(), progressRepository: repository, photoStore: photos)
             .execute(eventID: event.id, note: "b", photos: [])
 
         let updated = try #require(try await repository.fetchEvents().first)

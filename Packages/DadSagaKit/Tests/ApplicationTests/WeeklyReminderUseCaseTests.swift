@@ -52,7 +52,7 @@ struct WeeklyReminderUseCaseTests {
     }
 
     func onboard(_ children: [Child]) async throws {
-        try await profiles.save(PlayerProfile(children: children, heroClassID: "chef"))
+        await profiles.seed(PlayerProfile(children: children, heroClassID: "chef"))
     }
 
     func enable() async {

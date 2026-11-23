@@ -110,25 +110,31 @@ struct EventRecorder {
     }
 }
 
-/// Adds, changes or removes the note and photos on any entry (quest, boss or moment). The date and what it was stay.
+/// Adds, changes or removes the note and photos on any of the player's own entries (quest, boss or moment). The date and
+/// what it was stay. Another parent's entry throws `ProgressError.notYourEntry` (ADR-0065 §3.4).
 public protocol UpdateJournalUseCase: Sendable {
     /// - Parameter photos: every photo the entry keeps, in order (see `EntryPhoto`).
     func execute(eventID: UUID, note: String?, photos: [EntryPhoto]) async throws
 }
 
 public struct DefaultUpdateJournalUseCase: UpdateJournalUseCase {
+    private let profileRepository: any ProfileRepository
     private let progressRepository: any ProgressRepository
     private let photoStore: any PhotoStore
 
-    public init(progressRepository: any ProgressRepository, photoStore: any PhotoStore) {
+    public init(
+        profileRepository: any ProfileRepository, progressRepository: any ProgressRepository, photoStore: any PhotoStore
+    ) {
+        self.profileRepository = profileRepository
         self.progressRepository = progressRepository
         self.photoStore = photoStore
     }
 
     public func execute(eventID: UUID, note: String?, photos: [EntryPhoto]) async throws {
-        guard let event = try await progressRepository.fetchEvents().first(where: { $0.id == eventID }) else {
-            throw ProgressError.unknownEvent
-        }
+        // Refused before any photo is written.
+        let event = try await OwnEntries(
+            profileRepository: profileRepository, progressRepository: progressRepository, photoStore: photoStore
+        ).find(eventID).entry
         try await EventRecorder(progressRepository: progressRepository, photoStore: photoStore)
             .update(event, date: event.date, note: note, photos: photos)
     }

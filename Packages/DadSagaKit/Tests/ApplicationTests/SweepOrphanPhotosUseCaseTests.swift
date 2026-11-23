@@ -21,7 +21,7 @@ struct SweepOrphanPhotosUseCaseTests {
     func profiles(children: [UUID]) async throws -> SpyProfileRepository {
         let profiles = SpyProfileRepository()
         let kids = children.map { Child(id: $0, name: "Kid", birthDay: .day(2024, 1, 1)) }
-        try await profiles.save(PlayerProfile(children: kids, heroClassID: "h1"))
+        await profiles.seed(PlayerProfile(children: kids, heroClassID: "h1"))
         return profiles
     }
 

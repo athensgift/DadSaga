@@ -79,11 +79,11 @@ struct RemovedChildTests: SagaCopyBench {
         let phone = try await imported().phone
         var family = [lena, unborn, Child(name: "Γιάννης", birthDay: nil), Child(name: "Μαρία", birthDay: nil)]
         try await DefaultUpdateFamilyUseCase(profileRepository: phone.store.profiles)
-            .execute(children: family, hasPartner: true, on: madeAt)
+            .execute(FamilyEdit(added: Array(family.suffix(2))), on: madeAt)
         family[0].name = "Λενιώ"
 
         try await DefaultUpdateFamilyUseCase(profileRepository: phone.store.profiles)
-            .execute(children: family, hasPartner: true, on: madeAt)
+            .execute(FamilyEdit(changed: [ChildEdit(child: family[0], fields: [.name])]), on: madeAt)
 
         let saga = try #require(try await phone.store.wholeSaga.readAll())
         #expect(saga.profile.children.map(\.name) == family.map(\.name))

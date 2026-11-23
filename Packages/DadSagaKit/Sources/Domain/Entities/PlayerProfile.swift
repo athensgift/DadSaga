@@ -2,8 +2,8 @@ import Foundation
 
 /// Who is playing: the dad's hero and look, and his children (the companions).
 public struct PlayerProfile: Hashable, Identifiable, Sendable {
-    /// The most children "My family" adds (`ProfileRules`). A family may hold more: a copy from a version where two
-    /// parents add children may bring them (ADR-0065 §4).
+    /// The most children "My family" adds: an edit that adds a child is refused past it (`ProfileRules`). A family may
+    /// hold more, from two parents adding at once or a copy, and can still be edited (ADR-0065 §4).
     public static let maxChildren = 4
 
     /// Who this player is: made once at onboarding, or brought by a copy (ADR-0065 §5). Every entry this player records

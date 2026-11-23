@@ -53,10 +53,9 @@ actor SwiftDataProgressRepository: ProgressRepository {
     func update(_ event: ProgressEvent) async throws {
         guard let record = try record(id: event.id) else { throw ProgressError.unknownEvent }
         try modelContext.saveAllOrNothing {
-            record.date = event.date
-            record.note = event.note
-            record.photoIDs = event.photoIDs
-            record.childID = event.childID
+            record.update(\.date, to: event.date)
+            record.update(\.note, to: event.note)
+            record.update(\.photoIDs, to: event.photoIDs)
         }
     }
 

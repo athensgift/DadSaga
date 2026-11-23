@@ -31,7 +31,8 @@ struct BirthDayEditorTests {
         let shown = try #require(sut.family.children.first?.pickerDate(in: losAngeles))
         #expect(calendar.dateComponents([.year, .month, .day], from: shown) == DateComponents(year: 2025, month: 3, day: 15))
         await sut.save()
-        #expect(await update.saved?.first?.birthDay == .day(2025, 3, 15))
+        // Saved unchanged: the day stays as stored, so the edit sets none.
+        #expect(await update.saved?.isEmpty == true)
     }
 
     @Test("Given My family opened in Athens, when the phone moves to London and a name changes, then every birth day is kept")
@@ -53,7 +54,8 @@ struct BirthDayEditorTests {
         await savedInLondon.save()
 
         let saved = try #require(await update.saved)
-        #expect(saved.map(\.birthDay) == [.day(2025, 3, 15), .day(2026, 5, 21)])
+        #expect(saved.changed.map(\.child.id) == [children[0].id])
+        #expect(saved.changed.first?.fields == [.name])
     }
 
     @Test("Given a birth date picked late in the evening in Auckland, when finishing, then the child's birth day is that day")

@@ -55,27 +55,7 @@ struct StoreVersioningTests {
         #expect(try Data(contentsOf: storeURL) == junk)
     }
 
-    @Test("Given two profile rows, when the family is saved, then one profile remains")
-    func saveKeepsOneProfile() async throws {
-        let child = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
-        try writeRows { context in
-            context.insert(ProfileRecord(profile: PlayerProfile(children: [], heroClassID: "old", dadSkinTone: .light)))
-            context.insert(ProfileRecord(profile: PlayerProfile(
-                id: UUID(), children: [], heroClassID: "older", dadSkinTone: .dark
-            )))
-            context.insert(ChildRecord(child: child, order: 0, isRemoved: false))
-        }
-        let store = LocalStore.live(in: directory)
-
-        try await store.profiles.save(PlayerProfile(children: [child], heroClassID: "chef", dadSkinTone: .medium))
-
-        let stored = try #require(try await store.profiles.fetchProfile())
-        #expect(stored.heroClassID == "chef")
-        #expect(stored.children == [child])
-        #expect(try storedRowCount(ProfileRecord.self, at: storeURL) == 1)
-    }
-
-    @Test("Given a removed child, when a family naming their id is saved, then their row stays removed and as it was")
+    @Test("Given a removed child, when an edit renames, removes or re-adds their id, then their row stays removed and as it was")
     func familySaveNeverBringsBack() async throws {
         let lena = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
         let iris = Child(name: "Ίρις", birthDay: nil)
@@ -87,7 +67,9 @@ struct StoreVersioningTests {
         var renamed = iris
         renamed.name = "Άλλη"
 
-        try await store.profiles.save(PlayerProfile(children: [renamed, lena], heroClassID: "chef"))
+        try await store.profiles.save(FamilyEdit(changed: [ChildEdit(child: renamed, fields: [.name])]))
+        try await store.profiles.save(FamilyEdit(removedIDs: [iris.id]))
+        try await store.profiles.save(FamilyEdit(added: [renamed]))
 
         #expect(try await store.profiles.fetchProfile()?.children == [lena])
         #expect(try await store.wholeSaga.readAll()?.removedChildren == [iris])
@@ -98,11 +80,10 @@ struct StoreVersioningTests {
     func theProfileKeepsItsID() async throws {
         let id = UUID()
         let lena = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
-        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(id: id, children: [lena], heroClassID: "chef"))
+        try await LocalStore.live(in: directory).profiles.create(PlayerProfile(id: id, children: [lena], heroClassID: "chef"))
 
-        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(
-            id: UUID(), children: [lena, Child(name: "Νίκος", birthDay: nil)], heroClassID: "h-cool", dadSkinTone: .dark
-        ))
+        try await LocalStore.live(in: directory).profiles.save(HeroEdit(heroClassID: "h-cool", dadSkinTone: .dark))
+        try await LocalStore.live(in: directory).profiles.save(FamilyEdit(added: [Child(name: "Νίκος", birthDay: nil)]))
 
         let reopened = try #require(try await LocalStore.live(in: directory).profiles.fetchProfile())
         #expect(reopened.id == id)
@@ -110,30 +91,31 @@ struct StoreVersioningTests {
         #expect(reopened.children.count == 2)
     }
 
-    @Test("Given a saved family, when one child is renamed, one removed and one added, then exactly that family comes back")
+    @Test("Given a saved family, when a child is renamed, one removed and one added, then that family is read, the new one last")
     func saveUpdatesInPlace() async throws {
         let store = LocalStore.live(in: directory)
         let lena = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
         let nikos = Child(name: "Νίκος", birthDay: .day(2020, 1, 1))
-        try await store.profiles.save(PlayerProfile(children: [lena, nikos], heroClassID: "chef"))
+        try await store.profiles.create(PlayerProfile(children: [lena, nikos], heroClassID: "chef"))
         var renamed = lena
         renamed.name = "Ελένη"
         let anna = Child(name: "Άννα", birthDay: CalendarDay(.now, in: .gmt))
-        let family = PlayerProfile(children: [anna, renamed], heroClassID: "chef")
 
-        try await store.profiles.save(family)
+        try await store.profiles.save(FamilyEdit(
+            added: [anna], removedIDs: [nikos.id], changed: [ChildEdit(child: renamed, fields: [.name])]
+        ))
 
-        #expect(try await store.profiles.fetchProfile() == family)
+        #expect(try await store.profiles.fetchProfile() == PlayerProfile(children: [renamed, anna], heroClassID: "chef"))
     }
 
     @Test("Given a child not born yet, when the family is saved with a birth day, then the same child reads back born on it")
     func savingABirthDayUpdatesTheChild() async throws {
         let baby = Child(name: "Μπέμπης", birthDay: nil)
-        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(children: [baby], heroClassID: "chef"))
+        try await LocalStore.live(in: directory).profiles.create(PlayerProfile(children: [baby], heroClassID: "chef"))
         var born = baby
         born.birthDay = .day(2026, 11, 1)
 
-        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(children: [born], heroClassID: "chef"))
+        try await LocalStore.live(in: directory).profiles.save(FamilyEdit(changed: [ChildEdit(child: born, fields: [.birthDay])]))
 
         let children = try await LocalStore.live(in: directory).profiles.fetchProfile()?.children
         #expect(children == [born])
@@ -143,11 +125,13 @@ struct StoreVersioningTests {
     @Test("Given a born child, when the family is saved without a birth day, then the child reads back not born yet")
     func clearingABirthDayUpdatesTheChild() async throws {
         let lena = Child(name: "Λένα", birthDay: .day(2025, 6, 2))
-        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(children: [lena], heroClassID: "chef"))
+        try await LocalStore.live(in: directory).profiles.create(PlayerProfile(children: [lena], heroClassID: "chef"))
         var unborn = lena
         unborn.birthDay = nil
 
-        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(children: [unborn], heroClassID: "chef"))
+        try await LocalStore.live(in: directory).profiles.save(
+            FamilyEdit(changed: [ChildEdit(child: unborn, fields: [.birthDay])])
+        )
 
         let child = try await LocalStore.live(in: directory).profiles.fetchProfile()?.children.first
         #expect(child?.id == lena.id)
@@ -158,11 +142,14 @@ struct StoreVersioningTests {
     func savingTheLookUpdatesTheProfile() async throws {
         let lena = Child(name: "Λένα", birthDay: .day(2025, 6, 2))
         var dad = PlayerProfile(children: [lena], heroClassID: "chef", dadSkinTone: .medium)
-        try await LocalStore.live(in: directory).profiles.save(dad)
+        try await LocalStore.live(in: directory).profiles.create(dad)
         dad.dadAppearance = DadAppearance(hair: .curly, hairColor: .grey, beard: .none, glasses: .round)
         dad.hasPartner = !dad.hasPartner
 
-        try await LocalStore.live(in: directory).profiles.save(dad)
+        try await LocalStore.live(in: directory).profiles.save(
+            HeroEdit(hair: .curly, hairColor: .grey, beard: DadAppearance.Beard.none, glasses: .round)
+        )
+        try await LocalStore.live(in: directory).profiles.save(FamilyEdit(hasPartner: dad.hasPartner))
 
         #expect(try await LocalStore.live(in: directory).profiles.fetchProfile() == dad)
     }

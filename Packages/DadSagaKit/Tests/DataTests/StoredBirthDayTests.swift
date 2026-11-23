@@ -12,7 +12,7 @@ struct StoredBirthDayTests {
 
     func storeChild(year: Int?, month: Int?, day: Int?) async throws -> UUID {
         let child = Child(name: "Άννα", birthDay: .day(2025, 3, 15))
-        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(children: [child], heroClassID: "h"))
+        try await LocalStore.live(in: directory).profiles.create(PlayerProfile(children: [child], heroClassID: "h"))
         let schema = Schema(versionedSchema: CurrentSchema.self)
         let container = try ModelContainer(
             for: schema,

@@ -19,7 +19,7 @@ actor SwiftDataOutfitRepository: OutfitRepository {
             descriptor.fetchLimit = 1
             let record = try modelContext.fetch(descriptor).first
             switch (record, OutfitCoding.encode(choice)) {
-            case (let record?, let encoded?): record.choice = encoded
+            case (let record?, let encoded?): record.update(\.choice, to: encoded)
             case (nil, let encoded?): modelContext.insert(OutfitRecord(skill: raw, choice: encoded))
             case (let record?, nil): modelContext.delete(record)
             case (nil, nil): break

@@ -1,9 +1,9 @@
 import Domain
 import Foundation
 
-/// Finds one of the dad's entries and removes it with its photos: what deleting and undoing share. Only the player's
-/// own entries: each parent removes only what they recorded (ADR-0065 §3.4).
-struct EntryRemover {
+/// Finds one of the player's own entries, to edit or to remove with its photos: what deleting, undoing and editing
+/// share. Each parent edits and removes only what they recorded (ADR-0065 §3.4).
+struct OwnEntries {
     let profileRepository: any ProfileRepository
     let progressRepository: any ProgressRepository
     let photoStore: any PhotoStore

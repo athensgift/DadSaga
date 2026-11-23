@@ -210,11 +210,13 @@ struct BeforeBirthTests {
     @Test("Given a child not born yet, when validating, then it is valid; a born child dated tomorrow is not")
     func profileRules() throws {
         let coming = Child(name: " Μπέμπης ", birthDay: nil)
-        let valid = try ProfileRules.validatedChildren([coming], on: today)
+        let valid = try ProfileRules.validated(FamilyEdit(added: [coming]), for: [], on: today).added
         #expect(valid.first?.name == "Μπέμπης")
         #expect(valid.first?.birthDay == nil)
         #expect(throws: ProfileValidationError.birthDateInFuture) {
-            try ProfileRules.validatedChildren([Child(name: "Α", birthDay: today.adding(days: 1))], on: today)
+            try ProfileRules.validated(
+                FamilyEdit(added: [Child(name: "Α", birthDay: today.adding(days: 1))]), for: [], on: today
+            )
         }
     }
 }

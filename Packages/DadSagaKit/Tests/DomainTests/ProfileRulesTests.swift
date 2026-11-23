@@ -35,25 +35,97 @@ struct ProfileRulesTests {
         }
     }
 
-    @Test("Given four children stored, when validating five, then tooManyChildren is thrown")
+    @Test("Given onboarding with five children, when validating, then tooManyChildren is thrown")
     func tooManyChildren() {
         let five = (0..<5).map { _ in child() }
         #expect(throws: ProfileValidationError.tooManyChildren) {
             try ProfileRules.validated(profile(five), on: today, heroClasses: heroes)
         }
+    }
+
+    @Test("Given a family of four, when an edit adds a fifth, then tooManyChildren is thrown")
+    func addingPastFour() {
+        let four = (0..<4).map { _ in child() }
         #expect(throws: ProfileValidationError.tooManyChildren) {
-            try ProfileRules.validatedChildren(five, on: today, storedCount: 4)
+            try ProfileRules.validated(FamilyEdit(added: [child()]), for: four, on: today)
         }
     }
 
-    @Test("Given five children stored (from a copy), when validating five or four, then they pass; six do not")
+    @Test("Given a family of five (two parents added at once), when an edit adds none, then it passes")
     func theLimitIsOnAddingOnly() throws {
         let five = (0..<5).map { _ in child() }
-        #expect(try ProfileRules.validated(profile(five), on: today, heroClasses: heroes, storedCount: 5).children.count == 5)
-        #expect(try ProfileRules.validatedChildren(Array(five.prefix(4)), on: today, storedCount: 5).count == 4)
-        #expect(throws: ProfileValidationError.tooManyChildren) {
-            try ProfileRules.validatedChildren(five + [child()], on: today, storedCount: 5)
+        var renamed = five[0]
+        renamed.name = "Ίρις"
+        let rename = FamilyEdit(changed: [ChildEdit(child: renamed, fields: [.name])], hasPartner: false)
+        #expect(try ProfileRules.validated(rename, for: five, on: today).applied(to: five).count == 5)
+        let removeOne = FamilyEdit(removedIDs: [five[4].id])
+        #expect(try ProfileRules.validated(removeOne, for: five, on: today).applied(to: five).count == 4)
+    }
+
+    @Test("Given a family of five, when an edit removes two and adds one, then it passes at four")
+    func removingMakesRoom() throws {
+        let five = (0..<5).map { _ in child() }
+        let edit = FamilyEdit(added: [child("Νέα")], removedIDs: [five[0].id, five[1].id])
+        #expect(try ProfileRules.validated(edit, for: five, on: today).applied(to: five).count == 4)
+    }
+
+    @Test("Given an edit that removes every child, when validating, then noChildren is thrown")
+    func editLeavingNone() {
+        let family = [child(), child()]
+        #expect(throws: ProfileValidationError.noChildren) {
+            try ProfileRules.validated(FamilyEdit(removedIDs: Set(family.map(\.id))), for: family, on: today)
         }
+    }
+
+    @Test("Given an added or a renamed child with a blank name, when validating the edit, then emptyChildName is thrown")
+    func blankNameInAnEdit() {
+        let family = [child()]
+        var blank = family[0]
+        blank.name = "  "
+        #expect(throws: ProfileValidationError.emptyChildName) {
+            try ProfileRules.validated(FamilyEdit(added: [child(" ")]), for: family, on: today)
+        }
+        #expect(throws: ProfileValidationError.emptyChildName) {
+            try ProfileRules.validated(
+                FamilyEdit(changed: [ChildEdit(child: blank, fields: [.name])]), for: family, on: today
+            )
+        }
+    }
+
+    @Test("Given a renamed child, when validating the edit, then the new name is trimmed")
+    func trimsARename() throws {
+        let family = [child()]
+        var renamed = family[0]
+        renamed.name = " Ίρις "
+        let valid = try ProfileRules.validated(
+            FamilyEdit(changed: [ChildEdit(child: renamed, fields: [.name])]), for: family, on: today
+        )
+        #expect(valid.applied(to: family).map(\.name) == ["Ίρις"])
+    }
+
+    @Test("Given a changed birth day after today, when validating, then it is refused; a stored one left alone is not")
+    func onlyWhatTheEditSetsIsChecked() throws {
+        // Stored in a time zone further east: a day after today here (ADR-0053).
+        let family = [child(bornDaysAgo: -1)]
+        var moved = family[0]
+        moved.birthDay = today.adding(days: 2)
+        #expect(throws: ProfileValidationError.birthDateInFuture) {
+            try ProfileRules.validated(
+                FamilyEdit(changed: [ChildEdit(child: moved, fields: [.birthDay])]), for: family, on: today
+            )
+        }
+        var renamed = family[0]
+        renamed.name = "Ίρις"
+        let rename = FamilyEdit(changed: [ChildEdit(child: renamed, fields: [.name])])
+        #expect(try ProfileRules.validated(rename, for: family, on: today) == rename)
+    }
+
+    @Test("Given a hero edit, when it names an unknown hero, then unknownHeroClass is thrown; naming none is never checked")
+    func heroEdit() throws {
+        #expect(throws: ProfileValidationError.unknownHeroClass("nope")) {
+            try ProfileRules.validated(HeroEdit(heroClassID: "nope"), heroClasses: heroes)
+        }
+        #expect(try ProfileRules.validated(HeroEdit(beard: .full), heroClasses: []) == HeroEdit(beard: .full))
     }
 
     @Test("Given one blank name among several, when validating, then emptyChildName is thrown")

@@ -127,7 +127,9 @@ struct SagaFixture {
             profileRepository: store.profiles, photoStore: photos
         ).execute(CaptureMomentRequest(firstID: firstID, childID: Self.child.id, date: Self.day(daysAgo)), now: Self.today)
         guard let id = change.eventID, note != nil || !added.isEmpty else { return }
-        try await DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photos).execute(
+        try await DefaultUpdateMomentUseCase(
+            profileRepository: store.profiles, progressRepository: store.progress, photoStore: photos
+        ).execute(
             momentID: id, happenedOn: Self.day(daysAgo), note: note, photos: added.map(EntryPhoto.added), now: Self.today
         )
     }
@@ -192,7 +194,9 @@ extension SagaFixture {
                         contentRepository: content, progressRepository: store.progress,
                         profileRepository: store.profiles, photoStore: photos
                     ),
-                    update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photos),
+                    update: DefaultUpdateMomentUseCase(
+                        profileRepository: store.profiles, progressRepository: store.progress, photoStore: photos
+                    ),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photos)
                 ),
                 reminder: reminder,
@@ -261,11 +265,8 @@ extension SagaFixture {
             makeHero: {
                 HeroSettingsViewModel(
                     getHeroChoice: DefaultGetHeroChoiceUseCase(contentRepository: content, profileRepository: store.profiles),
-                    updateHero: DefaultUpdateHeroUseCase(
-                        contentRepository: content, profileRepository: store.profiles, timeZone: Self.calendar.timeZone
-                    ),
-                    locale: locale,
-                    now: Self.today
+                    updateHero: DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: store.profiles),
+                    locale: locale
                 )
             },
             makeWardrobe: { wardrobe() },
@@ -347,7 +348,9 @@ extension SagaFixture {
                 standingRepository: store.standing,
                 photoStore: photos
             ),
-            updateJournal: DefaultUpdateJournalUseCase(progressRepository: store.progress, photoStore: photos),
+            updateJournal: DefaultUpdateJournalUseCase(
+                profileRepository: store.profiles, progressRepository: store.progress, photoStore: photos
+            ),
             locale: locale,
             calendar: calendar
         )

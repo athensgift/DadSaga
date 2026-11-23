@@ -56,7 +56,7 @@ extension SagaCopyBench {
         _ phone: Phone,
         kept: KeptStanding = KeptStanding(titleID: "t-new-to-the-journey", seenTitleID: "t-new-to-the-journey")
     ) async throws -> [String] {
-        try await phone.store.profiles.save(PlayerProfile(
+        try await phone.store.profiles.create(PlayerProfile(
             id: SagaCopyPeople.dadID, children: [lena, unborn], heroClassID: "h-chef", dadSkinTone: .mediumDark,
             dadAppearance: DadAppearance(hair: .curly, hairColor: .grey, beard: .none, glasses: .round), hasPartner: false
         ))
@@ -99,7 +99,7 @@ extension SagaCopyBench {
         let made = try await make(on: old).execute(on: madeAt) { _ in }
         let target = phone("target")
         let aris = PlayerProfile(children: [Child(name: "Άρης", birthDay: nil)], heroClassID: "h-coach")
-        try await target.store.profiles.save(aris)
+        try await target.store.profiles.create(aris)
         return (made.url, target)
     }
 

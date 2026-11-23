@@ -148,9 +148,17 @@ struct EditProfileUseCaseTests {
     )))
     let shavedNoBeard = DadAppearance(hair: .shaved, hairColor: .grey, beard: .none, glasses: .round)
 
+    /// Every hero field, as the hero page sends when the dad changes all of them.
+    func everything(_ heroID: String, _ tone: SkinTone, _ look: DadAppearance) -> HeroEdit {
+        HeroEdit(
+            heroClassID: heroID, dadSkinTone: tone, hair: look.hair, hairColor: look.hairColor, beard: look.beard,
+            glasses: look.glasses
+        )
+    }
+
     func stored(_ profiles: SpyProfileRepository) async throws -> PlayerProfile {
         let profile = PlayerProfile(children: [anna, nikos], heroClassID: "h1", dadSkinTone: .light)
-        try await profiles.save(profile)
+        await profiles.seed(profile)
         return profile
     }
 
@@ -160,7 +168,7 @@ struct EditProfileUseCaseTests {
         _ = try await stored(profiles)
 
         try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
-            .execute(heroClassID: "h2", skinTone: .dark, appearance: shavedNoBeard, on: today)
+            .execute(everything("h2", .dark, shavedNoBeard))
 
         let profile = try #require(try await profiles.fetchProfile())
         #expect(profile.heroClassID == "h2")
@@ -176,7 +184,7 @@ struct EditProfileUseCaseTests {
 
         await #expect(throws: ProfileValidationError.unknownHeroClass("nope")) {
             try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
-                .execute(heroClassID: "nope", skinTone: .dark, appearance: shavedNoBeard, on: today)
+                .execute(everything("nope", .dark, shavedNoBeard))
         }
         #expect(try await profiles.fetchProfile() == before)
     }
@@ -186,10 +194,13 @@ struct EditProfileUseCaseTests {
         let profiles = SpyProfileRepository()
         _ = try await stored(profiles)
         try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
-            .execute(heroClassID: "h1", skinTone: .light, appearance: shavedNoBeard, on: today)
+            .execute(HeroEdit(
+                hair: shavedNoBeard.hair, hairColor: shavedNoBeard.hairColor, beard: shavedNoBeard.beard,
+                glasses: shavedNoBeard.glasses
+            ))
 
         try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
-            .execute(children: [anna], hasPartner: true, on: today)
+            .execute(FamilyEdit(removedIDs: [nikos.id]), on: today)
 
         let profile = try #require(try await profiles.fetchProfile())
         #expect(profile == PlayerProfile(
@@ -202,11 +213,11 @@ struct EditProfileUseCaseTests {
         let profiles = SpyProfileRepository()
         await #expect(throws: ProfileEditError.noProfile) {
             try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
-                .execute(heroClassID: "h1", skinTone: .dark, appearance: shavedNoBeard, on: today)
+                .execute(HeroEdit(beard: .full))
         }
         await #expect(throws: ProfileEditError.noProfile) {
             try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
-                .execute(children: [anna], hasPartner: true, on: today)
+                .execute(FamilyEdit(removedIDs: [anna.id]), on: today)
         }
     }
 
@@ -225,7 +236,7 @@ struct EditProfileUseCaseTests {
         let before = try await wardrobe.execute()
 
         try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
-            .execute(heroClassID: "h2", skinTone: .dark, appearance: shavedNoBeard, on: today)
+            .execute(everything("h2", .dark, shavedNoBeard))
 
         let after = try await wardrobe.execute()
         #expect(after.outfit == before.outfit)
@@ -237,31 +248,49 @@ struct EditProfileUseCaseTests {
     @Test("Given a stored hero the content no longer has, when the family is saved, then it saves and keeps that hero")
     func familySavesWithAnUnknownHero() async throws {
         let profiles = SpyProfileRepository()
-        try await profiles.save(PlayerProfile(children: [anna, nikos], heroClassID: "gone", dadSkinTone: .light))
+        await profiles.seed(PlayerProfile(children: [anna, nikos], heroClassID: "gone", dadSkinTone: .light))
 
         try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
-            .execute(children: [anna], hasPartner: true, on: today)
+            .execute(FamilyEdit(removedIDs: [nikos.id]), on: today)
 
         let profile = try #require(try await profiles.fetchProfile())
         #expect(profile.children.map(\.id) == [anna.id])
         #expect(profile.heroClassID == "gone")
     }
 
-    @Test("Given a stored hero the content lacks, when the hero page opens and the look changes, then the first hero is saved")
+    @Test("Given a stored hero the content lacks, when the look changes on the hero page, then the look saves and the hero stays")
     func heroPageWithAnUnknownHeroSavesTheLook() async throws {
         let profiles = SpyProfileRepository()
-        try await profiles.save(PlayerProfile(children: [anna], heroClassID: "gone", dadSkinTone: .light))
+        await profiles.seed(PlayerProfile(children: [anna], heroClassID: "gone", dadSkinTone: .light))
 
         let choice = try #require(
             try await DefaultGetHeroChoiceUseCase(contentRepository: content, profileRepository: profiles).execute()
         )
         #expect(choice.heroClassID == "h1")
         try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: profiles)
-            .execute(heroClassID: choice.heroClassID, skinTone: .light, appearance: shavedNoBeard, on: today)
+            .execute(HeroEdit(
+                hair: shavedNoBeard.hair, hairColor: shavedNoBeard.hairColor, beard: shavedNoBeard.beard,
+                glasses: shavedNoBeard.glasses
+            ))
 
         let profile = try #require(try await profiles.fetchProfile())
-        #expect(profile.heroClassID == "h1")
+        // A newer version may know it again (ADR-0065 §1): it changes only when the dad picks another hero.
+        #expect(profile.heroClassID == "gone")
         #expect(profile.dadAppearance == shavedNoBeard)
+    }
+
+    @Test("Given content that fails to load, when only the beard changes, then it saves without asking the content")
+    func beardOnlyNeedsNoContent() async throws {
+        let profiles = SpyProfileRepository()
+        _ = try await stored(profiles)
+
+        try await DefaultUpdateHeroUseCase(
+            contentRepository: StubContentRepository(result: .failure(StubError.boom)), profileRepository: profiles
+        ).execute(HeroEdit(beard: .full))
+
+        let profile = try #require(try await profiles.fetchProfile())
+        #expect(profile.dadAppearance.beard == .full)
+        #expect(profile.heroClassID == "h1")
     }
 
     @Test("Given a hero stored before it was renamed, when the hero page opens, then the renamed hero is selected")
@@ -275,7 +304,7 @@ struct EditProfileUseCaseTests {
             ]
         )))
         let profiles = SpyProfileRepository()
-        try await profiles.save(PlayerProfile(children: [anna], heroClassID: "h-old"))
+        await profiles.seed(PlayerProfile(children: [anna], heroClassID: "h-old"))
 
         let choice = try #require(
             try await DefaultGetHeroChoiceUseCase(contentRepository: renamed, profileRepository: profiles).execute()

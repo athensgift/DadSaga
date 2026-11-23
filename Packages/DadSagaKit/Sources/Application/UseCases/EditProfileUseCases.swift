@@ -4,46 +4,39 @@ import Foundation
 public enum ProfileEditError: Error, Equatable {
     /// There is nothing to edit before onboarding.
     case noProfile
+    /// Onboarding over a stored player: there is one per iPhone (ADR-0065 §5).
+    case profileExists
 }
 
-/// Changes the dad's hero, skin tone and look. Progress and wardrobe are untouched: a class is only an identity and a
-/// look (ADR-0008, ADR-0030, ADR-0044).
+/// Changes what the dad changed of his hero, skin tone and look, and nothing else. Progress and wardrobe are untouched:
+/// a class is only an identity and a look (ADR-0008, ADR-0030, ADR-0044).
 public protocol UpdateHeroUseCase: Sendable {
-    func execute(heroClassID: String, skinTone: SkinTone, appearance: DadAppearance, on date: Date) async throws
+    func execute(_ edit: HeroEdit) async throws
 }
 
-/// Changes the children and the partner answer, and keeps the dad's hero.
+/// Changes what the dad changed of the children and the partner answer, and keeps the dad's hero.
 public protocol UpdateFamilyUseCase: Sendable {
-    func execute(children: [Child], hasPartner: Bool, on date: Date) async throws
+    func execute(_ edit: FamilyEdit, on date: Date) async throws
 }
 
 public struct DefaultUpdateHeroUseCase: UpdateHeroUseCase {
     private let contentRepository: any ContentRepository
     private let profileRepository: any ProfileRepository
-    private let timeZone: TimeZone
 
-    public init(
-        contentRepository: any ContentRepository,
-        profileRepository: any ProfileRepository,
-        timeZone: TimeZone = .autoupdatingCurrent
-    ) {
+    public init(contentRepository: any ContentRepository, profileRepository: any ProfileRepository) {
         self.contentRepository = contentRepository
         self.profileRepository = profileRepository
-        self.timeZone = timeZone
     }
 
-    /// The hero must be one the content has now: the page only offers those.
-    public func execute(heroClassID: String, skinTone: SkinTone, appearance: DadAppearance, on date: Date) async throws {
-        async let catalog = contentRepository.fetchCatalog()
-        guard var profile = try await profileRepository.fetchProfile() else { throw ProfileEditError.noProfile }
-        profile.heroClassID = heroClassID
-        profile.dadSkinTone = skinTone
-        profile.dadAppearance = appearance
-        let valid = try ProfileRules.validated(
-            profile, on: CalendarDay(date, in: timeZone), heroClasses: try await catalog.heroClasses,
-            storedCount: profile.children.count
-        )
-        try await profileRepository.save(valid)
+    /// A hero the edit names must be one the content has now: the page only offers those. An edit that names no hero
+    /// keeps the stored one, even one the content no longer has (ADR-0065 §1).
+    public func execute(_ edit: HeroEdit) async throws {
+        guard !edit.isEmpty else { return }
+        if edit.heroClassID != nil {
+            let catalog = try await contentRepository.fetchCatalog()
+            _ = try ProfileRules.validated(edit, heroClasses: catalog.heroClasses)
+        }
+        try await profileRepository.save(edit)
     }
 }
 
@@ -58,12 +51,11 @@ public struct DefaultUpdateFamilyUseCase: UpdateFamilyUseCase {
         self.timeZone = timeZone
     }
 
-    public func execute(children: [Child], hasPartner: Bool, on date: Date) async throws {
-        guard var profile = try await profileRepository.fetchProfile() else { throw ProfileEditError.noProfile }
-        profile.children = try ProfileRules.validatedChildren(
-            children, on: CalendarDay(date, in: timeZone), storedCount: profile.children.count
-        )
-        profile.hasPartner = hasPartner
-        try await profileRepository.save(profile)
+    /// Checked against the family as it stands; an empty edit saves nothing.
+    public func execute(_ edit: FamilyEdit, on date: Date) async throws {
+        guard let profile = try await profileRepository.fetchProfile() else { throw ProfileEditError.noProfile }
+        guard !edit.isEmpty else { return }
+        let valid = try ProfileRules.validated(edit, for: profile.children, on: CalendarDay(date, in: timeZone))
+        try await profileRepository.save(valid)
     }
 }

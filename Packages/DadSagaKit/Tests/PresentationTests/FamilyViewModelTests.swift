@@ -46,10 +46,64 @@ struct FamilyViewModelTests {
         await sut.save()
 
         #expect(saved)
-        let children = await update.saved
-        #expect(children?.map(\.name) == ["Νίκος", "Ελένη"])
-        #expect(children?.first?.id == HeroStub.niko.id)
-        #expect(children?.last?.gender == .girl)
+        let edit = await update.saved
+        #expect(edit?.added.map(\.name) == ["Ελένη"])
+        #expect(edit?.added.first?.gender == .girl)
+        #expect(edit?.changed.isEmpty == true)
+        #expect(edit?.removedIDs.isEmpty == true)
+    }
+
+    @Test("Given two children, when one is renamed and saved, then only that child's name is sent")
+    func renameSendsOnlyTheName() async {
+        let sut = makeSUT(profile: HeroStub.family)
+        await sut.onAppear()
+
+        sut.family.children[1].name = "Λένα"
+        await sut.save()
+
+        let edit = await update.saved
+        #expect(edit?.changed.map(\.child.id) == [HeroStub.eleni.id])
+        #expect(edit?.changed.first?.fields == [.name])
+        #expect(edit?.added.isEmpty == true)
+        #expect(edit?.hasPartner == nil)
+    }
+
+    @Test("Given two children, when one is removed and saved, then only its id is sent")
+    func removalSendsOnlyTheID() async {
+        let sut = makeSUT(profile: HeroStub.family)
+        await sut.onAppear()
+
+        sut.removeChild(id: HeroStub.eleni.id)
+        await sut.save()
+
+        #expect(await update.saved == FamilyEdit(removedIDs: [HeroStub.eleni.id]))
+    }
+
+    @Test("Given a saved rename, when a second save in the same visit changes the partner answer, then only that is sent")
+    func secondSaveSendsOnlyWhatIsNew() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+        sut.family.children[0].name = "Νικόλας"
+        await sut.save()
+
+        sut.family.hasPartner.toggle()
+        await sut.save()
+
+        let edit = await update.saved
+        #expect(edit?.changed.isEmpty == true)
+        #expect(edit?.hasPartner != nil)
+    }
+
+    @Test("Given nothing changed, when saving, then an empty edit is sent and the screen closes")
+    func unchangedSaveCloses() async {
+        var closed = false
+        let sut = makeSUT { closed = true }
+        await sut.onAppear()
+
+        await sut.save()
+
+        #expect(await update.saved?.isEmpty == true)
+        #expect(closed)
     }
 
     @Test("Given two children, when removing one, then the other stays and the last child cannot be removed")
@@ -127,7 +181,7 @@ struct FamilyViewModelTests {
         await update.finishHeldSave()
         await saving.value
 
-        #expect(await update.saved?.map(\.name) == ["Νικόλας"])
+        #expect(await update.saved?.changed.map(\.child.name) == ["Νικόλας"])
         #expect(sut.hasUnsavedChanges)
         #expect(!closed)
     }
@@ -159,8 +213,7 @@ struct FamilyViewModelTests {
 }
 
 actor SpyUpdateFamily: UpdateFamilyUseCase {
-    private(set) var saved: [Child]?
-    private(set) var savedHasPartner: Bool?
+    private(set) var saved: FamilyEdit?
     private var shouldFail = false
 
     func failNext() {
@@ -181,13 +234,12 @@ actor SpyUpdateFamily: UpdateFamilyUseCase {
         held = nil
     }
 
-    func execute(children: [Child], hasPartner: Bool, on date: Date) async throws {
+    func execute(_ edit: FamilyEdit, on date: Date) async throws {
         if holdsNext { await withCheckedContinuation { held = $0 } }
         if shouldFail {
             shouldFail = false
             throw StubError.boom
         }
-        saved = children
-        savedHasPartner = hasPartner
+        saved = edit
     }
 }

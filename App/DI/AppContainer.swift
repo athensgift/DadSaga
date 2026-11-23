@@ -179,15 +179,11 @@ final class AppContainer {
                 ),
                 deleteEvent: DefaultDeleteEventUseCase(
                     contentRepository: contentRepository, profileRepository: store.profiles,
-                    progressRepository: store.progress,
-                    standingRepository: store.standing,
-                    photoStore: photoStore
+                    progressRepository: store.progress, standingRepository: store.standing, photoStore: photoStore
                 ),
                 undoRecord: DefaultUndoRecordUseCase(
                     contentRepository: contentRepository, profileRepository: store.profiles,
-                    progressRepository: store.progress,
-                    standingRepository: store.standing,
-                    photoStore: photoStore
+                    progressRepository: store.progress, standingRepository: store.standing, photoStore: photoStore
                 ),
                 moments: HomeViewModel.MomentUseCases(
                     capture: DefaultCaptureMomentUseCase(
@@ -196,7 +192,9 @@ final class AppContainer {
                         profileRepository: store.profiles,
                         photoStore: photoStore
                     ),
-                    update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
+                    update: DefaultUpdateMomentUseCase(
+                        profileRepository: store.profiles, progressRepository: store.progress, photoStore: photoStore
+                    ),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
                 ),
                 reminder: reminderUseCases,
@@ -280,7 +278,9 @@ final class AppContainer {
                 standingRepository: store.standing,
                 photoStore: photoStore
             ),
-            updateJournal: DefaultUpdateJournalUseCase(progressRepository: store.progress, photoStore: photoStore)
+            updateJournal: DefaultUpdateJournalUseCase(
+                profileRepository: store.profiles, progressRepository: store.progress, photoStore: photoStore
+            )
         )
     }
 }

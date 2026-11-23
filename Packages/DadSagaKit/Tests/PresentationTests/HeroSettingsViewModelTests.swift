@@ -26,8 +26,7 @@ struct HeroSettingsViewModelTests {
         HeroSettingsViewModel(
             getHeroChoice: StubGetHeroChoice(choice: choice),
             updateHero: update,
-            locale: Locale(identifier: "el_GR"),
-            now: HeroStub.today
+            locale: Locale(identifier: "el_GR")
         )
     }
 
@@ -55,7 +54,7 @@ struct HeroSettingsViewModelTests {
         #expect(await update.saves.isEmpty)
     }
 
-    @Test("Given the Cool Dad, when choosing no beard, then the whole choice is stored at once and the page shows it")
+    @Test("Given the Cool Dad, when choosing no beard, then only the beard is stored, at once, and the page shows it")
     func savesAtOnce() async {
         let sut = makeSUT()
         await sut.onAppear()
@@ -64,10 +63,21 @@ struct HeroSettingsViewModelTests {
 
         #expect(sut.appearance.beard == .none)
         #expect(sut.looks?.rows[2].selectedID == "none")
+        #expect(await update.edits == [HeroEdit(beard: DadAppearance.Beard.none)])
         let saved = await update.saves.last
         #expect(saved?.heroClassID == "h-cool")
         #expect(saved?.skinTone == .mediumDark)
         #expect(saved?.appearance == DadAppearance(hair: .curly, hairColor: .black, beard: .none, glasses: .none))
+    }
+
+    @Test("Given the Cool Dad, when choosing his own hero again, then nothing is stored")
+    func sameHeroStoresNothing() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+
+        await sut.selectHero(id: "h-cool")
+
+        #expect(await update.edits.isEmpty)
     }
 
     @Test("Given a slow first save, when choosing a hero, a tone and glasses quickly, then the store ends with all three")
@@ -116,6 +126,8 @@ struct HeroSettingsViewModelTests {
         #expect(sut.appearance.hair == .short)
         #expect(sut.appearance.beard == .none)
         #expect(await update.saves.last?.appearance == DadAppearance(hair: .short, hairColor: .black, beard: .none))
+        // The failed hair went again with the beard.
+        #expect(await update.edits == [HeroEdit(hair: .short, beard: DadAppearance.Beard.none)])
     }
 
     @Test("Given black hair that came with the medium-dark tone, when choosing the light tone, then the hair turns brown")
@@ -126,7 +138,7 @@ struct HeroSettingsViewModelTests {
         await sut.setSkinTone(.light)
 
         #expect(sut.appearance.hairColor == .brown)
-        #expect(await update.saves.last?.appearance.hairColor == .brown)
+        #expect(await update.edits == [HeroEdit(dadSkinTone: .light, hairColor: .brown)])
     }
 
     @Test("Given an option the app doesn't know, when choosing it, then nothing changes or is stored")
@@ -138,7 +150,7 @@ struct HeroSettingsViewModelTests {
         await sut.selectOption(rowID: "hat", optionID: "none")
 
         #expect(sut.appearance.beard == .full)
-        #expect(await update.saves.isEmpty)
+        #expect(await update.edits.isEmpty)
     }
 
     @Test("Given no profile, when appearing, then state is failed")
@@ -155,16 +167,23 @@ struct StubGetHeroChoice: GetHeroChoiceUseCase {
     func execute() async throws -> HeroChoice? { choice }
 }
 
+/// Applies each edit to what it holds, which starts as `makeSUT`'s choice, so a test sees both what was sent and what the
+/// store ends with.
 actor SpyUpdateHero: UpdateHeroUseCase {
     struct Save { let heroClassID: String; let skinTone: SkinTone; let appearance: DadAppearance }
+    private(set) var edits: [HeroEdit] = []
     private(set) var saves: [Save] = []
+    private var held = PlayerProfile(
+        id: UUID(), children: [], heroClassID: "h-cool", dadSkinTone: .mediumDark,
+        dadAppearance: DadAppearance(hair: .curly, hairColor: .black, beard: .full, glasses: .none)
+    )
     private var shouldFail = false
     private var shouldDelay = false
 
     func failNext() { shouldFail = true }
     func delayNext() { shouldDelay = true }
 
-    func execute(heroClassID: String, skinTone: SkinTone, appearance: DadAppearance, on date: Date) async throws {
+    func execute(_ edit: HeroEdit) async throws {
         if shouldDelay {
             shouldDelay = false
             try await Task.sleep(for: .milliseconds(100))
@@ -173,6 +192,8 @@ actor SpyUpdateHero: UpdateHeroUseCase {
             shouldFail = false
             throw StubError.boom
         }
-        saves.append(Save(heroClassID: heroClassID, skinTone: skinTone, appearance: appearance))
+        edits.append(edit)
+        held = edit.applied(to: held)
+        saves.append(Save(heroClassID: held.heroClassID, skinTone: held.dadSkinTone, appearance: held.dadAppearance))
     }
 }

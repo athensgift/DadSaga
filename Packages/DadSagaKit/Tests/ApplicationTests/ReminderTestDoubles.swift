@@ -85,7 +85,9 @@ actor SlowFirstSettings: ReminderSettingsRepository {
 struct UnreadableProfiles: ProfileRepository {
     struct Failure: Error {}
     func fetchProfile() async throws -> PlayerProfile? { throw Failure() }
-    func save(_ profile: PlayerProfile) async throws { throw Failure() }
+    func create(_ profile: PlayerProfile) async throws { throw Failure() }
+    func save(_ edit: FamilyEdit) async throws { throw Failure() }
+    func save(_ edit: HeroEdit) async throws { throw Failure() }
 }
 
 actor FakeSagaOffers: SagaOfferRepository {

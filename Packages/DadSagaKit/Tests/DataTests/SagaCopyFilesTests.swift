@@ -61,7 +61,7 @@ struct SagaCopyFilesTests: SagaCopyBench {
         let made = try await make(on: old).execute(on: madeAt) { _ in }
         let new = phone("new")
         let other = Child(name: "Άρης", birthDay: .day(2022, 1, 1))
-        try await new.store.profiles.save(PlayerProfile(children: [other], heroClassID: "h-coach"))
+        try await new.store.profiles.create(PlayerProfile(children: [other], heroClassID: "h-coach"))
         let photo = try await new.photos.save(try png(width: 30, height: 30))
         let sea = ProgressEvent(kind: .first(id: "f-sea"), childID: other.id, date: madeAt, photoIDs: [photo])
         try await new.store.progress.add(sea)
@@ -82,14 +82,14 @@ struct SagaCopyFilesTests: SagaCopyBench {
         _ = try await fill(old)
         let made = try await make(on: old).execute(on: madeAt) { _ in }
         let new = phone("new")
-        try await new.store.profiles.save(PlayerProfile(children: [Child(name: "Άρης", birthDay: nil)], heroClassID: "h-coach"))
+        try await new.store.profiles.create(PlayerProfile(children: [Child(name: "Άρης", birthDay: nil)], heroClassID: "h-coach"))
         _ = try await new.store.progress.fetchEvents()
         _ = try await new.store.outfit.fetchOutfit()
 
         try await restore(on: new).restore(try await restore(on: new).open(fileAt: made.url) { _ in }, on: madeAt)
         var profile = try #require(try await new.store.profiles.fetchProfile())
         profile.children[0].name = "Λενάκι"
-        try await new.store.profiles.save(profile)
+        try await new.store.profiles.save(FamilyEdit(changed: [ChildEdit(child: profile.children[0], fields: [.name])]))
         let quest = ProgressEvent(kind: .quest(id: "q-w1-skin-to-skin"), childID: lena.id, date: madeAt)
         try await new.store.progress.add(quest)
         _ = try await new.store.outfit.setChoice(.automatic, for: .play)
@@ -108,7 +108,7 @@ struct SagaCopyFilesTests: SagaCopyBench {
         defer { try? FileManager.default.removeItem(at: root) }
         let folder = root.appending(path: "phone/store")
         let app = LocalStore.live(in: folder)
-        try await app.profiles.save(PlayerProfile(children: [lena], heroClassID: "h-chef"))
+        try await app.profiles.create(PlayerProfile(children: [lena], heroClassID: "h-chef"))
         try await app.progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: lena.id, date: madeAt))
         let before = try await app.wholeSaga.readAll()
         let readOnly = LocalStore.live(in: folder, readOnly: true)
@@ -132,7 +132,7 @@ struct SagaCopyFilesTests: SagaCopyBench {
             store: LocalStore.live(in: folder), photos: FilePhotoStore.moments(in: root.appending(path: "new")),
             files: AppleArchiveSagaCopyFiles(app: "test", folder: root.appending(path: "new/tmp")), offers: MemoryOffers()
         )
-        try await new.store.profiles.save(PlayerProfile(children: [Child(name: "Άρης", birthDay: nil)], heroClassID: "h-coach"))
+        try await new.store.profiles.create(PlayerProfile(children: [Child(name: "Άρης", birthDay: nil)], heroClassID: "h-coach"))
         let widget = LocalStore.live(in: folder, readOnly: true)
         _ = try await widget.profiles.fetchProfile()
 
