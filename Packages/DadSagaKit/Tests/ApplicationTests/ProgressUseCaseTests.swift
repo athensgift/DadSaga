@@ -16,6 +16,7 @@ struct ProgressUseCaseTests {
         let sut = DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: repository,
+            profileRepository: TheDad(),
             photoStore: photos
         )
 
@@ -37,6 +38,7 @@ struct ProgressUseCaseTests {
         _ = try await DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: repository,
+            profileRepository: TheDad(),
             photoStore: photos
         )
             .execute(questID: "q1", childID: child, on: today, journal: JournalInput(note: "a", photos: [Data([1])]))
@@ -58,6 +60,7 @@ struct ProgressUseCaseTests {
         let sut = DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: repository,
+            profileRepository: TheDad(),
             photoStore: photos
         )
 
@@ -74,6 +77,7 @@ struct ProgressUseCaseTests {
         let sut = DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: repository,
+            profileRepository: TheDad(),
             photoStore: photos
         )
 
@@ -89,6 +93,7 @@ struct ProgressUseCaseTests {
         let sut = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: repository,
+            profileRepository: TheDad(),
             photoStore: photos
         )
 
@@ -105,6 +110,7 @@ struct ProgressUseCaseTests {
         let sut = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: repository,
+            profileRepository: TheDad(),
             photoStore: photos
         )
         _ = try await sut.execute(bossID: "b1", childID: child, on: today, journal: .empty)
@@ -123,6 +129,7 @@ struct ProgressUseCaseTests {
         let sut = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: repository,
+            profileRepository: TheDad(),
             photoStore: photos
         )
         _ = try await sut.execute(bossID: "b1", childID: child, on: today, journal: .empty)
@@ -139,6 +146,7 @@ struct ProgressUseCaseTests {
         let sut = DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: repository,
+            profileRepository: TheDad(),
             photoStore: photos
         )
         _ = try await sut.execute(questID: "q1", childID: child, on: today, journal: .empty)
@@ -149,11 +157,42 @@ struct ProgressUseCaseTests {
         #expect(try await repository.fetchEvents().count == 2)
     }
 
+    @Test("Given a dad's profile, when he completes a quest and defeats a boss, then both entries are his")
+    func entriesAreTheDads() async throws {
+        let repository = SpyProgressRepository()
+        let dad = TheDad(profile: PlayerProfile(id: UUID(), children: [Child(name: "Λένα", birthDay: nil)], heroClassID: "h1"))
+        _ = try await DefaultCompleteQuestUseCase(
+            contentRepository: content, progressRepository: repository, profileRepository: dad, photoStore: photos
+        ).execute(questID: "q1", childID: child, on: today, journal: .empty)
+        _ = try await DefaultDefeatBossUseCase(
+            contentRepository: content, progressRepository: repository, profileRepository: dad, photoStore: photos
+        ).execute(bossID: "b1", childID: child, on: today, journal: .empty)
+
+        #expect(try await repository.fetchEvents().map(\.authorID) == [dad.profile.id, dad.profile.id])
+    }
+
+    @Test("Given no profile, when recording a quest with a photo, then it throws noProfile and stores no entry and no photo")
+    func noProfileRecordsNothing() async throws {
+        let repository = SpyProgressRepository()
+        let store = SpyPhotoStore()
+        let sut = DefaultCompleteQuestUseCase(
+            contentRepository: content, progressRepository: repository, profileRepository: SpyProfileRepository(),
+            photoStore: store
+        )
+
+        await #expect(throws: ProgressError.noProfile) {
+            try await sut.execute(questID: "q1", childID: child, on: today, journal: JournalInput(photos: [Data([1])]))
+        }
+        #expect(try await repository.fetchEvents().isEmpty)
+        #expect(await store.saveCount == 0)
+    }
+
     @Test("Given another save of the same boss landed first, when defeating it, then nothing is added and no photo is kept")
     func bossRace() async throws {
         let sut = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: LosesRace(),
+            profileRepository: TheDad(),
             photoStore: photos
         )
 
@@ -170,11 +209,13 @@ struct ProgressUseCaseTests {
         let quest = DefaultCompleteQuestUseCase(
             contentRepository: content,
             progressRepository: failing,
+            profileRepository: TheDad(),
             photoStore: photos
         )
         let boss = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: failing,
+            profileRepository: TheDad(),
             photoStore: photos
         )
 
@@ -194,6 +235,7 @@ struct ProgressUseCaseTests {
         let sut = DefaultDefeatBossUseCase(
             contentRepository: content,
             progressRepository: repository,
+            profileRepository: TheDad(),
             photoStore: photos
         )
 

@@ -10,6 +10,7 @@ extension ProgressEventRecord {
         }
         self.init(
             eventID: event.id,
+            authorID: event.authorID,
             kind: kind,
             contentID: contentID,
             childID: event.childID,
@@ -28,6 +29,8 @@ extension ProgressEventRecord {
         case "first": eventKind = .first(id: contentID)
         default: return nil
         }
-        return ProgressEvent(id: eventID, kind: eventKind, childID: childID, date: date, note: note, photoIDs: photoIDs)
+        return ProgressEvent(
+            id: eventID, authorID: authorID, kind: eventKind, childID: childID, date: date, note: note, photoIDs: photoIDs
+        )
     }
 }

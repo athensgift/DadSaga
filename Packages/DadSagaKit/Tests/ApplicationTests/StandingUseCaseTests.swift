@@ -29,7 +29,9 @@ struct StandingUseCaseTests {
     let content = StubContentRepository(result: .success(Self.catalog))
 
     func quest(_ progress: any ProgressRepository) -> DefaultCompleteQuestUseCase {
-        DefaultCompleteQuestUseCase(contentRepository: content, progressRepository: progress, photoStore: photos)
+        DefaultCompleteQuestUseCase(
+            contentRepository: content, progressRepository: progress, profileRepository: TheDad(), photoStore: photos
+        )
     }
 
     func delete(_ progress: any ProgressRepository, _ standing: InMemoryStanding) -> DefaultDeleteEventUseCase {

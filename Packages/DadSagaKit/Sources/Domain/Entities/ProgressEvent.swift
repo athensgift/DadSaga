@@ -17,6 +17,9 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
     }
 
     public let id: UUID
+    /// Who recorded it: a player's id (`PlayerProfile.id`). Any id, since a copy may hold a partner's entries
+    /// (ADR-0065 §5). An edit never changes it.
+    public let authorID: UUID
     public let kind: Kind
     /// The child it happened with. Every event has one (ADR-0026).
     public let childID: UUID
@@ -35,6 +38,7 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
 
     public init(
         id: UUID = UUID(),
+        authorID: UUID,
         kind: Kind,
         childID: UUID,
         date: Date,
@@ -42,6 +46,7 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
         photoIDs: [String] = []
     ) {
         self.id = id
+        self.authorID = authorID
         self.kind = kind
         self.childID = childID
         self.date = date

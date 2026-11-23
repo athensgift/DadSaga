@@ -19,6 +19,7 @@ struct MomentUseCaseTests {
         DefaultCaptureMomentUseCase(
             contentRepository: content,
             progressRepository: repository,
+            profileRepository: TheDad(),
             photoStore: photos
         )
     }
@@ -107,6 +108,24 @@ struct MomentUseCaseTests {
         #expect(updated.photoIDs.count == 1)
         #expect(updated.photoIDs != moment.photoIDs)
         #expect(await photos.stored == [try #require(updated.coverPhotoID): Data([2])])
+    }
+
+    @Test("Given a moment captured by the dad, then it is his; given a partner's entry, when edited, then it stays theirs")
+    func authorsStay() async throws {
+        let moment = try await captured()
+        #expect(moment.authorID == .testDad)
+
+        let partner = UUID()
+        let theirs = ProgressEvent(authorID: partner, kind: .quest(id: "q1"), childID: child, date: today)
+        try await repository.add(theirs)
+        try await DefaultUpdateJournalUseCase(progressRepository: repository, photoStore: photos)
+            .execute(eventID: theirs.id, note: "μαζί", photos: [.added(Data([3]))])
+        try await update.execute(momentID: moment.id, happenedOn: moment.date, note: "x", photos: [], now: today)
+
+        let events = try await repository.fetchEvents()
+        #expect(events.first { $0.id == theirs.id }?.authorID == partner)
+        #expect(events.first { $0.id == theirs.id }?.note == "μαζί")
+        #expect(events.first { $0.id == moment.id }?.authorID == .testDad)
     }
 
     @Test("Given saving fails, when replacing a moment's photo, then the new photo is removed and the old one stays")
@@ -230,18 +249,51 @@ struct FailingUpdates: ProgressRepository {
 
 @Suite("GetTimelineUseCase")
 struct GetTimelineUseCaseTests {
+    let content = StubContentRepository(result: .success(Stub.catalog))
+    let family = Child(name: "Λένα", birthDay: nil)
+
+    func saga(removed: [Child] = [], events: [ProgressEvent]) -> StoredSaga {
+        StoredSaga(
+            profile: PlayerProfile(children: [family], heroClassID: "h1"), removedChildren: removed, events: events,
+            outfit: Outfit(), kept: KeptStanding()
+        )
+    }
+
     @Test("Given stored events, when executing, then the timeline is built from them and the catalog")
     func buildsTimeline() async throws {
-        let repository = SpyProgressRepository()
         let quest = try #require(Stub.catalog.quests.first)
-        try await repository.add(ProgressEvent(kind: .quest(id: quest.id), childID: UUID(), date: .now))
-        let sut = DefaultGetTimelineUseCase(
-            contentRepository: StubContentRepository(result: .success(Stub.catalog)),
-            progressRepository: repository
-        )
+        let events = [ProgressEvent(kind: .quest(id: quest.id), childID: family.id, date: .now)]
+        let sut = DefaultGetTimelineUseCase(contentRepository: content, wholeSaga: StoredWholeSaga(saga: saga(events: events)))
 
         let entries = try await sut.execute()
 
         #expect(entries.map(\.xp) == [quest.xp])
     }
+
+    @Test("Given entries of a removed child and of a child deleted, when executing, then only the removed one's are left out")
+    func removedChildrenAreLeftOut() async throws {
+        let quest = try #require(Stub.catalog.quests.first)
+        let removed = Child(name: "Ίρις", birthDay: nil)
+        let ours = ProgressEvent(kind: .quest(id: quest.id), childID: family.id, date: .now)
+        let deletedChilds = ProgressEvent(kind: .quest(id: quest.id), childID: UUID(), date: .now.addingTimeInterval(-60))
+        let removedChilds = ProgressEvent(kind: .quest(id: quest.id), childID: removed.id, date: .now)
+        let stored = saga(removed: [removed], events: [deletedChilds, ours, removedChilds])
+
+        let entries = try await DefaultGetTimelineUseCase(contentRepository: content, wholeSaga: StoredWholeSaga(saga: stored))
+            .execute()
+        let none = try await DefaultGetTimelineUseCase(contentRepository: content, wholeSaga: StoredWholeSaga(saga: nil))
+            .execute()
+
+        #expect(Set(entries.map(\.id)) == [ours.id, deletedChilds.id])
+        #expect(none.isEmpty)
+    }
+}
+
+/// A saga as `WholeSagaRepository` reads it; writes are not expected.
+struct StoredWholeSaga: WholeSagaRepository {
+    let saga: StoredSaga?
+
+    func readAll() async throws -> StoredSaga? { saga }
+    func replaceAll(with saga: StoredSaga) async throws { Issue.record("Not expected") }
+    func eraseAll() async throws { Issue.record("Not expected") }
 }

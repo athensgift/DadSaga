@@ -55,21 +55,59 @@ struct StoreVersioningTests {
         #expect(try Data(contentsOf: storeURL) == junk)
     }
 
-    @Test("Given two profile rows and a child stored twice, when the family is saved, then one of each remains")
-    func saveCleansDuplicates() async throws {
+    @Test("Given two profile rows, when the family is saved, then one profile remains")
+    func saveKeepsOneProfile() async throws {
         let child = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
         try writeRows { context in
             context.insert(ProfileRecord(profile: PlayerProfile(children: [], heroClassID: "old", dadSkinTone: .light)))
-            context.insert(ProfileRecord(profile: PlayerProfile(children: [], heroClassID: "older", dadSkinTone: .dark)))
-            context.insert(ChildRecord(child: child, order: 0))
-            context.insert(ChildRecord(child: child, order: 1))
+            context.insert(ProfileRecord(profile: PlayerProfile(
+                id: UUID(), children: [], heroClassID: "older", dadSkinTone: .dark
+            )))
+            context.insert(ChildRecord(child: child, order: 0, isRemoved: false))
         }
         let store = LocalStore.live(in: directory)
-        let profile = PlayerProfile(children: [child], heroClassID: "chef", dadSkinTone: .medium)
 
-        try await store.profiles.save(profile)
+        try await store.profiles.save(PlayerProfile(children: [child], heroClassID: "chef", dadSkinTone: .medium))
 
-        #expect(try await store.profiles.fetchProfile() == profile)
+        let stored = try #require(try await store.profiles.fetchProfile())
+        #expect(stored.heroClassID == "chef")
+        #expect(stored.children == [child])
+        #expect(try storedRowCount(ProfileRecord.self, at: storeURL) == 1)
+    }
+
+    @Test("Given a removed child, when a family naming their id is saved, then their row stays removed and as it was")
+    func familySaveNeverBringsBack() async throws {
+        let lena = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
+        let iris = Child(name: "Ίρις", birthDay: nil)
+        let store = LocalStore.live(in: directory)
+        try await store.wholeSaga.replaceAll(with: StoredSaga(
+            profile: PlayerProfile(children: [lena], heroClassID: "chef"), removedChildren: [iris], events: [],
+            outfit: Outfit(), kept: KeptStanding()
+        ))
+        var renamed = iris
+        renamed.name = "Άλλη"
+
+        try await store.profiles.save(PlayerProfile(children: [renamed, lena], heroClassID: "chef"))
+
+        #expect(try await store.profiles.fetchProfile()?.children == [lena])
+        #expect(try await store.wholeSaga.readAll()?.removedChildren == [iris])
+        #expect(try storedRowCount(ChildRecord.self, at: storeURL) == 2)
+    }
+
+    @Test("Given a dad onboarded, when his hero and family are edited and the store reopened, then his id is the first")
+    func theProfileKeepsItsID() async throws {
+        let id = UUID()
+        let lena = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
+        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(id: id, children: [lena], heroClassID: "chef"))
+
+        try await LocalStore.live(in: directory).profiles.save(PlayerProfile(
+            id: UUID(), children: [lena, Child(name: "Νίκος", birthDay: nil)], heroClassID: "h-cool", dadSkinTone: .dark
+        ))
+
+        let reopened = try #require(try await LocalStore.live(in: directory).profiles.fetchProfile())
+        #expect(reopened.id == id)
+        #expect(reopened.heroClassID == "h-cool")
+        #expect(reopened.children.count == 2)
     }
 
     @Test("Given a saved family, when one child is renamed, one removed and one added, then exactly that family comes back")

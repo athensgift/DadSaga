@@ -168,11 +168,13 @@ final class AppContainer {
                 completeQuest: DefaultCompleteQuestUseCase(
                     contentRepository: contentRepository,
                     progressRepository: store.progress,
+                    profileRepository: store.profiles,
                     photoStore: photoStore
                 ),
                 defeatBoss: DefaultDefeatBossUseCase(
                     contentRepository: contentRepository,
                     progressRepository: store.progress,
+                    profileRepository: store.profiles,
                     photoStore: photoStore
                 ),
                 deleteEvent: DefaultDeleteEventUseCase(
@@ -191,6 +193,7 @@ final class AppContainer {
                     capture: DefaultCaptureMomentUseCase(
                         contentRepository: contentRepository,
                         progressRepository: store.progress,
+                        profileRepository: store.profiles,
                         photoStore: photoStore
                     ),
                     update: DefaultUpdateMomentUseCase(progressRepository: store.progress, photoStore: photoStore),
@@ -269,7 +272,7 @@ final class AppContainer {
     func makeTimelineViewModel() -> TimelineViewModel {
         TimelineViewModel(
             getProfile: getProfileUseCase,
-            getTimeline: DefaultGetTimelineUseCase(contentRepository: contentRepository, progressRepository: store.progress),
+            getTimeline: DefaultGetTimelineUseCase(contentRepository: contentRepository, wholeSaga: store.wholeSaga),
             getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore),
             deleteEvent: DefaultDeleteEventUseCase(
                 contentRepository: contentRepository,

@@ -22,6 +22,8 @@ extension SagaCopyBench {
         Child(id: SagaCopyPeople.lenaID, name: "Λένα 🌟", birthDay: .day(2023, 11, 14), gender: .girl, skinTone: .medium)
     }
     var unborn: Child { Child(id: SagaCopyPeople.unbornID, name: "Μπέμπης", birthDay: nil, gender: .boy, skinTone: .dark) }
+    /// A child removed from the family, as only a copy from a co-op version can bring one (ADR-0065 §5).
+    var removed: Child { Child(id: SagaCopyPeople.removedID, name: "Ίρις", birthDay: .day(2022, 3, 1)) }
 
     func phone(_ name: String) -> Phone {
         let folder = root.appending(path: name)
@@ -48,13 +50,14 @@ extension SagaCopyBench {
 
     /// A saga with every kind of thing a copy carries: a born child and one not born yet, a quest, a boss and firsts;
     /// two ids the content no longer has and one from the future; notes in Greek with emoji; none to five photos; a
-    /// hidden slot and a chosen item; a title kept; film offers answered.
+    /// hidden slot and a chosen item; a title kept; film offers answered; a removed child, and an entry with them by the
+    /// partner.
     func fill(
         _ phone: Phone,
         kept: KeptStanding = KeptStanding(titleID: "t-new-to-the-journey", seenTitleID: "t-new-to-the-journey")
     ) async throws -> [String] {
         try await phone.store.profiles.save(PlayerProfile(
-            children: [lena, unborn], heroClassID: "h-chef", dadSkinTone: .mediumDark,
+            id: SagaCopyPeople.dadID, children: [lena, unborn], heroClassID: "h-chef", dadSkinTone: .mediumDark,
             dadAppearance: DadAppearance(hair: .curly, hairColor: .grey, beard: .none, glasses: .round), hasPartner: false
         ))
         var photoIDs: [String] = []
@@ -62,20 +65,25 @@ extension SagaCopyBench {
             photoIDs.append(try await phone.photos.save(try png(width: side, height: side / 2)))
         }
         let events = [
-            ProgressEvent(kind: .quest(id: "q-w2-car-seat"), childID: lena.id, date: madeAt.addingTimeInterval(-9_000.5)),
-            ProgressEvent(kind: .boss(id: "b-w1-first-fever"), childID: lena.id, date: madeAt.addingTimeInterval(-8_000),
-                          note: "Δύσκολη νύχτα 😅\nαλλά τα καταφέραμε", photoIDs: [photoIDs[0]]),
-            ProgressEvent(kind: .quest(id: "q-w1-tummy-time"), childID: lena.id, date: madeAt.addingTimeInterval(-7_000)),
-            ProgressEvent(kind: .first(id: "f-steps"), childID: lena.id, date: madeAt.addingTimeInterval(-6_000),
-                          note: "", photoIDs: Array(photoIDs[1...5])),
-            ProgressEvent(kind: .quest(id: "q-from-the-future"), childID: unborn.id, date: madeAt.addingTimeInterval(-5_000))
+            dads(.quest(id: "q-w2-car-seat"), childID: lena.id, date: madeAt.addingTimeInterval(-9_000.5)),
+            dads(.boss(id: "b-w1-first-fever"), childID: lena.id, date: madeAt.addingTimeInterval(-8_000),
+                 note: "Δύσκολη νύχτα 😅\nαλλά τα καταφέραμε", photoIDs: [photoIDs[0]]),
+            dads(.quest(id: "q-w1-tummy-time"), childID: lena.id, date: madeAt.addingTimeInterval(-7_000)),
+            dads(.first(id: "f-steps"), childID: lena.id, date: madeAt.addingTimeInterval(-6_000),
+                 note: "", photoIDs: Array(photoIDs[1...5])),
+            dads(.quest(id: "q-from-the-future"), childID: unborn.id, date: madeAt.addingTimeInterval(-5_000))
         ]
         for event in events { try await phone.store.progress.add(event) }
         _ = try await phone.store.outfit.setChoice(.hidden, for: .play)
         _ = try await phone.store.outfit.setChoice(.item("g-mug"), for: .care)
+        let partners = ProgressEvent(
+            authorID: SagaCopyPeople.partnerID, kind: .first(id: "f-smile"), childID: removed.id,
+            date: madeAt.addingTimeInterval(-4_000), note: "Χαμόγελο"
+        )
         try await phone.store.wholeSaga.replaceAll(with: StoredSaga(
             profile: try #require(try await phone.store.profiles.fetchProfile()),
-            events: try await phone.store.progress.fetchEvents(),
+            removedChildren: [removed],
+            events: try await phone.store.progress.fetchEvents() + [partners],
             outfit: try await phone.store.outfit.fetchOutfit(),
             kept: kept
         ))
@@ -115,6 +123,13 @@ extension SagaCopyBench {
         return (try ArchiveFiles.entries(of: url), target)
     }
 
+    /// An entry by the dad of `fill`'s saga.
+    func dads(
+        _ kind: ProgressEvent.Kind, childID: UUID, date: Date, note: String? = nil, photoIDs: [String] = []
+    ) -> ProgressEvent {
+        ProgressEvent(authorID: SagaCopyPeople.dadID, kind: kind, childID: childID, date: date, note: note, photoIDs: photoIDs)
+    }
+
     func png(width: Int, height: Int) throws -> Data {
         let context = try #require(CGContext(
             data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
@@ -139,8 +154,11 @@ extension SagaCopyBench {
 }
 
 enum SagaCopyPeople {
+    static let dadID = UUID()
+    static let partnerID = UUID()
     static let lenaID = UUID()
     static let unbornID = UUID()
+    static let removedID = UUID()
 }
 
 /// A phone: its store, its photos and the folder its copies go to.

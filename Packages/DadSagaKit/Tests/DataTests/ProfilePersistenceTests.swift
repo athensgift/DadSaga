@@ -127,6 +127,7 @@ struct LocalStoreTests {
     @Test("Given a stored look part this version doesn't know, when reading, then that part is the standard one")
     func unknownStoredPart() {
         let record = ProfileRecord(
+            profileID: .testDad,
             heroClassID: "h-cool", dadSkinTone: "dark", hairStyle: "mohawk", hairColor: "grey", beard: "braided",
             glasses: "round", hasPartner: true
         )
@@ -139,13 +140,30 @@ struct LocalStoreTests {
     @Test("Given stored events, when fetching, then they come back oldest first with their ids and kinds")
     func progressRoundTrip() async throws {
         let sut = LocalStore.inMemory().progress
-        let later = ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth.addingTimeInterval(60), note: "Γέλασε")
+        let later = ProgressEvent(
+            authorID: UUID(), kind: .first(id: "f1"), childID: UUID(), date: birth.addingTimeInterval(60), note: "Γέλασε"
+        )
         let earlier = ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: birth)
 
         try await sut.add(later)
         try await sut.add(earlier)
 
         #expect(try await sut.fetchEvents() == [earlier, later])
+    }
+
+    @Test("Given a stored entry, when it is updated with another author, then the stored author stays")
+    func updateKeepsTheAuthor() async throws {
+        let sut = LocalStore.inMemory().progress
+        let entry = ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth)
+        try await sut.add(entry)
+
+        try await sut.update(ProgressEvent(
+            id: entry.id, authorID: UUID(), kind: entry.kind, childID: entry.childID, date: birth, note: "μετά"
+        ))
+
+        let stored = try #require(try await sut.fetchEvents().first)
+        #expect(stored.authorID == .testDad)
+        #expect(stored.note == "μετά")
     }
 
     @Test("Given a stored moment, when updating then deleting it, then the changes are stored and other events stay")
@@ -177,6 +195,23 @@ struct LocalStoreTests {
         #expect(try await sut.fetchOutfit() == outfit)
 
         #expect(try await sut.setChoice(.automatic, for: .care) == Outfit(choices: [.play: .hidden]))
+    }
+
+    @Test("Given a stored choice, when it changes and then goes automatic, then the store holds one row, then none")
+    func outfitKeepsOneRowPerSlot() async throws {
+        let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-outfit-rows-" + UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let sut = LocalStore.live(in: directory).outfit
+        let url = directory.appending(path: "DadSaga.store")
+
+        _ = try await sut.setChoice(.hidden, for: .care)
+        let changed = try await sut.setChoice(.item("g-burp-cloth"), for: .care)
+        #expect(changed == Outfit(choices: [.care: .item("g-burp-cloth")]))
+        #expect(try storedRowCount(OutfitRecord.self, at: url) == 1)
+
+        #expect(try await sut.setChoice(.automatic, for: .care) == Outfit())
+        #expect(try storedRowCount(OutfitRecord.self, at: url) == 0)
+        #expect(try await LocalStore.live(in: directory).outfit.fetchOutfit() == Outfit())
     }
 
     @Test("Given two slots changed at the same moment, when both run, then both choices are kept")

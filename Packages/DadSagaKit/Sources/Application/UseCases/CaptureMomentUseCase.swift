@@ -33,11 +33,13 @@ public struct DefaultCaptureMomentUseCase: CaptureMomentUseCase {
     public init(
         contentRepository: any ContentRepository,
         progressRepository: any ProgressRepository,
+        profileRepository: any ProfileRepository,
         photoStore: any PhotoStore
     ) {
         recorder = ProgressRecorder(
             contentRepository: contentRepository,
             progressRepository: progressRepository,
+            profileRepository: profileRepository,
             photoStore: photoStore
         )
     }

@@ -5,7 +5,8 @@ import SwiftData
 import Testing
 @testable import Data
 
-/// An older shape: `hasPartner` and `childID` optional, and a column `SchemaV1` doesn't have.
+/// An older shape: `hasPartner` and `childID` optional, and a column `SchemaV1` doesn't have. Every column `SchemaV1`
+/// requires is here with a value, so only the nil decides what the app does with it.
 enum OlderSchema: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(0, 9, 0) }
 
@@ -15,6 +16,7 @@ enum OlderSchema: VersionedSchema {
 
     @Model
     final class ProfileRecord {
+        var profileID = UUID()
         var heroClassID: String
         var dadSkinTone: String = "mediumLight"
         var hairStyle: String?
@@ -41,6 +43,7 @@ enum OlderSchema: VersionedSchema {
         var gender: String
         var skinTone: String
         var order: Int
+        var isRemoved = false
 
         init(childID: UUID) {
             self.childID = childID
@@ -54,6 +57,7 @@ enum OlderSchema: VersionedSchema {
     @Model
     final class ProgressEventRecord {
         var eventID = UUID()
+        var authorID = UUID()
         var kind = "quest"
         var contentID = "q1"
         var childID: UUID?

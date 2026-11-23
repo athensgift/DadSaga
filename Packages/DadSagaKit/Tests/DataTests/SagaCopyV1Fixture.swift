@@ -19,27 +19,39 @@ enum SagaCopyV1Fixture {
     static let baby = Child(
         id: id("BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB"), name: "Μπέμπης", birthDay: nil, gender: .boy, skinTone: .light
     )
+    /// Removed from the family in a co-op version (ADR-0065 §4), with an entry by the partner.
+    static let iris = Child(
+        id: id("CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC"), name: "Ίρις", birthDay: CalendarDay(year: 2023, month: 6, day: 1),
+        gender: .girl, skinTone: .medium
+    )
+    static let heroID = id("D0000000-0000-4000-8000-00000000000D")
+    static let partnerID = id("F0000000-0000-4000-8000-00000000000F")
     static let copy = SagaCopy(
         saga: StoredSaga(
             profile: PlayerProfile(
-                children: [eleni, baby], heroClassID: "h-cool", dadSkinTone: .dark,
+                id: heroID, children: [eleni, baby], heroClassID: "h-cool", dadSkinTone: .dark,
                 dadAppearance: DadAppearance(hair: .long, hairColor: .red, beard: .short, glasses: .round),
                 hasPartner: false
             ),
+            removedChildren: [iris],
             events: [
-                ProgressEvent(id: id("E0000000-0000-0000-0000-000000000001"), kind: .boss(id: "b-w1-first-fever"),
+                ProgressEvent(id: id("E0000000-0000-0000-0000-000000000001"), authorID: heroID,
+                              kind: .boss(id: "b-w1-first-fever"),
                               childID: eleni.id, date: Date(timeIntervalSinceReferenceDate: 790_000_000.25),
                               note: "Τα καταφέραμε 💪\nμαζί", photoIDs: [photoIDs[0], photoIDs[1]]),
-                ProgressEvent(id: id("E0000000-0000-0000-0000-000000000002"), kind: .quest(id: "q-w2-car-seat"),
+                ProgressEvent(id: id("E0000000-0000-0000-0000-000000000002"), authorID: heroID, kind: .quest(id: "q-w2-car-seat"),
                               childID: eleni.id, date: Date(timeIntervalSinceReferenceDate: 790_100_000)),
-                ProgressEvent(id: id("E0000000-0000-0000-0000-000000000003"), kind: .first(id: "f-from-the-future"),
-                              childID: baby.id, date: Date(timeIntervalSinceReferenceDate: 790_200_000), note: "",
-                              photoIDs: [photoIDs[2]])
+                ProgressEvent(id: id("E0000000-0000-0000-0000-000000000003"), authorID: heroID,
+                              kind: .first(id: "f-from-the-future"), childID: baby.id,
+                              date: Date(timeIntervalSinceReferenceDate: 790_200_000), note: "", photoIDs: [photoIDs[2]]),
+                ProgressEvent(id: id("E0000000-0000-0000-0000-000000000004"), authorID: partnerID,
+                              kind: .first(id: "f-smile"), childID: iris.id,
+                              date: Date(timeIntervalSinceReferenceDate: 790_250_000), note: "Χαμογέλασε")
             ],
             outfit: Outfit(choices: [.care: .item("g-burp-cloth"), .play: .hidden]),
             kept: KeptStanding(titleID: "t-new-to-the-journey", seenTitleID: "t-new-to-the-journey")
         ),
-        answeredOccasionIDs: ["eleni/birthday/1", "eleni/world/w2"],
+        answeredOccasionIDs: ["eleni/birthday/1", "eleni/world/w2", "iris/birthday/1"],
         madeAt: Date(timeIntervalSinceReferenceDate: 790_300_000.5)
     )
 

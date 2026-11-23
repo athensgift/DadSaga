@@ -98,7 +98,9 @@ public final class OnboardingViewModel {
         // The last error goes as the next try starts, so the same error again is read out again.
         errorMessage = nil
         do {
+            // Who this player is, from now on the author of every entry (ADR-0065 §5).
             let profile = PlayerProfile(
+                id: UUID(),
                 children: family.children.map(\.child),
                 heroClassID: selectedHeroID,
                 dadSkinTone: family.dadSkinTone.domain,

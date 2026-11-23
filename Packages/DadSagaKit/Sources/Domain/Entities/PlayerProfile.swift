@@ -1,10 +1,16 @@
 import Foundation
 
 /// Who is playing: the dad's hero and look, and his children (the companions).
-public struct PlayerProfile: Hashable, Sendable {
+public struct PlayerProfile: Hashable, Identifiable, Sendable {
+    /// The most children "My family" adds (`ProfileRules`). A family may hold more: a copy from a version where two
+    /// parents add children may bring them (ADR-0065 §4).
     public static let maxChildren = 4
 
-    /// In the order the dad entered them. Always 1...`maxChildren` once validated.
+    /// Who this player is: made once at onboarding, or brought by a copy (ADR-0065 §5). Every entry this player records
+    /// carries it as its author. It never changes while the saga is on the iPhone.
+    public let id: UUID
+    /// The children in the family, in the order the dad entered them, at least one once validated. A child removed from
+    /// the family is never here (ADR-0065 §4).
     public var children: [Child]
     public var heroClassID: String
     public var dadSkinTone: SkinTone
@@ -20,12 +26,14 @@ public struct PlayerProfile: Hashable, Sendable {
 
     /// Without a look, the dad has the standard look for his skin tone.
     public init(
+        id: UUID,
         children: [Child],
         heroClassID: String,
         dadSkinTone: SkinTone = .mediumLight,
         dadAppearance: DadAppearance? = nil,
         hasPartner: Bool = true
     ) {
+        self.id = id
         self.children = children
         self.heroClassID = heroClassID
         self.dadSkinTone = dadSkinTone

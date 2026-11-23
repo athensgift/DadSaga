@@ -40,7 +40,8 @@ public struct DefaultUpdateHeroUseCase: UpdateHeroUseCase {
         profile.dadSkinTone = skinTone
         profile.dadAppearance = appearance
         let valid = try ProfileRules.validated(
-            profile, on: CalendarDay(date, in: timeZone), heroClasses: try await catalog.heroClasses
+            profile, on: CalendarDay(date, in: timeZone), heroClasses: try await catalog.heroClasses,
+            storedCount: profile.children.count
         )
         try await profileRepository.save(valid)
     }
@@ -59,7 +60,9 @@ public struct DefaultUpdateFamilyUseCase: UpdateFamilyUseCase {
 
     public func execute(children: [Child], hasPartner: Bool, on date: Date) async throws {
         guard var profile = try await profileRepository.fetchProfile() else { throw ProfileEditError.noProfile }
-        profile.children = try ProfileRules.validatedChildren(children, on: CalendarDay(date, in: timeZone))
+        profile.children = try ProfileRules.validatedChildren(
+            children, on: CalendarDay(date, in: timeZone), storedCount: profile.children.count
+        )
         profile.hasPartner = hasPartner
         try await profileRepository.save(profile)
     }

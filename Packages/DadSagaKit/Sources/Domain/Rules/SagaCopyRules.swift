@@ -2,8 +2,8 @@ import Foundation
 
 /// Why a saga read from a copy can't be stored as it is.
 public enum SagaCopyRuleError: Error, Equatable, Sendable {
-    /// None, or more than `PlayerProfile.maxChildren`.
-    case childCount
+    /// No child in the family: none at all, or every one removed.
+    case noChild
     case duplicateChild
     case emptyChildName
     case duplicateEntry
@@ -16,13 +16,17 @@ public enum SagaCopyRuleError: Error, Equatable, Sendable {
 /// What a saga from a copy must be before it replaces the one on the phone (ADR-0057 §7): what the store itself can't
 /// hold or the app could never have written.
 ///
+/// The family may hold any number of children from one (ADR-0065 §5): a version where two parents add children writes
+/// copies with more than `PlayerProfile.maxChildren`, the limit on adding. Ids are unique, and names non-empty, across
+/// every child, removed ones included.
+///
 /// Deliberately not checked: content ids and the hero (unknown ones are handled as everywhere, ADR-0048 §5), a birth
-/// day after today (a copy made in another time zone), and an entry whose child has left the family (the app keeps
-/// those too).
+/// day after today (a copy made in another time zone), an entry whose child has left the family (the app keeps those
+/// too), and an entry's author (a partner's entries carry theirs).
 public enum SagaCopyRules {
     public static func checked(_ saga: StoredSaga) throws(SagaCopyRuleError) {
-        let children = saga.profile.children
-        guard (1...PlayerProfile.maxChildren).contains(children.count) else { throw .childCount }
+        guard !saga.profile.children.isEmpty else { throw .noChild }
+        let children = saga.profile.children + saga.removedChildren
         guard Set(children.map(\.id)).count == children.count else { throw .duplicateChild }
         guard children.allSatisfy({ !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) else {
             throw .emptyChildName

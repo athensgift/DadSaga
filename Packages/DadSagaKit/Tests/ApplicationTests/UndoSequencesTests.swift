@@ -114,7 +114,7 @@ struct UndoSequencesTests {
 
         func record(questID: String) async throws -> UUID? {
             try await DefaultCompleteQuestUseCase(
-                contentRepository: content, progressRepository: progress, photoStore: photos
+                contentRepository: content, progressRepository: progress, profileRepository: TheDad(), photoStore: photos
             )
             .execute(questID: questID, childID: UUID(), on: .now, journal: .empty).eventID
         }
