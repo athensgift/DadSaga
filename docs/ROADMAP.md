@@ -43,7 +43,9 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   release writes.
 - iCloud and partner co-op: designed in ADR-0065. ✅ Its PR 1 (a profile id, the entries' authors, a
   child's `isRemoved` and `#Unique` ids in `SchemaV1`, and the same in a copy), before the first App Store release
-  branch; the rest is Phase 5.
+  branch. ✅ PR 2 (two players, every change says what changed) and PR 3 (removed children: removing marks,
+  "Bring back" and "Delete for good" in My family, visible to a dad alone) are on `develop` too, so a release branch
+  cut from it ships removed children; the rest (sync, CloudKit, sharing) is Phase 5.
 - ✅ The store's work runs off the main thread, now whatever the compiler's default (ADR-0034).
 - ✅ CI pinned to Xcode 27.2 (ADR-0034).
 
