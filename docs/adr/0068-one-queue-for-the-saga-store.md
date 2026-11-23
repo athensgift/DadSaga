@@ -1,6 +1,7 @@
 # ADR-0068: The saga store has one queue: its repositories and the sync applier share one context
 
-**Status:** Proposed (2026-11-23), by the architect, planning ADR-0065's PR 4. It changes ADR-0065:
+**Status:** Accepted (2026-11-24, by the owner, with ADR-0065's PR 4); proposed 2026-11-23 by the architect, planning
+that PR. It changes ADR-0065:
 - **§2 "Remote changes are written by one `@ModelActor`, `SwiftDataSyncApplier`, whose context's `author` is
   `sync`":** the applier is an actor on the saga store's one queue and context, and each of its saves carries the
   author `sync`.
