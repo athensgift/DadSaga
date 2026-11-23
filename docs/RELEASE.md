@@ -25,6 +25,13 @@ record follows that build; it is fixed once the build is released, and reaches `
 - [ ] ADR-0065's PR 1 merged into `develop` before the release branch: the profile id, the entries' authors, a child's
       `isRemoved`, `#Unique` ids and ids kept in history in `SchemaV1`; `hero.id`, `author` and each child's `removed`
       in format 1, whose reader takes any number of children from one. Both freeze with this build.
+- [ ] What 1.0 ships of ADR-0065 (ADR-0067): PRs 1, 2a, 2b and 3, and PR 4, the sync core, if it is on `develop`.
+      PR 4 is wired to nothing: no `import CloudKit` in any target, no iCloud entitlement, no `CKSharingSupported` or
+      `remote-notification`, and no build creates `Sync.store`. `SyncSchemaV1` doesn't freeze with this build; it
+      freezes with the co-op version (PR 5 and PR 6), whose release adds its own checks here: CloudKit's schema to
+      production before its first TestFlight build, `aps-environment` as `production` in the archive.
+- [ ] The Data tests run once on an iOS 26 simulator (the saga store's one queue, ADR-0068, and the `hasChanges` gate
+      run in 1.0).
 - [ ] `Tests/DataTests/Fixtures/ShippedContentIDs.json`, from the bundled content: every world, hero, quest, boss,
       first, gear item and title id; each quest's and boss's skill and XP, and each first's XP; each gear item's skill;
       each title's order, cards, XP and gear; each skill's `halfGrownXP`. From then on it only grows.
