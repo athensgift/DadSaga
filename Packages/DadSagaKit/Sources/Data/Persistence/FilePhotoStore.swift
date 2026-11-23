@@ -8,6 +8,8 @@ import UniformTypeIdentifiers
 public actor FilePhotoStore: PhotoStore {
     public enum PhotoError: Error, Equatable {
         case notAnImage
+        /// A photo's id is a UUID, as `save` makes it: anything else names no file here.
+        case invalidID
     }
 
     /// Finds the folder the files live in; it throws when there is none (no App Group in a release build).
@@ -79,14 +81,34 @@ public actor FilePhotoStore: PhotoStore {
     /// Only a JPEG whose header gives its size, so a copy can't bring in a file the app couldn't have written. Written
     /// as `save` writes, with today's date, so the sweep leaves it alone for a day (ADR-0048 §6).
     public func adopt(_ jpeg: Data) async throws -> String {
+        let id = UUID().uuidString
+        try write(storedJPEG: jpeg, id: id)
+        return id
+    }
+
+    /// A photo sync fetched, under the id its record names, so the entry that lists it finds it (ADR-0065 §1). The
+    /// same check as `adopt`, and the same bytes: the file is copied, never drawn again. The file at `url` is left
+    /// where it is. Not on Application's `PhotoStore`: only sync places a photo under an id it didn't make.
+    func place(fileAt url: URL, id: String) throws {
+        guard UUID(uuidString: id) != nil else { throw PhotoError.invalidID }
+        try write(storedJPEG: try Data(contentsOf: url), id: id)
+    }
+
+    /// The stored file of a photo, to send as its record's asset; nil when there is none.
+    func fileURL(id: String) throws -> URL? {
+        let file = url(for: id, in: try folder())
+        guard UUID(uuidString: id) != nil, FileManager.default.fileExists(atPath: file.path) else { return nil }
+        return file
+    }
+
+    /// Only a JPEG whose header gives a size the app could have stored, written as `save` writes.
+    private func write(storedJPEG jpeg: Data, id: String) throws {
         guard let source = CGImageSourceCreateWithData(jpeg as CFData, nil),
               CGImageSourceGetType(source) as String? == UTType.jpeg.identifier,
               let side = Self.longestSide(of: source), side <= Self.adoptedPixelLimit else { throw PhotoError.notAnImage }
         let directory = try folder()
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let id = UUID().uuidString
         try jpeg.write(to: url(for: id, in: directory), options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
-        return id
     }
 
     public func delete(id: String) async {

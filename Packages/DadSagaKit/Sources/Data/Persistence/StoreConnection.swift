@@ -16,6 +16,8 @@ actor StoreConnection {
         let wholeSaga: SwiftDataWholeSagaRepository
         /// The store's history as the changes sync sends (ADR-0065 §2). Nothing reads it until iCloud is wired.
         let feed: StoreChangeFeed
+        /// Writes what sync fetched (ADR-0065 §2). Nothing calls it until iCloud is wired.
+        let applier: SwiftDataSyncApplier
     }
 
     private static let logger = Logger(subsystem: "DadSaga", category: "store")
@@ -52,7 +54,8 @@ actor StoreConnection {
                 outfit: SwiftDataOutfitRepository(queue: queue, container: container),
                 standing: SwiftDataStandingRepository(queue: queue, container: container),
                 wholeSaga: SwiftDataWholeSagaRepository(queue: queue, container: container),
-                feed: StoreChangeFeed(queue: queue, container: container)
+                feed: StoreChangeFeed(queue: queue, container: container),
+                applier: SwiftDataSyncApplier(queue: queue, container: container)
             )
             opened = repositories
             return repositories

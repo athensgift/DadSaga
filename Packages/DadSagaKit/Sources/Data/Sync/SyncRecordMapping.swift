@@ -6,6 +6,29 @@ import SwiftData
 /// permanent, so these are written out as strings, never taken from a Swift name. Values are the strings the store
 /// holds (a gender, a look part, a kind, a wardrobe choice), so one this version doesn't know passes through untouched.
 enum SyncField {
+    /// What a field's column holds, so a value that came in another shape is left on the server, never forced into
+    /// the row.
+    enum Kind: Sendable {
+        case string, int, bool, date, strings
+        /// A string, or `.cleared` for nil.
+        case optionalString
+        /// A UUID's string.
+        case uuid
+        /// `yyyy-MM-dd` (`BirthDayCoding`), or `.cleared` while the child is not born.
+        case birthDay
+
+        func holds(_ value: SyncValue) -> Bool {
+            switch (self, value) {
+            case (.string, .string), (.int, .int), (.bool, .bool), (.date, .date), (.strings, .strings),
+                 (.optionalString, .string), (.optionalString, .cleared), (.birthDay, .cleared):
+                true
+            case (.uuid, .string(let string)): UUID(uuidString: string) != nil
+            case (.birthDay, .string(let string)): BirthDayCoding.day(string) != nil
+            default: false
+            }
+        }
+    }
+
     enum Hero {
         static let classID = "classID"
         static let skinTone = "skinTone"
@@ -16,14 +39,17 @@ enum SyncField {
         static let hasPartner = "hasPartner"
         static let heldTitleID = "heldTitleID"
         static let seenTitleID = "seenTitleID"
-        static let all: Set<String> = [
-            classID, skinTone, hair, hairColor, beard, glasses, hasPartner, heldTitleID, seenTitleID
+        static let kinds: [String: Kind] = [
+            classID: .string, skinTone: .string, hair: .string, hairColor: .string, beard: .string, glasses: .string,
+            hasPartner: .bool, heldTitleID: .optionalString, seenTitleID: .optionalString
         ]
+        static let all = Set(kinds.keys)
     }
 
     enum Wardrobe {
         static let choice = "choice"
-        static let all: Set<String> = [choice]
+        static let kinds: [String: Kind] = [choice: .string]
+        static let all = Set(kinds.keys)
     }
 
     enum Child {
@@ -37,8 +63,11 @@ enum SyncField {
         /// Set once the child is deleted for good, every other field cleared (ADR-0065 §4). No column: `Sync.store`
         /// keeps the id.
         static let gone = "gone"
-        /// The fields a row has; `gone` is apart.
-        static let all: Set<String> = [name, gender, skinTone, order, isRemoved, birthDay]
+        /// The fields a row has, and what each holds; `gone` is apart.
+        static let kinds: [String: Kind] = [
+            name: .string, gender: .string, skinTone: .string, order: .int, isRemoved: .bool, birthDay: .birthDay
+        ]
+        static let all = Set(kinds.keys)
     }
 
     enum Entry {
@@ -49,18 +78,28 @@ enum SyncField {
         static let date = "date"
         static let note = "note"
         static let photoIDs = "photoIDs"
-        static let all: Set<String> = [author, childID, kind, contentID, date, note, photoIDs]
+        static let kinds: [String: Kind] = [
+            author: .uuid, childID: .uuid, kind: .string, contentID: .string, date: .date, note: .optionalString,
+            photoIDs: .strings
+        ]
+        static let all = Set(kinds.keys)
     }
 
-    /// Every field of a record that mirrors a saga row; empty for the records `Sync.store` and the defaults hold.
-    static func all(of type: RecordType) -> Set<String> {
+    /// Each field of a record that mirrors a saga row, and what it holds; empty for the records `Sync.store` and the
+    /// defaults hold.
+    static func kinds(of type: RecordType) -> [String: Kind] {
         switch type {
-        case .hero: Hero.all
-        case .wardrobe: Wardrobe.all
-        case .child: Child.all
-        case .entry: Entry.all
-        case .member, .photo, .offer, .saga: []
+        case .hero: Hero.kinds
+        case .wardrobe: Wardrobe.kinds
+        case .child: Child.kinds
+        case .entry: Entry.kinds
+        case .member, .photo, .offer, .saga: [:]
         }
+    }
+
+    /// Every field of a record that mirrors a saga row.
+    static func all(of type: RecordType) -> Set<String> {
+        Set(kinds(of: type).keys)
     }
 }
 
@@ -75,6 +114,8 @@ protocol SyncedRow: PersistentModel {
     static func syncField(for column: PartialKeyPath<Self>) -> String?
     /// Every field's value now.
     var syncFields: [String: SyncValue] { get }
+    /// Sets the field's column, only when the value differs and is one the column holds (`SyncRecordWriting`).
+    func set(_ field: String, to value: SyncValue)
 }
 
 extension SyncedRow {

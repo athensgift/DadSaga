@@ -139,4 +139,62 @@ struct FilePhotoStoreTests {
 
         await #expect(throws: SharedContainerError.appGroupUnavailable) { try await sut.storedPhotos() }
     }
+
+    // MARK: Photos that sync brings (ADR-0065 §1)
+
+    @Test("Given a photo another iPhone stored, when its file is placed, then the same bytes under the same id, as a photo")
+    func placeKeepsTheBytesAndTheID() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let other = FilePhotoStore(directory: directory.appending(path: "other"))
+        let id = try await other.save(try png(width: 64, height: 48))
+        let download = try #require(try await other.fileURL(id: id))
+        let sut = FilePhotoStore(directory: directory.appending(path: "here"))
+
+        try await sut.place(fileAt: download, id: id)
+        // The same photo fetched again changes nothing.
+        try await sut.place(fileAt: download, id: id)
+
+        #expect(try await sut.storedData(id: id) == (try Data(contentsOf: download)))
+        #expect(try await sut.storedPhotos().map(\.id) == [id])
+        #expect(try await sut.fileURL(id: id) == directory.appending(path: "here").appending(path: id + ".jpg"))
+        // The file that came is left where it was: the one who downloaded it clears it.
+        #expect(FileManager.default.fileExists(atPath: download.path))
+    }
+
+    @Test("Given a file that is no JPEG, or an id that is no UUID, when placing, then it is refused and nothing is written")
+    func placeRefusesOtherFilesAndIDs() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let other = FilePhotoStore(directory: directory.appending(path: "other"))
+        let jpeg = try #require(try await other.fileURL(id: try await other.save(try png(width: 10, height: 10))))
+        let (image, text) = (directory.appending(path: "a.png"), directory.appending(path: "a.txt"))
+        try png(width: 10, height: 10).write(to: image)
+        try Data("not a photo".utf8).write(to: text)
+        let sut = FilePhotoStore(directory: directory.appending(path: "here"))
+
+        await #expect(throws: FilePhotoStore.PhotoError.notAnImage) { try await sut.place(fileAt: image, id: UUID().uuidString) }
+        await #expect(throws: FilePhotoStore.PhotoError.notAnImage) { try await sut.place(fileAt: text, id: UUID().uuidString) }
+        for id in ["cover", "../" + UUID().uuidString, UUID().uuidString + ".jpg", ""] {
+            await #expect(throws: FilePhotoStore.PhotoError.invalidID) { try await sut.place(fileAt: jpeg, id: id) }
+        }
+        await #expect(throws: (any Error).self) {
+            try await sut.place(fileAt: directory.appending(path: "missing.jpg"), id: UUID().uuidString)
+        }
+
+        #expect(try await sut.storedPhotos().isEmpty)
+    }
+
+    @Test("Given a photo whose file is gone, or an id that is none, when asking for its file, then there is none")
+    func noFileForAMissingPhoto() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let sut = FilePhotoStore(directory: directory)
+        let id = try await sut.save(try png(width: 10, height: 10))
+        await sut.delete(id: id)
+
+        #expect(try await sut.fileURL(id: id) == nil)
+        #expect(try await sut.fileURL(id: "../../etc/hosts") == nil)
+        await #expect(throws: SharedContainerError.appGroupUnavailable) {
+            try await FilePhotoStore(folder: { throw SharedContainerError.appGroupUnavailable }).fileURL(id: id)
+        }
+    }
 }
