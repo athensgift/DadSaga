@@ -18,11 +18,11 @@ struct TitlesStoreTests {
         try await store.standing.keep(titleID: "t1")
         #expect(try await store.standing.fetchKept() == KeptStanding())
 
-        try await store.profiles.save(profile)
+        try await store.profiles.create(profile)
         #expect(try await store.standing.fetchKept() == KeptStanding())
         try await store.standing.keep(titleID: "t2")
         try await store.standing.markSeen(titleID: "t2")
-        try await store.profiles.save(PlayerProfile(children: [eleni], heroClassID: "h-super"))
+        try await store.profiles.save(HeroEdit(heroClassID: "h-super"))
 
         #expect(try await store.standing.fetchKept() == KeptStanding(titleID: "t2", seenTitleID: "t2"))
     }
@@ -30,7 +30,7 @@ struct TitlesStoreTests {
     @Test("Given a card closed for a title an Undo takes back, when the title still held is marked seen, then it goes back")
     func markSeenGoesBackForAnUndo() async throws {
         let store = LocalStore.inMemory()
-        try await store.profiles.save(profile)
+        try await store.profiles.create(profile)
         try await store.standing.keep(titleID: "t1")
         try await store.standing.markSeen(titleID: "t2")
 
@@ -51,11 +51,11 @@ struct TitlesStoreTests {
     @Test("Given a kept title, when the dad starts over, then it goes with the saga")
     func startOverErasesIt() async throws {
         let store = LocalStore.inMemory()
-        try await store.profiles.save(profile)
+        try await store.profiles.create(profile)
         try await store.standing.keep(titleID: "t2")
 
         try await store.wholeSaga.eraseAll()
-        try await store.profiles.save(profile)
+        try await store.profiles.create(profile)
 
         #expect(try await store.standing.fetchKept() == KeptStanding())
     }

@@ -105,7 +105,9 @@ struct EntryPhotoUseCaseTests {
         let event = try await questWithThreePhotos(store: store)
         let (first, removed, last) = (event.photoIDs[0], event.photoIDs[1], event.photoIDs[2])
 
-        try await DefaultUpdateJournalUseCase(progressRepository: repository, photoStore: store).execute(
+        try await DefaultUpdateJournalUseCase(
+            profileRepository: TheDad(), progressRepository: repository, photoStore: store
+        ).execute(
             eventID: event.id, note: nil, photos: [.kept(last), .added(Data([9])), .kept(first)]
         )
 
@@ -125,7 +127,9 @@ struct EntryPhotoUseCaseTests {
         let event = try await questWithThreePhotos(store: store)
 
         await #expect(throws: FailingUpdates.Failure.self) {
-            try await DefaultUpdateJournalUseCase(progressRepository: FailingUpdates(repository), photoStore: store)
+            try await DefaultUpdateJournalUseCase(
+                profileRepository: TheDad(), progressRepository: FailingUpdates(repository), photoStore: store
+            )
                 .execute(eventID: event.id, note: nil, photos: [.added(Data([9])), .kept(event.photoIDs[0])])
         }
 
@@ -137,7 +141,7 @@ struct EntryPhotoUseCaseTests {
     func updateRejectsUnknownOrTooMany() async throws {
         let store = SpyPhotoStore()
         let event = try await questWithThreePhotos(store: store)
-        let sut = DefaultUpdateJournalUseCase(progressRepository: repository, photoStore: store)
+        let sut = DefaultUpdateJournalUseCase(profileRepository: TheDad(), progressRepository: repository, photoStore: store)
         let other = try await store.save(Data([7]))
 
         await #expect(throws: ProgressError.unknownPhoto) {
@@ -158,7 +162,7 @@ struct EntryPhotoUseCaseTests {
         let cover = try #require(event.coverPhotoID)
 
         await #expect(throws: ProgressError.unknownPhoto) {
-            try await DefaultUpdateJournalUseCase(progressRepository: repository, photoStore: store)
+            try await DefaultUpdateJournalUseCase(profileRepository: TheDad(), progressRepository: repository, photoStore: store)
                 .execute(eventID: event.id, note: nil, photos: [.kept(cover), .added(Data([9])), .kept(cover)])
         }
 
@@ -170,7 +174,9 @@ struct EntryPhotoUseCaseTests {
     func editRacingADeleteLeavesNoFiles() async throws {
         let store = SpyPhotoStore()
         let event = try await questWithThreePhotos(store: store)
-        let sut = DefaultUpdateJournalUseCase(progressRepository: DeletedBeforeUpdate(repository), photoStore: store)
+        let sut = DefaultUpdateJournalUseCase(
+            profileRepository: TheDad(), progressRepository: DeletedBeforeUpdate(repository), photoStore: store
+        )
 
         await #expect(throws: ProgressError.unknownEvent) {
             try await sut.execute(eventID: event.id, note: nil, photos: [.added(Data([9]))])

@@ -14,14 +14,14 @@ actor SwiftDataStandingRepository: StandingRepository {
     func keep(titleID: String) async throws {
         try modelContext.saveAllOrNothing {
             guard let record = try record() else { return }
-            record.heldTitleID = titleID
+            record.update(\.heldTitleID, to: titleID)
         }
     }
 
     func markSeen(titleID: String) async throws {
         try modelContext.saveAllOrNothing {
             guard let record = try record() else { return }
-            record.seenTitleID = titleID
+            record.update(\.seenTitleID, to: titleID)
         }
     }
 

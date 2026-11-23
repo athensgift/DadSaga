@@ -8,42 +8,59 @@ public enum ProfileValidationError: Error, Equatable {
     case unknownHeroClass(String)
 }
 
-/// What makes a profile acceptable before it is stored.
+/// What makes a profile or an edit acceptable before it is stored.
 public enum ProfileRules {
-    /// Returns the profile with the children's names trimmed, or throws the first problem found. The hero must be one
-    /// the content has now: this is for a hero the dad picks. `storedCount` is as in `validatedChildren`.
+    /// Onboarding: every child is added to an empty family, so one to `PlayerProfile.maxChildren`, names trimmed, and
+    /// the hero one the content has now. Returns the profile with the names trimmed, or throws the first problem found.
     public static func validated(
         _ profile: PlayerProfile,
         on today: CalendarDay,
-        heroClasses: [HeroClass],
-        storedCount: Int = 0
+        heroClasses: [HeroClass]
     ) throws -> PlayerProfile {
-        let children = try validatedChildren(profile.children, on: today, storedCount: storedCount)
-        guard heroClasses.contains(where: { $0.id == profile.heroClassID }) else {
-            throw ProfileValidationError.unknownHeroClass(profile.heroClassID)
-        }
+        let family = try validated(FamilyEdit(added: profile.children), for: [], on: today)
+        _ = try validated(HeroEdit(heroClassID: profile.heroClassID), heroClasses: heroClasses)
         var valid = profile
-        valid.children = children
+        valid.children = family.added
         return valid
     }
 
-    /// Returns the children with their names trimmed, or throws the first problem found. The hero is not looked at, so
-    /// a family can always be edited, even when the stored hero is one the content no longer has (ADR-0048 §5).
-    ///
-    /// The limit of `PlayerProfile.maxChildren` is on adding only (ADR-0065 §4): `storedCount` is how many the family
-    /// holds now, and a family a copy brought with more keeps them and can still be edited.
-    public static func validatedChildren(_ children: [Child], on today: CalendarDay, storedCount: Int = 0) throws -> [Child] {
-        guard !children.isEmpty else { throw ProfileValidationError.noChildren }
-        guard children.count <= max(PlayerProfile.maxChildren, storedCount) else {
-            throw ProfileValidationError.tooManyChildren
+    /// `edit` with its names trimmed, checked against `family` as it stands (ADR-0065 §4). Only what the edit sets is
+    /// checked: an added or renamed child needs a name, and an added child's birth day, or a changed one, can't be after
+    /// today. `noChildren` when the edit leaves the family without a child; `tooManyChildren` only when the edit adds a
+    /// child and the family after it holds more than `PlayerProfile.maxChildren`, so a family that holds more (a copy, or
+    /// two parents adding at once) can still be edited.
+    public static func validated(_ edit: FamilyEdit, for family: [Child], on today: CalendarDay) throws -> FamilyEdit {
+        var valid = edit
+        valid.added = try edit.added.map { try checked($0, fields: Set(ChildField.allCases), on: today) }
+        valid.changed = try edit.changed.map { change in
+            ChildEdit(child: try checked(change.child, fields: change.fields, on: today), fields: change.fields)
         }
-        return try children.map { child in
-            var child = child
+        let after = valid.applied(to: family)
+        guard !after.isEmpty else { throw ProfileValidationError.noChildren }
+        let adds = after.contains { child in !family.contains { $0.id == child.id } }
+        if adds, after.count > PlayerProfile.maxChildren { throw ProfileValidationError.tooManyChildren }
+        return valid
+    }
+
+    /// A hero the edit names must be one the content has; an edit naming none is never checked, so the look and the
+    /// family can always be edited, even when the stored hero is one the content no longer has (ADR-0048 §5).
+    public static func validated(_ edit: HeroEdit, heroClasses: [HeroClass]) throws -> HeroEdit {
+        if let heroClassID = edit.heroClassID, !heroClasses.contains(where: { $0.id == heroClassID }) {
+            throw ProfileValidationError.unknownHeroClass(heroClassID)
+        }
+        return edit
+    }
+
+    private static func checked(_ child: Child, fields: Set<ChildField>, on today: CalendarDay) throws -> Child {
+        var child = child
+        if fields.contains(.name) {
             child.name = child.name.trimmingCharacters(in: .whitespacesAndNewlines)
             guard !child.name.isEmpty else { throw ProfileValidationError.emptyChildName }
-            // A child not born yet has no day to check (ADR-0053 §1).
-            if let birthDay = child.birthDay, birthDay > today { throw ProfileValidationError.birthDateInFuture }
-            return child
         }
+        // A child not born yet has no day to check (ADR-0053 §1).
+        if fields.contains(.birthDay), let birthDay = child.birthDay, birthDay > today {
+            throw ProfileValidationError.birthDateInFuture
+        }
+        return child
     }
 }

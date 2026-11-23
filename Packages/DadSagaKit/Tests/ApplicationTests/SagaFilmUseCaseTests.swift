@@ -82,7 +82,7 @@ struct SagaFilmUseCaseTests {
     }
 
     func family() async throws {
-        try await profiles.save(PlayerProfile(children: [anna, niko], heroClassID: "h"))
+        await profiles.seed(PlayerProfile(children: [anna, niko], heroClassID: "h"))
     }
 
     func record(_ kind: ProgressEvent.Kind, months: Int, child: Child? = nil) async throws {

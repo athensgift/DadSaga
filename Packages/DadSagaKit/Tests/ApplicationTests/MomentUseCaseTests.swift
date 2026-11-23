@@ -25,7 +25,7 @@ struct MomentUseCaseTests {
     }
 
     var update: DefaultUpdateMomentUseCase {
-        DefaultUpdateMomentUseCase(progressRepository: repository, photoStore: photos)
+        DefaultUpdateMomentUseCase(profileRepository: TheDad(), progressRepository: repository, photoStore: photos)
     }
 
     func request(child: UUID? = nil, date: Date? = nil) -> CaptureMomentRequest {
@@ -110,28 +110,24 @@ struct MomentUseCaseTests {
         #expect(await photos.stored == [try #require(updated.coverPhotoID): Data([2])])
     }
 
-    @Test("Given a moment captured by the dad, then it is his; given a partner's entry, when edited, then it stays theirs")
+    @Test("Given a moment captured by the dad, when he edits it, then it stays his")
     func authorsStay() async throws {
         let moment = try await captured()
         #expect(moment.authorID == .testDad)
 
-        let partner = UUID()
-        let theirs = ProgressEvent(authorID: partner, kind: .quest(id: "q1"), childID: child, date: today)
-        try await repository.add(theirs)
-        try await DefaultUpdateJournalUseCase(progressRepository: repository, photoStore: photos)
-            .execute(eventID: theirs.id, note: "μαζί", photos: [.added(Data([3]))])
         try await update.execute(momentID: moment.id, happenedOn: moment.date, note: "x", photos: [], now: today)
 
         let events = try await repository.fetchEvents()
-        #expect(events.first { $0.id == theirs.id }?.authorID == partner)
-        #expect(events.first { $0.id == theirs.id }?.note == "μαζί")
         #expect(events.first { $0.id == moment.id }?.authorID == .testDad)
+        #expect(events.first { $0.id == moment.id }?.note == "x")
     }
 
     @Test("Given saving fails, when replacing a moment's photo, then the new photo is removed and the old one stays")
     func failedUpdateLeavesNoPhoto() async throws {
         let moment = try await captured(photos: [Data([1])])
-        let sut = DefaultUpdateMomentUseCase(progressRepository: FailingUpdates(repository), photoStore: photos)
+        let sut = DefaultUpdateMomentUseCase(
+            profileRepository: TheDad(), progressRepository: FailingUpdates(repository), photoStore: photos
+        )
 
         await #expect(throws: FailingUpdates.Failure.self) {
             try await sut.execute(momentID: moment.id, happenedOn: today, note: nil, photos: [.added(Data([2]))], now: today)
@@ -143,7 +139,9 @@ struct MomentUseCaseTests {
     @Test("Given saving fails, when replacing an entry's photo from the journal, then no new photo is left behind")
     func failedJournalUpdateLeavesNoPhoto() async throws {
         let moment = try await captured(photos: [Data([1])])
-        let sut = DefaultUpdateJournalUseCase(progressRepository: FailingUpdates(repository), photoStore: photos)
+        let sut = DefaultUpdateJournalUseCase(
+            profileRepository: TheDad(), progressRepository: FailingUpdates(repository), photoStore: photos
+        )
 
         await #expect(throws: FailingUpdates.Failure.self) {
             try await sut.execute(eventID: moment.id, note: "x", photos: [.added(Data([2]))])
@@ -213,12 +211,13 @@ struct MomentUseCaseTests {
         #expect(try await repository.fetchEvents().count == 1)
     }
 
-    @Test("Given an id that is not a moment, when updating, then unknownMoment is thrown")
+    @Test("Given a quest's id, when updating it as a moment, then unknownMoment is thrown")
     func unknownMoment() async throws {
-        try await repository.add(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today))
+        let quest = ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today)
+        try await repository.add(quest)
         await #expect(throws: MomentError.unknownMoment) {
-            try await DefaultUpdateMomentUseCase(progressRepository: repository, photoStore: photos)
-                .execute(momentID: UUID(), happenedOn: today, note: nil, photos: [], now: today)
+            try await DefaultUpdateMomentUseCase(profileRepository: TheDad(), progressRepository: repository, photoStore: photos)
+                .execute(momentID: quest.id, happenedOn: today, note: nil, photos: [], now: today)
         }
         #expect(try await repository.fetchEvents().count == 1)
     }

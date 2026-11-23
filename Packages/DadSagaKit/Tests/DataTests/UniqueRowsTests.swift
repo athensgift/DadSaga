@@ -110,7 +110,7 @@ struct UniqueRowsTests: SagaCopyBench {
 
         var profile = try #require(try await new.store.profiles.fetchProfile())
         profile.children[0].name = "Λενιώ"
-        try await new.store.profiles.save(profile)
+        try await new.store.profiles.save(FamilyEdit(changed: [ChildEdit(child: profile.children[0], fields: [.name])]))
         _ = try await new.store.outfit.setChoice(.hidden, for: .care)
         try await new.store.progress.add(ProgressEvent(
             authorID: profile.id, kind: .quest(id: "q-w2-car-seat"), childID: lena.id, date: madeAt

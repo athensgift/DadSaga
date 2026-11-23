@@ -52,13 +52,35 @@ struct ProfileUseCaseTests {
 
 actor SpyProfileRepository: ProfileRepository {
     private var profile: PlayerProfile?
+    /// How many edits reached the store.
+    private(set) var editCount = 0
 
     func fetchProfile() async throws -> PlayerProfile? {
         profile
     }
 
-    func save(_ profile: PlayerProfile) async throws {
+    /// A test's given: any profile, over whatever is stored.
+    func seed(_ profile: PlayerProfile) {
         self.profile = profile
+    }
+
+    func create(_ profile: PlayerProfile) async throws {
+        guard self.profile == nil else { throw ProfileEditError.profileExists }
+        self.profile = profile
+    }
+
+    func save(_ edit: FamilyEdit) async throws {
+        guard var profile else { throw ProfileEditError.noProfile }
+        profile.children = edit.applied(to: profile.children)
+        if let hasPartner = edit.hasPartner { profile.hasPartner = hasPartner }
+        self.profile = profile
+        editCount += 1
+    }
+
+    func save(_ edit: HeroEdit) async throws {
+        guard let profile else { throw ProfileEditError.noProfile }
+        self.profile = edit.applied(to: profile)
+        editCount += 1
     }
 }
 
@@ -68,20 +90,48 @@ extension ProfileUseCaseTests {
         let repository = SpyProfileRepository()
         let id = UUID()
         let five = (1...5).map { Child(name: "Παιδί \($0)", birthDay: nil) }
-        try await repository.save(PlayerProfile(id: id, children: five, heroClassID: "h1"))
+        await repository.seed(PlayerProfile(id: id, children: five, heroClassID: "h1"))
+        let family = DefaultUpdateFamilyUseCase(profileRepository: repository)
 
         try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: repository)
-            .execute(heroClassID: "h1", skinTone: .dark, appearance: .standard(for: .dark), on: today)
-        try await DefaultUpdateFamilyUseCase(profileRepository: repository)
-            .execute(children: Array(five.dropLast()), hasPartner: false, on: today)
+            .execute(HeroEdit(dadSkinTone: .dark))
+        try await family.execute(FamilyEdit(removedIDs: [five[4].id], hasPartner: false), on: today)
 
         let stored = try #require(try await repository.fetchProfile())
         #expect(stored.id == id)
         #expect(stored.children == Array(five.dropLast()))
         #expect(stored.dadSkinTone == .dark)
+        #expect(!stored.hasPartner)
         await #expect(throws: ProfileValidationError.tooManyChildren) {
-            try await DefaultUpdateFamilyUseCase(profileRepository: repository)
-                .execute(children: five, hasPartner: false, on: today)
+            try await family.execute(FamilyEdit(added: [five[4]]), on: today)
         }
+        await #expect(throws: ProfileValidationError.tooManyChildren) {
+            try await family.execute(FamilyEdit(added: [Child(name: "Έκτο", birthDay: nil)]), on: today)
+        }
+        #expect(try await repository.fetchProfile()?.children == Array(five.dropLast()))
+    }
+
+    @Test("Given a stored family, when an empty edit saves, then nothing reaches the store")
+    func emptyEditSavesNothing() async throws {
+        let repository = SpyProfileRepository()
+        await repository.seed(PlayerProfile(children: [Child(name: "Λένα", birthDay: nil)], heroClassID: "h1"))
+
+        try await DefaultUpdateFamilyUseCase(profileRepository: repository).execute(FamilyEdit(), on: today)
+        try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: repository).execute(HeroEdit())
+
+        #expect(await repository.editCount == 0)
+    }
+
+    @Test("Given a family of one, when an edit removes that child, then noChildren is thrown and the child stays")
+    func editLeavingNoneIsRefused() async throws {
+        let repository = SpyProfileRepository()
+        let lena = Child(name: "Λένα", birthDay: nil)
+        await repository.seed(PlayerProfile(children: [lena], heroClassID: "h1"))
+
+        await #expect(throws: ProfileValidationError.noChildren) {
+            try await DefaultUpdateFamilyUseCase(profileRepository: repository)
+                .execute(FamilyEdit(removedIDs: [lena.id]), on: today)
+        }
+        #expect(try await repository.fetchProfile()?.children == [lena])
     }
 }

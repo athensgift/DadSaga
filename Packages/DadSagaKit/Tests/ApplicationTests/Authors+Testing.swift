@@ -52,7 +52,9 @@ struct TheDad: ProfileRepository {
     var profile = PlayerProfile(children: [Child(name: "Λένα", birthDay: nil)], heroClassID: "h1")
 
     func fetchProfile() async throws -> PlayerProfile? { profile }
-    func save(_ profile: PlayerProfile) async throws {}
+    func create(_ profile: PlayerProfile) async throws {}
+    func save(_ edit: FamilyEdit) async throws {}
+    func save(_ edit: HeroEdit) async throws {}
 }
 
 extension PlayerProfile {

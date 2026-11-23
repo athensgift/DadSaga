@@ -358,9 +358,10 @@ struct BeforeBirthPresentationTests {
         await sut.save()
 
         let saved = try #require(await update.saved)
-        #expect(saved.map(\.id) == [HarbourStub.unborn.id])
-        #expect(saved.first?.birthDay == CalendarDay(HarbourStub.today, in: .gmt))
-        #expect(await update.savedHasPartner == true)
+        #expect(saved.changed.map(\.child.id) == [HarbourStub.unborn.id])
+        #expect(saved.changed.first?.fields == [.birthDay])
+        #expect(saved.changed.first?.child.birthDay == CalendarDay(HarbourStub.today, in: .gmt))
+        #expect(saved.hasPartner == nil)
         #expect(!sut.hasUnsavedChanges)
     }
 }

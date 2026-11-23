@@ -23,15 +23,18 @@ extension ChildRecord {
         )
     }
 
-    /// Never writes `childID` or `isRemoved`.
-    func update(from child: Child, order: Int) {
-        name = child.name
-        birthYear = child.birthDay?.year
-        birthMonth = child.birthDay?.month
-        birthDay = child.birthDay?.day
-        gender = child.gender.rawValue
-        skinTone = child.skinTone.rawValue
-        self.order = order
+    /// Sets only the fields the edit names, and only values that differ (ADR-0065 §1). Never writes `childID`, `order`
+    /// or `isRemoved`.
+    func apply(_ edit: ChildEdit) {
+        let child = edit.child
+        if edit.fields.contains(.name) { update(\.name, to: child.name) }
+        if edit.fields.contains(.birthDay) {
+            update(\.birthYear, to: child.birthDay?.year)
+            update(\.birthMonth, to: child.birthDay?.month)
+            update(\.birthDay, to: child.birthDay?.day)
+        }
+        if edit.fields.contains(.gender) { update(\.gender, to: child.gender.rawValue) }
+        if edit.fields.contains(.skinTone) { update(\.skinTone, to: child.skinTone.rawValue) }
     }
 
     /// Three empty day columns are a child not born yet (ADR-0053 §8). Some of them, or a day the calendar doesn't have,
@@ -74,20 +77,20 @@ extension ProfileRecord {
         )
     }
 
-    /// What the store keeps for titles. Never written by `update(from:)`, so editing the family can't lower it.
+    /// What the store keeps for titles. Never written by a family or hero edit, so editing can't lower it.
     var kept: KeptStanding {
         KeptStanding(titleID: heldTitleID, seenTitleID: seenTitleID)
     }
 
-    /// Never writes `profileID`: the stored player keeps who they are.
-    func update(from profile: PlayerProfile) {
-        heroClassID = profile.heroClassID
-        dadSkinTone = profile.dadSkinTone.rawValue
-        hairStyle = profile.dadAppearance.hair.rawValue
-        hairColor = profile.dadAppearance.hairColor.rawValue
-        beard = profile.dadAppearance.beard.rawValue
-        glasses = profile.dadAppearance.glasses.rawValue
-        hasPartner = profile.hasPartner
+    /// Sets only the parts the edit names, and only values that differ, so a part this version can't name stays as
+    /// stored (ADR-0065 §1). Never writes `profileID`, `hasPartner` or the kept titles.
+    func apply(_ edit: HeroEdit) {
+        if let heroClassID = edit.heroClassID { update(\.heroClassID, to: heroClassID) }
+        if let tone = edit.dadSkinTone { update(\.dadSkinTone, to: tone.rawValue) }
+        if let hair = edit.hair { update(\.hairStyle, to: hair.rawValue) }
+        if let color = edit.hairColor { update(\.hairColor, to: color.rawValue) }
+        if let beard = edit.beard { update(\.beard, to: beard.rawValue) }
+        if let glasses = edit.glasses { update(\.glasses, to: glasses.rawValue) }
     }
 
     /// A part unknown to this version reads as the standard look for the skin tone: the look is stored as strings,

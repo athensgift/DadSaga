@@ -45,7 +45,7 @@ public struct DefaultGetHeroChoiceUseCase: GetHeroChoiceUseCase {
         let catalog = try await pendingCatalog
         return HeroChoice(
             heroClasses: catalog.heroClasses,
-            // A hero the content no longer has shows as the first one, and is stored only if the dad changes something.
+            // A hero the content no longer has shows as the first one, and is replaced only if the dad picks another.
             heroClassID: catalog.hero(for: profile)?.id ?? profile.heroClassID,
             skinTone: profile.dadSkinTone,
             appearance: profile.dadAppearance,

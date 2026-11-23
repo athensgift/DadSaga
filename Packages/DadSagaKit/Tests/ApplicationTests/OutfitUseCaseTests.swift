@@ -86,10 +86,10 @@ struct OutfitUseCaseTests {
         )
         let child = Child(name: "Νίκος", birthDay: CalendarDay(.now, in: .gmt))
 
-        try await profiles.save(PlayerProfile(children: [child], heroClassID: "h-x"))
+        await profiles.seed(PlayerProfile(children: [child], heroClassID: "h-x"))
         #expect(try await sut.execute().hero?.look == "chef")
 
-        try await profiles.save(PlayerProfile(children: [child], heroClassID: "h-gone"))
+        await profiles.seed(PlayerProfile(children: [child], heroClassID: "h-gone"))
         #expect(try await sut.execute().hero?.look == "hero")
     }
 

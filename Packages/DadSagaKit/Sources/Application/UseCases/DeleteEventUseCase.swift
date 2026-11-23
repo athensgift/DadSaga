@@ -33,7 +33,7 @@ public struct DefaultDeleteEventUseCase: DeleteEventUseCase {
     }
 
     public func execute(eventID: UUID) async throws {
-        let remover = EntryRemover(
+        let remover = OwnEntries(
             profileRepository: profileRepository, progressRepository: progressRepository, photoStore: photoStore
         )
         let found = try await remover.find(eventID)

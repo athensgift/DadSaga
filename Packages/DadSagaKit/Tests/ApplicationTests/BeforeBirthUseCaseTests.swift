@@ -53,7 +53,7 @@ struct BeforeBirthUseCaseTests {
 
     @Test("Given a child not born yet, when reading home, then World 0 and its cards show, and no situational row")
     func homeBeforeBirth() async throws {
-        try await profiles.save(PlayerProfile(children: [Child(name: "Μπέμπης", birthDay: nil)], heroClassID: "h"))
+        await profiles.seed(PlayerProfile(children: [Child(name: "Μπέμπης", birthDay: nil)], heroClassID: "h"))
 
         let overview = try #require(try await home.execute(childID: nil, worldID: nil, on: today))
 
@@ -66,7 +66,7 @@ struct BeforeBirthUseCaseTests {
 
     @Test("Given a dad without a partner, when reading home, then the partner cards are gone; the retired card never shows")
     func homeWithoutPartner() async throws {
-        try await profiles.save(PlayerProfile(children: [born], heroClassID: "h", hasPartner: false))
+        await profiles.seed(PlayerProfile(children: [born], heroClassID: "h", hasPartner: false))
 
         let overview = try #require(try await home.execute(childID: nil, worldID: nil, on: today))
         let harbour = try #require(try await home.execute(childID: nil, worldID: "w0", on: today))
@@ -78,7 +78,7 @@ struct BeforeBirthUseCaseTests {
 
     @Test("Given a situational boss, when reading home, then it is apart from the other bosses")
     func situationalApart() async throws {
-        try await profiles.save(PlayerProfile(children: [born], heroClassID: "h"))
+        await profiles.seed(PlayerProfile(children: [born], heroClassID: "h"))
 
         let overview = try #require(try await home.execute(childID: nil, worldID: nil, on: today))
 
@@ -97,7 +97,7 @@ struct BeforeBirthUseCaseTests {
             photoStore: SpyPhotoStore(),
             calendar: calendar
         )
-        try await profiles.save(PlayerProfile(children: [Child(name: "Μπέμπης", birthDay: nil)], heroClassID: "h"))
+        await profiles.seed(PlayerProfile(children: [Child(name: "Μπέμπης", birthDay: nil)], heroClassID: "h"))
         for week in 0..<52 {
             let slot = try await sut.execute(childID: nil, on: today.addingTimeInterval(Double(week) * 7 * 86_400),
                                              photoMaxPixelSize: nil)?.quest
@@ -105,7 +105,7 @@ struct BeforeBirthUseCaseTests {
             #expect(quest.worldID == "w0")
         }
 
-        try await profiles.save(PlayerProfile(children: [born], heroClassID: "h", hasPartner: false))
+        await profiles.seed(PlayerProfile(children: [born], heroClassID: "h", hasPartner: false))
         for week in 0..<52 {
             let slot = try await sut.execute(childID: nil, on: today.addingTimeInterval(Double(week) * 7 * 86_400),
                                              photoMaxPixelSize: nil)?.quest
@@ -117,12 +117,12 @@ struct BeforeBirthUseCaseTests {
     @Test("Given a child not born yet, when saving a birth day and no partner, then the same child is born and the answer kept")
     func familyUpdate() async throws {
         let coming = Child(name: "Μπέμπης", birthDay: nil)
-        try await profiles.save(PlayerProfile(children: [coming], heroClassID: "h"))
+        await profiles.seed(PlayerProfile(children: [coming], heroClassID: "h"))
         var born = coming
         born.birthDay = CalendarDay(today, in: .gmt)
 
         try await DefaultUpdateFamilyUseCase(profileRepository: profiles, timeZone: .gmt)
-            .execute(children: [born], hasPartner: false, on: today)
+            .execute(FamilyEdit(changed: [ChildEdit(child: born, fields: [.birthDay])], hasPartner: false), on: today)
 
         let profile = try #require(try await profiles.fetchProfile())
         #expect(profile.children.map(\.id) == [coming.id])

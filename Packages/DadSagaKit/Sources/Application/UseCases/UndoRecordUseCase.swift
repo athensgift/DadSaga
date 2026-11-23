@@ -36,7 +36,7 @@ public struct DefaultUndoRecordUseCase: UndoRecordUseCase {
     /// The closed card goes back first, when it is above the title he will hold. If deleting the entry then fails, it
     /// is put back as it was, so nothing has changed and the Undo can be tried again.
     public func execute(undoing eventID: UUID) async throws -> DadTitle? {
-        let remover = EntryRemover(
+        let remover = OwnEntries(
             profileRepository: profileRepository, progressRepository: progressRepository, photoStore: photoStore
         )
         let found = try await remover.find(eventID)

@@ -119,4 +119,36 @@ struct TwoPlayersUseCaseTests {
         #expect(try await progress.fetchEvents() == [theirs])
         #expect(await standing.writes == 0)
     }
+
+    @Test("Given entries the partner recorded, when the dad edits a quest's note or a moment's day, then both are refused")
+    func partnersEntryIsNotHisToEdit() async throws {
+        let quest = partners(.quest(id: "q1"))
+        let moment = partners(.first(id: Self.first.id))
+        try await progress.add(quest)
+        try await progress.add(moment)
+        let journal = DefaultUpdateJournalUseCase(profileRepository: dad, progressRepository: progress, photoStore: photos)
+        let moments = DefaultUpdateMomentUseCase(profileRepository: dad, progressRepository: progress, photoStore: photos)
+
+        await #expect(throws: ProgressError.notYourEntry) {
+            try await journal.execute(eventID: quest.id, note: "μαζί", photos: [.added(Data([3]))])
+        }
+        await #expect(throws: ProgressError.notYourEntry) {
+            try await moments.execute(momentID: moment.id, happenedOn: today, note: "x", photos: [], now: today)
+        }
+
+        #expect(try await progress.fetchEvents() == [quest, moment])
+        #expect(await photos.stored.isEmpty)
+    }
+
+    @Test("Given the dad's own quest beside the partner's, when he edits its note, then it saves")
+    func ownEntryStillEdits() async throws {
+        let mine = ProgressEvent(kind: .quest(id: "q1"), childID: child.id, date: today)
+        try await progress.add(partners(.quest(id: "q1")))
+        try await progress.add(mine)
+
+        try await DefaultUpdateJournalUseCase(profileRepository: dad, progressRepository: progress, photoStore: photos)
+            .execute(eventID: mine.id, note: "δικό μου", photos: [])
+
+        #expect(try await progress.fetchEvents().first { $0.id == mine.id }?.note == "δικό μου")
+    }
 }

@@ -11,7 +11,9 @@ struct ConnectedProfileRepository: ProfileRepository {
     let connection: StoreConnection
 
     @concurrent func fetchProfile() async throws -> PlayerProfile? { try await connection.open().profiles.fetchProfile() }
-    @concurrent func save(_ profile: PlayerProfile) async throws { try await connection.open().profiles.save(profile) }
+    @concurrent func create(_ profile: PlayerProfile) async throws { try await connection.open().profiles.create(profile) }
+    @concurrent func save(_ edit: FamilyEdit) async throws { try await connection.open().profiles.save(edit) }
+    @concurrent func save(_ edit: HeroEdit) async throws { try await connection.open().profiles.save(edit) }
 }
 
 struct ConnectedProgressRepository: ProgressRepository {

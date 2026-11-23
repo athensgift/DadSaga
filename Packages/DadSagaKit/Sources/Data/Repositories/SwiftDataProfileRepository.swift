@@ -17,36 +17,58 @@ actor SwiftDataProfileRepository: ProfileRepository {
         return record.toDomain(children: children)
     }
 
-    /// Updates the stored profile and family in place: rows keep their identity, which sync will need (ADR-0026).
-    /// The stored profile keeps its id; one is inserted, with `profile.id`, only when none is stored. Children are
-    /// matched by id, so their progress stays linked; a family child left out goes. A child removed from the family is
-    /// left as it is (ADR-0065 §5), and no id the store holds is inserted again. All or nothing: the fetches come
-    /// between the changes, so the whole body is inside.
-    func save(_ profile: PlayerProfile) async throws {
+    /// Onboarding: the player and their children, numbered in order, in one save. One player per iPhone (ADR-0065 §5):
+    /// throws `ProfileEditError.profileExists` when one is stored. A fetch, not a count: a count also sees an insert a
+    /// rollback undid.
+    func create(_ profile: PlayerProfile) async throws {
         try modelContext.saveAllOrNothing {
-            let profiles = try modelContext.fetch(FetchDescriptor<ProfileRecord>())
-            if let record = profiles.first {
-                record.update(from: profile)
-            } else {
-                modelContext.insert(ProfileRecord(profile: profile))
+            guard try record() == nil else { throw ProfileEditError.profileExists }
+            modelContext.insert(ProfileRecord(profile: profile))
+            for (order, child) in profile.children.enumerated() {
+                modelContext.insert(ChildRecord(child: child, order: order, isRemoved: false))
             }
-            // One player per iPhone (ADR-0065 §5): `#Unique` keeps one row per id, not one row.
-            profiles.dropFirst().forEach(modelContext.delete)
+        }
+    }
+
+    /// Writes only what the edit names, and only values that differ (ADR-0065 §1, §4): a row the edit doesn't name is
+    /// never touched and no child is renumbered. A removed child (ADR-0065 §5) is never changed, deleted or inserted
+    /// again, and an id the edit both adds and removes is not added. An added child goes after the highest stored
+    /// order, removed rows included. Throws `ProfileValidationError.noChildren`, writing nothing, when the edit would
+    /// leave the family without a child: checked here, where removed rows are seen. All or nothing: the fetches come
+    /// between the changes, so the whole body is inside.
+    func save(_ edit: FamilyEdit) async throws {
+        try modelContext.saveAllOrNothing {
+            guard let profile = try record() else { throw ProfileEditError.noProfile }
+            if let hasPartner = edit.hasPartner { profile.update(\.hasPartner, to: hasPartner) }
 
             var stored: [UUID: ChildRecord] = [:]
             for record in try modelContext.fetch(FetchDescriptor<ChildRecord>()) {
                 stored[record.childID] = record
             }
-            for (order, child) in profile.children.enumerated() {
-                if let record = stored.removeValue(forKey: child.id) {
-                    // Only bringing a child back changes a removed row (ADR-0065 §4), and nothing does that yet.
-                    guard !record.isRemoved else { continue }
-                    record.update(from: child, order: order)
-                } else {
-                    modelContext.insert(ChildRecord(child: child, order: order, isRemoved: false))
-                }
+            for id in edit.removedIDs {
+                // PR 3 marks the row instead.
+                if let record = stored[id], !record.isRemoved { modelContext.delete(record) }
             }
-            stored.values.filter { !$0.isRemoved }.forEach(modelContext.delete)
+            for change in edit.changed where !edit.removedIDs.contains(change.child.id) {
+                if let record = stored[change.child.id], !record.isRemoved { record.apply(change) }
+            }
+            var nextOrder = (stored.values.map(\.order).max() ?? -1) + 1
+            for child in edit.added where stored[child.id] == nil && !edit.removedIDs.contains(child.id) {
+                let record = ChildRecord(child: child, order: nextOrder, isRemoved: false)
+                modelContext.insert(record)
+                stored[child.id] = record
+                nextOrder += 1
+            }
+            let kept = stored.values.filter { !$0.isRemoved && !edit.removedIDs.contains($0.childID) }
+            guard !kept.isEmpty else { throw ProfileValidationError.noChildren }
+        }
+    }
+
+    /// Sets only the hero fields the edit names, and only values that differ. Never a child row.
+    func save(_ edit: HeroEdit) async throws {
+        try modelContext.saveAllOrNothing {
+            guard let profile = try record() else { throw ProfileEditError.noProfile }
+            profile.apply(edit)
         }
     }
 

@@ -73,31 +73,63 @@ struct LocalStoreTests {
             dadAppearance: DadAppearance(hair: .long, hairColor: .red, beard: .short, glasses: .round)
         )
 
-        try await sut.save(profile)
+        try await sut.create(profile)
 
         #expect(try await sut.fetchProfile() == profile)
     }
 
-    @Test("Given an existing profile, when saving again, then it is replaced rather than duplicated")
-    func saveReplaces() async throws {
+    @Test("Given an existing profile, when onboarding creates another, then it throws profileExists and the first stays")
+    func createOverAStoredProfile() async throws {
         let sut = LocalStore.inMemory().profiles
-        try await sut.save(
-            PlayerProfile(
-                children: [Child(name: "Νίκος", birthDay: birthDay), Child(name: "Μαρία", birthDay: birthDay)],
-                heroClassID: "h-cool"
-            )
+        let first = PlayerProfile(
+            children: [Child(name: "Νίκος", birthDay: birthDay), Child(name: "Μαρία", birthDay: birthDay)],
+            heroClassID: "h-cool"
         )
-        let updated = PlayerProfile(children: [Child(name: "Άννα", birthDay: birthDay)], heroClassID: "h-smart")
+        try await sut.create(first)
 
-        try await sut.save(updated)
+        await #expect(throws: ProfileEditError.profileExists) {
+            try await sut.create(PlayerProfile(
+                id: UUID(), children: [Child(name: "Άννα", birthDay: birthDay)], heroClassID: "h-smart"
+            ))
+        }
 
-        #expect(try await sut.fetchProfile() == updated)
+        #expect(try await sut.fetchProfile() == first)
+    }
+
+    @Test("Given no profile, when a family or hero edit saves, then it throws noProfile and nothing is stored")
+    func editBeforeOnboarding() async throws {
+        let sut = LocalStore.inMemory().profiles
+
+        await #expect(throws: ProfileEditError.noProfile) {
+            try await sut.save(FamilyEdit(added: [Child(name: "Άννα", birthDay: nil)]))
+        }
+        await #expect(throws: ProfileEditError.noProfile) { try await sut.save(HeroEdit(beard: .full)) }
+
+        #expect(try await sut.fetchProfile() == nil)
+    }
+
+    @Test("Given an editor opened before another edit added and renamed a child, when it saves, then all of it stays")
+    func staleEditKeepsTheOtherChanges() async throws {
+        let sut = LocalStore.inMemory().profiles
+        let anna = Child(name: "Άννα", birthDay: birthDay)
+        try await sut.create(PlayerProfile(children: [anna], heroClassID: "h-cool"))
+        // Opened now: shows [Άννα].
+        let shown = [anna]
+        var renamed = anna
+        renamed.name = "Αννούλα"
+        let giorgos = Child(name: "Γιώργος", birthDay: nil)
+        try await sut.save(FamilyEdit(added: [giorgos], changed: [ChildEdit(child: renamed, fields: [.name])]))
+
+        let vasilis = Child(name: "Βασίλης", birthDay: nil)
+        try await sut.save(FamilyEdit(shown: shown, hasPartner: true, edited: [anna, vasilis], hasPartner: true))
+
+        #expect(try await sut.fetchProfile()?.children.map(\.name) == ["Αννούλα", "Γιώργος", "Βασίλης"])
     }
 
     @Test("Given a profile, events and wardrobe choices, when erasing the saga, then all of them read back empty")
     func eraseAll() async throws {
         let store = LocalStore.inMemory()
-        try await store.profiles.save(
+        try await store.profiles.create(
             PlayerProfile(children: [Child(name: "Νίκος", birthDay: birthDay)], heroClassID: "h-cool")
         )
         try await store.progress.add(ProgressEvent(kind: .first(id: "f1"), childID: UUID(), date: birth))
@@ -113,13 +145,13 @@ struct LocalStoreTests {
     @Test("Given a dad who chose a look, when starting over and onboarding again, then the new dad has the standard look")
     func eraseForgetsLook() async throws {
         let store = LocalStore.inMemory()
-        try await store.profiles.save(PlayerProfile(
+        try await store.profiles.create(PlayerProfile(
             children: [Child(name: "Νίκος", birthDay: birthDay)], heroClassID: "h-cool",
             dadAppearance: DadAppearance(hair: .shaved, beard: .none)
         ))
 
         try await store.wholeSaga.eraseAll()
-        try await store.profiles.save(PlayerProfile(children: [Child(name: "Άννα", birthDay: birthDay)], heroClassID: "h-cool"))
+        try await store.profiles.create(PlayerProfile(children: [Child(name: "Άννα", birthDay: birthDay)], heroClassID: "h-cool"))
 
         #expect(try await store.profiles.fetchProfile()?.dadAppearance == .standard(for: .mediumLight))
     }

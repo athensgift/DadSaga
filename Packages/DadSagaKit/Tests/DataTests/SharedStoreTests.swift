@@ -12,7 +12,7 @@ struct SharedStoreTests {
     func readOnlyStoreReadsWhatTheAppWrote() async throws {
         let app = LocalStore.live(in: directory)
         let child = Child(name: "Λένα", birthDay: .day(2023, 11, 14))
-        try await app.profiles.save(PlayerProfile(children: [child], heroClassID: "h-chef"))
+        try await app.profiles.create(PlayerProfile(children: [child], heroClassID: "h-chef"))
         let event = ProgressEvent(kind: .quest(id: "q1"), childID: child.id, date: .now)
         try await app.progress.add(event)
 

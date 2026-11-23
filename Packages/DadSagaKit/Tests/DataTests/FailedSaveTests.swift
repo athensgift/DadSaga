@@ -13,7 +13,7 @@ struct FailedSaveTests {
     /// A store with a family and one entry, reopened so that it cannot be written.
     private func unwritableStore(with events: [ProgressEvent] = []) async throws -> LocalStore {
         let app = LocalStore.live(in: directory)
-        try await app.profiles.save(PlayerProfile(children: [child], heroClassID: "h-chef"))
+        try await app.profiles.create(PlayerProfile(children: [child], heroClassID: "h-chef"))
         for event in events { try await app.progress.add(event) }
         _ = try await app.outfit.setChoice(.hidden, for: .play)
         return LocalStore.live(in: directory, readOnly: true)
@@ -66,13 +66,16 @@ struct FailedSaveTests {
         #expect(try await store.progress.fetchEvents() == [stored])
     }
 
-    @Test("Given a stored family, when saving a new one fails, then the stored family is read back")
+    @Test("Given a stored family, when a family edit or a hero edit fails, then the stored family and hero are read back")
     func failedProfileSaveKeepsTheStoredFamily() async throws {
         let store = try await unwritableStore()
         let other = Child(name: "Νίκος", birthDay: .day(2024, 3, 9))
 
         await #expect(throws: (any Error).self) {
-            try await store.profiles.save(PlayerProfile(children: [other], heroClassID: "h-smart"))
+            try await store.profiles.save(FamilyEdit(added: [other], removedIDs: [child.id]))
+        }
+        await #expect(throws: (any Error).self) {
+            try await store.profiles.save(HeroEdit(heroClassID: "h-smart"))
         }
 
         let profile = try await store.profiles.fetchProfile()

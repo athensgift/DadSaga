@@ -27,12 +27,24 @@ public final class HeroSettingsViewModel {
         var heroID: String
         var skinTone: SkinTone
         var appearance: DadAppearance
+
+        /// What changed since `stored`: only those parts are sent, so a part this version can't name, or a hero the
+        /// content lost, stays as stored (ADR-0065 §1).
+        func edit(since stored: Selection) -> HeroEdit {
+            HeroEdit(
+                heroClassID: heroID == stored.heroID ? nil : heroID,
+                dadSkinTone: skinTone == stored.skinTone ? nil : skinTone,
+                hair: appearance.hair == stored.appearance.hair ? nil : appearance.hair,
+                hairColor: appearance.hairColor == stored.appearance.hairColor ? nil : appearance.hairColor,
+                beard: appearance.beard == stored.appearance.beard ? nil : appearance.beard,
+                glasses: appearance.glasses == stored.appearance.glasses ? nil : appearance.glasses
+            )
+        }
     }
 
     private let getHeroChoice: any GetHeroChoiceUseCase
     private let updateHero: any UpdateHeroUseCase
     private let locale: Locale
-    private let now: Date
     private var options: [DadAppearanceOption] = []
     /// What is shown.
     private var current: Selection?
@@ -45,13 +57,11 @@ public final class HeroSettingsViewModel {
     public init(
         getHeroChoice: any GetHeroChoiceUseCase,
         updateHero: any UpdateHeroUseCase,
-        locale: Locale = .current,
-        now: Date = .now
+        locale: Locale = .current
     ) {
         self.getHeroChoice = getHeroChoice
         self.updateHero = updateHero
         self.locale = locale
-        self.now = now
     }
 
     public func onAppear() async {
@@ -92,8 +102,9 @@ public final class HeroSettingsViewModel {
         await change { $0.appearance = look }
     }
 
-    /// Shows the change, then stores the whole choice after any save already under way, so the store ends with the
-    /// newest. A failed save puts the page back to what is stored, unless a newer change is on its way.
+    /// Shows the change, then, after any save already under way, stores what differs from what the store holds, so the
+    /// store ends with the newest and a failed save's part goes again with the next change. A failed save puts the page
+    /// back to what is stored, unless a newer change is on its way.
     private func change(_ edit: (inout Selection) -> Void) async {
         guard var changed = current else { return }
         edit(&changed)
@@ -103,13 +114,13 @@ public final class HeroSettingsViewModel {
         generation += 1
         let thisChange = generation
         let useCase = updateHero
-        let date = now
         let save = Task { [previous = lastSave] in
             await previous?.value
             do {
-                try await useCase.execute(
-                    heroClassID: changed.heroID, skinTone: changed.skinTone, appearance: changed.appearance, on: date
-                )
+                if let stored {
+                    let edit = changed.edit(since: stored)
+                    if !edit.isEmpty { try await useCase.execute(edit) }
+                }
                 stored = changed
             } catch {
                 guard thisChange == generation, let stored else { return }

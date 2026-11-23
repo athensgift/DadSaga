@@ -75,7 +75,7 @@ public struct ContentCatalog: Hashable, Sendable {
     public func title(bringing gearID: String) -> DadTitle? { titlesByGearID[gearID] }
 
     /// The dad's hero. A stored id the content no longer knows shows as the first hero: no error and nothing to choose
-    /// again (ADR-0006). The stored id changes only when the dad changes something on "Your hero".
+    /// again (ADR-0006). The stored id changes only when the dad picks another hero.
     public func hero(for profile: PlayerProfile) -> HeroClass? {
         heroClass(id: profile.heroClassID) ?? heroClasses.first
     }

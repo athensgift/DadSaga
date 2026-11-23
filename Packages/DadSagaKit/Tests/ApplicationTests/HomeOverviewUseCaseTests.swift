@@ -64,7 +64,7 @@ struct HomeOverviewUseCaseTests {
     }
 
     func family(_ children: [Child]) async throws {
-        try await profiles.save(PlayerProfile(children: children, heroClassID: "h"))
+        await profiles.seed(PlayerProfile(children: children, heroClassID: "h"))
     }
 
     @Test("Given no family yet, when reading home, then there is nothing to show")
