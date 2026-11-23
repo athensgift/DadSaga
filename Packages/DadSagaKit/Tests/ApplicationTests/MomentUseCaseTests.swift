@@ -253,7 +253,7 @@ struct GetTimelineUseCaseTests {
 
     func saga(removed: [Child] = [], events: [ProgressEvent]) -> StoredSaga {
         StoredSaga(
-            profile: PlayerProfile(children: [family], heroClassID: "h1"), removedChildren: removed, events: events,
+            profile: PlayerProfile(children: [family], heroClassID: "h1", removedChildren: removed), events: events,
             outfit: Outfit(), kept: KeptStanding()
         )
     }
@@ -269,7 +269,7 @@ struct GetTimelineUseCaseTests {
         #expect(entries.map(\.xp) == [quest.xp])
     }
 
-    @Test("Given entries of a removed child and of a child deleted, when executing, then only the removed one's are left out")
+    @Test("Given entries of a removed child and of a child with no row, when executing, then only the family's are left")
     func removedChildrenAreLeftOut() async throws {
         let quest = try #require(Stub.catalog.quests.first)
         let removed = Child(name: "Ίρις", birthDay: nil)
@@ -283,7 +283,7 @@ struct GetTimelineUseCaseTests {
         let none = try await DefaultGetTimelineUseCase(contentRepository: content, wholeSaga: StoredWholeSaga(saga: nil))
             .execute()
 
-        #expect(Set(entries.map(\.id)) == [ours.id, deletedChilds.id])
+        #expect(entries.map(\.id) == [ours.id])
         #expect(none.isEmpty)
     }
 }

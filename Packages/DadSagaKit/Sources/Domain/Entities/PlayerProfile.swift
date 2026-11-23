@@ -12,6 +12,10 @@ public struct PlayerProfile: Hashable, Identifiable, Sendable {
     /// The children in the family, in the order the dad entered them, at least one once validated. A child removed from
     /// the family is never here (ADR-0065 §4).
     public var children: [Child]
+    /// The children removed from the family (ADR-0065 §4), in the order the dad entered them: listed on "My family"
+    /// only, to bring back or delete for good, and in none of the family's counts (the picker, siblings, the limit of
+    /// four). Their entries stay and still count for their author.
+    public var removedChildren: [Child]
     public var heroClassID: String
     public var dadSkinTone: SkinTone
     /// The dad's hair, beard and glasses (ADR-0044).
@@ -31,7 +35,8 @@ public struct PlayerProfile: Hashable, Identifiable, Sendable {
         heroClassID: String,
         dadSkinTone: SkinTone = .mediumLight,
         dadAppearance: DadAppearance? = nil,
-        hasPartner: Bool = true
+        hasPartner: Bool = true,
+        removedChildren: [Child] = []
     ) {
         self.id = id
         self.children = children
@@ -39,5 +44,6 @@ public struct PlayerProfile: Hashable, Identifiable, Sendable {
         self.dadSkinTone = dadSkinTone
         self.dadAppearance = dadAppearance ?? .standard(for: dadSkinTone)
         self.hasPartner = hasPartner
+        self.removedChildren = removedChildren
     }
 }

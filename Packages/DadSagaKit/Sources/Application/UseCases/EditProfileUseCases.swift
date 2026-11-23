@@ -6,6 +6,9 @@ public enum ProfileEditError: Error, Equatable {
     case noProfile
     /// Onboarding over a stored player: there is one per iPhone (ADR-0065 §5).
     case profileExists
+    /// No child removed from the family has this id: bringing back and deleting for good act on a removed child only
+    /// (ADR-0065 §4).
+    case notRemoved
 }
 
 /// Changes what the dad changed of his hero, skin tone and look, and nothing else. Progress and wardrobe are untouched:

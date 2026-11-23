@@ -40,7 +40,7 @@ struct SagaCopyFilesTests: SagaCopyBench {
         let renamed = Dictionary(uniqueKeysWithValues: zip(original.photoIDs, restored.photoIDs))
         #expect(restored == original.replacingPhotoIDs(renamed))
         #expect(restored.profile.id == SagaCopyPeople.dadID)
-        #expect(restored.removedChildren == [removed])
+        #expect(restored.profile.removedChildren == [removed])
         #expect(Set(restored.events.map(\.authorID)) == [SagaCopyPeople.dadID, SagaCopyPeople.partnerID])
         #expect(Set(restored.photoIDs).isDisjoint(with: original.photoIDs))
         for (oldID, newID) in renamed {

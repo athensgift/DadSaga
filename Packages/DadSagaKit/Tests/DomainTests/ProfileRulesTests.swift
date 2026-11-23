@@ -150,4 +150,22 @@ struct ProfileRulesTests {
             try ProfileRules.validated(profile(hero: "nope"), on: today, heroClasses: heroes)
         }
     }
+
+    @Test("Given three, four or five in the family, when bringing a removed child back, then only three has room")
+    func roomToBringBack() throws {
+        let family = { (count: Int) in (0..<count).map { Child(name: "Παιδί \($0)", birthDay: nil) } }
+
+        try ProfileRules.checkRoomToBringBack(into: family(3))
+        #expect(throws: ProfileValidationError.tooManyChildren) { try ProfileRules.checkRoomToBringBack(into: family(4)) }
+        #expect(throws: ProfileValidationError.tooManyChildren) { try ProfileRules.checkRoomToBringBack(into: family(5)) }
+    }
+
+    @Test("Given a removed child, when the picker asks for them, then it gets the family's first child")
+    func removedChildIsNeverPicked() {
+        let lena = Child(name: "Λένα", birthDay: nil)
+        let iris = Child(name: "Ίρις", birthDay: nil)
+        let profile = PlayerProfile(children: [lena], heroClassID: "h1", removedChildren: [iris])
+
+        #expect(profile.child(iris.id) == lena)
+    }
 }

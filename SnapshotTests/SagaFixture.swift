@@ -273,12 +273,13 @@ extension SagaFixture {
             makeFamily: { onSaved in
                 FamilyViewModel(
                     getProfile: DefaultGetProfileUseCase(repository: store.profiles),
-                    updateFamily: DefaultUpdateFamilyUseCase(
-                        profileRepository: store.profiles, timeZone: Self.calendar.timeZone
+                    updateFamily: DefaultUpdateFamilyUseCase(profileRepository: store.profiles, timeZone: Self.calendar.timeZone),
+                    bringBack: DefaultBringBackChildUseCase(profileRepository: store.profiles),
+                    deleteForGood: DefaultDeleteChildForGoodUseCase(
+                        contentRepository: content, profileRepository: store.profiles,
+                        progressRepository: store.progress, standingRepository: store.standing, photoStore: photos
                     ),
-                    locale: locale,
-                    now: Self.today,
-                    timeZone: Self.calendar.timeZone,
+                    locale: locale, now: Self.today, timeZone: Self.calendar.timeZone,
                     onSaved: onSaved
                 )
             },

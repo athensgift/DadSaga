@@ -30,7 +30,7 @@ struct UniqueRowsTests: SagaCopyBench {
     func expectStored(_ saga: StoredSaga, on phone: Phone) async throws {
         let read = try #require(try await phone.store.wholeSaga.readAll())
         #expect(read.profile == saga.profile)
-        #expect(read.removedChildren == saga.removedChildren)
+        #expect(read.profile.removedChildren == saga.profile.removedChildren)
         #expect(read.events.map(\.id) == saga.events.map(\.id))
         #expect(zip(read.events, saga.events).allSatisfy {
             $0.authorID == $1.authorID && $0.note == $1.note && $0.date == $1.date && $0.kind == $1.kind
@@ -44,7 +44,7 @@ struct UniqueRowsTests: SagaCopyBench {
         #expect(try await phone.store.standing.fetchKept() == saga.kept)
         #expect(try storedRowCount(ProfileRecord.self, at: storeURL) == 1)
         #expect(try storedRowCount(ChildRecord.self, at: storeURL)
-            == saga.profile.children.count + saga.removedChildren.count)
+            == saga.profile.children.count + saga.profile.removedChildren.count)
         #expect(try storedRowCount(ProgressEventRecord.self, at: storeURL) == saga.events.count)
         #expect(try storedRowCount(OutfitRecord.self, at: storeURL) == saga.outfit.choices.count)
     }
@@ -119,7 +119,7 @@ struct UniqueRowsTests: SagaCopyBench {
         let saga = try #require(try await new.store.wholeSaga.readAll())
         #expect(saga.profile.children[0].name == "Λενιώ")
         #expect(saga.profile.id == SagaCopyPeople.dadID)
-        #expect(saga.removedChildren == [removed])
+        #expect(saga.profile.removedChildren == [removed])
         #expect(saga.outfit.choice(for: .care) == .hidden)
         #expect(try storedRowCount(ChildRecord.self, at: storeURL) == 3)
         #expect(try storedRowCount(OutfitRecord.self, at: storeURL) == saga.outfit.choices.count)

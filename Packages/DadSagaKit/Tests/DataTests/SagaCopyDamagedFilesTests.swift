@@ -238,9 +238,8 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
                     id: SagaCopyV1Fixture.id("D0000000-0000-0000-0000-00000000000D"),
                     children: [eleni, baby], heroClassID: "h-cool", dadSkinTone: .medium,
                     dadAppearance: DadAppearance(hair: .long, hairColor: .red, beard: .short, glasses: .round),
-                    hasPartner: false
+                    hasPartner: false, removedChildren: [iris]
                 ),
-                removedChildren: [iris],
                 events: [ProgressEvent(
                     id: SagaCopyV1Fixture.id("E0000000-0000-0000-0000-000000000001"),
                     authorID: SagaCopyV1Fixture.id("F0000000-0000-0000-0000-00000000000F"), kind: .first(id: "f-steps"),

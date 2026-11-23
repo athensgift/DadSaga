@@ -2959,6 +2959,160 @@
         }
       }
     },
+    "Removed from the family" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αφαιρέθηκαν από την οικογένεια"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Removed from the family"
+          }
+        }
+      }
+    },
+    "Kept with everything recorded with them." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μένουν φυλαγμένα με ό,τι έχει καταγραφεί μαζί τους."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kept with everything recorded with them."
+          }
+        }
+      }
+    },
+    "Bring back" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Επαναφορά"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bring back"
+          }
+        }
+      }
+    },
+    "Delete for good" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οριστική διαγραφή"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete for good"
+          }
+        }
+      }
+    },
+    "Bring back %@" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Επαναφορά: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bring back %@"
+          }
+        }
+      }
+    },
+    "Delete %@ for good" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οριστική διαγραφή: %@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete %@ for good"
+          }
+        }
+      }
+    },
+    "Delete %@ for good?" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Οριστική διαγραφή: %@;"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete %@ for good?"
+          }
+        }
+      },
+      "generatesSymbol" : false
+    },
+    "%@ and everything recorded with them, photos included, will be deleted. This can't be undone." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Θα διαγραφούν: %@ και ό,τι έχει καταγραφεί για το παιδί, μαζί με τις φωτογραφίες. Δεν αναιρείται."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ and everything recorded with them, photos included, will be deleted. This can't be undone."
+          }
+        }
+      }
+    },
+    "The family has room for four children. To bring one back, remove another first." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η οικογένεια χωράει έως τέσσερα παιδιά. Για να επαναφέρεις ένα, αφαίρεσε πρώτα κάποιο άλλο."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The family has room for four children. To bring one back, remove another first."
+          }
+        }
+      }
+    },
     "It's only your look. Every hero is equally strong." : {
       "extractionState" : "manual",
       "localizations" : {

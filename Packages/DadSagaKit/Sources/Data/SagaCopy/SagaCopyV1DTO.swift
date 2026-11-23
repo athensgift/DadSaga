@@ -124,7 +124,7 @@ extension SagaCopySagaV1 {
             glasses: SagaCopyNamesV1.name(of: profile.dadAppearance.glasses),
             hasPartner: profile.hasPartner
         )
-        let family = profile.children.map { ($0, false) } + copy.saga.removedChildren.map { ($0, true) }
+        let family = profile.children.map { ($0, false) } + profile.removedChildren.map { ($0, true) }
         children = family.map { child, removed in
             Child(
                 id: child.id, name: child.name, birthDay: child.birthDay.map(SagaCopyNamesV1.name(of:)),
@@ -190,9 +190,8 @@ extension SagaCopySagaV1 {
         let saga = StoredSaga(
             profile: PlayerProfile(
                 id: hero.id, children: family, heroClassID: hero.classID, dadSkinTone: tone, dadAppearance: look,
-                hasPartner: hero.hasPartner
+                hasPartner: hero.hasPartner, removedChildren: removed
             ),
-            removedChildren: removed,
             events: events,
             outfit: outfit,
             kept: KeptStanding(titleID: standing.titleID, seenTitleID: standing.seenTitleID)

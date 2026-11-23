@@ -24,6 +24,25 @@ struct FailedSaveTests {
                       photoIDs: ["photo-a"])
     }
 
+    @Test("Given a removed child with an entry, when bringing back or deleting for good fails, then nothing changes")
+    func failedRemovedChildActsChangeNothing() async throws {
+        let removed = Child(name: "Ίρις", birthDay: nil)
+        let theirs = ProgressEvent(kind: .quest(id: "q1"), childID: removed.id, date: .now, photoIDs: ["photo-b"])
+        let app = LocalStore.live(in: directory)
+        try await app.profiles.create(PlayerProfile(children: [child, removed], heroClassID: "h-chef"))
+        try await app.progress.add(theirs)
+        try await app.profiles.save(FamilyEdit(removedIDs: [removed.id]))
+        let store = LocalStore.live(in: directory, readOnly: true)
+
+        await #expect(throws: (any Error).self) { try await store.profiles.bringBack(childID: removed.id) }
+        await #expect(throws: (any Error).self) { _ = try await store.profiles.deleteForGood(childID: removed.id) }
+
+        let profile = try #require(try await store.profiles.fetchProfile())
+        #expect(profile.children == [child])
+        #expect(profile.removedChildren == [removed])
+        #expect(try await store.progress.fetchEvents() == [theirs])
+    }
+
     @Test("Given a store that can't be written, when adding an event fails, then the events read back are unchanged")
     func failedAddLeavesNothingBehind() async throws {
         let stored = entry()

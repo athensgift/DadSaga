@@ -38,14 +38,9 @@ public struct DefaultDeleteEventUseCase: DeleteEventUseCase {
         )
         let found = try await remover.find(eventID)
         let (player, event, events) = (found.player, found.entry, found.all)
-        let catalog = try await contentRepository.fetchCatalog()
         // What he holds is kept first, so the deletion never lowers his title. If the write fails, nothing is deleted.
-        let standing = DadStanding(
-            progress: DadProgress(of: player, events: events, catalog: catalog),
-            catalog: catalog,
-            kept: try await standingRepository.fetchKept()
-        )
-        if let title = standing.titleToKeep { try await standingRepository.keep(titleID: title.id) }
+        try await TitleKeeper(contentRepository: contentRepository, standingRepository: standingRepository)
+            .keepHeldTitle(of: player, events: events)
         try await remover.remove(event)
     }
 }

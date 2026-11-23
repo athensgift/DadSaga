@@ -54,16 +54,6 @@ public struct TimelineItem: Equatable, Identifiable, Sendable {
     public let photoCount: String?
 }
 
-/// The question asked before deleting an entry.
-public struct DeletionPrompt: Equatable, Identifiable, Sendable {
-    /// The entry to delete.
-    public let id: UUID
-    public let title: String
-    public let message: String
-    public let confirmTitle: String
-    public let cancelTitle: String
-}
-
 /// An entry's note and photos, open for editing.
 public struct JournalEditor: Equatable, Identifiable, Sendable {
     /// The entry.

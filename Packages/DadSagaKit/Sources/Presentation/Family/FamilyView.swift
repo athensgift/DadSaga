@@ -52,6 +52,8 @@ struct FamilyView: View {
             onSave: { Task { await viewModel.save() } },
             onDiscard: { dismiss() }
         ))
+        // Bringing back and deleting for good save with nothing unsaved: a link waits for them too (ADR-0050 §4).
+        .holdsLinks(whileWorking: viewModel.isSaving)
         .task { await viewModel.onAppear() }
     }
 
@@ -81,10 +83,11 @@ struct FamilyView: View {
                 footnote(content)
             }
         } acting: { isSplit in
-            ForEach(Array($viewModel.family.children.enumerated()), id: \.element.id) { index, $child in
+            // By id, not by position: a removed card still draws while it leaves, after its place is gone.
+            ForEach(viewModel.family.children) { child in
                 ChildEditorCard(
-                    child: $child,
-                    number: index + 1,
+                    child: $viewModel.family.child(child),
+                    number: viewModel.family.number(of: child.id),
                     labels: content.childEditor,
                     latestBirthDate: viewModel.latestBirthDate,
                     timeZone: viewModel.timeZone,
@@ -96,6 +99,9 @@ struct FamilyView: View {
                 Button(content.childEditor.addChildTitle, systemImage: "plus") { viewModel.addChild() }
                     .buttonStyle(.glass)
                     .controlSize(.large)
+            }
+            if !viewModel.removedChildren.isEmpty {
+                RemovedChildrenCard(viewModel: viewModel, labels: content.removed)
             }
             PartnerRow(hasPartner: $viewModel.family.hasPartner, labels: content.partner)
             SheetError(message: viewModel.errorMessage)
@@ -111,6 +117,97 @@ struct FamilyView: View {
             .font(DSFont.caption)
             .foregroundStyle(DSColor.textSecondary)
             .multilineTextAlignment(.center)
+    }
+}
+
+/// The children removed from the family, by name only: each can be brought back or deleted for good, after a calm
+/// question (ADR-0065 §4).
+private struct RemovedChildrenCard: View {
+    let viewModel: FamilyViewModel
+    let labels: RemovedChildrenLabels
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: DSSpacing.s) {
+            Text(labels.title)
+                .font(DSFont.headline)
+                .accessibilityAddTraits(.isHeader)
+            Text(labels.line)
+                .font(DSFont.caption)
+                .foregroundStyle(DSColor.textSecondary)
+            ForEach(viewModel.removedChildren) { row in
+                Divider()
+                RemovedChild(viewModel: viewModel, row: row, labels: labels)
+            }
+            if viewModel.isFamilyFull {
+                Text(labels.full)
+                    .font(DSFont.caption)
+                    .foregroundStyle(DSColor.textSecondary)
+            }
+        }
+        .padding(DSSpacing.m)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .font(DSFont.body)
+        .foregroundStyle(DSColor.textPrimary)
+        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+    }
+}
+
+/// One removed child: the name, and the two acts under it, side by side while their words fit on one line each, one
+/// under the other once they don't. The question hangs on the row, so it rises from the child it is about.
+private struct RemovedChild: View {
+    let viewModel: FamilyViewModel
+    let row: RemovedChildRow
+    let labels: RemovedChildrenLabels
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: DSSpacing.s) {
+            Text(row.name)
+                .font(DSFont.headline)
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: DSSpacing.s) { buttons(wrapping: false) }
+                VStack(alignment: .leading, spacing: DSSpacing.s) { buttons(wrapping: true) }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .confirmationDialog(
+            viewModel.deletion?.title ?? "",
+            isPresented: Binding(
+                get: { viewModel.deletion?.id == row.id },
+                set: { if !$0 { viewModel.cancelDeletion() } }
+            ),
+            titleVisibility: .visible,
+            presenting: viewModel.deletion
+        ) { prompt in
+            Button(prompt.confirmTitle, role: .destructive) {
+                Task { await viewModel.confirmDeletion(id: prompt.id) }
+            }
+            Button(prompt.cancelTitle, role: .cancel) { viewModel.cancelDeletion() }
+        } message: { prompt in
+            Text(prompt.message)
+        }
+    }
+
+    /// Side by side, each title keeps to one line, never hyphenated; stacked, a title may wrap whole.
+    @ViewBuilder
+    private func buttons(wrapping: Bool) -> some View {
+        if !viewModel.isFamilyFull {
+            Button { Task { await viewModel.bringBack(id: row.id) } } label: { title(labels.bringBack, wrapping: wrapping) }
+                .buttonStyle(.glass)
+                .disabled(!viewModel.canBringBack)
+                .accessibilityLabel(row.bringBackLabel)
+        }
+        Button(role: .destructive) { viewModel.requestDeletion(id: row.id) } label: {
+            title(labels.deleteForGood, wrapping: wrapping)
+        }
+        .buttonStyle(.glass)
+        .disabled(viewModel.isSaving)
+        .accessibilityLabel(row.deleteLabel)
+    }
+
+    private func title(_ text: String, wrapping: Bool) -> some View {
+        Text(text)
+            .lineLimit(wrapping ? nil : 1)
+            .fixedSize(horizontal: !wrapping, vertical: false)
     }
 }
 

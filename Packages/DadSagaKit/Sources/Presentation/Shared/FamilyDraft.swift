@@ -64,6 +64,11 @@ public struct FamilyDraft: Equatable, Sendable {
     /// "I have a partner" (ADR-0053 §4): on unless he turns it off.
     public var hasPartner: Bool
 
+    /// "Child 1", "Child 2": the place of `id` in the family, counted from one.
+    public func number(of id: UUID) -> Int {
+        (children.firstIndex { $0.id == id } ?? children.count) + 1
+    }
+
     public var canAddChild: Bool { children.count < PlayerProfile.maxChildren }
     public var canRemoveChild: Bool { children.count > 1 }
     /// Every child has a name.

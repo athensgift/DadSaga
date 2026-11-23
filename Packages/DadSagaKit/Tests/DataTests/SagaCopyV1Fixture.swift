@@ -19,7 +19,7 @@ enum SagaCopyV1Fixture {
     static let baby = Child(
         id: id("BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB"), name: "Μπέμπης", birthDay: nil, gender: .boy, skinTone: .light
     )
-    /// Removed from the family in a co-op version (ADR-0065 §4), with an entry by the partner.
+    /// Removed from the family (ADR-0065 §4), with an entry by the partner.
     static let iris = Child(
         id: id("CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC"), name: "Ίρις", birthDay: CalendarDay(year: 2023, month: 6, day: 1),
         gender: .girl, skinTone: .medium
@@ -31,9 +31,8 @@ enum SagaCopyV1Fixture {
             profile: PlayerProfile(
                 id: heroID, children: [eleni, baby], heroClassID: "h-cool", dadSkinTone: .dark,
                 dadAppearance: DadAppearance(hair: .long, hairColor: .red, beard: .short, glasses: .round),
-                hasPartner: false
+                hasPartner: false, removedChildren: [iris]
             ),
-            removedChildren: [iris],
             events: [
                 ProgressEvent(id: id("E0000000-0000-0000-0000-000000000001"), authorID: heroID,
                               kind: .boss(id: "b-w1-first-fever"),
