@@ -41,7 +41,7 @@ public enum VerticalFold {
         return divisions.contains { division in
             let part = division.intersection(bounds)
             // Inside the view, not along its edge: a fold beside the view only touches it.
-            return !part.isNull && part.width > 0 && part.height > part.width
+            return !part.isNull && part.midX > 0.5 && part.midX < size.width - 0.5 && part.height > part.width
                 && part.minY <= 0.5 && part.maxY >= size.height - 0.5
         }
     }

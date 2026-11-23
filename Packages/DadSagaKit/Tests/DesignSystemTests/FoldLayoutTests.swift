@@ -58,6 +58,8 @@ struct FoldLayoutTests {
         let book = CGSize(width: 951, height: 669)
         #expect(VerticalFold.runsDown(book, divisions: [CGRect(x: 455, y: -20, width: 40, height: 709)]))
         #expect(!VerticalFold.runsDown(book, divisions: []))
+        // A fold reported with no thickness still runs down.
+        #expect(VerticalFold.runsDown(book, divisions: [CGRect(x: 475, y: 0, width: 0, height: 669)]))
     }
 
     @Test("Given a fold across the view or one that stops short, when the view looks for a fold down it, then there is none")
