@@ -41,7 +41,7 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ The widget opening an older store read-only fails without touching it, tested from a test-only older schema
   (`OlderStoreTests`, ADR-0060). The first `SchemaV2` adds the test from the `StoreV1` fixture the first App Store
   release writes.
-- iCloud and partner co-op: designed in ADR-0065 (Proposed). ✅ Its PR 1 (a profile id, the entries' authors, a
+- iCloud and partner co-op: designed in ADR-0065. ✅ Its PR 1 (a profile id, the entries' authors, a
   child's `isRemoved` and `#Unique` ids in `SchemaV1`, and the same in a copy), before the first App Store release
   branch; the rest is Phase 5.
 - ✅ The store's work runs off the main thread, now whatever the compiler's default (ADR-0034).

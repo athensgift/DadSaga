@@ -1,6 +1,6 @@
 # ADR-0065: Partner co-op: both parents share one family's saga through iCloud, each with their own hero and title
 
-**Status:** Proposed (2026-11-22, revised after review 2026-11-23). Drafted by the architect for the version after
+**Status:** Accepted (2026-11-23, by the owner, with its PR 1; proposed 2026-11-22, revised after review 2026-11-23). Drafted by the architect for the version after
 the first App Store release, as the roadmap asks ("Sync ADR before Phase 5") and ADR-0026 §6 deferred. One part is for
 **before** that release: §5's changes to `SchemaV1` and to format 1 of a copy, since both freeze with that build
 (ADR-0060); `docs/RELEASE.md` checks it. The owner answered the product questions on 2026-11-22 and 2026-11-23
