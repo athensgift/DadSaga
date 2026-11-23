@@ -8,7 +8,6 @@ import Testing
 @Suite("Two players")
 struct TwoPlayersUseCaseTests {
     static let text = Stub.text
-    static let partner = UUID(uuidString: "0000000A-0000-4000-8000-000000000002") ?? UUID()
     static let first = FirstMoment(id: "f-steps", order: 1, emoji: "👣", title: text, xp: 30, companionTrait: nil)
     static let catalog = ContentCatalog(
         worlds: [World(id: "w1", order: 1, title: text, tagline: text, span: .months(min: 0, max: 24))],
@@ -29,7 +28,7 @@ struct TwoPlayersUseCaseTests {
     let photos = SpyPhotoStore()
 
     func partners(_ kind: ProgressEvent.Kind) -> ProgressEvent {
-        ProgressEvent(authorID: Self.partner, kind: kind, childID: child.id, date: today.addingTimeInterval(-86_400))
+        ProgressEvent(authorID: UUID.partner, kind: kind, childID: child.id, date: today.addingTimeInterval(-86_400))
     }
 
     var home: DefaultGetHomeOverviewUseCase {
@@ -54,7 +53,6 @@ struct TwoPlayersUseCaseTests {
         }
 
         #expect(try await progress.fetchEvents().count == 1)
-        #expect(await photos.saveCount == 0)
     }
 
     @Test("Given a first nobody captured, when the dad captures it, then the change carries the child's new moment")

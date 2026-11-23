@@ -23,7 +23,8 @@ public enum WeeklyQuest {
         return order[(index + order.count) % order.count]
     }
 
-    /// Whether the dad completed this quest with this child at some point in this week.
+    /// Whether this quest was completed with this child at some point in this week, in `events`: the parent's own, as a
+    /// partner's quest is never the dad's (ADR-0065 §3.3).
     public static func isDone(_ quest: Quest, childID: UUID, week: DateInterval, events: [ProgressEvent]) -> Bool {
         events.contains { event in
             guard case .quest(let id) = event.kind, quest.has(id: id) else { return false }

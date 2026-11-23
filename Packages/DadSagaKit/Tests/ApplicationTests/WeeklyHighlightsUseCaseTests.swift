@@ -99,6 +99,23 @@ struct WeeklyHighlightsUseCaseTests {
         #expect(done?.quest == .suggested(Self.catalog.quests[0], isDone: true))
     }
 
+    @Test("Given the partner did the week's quest and captured a first, when executing, then it isn't done; the moment shows")
+    func partnersQuestIsntHis() async throws {
+        let baby = Child(name: "Lena", birthDay: CalendarDay(Self.date(2026, 6, 1), in: .gmt))
+        try await onboard([baby])
+        try await progress.add(ProgressEvent(
+            authorID: .partner, kind: .quest(id: "q1"), childID: baby.id, date: Self.date(2026, 11, 16)
+        ))
+        try await progress.add(ProgressEvent(
+            authorID: .partner, kind: .first(id: "f1"), childID: baby.id, date: Self.date(2026, 11, 17)
+        ))
+
+        let highlights = try await sut.execute(childID: baby.id, on: today, photoMaxPixelSize: nil)
+
+        #expect(highlights?.quest == .suggested(Self.catalog.quests[0], isDone: false))
+        #expect(highlights?.latestMoment?.authorID == .partner)
+    }
+
     @Test("Given a child older than every world, when executing, then adventures are coming and the moment stays")
     func beyondContent() async throws {
         let older = Child(name: "Eleni", birthDay: CalendarDay(Self.date(2020, 1, 1), in: .gmt))

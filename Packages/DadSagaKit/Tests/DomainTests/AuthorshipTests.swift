@@ -6,7 +6,6 @@ import Testing
 /// from everyone's. A partner's entry never adds to the dad's standing or takes from it (ADR-0006).
 @Suite("Authorship")
 struct AuthorshipTests {
-    static let partner = UUID(uuidString: "0000000A-0000-4000-8000-000000000002") ?? UUID()
     let anna = UUID()
     let niko = UUID()
     let catalog = Fixtures.catalog
@@ -16,7 +15,7 @@ struct AuthorshipTests {
     }
 
     func partners(_ kind: ProgressEvent.Kind, child: UUID, at seconds: TimeInterval) -> ProgressEvent {
-        ProgressEvent(authorID: Self.partner, kind: kind, childID: child, date: Date(timeIntervalSince1970: seconds))
+        ProgressEvent(authorID: UUID.partner, kind: kind, childID: child, date: Date(timeIntervalSince1970: seconds))
     }
 
     @Test("Given my entries and a partner's quests, bosses and firsts, when counting mine, then they are as mine alone")
@@ -62,7 +61,7 @@ struct AuthorshipTests {
         let moments = FamilyMoments(events: [theirs], catalog: catalog)
 
         #expect(moments.capturedFirstIDs(for: anna) == ["f1"])
-        #expect(moments.moments(for: anna).map(\.authorID) == [Self.partner])
+        #expect(moments.moments(for: anna).map(\.authorID) == [UUID.partner])
         #expect(DadProgress(events: [theirs], catalog: catalog).totalXP == 0)
     }
 
@@ -84,7 +83,7 @@ struct AuthorshipTests {
         let saga = SagaFixtures()
         let mine = ProgressEvent(kind: .boss(id: "b1"), childID: saga.child.id, date: saga.date(months: 1))
         let theirs = ProgressEvent(
-            authorID: Self.partner, kind: .boss(id: "b1"), childID: saga.child.id, date: saga.date(months: 2)
+            authorID: UUID.partner, kind: .boss(id: "b1"), childID: saga.child.id, date: saga.date(months: 2)
         )
         let again = ProgressEvent(kind: .boss(id: "b1"), childID: saga.child.id, date: saga.date(months: 3))
 
@@ -103,10 +102,10 @@ struct AuthorshipTests {
         let events = [
             saga.event(.quest(id: "q1"), months: 1, photos: "p1"),
             ProgressEvent(
-                authorID: Self.partner, kind: .quest(id: "q1"), childID: saga.child.id, date: saga.date(months: 2),
+                authorID: UUID.partner, kind: .quest(id: "q1"), childID: saga.child.id, date: saga.date(months: 2),
                 photoIDs: ["p2"]
             ),
-            ProgressEvent(authorID: Self.partner, kind: .first(id: "f1"), childID: saga.child.id, date: saga.date(months: 3))
+            ProgressEvent(authorID: UUID.partner, kind: .first(id: "f1"), childID: saga.child.id, date: saga.date(months: 3))
         ]
 
         let film = try #require(saga.storyboard(events))
@@ -120,7 +119,7 @@ struct AuthorshipTests {
     func partnersEntryMakesAPeriod() {
         let saga = SagaFixtures()
         let theirs = ProgressEvent(
-            authorID: Self.partner, kind: .quest(id: "q1"), childID: saga.child.id, date: saga.date(months: 14)
+            authorID: UUID.partner, kind: .quest(id: "q1"), childID: saga.child.id, date: saga.date(months: 14)
         )
 
         let periods = SagaPeriod.available(

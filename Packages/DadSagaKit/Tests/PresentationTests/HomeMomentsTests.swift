@@ -169,7 +169,7 @@ struct HomeMomentsTests {
 
     @Test("Given a first the partner captured, when appearing and opening step 1, then it shows captured and isn't offered")
     func partnersMomentIsTheChilds() async {
-        await progress.seedMoment(photos: [Data([1])], by: UUID())
+        await progress.seedMoment(photos: [Data([1])], by: .partner)
         let sut = await makeSUT()
 
         sut.startCapture()

@@ -5,6 +5,8 @@ extension UUID {
     /// The one player of a test saga: until the co-op version every entry's author is the one profile (ADR-0065 §5).
     /// Fixed, since a stored profile keeps its id across saves.
     static let testDad = UUID(uuid: (0xD0, 0xD0, 0xD0, 0xD0, 0, 0, 0x40, 0, 0x80, 0, 0, 0, 0, 0, 0, 0x01))
+    /// The other parent in the family: their entries are the family's, never the test dad's (ADR-0065 §3).
+    static let partner = UUID(uuid: (0x0A, 0x0A, 0x0A, 0x0A, 0, 0, 0x40, 0, 0x80, 0, 0, 0, 0, 0, 0, 0x02))
 }
 
 extension PlayerProfile {
@@ -53,12 +55,5 @@ extension DadProgress {
     /// The test dad's progress: his own entries in `events`.
     init(events: [ProgressEvent], catalog: ContentCatalog) {
         self.init(of: .testDad, events: events, catalog: catalog)
-    }
-}
-
-extension CapturedMoment {
-    /// A moment the test dad captured.
-    init(eventID: UUID, first: FirstMoment, date: Date, note: String?, photoIDs: [String]) {
-        self.init(eventID: eventID, authorID: .testDad, first: first, date: date, note: note, photoIDs: photoIDs)
     }
 }

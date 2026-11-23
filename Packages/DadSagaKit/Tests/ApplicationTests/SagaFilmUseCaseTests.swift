@@ -89,6 +89,26 @@ struct SagaFilmUseCaseTests {
         try await progress.add(ProgressEvent(kind: kind, childID: (child ?? anna).id, date: date(months: months)))
     }
 
+    @Test("Given the partner's entries, when reading the film, then they play; the hero, title and medals are the dad's")
+    func partnersEntriesPlayTheHeroIsHis() async throws {
+        try await family()
+        try await record(.quest(id: "q1"), months: 1)
+        let theirs = [
+            ProgressEvent(authorID: .partner, kind: .boss(id: "b1"), childID: anna.id, date: date(months: 10)),
+            ProgressEvent(authorID: .partner, kind: .first(id: "f-walk"), childID: anna.id, date: date(months: 11))
+        ]
+        for event in theirs { try await progress.add(event) }
+
+        let film = try #require(try await sut().execute(childID: anna.id, period: .everything, on: date(months: 26)))
+
+        let played = film.storyboard.scenes.compactMap { if case .entry(let entry) = $0.kind { entry.id } else { nil } }
+        #expect(played == theirs.map(\.id))
+        #expect(film.childFirsts.map(\.id) == ["f-walk"])
+        #expect(film.title?.id == "t1")
+        #expect(film.medalCount == 0)
+        #expect(film.storyboard.scenes.last?.kind == .credits(SagaCredits(questsDone: 1, bossesBeaten: 0)))
+    }
+
     @Test("Given nothing stored, when reading the film, then it shows its dates; once turned off, it doesn't")
     func datesSwitch() async throws {
         try await family()

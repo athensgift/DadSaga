@@ -3,7 +3,8 @@ import Foundation
 /// The firsts the family captured, from every entry, whoever recorded it. Pure and deterministic.
 ///
 /// A first is what a child does (ADR-0065 §3.2, §3.3): captured once per child, by whichever parent was there. When both
-/// parents captured it, the earlier capture is the child's moment; the other entry stays in the timeline.
+/// parents captured it, the earlier capture is the child's moment, by the day each says it happened (so a parent who
+/// changes that day can change which one it is); the other entry stays in the timeline.
 public struct FamilyMoments: Hashable, Sendable {
     private let momentsByChild: [UUID: [CapturedMoment]]
 

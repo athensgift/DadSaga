@@ -65,9 +65,10 @@ public enum Timeline {
         }
     }
 
-    /// Oldest first: every event whose content the content knows, under its current id (ADR-0048 §5).
+    /// Oldest first, by the day it happened, then by id, so every iPhone of the family picks the same earlier entry:
+    /// every event whose content the content knows, under its current id (ADR-0048 §5).
     private static func known(from events: [ProgressEvent], catalog: ContentCatalog) -> [TimelineEntry] {
-        events.sorted { $0.date < $1.date }.compactMap { event in
+        events.sorted { ($0.date, $0.id.uuidString) < ($1.date, $1.id.uuidString) }.compactMap { event in
             let kind: TimelineEntry.Kind
             switch event.kind {
             case .quest(let id):

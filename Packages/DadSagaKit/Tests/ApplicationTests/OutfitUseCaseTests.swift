@@ -47,6 +47,17 @@ struct OutfitUseCaseTests {
         try await progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: .now))
     }
 
+    @Test("Given an item only the partner's entries reach, when the dad wears it, then it isn't his and nothing changes")
+    func partnersGearIsntHis() async throws {
+        try await progress.add(ProgressEvent(authorID: .partner, kind: .quest(id: "q1"), childID: UUID(), date: .now))
+
+        await #expect(throws: OutfitError.notEarned("cloth")) {
+            _ = try await set.execute(skill: .care, choice: .item("cloth"))
+        }
+
+        #expect(try await getWardrobe.execute().earned.isEmpty)
+    }
+
     @Test("Given an earned item, when setting choices and reading the wardrobe, then automatic clears a slot")
     func setsChoices() async throws {
         try await earnCloth()

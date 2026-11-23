@@ -71,8 +71,11 @@ struct ProgressRecorder {
         ) else {
             return unchanged
         }
-        let moment = FamilyMoments(events: events + [event], catalog: catalog)
-            .moments(for: childID).first { $0.eventID == event.id }
+        let moment: CapturedMoment? = if case .first = kind {
+            FamilyMoments(events: events + [event], catalog: catalog).moments(for: childID).first { $0.eventID == event.id }
+        } else {
+            nil
+        }
         return ProgressChange(
             before: before, after: DadProgress(of: player, events: events + [event], catalog: catalog),
             eventID: event.id, moment: moment
