@@ -79,3 +79,15 @@ func storedChildOrders(at url: URL) throws -> [String: Int] {
     let rows = try ModelContext(container).fetch(FetchDescriptor<ChildRecord>())
     return Dictionary(rows.map { ($0.name, $0.order) }, uniquingKeysWith: { first, _ in first })
 }
+
+/// Each transaction's author in the store file's history, oldest first, read through a container of its own.
+func storeAuthors(at url: URL) throws -> [String?] {
+    let container = try ModelContainer(
+        for: Schema(versionedSchema: CurrentSchema.self),
+        migrationPlan: DadSagaMigrationPlan.self,
+        configurations: [ModelConfiguration(url: url, cloudKitDatabase: .none)]
+    )
+    return try ModelContext(container).fetchHistory(HistoryDescriptor<DefaultHistoryTransaction>())
+        .sorted { $0.token < $1.token }
+        .map(\.author)
+}

@@ -13,8 +13,12 @@ public struct LocalStore: Sendable {
     public let standing: any StandingRepository
     /// The saga as a whole, in one write: start over erases it, a copy reads it, importing one replaces it (ADR-0057).
     public let wholeSaga: any WholeSagaRepository
+    /// The open store's one queue, for sync's change feed and applier, which run on it beside the repositories
+    /// (ADR-0068).
+    let connection: StoreConnection
 
     private init(connection: StoreConnection) {
+        self.connection = connection
         profiles = ConnectedProfileRepository(connection: connection)
         progress = ConnectedProgressRepository(connection: connection)
         outfit = ConnectedOutfitRepository(connection: connection)

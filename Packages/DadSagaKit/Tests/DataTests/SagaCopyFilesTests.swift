@@ -93,7 +93,7 @@ struct SagaCopyFilesTests: SagaCopyBench {
         let quest = ProgressEvent(kind: .quest(id: "q-w1-skin-to-skin"), childID: lena.id, date: madeAt)
         try await new.store.progress.add(quest)
         _ = try await new.store.outfit.setChoice(.automatic, for: .play)
-        try await new.store.standing.keep(titleID: "t-second")
+        try await new.store.standing.keep(titleID: "t-second", catalog: .threeTitles)
         try await new.store.standing.markSeen(titleID: "t-second")
 
         #expect(try await new.store.profiles.fetchProfile()?.children.map(\.name) == ["Λενάκι", "Μπέμπης"])

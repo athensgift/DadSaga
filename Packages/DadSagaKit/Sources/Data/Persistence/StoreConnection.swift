@@ -4,6 +4,9 @@ import SwiftData
 
 /// Opens the SwiftData store on first use, off the main actor, and keeps it open (ADR-0026). If opening fails, that
 /// call throws and the next one tries again. Nothing is created in its place, deleted or reset.
+///
+/// One queue per open store (ADR-0068): one context and one executor over it, shared by every actor that touches the
+/// store, so one write runs at a time and each reads every row as last saved.
 actor StoreConnection {
     struct Repositories: Sendable {
         let profiles: SwiftDataProfileRepository
@@ -11,6 +14,8 @@ actor StoreConnection {
         let outfit: SwiftDataOutfitRepository
         let standing: SwiftDataStandingRepository
         let wholeSaga: SwiftDataWholeSagaRepository
+        /// The store's history as the changes sync sends (ADR-0065 §2). Nothing reads it until iCloud is wired.
+        let feed: StoreChangeFeed
     }
 
     private static let logger = Logger(subsystem: "DadSaga", category: "store")
@@ -40,12 +45,14 @@ actor StoreConnection {
                 migrationPlan: readOnly ? nil : DadSagaMigrationPlan.self,
                 configurations: [configuration()]
             )
+            let queue = DefaultSerialModelExecutor(modelContext: ModelContext(container))
             let repositories = Repositories(
-                profiles: SwiftDataProfileRepository(modelContainer: container),
-                progress: SwiftDataProgressRepository(modelContainer: container),
-                outfit: SwiftDataOutfitRepository(modelContainer: container),
-                standing: SwiftDataStandingRepository(modelContainer: container),
-                wholeSaga: SwiftDataWholeSagaRepository(modelContainer: container)
+                profiles: SwiftDataProfileRepository(queue: queue, container: container),
+                progress: SwiftDataProgressRepository(queue: queue, container: container),
+                outfit: SwiftDataOutfitRepository(queue: queue, container: container),
+                standing: SwiftDataStandingRepository(queue: queue, container: container),
+                wholeSaga: SwiftDataWholeSagaRepository(queue: queue, container: container),
+                feed: StoreChangeFeed(queue: queue, container: container)
             )
             opened = repositories
             return repositories

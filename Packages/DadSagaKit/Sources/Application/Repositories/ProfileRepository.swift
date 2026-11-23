@@ -13,13 +13,16 @@ public protocol ProfileRepository: Sendable {
     /// What "My family" changed (ADR-0065 §4): a child or field the edit doesn't name stays as stored; a removed id
     /// marks that child removed, their row and entries kept; a removed child is never changed or added again, and an id
     /// the edit both adds and removes is not added; an added child goes after every stored one. Throws
-    /// `ProfileEditError.noProfile` before onboarding, and `ProfileValidationError.noChildren`, writing nothing, when
-    /// the edit would leave no child.
+    /// `ProfileEditError.noProfile` before onboarding, and, writing nothing, `ProfileValidationError.noChildren` when
+    /// the edit would leave no child and `tooManyChildren` when it adds a child past `PlayerProfile.maxChildren`: both
+    /// checked against the family as stored when the edit is written (ADR-0068 §3).
     func save(_ edit: FamilyEdit) async throws
     /// Sets only the hero fields `edit` names. Throws `ProfileEditError.noProfile` before onboarding.
     func save(_ edit: HeroEdit) async throws
-    /// Brings a removed child back into the family, in their place, with every entry (ADR-0065 §4). Throws
-    /// `ProfileEditError.notRemoved`, writing nothing, when no removed child has this id.
+    /// Brings a removed child back into the family, in their place, with every entry (ADR-0065 §4). Throws, writing
+    /// nothing, `ProfileEditError.notRemoved` when no removed child has this id, and
+    /// `ProfileValidationError.tooManyChildren` while the family holds `PlayerProfile.maxChildren` or more: bringing
+    /// back is adding, checked against the family as stored (ADR-0068 §3).
     func bringBack(childID: UUID) async throws
     /// Deletes a removed child for good, with every entry with them, whoever recorded it, in one write (ADR-0065 §4).
     /// Returns those entries' photo ids, unknown kinds included, for the caller to delete the files. Throws

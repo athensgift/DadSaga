@@ -37,15 +37,17 @@ public enum ProfileRules {
         }
         let after = valid.applied(to: family)
         guard !after.isEmpty else { throw ProfileValidationError.noChildren }
-        let adds = after.contains { child in !family.contains { $0.id == child.id } }
-        if adds, after.count > PlayerProfile.maxChildren { throw ProfileValidationError.tooManyChildren }
+        let added = after.count(where: { child in !family.contains { $0.id == child.id } })
+        try checkSize(ofFamily: after.count, adding: added)
         return valid
     }
 
-    /// Bringing a removed child back is adding one (ADR-0065 §4): `tooManyChildren` once `family` holds
-    /// `PlayerProfile.maxChildren` or more. Only the count: the child comes back as stored, their name and day unchecked.
-    public static func checkRoomToBringBack(into family: [Child]) throws {
-        if family.count >= PlayerProfile.maxChildren { throw ProfileValidationError.tooManyChildren }
+    /// The limit applies to adding only (ADR-0065 §4): `tooManyChildren` when a write adds `added` children, one or
+    /// more, and the family after it holds `count`, more than `PlayerProfile.maxChildren`. Bringing a removed child
+    /// back is adding one. A write that adds none passes whatever the count, so a family that holds more (a copy, or
+    /// two parents adding at once) can still be edited.
+    public static func checkSize(ofFamily count: Int, adding added: Int) throws {
+        if added > 0, count > PlayerProfile.maxChildren { throw ProfileValidationError.tooManyChildren }
     }
 
     /// A hero the edit names must be one the content has; an edit naming none is never checked, so the look and the

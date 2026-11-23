@@ -37,7 +37,8 @@ struct RemovedChildUseCaseTests {
         #expect(stored.removedChildren.isEmpty)
     }
 
-    @Test("Given four in the family, when bringing a removed child back, then it is refused and nothing is written")
+    /// The store refuses, in its own write (ADR-0068 §3); the use case passes its answer on.
+    @Test("Given four in the family, when bringing a removed child back, then the store's refusal is passed on")
     func bringingBackIsAdding() async throws {
         let four = (1...4).map { Child(name: "Παιδί \($0)", birthDay: nil) }
         let repository = await profiles(family: four, removed: [iris])

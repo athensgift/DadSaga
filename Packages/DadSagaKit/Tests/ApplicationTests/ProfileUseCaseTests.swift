@@ -84,11 +84,13 @@ actor SpyProfileRepository: ProfileRepository {
         editCount += 1
     }
 
-    /// Back in the family's order is the store's business; here the child goes last.
+    /// Back in the family's order is the store's business; here the child goes last. Refuses as the store does: only a
+    /// removed child, and only while the family has room (ADR-0068 §3).
     func bringBack(childID: UUID) async throws {
         guard var profile, let child = profile.removedChildren.first(where: { $0.id == childID }) else {
             throw ProfileEditError.notRemoved
         }
+        try ProfileRules.checkSize(ofFamily: profile.children.count + 1, adding: 1)
         profile.removedChildren.removeAll { $0.id == childID }
         profile.children.append(child)
         self.profile = profile
