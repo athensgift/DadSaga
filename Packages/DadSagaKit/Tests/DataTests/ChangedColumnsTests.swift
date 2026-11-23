@@ -205,7 +205,7 @@ struct ChangedColumnsTests {
         #expect(try await store.profiles.fetchProfile()?.children == [lena])
     }
 
-    @Test("Given four children, when an edit adds and removes the same new id, then nothing is added")
+    @Test("Given two children, when an edit adds and removes the same new id, then nothing is added")
     func addedAndRemovedIsNotAdded() async throws {
         defer { try? FileManager.default.removeItem(at: directory) }
         let (store, _) = try await onboarded()
