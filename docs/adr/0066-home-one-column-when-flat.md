@@ -2,7 +2,8 @@
 
 **Status:** Accepted (2026-11-23), at the owner's request: on the iPhone Duo fully open (not half-open) and on a tablet,
 the avatar and the cards scroll up together, so the cards no longer fill only half the screen. Supersedes ADR-0064 and
-ADR-0061 §1 where they split home on a flat display; ADR-0056 §2 (the flat fold as a line) goes again.
+ADR-0061 §1 where they split home on a flat display, and ADR-0045 again; ADR-0056 §2 (the flat fold as a line) goes
+again. Changes ADR-0011 and ADR-0043 for home: it splits only while the Duo is half-open.
 
 ## Context
 - ADR-0064 made the Duo open flat and upright the hero's pane above the hinge's line and the adventure below it, each

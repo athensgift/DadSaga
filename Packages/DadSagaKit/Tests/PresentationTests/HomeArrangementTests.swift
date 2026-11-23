@@ -17,6 +17,11 @@ struct HomeArrangementTests {
         #expect(HomeArrangement.make(width: 951, fold: nil) == .column)
     }
 
+    @Test("Given a large iPhone in landscape, when home is laid out, then it is one column")
+    func phoneInLandscape() {
+        #expect(HomeArrangement.make(width: 932, fold: nil) == .column)
+    }
+
     @Test("Given an iPad, when home is laid out, then it is one column, with the bar")
     func iPad() {
         #expect(HomeArrangement.make(width: 1032, fold: nil) == .column)

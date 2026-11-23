@@ -34,13 +34,15 @@ public struct HorizontalFold: Equatable, Sendable {
 /// A fold that runs down a view, as on an iPhone Duo half-open like a book on its side: a column stands on each side
 /// of it.
 public enum VerticalFold {
-    /// Whether one of the display's folds runs down a view of this size from its top to its bottom.
+    /// Whether one of the display's folds runs down a view of this size, inside it, from its top to its bottom.
     /// - Parameter divisions: the display's active folds, in the view's coordinates. They may reach past the view.
     public static func runsDown(_ size: CGSize, divisions: [CGRect]) -> Bool {
         let bounds = CGRect(origin: .zero, size: size)
         return divisions.contains { division in
             let part = division.intersection(bounds)
-            return !part.isNull && part.height > part.width && part.minY <= 0.5 && part.maxY >= size.height - 0.5
+            // Inside the view, not along its edge: a fold beside the view only touches it.
+            return !part.isNull && part.width > 0 && part.height > part.width
+                && part.minY <= 0.5 && part.maxY >= size.height - 0.5
         }
     }
 }

@@ -27,9 +27,9 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ iPhone Duo half-open like a laptop: home, the saga film, the note editor, the quest and boss sheets, a first's
   page, the wardrobe and the timeline put what the dad looks at above the fold and what he touches below it
   (ADR-0043). Checked on a real iPhone Duo (2026-11-21), also in Split View, at the accessibility text sizes and with
-  VoiceOver. Open flat on its side, home is two columns again; the map and Settings are tabs and split at the fold too
-  (ADR-0061). Open flat and upright, the home hero sits above the hinge and the adventure below (ADR-0064). Open flat
-  and upright checked on the device (2026-11-22)
+  VoiceOver. The map and Settings are tabs and split at the fold too (ADR-0061). Half-open on its side, home is two
+  columns; open flat, upright or on its side, and on iPads, home is one column where the hero and the cards scroll
+  together (ADR-0066, drawn in the simulator; not yet checked on the device)
 
 ### Open items from the 2026-11 architecture review
 - ✅ Checked on a device (2026-11-19): installing over a `develop` build, every screen and the widget in Greek and
