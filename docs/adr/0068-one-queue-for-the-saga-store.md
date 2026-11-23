@@ -6,6 +6,10 @@
   author `sync`.
 - **Risks, "Remote writes go through the applier's `@ModelActor`, never a repository's context":** they go through
   the applier, whose saves alone carry `sync`; the context is shared.
+- **§2 "history is deleted up to the token":** it is deleted before the token, whose own transaction stays (Decision
+  5).
+- **§2 and §4, where they leave the core's reading open:** what a fetched record and a fetched deletion mean, and when
+  the partner's family is taken as stopped (Decision 6).
 
 ## Context
 - The saga store has five `@ModelActor` repositories (profiles, progress, outfit, standing, the whole saga), each with
@@ -42,6 +46,23 @@
    turn is the one that holds.
 4. **Unchanged:** the `Connected…` wrappers stay `@concurrent` (ADR-0034 §7); the widget opens its own read-only
    store; `Sync.store` has its own container and actor.
+5. **The change feed deletes history before its token,** never through it: a token expires as soon as its own
+   transaction is deleted (found on a store on disk), so the transaction it names stays as the anchor. A token from
+   another store file reads to SwiftData as "nothing changed"; the feed compares its store with the latest
+   transaction's and reads a mismatch as expired.
+6. **How the sync core reads what it fetches** (ADR-0065 PR 4, against a fake cloud; PR 5 confirms on devices):
+   - A fetched record is the whole server record: a field this version maps that the record lacks clears the row's
+     value (a cleared note, a birth day taken back, a title), except a field whose local change still waits. A field
+     this version doesn't map is never touched.
+   - A fetched deletion is applied only to a record this iPhone knows (it holds its system fields, or it waits behind
+     that fetch), so an iPhone's own deletion handed back to it never deletes a row set again since.
+   - The partner's family is taken as stopped when its zone is reported deleted, or when a save answers
+     `zoneNotFound` and the fetch that follows doesn't list the zone; then sync goes off with the reason
+     `zoneDeleted`, or the partner's saga goes to a zone of their own (ADR-0065 §4).
+   - Nothing brings a removed child back by itself. A fetched removal that would leave no child is not applied: the
+     child whose removal arrived last stays and is sent again (ADR-0065 §4). A fetched `gone` marker brings no removed
+     child back, so a family can still end with no child in it (each parent deleting the other's last child for good).
+     What the app does then is decided with PR 6, before any screen can reach it.
 
 ## Rejected
 - **A context of its own for the applier,** as ADR-0065 §2 had it: the three rules above would hold only while no
