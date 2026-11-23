@@ -120,9 +120,12 @@ actor SwiftDataSyncApplier: SagaStoreActor {
     /// Keeps the title this parent holds when the batch deletes entries of theirs: fetched deletions, and the entries
     /// of a child that comes `gone`. Never built for another author (ADR-0065 §3).
     private func keepTitle(before turn: Turn) throws {
-        guard let profile = try modelContext.fetch(FetchDescriptor<ProfileRecord>()).first else { return }
+        let (goingEntries, goingChildren) = (turn.deletedEntryIDs, turn.goneChildIDs)
+        // Most batches delete nothing: no entry is read for them.
+        guard !goingEntries.isEmpty || !goingChildren.isEmpty,
+              let profile = try modelContext.fetch(FetchDescriptor<ProfileRecord>()).first else { return }
         let entries = try modelContext.fetch(FetchDescriptor<ProgressEventRecord>())
-        let (ownID, goingEntries, goingChildren) = (profile.profileID, turn.deletedEntryIDs, turn.goneChildIDs)
+        let ownID = profile.profileID
         guard entries.contains(where: {
             $0.authorID == ownID && (goingEntries.contains($0.eventID) || goingChildren.contains($0.childID))
         }) else { return }
@@ -174,21 +177,13 @@ actor SwiftDataSyncApplier: SagaStoreActor {
     }
 
     /// A removal that would leave no child in the family is not applied (ADR-0065 §4): the child whose removal came
-    /// last stays, and is sent again. When it is a `gone` marker that takes the family's last child, the first removed
-    /// child comes back the same way: a marker is final, and the family is never left without a child.
+    /// last stays, and is sent again. Nothing else brings a child back: when it is a `gone` marker that takes the
+    /// family's last child, the family has none until a parent adds one or brings one back.
     private func applyRemovals(_ removals: [ChildRecord], among rows: [ChildRecord], _ turn: inout Turn) {
         let removing = Set(removals.map(\.childID))
-        var staying: ChildRecord?
-        if !rows.contains(where: { !$0.isRemoved && !removing.contains($0.childID) }) {
-            staying = removals.last ?? rows.filter(\.isRemoved).min {
-                ($0.order, $0.childID.uuidString) < ($1.order, $1.childID.uuidString)
-            }
-        }
+        let staying = rows.contains { !$0.isRemoved && !removing.contains($0.childID) } ? nil : removals.last
         for row in removals where row !== staying { row.update(\.isRemoved, to: true) }
-        if let staying {
-            staying.update(\.isRemoved, to: false)
-            turn.applied.resend.append(.save(staying.recordName, fields: [SyncField.Child.isRemoved]))
-        }
+        if let staying { turn.applied.resend.append(.save(staying.recordName, fields: [SyncField.Child.isRemoved])) }
     }
 
     /// A `gone` marker: the child and every entry with them, whoever recorded it (ADR-0065 §4).

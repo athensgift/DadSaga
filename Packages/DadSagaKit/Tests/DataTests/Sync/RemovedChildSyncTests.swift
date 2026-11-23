@@ -5,8 +5,8 @@ import Testing
 @testable import Data
 
 /// A child removed, brought back and deleted for good, between two parents (ADR-0065 §4, §8): removing is a field
-/// like any other, the family is never left without a child, and nothing brings back a child deleted for good: not a
-/// save that raced it, not a zone built later, not an iPhone that was off.
+/// like any other, a removal never leaves the family without a child, and nothing brings back a child deleted for
+/// good: not a save that raced it, not a zone built later, not an iPhone that was off. Only a copy the parent chose.
 @Suite("A removed child, between two parents", .serialized)
 struct RemovedChildSyncTests: SyncBench {
     let root = FileManager.default.temporaryDirectory.appending(path: "dadsaga-removed-sync-" + UUID().uuidString)
@@ -146,6 +146,33 @@ struct RemovedChildSyncTests: SyncBench {
         }
     }
 
+    @Test("Given a delete for good that takes the last child on an iPhone, then only the removal that came last is undone")
+    func aMarkerThatTakesTheLastChild() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let family = try await familyWithLenaRemoved()
+        let (dad, mum) = (family.dad, family.mum)
+        // Offline, he brings Λένα back and removes Νίκος; meanwhile she deletes Λένα for good.
+        try await dad.store.profiles.bringBack(childID: lena.id)
+        try await dad.store.profiles.save(FamilyEdit(removedIDs: [nikos.id]))
+        try await deleteForGood(lena, on: mum)
+        try await mum.sendChanges()
+        try await dad.sendChanges()
+        try await dad.fetch()
+
+        // The marker is final, and brings no one back by itself: his iPhone shows no child for now.
+        #expect(try await dad.children().isEmpty)
+        #expect(try await dad.removedChildren() == [nikos])
+
+        // His removal reaches her iPhone, where it would leave no child: it is not applied, and is sent again.
+        try await settle(mum, dad)
+        for phone in [dad, mum] {
+            #expect(try await phone.children() == [nikos])
+            #expect(try await phone.removedChildren().isEmpty)
+            #expect(try await phone.ledger().goneIDs() == [lena.id])
+            #expect(try await phone.ledger().pending().isEmpty)
+        }
+    }
+
     @Test("Given a child deleted for good, when an iPhone that was off writes them and an entry again, then the marker goes back")
     func aLateUploadDoesNotBringThemBack() async throws {
         defer { try? FileManager.default.removeItem(at: root) }
@@ -202,6 +229,39 @@ struct RemovedChildSyncTests: SyncBench {
         #expect(try await second.home().standing.title?.id == "t1")
         #expect(try await dad.children() == [nikos])
         #expect(try await second.ledger().pending().isEmpty)
+    }
+
+    @Test("Given a child deleted for good, when a copy the parent chose brings them back and iCloud is turned on, then they stay")
+    func aCopyBringsBackAChildDeletedForGood() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let cloud = makeCloud()
+        let (phone, _) = try await started(on: cloud)
+        let family = try await phone.family()
+        try await phone.record(nikos, by: .testDad, minute: 3)
+        try await settle(phone)
+        let copy = try #require(try await phone.store.wholeSaga.readAll())
+        try await phone.store.profiles.save(FamilyEdit(removedIDs: [nikos.id]))
+        try await deleteForGood(nikos, on: phone)
+        try await settle(phone)
+        #expect(try await phone.ledger().goneIDs() == [nikos.id])
+        // Another of his iPhones deletes the family's zone: sync is off here, and `Sync.store` keeps the child's id.
+        await cloud.deleteZone(family, by: "dad")
+        try await phone.fetch()
+        #expect(await phone.coordinator.status() == ShareStatus(sharing: .off))
+
+        try await phone.store.wholeSaga.replaceAll(with: copy)
+        let entries = try await phone.entryIDs()
+        #expect(try await phone.coordinator.turnOn() == .turnedOn)
+        try await settle(phone)
+
+        // A confirmed replace wins: the child is a child again, here and in the zone, with every entry.
+        #expect(try await phone.children() == [lena, nikos])
+        #expect(try await phone.entryIDs() == entries)
+        #expect(try await phone.ledger().goneIDs().isEmpty)
+        let records = await cloud.records(in: try await phone.family(), of: "dad")
+        #expect(records[.child(nikos.id)]?["name"] == .string("Νίκος"))
+        #expect(Set(records.keys.filter { $0.type == .entry }) == Set(entries.map(RecordName.entry)))
+        #expect(try await phone.ledger().pending().isEmpty)
     }
 
     @Test("Given an iPhone off through a delete for good and a stop, when it follows and sends, then the child stays gone")

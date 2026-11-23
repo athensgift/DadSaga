@@ -142,6 +142,15 @@ actor SyncLedger {
         }
     }
 
+    /// Children who are children again: a copy the parent chose brought them back (ADR-0065 §4).
+    func forgetGone(_ ids: Set<UUID>) throws {
+        try modelContext.saveAllOrNothing {
+            for row in try modelContext.fetch(FetchDescriptor<GoneChildRecord>()) where ids.contains(row.childID) {
+                modelContext.delete(row)
+            }
+        }
+    }
+
     // MARK: - One turn's merging
 
     /// The pending rows a turn has touched: a fetch isn't trusted to show a row inserted or deleted earlier in the same
@@ -300,7 +309,7 @@ actor SyncLedger {
         do {
             return try JSONDecoder().decode(DefaultHistoryToken.self, from: data)
         } catch {
-            logger.error("The history token could not be read: \(String(describing: error), privacy: .public)")
+            logger.error("The history token could not be read: \(error.syncLogLabel, privacy: .public)")
             return nil
         }
     }

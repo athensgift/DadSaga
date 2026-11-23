@@ -18,7 +18,7 @@ struct OneParentSyncTests: SyncBench {
         try await phone.store.profiles.fetchProfile()?.children.first { $0.id == child.id }
     }
 
-    @Test("Given a saga, when iCloud is turned on, then every row, offer and photo goes: photos last, 250 at most a time")
+    @Test("Given a saga, when iCloud is turned on, then all of it goes: `saga` first, photos last, 250 at most a time")
     func turningOnSendsEverything() async throws {
         defer { try? FileManager.default.removeItem(at: root) }
         let cloud = makeCloud()
@@ -54,8 +54,10 @@ struct OneParentSyncTests: SyncBench {
         let photo = RecordName.photo(entry.photoIDs[0])
         #expect(records[photo] == ["entryID": .string(entry.id.uuidString)])
         #expect(await cloud.asset(of: photo, in: family, of: "dad") == (try await phone.photos.storedData(id: photo.id)))
-        // A partner's timeline fills before its pictures, and no request passes the server's limit.
-        let order: [RecordType] = [.member, .child, .entry, .photo, .hero, .wardrobe, .offer, .saga]
+        // `saga` first, so iCloud is seen to hold this saga from the first request on; the parent's own records
+        // don't wait behind the photos; a partner's timeline fills before its pictures; and no request passes the
+        // server's limit.
+        let order: [RecordType] = [.saga, .hero, .wardrobe, .offer, .member, .child, .entry, .photo]
         let sent = await cloud.requests.flatMap(\.self).compactMap { order.firstIndex(of: $0.type) }
         #expect(sent == sent.sorted())
         let sizes = try #require(await phone.device.engine()?.batchSizes)

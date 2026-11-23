@@ -192,12 +192,22 @@ actor UnreadableContent: ContentRepository {
     struct Unreadable: Error {}
 
     private var isReadable = true
+    private var readsUntilOneFails: Int?
 
     func setReadable(_ readable: Bool) {
         isReadable = readable
     }
 
+    /// The `number`th read from now fails, and only that one: one batch in the middle of a fetch isn't applied.
+    func failRead(_ number: Int) {
+        readsUntilOneFails = number
+    }
+
     func fetchCatalog() async throws -> ContentCatalog {
+        if let reads = readsUntilOneFails {
+            readsUntilOneFails = reads > 1 ? reads - 1 : nil
+            if reads == 1 { throw Unreadable() }
+        }
         guard isReadable else { throw Unreadable() }
         return .titlesAndAQuest
     }

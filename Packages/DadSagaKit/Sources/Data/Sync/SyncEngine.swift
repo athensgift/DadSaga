@@ -133,8 +133,26 @@ public enum SyncEvent: Sendable {
     case fetchedRecords(modified: [SyncRecord], deleted: [SyncChange])
     case sentZones(SentZones)
     case sentRecords(SentRecords)
-    /// A fetch ended: every change up to it has been handed over.
+    /// A fetch ran to its end: every change up to it has been handed over, in `fetchedZones` and `fetchedRecords`.
+    /// Never reported for a fetch that stopped part of the way (no network, an error, a cancel): after the whole
+    /// fetch of a zone, the delegate reads a record that didn't come as one the zone lacks, and deletes rows on
+    /// that (the rejoin's rule, ADR-0065 §2).
     case didFetchChanges
+}
+
+/// Which engine speaks to the delegate: the database it serves, and which of the engines made for that database it
+/// is. A join, a follow or an account's return replaces an engine while the old one may still have an event on its
+/// way; the delegate drops what an engine it has let go of reports, so a fetch that ends is never taken for the new
+/// engine's.
+public struct SyncEngineID: Hashable, Sendable {
+    public let database: SyncDatabase
+    /// Higher for each engine the delegate makes.
+    public let generation: Int
+
+    public init(database: SyncDatabase, generation: Int) {
+        self.database = database
+        self.generation = generation
+    }
 }
 
 /// What the sync core uses of one `CKSyncEngine`, which serves one database (ADR-0065 §2, §8). The app's engine wraps
@@ -164,11 +182,12 @@ public struct SyncBatch: Hashable, Sendable {
     }
 }
 
+/// `engine` is the id the engine was made with, in every call.
 public protocol SyncEngineDelegate: AnyObject, Sendable {
-    func handle(_ event: SyncEvent, from database: SyncDatabase) async
-    /// The next records to send of those the engine holds: 250 at most, members, children, entries, then photos
-    /// (ADR-0065 §1). Nil when nothing of them is left to send.
-    func nextBatch(for pending: [SyncChange], from database: SyncDatabase) async -> SyncBatch?
+    func handle(_ event: SyncEvent, from engine: SyncEngineID) async
+    /// The next records to send of those the engine holds: 250 at most; the parent's own first, then members,
+    /// children, entries, and photos last (ADR-0065 §1). Nil when nothing of them is left to send.
+    func nextBatch(for pending: [SyncChange], from engine: SyncEngineID) async -> SyncBatch?
 }
 
 /// The iCloud container: the account, one record read by itself, and the engines.
@@ -179,7 +198,6 @@ public protocol SyncCloud: Sendable {
     /// the parent is asked which saga to keep (ADR-0065 §2). Nil: iCloud holds none.
     func sagaRecord() async throws -> SyncRecord?
     /// `state`: what the last engine for this database reported in `stateUpdate`; nil starts from nothing, and its
-    /// first fetch brings every zone whole. An engine made earlier for the same database reports nothing from then
-    /// on: what the delegate does when a fetch ends counts on that fetch being the new engine's.
-    func makeEngine(_ database: SyncDatabase, state: Data?, delegate: any SyncEngineDelegate) -> any SyncEngine
+    /// first fetch brings every zone whole. The engine names itself by `id` in every call to its delegate.
+    func makeEngine(_ id: SyncEngineID, state: Data?, delegate: any SyncEngineDelegate) -> any SyncEngine
 }

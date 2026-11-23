@@ -2,18 +2,23 @@ import Foundation
 
 /// What the engines report, one event at a time (ADR-0065 §2, §4).
 extension SyncCoordinator {
-    func handle(_ event: SyncEvent, from database: SyncDatabase) async {
-        await quietly("an event") { try await self.handleOnChain(event, from: database) }
+    func handle(_ event: SyncEvent, from engine: SyncEngineID) async {
+        await quietly("an event") { try await self.handleOnChain(event, from: engine) }
     }
 
-    private func handleOnChain(_ event: SyncEvent, from database: SyncDatabase) async throws {
-        // An engine this iPhone has let go of (sync turned off) has nothing more to say.
-        guard engines[database] != nil, let ledger = try await ledgerWhileOn() else { return }
+    private func handleOnChain(_ event: SyncEvent, from engine: SyncEngineID) async throws {
+        // An engine this iPhone has let go of (sync turned off, or another took its place) has nothing more to say,
+        // whatever it reported before this turn on the chain came.
+        let database = engine.database
+        guard engineIDs[database] == engine, let ledger = try await ledgerWhileOn() else { return }
         switch event {
         case .stateUpdate(let state): try await keep(state, of: database, ledger)
         case .accountChange(let change): try await accountChanged(change, ledger)
-        case .fetchedZones(_, let deleted):
+        case .fetchedZones(let modified, let deleted):
             try await applying(from: database) { try await self.zonesWent(deleted, from: database, ledger) }
+            if database == .shared, let family = try await ledger.settings().familyZone, modified.contains(family) {
+                familyZoneListed = true
+            }
         case .fetchedRecords(let modified, let deleted): try await fetched(modified, deleted, from: database, ledger)
         case .sentZones(let sent): try await zonesSent(sent, from: database, ledger)
         case .sentRecords(let sent): try await self.sent(sent, from: database, ledger)
@@ -111,14 +116,17 @@ extension SyncCoordinator {
             guard let asset = record.asset, try await photos.fileURL(id: record.name.id) == nil else { return }
             try await photos.place(fileAt: asset, id: record.name.id)
         } catch {
-            Self.logger.error("Sync, a photo: \(String(describing: error), privacy: .public)")
+            Self.logger.error("Sync, a photo: \(error.syncLogLabel, privacy: .public)")
         }
     }
 
     /// A fetch ended. What was held behind it goes now: the fetch reported no deletion for it, so it is sent as a new
     /// record, with its zone saved again in case the zone was what the save didn't find (ADR-0065 §4). After an
     /// expired history token, every row the zone lacks is sent, while one it has keeps the server's values. And when
-    /// it was the whole fetch of the family's zone, what the zone lacks is sent or deleted by the rejoin's rule.
+    /// it was the whole fetch of the family's zone, what the zone lacks is sent or deleted by the rejoin's rule: only
+    /// when every batch of it was applied, since a record of a batch that wasn't reads as one the zone lacks, and
+    /// another member's entry would go as their deletion. Until the next launch has fetched that batch again, the
+    /// family's changes wait.
     private func fetchEnded(from database: SyncDatabase, _ ledger: SyncLedger) async throws {
         let settings = try await ledger.settings()
         let scopes = SyncScope.allCases.filter { settings.database(for: $0) == database }
@@ -128,11 +136,15 @@ extension SyncCoordinator {
             fetchedSinceExpiry.insert(database)
             try await ledger.send(neverSent: names, endingResend: fetchedSinceExpiry.isSuperset(of: settings.databases))
         }
-        if settings.fullSendAfterFetch, settings.follow == nil, scopes.contains(.family) { try await fullSend(ledger) }
-        if database == .shared, familyZoneNotFound {
-            // A save found no zone, and this fetch brought none: the partner's sharing has ended.
-            familyZoneNotFound = false
-            try await familyLeft(ledger)
+        if settings.fullSendAfterFetch, settings.follow == nil, scopes.contains(.family), !unapplied.contains(database) {
+            try await fullSend(ledger)
+        }
+        if database == .shared {
+            // A save found no zone, and this fetch listed none: the partner's sharing has ended. When it did list
+            // the zone, the zone is there (it wasn't yet, for that save): what waited is sent again.
+            let ended = familyZoneNotFound && !familyZoneListed
+            (familyZoneNotFound, familyZoneListed) = (false, false)
+            if ended { try await familyLeft(ledger) }
         }
         let released = try await ledger.releaseAfterFetch(scopes)
         // Only where this parent makes zones: one in the partner's iCloud is theirs to make.
@@ -153,10 +165,20 @@ extension SyncCoordinator {
             try await ledger.pause(.signedOut)
         case .signIn(let current):
             guard current == (try await ledger.settings().account) else { return try await turnOff(ledger, .otherAccount) }
-            try await ledger.pause(nil)
+            try await accountReturned(ledger)
             try await give(ledger)
         case .switchAccounts:
             try await turnOff(ledger, .otherAccount)
         }
+    }
+
+    /// The same account is back. The engine of the family's database is made again from nothing, whatever the one
+    /// that reported the sign-in kept: the rejoin's rule that follows its first fetch counts on that fetch bringing
+    /// the zone whole. Both engines report the sign-in; the second finds its engine replaced and is dropped.
+    func accountReturned(_ ledger: SyncLedger) async throws {
+        try await ledger.accountReturned()
+        let settings = try await ledger.settings()
+        forgetEngine(settings.database(for: .family))
+        try await makeEngines(ledger, settings)
     }
 }

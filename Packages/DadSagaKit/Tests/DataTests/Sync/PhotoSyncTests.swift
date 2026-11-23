@@ -51,6 +51,38 @@ struct PhotoSyncTests: SyncBench {
         #expect(await cloud.requests.count == sent)
     }
 
+    @Test("Given an entry that came without its photo, and a kill, when the photo comes at the next launch, then it isn't sent")
+    func aPhotoThatComesAfterAKillIsNotUploadedAgain() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let cloud = makeCloud()
+        let (phone, mine) = try await started(on: cloud)
+        let jpeg = try await phone.photos.storedData(id: mine.photoIDs[0])
+        let file = root.appending(path: "from-the-other-iphone.jpg")
+        try jpeg.write(to: file)
+        let photoID = UUID().uuidString
+        let other = ProgressEvent(kind: .quest(id: "q1"), childID: nikos.id, date: .now, photoIDs: [photoID])
+        let zones = SyncZones(family: try await phone.family())
+        await cloud.write(ProgressEventRecord(event: other).syncRecord(fields: nil, zones: zones), as: "dad")
+        try await settle(phone)
+        #expect(try await phone.store.progress.fetchEvents().contains(other))
+
+        // At launch the entry lists a photo the zone isn't known to hold, so its record waits to be sent.
+        let again = phone.relaunched()
+        await again.coordinator.resume()
+        var photo = try await record(.photo(photoID), ["entryID": .string(other.id.uuidString)], for: again)
+        photo.asset = file
+        await cloud.write(photo, as: "dad")
+        let sent = await cloud.requests.count
+        try await again.fetch()
+        try await again.send()
+
+        // The zone's photo is final: nothing waits for it any more, and its bytes are not uploaded again.
+        #expect(try await again.photos.storedData(id: photoID) == jpeg)
+        #expect(await cloud.requests.count == sent)
+        #expect(try await again.ledger().pending().isEmpty)
+        #expect(await again.device.engine()?.pending.isEmpty == true)
+    }
+
     @Test("Given an entry's photos in iCloud, when the dad removes one, then its record goes; deleting the entry takes the rest")
     func photosGoWithWhatListedThem() async throws {
         defer { try? FileManager.default.removeItem(at: root) }

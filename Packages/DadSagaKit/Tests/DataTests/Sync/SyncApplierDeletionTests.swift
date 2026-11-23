@@ -5,8 +5,8 @@ import Testing
 @testable import Data
 
 /// Rows that go because sync fetched it (ADR-0065 §4): an entry's deletion, a child's `gone` marker. Before this
-/// parent's own entries go, their title is kept, so it never goes down (ADR-0055 §3, ADR-0006); the family is never
-/// left without a child; and a child leaves only by the marker. On a store on disk.
+/// parent's own entries go, their title is kept, so it never goes down (ADR-0055 §3, ADR-0006); a removal that would
+/// leave no child in the family is not applied; and a child leaves only by the marker. On a store on disk.
 @Suite("Deletions that came, into the saga store", .serialized)
 struct SyncApplierDeletionTests: FeedSuite {
     let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-applier-" + UUID().uuidString)
@@ -212,8 +212,8 @@ struct SyncApplierDeletionTests: FeedSuite {
         #expect(try await bench.drain().isEmpty)
     }
 
-    @Test("Given a marker that takes the family's last child, then the first removed child comes back, and is sent")
-    func aMarkerNeverEmptiesTheFamily() async throws {
+    @Test("Given a marker that takes the family's last child, then a child removed long ago at a lower order stays removed")
+    func aMarkerBringsNoChildBack() async throws {
         defer { try? FileManager.default.removeItem(at: directory) }
         let bench = try await synced()
         try await bench.store.profiles.save(FamilyEdit(removedIDs: [lena.id]))
@@ -222,10 +222,13 @@ struct SyncApplierDeletionTests: FeedSuite {
 
         let applied = try await bench.apply([ChildRecord.goneRecord(childID: nikos.id, zones: bench.zones)])
 
+        // Nothing brings a child back by itself (ADR-0065 §4): the family has no child until a parent adds one or
+        // brings one back.
         #expect(applied.goneLearned == [nikos.id])
-        #expect(applied.resend == [.save(.child(lena.id), fields: ["isRemoved"])])
-        #expect(try await bench.store.profiles.fetchProfile()?.children == [lena])
-        #expect(try await bench.store.profiles.fetchProfile()?.removedChildren.isEmpty == true)
+        #expect(applied.resend.isEmpty)
+        #expect(try await bench.store.profiles.fetchProfile()?.children.isEmpty == true)
+        #expect(try await bench.store.profiles.fetchProfile()?.removedChildren == [lena])
+        #expect(try await bench.drain().isEmpty)
     }
 
     @Test("Given a history token that expired, when a batch comes, then nothing is applied and the applier says so")

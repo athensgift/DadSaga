@@ -51,7 +51,8 @@ extension SyncLedger {
     }
 
     /// Sync turns itself off (ADR-0065 §4). The saga is untouched; the children deleted for good, the account and the
-    /// family's zone are kept for when the parent turns iCloud on again.
+    /// family's zone are kept for when the parent turns iCloud on again. A zone a join left that was still to delete
+    /// is forgotten, and stays in iCloud: nothing is deleted there while sync is off, or for another account.
     func turnOff(_ reason: SyncOffReason) throws {
         try modelContext.saveAllOrNothing {
             let row = try settingsRowMakingOne()
@@ -180,8 +181,7 @@ extension SyncLedger {
             for record in outcome.records {
                 try keepSystemFields(of: record)
                 switch record.name.type {
-                case .photo:
-                    if let entryID = record.photoEntryID { try know(photo: record.name.id, of: entryID) }
+                case .photo, .offer: try keep(final: record, &turn)
                 case .member: try keep(member: record)
                 case .saga: try compare(saga: record, &turn)
                 default: break
@@ -198,6 +198,17 @@ extension SyncLedger {
             try merge(outcome.resend + outcome.deleteFromZone.map(LocalChange.delete), &turn)
             if let mapped = outcome.mapped { try applied(mapped) }
         }
+    }
+
+    /// A photo's or an offer's record never changes once written (ADR-0065 §1), so the one that came is final: a save
+    /// that waited for it has nothing to add, and is forgotten, or a photo that came after its entry would be
+    /// uploaded again by the iPhone that received it. A deletion that waits still goes. A photo is known for its
+    /// entry from now on. Inside a save.
+    private func keep(final record: SyncRecord, _ turn: inout Turn) throws {
+        if let entryID = record.photoEntryID { try know(photo: record.name.id, of: entryID) }
+        guard let row = try row(record.name, &turn), !row.isDeletion else { return }
+        modelContext.delete(row)
+        turn.rows[record.name] = .some(nil)
     }
 
     // MARK: Photos

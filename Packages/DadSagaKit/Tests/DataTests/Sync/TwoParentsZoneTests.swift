@@ -103,6 +103,33 @@ struct TwoParentsZoneTests: SyncBench {
         #expect(try await mum.ledger().pending().isEmpty)
     }
 
+    @Test("Given a save that found no zone, when the fetch that follows lists the family's zone, then she is still in the family")
+    func aZoneNotFoundOnceIsNotSharingEnded() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let cloud = makeCloud()
+        let (dad, dadsEntry) = try await started("dad", on: cloud)
+        let partner = try await partnerAlone(on: cloud)
+        let (mum, zone) = (partner.phone, try await dad.family())
+
+        // She accepts before the partner's database shows the zone: her first fetch brings nothing, and her saves
+        // find no zone.
+        try await mum.coordinator.join(zone, childMap: ChildMap(familyIDs: [partner.ownLena.id: lena.id]))
+        try await mum.fetch()
+        try await mum.send()
+        #expect(await cloud.records(in: zone, of: "dad")[.entry(partner.entry.id)] == nil)
+        await cloud.share(zone, with: "mum")
+        try await settle(dad, mum)
+
+        // The fetch listed the zone, so sharing has not ended: nothing is rebuilt, and what waited is sent.
+        #expect(try await mum.family() == zone)
+        #expect(await mum.coordinator.status() == ShareStatus(sharing: .partner))
+        #expect(await cloud.zones(of: "mum") == [.personal])
+        for phone in [dad, mum] {
+            #expect(try await phone.entryIDs() == [dadsEntry.id, partner.entry.id])
+            #expect(try await phone.ledger().pending().isEmpty)
+        }
+    }
+
     @Test("Given the encrypted data reset with two of the owner's iPhones, then one zone, every row once; the partner keeps all")
     func encryptedDataResetOnTwoIPhones() async throws {
         defer { try? FileManager.default.removeItem(at: root) }

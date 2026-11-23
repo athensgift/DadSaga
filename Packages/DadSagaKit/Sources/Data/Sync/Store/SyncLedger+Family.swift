@@ -99,6 +99,22 @@ extension SyncLedger {
         }
     }
 
+    /// The account iCloud was turned on for is back after a sign-out (ADR-0065 §4). An engine starts from nothing
+    /// after it, and a fetch from nothing reports no deletion, so a row deleted meanwhile would stay on this iPhone
+    /// only: the family's zone is fetched whole again and the rejoin's rule decides, as after a join. Nothing kept
+    /// of the zone stays, and what waits still waits.
+    func accountReturned() throws {
+        try modelContext.saveAllOrNothing {
+            let row = try settingsRowMakingOne()
+            row.update(\.pause, to: nil)
+            row.update(\.fullDatabase, to: nil)
+            row.update(\.fullSendAfterFetch, to: true)
+            try forgetZone(SyncScope.family.rawValue)
+            for pending in try waiting(.family) { pending.update(\.behindFetch, to: false) }
+            try forgetEngine(row.familyOwner == row.accountName ? .private : .shared)
+        }
+    }
+
     /// The family's zone went with the partner's sharing (ADR-0065 §4): the saga goes whole into a new zone of this
     /// parent's own, every record of `names`, and `saga` names it once it holds them.
     func rebuild(family id: UUID, sending names: [RecordName]) throws {

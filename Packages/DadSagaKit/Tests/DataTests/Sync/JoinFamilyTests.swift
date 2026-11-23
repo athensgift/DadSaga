@@ -78,6 +78,74 @@ struct JoinFamilyTests: SyncBench {
         #expect(await mum.offers.answeredOccasionIDs() == ["\(lena.id.uuidString)/birthday/1"])
     }
 
+    @Test("Given a photo only her own zone still holds, when she joins, then that zone stays until the family's holds the photo")
+    func theZoneSheLeavesKeepsTheOnlyCopyOfAPhoto() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let cloud = makeCloud()
+        let (dad, _) = try await started("dad", on: cloud)
+        let partner = try await partnerAlone(on: cloud)
+        let mum = partner.phone
+        let photoID = try await mum.photos.save(try smallImage())
+        let jpeg = try await mum.photos.storedData(id: photoID)
+        let pictured = try await mum.record(partner.ownLena, by: .partner, minute: 2, photoIDs: [photoID])
+        try await settle(mum)
+        let (own, zone) = (try await mum.family(), try await dad.family())
+        // The file is no longer on this iPhone (swept, or a restore that came without it): iCloud has the only copy.
+        await mum.photos.delete(id: photoID)
+        await cloud.share(zone, with: "mum")
+
+        try await mum.coordinator.join(zone, childMap: ChildMap(familyIDs: [partner.ownLena.id: lena.id]))
+        try await settle(dad, mum)
+
+        // The move is done, but for the zone she left: it still holds the photo, and the family's doesn't.
+        #expect(await saga(of: "mum", on: cloud)?["familyOwner"] == .string("dad"))
+        #expect(try await dad.entryIDs().contains(pictured.id))
+        #expect(await cloud.records(in: zone, of: "dad")[.photo(photoID)] == nil)
+        #expect(await cloud.zones(of: "mum").contains(own))
+        #expect(await cloud.asset(of: .photo(photoID), in: own, of: "mum") == jpeg)
+        #expect(try await mum.ledger().pending().isEmpty)
+
+        // Another of her iPhones has the file, follows, and sends it: now her old zone can go.
+        let file = root.appending(path: "from-her-other-iphone.jpg")
+        try jpeg.write(to: file)
+        var photo = SyncRecord(name: .photo(photoID), zone: zone, fields: ["entryID": .string(pictured.id.uuidString)])
+        photo.asset = file
+        await cloud.write(photo, as: "mum")
+        try await settle(dad, mum)
+
+        #expect(await cloud.zones(of: "mum") == [.personal])
+        #expect(try await mum.photos.storedData(id: photoID) == jpeg)
+        #expect(try await mum.ledger().settings().oldFamilyZoneID == nil)
+    }
+
+    @Test("Given iCloud just turned on, when she joins before `saga` was sent, then `saga` waits for the family's zone")
+    func aSagaNotSentYetWaitsForTheFamily() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let cloud = makeCloud()
+        let (dad, _) = try await started("dad", on: cloud)
+        let mum = phone("mum", account: "mum", on: cloud)
+        let zoe = Child(name: "Ζωή", birthDay: nil)
+        try await mum.store.profiles.create(PlayerProfile(id: .partner, children: [zoe], heroClassID: "h-chef"))
+        let hers = try await mum.record(zoe, by: .partner, minute: 1)
+        #expect(try await mum.coordinator.turnOn() == .turnedOn)
+        let zone = try await dad.family()
+        await cloud.share(zone, with: "mum")
+
+        try await mum.coordinator.join(zone, childMap: ChildMap())
+        try await mum.send()
+
+        // Her own records go, but not `saga`: it would name a family whose zone holds nothing of hers yet, and her
+        // other iPhones would follow it there.
+        #expect(await cloud.records(in: .personal, of: "mum")[.hero(.partner)] != nil)
+        #expect(await saga(of: "mum", on: cloud) == nil)
+
+        try await settle(dad, mum)
+        #expect(await cloud.records(in: zone, of: "dad")[.entry(hers.id)] != nil)
+        #expect(await saga(of: "mum", on: cloud)?["familyOwner"] == .string("dad"))
+        #expect(await cloud.zones(of: "mum") == [.personal])
+        #expect(try await mum.ledger().pending().isEmpty)
+    }
+
     @Test("Given the family's children come after its entries, when a joiner fetches, then the map waits for them")
     func theMapWaitsForTheFamilysChildren() async throws {
         defer { try? FileManager.default.removeItem(at: root) }

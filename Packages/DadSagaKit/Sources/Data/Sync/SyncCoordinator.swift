@@ -38,12 +38,18 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
     let saga: StoreConnection
     let syncStore: SyncStoreConnection
     let photos: FilePhotoStore
-    /// The answers as the iPhone keeps them: writing one here never comes back as a record to send.
+    /// The answers as the iPhone keeps them: writing one here never comes back as a record to send. Always the
+    /// repository that only stores, never `SyncedSagaOfferRepository`: this one is written to from inside a turn on
+    /// the chain (`apply`, `renameOffers`), and the synced one tells sync of every answer, which is a turn on the
+    /// chain too. Awaited from inside one, the chain would wait for itself.
     let offers: any SagaOfferRepository
     let content: any ContentRepository
     let cloud: any SyncCloud
 
     var engines: [SyncDatabase: any SyncEngine] = [:]
+    /// The engine of each database that is listened to: one replaced since may still report, and is not.
+    var engineIDs: [SyncDatabase: SyncEngineID] = [:]
+    private var lastGeneration = 0
     var outgoing: [RecordName: Outgoing] = [:]
     /// Databases whose engine state is no longer kept this run: a fetched batch couldn't be applied, so the next
     /// launch starts from the state kept before it and fetches that batch again.
@@ -52,6 +58,8 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
     var fetchedSinceExpiry: Set<SyncDatabase> = []
     /// A save found no family zone in the partner's iCloud: the fetch that follows says whether sharing ended.
     var familyZoneNotFound = false
+    /// The fetch under way listed the family's zone among those of the partner's iCloud: it is there.
+    var familyZoneListed = false
     private var chain = SerialTaskQueue()
     private var listening: Task<Void, Never>?
 
@@ -86,12 +94,12 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
     }
 
     /// As `onChain`, for what has no one to throw to: a failure is logged, and what waited still waits in
-    /// `Sync.store`. Never anything from a record (ADR-0065 §7).
+    /// `Sync.store`. Never anything from a record (ADR-0065 §7): see `syncLogLabel`.
     func quietly(_ what: StaticString, _ operation: @escaping @Sendable () async throws -> Void) async {
         do {
             try await onChain(operation)
         } catch {
-            Self.logger.error("Sync, \(what, privacy: .public): \(String(describing: error), privacy: .public)")
+            Self.logger.error("Sync, \(what, privacy: .public): \(error.syncLogLabel, privacy: .public)")
         }
     }
 
@@ -122,7 +130,7 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
             }
             return status
         } catch {
-            Self.logger.error("Sync, status: \(String(describing: error), privacy: .public)")
+            Self.logger.error("Sync, status: \(error.syncLogLabel, privacy: .public)")
             return ShareStatus(sharing: .off)
         }
     }
@@ -158,7 +166,7 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
             user = try await cloud.currentUser()
         } catch {
             // Not known right now: sync stays as it was.
-            Self.logger.error("Sync, the account: \(String(describing: error), privacy: .public)")
+            Self.logger.error("Sync, the account: \(error.syncLogLabel, privacy: .public)")
             return
         }
         let settings = try await ledger.settings()
@@ -167,7 +175,7 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
         } else if user != settings.account {
             try await turnOff(ledger, .otherAccount)
         } else if settings.pause == .signedOut {
-            try await ledger.pause(nil)
+            try await ledger.accountReturned()
         }
     }
 
@@ -193,6 +201,7 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
         if let held, held.sagaFamilyZone == nil || held.sagaFamilyZone != named { return .iCloudHoldsAnotherSaga }
         let ledger = try await syncStore.make()
         if before != nil { try await rememberGone(ledger, feed) }
+        try await keepChildrenACopyBroughtBack(ledger)
         try await start(ledger, for: user, named: named, readingFrom: token, again: held != nil)
         listen(to: feed)
         return .turnedOn
@@ -218,47 +227,14 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
         try await give(ledger)
     }
 
-    /// The children deleted for good while the history wasn't read into `Sync.store` (iCloud off): their ids are kept
-    /// before the history is trimmed, so a zone this iPhone builds later still carries their markers (ADR-0065 §4).
-    private func rememberGone(_ ledger: SyncLedger, _ feed: StoreChangeFeed) async throws {
-        guard case .changes(let changes, _) = try await feed.read(after: nil) else { return }
-        let gone = changes.compactMap { change in
-            if case .gone(let childID) = change { childID } else { nil }
-        }
-        if !gone.isEmpty { try await ledger.addGone(gone) }
-    }
-
-    /// Every record this iPhone writes into a zone of `scope` that holds nothing of its own (ADR-0065 §1, §4): the
-    /// rows, and what isn't a row. The family's carries this parent's member only, and a marker for each child deleted
-    /// for good.
-    func everyRecord(in scope: SyncScope, _ ledger: SyncLedger) async throws -> [RecordName] {
-        let feed = try await saga.open().feed
-        let rows = try await feed.everyRecordName()
-        switch scope {
-        case .personal:
-            return rows.filter { $0.type.scope == .personal } + (await offerRecords()) + [.saga]
-        case .family:
-            let members = rows.filter { $0.type == .hero }.compactMap(\.uuid).map(RecordName.member)
-            let gone = try await ledger.goneIDs().map(RecordName.child)
-            return members + rows.filter { $0.type.scope == .family } + gone + (try await photoRecords(feed))
-        }
-    }
-
-    /// The record of each offer answered.
-    func offerRecords() async -> [RecordName] {
-        await offers.answeredOccasionIDs().sorted().map(RecordName.offer(occasionID:))
-    }
-
-    /// The record of each photo an entry lists.
-    private func photoRecords(_ feed: StoreChangeFeed) async throws -> [RecordName] {
-        try await feed.entryPhotos().values.flatMap(\.self).sorted().map(RecordName.photo)
-    }
-
     // MARK: - Engines, and the store's own changes
 
     func makeEngines(_ ledger: SyncLedger, _ settings: SyncSettings) async throws {
         for database in settings.databases where engines[database] == nil {
-            engines[database] = cloud.makeEngine(database, state: try await ledger.engineState(database), delegate: self)
+            lastGeneration += 1
+            let id = SyncEngineID(database: database, generation: lastGeneration)
+            engineIDs[database] = id
+            engines[database] = cloud.makeEngine(id, state: try await ledger.engineState(database), delegate: self)
         }
     }
 
@@ -302,12 +278,15 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
     }
 
     /// Each of `pending` that goes to `database`, as the engine holds it. None of the family's while they wait for
-    /// the parent to follow another family, or for the family's zone to be fetched whole (ADR-0065 §2, §4).
+    /// the parent to follow another family, or for the family's zone to be fetched whole (ADR-0065 §2, §4). And no
+    /// `saga` that still waited when a join or a rebuild began, until the family's zone holds everything: it would
+    /// name that family already.
     func changes(for pending: [PendingChange], in database: SyncDatabase, _ settings: SyncSettings) -> [SyncChange] {
         guard let zones = settings.zones else { return [] }
         return pending.filter { change in
             let scope = change.name.type.scope
             return settings.database(for: scope) == database && !(scope == .family && settings.familyWaits)
+                && !(change.name == .saga && settings.sagaWaitsForFamily)
         }.map { change in
             let zone = zones.zone(for: change.name.type)
             return change.isDeletion ? .delete(change.name, zone) : .save(change.name, zone)
@@ -333,18 +312,30 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
     /// `Sync.store` holds.
     func forgetEngines() {
         engines = [:]
+        engineIDs = [:]
         outgoing = [:]
         unapplied = []
         fetchedSinceExpiry = []
-        familyZoneNotFound = false
+        (familyZoneNotFound, familyZoneListed) = (false, false)
     }
 
     /// One database's engine goes, and what was remembered of the family's batches: its zone is another now.
     func forgetEngine(_ database: SyncDatabase) {
         engines[database] = nil
+        engineIDs[database] = nil
         unapplied.remove(database)
         fetchedSinceExpiry.remove(database)
         outgoing = outgoing.filter { $0.key.type.scope == .personal && database != .private }
-        if database == .shared { familyZoneNotFound = false }
+        if database == .shared { (familyZoneNotFound, familyZoneListed) = (false, false) }
+    }
+}
+
+extension Error {
+    /// All a log says of an error met in sync (ADR-0065 §7): its domain, which for a Swift error is its type, and its
+    /// code. Never its description, which for CloudKit's and SwiftData's errors can carry a record's name (an id),
+    /// a zone's (an account) or a value.
+    var syncLogLabel: String {
+        let error = self as NSError
+        return "\(error.domain) \(error.code)"
     }
 }

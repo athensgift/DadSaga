@@ -34,15 +34,10 @@ final class FakeSyncCloud: SyncCloud {
         return await cloud.record(.saga, in: .personal, of: account)
     }
 
-    func makeEngine(_ database: SyncDatabase, state: Data?, delegate: any SyncEngineDelegate) -> any SyncEngine {
-        let engine = FakeSyncEngine(cloud: cloud, device: self, database: database, state: state, delegate: delegate)
-        let replaced = self.state.withLock { state in
-            let replaced = state.engines.filter { $0.database == database }
-            state.engines = state.engines.filter { $0.database != database } + [engine]
-            return replaced
-        }
-        // An engine that was replaced reports nothing more.
-        for engine in replaced { engine.retire() }
+    /// An engine that is replaced is not told: it goes on reporting to its delegate if something still calls it.
+    func makeEngine(_ id: SyncEngineID, state: Data?, delegate: any SyncEngineDelegate) -> any SyncEngine {
+        let engine = FakeSyncEngine(cloud: cloud, device: self, id: id, state: state, delegate: delegate)
+        self.state.withLock { $0.engines = $0.engines.filter { $0.database != id.database } + [engine] }
         return engine
     }
 
@@ -125,13 +120,11 @@ actor FakeSyncEngine: SyncEngine {
     /// Records come in batches of this many, as a long fetch does.
     static let fetchBatch = 100
 
-    nonisolated let database: SyncDatabase
+    nonisolated let id: SyncEngineID
+    nonisolated var database: SyncDatabase { id.database }
     private let cloud: FakeCloud
     private let device: FakeSyncCloud
-    private weak var held: (any SyncEngineDelegate)?
-    private let isRetired = Mutex(false)
-    /// Nil once another engine was made for this database.
-    private var delegate: (any SyncEngineDelegate)? { isRetired.withLock { $0 } ? nil : held }
+    private weak var delegate: (any SyncEngineDelegate)?
     private var state: State
     /// How many records and zones this engine has tried to send and has fetched: a round that moves nothing has
     /// settled.
@@ -139,19 +132,15 @@ actor FakeSyncEngine: SyncEngine {
     /// How many records each request carried.
     private(set) var batchSizes: [Int] = []
 
-    init(cloud: FakeCloud, device: FakeSyncCloud, database: SyncDatabase, state: Data?, delegate: any SyncEngineDelegate) {
+    init(cloud: FakeCloud, device: FakeSyncCloud, id: SyncEngineID, state: Data?, delegate: any SyncEngineDelegate) {
         self.cloud = cloud
         self.device = device
-        self.database = database
-        held = delegate
+        self.id = id
+        self.delegate = delegate
         self.state = state.flatMap { try? JSONDecoder().decode(State.self, from: $0) } ?? State()
     }
 
     var pending: [SyncChange] { state.pending.compactMap(\.change) }
-
-    nonisolated func retire() {
-        isRetired.withLock { $0 = true }
-    }
 
     func add(_ changes: [SyncChange]) {
         for change in changes.map(Change.init) {
@@ -186,7 +175,7 @@ actor FakeSyncEngine: SyncEngine {
         for deletion in changes.deleted { state.zoneTokens[Zone(deletion.zone).key] = nil }
         if !changes.appeared.isEmpty || !changes.deleted.isEmpty {
             moved += changes.appeared.count + changes.deleted.count
-            await delegate?.handle(.fetchedZones(modified: changes.appeared, deleted: changes.deleted), from: database)
+            await delegate?.handle(.fetchedZones(modified: changes.appeared, deleted: changes.deleted), from: id)
         }
         for zone in await cloud.zones(of: account, in: database) where zones?.contains(zone) ?? true {
             let key = Zone(zone).key
@@ -198,12 +187,12 @@ actor FakeSyncEngine: SyncEngine {
             var deleted = records.deleted.map { SyncChange.delete($0, zone) }
             while !modified.isEmpty || !deleted.isEmpty {
                 await delegate?.handle(
-                    .fetchedRecords(modified: Array(modified.prefix(Self.fetchBatch)), deleted: deleted), from: database
+                    .fetchedRecords(modified: Array(modified.prefix(Self.fetchBatch)), deleted: deleted), from: id
                 )
                 (modified, deleted) = (modified.dropFirst(Self.fetchBatch), [])
             }
         }
-        await delegate?.handle(.didFetchChanges, from: database)
+        await delegate?.handle(.didFetchChanges, from: id)
         await reportState()
     }
 
@@ -224,17 +213,17 @@ actor FakeSyncEngine: SyncEngine {
             }
             moved += state.zones.count
             state.zones = []
-            await delegate?.handle(.sentZones(sent), from: database)
+            await delegate?.handle(.sentZones(sent), from: id)
         }
         for round in 0... {
-            guard !state.pending.isEmpty, let batch = await delegate?.nextBatch(for: pending, from: database) else { break }
+            guard !state.pending.isEmpty, let batch = await delegate?.nextBatch(for: pending, from: id) else { break }
             try #require(round < 100, "The same changes are sent over and over")
             batchSizes.append(batch.saves.count + batch.deletions.count)
             let sent = await cloud.modify(batch, as: account, in: database)
             let names = Set(batch.saves.map(\.name.string) + batch.deletions.map(\.name.string))
             state.pending.removeAll { names.contains($0.name) }
             moved += batch.saves.count + batch.deletions.count
-            await delegate?.handle(.sentRecords(sent), from: database)
+            await delegate?.handle(.sentRecords(sent), from: id)
         }
         await reportState()
     }
@@ -242,12 +231,12 @@ actor FakeSyncEngine: SyncEngine {
     /// The account changed under the engine: it starts again from nothing, unsent changes included, and says so.
     func accountChanged(_ change: AccountChange) async {
         state = State()
-        await delegate?.handle(.accountChange(change), from: database)
+        await delegate?.handle(.accountChange(change), from: id)
         await reportState()
     }
 
     private func reportState() async {
         guard let data = try? JSONEncoder().encode(state) else { return }
-        await delegate?.handle(.stateUpdate(data), from: database)
+        await delegate?.handle(.stateUpdate(data), from: id)
     }
 }

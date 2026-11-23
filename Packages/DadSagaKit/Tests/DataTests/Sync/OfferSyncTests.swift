@@ -1,6 +1,7 @@
 import Application
 import Domain
 import Foundation
+import os
 import Testing
 @testable import Data
 
@@ -19,14 +20,52 @@ struct OfferSyncTests: SyncBench {
         let cloud = makeCloud()
         let (phone, _) = try await started(on: cloud)
         let occasion = "\(nikos.id.uuidString)/world/50%"
+        let name = RecordName.offer(occasionID: occasion)
 
         await phone.offers.markAnswered(occasion)
+        // The answer doesn't wait for sync: its record follows by itself.
+        #expect(await phone.answers.answeredOccasionIDs().contains(occasion))
+        #expect(await eventually { await phone.device.engine()?.pending.map(\.name).contains(name) == true })
         try await phone.send()
 
         let records = await cloud.records(in: .personal, of: "dad")
         #expect(records[.offer(occasionID: occasion)] == [:])
         #expect(records.keys.map(\.string).contains("offer-\(nikos.id.uuidString)%2Fworld%2F50%25"))
         #expect(await phone.offers.answeredOccasionIDs().contains(occasion))
+    }
+
+    @Test("Given sync in the middle of an operation, when the dad answers an offer, then the answer doesn't wait for it")
+    func anAnswerNeverWaitsForSync() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let cloud = makeCloud()
+        let (phone, _) = try await started(on: cloud)
+        let occasion = "\(nikos.id.uuidString)/world/w2"
+        let name = RecordName.offer(occasionID: occasion)
+        let (gate, open) = AsyncStream.makeStream(of: Void.self)
+        let (begun, begin) = AsyncStream.makeStream(of: Void.self)
+        // Sync is busy for as long as the test says: a long fetch being applied.
+        async let busy: Void = phone.coordinator.onChain {
+            begin.finish()
+            for await _ in gate {}
+        }
+        for await _ in begun {}
+
+        let hasAnswered = OSAllocatedUnfairLock(initialState: false)
+        let answering = Task {
+            await phone.offers.markAnswered(occasion)
+            hasAnswered.withLock { $0 = true }
+        }
+        #expect(await eventually(within: 2) { hasAnswered.withLock { $0 } })
+        #expect(await phone.offers.answeredOccasionIDs().contains(occasion))
+        #expect(try await phone.ledger().pending().isEmpty)
+
+        // Its record follows once sync is free.
+        open.finish()
+        try await busy
+        await answering.value
+        #expect(await eventually { await phone.device.engine()?.pending.map(\.name).contains(name) == true })
+        try await phone.send()
+        #expect(try await phone.cloudRecord(name) == [:])
     }
 
     @Test("Given an answer kept with no record (a kill in between), when the app resumes, then the record is sent")

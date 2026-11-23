@@ -51,6 +51,7 @@ extension SyncCoordinator {
         guard !map.isChained else { throw FamilyMoveError.unusableChildMap }
         // What the dad changed up to now waits with the rest, and merges into the new zone.
         try await drain(ledger)
+        try await keepChildrenACopyBroughtBack(ledger)
         try await ledger.attach(family: (id, owner), map: map, writingSaga: writingSaga)
         let settings = try await ledger.settings()
         forgetEngine(.shared)
@@ -65,6 +66,7 @@ extension SyncCoordinator {
     func fullSend(_ ledger: SyncLedger) async throws {
         let settings = try await ledger.settings()
         guard let account = settings.account else { return }
+        try await keepChildrenACopyBroughtBack(ledger)
         let applier = try await saga.open().applier
         if settings.childMapWaits, let map = settings.childMap {
             let applied = try await applier.apply(map)
@@ -94,13 +96,17 @@ extension SyncCoordinator {
 
     /// What a join or a rebuild leaves for when the family's zone holds everything that waited (ADR-0065 §4): `saga`
     /// names the family then. Only once `saga` is saved is the parent's own zone that a join left deleted, so their
-    /// other iPhones learn where the saga went before they see its old zone go.
+    /// other iPhones learn where the saga went before they see its old zone go. And only once the family's zone is
+    /// known to hold every photo an entry lists: one whose file this iPhone lacks was not sent (ADR-0065 §1), and
+    /// the zone it left may hold the only copy, until another of the parent's iPhones sends it.
     func endMove(_ ledger: SyncLedger) async throws {
         if try await ledger.familySent() { try await give(ledger) }
         let settings = try await ledger.settings()
         guard let old = settings.oldFamilyZoneID, let account = settings.account, settings.pause != .signedOut,
               !settings.sagaWaitsForFamily, settings.follow == nil,
               try await !ledger.pending(.personal).contains(where: { $0.name == .saga }) else { return }
+        let listed = try await saga.open().feed.entryPhotos().values.flatMap(\.self)
+        guard Set(try await ledger.knownPhotos().keys).isSuperset(of: listed) else { return }
         await engines[.private]?.add([.delete(.family(old, owner: account))])
     }
 }

@@ -202,6 +202,29 @@ struct TwoParentsSyncTests: SyncBench {
         #expect(try await mum.ledger().pending().isEmpty)
     }
 
+    @Test("Given the partner signed out while the dad deletes his entry, when her account is back, then it goes there too")
+    func aDeletionWhileSignedOut() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let family = try await family(on: makeCloud())
+        let (dad, mum) = (family.dad, family.mum)
+        await mum.device.signOut()
+        let offline = try await mum.record(nikos, by: .partner, minute: 1)
+        try await dad.store.progress.delete(id: family.dadsEntry.id)
+        try await settle(dad)
+
+        // Her engines start again from nothing, and such a fetch reports no deletion: the zone is fetched whole
+        // and the rejoin's rule decides. What she recorded meanwhile was kept, and is sent.
+        await mum.device.signIn("mum")
+        try await settle(dad, mum)
+
+        for phone in [dad, mum] {
+            #expect(try await phone.entryIDs() == [family.mumsEntry.id, offline.id])
+            #expect(try await phone.ledger().pending().isEmpty)
+        }
+        #expect(try await mum.photos.storedPhotos().isEmpty)
+        #expect(await mum.coordinator.status() == ShareStatus(sharing: .partner))
+    }
+
     @Test("Given the partner's iPhone on another Apple Account, when they edit, then sync is off and nothing goes anywhere")
     func thePartnerSwitchesAccount() async throws {
         defer { try? FileManager.default.removeItem(at: root) }

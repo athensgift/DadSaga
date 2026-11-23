@@ -103,6 +103,73 @@ struct JoinFamilyAgainTests: SyncBench {
         #expect(try await mum.ledger().pending().isEmpty)
     }
 
+    @Test("Given a rejoin whose whole fetch has a batch that isn't applied, then no entry goes, and the next launch finishes it")
+    func aRejoinWithAnUnappliedBatch() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let content = UnreadableContent()
+        let family = try await family(on: makeCloud(), content: content)
+        let (dad, mum, cloud) = (family.dad, family.mum, family.cloud)
+        for minute in 0..<150 { try await dad.record(nikos, by: .testDad, minute: 10 + minute) }
+        try await settle(dad, mum)
+        let before = try await mum.entryIDs()
+        #expect(before.count == 152)
+        await cloud.stopSharing(family.zone)
+        try await settle(dad, mum)
+
+        await cloud.share(family.zone, with: "mum")
+        try await mum.coordinator.join(family.zone, childMap: ChildMap())
+        // The zone comes in batches of a hundred records: the second one can't be applied.
+        await content.failRead(2)
+        try await mum.fetch()
+
+        // The zone wasn't fetched whole, so the rejoin's rule decides nothing yet: the dad's entries that batch
+        // carried are not his deletions.
+        #expect(try await mum.entryIDs() == before)
+        #expect(try await mum.photos.storedPhotos().map(\.id) == family.dadsEntry.photoIDs)
+        #expect(try await mum.ledger().settings().fullSendAfterFetch)
+
+        let again = mum.relaunched()
+        await again.coordinator.resume()
+        try await settle(dad, again)
+
+        for phone in [dad, again] {
+            #expect(try await phone.entryIDs() == before)
+            #expect(try await phone.ledger().pending().isEmpty)
+        }
+        #expect(await again.coordinator.status() == ShareStatus(sharing: .partner))
+    }
+
+    @Test("Given a join that replaced an engine, when the old one reports its fetch ended, then the rejoin's rule waits")
+    func aReplacedEnginesFetchDecidesNothing() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let family = try await family(on: makeCloud())
+        let (dad, mum, cloud) = (family.dad, family.mum, family.cloud)
+        let everyone: Set = [family.dadsEntry.id, family.mumsEntry.id]
+        let replaced = try #require(mum.device.engine(.shared))
+
+        // She opens the invitation once more: the family's zone is fetched whole again, by a new engine.
+        try await mum.coordinator.join(family.zone, childMap: ChildMap())
+        let engine = try #require(mum.device.engine(.shared))
+        // Its fetch has brought only the members so far when the engine it replaced reports a fetch of its own ended.
+        var members: [SyncRecord] = []
+        for profileID in [UUID.testDad, .partner] {
+            members.append(try #require(await cloud.record(.member(profileID), in: family.zone, of: "dad")))
+        }
+        await mum.coordinator.handle(.fetchedRecords(modified: members, deleted: []), from: engine.id)
+        await mum.coordinator.handle(.didFetchChanges, from: replaced.id)
+
+        // That fetch says nothing of the zone: the dad's entry, not fetched yet, is not his deletion.
+        #expect(try await mum.entryIDs() == everyone)
+        #expect(try await mum.photos.storedPhotos().map(\.id) == family.dadsEntry.photoIDs)
+        #expect(try await mum.ledger().settings().fullSendAfterFetch)
+
+        try await settle(dad, mum)
+        for phone in [dad, mum] {
+            #expect(try await phone.entryIDs() == everyone)
+            #expect(try await phone.ledger().pending().isEmpty)
+        }
+    }
+
     @Test("Given both of the partner's iPhones when sharing stops, then one makes the zone, and the other asks and follows it")
     func twoIPhonesOfThePartnerAfterAStop() async throws {
         defer { try? FileManager.default.removeItem(at: root) }

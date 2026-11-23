@@ -2,11 +2,11 @@ import Foundation
 
 /// What goes out: the batches an engine asks for, and what it reports of them (ADR-0065 §1, §4).
 extension SyncCoordinator {
-    func nextBatch(for pending: [SyncChange], from database: SyncDatabase) async -> SyncBatch? {
+    func nextBatch(for pending: [SyncChange], from engine: SyncEngineID) async -> SyncBatch? {
         do {
-            return try await onChain { try await self.batch(for: pending, from: database) }
+            return try await onChain { try await self.batch(for: pending, from: engine) }
         } catch {
-            Self.logger.error("Sync, a batch: \(String(describing: error), privacy: .public)")
+            Self.logger.error("Sync, a batch: \(error.syncLogLabel, privacy: .public)")
             return nil
         }
     }
@@ -14,14 +14,16 @@ extension SyncCoordinator {
     /// The engine's list is only names: what is sent is what `Sync.store` holds for each now, with the row's values
     /// of this moment, so a later edit rides along. A change the ledger no longer holds, or holds for another zone or
     /// as the other kind, leaves the engine's list.
-    private func batch(for given: [SyncChange], from database: SyncDatabase) async throws -> SyncBatch? {
-        guard let ledger = try await ledgerWhileOn() else { return nil }
+    private func batch(for given: [SyncChange], from engine: SyncEngineID) async throws -> SyncBatch? {
+        // An engine another took the place of sends nothing more.
+        let database = engine.database
+        guard engineIDs[database] == engine, let ledger = try await ledgerWhileOn() else { return nil }
         let settings = try await ledger.settings()
         guard settings.pause != .signedOut, !settings.isFull(database) else { return nil }
         let waiting = try await ledger.pending().filter { !$0.behindFetch }
         let current = Set(changes(for: waiting, in: database, settings))
         let wanted = Set(given.filter(current.contains).map(\.name))
-        // Members, children, entries, then photos; within a type, in the order the changes were made.
+        // By type (`batchRank`), photos last; within a type, in the order the changes were made.
         var rest = waiting.enumerated().filter { wanted.contains($0.element.name) }
             .sorted { ($0.element.name.type.batchRank, $0.offset) < ($1.element.name.type.batchRank, $1.offset) }
             .map(\.element)[...]
@@ -97,7 +99,8 @@ extension SyncCoordinator {
     /// What an engine reports of a batch (ADR-0065 §4). A record saved or deleted leaves `Sync.store`, unless it
     /// changed while the batch was out. A save that met a newer record is merged and goes again; one whose record or
     /// zone is not there waits for the next fetch to say why; one for which iCloud has no room waits for room. Any
-    /// other failure waits in `Sync.store` for the next launch.
+    /// other failure stays in `Sync.store` and is given to the engine again with what is given next: after the
+    /// dad's next change, a fetch that ends, or a launch.
     func sent(_ sent: SentRecords, from database: SyncDatabase, _ ledger: SyncLedger) async throws {
         // A record already gone is deleted.
         let deleted = sent.deleted.map(\.name) + sent.failedDeletions.filter { $0.error == .unknownItem }.map(\.change.name)
@@ -140,11 +143,9 @@ extension SyncCoordinator {
     /// waiting fields left alone, and its system fields kept; the change still waits, so it is given again and goes
     /// set on that record: one merge path, not two (ADR-0065 §4). A save onto a child deleted for good is forgotten
     /// instead, and the marker deletes the child here. A photo or an offer the zone already holds needs nothing more:
-    /// neither ever changes.
+    /// its save is forgotten as for one that is fetched (`SyncLedger.fetched`).
     private func resolve(_ server: SyncRecord, _ ledger: SyncLedger) async throws {
-        if [.photo, .offer].contains(server.name.type) || FieldMerge.resolve(server: server) == .drop {
-            try await ledger.drop([server.name])
-        }
+        if FieldMerge.resolve(server: server) == .drop { try await ledger.drop([server.name]) }
         try await apply(fetched: [server], deleted: [], ledger)
     }
 }

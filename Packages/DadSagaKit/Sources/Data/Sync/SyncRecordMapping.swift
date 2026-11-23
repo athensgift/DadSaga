@@ -352,18 +352,20 @@ extension RecordType {
         }
     }
 
-    /// Where its records go in a batch (ADR-0065 §1): members, children, entries, then photos, so a partner's
-    /// timeline fills before its pictures; then the parent's own.
+    /// Where its records go in a batch (ADR-0065 §1). The parent's own first, since they are few and must not wait
+    /// behind every photo: `saga` before all, so iCloud is seen to hold this saga from the first request on, and
+    /// another iPhone that turns iCloud on meanwhile is asked which to keep (§2). Then members, children, entries,
+    /// and photos last, so a partner's timeline fills before its pictures.
     var batchRank: Int {
         switch self {
-        case .member: 0
-        case .child: 1
-        case .entry: 2
-        case .photo: 3
-        case .hero: 4
-        case .wardrobe: 5
-        case .offer: 6
-        case .saga: 7
+        case .saga: 0
+        case .hero: 1
+        case .wardrobe: 2
+        case .offer: 3
+        case .member: 4
+        case .child: 5
+        case .entry: 6
+        case .photo: 7
         }
     }
 }
