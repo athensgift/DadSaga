@@ -42,6 +42,12 @@ public enum ProfileRules {
         return valid
     }
 
+    /// Bringing a removed child back is adding one (ADR-0065 §4): `tooManyChildren` once `family` holds
+    /// `PlayerProfile.maxChildren` or more. Only the count: the child comes back as stored, their name and day unchecked.
+    public static func checkRoomToBringBack(into family: [Child]) throws {
+        if family.count >= PlayerProfile.maxChildren { throw ProfileValidationError.tooManyChildren }
+    }
+
     /// A hero the edit names must be one the content has; an edit naming none is never checked, so the look and the
     /// family can always be edited, even when the stored hero is one the content no longer has (ADR-0048 §5).
     public static func validated(_ edit: HeroEdit, heroClasses: [HeroClass]) throws -> HeroEdit {

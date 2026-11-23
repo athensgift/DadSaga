@@ -1,5 +1,6 @@
 import Domain
 import Foundation
+import SwiftData
 
 /// What was read from the store doesn't make sense: shown as a failure, never guessed at.
 enum StoredDataError: Error, Equatable {
@@ -8,7 +9,7 @@ enum StoredDataError: Error, Equatable {
 }
 
 extension ChildRecord {
-    /// `isRemoved` is false for every child the app itself writes; only a copy brings a removed one (ADR-0065 §5).
+    /// `isRemoved`: removed from the family, kept to bring back or delete for good (ADR-0065 §4).
     convenience init(child: Child, order: Int, isRemoved: Bool) {
         self.init(
             childID: child.id,
@@ -95,7 +96,7 @@ extension ProfileRecord {
 
     /// A part unknown to this version reads as the standard look for the skin tone: the look is stored as strings,
     /// not as enums (ADR-0044 §6).
-    func toDomain(children: [Child]) -> PlayerProfile {
+    func toDomain(children: [Child], removedChildren: [Child]) -> PlayerProfile {
         let tone = SkinTone(rawValue: dadSkinTone) ?? .mediumLight
         let standard = DadAppearance.standard(for: tone)
         let look = DadAppearance(
@@ -106,7 +107,28 @@ extension ProfileRecord {
         )
         return PlayerProfile(
             id: profileID, children: children, heroClassID: heroClassID, dadSkinTone: tone, dadAppearance: look,
-            hasPartner: hasPartner
+            hasPartner: hasPartner, removedChildren: removedChildren
         )
+    }
+}
+
+extension ModelContext {
+    /// The profile, with every child row in order, split into the family and the children removed from it
+    /// (ADR-0065 §4). `nil` before onboarding.
+    func readProfile() throws -> PlayerProfile? {
+        guard let profile = try fetch(FetchDescriptor<ProfileRecord>()).first else { return nil }
+        let rows = try fetch(FetchDescriptor<ChildRecord>(sortBy: [SortDescriptor(\.order)]))
+        return profile.toDomain(
+            children: try rows.filter { !$0.isRemoved }.map { try $0.toDomain() },
+            removedChildren: try rows.filter(\.isRemoved).map { try $0.toDomain() }
+        )
+    }
+
+    /// The family, then the children removed from it, numbered in that order.
+    func insertChildren(of profile: PlayerProfile) {
+        let children = profile.children.map { ($0, false) } + profile.removedChildren.map { ($0, true) }
+        for (order, (child, isRemoved)) in children.enumerated() {
+            insert(ChildRecord(child: child, order: order, isRemoved: isRemoved))
+        }
     }
 }

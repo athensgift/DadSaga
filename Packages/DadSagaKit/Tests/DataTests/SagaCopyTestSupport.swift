@@ -80,9 +80,10 @@ extension SagaCopyBench {
             authorID: SagaCopyPeople.partnerID, kind: .first(id: "f-smile"), childID: removed.id,
             date: madeAt.addingTimeInterval(-4_000), note: "Χαμόγελο"
         )
+        var profile = try #require(try await phone.store.profiles.fetchProfile())
+        profile.removedChildren = [removed]
         try await phone.store.wholeSaga.replaceAll(with: StoredSaga(
-            profile: try #require(try await phone.store.profiles.fetchProfile()),
-            removedChildren: [removed],
+            profile: profile,
             events: try await phone.store.progress.fetchEvents() + [partners],
             outfit: try await phone.store.outfit.fetchOutfit(),
             kept: kept

@@ -340,6 +340,8 @@ struct BeforeBirthPresentationTests {
         let sut = FamilyViewModel(
             getProfile: StubGetProfile(profile: profile([HarbourStub.unborn])),
             updateFamily: update,
+            bringBack: NoFamilyActs(),
+            deleteForGood: NoFamilyActs(),
             locale: Locale(identifier: "el_GR"),
             now: HarbourStub.today,
             timeZone: .gmt,

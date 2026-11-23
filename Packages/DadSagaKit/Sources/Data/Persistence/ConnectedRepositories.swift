@@ -14,6 +14,12 @@ struct ConnectedProfileRepository: ProfileRepository {
     @concurrent func create(_ profile: PlayerProfile) async throws { try await connection.open().profiles.create(profile) }
     @concurrent func save(_ edit: FamilyEdit) async throws { try await connection.open().profiles.save(edit) }
     @concurrent func save(_ edit: HeroEdit) async throws { try await connection.open().profiles.save(edit) }
+    @concurrent func bringBack(childID: UUID) async throws {
+        try await connection.open().profiles.bringBack(childID: childID)
+    }
+    @concurrent func deleteForGood(childID: UUID) async throws -> [String] {
+        try await connection.open().profiles.deleteForGood(childID: childID)
+    }
 }
 
 struct ConnectedProgressRepository: ProgressRepository {

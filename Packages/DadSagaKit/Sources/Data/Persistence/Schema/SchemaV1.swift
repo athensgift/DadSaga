@@ -76,8 +76,8 @@ enum SchemaV1: VersionedSchema {
         var skinTone: String
         /// Position in the family, as the dad entered them.
         var order: Int
-        /// Removed from the family (ADR-0065 §4): on no screen and in no count, their entries kept. Written false
-        /// until the co-op version; only a copy brings true.
+        /// Removed from the family (ADR-0065 §4): on no screen and in no count, their entries kept. Set by removing a
+        /// child in "My family", cleared by bringing them back.
         var isRemoved: Bool
 
         init(

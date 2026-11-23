@@ -71,6 +71,7 @@ actor SpyProfileRepository: ProfileRepository {
 
     func save(_ edit: FamilyEdit) async throws {
         guard var profile else { throw ProfileEditError.noProfile }
+        profile.removedChildren += profile.children.filter { edit.removedIDs.contains($0.id) }
         profile.children = edit.applied(to: profile.children)
         if let hasPartner = edit.hasPartner { profile.hasPartner = hasPartner }
         self.profile = profile
@@ -81,6 +82,32 @@ actor SpyProfileRepository: ProfileRepository {
         guard let profile else { throw ProfileEditError.noProfile }
         self.profile = edit.applied(to: profile)
         editCount += 1
+    }
+
+    /// Back in the family's order is the store's business; here the child goes last.
+    func bringBack(childID: UUID) async throws {
+        guard var profile, let child = profile.removedChildren.first(where: { $0.id == childID }) else {
+            throw ProfileEditError.notRemoved
+        }
+        profile.removedChildren.removeAll { $0.id == childID }
+        profile.children.append(child)
+        self.profile = profile
+        editCount += 1
+    }
+
+    /// The photos of the entries deleted with the child, as the test sets them.
+    var photosOfRemoved: [String] = []
+
+    func setPhotosOfRemoved(_ ids: [String]) { photosOfRemoved = ids }
+
+    func deleteForGood(childID: UUID) async throws -> [String] {
+        guard var profile, profile.removedChildren.contains(where: { $0.id == childID }) else {
+            throw ProfileEditError.notRemoved
+        }
+        profile.removedChildren.removeAll { $0.id == childID }
+        self.profile = profile
+        editCount += 1
+        return photosOfRemoved
     }
 }
 

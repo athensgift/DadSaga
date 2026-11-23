@@ -78,8 +78,55 @@ struct ChangedColumnsTests {
         let removed = try await changes { try await store.profiles.save(FamilyEdit(removedIDs: [lena.id])) }
 
         #expect(added == [[.insert(ChildRecord.self)]])
-        #expect(removed == [[.delete(ChildRecord.self)]])
+        #expect(removed == [[.update(ChildRecord.self, [\ChildRecord.isRemoved])]])
         #expect(try await store.profiles.fetchProfile()?.children.map(\.name) == ["Νίκος", "Ίρις"])
+    }
+
+    @Test("Given a child renamed and removed in one edit, when saved, then the row is only marked and keeps its name")
+    func aRemovedChildIsNeverChanged() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let (store, _) = try await onboarded()
+        var renamed = lena
+        renamed.name = "Ελένη"
+
+        let written = try await changes {
+            try await store.profiles.save(FamilyEdit(
+                removedIDs: [lena.id], changed: [ChildEdit(child: renamed, fields: [.name])]
+            ))
+        }
+
+        #expect(written == [[.update(ChildRecord.self, [\ChildRecord.isRemoved])]])
+        #expect(try await store.profiles.fetchProfile()?.removedChildren.map(\.name) == [lena.name])
+    }
+
+    @Test("Given a removed child, when brought back, then one update lists only the mark")
+    func bringingBackListsOnlyTheMark() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let (store, _) = try await onboarded()
+        try await store.profiles.save(FamilyEdit(removedIDs: [lena.id]))
+
+        let written = try await changes { try await store.profiles.bringBack(childID: lena.id) }
+
+        #expect(written == [[.update(ChildRecord.self, [\ChildRecord.isRemoved])]])
+        #expect(try await store.profiles.fetchProfile()?.children.map(\.id) == [lena.id, nikos.id])
+    }
+
+    @Test("Given a removed child with an entry, when deleted for good, then one write of deletes only: the child and the entry")
+    func deletingForGoodIsDeletesOnly() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let (store, entry) = try await onboarded()
+        try await store.progress.add(ProgressEvent(kind: .quest(id: "q2"), childID: nikos.id, date: .now))
+        try await store.profiles.save(FamilyEdit(removedIDs: [lena.id]))
+
+        var photoIDs: [String] = []
+        let written = try await changes { photoIDs = try await store.profiles.deleteForGood(childID: lena.id) }
+
+        #expect(written.count == 1)
+        #expect(written.first?.sorted { $0.model < $1.model } == [
+            .delete(ChildRecord.self), .delete(ProgressEventRecord.self)
+        ])
+        #expect(photoIDs == entry.photoIDs)
+        #expect(try await store.progress.fetchEvents().map(\.childID) == [nikos.id])
     }
 
     @Test("Given the dad's look, when only the beard changes, then one update of the profile lists only the beard")
@@ -158,7 +205,7 @@ struct ChangedColumnsTests {
         let store = LocalStore.live(in: directory)
         let iris = Child(name: "Ίρις", birthDay: nil)
         try await store.wholeSaga.replaceAll(with: StoredSaga(
-            profile: PlayerProfile(children: [lena, nikos], heroClassID: "h-cool"), removedChildren: [iris], events: [],
+            profile: PlayerProfile(children: [lena, nikos], heroClassID: "h-cool", removedChildren: [iris]), events: [],
             outfit: Outfit(), kept: KeptStanding()
         ))
         let orders = try storedChildOrders(at: storeURL)
@@ -191,7 +238,7 @@ struct ChangedColumnsTests {
         let store = LocalStore.live(in: directory)
         let iris = Child(name: "Ίρις", birthDay: nil)
         try await store.wholeSaga.replaceAll(with: StoredSaga(
-            profile: PlayerProfile(children: [lena], heroClassID: "h-cool"), removedChildren: [iris], events: [],
+            profile: PlayerProfile(children: [lena], heroClassID: "h-cool", removedChildren: [iris]), events: [],
             outfit: Outfit(), kept: KeptStanding()
         ))
 

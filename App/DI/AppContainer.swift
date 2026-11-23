@@ -249,6 +249,11 @@ final class AppContainer {
         FamilyViewModel(
             getProfile: getProfileUseCase,
             updateFamily: DefaultUpdateFamilyUseCase(profileRepository: store.profiles),
+            bringBack: DefaultBringBackChildUseCase(profileRepository: store.profiles),
+            deleteForGood: DefaultDeleteChildForGoodUseCase(
+                contentRepository: contentRepository, profileRepository: store.profiles,
+                progressRepository: store.progress, standingRepository: store.standing, photoStore: photoStore
+            ),
             onSaved: onSaved
         )
     }

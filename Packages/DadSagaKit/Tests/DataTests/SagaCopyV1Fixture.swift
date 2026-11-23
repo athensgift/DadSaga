@@ -31,9 +31,8 @@ enum SagaCopyV1Fixture {
             profile: PlayerProfile(
                 id: heroID, children: [eleni, baby], heroClassID: "h-cool", dadSkinTone: .dark,
                 dadAppearance: DadAppearance(hair: .long, hairColor: .red, beard: .short, glasses: .round),
-                hasPartner: false
+                hasPartner: false, removedChildren: [iris]
             ),
-            removedChildren: [iris],
             events: [
                 ProgressEvent(id: id("E0000000-0000-0000-0000-000000000001"), authorID: heroID,
                               kind: .boss(id: "b-w1-first-fever"),

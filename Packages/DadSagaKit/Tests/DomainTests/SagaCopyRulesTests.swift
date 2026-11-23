@@ -10,8 +10,8 @@ struct SagaCopyRulesTests {
 
     private func saga(children: [Child]? = nil, removed: [Child] = [], events: [ProgressEvent] = []) -> StoredSaga {
         StoredSaga(
-            profile: PlayerProfile(children: children ?? [lena], heroClassID: "h-chef"),
-            removedChildren: removed, events: events, outfit: Outfit(), kept: KeptStanding()
+            profile: PlayerProfile(children: children ?? [lena], heroClassID: "h-chef", removedChildren: removed),
+            events: events, outfit: Outfit(), kept: KeptStanding()
         )
     }
 
@@ -91,7 +91,7 @@ struct SagaCopyRulesTests {
 
         #expect(replaced.events.map(\.photoIDs) == [["A", "C"], [], []])
         #expect(replaced.events.map(\.authorID) == [.testDad, .testDad, partners.authorID])
-        #expect(replaced.removedChildren == [nikos])
+        #expect(replaced.profile.removedChildren == [nikos])
         #expect(replaced.events.first?.coverPhotoID == "A")
         #expect(replaced.events.map(\.id) == [first.id, second.id, partners.id])
     }

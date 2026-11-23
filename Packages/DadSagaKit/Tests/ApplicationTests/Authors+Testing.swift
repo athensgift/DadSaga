@@ -17,11 +17,12 @@ extension PlayerProfile {
         heroClassID: String,
         dadSkinTone: SkinTone = .mediumLight,
         dadAppearance: DadAppearance? = nil,
-        hasPartner: Bool = true
+        hasPartner: Bool = true,
+        removedChildren: [Child] = []
     ) {
         self.init(
             id: .testDad, children: children, heroClassID: heroClassID, dadSkinTone: dadSkinTone,
-            dadAppearance: dadAppearance, hasPartner: hasPartner
+            dadAppearance: dadAppearance, hasPartner: hasPartner, removedChildren: removedChildren
         )
     }
 }
@@ -40,13 +41,6 @@ extension ProgressEvent {
     }
 }
 
-extension StoredSaga {
-    /// A saga with no removed child, as every saga the app itself makes until the co-op version.
-    init(profile: PlayerProfile, events: [ProgressEvent], outfit: Outfit, kept: KeptStanding) {
-        self.init(profile: profile, removedChildren: [], events: events, outfit: outfit, kept: kept)
-    }
-}
-
 /// The test dad, stored: the author of everything a recording use case records in a test.
 struct TheDad: ProfileRepository {
     var profile = PlayerProfile(children: [Child(name: "Λένα", birthDay: nil)], heroClassID: "h1")
@@ -55,6 +49,8 @@ struct TheDad: ProfileRepository {
     func create(_ profile: PlayerProfile) async throws {}
     func save(_ edit: FamilyEdit) async throws {}
     func save(_ edit: HeroEdit) async throws {}
+    func bringBack(childID: UUID) async throws {}
+    func deleteForGood(childID: UUID) async throws -> [String] { [] }
 }
 
 extension PlayerProfile {

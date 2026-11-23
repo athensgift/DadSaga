@@ -52,6 +52,8 @@ struct FamilyView: View {
             onSave: { Task { await viewModel.save() } },
             onDiscard: { dismiss() }
         ))
+        // Bringing back and deleting for good save with nothing unsaved: a link waits for them too (ADR-0050 §4).
+        .holdsLinks(whileWorking: viewModel.isSaving)
         .task { await viewModel.onAppear() }
     }
 
@@ -97,6 +99,9 @@ struct FamilyView: View {
                     .buttonStyle(.glass)
                     .controlSize(.large)
             }
+            if !viewModel.removedChildren.isEmpty {
+                RemovedChildrenCard(viewModel: viewModel, labels: content.removed)
+            }
             PartnerRow(hasPartner: $viewModel.family.hasPartner, labels: content.partner)
             SheetError(message: viewModel.errorMessage)
             if !isSplit {
@@ -111,6 +116,80 @@ struct FamilyView: View {
             .font(DSFont.caption)
             .foregroundStyle(DSColor.textSecondary)
             .multilineTextAlignment(.center)
+    }
+}
+
+/// The children removed from the family, by name only: each can be brought back or deleted for good, after a calm
+/// question (ADR-0065 §4).
+private struct RemovedChildrenCard: View {
+    let viewModel: FamilyViewModel
+    let labels: RemovedChildrenLabels
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: DSSpacing.s) {
+            Text(labels.title)
+                .font(DSFont.headline)
+                .accessibilityAddTraits(.isHeader)
+            Text(labels.line)
+                .font(DSFont.caption)
+                .foregroundStyle(DSColor.textSecondary)
+            ForEach(viewModel.removedChildren) { row in
+                Divider()
+                RemovedChild(viewModel: viewModel, row: row, labels: labels)
+            }
+            if viewModel.isFamilyFull {
+                Text(labels.full)
+                    .font(DSFont.caption)
+                    .foregroundStyle(DSColor.textSecondary)
+            }
+        }
+        .padding(DSSpacing.m)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .font(DSFont.body)
+        .foregroundStyle(DSColor.textPrimary)
+        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+    }
+}
+
+/// One removed child. The question hangs on its own "Delete for good", so it rises from that button.
+private struct RemovedChild: View {
+    let viewModel: FamilyViewModel
+    let row: RemovedChildRow
+    let labels: RemovedChildrenLabels
+
+    var body: some View {
+        AdaptiveStack(spacing: DSSpacing.s) {
+            Text(row.name)
+                .font(DSFont.headline)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            if !viewModel.isFamilyFull {
+                Button(labels.bringBack) { Task { await viewModel.bringBack(id: row.id) } }
+                    .buttonStyle(.glass)
+                    .disabled(!viewModel.canBringBack)
+                    .accessibilityLabel(row.bringBackLabel)
+            }
+            Button(labels.deleteForGood, role: .destructive) { viewModel.requestDeletion(id: row.id) }
+                .buttonStyle(.glass)
+                .disabled(viewModel.isSaving)
+                .accessibilityLabel(row.deleteLabel)
+                .confirmationDialog(
+                    viewModel.deletion?.title ?? "",
+                    isPresented: Binding(
+                        get: { viewModel.deletion?.id == row.id },
+                        set: { if !$0 { viewModel.cancelDeletion() } }
+                    ),
+                    titleVisibility: .visible,
+                    presenting: viewModel.deletion
+                ) { prompt in
+                    Button(prompt.confirmTitle, role: .destructive) {
+                        Task { await viewModel.confirmDeletion(id: prompt.id) }
+                    }
+                    Button(prompt.cancelTitle, role: .cancel) { viewModel.cancelDeletion() }
+                } message: { prompt in
+                    Text(prompt.message)
+                }
+        }
+        .frame(minHeight: 44)
     }
 }
 

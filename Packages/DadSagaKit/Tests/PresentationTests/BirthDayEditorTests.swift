@@ -19,6 +19,8 @@ struct BirthDayEditorTests {
         let sut = FamilyViewModel(
             getProfile: StubGetProfile(profile: PlayerProfile(children: [anna], heroClassID: "h-cool")),
             updateFamily: update,
+            bringBack: NoFamilyActs(),
+            deleteForGood: NoFamilyActs(),
             locale: Locale(identifier: "el_GR"),
             now: HeroStub.today,
             timeZone: losAngeles,
@@ -98,6 +100,8 @@ struct BirthDayEditorTests {
         FamilyViewModel(
             getProfile: StubGetProfile(profile: profile),
             updateFamily: update,
+            bringBack: NoFamilyActs(),
+            deleteForGood: NoFamilyActs(),
             locale: Locale(identifier: "el_GR"),
             now: HeroStub.today,
             timeZone: timeZone,

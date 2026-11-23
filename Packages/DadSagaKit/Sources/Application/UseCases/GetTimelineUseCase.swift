@@ -6,8 +6,8 @@ public protocol GetTimelineUseCase: Sendable {
     func execute() async throws -> [TimelineEntry]
 }
 
-/// Leaves out the entries of a child removed from the family (ADR-0065 §5): only a copy from the co-op version can
-/// bring one until then. Their entries still count for their author. No saga, no entries.
+/// Only the family's entries: a child removed from the family (ADR-0065 §4), or with no row, leaves the timeline with
+/// their entries, which still count for their author. No saga, no entries.
 public struct DefaultGetTimelineUseCase: GetTimelineUseCase {
     private let contentRepository: any ContentRepository
     private let wholeSaga: any WholeSagaRepository
@@ -21,7 +21,7 @@ public struct DefaultGetTimelineUseCase: GetTimelineUseCase {
         async let saga = wholeSaga.readAll()
         let catalog = try await contentRepository.fetchCatalog()
         guard let saga = try await saga else { return [] }
-        let removed = Set(saga.removedChildren.map(\.id))
-        return Timeline.entries(from: saga.events, catalog: catalog).filter { !removed.contains($0.childID) }
+        let family = Set(saga.profile.children.map(\.id))
+        return Timeline.entries(from: saga.events, catalog: catalog).filter { family.contains($0.childID) }
     }
 }

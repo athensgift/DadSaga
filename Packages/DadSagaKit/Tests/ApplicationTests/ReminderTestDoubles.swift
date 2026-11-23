@@ -88,6 +88,8 @@ struct UnreadableProfiles: ProfileRepository {
     func create(_ profile: PlayerProfile) async throws { throw Failure() }
     func save(_ edit: FamilyEdit) async throws { throw Failure() }
     func save(_ edit: HeroEdit) async throws { throw Failure() }
+    func bringBack(childID: UUID) async throws { throw Failure() }
+    func deleteForGood(childID: UUID) async throws -> [String] { throw Failure() }
 }
 
 actor FakeSagaOffers: SagaOfferRepository {

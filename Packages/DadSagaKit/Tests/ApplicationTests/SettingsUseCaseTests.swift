@@ -189,7 +189,7 @@ struct EditProfileUseCaseTests {
         #expect(try await profiles.fetchProfile() == before)
     }
 
-    @Test("Given the hero h1 with a light tone and a look, when updating the children, then hero, tone and look are kept")
+    @Test("Given the hero h1 with a light tone and a look, when a child is removed, then hero, tone and look are kept")
     func changesFamily() async throws {
         let profiles = SpyProfileRepository()
         _ = try await stored(profiles)
@@ -204,7 +204,8 @@ struct EditProfileUseCaseTests {
 
         let profile = try #require(try await profiles.fetchProfile())
         #expect(profile == PlayerProfile(
-            children: [anna], heroClassID: "h1", dadSkinTone: .light, dadAppearance: shavedNoBeard
+            children: [anna], heroClassID: "h1", dadSkinTone: .light, dadAppearance: shavedNoBeard,
+            removedChildren: [nikos]
         ))
     }
 

@@ -164,7 +164,7 @@ struct LocalStoreTests {
             glasses: "round", hasPartner: true
         )
 
-        let look = record.toDomain(children: []).dadAppearance
+        let look = record.toDomain(children: [], removedChildren: []).dadAppearance
 
         #expect(look == DadAppearance(hair: .short, hairColor: .grey, beard: .full, glasses: .round))
     }

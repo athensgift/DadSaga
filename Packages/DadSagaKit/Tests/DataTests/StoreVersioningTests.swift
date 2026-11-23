@@ -61,7 +61,7 @@ struct StoreVersioningTests {
         let iris = Child(name: "Ίρις", birthDay: nil)
         let store = LocalStore.live(in: directory)
         try await store.wholeSaga.replaceAll(with: StoredSaga(
-            profile: PlayerProfile(children: [lena], heroClassID: "chef"), removedChildren: [iris], events: [],
+            profile: PlayerProfile(children: [lena], heroClassID: "chef", removedChildren: [iris]), events: [],
             outfit: Outfit(), kept: KeptStanding()
         ))
         var renamed = iris
@@ -72,7 +72,7 @@ struct StoreVersioningTests {
         try await store.profiles.save(FamilyEdit(added: [renamed]))
 
         #expect(try await store.profiles.fetchProfile()?.children == [lena])
-        #expect(try await store.wholeSaga.readAll()?.removedChildren == [iris])
+        #expect(try await store.wholeSaga.readAll()?.profile.removedChildren == [iris])
         #expect(try storedRowCount(ChildRecord.self, at: storeURL) == 2)
     }
 
@@ -91,7 +91,7 @@ struct StoreVersioningTests {
         #expect(reopened.children.count == 2)
     }
 
-    @Test("Given a saved family, when a child is renamed, one removed and one added, then that family is read, the new one last")
+    @Test("Given a saved family, when a child is renamed, one removed and one added, then it reads so, the removed one apart")
     func saveUpdatesInPlace() async throws {
         let store = LocalStore.live(in: directory)
         let lena = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
@@ -105,7 +105,9 @@ struct StoreVersioningTests {
             added: [anna], removedIDs: [nikos.id], changed: [ChildEdit(child: renamed, fields: [.name])]
         ))
 
-        #expect(try await store.profiles.fetchProfile() == PlayerProfile(children: [renamed, anna], heroClassID: "chef"))
+        #expect(try await store.profiles.fetchProfile() == PlayerProfile(
+            children: [renamed, anna], heroClassID: "chef", removedChildren: [nikos]
+        ))
     }
 
     @Test("Given a child not born yet, when the family is saved with a birth day, then the same child reads back born on it")

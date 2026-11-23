@@ -26,7 +26,7 @@ public enum SagaCopyRuleError: Error, Equatable, Sendable {
 public enum SagaCopyRules {
     public static func checked(_ saga: StoredSaga) throws(SagaCopyRuleError) {
         guard !saga.profile.children.isEmpty else { throw .noChild }
-        let children = saga.profile.children + saga.removedChildren
+        let children = saga.profile.children + saga.profile.removedChildren
         guard Set(children.map(\.id)).count == children.count else { throw .duplicateChild }
         guard children.allSatisfy({ !$0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }) else {
             throw .emptyChildName
