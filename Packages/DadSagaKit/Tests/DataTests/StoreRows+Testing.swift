@@ -68,3 +68,14 @@ private func rowChange<Change: HistoryUpdate>(_ update: Change) -> RowChange {
 private func rowChange<Change: HistoryDelete>(_: Change) -> RowChange {
     RowChange(kind: .delete, model: String(describing: Change.Model.self), columns: [])
 }
+
+/// Each child row's stored `order`, by name, removed rows included, read through a container of its own.
+func storedChildOrders(at url: URL) throws -> [String: Int] {
+    let container = try ModelContainer(
+        for: Schema(versionedSchema: CurrentSchema.self),
+        migrationPlan: DadSagaMigrationPlan.self,
+        configurations: [ModelConfiguration(url: url, cloudKitDatabase: .none)]
+    )
+    let rows = try ModelContext(container).fetch(FetchDescriptor<ChildRecord>())
+    return Dictionary(rows.map { ($0.name, $0.order) }, uniquingKeysWith: { first, _ in first })
+}

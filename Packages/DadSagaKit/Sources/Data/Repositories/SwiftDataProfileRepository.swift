@@ -32,8 +32,10 @@ actor SwiftDataProfileRepository: ProfileRepository {
 
     /// Writes only what the edit names, and only values that differ (ADR-0065 §1, §4): a row the edit doesn't name is
     /// never touched and no child is renumbered. A removed child (ADR-0065 §5) is never changed, deleted or inserted
-    /// again. An added child goes after the highest stored order, removed rows included. All or nothing: the fetches
-    /// come between the changes, so the whole body is inside.
+    /// again, and an id the edit both adds and removes is not added. An added child goes after the highest stored
+    /// order, removed rows included. Throws `ProfileValidationError.noChildren`, writing nothing, when the edit would
+    /// leave the family without a child: checked here, where removed rows are seen. All or nothing: the fetches come
+    /// between the changes, so the whole body is inside.
     func save(_ edit: FamilyEdit) async throws {
         try modelContext.saveAllOrNothing {
             guard let profile = try record() else { throw ProfileEditError.noProfile }
@@ -47,16 +49,18 @@ actor SwiftDataProfileRepository: ProfileRepository {
                 // PR 3 marks the row instead.
                 if let record = stored[id], !record.isRemoved { modelContext.delete(record) }
             }
-            for change in edit.changed {
+            for change in edit.changed where !edit.removedIDs.contains(change.child.id) {
                 if let record = stored[change.child.id], !record.isRemoved { record.apply(change) }
             }
             var nextOrder = (stored.values.map(\.order).max() ?? -1) + 1
-            for child in edit.added where stored[child.id] == nil {
+            for child in edit.added where stored[child.id] == nil && !edit.removedIDs.contains(child.id) {
                 let record = ChildRecord(child: child, order: nextOrder, isRemoved: false)
                 modelContext.insert(record)
                 stored[child.id] = record
                 nextOrder += 1
             }
+            let kept = stored.values.filter { !$0.isRemoved && !edit.removedIDs.contains($0.childID) }
+            guard !kept.isEmpty else { throw ProfileValidationError.noChildren }
         }
     }
 

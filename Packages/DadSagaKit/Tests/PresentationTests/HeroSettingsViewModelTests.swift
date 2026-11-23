@@ -141,6 +141,31 @@ struct HeroSettingsViewModelTests {
         #expect(await update.edits == [HeroEdit(dadSkinTone: .light, hairColor: .brown)])
     }
 
+    @Test("Given a saved beard, when the hair changes next, then only the hair is sent")
+    func eachSaveSendsOnlyWhatIsNew() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+
+        await sut.selectOption(rowID: "beard", optionID: "none")
+        await sut.selectOption(rowID: "hair", optionID: "short")
+
+        #expect(await update.edits == [HeroEdit(beard: DadAppearance.Beard.none), HeroEdit(hair: .short)])
+    }
+
+    @Test("Given a saved beard, when the next change fails, then the page keeps the new beard and goes back to the old hair")
+    func failureGoesBackToTheLastSave() async {
+        let sut = makeSUT()
+        await sut.onAppear()
+        await sut.selectOption(rowID: "beard", optionID: "none")
+        await update.failNext()
+
+        await sut.selectOption(rowID: "hair", optionID: "short")
+
+        #expect(sut.appearance.beard == .none)
+        #expect(sut.appearance.hair == .curly)
+        #expect(sut.errorMessage != nil)
+    }
+
     @Test("Given an option the app doesn't know, when choosing it, then nothing changes or is stored")
     func unknownOptionIgnored() async {
         let sut = makeSUT()

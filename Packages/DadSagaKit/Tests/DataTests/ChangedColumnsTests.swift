@@ -130,4 +130,89 @@ struct ChangedColumnsTests {
 
         #expect(written.isEmpty)
     }
+
+    @Test("Given a rename saved meanwhile, when a stale edit changes the tone, then the rename stays and only the tone is new")
+    func staleEditWritesOnlyItsFields() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let (store, _) = try await onboarded()
+        var renamed = lena
+        renamed.name = "Ελένη"
+        try await store.profiles.save(FamilyEdit(changed: [ChildEdit(child: renamed, fields: [.name])]))
+        // Opened before the rename: still shows the old name.
+        var stale = lena
+        stale.skinTone = .dark
+
+        let written = try await changes {
+            try await store.profiles.save(FamilyEdit(changed: [ChildEdit(child: stale, fields: [.skinTone])]))
+        }
+
+        #expect(written == [[.update(ChildRecord.self, [\ChildRecord.skinTone])]])
+        let child = try await store.profiles.fetchProfile()?.children.first
+        #expect(child?.name == "Ελένη")
+        #expect(child?.skinTone == .dark)
+    }
+
+    @Test("Given a removed child after the family, when a child is added, then it goes after the removed row's order")
+    func addedGoesAfterRemovedRows() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = LocalStore.live(in: directory)
+        let iris = Child(name: "Ίρις", birthDay: nil)
+        try await store.wholeSaga.replaceAll(with: StoredSaga(
+            profile: PlayerProfile(children: [lena, nikos], heroClassID: "h-cool"), removedChildren: [iris], events: [],
+            outfit: Outfit(), kept: KeptStanding()
+        ))
+        let orders = try storedChildOrders(at: storeURL)
+
+        try await store.profiles.save(FamilyEdit(added: [Child(name: "Άρης", birthDay: nil)]))
+
+        let after = try storedChildOrders(at: storeURL)
+        #expect(after["Άρης"] == (orders.values.max() ?? 0) + 1)
+        #expect(Set(after.values).count == after.count)
+    }
+
+    @Test("Given an entry with Λένα, when it is updated naming another child, then it stays Λένα's")
+    func updateNeverMovesTheChild() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let (store, entry) = try await onboarded()
+        let moved = ProgressEvent(
+            id: entry.id, kind: entry.kind, childID: nikos.id, date: entry.date, note: "άλλο", photoIDs: entry.photoIDs
+        )
+
+        try await store.progress.update(moved)
+
+        let stored = try await store.progress.fetchEvents().first { $0.id == entry.id }
+        #expect(stored?.childID == lena.id)
+        #expect(stored?.note == "άλλο")
+    }
+
+    @Test("Given a removed child, when an edit adds them back and removes the last child, then noChildren and nothing written")
+    func noChildLeftIsCheckedWithRemovedRows() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = LocalStore.live(in: directory)
+        let iris = Child(name: "Ίρις", birthDay: nil)
+        try await store.wholeSaga.replaceAll(with: StoredSaga(
+            profile: PlayerProfile(children: [lena], heroClassID: "h-cool"), removedChildren: [iris], events: [],
+            outfit: Outfit(), kept: KeptStanding()
+        ))
+
+        let written = try await changes {
+            await #expect(throws: ProfileValidationError.noChildren) {
+                try await store.profiles.save(FamilyEdit(added: [iris], removedIDs: [lena.id]))
+            }
+        }
+
+        #expect(written.isEmpty)
+        #expect(try await store.profiles.fetchProfile()?.children == [lena])
+    }
+
+    @Test("Given four children, when an edit adds and removes the same new id, then nothing is added")
+    func addedAndRemovedIsNotAdded() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let (store, _) = try await onboarded()
+        let other = Child(name: "Άρης", birthDay: nil)
+
+        try await store.profiles.save(FamilyEdit(added: [other], removedIDs: [other.id]))
+
+        #expect(try await store.profiles.fetchProfile()?.children == [lena, nikos])
+    }
 }
