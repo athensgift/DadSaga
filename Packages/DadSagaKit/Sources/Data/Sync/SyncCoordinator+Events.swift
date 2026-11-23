@@ -123,10 +123,12 @@ extension SyncCoordinator {
     /// A fetch ended. What was held behind it goes now: the fetch reported no deletion for it, so it is sent as a new
     /// record, with its zone saved again in case the zone was what the save didn't find (ADR-0065 §4). After an
     /// expired history token, every row the zone lacks is sent, while one it has keeps the server's values. And when
-    /// it was the whole fetch of the family's zone, what the zone lacks is sent or deleted by the rejoin's rule: only
-    /// when every batch of it was applied, since a record of a batch that wasn't reads as one the zone lacks, and
-    /// another member's entry would go as their deletion. Until the next launch has fetched that batch again, the
-    /// family's changes wait.
+    /// it was the whole fetch of the family's zone, what the zone lacks is sent or deleted by the rejoin's rule.
+    ///
+    /// What is held goes, and the rejoin's rule runs, only when every batch of the fetch was applied. A record of a
+    /// batch that wasn't reads as one the zone lacks, and another member's entry would go as their deletion; and
+    /// that batch may be the one that reported a held record's deletion. Until the next launch has fetched it
+    /// again, what is held stays held and the family's changes wait.
     private func fetchEnded(from database: SyncDatabase, _ ledger: SyncLedger) async throws {
         let settings = try await ledger.settings()
         let scopes = SyncScope.allCases.filter { settings.database(for: $0) == database }
@@ -146,10 +148,14 @@ extension SyncCoordinator {
             (familyZoneNotFound, familyZoneListed) = (false, false)
             if ended { try await familyLeft(ledger) }
         }
-        let released = try await ledger.releaseAfterFetch(scopes)
-        // Only where this parent makes zones: one in the partner's iCloud is theirs to make.
-        if database == .private, let zones = settings.zones {
-            await engines[database]?.add(Set(released.map { zones.zone(for: $0.type) }).map(ZoneChange.save))
+        // A batch that wasn't applied may be the one that reported a held record's deletion: what is held stays so
+        // until the next launch's fetch has ended.
+        if !unapplied.contains(database) {
+            let released = try await ledger.releaseAfterFetch(scopes)
+            // Only where this parent makes zones: one in the partner's iCloud is theirs to make.
+            if database == .private, let zones = settings.zones {
+                await engines[database]?.add(Set(released.map { zones.zone(for: $0.type) }).map(ZoneChange.save))
+            }
         }
         try await give(ledger)
         try await endMove(ledger)

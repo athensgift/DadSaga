@@ -89,6 +89,40 @@ struct OneParentLaunchTests: SyncBench {
         #expect(try await child(nikos, on: again)?.name == "Νικόλας")
     }
 
+    @Test("Given an edit held behind a fetch whose batch isn't applied, then it stays held; the deletion wins at the next launch")
+    func anUnappliedBatchReleasesNothing() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let cloud = makeCloud()
+        let content = UnreadableContent()
+        let phone = phone("iphone", account: "dad", on: cloud, content: content)
+        let entry = try await onboard(phone)
+        #expect(try await phone.coordinator.turnOn() == .turnedOn)
+        try await settle(phone)
+        // Another iPhone deleted the entry; this one edits it, and its save finds no record.
+        await cloud.delete(.entry(entry.id), in: try await phone.family(), as: "dad")
+        try await phone.store.progress.update(ProgressEvent(
+            id: entry.id, kind: entry.kind, childID: entry.childID, date: entry.date, note: "άλλο", photoIDs: entry.photoIDs
+        ))
+        try await phone.sendChanges()
+        #expect(try await phone.ledger().pending().map(\.behindFetch) == [true])
+
+        // The batch that reports the deletion can't be applied: the fetch that ends has said nothing of the entry.
+        await content.setReadable(false)
+        try await phone.fetch()
+        try await phone.send()
+        #expect(try await phone.ledger().pending().map(\.behindFetch) == [true])
+        #expect(try await phone.cloudRecord(.entry(entry.id)) == nil)
+
+        await content.setReadable(true)
+        let again = phone.relaunched()
+        await again.coordinator.resume()
+        try await settle(again)
+
+        #expect(try await again.store.progress.fetchEvents().isEmpty)
+        #expect(try await again.cloudRecord(.entry(entry.id)) == nil)
+        #expect(try await again.ledger().pending().isEmpty)
+    }
+
     @Test("Given a history that can't be read, when sync next fetches, then a row iCloud lacks is sent, others keep its values")
     func anExpiredHistoryToken() async throws {
         defer { try? FileManager.default.removeItem(at: root) }

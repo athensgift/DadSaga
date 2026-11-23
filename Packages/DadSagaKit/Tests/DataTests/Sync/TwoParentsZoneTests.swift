@@ -106,28 +106,60 @@ struct TwoParentsZoneTests: SyncBench {
     @Test("Given a save that found no zone, when the fetch that follows lists the family's zone, then she is still in the family")
     func aZoneNotFoundOnceIsNotSharingEnded() async throws {
         defer { try? FileManager.default.removeItem(at: root) }
+        let family = try await family(on: makeCloud())
+        let (dad, mum, cloud) = (family.dad, family.mum, family.cloud)
+        // Her engines start from nothing while the zone is not shown to her: her saves find no zone.
+        await mum.device.signOut()
+        await cloud.stopSharing(family.zone)
+        await mum.device.signIn("mum")
+        let recorded = try await mum.record(lena, by: .partner, minute: 1)
+        await mum.coordinator.drain()
+        try await mum.fetch()
+        try await mum.send()
+        #expect(await cloud.records(in: family.zone, of: "dad")[.entry(recorded.id)] == nil)
+        // It is shown again before her next fetch, which lists it.
+        await cloud.share(family.zone, with: "mum")
+        try await settle(dad, mum)
+
+        // The fetch listed the zone, so sharing has not ended: nothing is rebuilt, and what waited is sent.
+        #expect(try await mum.family() == family.zone)
+        #expect(await mum.coordinator.status() == ShareStatus(sharing: .partner))
+        #expect(await cloud.zones(of: "mum") == [.personal])
+        for phone in [dad, mum] {
+            #expect(try await phone.entryIDs() == [family.dadsEntry.id, family.mumsEntry.id, recorded.id])
+            #expect(try await phone.ledger().pending().isEmpty)
+        }
+    }
+
+    @Test("Given a join before the partner's database shows the zone, then the child map waits for it: no child is shown twice")
+    func aJoinWhoseZoneShowsLate() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
         let cloud = makeCloud()
         let (dad, dadsEntry) = try await started("dad", on: cloud)
         let partner = try await partnerAlone(on: cloud)
         let (mum, zone) = (partner.phone, try await dad.family())
 
-        // She accepts before the partner's database shows the zone: her first fetch brings nothing, and her saves
-        // find no zone.
+        // Her first fetch ends having brought nothing of the family: that is not its zone fetched whole.
         try await mum.coordinator.join(zone, childMap: ChildMap(familyIDs: [partner.ownLena.id: lena.id]))
         try await mum.fetch()
         try await mum.send()
-        #expect(await cloud.records(in: zone, of: "dad")[.entry(partner.entry.id)] == nil)
+        #expect(try await mum.ledger().settings().fullSendAfterFetch)
+        #expect(try await mum.ledger().settings().childMapWaits)
+        #expect(try await mum.children() == [partner.ownLena])
         await cloud.share(zone, with: "mum")
         try await settle(dad, mum)
 
-        // The fetch listed the zone, so sharing has not ended: nothing is rebuilt, and what waited is sent.
+        // Her Λένα is the family's, as she confirmed, and her entry is with that child, on both iPhones.
         #expect(try await mum.family() == zone)
         #expect(await mum.coordinator.status() == ShareStatus(sharing: .partner))
         #expect(await cloud.zones(of: "mum") == [.personal])
         for phone in [dad, mum] {
+            #expect(try await phone.children() == [lena, nikos])
             #expect(try await phone.entryIDs() == [dadsEntry.id, partner.entry.id])
+            #expect(try await phone.store.progress.fetchEvents().first { $0.id == partner.entry.id }?.childID == lena.id)
             #expect(try await phone.ledger().pending().isEmpty)
         }
+        #expect(await cloud.records(in: zone, of: "dad").keys.filter { $0.type == .child }.count == 2)
     }
 
     @Test("Given the encrypted data reset with two of the owner's iPhones, then one zone, every row once; the partner keeps all")

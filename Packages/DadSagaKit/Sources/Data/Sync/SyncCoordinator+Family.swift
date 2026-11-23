@@ -63,9 +63,16 @@ extension SyncCoordinator {
     /// The family's zone has been fetched whole (ADR-0065 §2, "A full send with no change token"). A child map that
     /// still waits is applied for the family's children that came; then every row the zone lacks is sent, or deleted
     /// here when it is a current member's deletion, and the family's changes wait no longer.
+    ///
+    /// Not while a join's zone hasn't come: the partner's database may show it only after the join's first fetch has
+    /// ended. A shared family's zone always holds its owner's member, so one of which nothing is held was not
+    /// fetched at all. Deciding then would drop the child map, with no family child to apply it to, and send this
+    /// parent's own child as a new one; everything waits for the fetch that brings the zone instead.
     func fullSend(_ ledger: SyncLedger) async throws {
         let settings = try await ledger.settings()
         guard let account = settings.account else { return }
+        let isJoining = settings.childMapWaits || settings.sagaWaitsForFamily
+        if settings.database(for: .family) == .shared, isJoining, try await ledger.heldNames(.family).isEmpty { return }
         try await keepChildrenACopyBroughtBack(ledger)
         let applier = try await saga.open().applier
         if settings.childMapWaits, let map = settings.childMap {
