@@ -14,3 +14,5 @@ typealias SyncSettingsRecord = CurrentSyncSchema.SyncSettingsRecord
 typealias PendingChangeRecord = CurrentSyncSchema.PendingChangeRecord
 typealias SystemFieldsRecord = CurrentSyncSchema.SystemFieldsRecord
 typealias GoneChildRecord = CurrentSyncSchema.GoneChildRecord
+typealias EngineStateRecord = CurrentSyncSchema.EngineStateRecord
+typealias KnownPhotoRecord = CurrentSyncSchema.KnownPhotoRecord

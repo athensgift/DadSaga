@@ -21,15 +21,23 @@ actor SyncStoreConnection {
     /// open the store twice.
     func open(creating: Bool) throws -> SyncLedger? {
         if let opened { return opened }
-        let folder = try directory()
-        let url = folder.appending(path: Self.fileName)
+        let url = try directory().appending(path: Self.fileName)
         guard creating || FileManager.default.fileExists(atPath: url.path) else { return nil }
+        return try make()
+    }
+
+    /// The ledger, its file created when iCloud is first turned on.
+    func make() throws -> SyncLedger {
+        if let opened { return opened }
+        let folder = try directory()
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         // Named explicitly, so SwiftData never picks a location on its own.
         let container = try ModelContainer(
             for: Self.schema,
             migrationPlan: SyncMigrationPlan.self,
-            configurations: [ModelConfiguration(schema: Self.schema, url: url, allowsSave: true, cloudKitDatabase: .none)]
+            configurations: [ModelConfiguration(
+                schema: Self.schema, url: folder.appending(path: Self.fileName), allowsSave: true, cloudKitDatabase: .none
+            )]
         )
         let ledger = SyncLedger(modelContainer: container)
         opened = ledger

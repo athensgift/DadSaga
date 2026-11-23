@@ -33,7 +33,7 @@ public enum RecordType: String, Sendable, CaseIterable {
 
 /// Which of the two kinds of zone a record is in (ADR-0065 §1): `Sync.store` files what waits under it, so a family
 /// that moves to a new zone needs no rewrite.
-enum SyncScope: String, Sendable {
+enum SyncScope: String, Sendable, CaseIterable {
     case personal, family
 }
 

@@ -85,6 +85,25 @@ enum SyncField {
         static let all = Set(kinds.keys)
     }
 
+    /// `photo-<photoID>`: the stored JPEG travels as the record's asset, never as a field.
+    enum Photo {
+        /// The entry the photo was recorded with, a UUID's string.
+        static let entryID = "entryID"
+    }
+
+    /// `saga`, in the parent's own zone: which family their saga is in.
+    enum Saga {
+        /// The id in the family zone's name, a UUID's string.
+        static let familyZone = "familyZone"
+        /// The real user record name of the parent whose iCloud holds the family.
+        static let familyOwner = "familyOwner"
+    }
+
+    /// `member-<profileID>`, written by the parent it names.
+    enum Member {
+        static let userRecordName = "userRecordName"
+    }
+
     /// Each field of a record that mirrors a saga row, and what it holds; empty for the records `Sync.store` and the
     /// defaults hold.
     static func kinds(of type: RecordType) -> [String: Kind] {
@@ -276,5 +295,55 @@ enum BirthDayCoding {
     private static func padded(_ number: Int, to width: Int) -> String {
         let digits = String(number)
         return String(repeating: "0", count: max(0, width - digits.count)) + digits
+    }
+}
+
+extension SyncRecord {
+    /// The entry a photo's record names.
+    var photoEntryID: UUID? {
+        guard case .string(let id)? = fields[SyncField.Photo.entryID] else { return nil }
+        return UUID(uuidString: id)
+    }
+
+    /// A fetched record is whole, and iCloud keeps no field that is nil (ADR-0065 §1, "absent"): each field of the row
+    /// that may be absent, and didn't come, comes as cleared. A field this version doesn't know is not touched.
+    var clearingAbsentFields: SyncRecord {
+        var record = self
+        for (field, kind) in SyncField.kinds(of: name.type) where fields[field] == nil {
+            if kind == .optionalString || kind == .birthDay { record.fields[field] = .cleared }
+        }
+        return record
+    }
+
+    /// The family a `saga` record names.
+    var sagaFamilyZone: SyncZone? {
+        guard case .string(let zone)? = fields[SyncField.Saga.familyZone], let id = UUID(uuidString: zone),
+              case .string(let owner)? = fields[SyncField.Saga.familyOwner] else { return nil }
+        return .family(id, owner: owner)
+    }
+}
+
+extension RecordType {
+    /// Whether its records mirror a row of the saga store; the others are `Sync.store`'s, the defaults' and files.
+    var mirrorsARow: Bool {
+        switch self {
+        case .hero, .wardrobe, .child, .entry: true
+        case .member, .photo, .offer, .saga: false
+        }
+    }
+
+    /// Where its records go in a batch (ADR-0065 §1): members, children, entries, then photos, so a partner's
+    /// timeline fills before its pictures; then the parent's own.
+    var batchRank: Int {
+        switch self {
+        case .member: 0
+        case .child: 1
+        case .entry: 2
+        case .photo: 3
+        case .hero: 4
+        case .wardrobe: 5
+        case .offer: 6
+        case .saga: 7
+        }
     }
 }
