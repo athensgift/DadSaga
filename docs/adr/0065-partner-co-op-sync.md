@@ -1,34 +1,40 @@
 # ADR-0065: Partner co-op: both parents share one family's saga through iCloud, each with their own hero and title
 
-**Status:** Accepted (2026-11-23, by the owner, with its PR 1; proposed 2026-11-22, revised after review 2026-11-23).
-Drafted by the architect for the version after the first App Store release, as the roadmap asks ("Sync ADR before Phase
-5") and ADR-0026 §6 deferred. One part is for **before** that release: §5's changes to `SchemaV1` and to format 1 of a
-copy, since both freeze with that build (ADR-0060); `docs/RELEASE.md` checks it. The owner answered the product
-questions on 2026-11-22 and 2026-11-23 (folded in, listed at the end); none is open. It changes: - **ADR-0003:** a
-`CloudSync` target, and its tests, hold the CloudKit code; the app links it, the widget doesn't. - **ADR-0004:** once a
-parent turns iCloud on, their saga goes to their own iCloud; once they share it, the family lives in the inviting
-parent's iCloud and reaches the partner. Still no account, backend or server of ours. - **ADR-0006:** with two parents,
-each one's XP, title and gear come only from the entries they recorded; firsts are the family's; nothing compares the
-two (§3). - **ADR-0012:** both parents edit the family; a first counts once per child; the limit of four children is
-checked when adding, so sync may bring more; a removed child is marked, not deleted, to be brought back or deleted for
-good (§4). - **ADR-0016:** with iCloud on, photos go to iCloud as stored, byte for byte. - **ADR-0017, ADR-0022:** a
-partner's timeline rows carry their name and open to read, not to edit. - **ADR-0021:** each parent undoes and deletes
-only their own entries; deleting a child for good takes every entry with that child, the partner's too (§4). -
-**ADR-0023:** the widget's latest moment is anyone's; it reloads after a fetch that changed something. - **ADR-0026 §6
-and Deferred:** decided here. §3 (`cloudKitDatabase: .none`) stays, and now matters: with an iCloud entitlement,
-SwiftData would otherwise mirror the store by itself. - **ADR-0030 §7, §8:** the About statement names iCloud; start
-over with iCloud on first ends this parent's part. - **ADR-0036 §7, ADR-0037 §5:** the film offers answered are the
-parent's: kept in the defaults as now, and with iCloud on also in `Personal`, so each parent is offered a film once on
-all their iPhones. - **ADR-0051 §1:** data that goes only to the parent's own iCloud and to the people in the share
-changes the privacy pages, not the manifests or the label, on §7's conditions. - **ADR-0053, ADR-0054:** every member
-sees every card the family's facts allow; a joiner's partner answer starts at yes. - **ADR-0055:** a title comes from
-its parent's own entries; the kept title merges as the higher; an iPhone keeps its parent's title before applying a
-fetched deletion of their entries. - **ADR-0057 §2, §3, §7:** format 1 carries the hero's id, each entry's author and
-whether each child is removed; a copy of a shared family holds both parents' entries; a copy leaves out a kind or value
-this version can't name, and says so; its reader needs one child in the family and takes any number; no import while the
-saga is shared. - **ADR-0060 §1, §2 and Deferred:** `SchemaV1` gains a profile id, an author on every entry, a child's
-`isRemoved`, `#Unique` ids, and ids kept in history; copies made by earlier builds no longer import (the new keys are
-required).
+**Status:** Accepted (2026-11-23, by the owner, with its PR 1); proposed 2026-11-22, revised after review 2026-11-23.
+Drafted by the architect for the version after the first App Store release, as the roadmap asks ("Sync ADR before
+Phase 5") and ADR-0026 §6 deferred. One part is for
+**before** that release: §5's changes to `SchemaV1` and to format 1 of a copy, since both freeze with that build
+(ADR-0060); `docs/RELEASE.md` checks it. The owner answered the product questions on 2026-11-22 and 2026-11-23
+(folded in, listed at the end); none is open. It changes:
+- **ADR-0003:** a `CloudSync` target, and its tests, hold the CloudKit code; the app links it, the widget doesn't.
+- **ADR-0004:** once a parent turns iCloud on, their saga goes to their own iCloud; once they share it, the family
+  lives in the inviting parent's iCloud and reaches the partner. Still no account, backend or server of ours.
+- **ADR-0006:** with two parents, each one's XP, title and gear come only from the entries they recorded; firsts are
+  the family's; nothing compares the two (§3).
+- **ADR-0012:** both parents edit the family; a first counts once per child; the limit of four children is checked
+  when adding, so sync may bring more; a removed child is marked, not deleted, to be brought back or deleted for good
+  (§4).
+- **ADR-0016:** with iCloud on, photos go to iCloud as stored, byte for byte.
+- **ADR-0017, ADR-0022:** a partner's timeline rows carry their name and open to read, not to edit.
+- **ADR-0021:** each parent undoes and deletes only their own entries; deleting a child for good takes every entry
+  with that child, the partner's too (§4).
+- **ADR-0023:** the widget's latest moment is anyone's; it reloads after a fetch that changed something.
+- **ADR-0026 §6 and Deferred:** decided here. §3 (`cloudKitDatabase: .none`) stays, and now matters: with an iCloud
+  entitlement, SwiftData would otherwise mirror the store by itself.
+- **ADR-0030 §7, §8:** the About statement names iCloud; start over with iCloud on first ends this parent's part.
+- **ADR-0036 §7, ADR-0037 §5:** the film offers answered are the parent's: kept in the defaults as now, and with iCloud
+  on also in `Personal`, so each parent is offered a film once on all their iPhones.
+- **ADR-0051 §1:** data that goes only to the parent's own iCloud and to the people in the share changes the privacy
+  pages, not the manifests or the label, on §7's conditions.
+- **ADR-0053, ADR-0054:** every member sees every card the family's facts allow; a joiner's partner answer starts at
+  yes.
+- **ADR-0055:** a title comes from its parent's own entries; the kept title merges as the higher; an iPhone keeps its
+  parent's title before applying a fetched deletion of their entries.
+- **ADR-0057 §2, §3, §7:** format 1 carries the hero's id, each entry's author and whether each child is removed; a
+  copy of a shared family holds both parents' entries; a copy leaves out a kind or value this version can't name, and
+  says so; its reader needs one child in the family and takes any number; no import while the saga is shared.
+- **ADR-0060 §1, §2 and Deferred:** `SchemaV1` gains a profile id, an author on every entry, a child's `isRemoved`,
+  `#Unique` ids, and ids kept in history; copies made by earlier builds no longer import (the new keys are required).
 
 ## Context
 - **What is stored** (`SchemaV1`, ADR-0060 §2): one `ProfileRecord` (hero, look, partner answer, `heldTitleID`,
