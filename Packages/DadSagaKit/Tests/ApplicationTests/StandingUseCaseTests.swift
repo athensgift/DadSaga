@@ -79,6 +79,19 @@ struct StandingUseCaseTests {
         )
     }
 
+    @Test("Given a higher title kept between a deletion's read and its write, when the entry is deleted, then the higher stays")
+    func aTitleKeptMeanwhileIsNeverLowered() async throws {
+        let progress = SpyProgressRepository()
+        let standing = InMemoryStanding()
+        let change = try await quest(progress).execute(questID: "q1", childID: child, on: today, journal: .empty)
+        await standing.keepAfterNextRead("t2")
+
+        try await delete(progress, standing).execute(eventID: try #require(change.eventID))
+
+        #expect(await standing.kept.titleID == "t2")
+        #expect(try await progress.fetchEvents().isEmpty)
+    }
+
     @Test("Given a quest that brought a title, when it is undone, then the title, its gear and its card go with it")
     func undoReturnsToBefore() async throws {
         let progress = SpyProgressRepository()

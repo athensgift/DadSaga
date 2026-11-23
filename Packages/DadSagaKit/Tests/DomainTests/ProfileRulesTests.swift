@@ -151,13 +151,18 @@ struct ProfileRulesTests {
         }
     }
 
-    @Test("Given three, four or five in the family, when bringing a removed child back, then only three has room")
-    func roomToBringBack() throws {
-        let family = { (count: Int) in (0..<count).map { Child(name: "Παιδί \($0)", birthDay: nil) } }
+    @Test("Given a write that adds a child, when the family after it is four, five or six, then only four passes")
+    func addingStopsAtFour() throws {
+        try ProfileRules.checkSize(ofFamily: 4, adding: 1)
+        try ProfileRules.checkSize(ofFamily: 4, adding: 4)
+        #expect(throws: ProfileValidationError.tooManyChildren) { try ProfileRules.checkSize(ofFamily: 5, adding: 1) }
+        #expect(throws: ProfileValidationError.tooManyChildren) { try ProfileRules.checkSize(ofFamily: 6, adding: 2) }
+    }
 
-        try ProfileRules.checkRoomToBringBack(into: family(3))
-        #expect(throws: ProfileValidationError.tooManyChildren) { try ProfileRules.checkRoomToBringBack(into: family(4)) }
-        #expect(throws: ProfileValidationError.tooManyChildren) { try ProfileRules.checkRoomToBringBack(into: family(5)) }
+    @Test("Given a write that adds no child, when the family holds five or six, then it passes: the limit is on adding")
+    func aFamilyPastFourIsNotRefused() throws {
+        try ProfileRules.checkSize(ofFamily: 5, adding: 0)
+        try ProfileRules.checkSize(ofFamily: 6, adding: 0)
     }
 
     @Test("Given a removed child, when the picker asks for them, then it gets the family's first child")

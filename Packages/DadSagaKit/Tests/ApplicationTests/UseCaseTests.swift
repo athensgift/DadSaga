@@ -104,7 +104,8 @@ enum Stub {
     )
 }
 
-/// The profile's kept standing, in memory (ADR-0055 §3). Starts with nothing kept.
+/// The profile's kept standing, in memory (ADR-0055 §3). Starts with nothing kept. Keeps a title only when it is higher
+/// than the one kept, as the store does (ADR-0068 §3).
 actor InMemoryStanding: StandingRepository {
     private(set) var kept: KeptStanding
     private(set) var writes = 0
@@ -114,12 +115,27 @@ actor InMemoryStanding: StandingRepository {
         self.kept = kept
     }
 
-    func fetchKept() async throws -> KeptStanding { kept }
+    /// A title that lands right after the next read, as one the sync applier keeps from another of the parent's
+    /// iPhones between a use case's read and its write.
+    private var keptAfterNextRead: String?
 
-    func keep(titleID: String) async throws {
+    func fetchKept() async throws -> KeptStanding {
+        let read = kept
+        if let titleID = keptAfterNextRead {
+            kept.titleID = titleID
+            keptAfterNextRead = nil
+        }
+        return read
+    }
+
+    func keepAfterNextRead(_ titleID: String) { keptAfterNextRead = titleID }
+
+    func keep(titleID: String, catalog: ContentCatalog) async throws {
         if failsToKeep { throw StubError.boom }
+        let merged = kept.keeping(titleID: titleID, catalog: catalog)
+        guard merged != kept else { return }
         writes += 1
-        kept.titleID = titleID
+        kept = merged
     }
 
     func markSeen(titleID: String) async throws {

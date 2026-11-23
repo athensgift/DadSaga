@@ -113,7 +113,7 @@ extension ProfileRecord {
 }
 
 extension ModelContext {
-    /// The profile, with every child row in order, split into the family and the children removed from it
+    /// The profile, with every child row in order (then by id), split into the family and the children removed from it
     /// (ADR-0065 §4). `nil` before onboarding. A removed child is read like any other, so a damaged removed row fails
     /// the read as a damaged child in the family does; neither the app nor a copy writes one.
     func readProfile() throws -> PlayerProfile? {
@@ -121,9 +121,12 @@ extension ModelContext {
         return try readProfile(profile)
     }
 
-    /// `profile` with its children, for a caller that already holds the row.
+    /// `profile` with its children, for a caller that already holds the row. By order, then by id: both parents may
+    /// add a child offline at the same order, and every iPhone must show them the same way (ADR-0065 §4).
     func readProfile(_ profile: ProfileRecord) throws -> PlayerProfile {
-        let rows = try fetch(FetchDescriptor<ChildRecord>(sortBy: [SortDescriptor(\.order)]))
+        let rows = try fetch(FetchDescriptor<ChildRecord>()).sorted {
+            ($0.order, $0.childID.uuidString) < ($1.order, $1.childID.uuidString)
+        }
         return profile.toDomain(
             children: try rows.filter { !$0.isRemoved }.map { try $0.toDomain() },
             removedChildren: try rows.filter(\.isRemoved).map { try $0.toDomain() }

@@ -157,7 +157,7 @@ struct ChangedColumnsTests {
         defer { try? FileManager.default.removeItem(at: directory) }
         let (store, entry) = try await onboarded()
         _ = try await store.outfit.setChoice(.hidden, for: .care)
-        try await store.standing.keep(titleID: "t1")
+        try await store.standing.keep(titleID: "t1", catalog: .threeTitles)
         try await store.standing.markSeen(titleID: "t1")
 
         let written = try await changes {
@@ -171,7 +171,7 @@ struct ChangedColumnsTests {
             ))
             try await store.progress.update(entry)
             _ = try await store.outfit.setChoice(.hidden, for: .care)
-            try await store.standing.keep(titleID: "t1")
+            try await store.standing.keep(titleID: "t1", catalog: .threeTitles)
             try await store.standing.markSeen(titleID: "t1")
         }
 
@@ -250,6 +250,56 @@ struct ChangedColumnsTests {
 
         #expect(written.isEmpty)
         #expect(try await store.profiles.fetchProfile()?.children == [lena])
+    }
+
+    @Test("Given four in the family and a removed child, when the store is asked to bring them back or add a fifth, then refused")
+    func theLimitIsCheckedInTheWrite() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let (store, _) = try await onboarded()
+        let iris = Child(name: "Ίρις", birthDay: nil)
+        try await store.profiles.save(FamilyEdit(added: [iris]))
+        try await store.profiles.save(FamilyEdit(removedIDs: [iris.id]))
+        try await store.profiles.save(FamilyEdit(added: ["Άρης", "Μαρία"].map { Child(name: $0, birthDay: nil) }))
+
+        let written = try await changes {
+            await #expect(throws: ProfileValidationError.tooManyChildren) {
+                try await store.profiles.bringBack(childID: iris.id)
+            }
+            await #expect(throws: ProfileValidationError.tooManyChildren) {
+                try await store.profiles.save(FamilyEdit(added: [Child(name: "Γιάννης", birthDay: nil)]))
+            }
+        }
+
+        #expect(written.isEmpty)
+        let profile = try #require(try await store.profiles.fetchProfile())
+        #expect(profile.children.count == 4)
+        #expect(profile.removedChildren == [iris])
+    }
+
+    @Test("Given five in the family, when one is renamed or removed, then it saves; adding and bringing back stay refused")
+    func aFamilyPastTheLimitIsStillEdited() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let store = LocalStore.live(in: directory)
+        let five = (1...5).map { Child(name: "Παιδί \($0)", birthDay: nil) }
+        let iris = Child(name: "Ίρις", birthDay: nil)
+        try await store.wholeSaga.replaceAll(with: StoredSaga(
+            profile: PlayerProfile(children: five, heroClassID: "h-cool", removedChildren: [iris]), events: [],
+            outfit: Outfit(), kept: KeptStanding()
+        ))
+        var renamed = five[0]
+        renamed.name = "Ελένη"
+
+        try await store.profiles.save(FamilyEdit(
+            removedIDs: [five[4].id], changed: [ChildEdit(child: renamed, fields: [.name])]
+        ))
+        await #expect(throws: ProfileValidationError.tooManyChildren) {
+            try await store.profiles.bringBack(childID: iris.id)
+        }
+        try await store.profiles.save(FamilyEdit(removedIDs: [five[3].id]))
+        try await store.profiles.bringBack(childID: iris.id)
+
+        let family = try #require(try await store.profiles.fetchProfile()).children
+        #expect(family.map(\.name) == ["Ελένη", "Παιδί 2", "Παιδί 3", "Ίρις"])
     }
 
     @Test("Given two children, when an edit adds and removes the same new id, then nothing is added")

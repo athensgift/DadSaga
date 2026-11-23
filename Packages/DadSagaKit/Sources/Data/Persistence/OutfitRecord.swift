@@ -4,8 +4,15 @@ import Foundation
 import SwiftData
 
 /// `OutfitRepository` backed by SwiftData. Created through `LocalStore`.
-@ModelActor
-actor SwiftDataOutfitRepository: OutfitRepository {
+actor SwiftDataOutfitRepository: OutfitRepository, SagaStoreActor {
+    nonisolated let modelExecutor: any ModelExecutor
+    nonisolated let modelContainer: ModelContainer
+
+    init(queue: DefaultSerialModelExecutor, container: ModelContainer) {
+        modelExecutor = queue
+        modelContainer = container
+    }
+
     func fetchOutfit() async throws -> Outfit {
         try currentOutfit()
     }

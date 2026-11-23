@@ -15,12 +15,12 @@ struct TitlesStoreTests {
     func newProfileStartsFresh() async throws {
         let store = LocalStore.inMemory()
         #expect(try await store.standing.fetchKept() == KeptStanding())
-        try await store.standing.keep(titleID: "t1")
+        try await store.standing.keep(titleID: "t1", catalog: .threeTitles)
         #expect(try await store.standing.fetchKept() == KeptStanding())
 
         try await store.profiles.create(profile)
         #expect(try await store.standing.fetchKept() == KeptStanding())
-        try await store.standing.keep(titleID: "t2")
+        try await store.standing.keep(titleID: "t2", catalog: .threeTitles)
         try await store.standing.markSeen(titleID: "t2")
         try await store.profiles.save(HeroEdit(heroClassID: "h-super"))
 
@@ -31,12 +31,36 @@ struct TitlesStoreTests {
     func markSeenGoesBackForAnUndo() async throws {
         let store = LocalStore.inMemory()
         try await store.profiles.create(profile)
-        try await store.standing.keep(titleID: "t1")
+        try await store.standing.keep(titleID: "t1", catalog: .threeTitles)
         try await store.standing.markSeen(titleID: "t2")
 
         try await store.standing.markSeen(titleID: "t1")
 
         #expect(try await store.standing.fetchKept() == KeptStanding(titleID: "t1", seenTitleID: "t1"))
+    }
+
+    @Test("Given a kept title, when a lower one is kept after it, then the higher stays; a higher one replaces it")
+    func keepingNeverLowers() async throws {
+        let store = LocalStore.inMemory()
+        try await store.profiles.create(profile)
+        try await store.standing.keep(titleID: "t1", catalog: .threeTitles)
+
+        try await store.standing.keep(titleID: "t0", catalog: .threeTitles)
+        #expect(try await store.standing.fetchKept().titleID == "t1")
+
+        try await store.standing.keep(titleID: "t2", catalog: .threeTitles)
+        #expect(try await store.standing.fetchKept().titleID == "t2")
+    }
+
+    @Test("Given a kept title this version doesn't know, when a known one is kept, then the unknown one stays")
+    func anUnknownKeptTitleIsNeverReplaced() async throws {
+        let store = LocalStore.inMemory()
+        try await store.profiles.create(profile)
+        try await store.standing.keep(titleID: "t-from-a-newer-version", catalog: .threeTitles)
+
+        try await store.standing.keep(titleID: "t2", catalog: .threeTitles)
+
+        #expect(try await store.standing.fetchKept().titleID == "t-from-a-newer-version")
     }
 
     @Test("Given no family yet, when a title is marked seen, then nothing is written")
@@ -52,7 +76,7 @@ struct TitlesStoreTests {
     func startOverErasesIt() async throws {
         let store = LocalStore.inMemory()
         try await store.profiles.create(profile)
-        try await store.standing.keep(titleID: "t2")
+        try await store.standing.keep(titleID: "t2", catalog: .threeTitles)
 
         try await store.wholeSaga.eraseAll()
         try await store.profiles.create(profile)

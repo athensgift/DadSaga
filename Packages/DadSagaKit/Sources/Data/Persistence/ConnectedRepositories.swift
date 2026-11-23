@@ -4,7 +4,7 @@ import Foundation
 
 /// The repositories `LocalStore` hands out. Each call opens the store first if it is not open yet (ADR-0026).
 ///
-/// Every method is `@concurrent`: a `@ModelActor` runs a call on the thread that enqueued it, so a screen calling it
+/// Every method is `@concurrent`: a model actor runs a call on the thread that enqueued it, so a screen calling it
 /// from the main actor would fetch and save on the main thread. Leaving the caller's actor here keeps the store's work
 /// off it, whatever the compiler's default for `nonisolated async` functions (ADR-0034).
 struct ConnectedProfileRepository: ProfileRepository {
@@ -50,8 +50,8 @@ struct ConnectedStandingRepository: StandingRepository {
     let connection: StoreConnection
 
     @concurrent func fetchKept() async throws -> KeptStanding { try await connection.open().standing.fetchKept() }
-    @concurrent func keep(titleID: String) async throws {
-        try await connection.open().standing.keep(titleID: titleID)
+    @concurrent func keep(titleID: String, catalog: ContentCatalog) async throws {
+        try await connection.open().standing.keep(titleID: titleID, catalog: catalog)
     }
     @concurrent func markSeen(titleID: String) async throws {
         try await connection.open().standing.markSeen(titleID: titleID)

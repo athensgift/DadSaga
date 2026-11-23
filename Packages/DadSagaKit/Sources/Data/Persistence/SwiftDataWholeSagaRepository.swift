@@ -7,8 +7,18 @@ import SwiftData
 /// write is all or nothing and nothing depends on how SwiftData runs a batch delete (ADR-0030, ADR-0057 §7).
 ///
 /// The store's files are never swapped: the container stays open for the process and the widget may hold them.
-@ModelActor
-actor SwiftDataWholeSagaRepository: WholeSagaRepository {
+///
+/// A restore and start over replace rows by the dad's confirmed act, so both save under the `sync` author and the change
+/// feed never reads them as his edits (ADR-0065 §4); the zones they need are sent in full.
+actor SwiftDataWholeSagaRepository: WholeSagaRepository, SagaStoreActor {
+    nonisolated let modelExecutor: any ModelExecutor
+    nonisolated let modelContainer: ModelContainer
+
+    init(queue: DefaultSerialModelExecutor, container: ModelContainer) {
+        modelExecutor = queue
+        modelContainer = container
+    }
+
     /// In one actor turn, so no write lands between the reads.
     func readAll() async throws -> StoredSaga? {
         guard let record = try modelContext.fetch(FetchDescriptor<ProfileRecord>()).first else { return nil }
@@ -27,7 +37,7 @@ actor SwiftDataWholeSagaRepository: WholeSagaRepository {
     /// The kept standing is written column by column: `ProfileRecord(profile:)` keeps nothing. The profile's id is the
     /// copy's, and every entry keeps its author (ADR-0065 §5). The removed children follow the family in order.
     func replaceAll(with saga: StoredSaga) async throws {
-        try modelContext.saveAllOrNothing {
+        try modelContext.saveAllOrNothing(as: .sync) {
             try deleteEveryRow()
             let profile = ProfileRecord(profile: saga.profile)
             profile.heldTitleID = saga.kept.titleID
@@ -45,7 +55,7 @@ actor SwiftDataWholeSagaRepository: WholeSagaRepository {
     }
 
     func eraseAll() async throws {
-        try modelContext.saveAllOrNothing { try deleteEveryRow() }
+        try modelContext.saveAllOrNothing(as: .sync) { try deleteEveryRow() }
     }
 
     private func deleteEveryRow() throws {

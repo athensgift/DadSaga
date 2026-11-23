@@ -43,9 +43,11 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   release writes.
 - iCloud and partner co-op: designed in ADR-0065. ✅ Its PR 1 (a profile id, the entries' authors, a
   child's `isRemoved` and `#Unique` ids in `SchemaV1`, and the same in a copy), before the first App Store release
-  branch. ✅ PR 2 (two players, every change says what changed) and PR 3 (removed children: removing marks,
-  "Bring back" and "Delete for good" in My family, visible to a dad alone) are on `develop` too, so a release branch
-  cut from it ships removed children; the rest (sync, CloudKit, sharing) is Phase 5.
+  branch. ✅ PR 2 (two players, every change says what changed) and ✅ PR 3 (removed children: removing marks,
+  "Bring back" and "Delete for good" in My family, visible to a dad alone). 1.0 ships every part that doesn't touch
+  iCloud (ADR-0067): PRs 1 to 3, and PR 4, the sync core, wired to nothing (the change feed, the applier, the
+  coordinator, `Sync.store`'s schema, tested against a fake cloud). The co-op version is PR 5 (CloudKit) and PR 6
+  (the iCloud and sharing screens), in Phase 5.
 - ✅ The store's work runs off the main thread, now whatever the compiler's default (ADR-0034).
 - ✅ CI pinned to Xcode 27.2 (ADR-0034).
 
@@ -90,6 +92,8 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - Pricing decision (free; a one-time unlock later?), with its own ADR
 
 ## Phase 5: Playground
-- iCloud sync, partner co-op, Android (native or KMP), AI quest suggestions, New Game+
+- iCloud sync and partner co-op: the co-op version, ADR-0065's PR 5 (CloudKit) and PR 6 (the iCloud and sharing
+  screens), on the sync core 1.0 already carries (ADR-0067)
+- Android (native or KMP), AI quest suggestions, New Game+
 - Worlds for ages 6+: drafted and parked. The JSON texts were added in `3b0f712` and removed in `61e0aef`; the plan
   (`docs/content-plan-6-plus.md`) is in git history up to `61e0aef`.

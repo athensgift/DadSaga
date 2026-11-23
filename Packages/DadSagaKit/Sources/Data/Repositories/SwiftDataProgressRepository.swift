@@ -4,8 +4,15 @@ import Foundation
 import SwiftData
 
 /// `ProgressRepository` backed by SwiftData.
-@ModelActor
-actor SwiftDataProgressRepository: ProgressRepository {
+actor SwiftDataProgressRepository: ProgressRepository, SagaStoreActor {
+    nonisolated let modelExecutor: any ModelExecutor
+    nonisolated let modelContainer: ModelContainer
+
+    init(queue: DefaultSerialModelExecutor, container: ModelContainer) {
+        modelExecutor = queue
+        modelContainer = container
+    }
+
     func fetchEvents() async throws -> [ProgressEvent] {
         let descriptor = FetchDescriptor<ProgressEventRecord>(sortBy: [SortDescriptor(\.date)])
         return try modelContext.fetch(descriptor).compactMap { $0.toDomain() }

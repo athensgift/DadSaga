@@ -3,7 +3,9 @@ import Foundation
 
 /// Brings a removed child back into the family, in their place, with every entry (ADR-0065 §4). Bringing back is
 /// adding: refused with `ProfileValidationError.tooManyChildren` while the family holds `PlayerProfile.maxChildren` or
-/// more. It changes no one's standing: their entries counted for their author all along (ADR-0006 §2).
+/// more, and with `ProfileEditError.notRemoved` for a child who isn't removed. The store refuses both, in its own
+/// write, against the family as it is then (ADR-0068 §3). It changes no one's standing: their entries counted for
+/// their author all along (ADR-0006 §2).
 public protocol BringBackChildUseCase: Sendable {
     func execute(childID: UUID) async throws
 }
@@ -16,9 +18,7 @@ public struct DefaultBringBackChildUseCase: BringBackChildUseCase {
     }
 
     public func execute(childID: UUID) async throws {
-        guard let profile = try await profileRepository.fetchProfile() else { throw ProfileEditError.noProfile }
-        guard profile.removedChildren.contains(where: { $0.id == childID }) else { throw ProfileEditError.notRemoved }
-        try ProfileRules.checkRoomToBringBack(into: profile.children)
+        guard try await profileRepository.fetchProfile() != nil else { throw ProfileEditError.noProfile }
         try await profileRepository.bringBack(childID: childID)
     }
 }
