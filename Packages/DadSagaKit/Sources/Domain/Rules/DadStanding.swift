@@ -12,8 +12,9 @@ public struct DadStanding: Hashable, Sendable {
     /// a title the Undo took comes again when a card reaches it (ADR-0055 §3).
     public let seenAfterUndo: DadTitle?
     /// The title the store should keep before an entry is deleted for good, or `nil` when it already keeps it: the
-    /// title he holds, when it is higher than the kept one. Recording keeps nothing, so an Undo takes back the title
-    /// the entry brought by deleting it and nothing more.
+    /// title he holds, when keeping it raises the kept one (`KeptStanding.keeping`), so a kept title this version
+    /// doesn't know is never overwritten. Recording keeps nothing, so an Undo takes back the title the entry brought by
+    /// deleting it and nothing more.
     public let titleToKeep: DadTitle?
 
     public init(progress: DadProgress, catalog: ContentCatalog, kept: KeptStanding) {
@@ -44,7 +45,9 @@ public struct DadStanding: Hashable, Sendable {
         } else {
             news = nil
         }
-        titleToKeep = title.flatMap { title in kept.titleID.map(title.has(id:)) == true ? nil : title }
+        titleToKeep = title.flatMap { title in
+            kept.keeping(titleID: title.id, catalog: catalog).titleID == kept.titleID ? nil : title
+        }
     }
 
     private static func brought(by titles: [DadTitle], in catalog: ContentCatalog) -> [GearItem] {

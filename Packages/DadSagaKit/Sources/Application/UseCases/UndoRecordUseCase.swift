@@ -14,17 +14,20 @@ public protocol UndoRecordUseCase: Sendable {
 
 public struct DefaultUndoRecordUseCase: UndoRecordUseCase {
     private let contentRepository: any ContentRepository
+    private let profileRepository: any ProfileRepository
     private let progressRepository: any ProgressRepository
     private let standingRepository: any StandingRepository
     private let photoStore: any PhotoStore
 
     public init(
         contentRepository: any ContentRepository,
+        profileRepository: any ProfileRepository,
         progressRepository: any ProgressRepository,
         standingRepository: any StandingRepository,
         photoStore: any PhotoStore
     ) {
         self.contentRepository = contentRepository
+        self.profileRepository = profileRepository
         self.progressRepository = progressRepository
         self.standingRepository = standingRepository
         self.photoStore = photoStore
@@ -33,11 +36,14 @@ public struct DefaultUndoRecordUseCase: UndoRecordUseCase {
     /// The closed card goes back first, when it is above the title he will hold. If deleting the entry then fails, it
     /// is put back as it was, so nothing has changed and the Undo can be tried again.
     public func execute(undoing eventID: UUID) async throws -> DadTitle? {
-        let remover = EntryRemover(progressRepository: progressRepository, photoStore: photoStore)
-        let (event, events) = try await remover.find(eventID)
+        let remover = EntryRemover(
+            profileRepository: profileRepository, progressRepository: progressRepository, photoStore: photoStore
+        )
+        let found = try await remover.find(eventID)
+        let (player, event, events) = (found.player, found.entry, found.all)
         let catalog = try await contentRepository.fetchCatalog()
         let kept = try await standingRepository.fetchKept()
-        let after = DadProgress(events: events.filter { $0.id != eventID }, catalog: catalog)
+        let after = DadProgress(of: player, events: events.filter { $0.id != eventID }, catalog: catalog)
         let left = DadStanding(progress: after, catalog: catalog, kept: kept)
         let seen = left.seenAfterUndo
         if let seen { try await standingRepository.markSeen(titleID: seen.id) }

@@ -310,7 +310,7 @@ public final class HomeViewModel {
             arrivalLine: child.isBorn ? nil : strings.text("When they arrive, untick “Not born yet” in My family."),
             cards: questCards(overview) + bossCards(overview.bosses, overview: overview),
             situational: situationalCards(overview),
-            moments: momentsFormatter.section(for: child, age: adventure.age, catalog: catalog, progress: progress)
+            moments: momentsFormatter.section(for: child, age: adventure.age, catalog: catalog, moments: overview.moments)
         )
     }
 }

@@ -1,35 +1,39 @@
 import Foundation
 
-/// The dad's aggregated progress, derived from events. Pure and deterministic.
+/// One parent's progress, from their own entries only. Pure and deterministic.
 ///
-/// XP and cards done are the dad's, from every child together. What happened with a child (quests done, bosses
-/// defeated, firsts captured) is kept per child: each child has their own first fever and their own first steps.
+/// XP, skills, cards done, bosses and quests are a parent's own (ADR-0065 §3.1, §3.3): a partner's entry never adds to
+/// them or takes from them. Built only for this iPhone's player, never for another author (§3.5). What happened with a
+/// child is kept per child: each child has their own first fever and their own bosses. The firsts the family captured,
+/// whoever captured them, are `FamilyMoments`.
 public struct DadProgress: Hashable, Sendable {
     public let totalXP: Int
-    /// Every counted entry: a quest every time, a boss or a first once per child (ADR-0055 §1).
+    /// Every counted entry of his: a quest every time, a boss or a first once per child (ADR-0055 §1).
     public let cardsDone: Int
     public let skillXP: [Skill: Int]
-    private let firstsByChild: [UUID: Set<String>]
     private let bossesByChild: [UUID: Set<String>]
     private let questsByChild: [UUID: [String: Int]]
-    private let momentsByChild: [UUID: [CapturedMoment]]
     private let journalByChild: [UUID: [ProgressEvent.Kind: JournalEntry]]
 
-    /// Every boss defeated, with any child.
+    /// Every boss he defeated, with any child.
     public var allDefeatedBossIDs: Set<String> { bossesByChild.values.reduce(into: []) { $0.formUnion($1) } }
 
-    /// Counts the same events as the timeline (see `Timeline`): unknown content is ignored, bosses and firsts count
-    /// once per child, quests are repeatable.
-    public init(events: [ProgressEvent], catalog: ContentCatalog) {
+    /// Counts `player`'s entries in `events` as the timeline counts them (see `Timeline`): unknown content is ignored,
+    /// bosses and firsts count once per child, quests are repeatable. Every other author's entry is left out.
+    public init(of player: PlayerProfile, events: [ProgressEvent], catalog: ContentCatalog) {
+        self.init(counted: Timeline.countedEntries(from: events.filter { $0.authorID == player.id }, catalog: catalog))
+    }
+
+    /// No progress: before there is a player.
+    public static let none = DadProgress(counted: [])
+
+    private init(counted entries: [TimelineEntry]) {
         var total = 0
         var skills: [Skill: Int] = [:]
-        var firstsByChild: [UUID: Set<String>] = [:]
         var bossesByChild: [UUID: Set<String>] = [:]
         var questsByChild: [UUID: [String: Int]] = [:]
-        var momentsByChild: [UUID: [CapturedMoment]] = [:]
         var journalByChild: [UUID: [ProgressEvent.Kind: JournalEntry]] = [:]
 
-        let entries = Timeline.countedEntries(from: events, catalog: catalog)
         cardsDone = entries.count
         for entry in entries {
             total += entry.xp
@@ -45,12 +49,6 @@ public struct DadProgress: Hashable, Sendable {
                 bossesByChild[entry.childID, default: []].insert(boss.id)
             case .first(let first):
                 eventKind = .first(id: first.id)
-                firstsByChild[entry.childID, default: []].insert(first.id)
-                momentsByChild[entry.childID, default: []].append(
-                    CapturedMoment(
-                        eventID: entry.id, first: first, date: entry.date, note: entry.note, photoIDs: entry.photoIDs
-                    )
-                )
             }
             if entry.note != nil || !entry.photoIDs.isEmpty {
                 journalByChild[entry.childID, default: [:]][eventKind] = JournalEntry(
@@ -61,47 +59,26 @@ public struct DadProgress: Hashable, Sendable {
 
         totalXP = total
         skillXP = skills
-        self.firstsByChild = firstsByChild
         self.bossesByChild = bossesByChild
         self.questsByChild = questsByChild
-        self.momentsByChild = momentsByChild
         self.journalByChild = journalByChild
     }
 
-    /// The newest note or photo the dad left on this card with this child, if any ("last time you wrote…").
+    /// The newest note or photo he left on this card with this child, if any ("last time you wrote…").
     public func lastJournal(for kind: ProgressEvent.Kind, childID: UUID) -> JournalEntry? {
         journalByChild[childID]?[kind]
-    }
-
-    /// Whether recording this again for the child would count for nothing: a boss already beaten or a first already
-    /// captured. Always false for a quest, which can be done again and again.
-    public func isAlreadyCounted(_ kind: ProgressEvent.Kind, for childID: UUID) -> Bool {
-        switch kind {
-        case .quest: false
-        case .boss(let id): defeatedBossIDs(for: childID).contains(id)
-        case .first(let id): capturedFirstIDs(for: childID).contains(id)
-        }
-    }
-
-    public func capturedFirstIDs(for childID: UUID) -> Set<String> {
-        firstsByChild[childID] ?? []
     }
 
     public func defeatedBossIDs(for childID: UUID) -> Set<String> {
         bossesByChild[childID] ?? []
     }
 
-    /// The child's legendary moments, newest first.
-    public func moments(for childID: UUID) -> [CapturedMoment] {
-        (momentsByChild[childID] ?? []).sorted { $0.date > $1.date }
-    }
-
-    /// How many times each quest has been completed with this child.
+    /// How many times he has completed each quest with this child.
     public func questCompletions(for childID: UUID) -> [String: Int] {
         questsByChild[childID] ?? [:]
     }
 
-    /// How far the dad got in one world with this child. An evergreen quest or boss counts only in its home world. Every
+    /// How far he got in one world with this child. An evergreen quest or boss counts only in its home world. Every
     /// boss beaten counts, whoever it is for now, and so does a retired quest he did (ADR-0053 §4, §6).
     public func progress(in world: World, catalog: ContentCatalog, childID: UUID) -> WorldProgress {
         let completions = questCompletions(for: childID)
@@ -125,10 +102,12 @@ public struct WorldProgress: Hashable, Sendable {
     }
 }
 
-/// A first the dad captured for a child, with when it happened and what he wrote.
+/// A first captured for a child, with when it happened and what was written.
 public struct CapturedMoment: Hashable, Identifiable, Sendable {
     /// The event that recorded it.
     public let eventID: UUID
+    /// The parent who captured it.
+    public let authorID: UUID
     public let first: FirstMoment
     public let date: Date
     public let note: String?
@@ -138,8 +117,9 @@ public struct CapturedMoment: Hashable, Identifiable, Sendable {
     public var id: UUID { eventID }
     public var coverPhotoID: String? { photoIDs.first }
 
-    public init(eventID: UUID, first: FirstMoment, date: Date, note: String?, photoIDs: [String]) {
+    public init(eventID: UUID, authorID: UUID, first: FirstMoment, date: Date, note: String?, photoIDs: [String]) {
         self.eventID = eventID
+        self.authorID = authorID
         self.first = first
         self.date = date
         self.note = note

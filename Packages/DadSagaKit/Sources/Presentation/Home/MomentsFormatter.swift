@@ -12,9 +12,9 @@ struct MomentsFormatter {
 
     /// Every captured moment, a retired first's too; "complete" once every first that can be offered at this age is
     /// captured (ADR-0053 §3, §6).
-    func section(for child: Child, age: ChildAge, catalog: ContentCatalog, progress: DadProgress) -> MomentsSection {
-        let moments = progress.moments(for: child.id)
-        let captured = progress.capturedFirstIDs(for: child.id)
+    func section(for child: Child, age: ChildAge, catalog: ContentCatalog, moments: FamilyMoments) -> MomentsSection {
+        let captured = moments.capturedFirstIDs(for: child.id)
+        let moments = moments.moments(for: child.id)
         let viewer = PhotoViewerLabels(locale: locale)
         return MomentsSection(
             title: strings.text("Legendary moments"),
@@ -35,10 +35,10 @@ struct MomentsFormatter {
         for child: Child,
         age: ChildAge,
         catalog: ContentCatalog,
-        progress: DadProgress,
+        moments: FamilyMoments,
         now: Date
     ) -> MomentCapture {
-        let captured = progress.capturedFirstIDs(for: child.id)
+        let captured = moments.capturedFirstIDs(for: child.id)
         let options = UnlockRules.firsts(in: catalog, age: age).filter { !captured.contains($0.id) }.map { first in
             MomentOption(
                 id: first.id,
@@ -101,8 +101,8 @@ struct MomentsFormatter {
     }
 
     /// Visible changes earned by the child's captured firsts.
-    func traits(for child: Child, catalog: ContentCatalog, progress: DadProgress) -> Set<CompanionTrait> {
-        let captured = progress.capturedFirstIDs(for: child.id)
+    func traits(for child: Child, catalog: ContentCatalog, moments: FamilyMoments) -> Set<CompanionTrait> {
+        let captured = moments.capturedFirstIDs(for: child.id)
         return Set(
             catalog.firsts
                 .filter { captured.contains($0.id) }

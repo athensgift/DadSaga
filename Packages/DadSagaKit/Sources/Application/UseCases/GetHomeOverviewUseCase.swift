@@ -9,7 +9,10 @@ public struct HomeOverview: Sendable {
     public let child: Child
     public let catalog: ContentCatalog
     public let adventure: Adventure
+    /// The dad's own progress: his XP, skills, cards, bosses and map (ADR-0065 §3.1).
     public let progress: DadProgress
+    /// The firsts the family captured, whoever captured them (ADR-0065 §3.3).
+    public let moments: FamilyMoments
     /// The world whose quests and bosses are shown: any world the dad chose on the map, or the current one.
     public let shownWorld: World?
     /// The shown world's quests offered to this child and family, evergreen ones from earlier worlds included
@@ -49,6 +52,7 @@ public struct HomeOverview: Sendable {
         catalog: ContentCatalog,
         adventure: Adventure,
         progress: DadProgress,
+        moments: FamilyMoments,
         kept: KeptStanding,
         outfit: Outfit,
         worldID: String?,
@@ -60,6 +64,7 @@ public struct HomeOverview: Sendable {
         self.catalog = catalog
         self.adventure = adventure
         self.progress = progress
+        self.moments = moments
         let shownWorld = worldID.flatMap(catalog.world(id:)) ?? adventure.currentWorld
         self.shownWorld = shownWorld
         let age = adventure.age
@@ -130,7 +135,8 @@ public struct DefaultGetHomeOverviewUseCase: GetHomeOverviewUseCase {
             adventure: Adventure(
                 for: child, family: FamilyFacts(profile: profile, child: child), catalog: catalog, on: today
             ),
-            progress: DadProgress(events: events, catalog: catalog),
+            progress: DadProgress(of: profile, events: events, catalog: catalog),
+            moments: FamilyMoments(events: events, catalog: catalog),
             kept: try await pendingKept,
             outfit: try await pendingOutfit,
             // A world chosen for a child no longer in the family is not this child's choice: the current world shows.

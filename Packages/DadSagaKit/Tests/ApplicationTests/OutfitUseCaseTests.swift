@@ -27,7 +27,7 @@ struct OutfitUseCaseTests {
     var getWardrobe: DefaultGetWardrobeUseCase {
         DefaultGetWardrobeUseCase(
             contentRepository: StubContentRepository(result: .success(Self.catalog)),
-            profileRepository: SpyProfileRepository(),
+            profileRepository: TheDad(),
             progressRepository: progress,
             outfitRepository: repository,
             standingRepository: InMemoryStanding()
@@ -36,7 +36,7 @@ struct OutfitUseCaseTests {
 
     var set: DefaultSetOutfitChoiceUseCase {
         DefaultSetOutfitChoiceUseCase(
-            contentRepository: StubContentRepository(result: .success(Self.catalog)),
+            contentRepository: StubContentRepository(result: .success(Self.catalog)), profileRepository: TheDad(),
             progressRepository: progress,
             outfitRepository: repository,
             standingRepository: InMemoryStanding()

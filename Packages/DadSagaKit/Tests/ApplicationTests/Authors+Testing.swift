@@ -52,3 +52,22 @@ struct TheDad: ProfileRepository {
     func fetchProfile() async throws -> PlayerProfile? { profile }
     func save(_ profile: PlayerProfile) async throws {}
 }
+
+extension PlayerProfile {
+    /// The test dad, for what is built for a player: his progress, his film's credits.
+    static let testDad = PlayerProfile(children: [], heroClassID: "h1")
+}
+
+extension DadProgress {
+    /// The test dad's progress: his own entries in `events`.
+    init(events: [ProgressEvent], catalog: ContentCatalog) {
+        self.init(of: .testDad, events: events, catalog: catalog)
+    }
+}
+
+extension CapturedMoment {
+    /// A moment the test dad captured.
+    init(eventID: UUID, first: FirstMoment, date: Date, note: String?, photoIDs: [String]) {
+        self.init(eventID: eventID, authorID: .testDad, first: first, date: date, note: note, photoIDs: photoIDs)
+    }
+}

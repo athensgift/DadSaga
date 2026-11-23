@@ -13,7 +13,7 @@ extension HomeViewModel {
             for: overview.child,
             age: overview.adventure.age,
             catalog: overview.catalog,
-            progress: overview.progress,
+            moments: overview.moments,
             now: now()
         )
     }
@@ -30,7 +30,7 @@ extension HomeViewModel {
               // Closed, or closed and opened again, while it saved: the moment is kept, the sheet left as it is now.
               momentCapture?.id == capture.id else { return }
         // Read from the change itself, not the reloaded screen: the moment is saved even if home failed to reload.
-        guard let moment = change.after.moments(for: child.id).first(where: { $0.eventID == eventID }) else {
+        guard let moment = change.moment, moment.eventID == eventID else {
             momentCapture = nil
             return
         }
@@ -53,7 +53,7 @@ extension HomeViewModel {
     /// - Parameter overview: what to find the moment in, e.g. what a link's own load read.
     func editMoment(id: UUID, in overview: HomeOverview?) {
         guard let overview,
-              let moment = overview.progress.moments(for: overview.child.id).first(where: { $0.eventID == id }) else { return }
+              let moment = overview.moments.moments(for: overview.child.id).first(where: { $0.eventID == id }) else { return }
         errorMessage = nil
         let details = momentsFormatter.details(moment, for: overview.child, now: now(), isNew: false)
         momentCapture = MomentCapture(id: UUID(), title: overview.child.name, step: .details(details))

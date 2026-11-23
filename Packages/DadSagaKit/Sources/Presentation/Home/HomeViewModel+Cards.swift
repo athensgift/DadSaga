@@ -11,7 +11,7 @@ extension HomeViewModel {
             CompanionModel(
                 child: child,
                 on: overview.today,
-                traits: momentsFormatter.traits(for: child, catalog: overview.catalog, progress: overview.progress),
+                traits: momentsFormatter.traits(for: child, catalog: overview.catalog, moments: overview.moments),
                 strings: strings.strings
             )
         }

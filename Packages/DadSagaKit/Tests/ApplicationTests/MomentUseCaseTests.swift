@@ -173,7 +173,7 @@ struct MomentUseCaseTests {
         let moment = try await captured(photos: [Data([1])])
 
         try await DefaultDeleteEventUseCase(
-            contentRepository: StubContentRepository(result: .success(Stub.catalog)),
+            contentRepository: StubContentRepository(result: .success(Stub.catalog)), profileRepository: TheDad(),
             progressRepository: repository,
             standingRepository: InMemoryStanding(),
             photoStore: photos
@@ -189,7 +189,7 @@ struct MomentUseCaseTests {
         let quest = try #require(try await repository.fetchEvents().first)
 
         try await DefaultDeleteEventUseCase(
-            contentRepository: StubContentRepository(result: .success(Stub.catalog)),
+            contentRepository: StubContentRepository(result: .success(Stub.catalog)), profileRepository: TheDad(),
             progressRepository: repository,
             standingRepository: InMemoryStanding(),
             photoStore: photos
@@ -204,7 +204,7 @@ struct MomentUseCaseTests {
 
         await #expect(throws: ProgressError.unknownEvent) {
             try await DefaultDeleteEventUseCase(
-                contentRepository: StubContentRepository(result: .success(Stub.catalog)),
+                contentRepository: StubContentRepository(result: .success(Stub.catalog)), profileRepository: TheDad(),
                 progressRepository: repository,
                 standingRepository: InMemoryStanding(),
                 photoStore: photos

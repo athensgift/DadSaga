@@ -52,7 +52,7 @@ struct FormerIDsTests {
         #expect(entry.kind == .quest(catalog.quests[0]))
     }
 
-    @Test("Given a boss beaten under its old id and again under the new one, when counting, then it counts once")
+    @Test("Given a boss beaten under its old id and again under the new one, when counting, then both list, it counts once")
     func renamedBossCountsOnce() {
         let events = [event(.boss(id: "b-old"), at: 1), event(.boss(id: "b-new"), at: 2)]
 
@@ -60,16 +60,16 @@ struct FormerIDsTests {
 
         #expect(progress.totalXP == 100)
         #expect(progress.defeatedBossIDs(for: anna) == ["b-new"])
-        #expect(progress.isAlreadyCounted(.boss(id: "b-new"), for: anna))
-        #expect(Timeline.entries(from: events, catalog: catalog).count == 1)
+        #expect(Timeline.entries(from: events, catalog: catalog).count == 2)
+        #expect(progress.cardsDone == 1)
     }
 
     @Test("Given a first captured before it was renamed, when reading the moments, then it is still there")
     func renamedFirstStaysAMoment() {
-        let progress = DadProgress(events: [event(.first(id: "f-old"))], catalog: catalog)
+        let moments = FamilyMoments(events: [event(.first(id: "f-old"))], catalog: catalog)
 
-        #expect(progress.moments(for: anna).map(\.first.id) == ["f-new"])
-        #expect(progress.capturedFirstIDs(for: anna) == ["f-new"])
+        #expect(moments.moments(for: anna).map(\.first.id) == ["f-new"])
+        #expect(moments.capturedFirstIDs(for: anna) == ["f-new"])
     }
 
     @Test("Given an item chosen before it was renamed, when dressing the hero, then it is still worn")

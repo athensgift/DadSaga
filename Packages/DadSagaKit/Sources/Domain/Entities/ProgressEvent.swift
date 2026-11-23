@@ -7,7 +7,8 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
         case boss(id: String)
         case first(id: String)
 
-        /// A boss or a first counts once per child; a quest can be done again and again.
+        /// A boss or a first counts once per child (a boss for each parent, a first for the family, ADR-0065 §3.3); a
+        /// quest can be done again and again.
         public var countsOncePerChild: Bool {
             switch self {
             case .quest: false

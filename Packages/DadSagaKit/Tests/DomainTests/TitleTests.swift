@@ -98,6 +98,43 @@ struct TitleTests {
         #expect(DadStanding(progress: Self.progress(), catalog: Self.catalog, kept: kept).titleToKeep == nil)
     }
 
+    @Test(
+        "Given a kept title and another, in either order, when keeping both, then the higher stays",
+        arguments: [
+            Keeping(kept: "t2", other: "t5", result: "t5"), Keeping(kept: "t5", other: "t2", result: "t5"),
+            Keeping(kept: nil, other: "t3", result: "t3"), Keeping(kept: "t3", other: nil, result: "t3"),
+            Keeping(kept: "t3", other: "t3", result: "t3")
+        ]
+    )
+    func keepingTakesTheHigher(_ keeping: Keeping) {
+        let merged = KeptStanding(titleID: keeping.kept, seenTitleID: "t1")
+            .keeping(titleID: keeping.other, catalog: Self.catalog)
+        #expect(merged == KeptStanding(titleID: keeping.result, seenTitleID: "t1"))
+    }
+
+    /// A kept title, another one to keep, and the one kept after.
+    struct Keeping: Sendable {
+        let kept: String?
+        let other: String?
+        let result: String?
+    }
+
+    @Test("Given a title the content doesn't know, kept or arriving, when keeping both, then it stays")
+    func keepingNeverReplacesAnUnknownTitle() {
+        #expect(KeptStanding(titleID: "t-newer").keeping(titleID: "t9", catalog: Self.catalog).titleID == "t-newer")
+        #expect(KeptStanding(titleID: "t9").keeping(titleID: "t-newer", catalog: Self.catalog).titleID == "t-newer")
+        #expect(KeptStanding(titleID: "t-a").keeping(titleID: "t-b", catalog: Self.catalog).titleID == "t-a")
+    }
+
+    @Test("Given a kept title the content doesn't know, when reading what to keep before a deletion, then nothing")
+    func anUnknownKeptTitleIsNeverOverwritten() {
+        let standing = DadStanding(
+            progress: Self.progress(quests: 13), catalog: Self.catalog, kept: KeptStanding(titleID: "t-newer")
+        )
+        #expect(standing.title?.id == "t4")
+        #expect(standing.titleToKeep == nil)
+    }
+
     /// The dad once an Undo has taken an entry back, and the title his closed card should go back to, if any.
     struct AfterUndo: Sendable {
         let quests: Int

@@ -47,7 +47,7 @@ public struct SagaOccasion: Hashable, Identifiable, Sendable {
 }
 
 /// When home may gently offer a film (ADR-0036, ADR-0006): from the occasion's day for `windowDays` days, only if the
-/// dad has something from that period with the child. Never a deadline: the offer just stops showing.
+/// family has an entry from that period with the child, whoever recorded it. Never a deadline: the offer just stops showing.
 public enum SagaOccasions {
     public static let windowDays = 30
 
@@ -62,7 +62,7 @@ public enum SagaOccasions {
         timeZone: TimeZone = .autoupdatingCurrent,
         windowDays: Int = windowDays
     ) -> SagaOccasion? {
-        let dates = Timeline.countedEntries(from: events, catalog: catalog)
+        let dates = Timeline.familyEntries(from: events, catalog: catalog)
             .filter { $0.childID == child.id }
             .map(\.date)
         let newest = occasions(for: child, catalog: catalog, now: now, timeZone: timeZone)

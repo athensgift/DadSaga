@@ -178,13 +178,13 @@ final class AppContainer {
                     photoStore: photoStore
                 ),
                 deleteEvent: DefaultDeleteEventUseCase(
-                    contentRepository: contentRepository,
+                    contentRepository: contentRepository, profileRepository: store.profiles,
                     progressRepository: store.progress,
                     standingRepository: store.standing,
                     photoStore: photoStore
                 ),
                 undoRecord: DefaultUndoRecordUseCase(
-                    contentRepository: contentRepository,
+                    contentRepository: contentRepository, profileRepository: store.profiles,
                     progressRepository: store.progress,
                     standingRepository: store.standing,
                     photoStore: photoStore
@@ -260,7 +260,7 @@ final class AppContainer {
             useCases: WardrobeViewModel.UseCases(
                 getWardrobe: getWardrobeUseCase,
                 setChoice: DefaultSetOutfitChoiceUseCase(
-                    contentRepository: contentRepository,
+                    contentRepository: contentRepository, profileRepository: store.profiles,
                     progressRepository: store.progress,
                     outfitRepository: store.outfit,
                     standingRepository: store.standing
@@ -275,7 +275,7 @@ final class AppContainer {
             getTimeline: DefaultGetTimelineUseCase(contentRepository: contentRepository, wholeSaga: store.wholeSaga),
             getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore),
             deleteEvent: DefaultDeleteEventUseCase(
-                contentRepository: contentRepository,
+                contentRepository: contentRepository, profileRepository: store.profiles,
                 progressRepository: store.progress,
                 standingRepository: store.standing,
                 photoStore: photoStore

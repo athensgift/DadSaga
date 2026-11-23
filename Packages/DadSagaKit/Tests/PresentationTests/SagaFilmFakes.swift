@@ -186,12 +186,15 @@ actor FakeGetSagaFilm: GetSagaFilmUseCase {
             ?? .everything
         let storyboard = [chosen, .everything].lazy.compactMap { [events] in
             SagaStoryboard.make(
-                events: events, child: child, period: $0, catalog: catalog, now: date, timeZone: calendar.timeZone
+                events: events,
+                cast: SagaCast(hero: .testDad, child: child),
+                period: $0, catalog: catalog, now: date, timeZone: calendar.timeZone
             )
         }.first
         guard let storyboard else { return nil }
-        let progress = DadProgress(events: events.filter { $0.date < storyboard.asOf }, catalog: catalog)
-        let firsts = progress.capturedFirstIDs(for: child.id)
+        let before = events.filter { $0.date < storyboard.asOf }
+        let progress = DadProgress(events: before, catalog: catalog)
+        let firsts = FamilyMoments(events: before, catalog: catalog).capturedFirstIDs(for: child.id)
         let standing = DadStanding.asOf(progress, catalog: catalog)
         return SagaFilm(
             profile: profile,
