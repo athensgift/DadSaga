@@ -16,3 +16,4 @@ typealias SystemFieldsRecord = CurrentSyncSchema.SystemFieldsRecord
 typealias GoneChildRecord = CurrentSyncSchema.GoneChildRecord
 typealias EngineStateRecord = CurrentSyncSchema.EngineStateRecord
 typealias KnownPhotoRecord = CurrentSyncSchema.KnownPhotoRecord
+typealias MemberRecord = CurrentSyncSchema.MemberRecord

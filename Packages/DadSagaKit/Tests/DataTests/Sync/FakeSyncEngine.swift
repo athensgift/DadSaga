@@ -36,7 +36,13 @@ final class FakeSyncCloud: SyncCloud {
 
     func makeEngine(_ database: SyncDatabase, state: Data?, delegate: any SyncEngineDelegate) -> any SyncEngine {
         let engine = FakeSyncEngine(cloud: cloud, device: self, database: database, state: state, delegate: delegate)
-        self.state.withLock { $0.engines = $0.engines.filter { $0.database != database } + [engine] }
+        let replaced = self.state.withLock { state in
+            let replaced = state.engines.filter { $0.database == database }
+            state.engines = state.engines.filter { $0.database != database } + [engine]
+            return replaced
+        }
+        // An engine that was replaced reports nothing more.
+        for engine in replaced { engine.retire() }
         return engine
     }
 
@@ -122,7 +128,10 @@ actor FakeSyncEngine: SyncEngine {
     nonisolated let database: SyncDatabase
     private let cloud: FakeCloud
     private let device: FakeSyncCloud
-    private weak var delegate: (any SyncEngineDelegate)?
+    private weak var held: (any SyncEngineDelegate)?
+    private let isRetired = Mutex(false)
+    /// Nil once another engine was made for this database.
+    private var delegate: (any SyncEngineDelegate)? { isRetired.withLock { $0 } ? nil : held }
     private var state: State
     /// How many records and zones this engine has tried to send and has fetched: a round that moves nothing has
     /// settled.
@@ -134,11 +143,15 @@ actor FakeSyncEngine: SyncEngine {
         self.cloud = cloud
         self.device = device
         self.database = database
-        self.delegate = delegate
+        held = delegate
         self.state = state.flatMap { try? JSONDecoder().decode(State.self, from: $0) } ?? State()
     }
 
     var pending: [SyncChange] { state.pending.compactMap(\.change) }
+
+    nonisolated func retire() {
+        isRetired.withLock { $0 = true }
+    }
 
     func add(_ changes: [SyncChange]) {
         for change in changes.map(Change.init) {

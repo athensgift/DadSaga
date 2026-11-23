@@ -11,7 +11,7 @@ enum SyncSchemaV1: VersionedSchema {
     static var models: [any PersistentModel.Type] {
         [
             SyncSettingsRecord.self, PendingChangeRecord.self, SystemFieldsRecord.self, GoneChildRecord.self,
-            EngineStateRecord.self, KnownPhotoRecord.self
+            EngineStateRecord.self, KnownPhotoRecord.self, MemberRecord.self
         ]
     }
 
@@ -41,12 +41,35 @@ enum SyncSchemaV1: VersionedSchema {
         var historyToken: Data?
         /// The history token expired: once the next fetch ends, every row the server lacks is sent (ADR-0065 §2).
         var resendAfterFetch: Bool
+        /// The family's zone is to be fetched whole: nothing of the family is sent until that fetch ends, and then what
+        /// goes follows the rejoin's rule (ADR-0065 §2, "A full send with no change token").
+        var fullSendAfterFetch: Bool
+        /// `ChildMap`, as JSON: this parent's children to the family's, from the last join or follow; it travels in
+        /// `saga`.
+        var childMap: Data?
+        /// `childMap` is still to be applied: the family's children it names have not all come yet.
+        var childMapWaits: Bool
+        /// `saga` names the family only once the zone holds everything that waited for it (ADR-0065 §4).
+        var sagaWaitsForFamily: Bool
+        /// This parent's own family zone that a join left: deleted once the joined family holds its entries.
+        var oldFamilyZoneID: UUID?
+        /// `saga` names another family than this iPhone syncs with: its zone, to follow once the parent says so
+        /// (ADR-0065 §4). The family's sync waits meanwhile; the parent's own zone goes on.
+        var followZoneID: UUID?
+        var followOwner: String?
+        /// `saga`'s `childMap` as it came.
+        var followChildMap: Data?
+        /// `SagaChange`: how that family came to be this parent's; nil reads as merged.
+        var followHow: String?
 
         init(historyToken: Data?, resendAfterFetch: Bool) {
             key = Self.onlyKey
             isOn = false
             self.historyToken = historyToken
             self.resendAfterFetch = resendAfterFetch
+            fullSendAfterFetch = false
+            childMapWaits = false
+            sagaWaitsForFamily = false
         }
 
         static let onlyKey = "sync"
@@ -62,9 +85,9 @@ enum SyncSchemaV1: VersionedSchema {
         var scope: String
         var recordName: String
         var isDeletion: Bool
-        /// The fields to set; empty for a deletion, and unused while `allFields`.
+        /// The fields the dad changed, which are the ones a record that comes leaves alone; empty for a deletion.
         var fields: [String]
-        /// The record goes whole: the row was inserted, or saved again after its deletion waited.
+        /// The record goes whole, whatever `fields` says: the row was inserted, or the zone isn't known to hold it.
         var allFields: Bool
         /// A deletion followed by a save of every field: a record written again for a new creator, since a
         /// modification keeps the creator (ADR-0065 §2, members).
@@ -146,6 +169,22 @@ enum SyncSchemaV1: VersionedSchema {
         init(photoID: String, entryID: UUID) {
             self.photoID = photoID
             self.entryID = entryID
+        }
+    }
+
+    /// A parent in the family: a `member-` record that names the account that created it (ADR-0065 §2). A record
+    /// someone else wrote for them is not one.
+    @Model
+    final class MemberRecord {
+        #Unique<MemberRecord>([\.profileID])
+
+        var profileID: UUID
+        /// The real user record name of the parent's Apple Account.
+        var userRecordName: String
+
+        init(profileID: UUID, userRecordName: String) {
+            self.profileID = profileID
+            self.userRecordName = userRecordName
         }
     }
 }

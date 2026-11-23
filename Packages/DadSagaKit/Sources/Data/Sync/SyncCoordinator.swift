@@ -50,6 +50,8 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
     var unapplied: Set<SyncDatabase> = []
     /// The databases whose fetch has ended since the history token expired.
     var fetchedSinceExpiry: Set<SyncDatabase> = []
+    /// A save found no family zone in the partner's iCloud: the fetch that follows says whether sharing ended.
+    var familyZoneNotFound = false
     private var chain = SerialTaskQueue()
     private var listening: Task<Void, Never>?
 
@@ -103,13 +105,22 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
 
     func status() async -> ShareStatus {
         do {
-            guard let settings = try await ledgerWhileOn()?.settings() else { return ShareStatus(sharing: .off) }
-            let waiting: ShareStatus.Waiting? = switch settings.pause {
-            case .signedOut: .signedOut
-            case .iCloudFull: .iCloudFull(isPartners: settings.fullDatabase == .shared)
-            case nil: nil
+            guard let ledger = try await ledgerWhileOn() else { return ShareStatus(sharing: .off) }
+            let settings = try await ledger.settings()
+            var status = ShareStatus(sharing: .alone)
+            if settings.database(for: .family) == .shared {
+                status.sharing = .partner
+            } else if try await ledger.members().values.contains(where: { $0 != settings.account }) {
+                status.sharing = .owner
             }
-            return ShareStatus(sharing: settings.database(for: .family) == .shared ? .partner : .alone, waiting: waiting)
+            if settings.pause == .signedOut {
+                status.waiting = .signedOut
+            } else if settings.follow != nil {
+                status.waiting = .followFamily
+            } else if settings.pause == .iCloudFull {
+                status.waiting = .iCloudFull(isPartners: settings.fullDatabase == .shared)
+            }
+            return status
         } catch {
             Self.logger.error("Sync, status: \(String(describing: error), privacy: .public)")
             return ShareStatus(sharing: .off)
@@ -136,6 +147,7 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
         try await ledger.send(neverSent: try await offerRecords() + photoRecords(feed))
         if settings.pause == .iCloudFull { try await ledger.pause(nil) }
         try await give(ledger)
+        try await endMove(ledger)
         listen(to: feed)
     }
 
@@ -289,10 +301,14 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
         }
     }
 
-    /// Each of `pending` that goes to `database`, as the engine holds it.
+    /// Each of `pending` that goes to `database`, as the engine holds it. None of the family's while they wait for
+    /// the parent to follow another family, or for the family's zone to be fetched whole (ADR-0065 §2, §4).
     func changes(for pending: [PendingChange], in database: SyncDatabase, _ settings: SyncSettings) -> [SyncChange] {
         guard let zones = settings.zones else { return [] }
-        return pending.filter { settings.database(for: $0.name.type.scope) == database }.map { change in
+        return pending.filter { change in
+            let scope = change.name.type.scope
+            return settings.database(for: scope) == database && !(scope == .family && settings.familyWaits)
+        }.map { change in
             let zone = zones.zone(for: change.name.type)
             return change.isDeletion ? .delete(change.name, zone) : .save(change.name, zone)
         }
@@ -320,5 +336,15 @@ actor SyncCoordinator: FamilySync, SyncEngineDelegate {
         outgoing = [:]
         unapplied = []
         fetchedSinceExpiry = []
+        familyZoneNotFound = false
+    }
+
+    /// One database's engine goes, and what was remembered of the family's batches: its zone is another now.
+    func forgetEngine(_ database: SyncDatabase) {
+        engines[database] = nil
+        unapplied.remove(database)
+        fetchedSinceExpiry.remove(database)
+        outgoing = outgoing.filter { $0.key.type.scope == .personal && database != .private }
+        if database == .shared { familyZoneNotFound = false }
     }
 }

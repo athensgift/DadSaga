@@ -2,81 +2,6 @@ import Foundation
 import os
 import SwiftData
 
-/// Why sync turned itself off (ADR-0065 §4). Nothing is uploaded again until the parent turns iCloud on.
-enum SyncOffReason: String, Sendable {
-    /// The parent deleted DadSaga's data in iCloud's settings.
-    case purged
-    /// Another Apple Account is signed in: nothing goes into another person's iCloud by itself.
-    case otherAccount
-    /// Another of the parent's iPhones deleted the zone (it started over).
-    case zoneDeleted
-}
-
-/// What sync waits for while it is on (ADR-0065 §4). Changes are kept in `Sync.store` meanwhile.
-enum SyncPause: String, Sendable {
-    /// Until the account iCloud was turned on for returns.
-    case signedOut
-    /// Until there is room; tried again at the next launch.
-    case iCloudFull
-}
-
-/// A copy of `Sync.store`'s one row of settings.
-struct SyncSettings: Hashable, Sendable {
-    /// The saga store's history was read through this token; nil: from its start.
-    var historyToken: DefaultHistoryToken?
-    var resendAfterFetch: Bool
-    var isOn = false
-    var offReason: SyncOffReason?
-    /// The real user record name iCloud was turned on for.
-    var account: String?
-    var pause: SyncPause?
-    var fullDatabase: SyncDatabase?
-    var familyZoneID: UUID?
-    var familyOwner: String?
-
-    /// The family's zone, once iCloud has been turned on.
-    var familyZone: SyncZone? {
-        guard let familyZoneID, let familyOwner else { return nil }
-        return .family(familyZoneID, owner: familyOwner)
-    }
-
-    var zones: SyncZones? { familyZone.map(SyncZones.init) }
-
-    /// Personal is in this parent's private database; the family is there too when it is theirs, and in the shared
-    /// one when it is the partner's (ADR-0065 §2).
-    func database(for scope: SyncScope) -> SyncDatabase {
-        scope == .family && familyOwner != account ? .shared : .private
-    }
-
-    /// The databases the saga syncs with, each through an engine of its own.
-    var databases: [SyncDatabase] {
-        database(for: .family) == .shared ? [.private, .shared] : [.private]
-    }
-
-    /// Which kind of zone `zone` is for this saga; nil for a zone it doesn't sync with.
-    func scope(of zone: SyncZone) -> SyncScope? {
-        if zone == .personal { return .personal }
-        return zone == familyZone ? .family : nil
-    }
-
-    /// Whether changes for `database` wait for room in its iCloud.
-    func isFull(_ database: SyncDatabase) -> Bool {
-        pause == .iCloudFull && fullDatabase == database
-    }
-}
-
-/// One record's change waiting to be sent.
-struct PendingChange: Hashable, Sendable {
-    let name: RecordName
-    let isDeletion: Bool
-    /// The fields to set, read from the row when the batch is built; nil: every field. Empty for a deletion.
-    let fields: Set<String>?
-    /// What a batch remembers, to tell `sent` which state of the change it carried.
-    let revision: Int
-    /// Not given to an engine until the next fetch ends.
-    let behindFetch: Bool
-}
-
 /// `Sync.store`'s one writer (ADR-0065 §5): what waits to be sent, each record's system fields, the history token and
 /// the children deleted for good. Its own container, so the macro's own context is the right one. Every method is one
 /// turn and one save, and hands back `Sendable` copies.
@@ -86,11 +11,17 @@ actor SyncLedger {
 
     func settings() throws -> SyncSettings {
         guard let row = try settingsRow() else { return SyncSettings(historyToken: nil, resendAfterFetch: false) }
+        var follow: FamilyToFollow?
+        if let zoneID = row.followZoneID, let owner = row.followOwner {
+            follow = FamilyToFollow(zoneID: zoneID, owner: owner, childMap: row.followChildMap, how: row.followHow)
+        }
         return SyncSettings(
             historyToken: Self.token(from: row.historyToken), resendAfterFetch: row.resendAfterFetch, isOn: row.isOn,
             offReason: row.offReason.flatMap(SyncOffReason.init), account: row.accountName,
             pause: row.pause.flatMap(SyncPause.init), fullDatabase: row.fullDatabase.flatMap(SyncDatabase.init),
-            familyZoneID: row.familyZoneID, familyOwner: row.familyOwner
+            familyZoneID: row.familyZoneID, familyOwner: row.familyOwner, fullSendAfterFetch: row.fullSendAfterFetch,
+            childMap: row.childMap.flatMap(ChildMap.init(json:)), childMapWaits: row.childMapWaits,
+            sagaWaitsForFamily: row.sagaWaitsForFamily, oldFamilyZoneID: row.oldFamilyZoneID, follow: follow
         )
     }
 
@@ -132,12 +63,13 @@ actor SyncLedger {
     }
 
     /// For each of `names` with a change waiting, the fields a record that arrives must leave alone (ADR-0065 §4):
-    /// the waiting ones, or every field of the record when it goes whole or its deletion waits.
+    /// the ones the dad changed, which is every field of a row he added, or of a record whose deletion waits. A
+    /// record that goes whole only because the zone lacked it leaves alone just the fields he changed.
     func waitingFields(for names: Set<RecordName>) throws -> [RecordName: Set<String>] {
         var waiting: [RecordName: Set<String>] = [:]
         for name in names {
             guard let row = try pendingRow(name) else { continue }
-            waiting[name] = row.allFields || row.isDeletion ? SyncField.all(of: name.type) : Set(row.fields)
+            waiting[name] = row.isDeletion ? SyncField.all(of: name.type) : Set(row.fields)
         }
         return waiting
     }
@@ -145,8 +77,8 @@ actor SyncLedger {
     /// What an engine reports sent. A saved record's system fields are kept, and its change leaves only at the
     /// revision the batch was built from (`revisions`): one merged in while the batch was out is sent again. A deleted
     /// record's system fields go, and its change with them, unless it was saved again meanwhile: that save then goes
-    /// as a new record. A photo saved is known for its entry (`photoEntries`, by photo id) from then on, and one
-    /// deleted no longer.
+    /// as a new record, as does a record deleted to be written again (a member for its new creator). A photo saved
+    /// is known for its entry (`photoEntries`, by photo id) from then on, and one deleted no longer.
     func sent(
         saved: [SyncRecord], revisions: [RecordName: Int], photoEntries: [String: UUID] = [:], deleted: [RecordName]
     ) throws {
@@ -159,10 +91,23 @@ actor SyncLedger {
                 if record.name.type == .photo, let entryID = photoEntries[record.name.id] {
                     try know(photo: record.name.id, of: entryID)
                 }
+                // The only member this iPhone writes is its own parent's.
+                if record.name.type == .member, let profileID = record.name.uuid, let account = try settingsRow()?.accountName {
+                    try know(member: profileID, of: account)
+                }
             }
             for name in deleted {
                 try forget(name)
-                if let row = try pendingRow(name), row.isDeletion { modelContext.delete(row) }
+                guard let row = try pendingRow(name), row.isDeletion else { continue }
+                if row.thenSave {
+                    // Deleted to be written again, by this parent now.
+                    row.isDeletion = false
+                    row.allFields = true
+                    row.thenSave = false
+                    row.revision += 1
+                } else {
+                    modelContext.delete(row)
+                }
             }
         }
     }
@@ -227,23 +172,45 @@ actor SyncLedger {
         return row
     }
 
+    /// A save the dad made: `fields` nil, the row was inserted and every field is his.
     func merge(save name: RecordName, fields: Set<String>?, _ turn: inout Turn) throws {
         guard let row = try row(name, &turn) else {
-            return insert(name, isDeletion: false, fields: fields, &turn)
+            insert(name, isDeletion: false, fields: fields ?? SyncField.all(of: name.type), whole: fields == nil, &turn)
+            return
         }
+        // A record that is deleted to be written again is saved whole once it is gone.
+        if row.thenSave { return }
         if row.isDeletion || fields == nil {
             row.update(\.isDeletion, to: false)
             row.update(\.allFields, to: true)
-            row.update(\.fields, to: [])
-        } else if !row.allFields, let fields {
+            row.update(\.fields, to: SyncField.all(of: name.type).sorted())
+        } else if let fields {
             row.update(\.fields, to: Set(row.fields).union(fields).sorted())
         }
         row.revision += 1
     }
 
+    /// The zone isn't known to hold the record, so it goes whole. The fields the dad changed stay as they were: if the
+    /// zone turns out to hold the record after all (another iPhone put it there), what comes sets every other field,
+    /// and the two merge by field (ADR-0065 §4).
+    func merge(whole name: RecordName, _ turn: inout Turn) throws {
+        guard let row = try row(name, &turn) else {
+            insert(name, isDeletion: false, fields: [], whole: true, &turn)
+            return
+        }
+        if row.thenSave { return }
+        if row.isDeletion {
+            row.update(\.isDeletion, to: false)
+            row.update(\.fields, to: SyncField.all(of: name.type).sorted())
+        }
+        row.update(\.allFields, to: true)
+        row.revision += 1
+    }
+
     func merge(deletion name: RecordName, _ turn: inout Turn) throws {
         guard let row = try row(name, &turn) else {
-            return insert(name, isDeletion: true, fields: [], &turn)
+            insert(name, isDeletion: true, fields: [], whole: false, &turn)
+            return
         }
         if !row.isDeletion, try systemFieldsRow(name) == nil {
             // Never sent: the server has nothing to delete.
@@ -254,17 +221,22 @@ actor SyncLedger {
         row.update(\.isDeletion, to: true)
         row.update(\.allFields, to: false)
         row.update(\.fields, to: [])
+        row.update(\.thenSave, to: false)
         row.revision += 1
     }
 
-    private func insert(_ name: RecordName, isDeletion: Bool, fields: Set<String>?, _ turn: inout Turn) {
+    @discardableResult
+    func insert(
+        _ name: RecordName, isDeletion: Bool, fields: Set<String>, whole: Bool, _ turn: inout Turn
+    ) -> PendingChangeRecord {
         let row = PendingChangeRecord(
             scope: name.type.scope.rawValue, recordName: name.string, isDeletion: isDeletion,
-            fields: (fields ?? []).sorted(), allFields: fields == nil, sequence: turn.nextSequence
+            fields: fields.sorted(), allFields: whole, sequence: turn.nextSequence
         )
         modelContext.insert(row)
         turn.rows[name] = .some(row)
         turn.nextSequence += 1
+        return row
     }
 
     // MARK: - Rows

@@ -97,6 +97,11 @@ enum SyncField {
         static let familyZone = "familyZone"
         /// The real user record name of the parent whose iCloud holds the family.
         static let familyOwner = "familyOwner"
+        /// This parent's child ids to the family's, from the last join (`ChildMap`, as JSON text); absent: none.
+        static let childMap = "childMap"
+        /// How the family came to be this parent's, for their other iPhones that follow (ADR-0065 §4). Absent: by a
+        /// join, a leave or a stop, and following merges. Anything else replaces the follower's saga with the zone's.
+        static let how = "how"
     }
 
     /// `member-<profileID>`, written by the parent it names.
@@ -317,9 +322,24 @@ extension SyncRecord {
 
     /// The family a `saga` record names.
     var sagaFamilyZone: SyncZone? {
+        sagaFamily.map { .family($0.zoneID, owner: $0.owner) }
+    }
+
+    /// The family a `saga` record names, with what a follower needs of it.
+    var sagaFamily: FamilyToFollow? {
         guard case .string(let zone)? = fields[SyncField.Saga.familyZone], let id = UUID(uuidString: zone),
               case .string(let owner)? = fields[SyncField.Saga.familyOwner] else { return nil }
-        return .family(id, owner: owner)
+        var (map, how): (Data?, String?) = (nil, nil)
+        if case .string(let text)? = fields[SyncField.Saga.childMap] { map = Data(text.utf8) }
+        if case .string(let text)? = fields[SyncField.Saga.how] { how = text }
+        return FamilyToFollow(zoneID: id, owner: owner, childMap: map, how: how)
+    }
+
+    /// Whether a `member-` record counts (ADR-0065 §2): it names the account that created it. Returns that account.
+    var memberAccount: String? {
+        guard name.type == .member, case .string(let account)? = fields[SyncField.Member.userRecordName],
+              creator == account else { return nil }
+        return account
     }
 }
 

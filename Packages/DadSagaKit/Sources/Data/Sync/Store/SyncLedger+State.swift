@@ -13,6 +13,8 @@ struct FetchOutcome: Sendable {
     var resend: [LocalChange] = []
     /// Records to delete from the zone.
     var deleteFromZone: [RecordName] = []
+    /// The part of the waiting child map that was applied with the batch.
+    var mapped: ChildMap?
 }
 
 /// Where sync stands, what its engines last said, and what a fetch leaves (ADR-0065 §2, §4). As in the rest of the
@@ -39,6 +41,10 @@ extension SyncLedger {
             row.update(\.familyOwner, to: family.owner)
             row.update(\.historyToken, to: try token.map { try JSONEncoder().encode($0) })
             row.update(\.resendAfterFetch, to: afterFetch)
+            endFamilyMoves(row)
+            row.update(\.oldFamilyZoneID, to: nil)
+            // A family iCloud already holds is fetched whole first, and what is sent follows the rejoin's rule.
+            row.update(\.fullSendAfterFetch, to: afterFetch)
             try forgetEngines()
             try restart(SyncScope.allCases, sending: names)
         }
@@ -54,6 +60,8 @@ extension SyncLedger {
             row.update(\.pause, to: nil)
             row.update(\.fullDatabase, to: nil)
             row.update(\.resendAfterFetch, to: false)
+            endFamilyMoves(row)
+            row.update(\.oldFamilyZoneID, to: nil)
             try forgetEngines()
             try restart(SyncScope.allCases, sending: [])
         }
@@ -79,7 +87,8 @@ extension SyncLedger {
     }
 
     /// A zone was made again under its name (`encryptedDataReset`): every record of `names` goes whole, and nothing
-    /// kept from the old zone meets the new one.
+    /// kept from the old zone meets the new one. When another of the parent's iPhones has filled the new zone already,
+    /// each record meets theirs and the two merge by field: a whole save still says which fields the dad changed.
     func reset(_ scope: SyncScope, sending names: [RecordName]) throws {
         try modelContext.saveAllOrNothing { try restart([scope], sending: names) }
     }
@@ -111,10 +120,7 @@ extension SyncLedger {
                 if asNew, let fields = try systemFieldsRow(name) { modelContext.delete(fields) }
                 guard let row = try pendingRow(name) else { continue }
                 row.update(\.behindFetch, to: true)
-                if asNew, !row.isDeletion {
-                    row.update(\.allFields, to: true)
-                    row.update(\.fields, to: [])
-                }
+                if asNew, !row.isDeletion { row.update(\.allFields, to: true) }
             }
         }
     }
@@ -146,11 +152,15 @@ extension SyncLedger {
     func send(neverSent names: [RecordName], endingResend: Bool = false) throws {
         try modelContext.saveAllOrNothing {
             var turn = Turn(nextSequence: try nextSequence())
-            for name in names where try systemFieldsRow(name) == nil {
-                if let row = try row(name, &turn), row.allFields, !row.isDeletion { continue }
-                try merge(save: name, fields: nil, &turn)
-            }
+            try merge(neverSent: names, &turn)
             if endingResend { try settingsRowMakingOne().update(\.resendAfterFetch, to: false) }
+        }
+    }
+
+    func merge(neverSent names: [RecordName], _ turn: inout Turn) throws {
+        for name in names where try systemFieldsRow(name) == nil {
+            if let row = try row(name, &turn), row.allFields, !row.isDeletion { continue }
+            try merge(whole: name, &turn)
         }
     }
 
@@ -169,8 +179,12 @@ extension SyncLedger {
             var turn = Turn(nextSequence: try nextSequence())
             for record in outcome.records {
                 try keepSystemFields(of: record)
-                if record.name.type == .photo, let entryID = record.photoEntryID {
-                    try know(photo: record.name.id, of: entryID)
+                switch record.name.type {
+                case .photo:
+                    if let entryID = record.photoEntryID { try know(photo: record.name.id, of: entryID) }
+                case .member: try keep(member: record)
+                case .saga: try compare(saga: record, &turn)
+                default: break
                 }
             }
             for name in outcome.deleted {
@@ -182,6 +196,7 @@ extension SyncLedger {
             }
             for childID in Set(outcome.gone) { try insertGone(childID) }
             try merge(outcome.resend + outcome.deleteFromZone.map(LocalChange.delete), &turn)
+            if let mapped = outcome.mapped { try applied(mapped) }
         }
     }
 
@@ -218,18 +233,20 @@ extension SyncLedger {
         }
     }
 
-    /// The zone no longer holds `name`: its system fields go, and a photo is no longer known.
+    /// The zone no longer holds `name`: its system fields go, a photo is no longer known, and a member is no longer
+    /// one.
     func forget(_ name: RecordName) throws {
         if let fields = try systemFieldsRow(name) { modelContext.delete(fields) }
         if name.type == .photo, let photo = try knownPhotoRow(name.id) { modelContext.delete(photo) }
+        if name.type == .member, let profileID = name.uuid, let member = try memberRow(profileID) { modelContext.delete(member) }
     }
 
     // MARK: Rows
 
     /// Every record of `names` goes whole into the zones of `scopes`, and nothing else waits for them: what waited was
-    /// for zones that are gone. Their system fields go, and the photos known. A row that stays is changed in place,
-    /// never deleted and inserted again under the same name in one save.
-    private func restart(_ scopes: [SyncScope], sending names: [RecordName]) throws {
+    /// for zones that are gone. Their system fields go, and with the family's the photos and members known. A row that
+    /// stays is changed in place, never deleted and inserted again under the same name in one save.
+    func restart(_ scopes: [SyncScope], sending names: [RecordName]) throws {
         let scopes = scopes.map(\.rawValue)
         let wanted = Set(names)
         var turn = Turn(nextSequence: try nextSequence())
@@ -239,25 +256,31 @@ extension SyncLedger {
                 continue
             }
             row.update(\.behindFetch, to: false)
+            row.update(\.thenSave, to: false)
             turn.rows[name] = .some(row)
         }
         for name in names where scopes.contains(name.type.scope.rawValue) {
             if turn.rows[name] == nil { turn.rows[name] = .some(nil) }
-            try merge(save: name, fields: nil, &turn)
+            try merge(whole: name, &turn)
         }
-        for row in try modelContext.fetch(FetchDescriptor<SystemFieldsRecord>()) where scopes.contains(row.scope) {
+        for scope in scopes { try forgetZone(scope) }
+    }
+
+    /// Nothing kept of a zone meets the one that takes its place (ADR-0065 §4).
+    func forgetZone(_ scope: String) throws {
+        for row in try modelContext.fetch(FetchDescriptor<SystemFieldsRecord>(predicate: #Predicate { $0.scope == scope })) {
             modelContext.delete(row)
         }
-        if scopes.contains(SyncScope.family.rawValue) {
-            for row in try modelContext.fetch(FetchDescriptor<KnownPhotoRecord>()) { modelContext.delete(row) }
-        }
+        guard scope == SyncScope.family.rawValue else { return }
+        for row in try modelContext.fetch(FetchDescriptor<KnownPhotoRecord>()) { modelContext.delete(row) }
+        for row in try modelContext.fetch(FetchDescriptor<MemberRecord>()) { modelContext.delete(row) }
     }
 
     private func forgetEngines() throws {
         for row in try modelContext.fetch(FetchDescriptor<EngineStateRecord>()) { modelContext.delete(row) }
     }
 
-    private func engineRow(_ database: SyncDatabase) throws -> EngineStateRecord? {
+    func engineRow(_ database: SyncDatabase) throws -> EngineStateRecord? {
         let database = database.rawValue
         return try modelContext.fetch(FetchDescriptor<EngineStateRecord>(predicate: #Predicate { $0.database == database })).first
     }

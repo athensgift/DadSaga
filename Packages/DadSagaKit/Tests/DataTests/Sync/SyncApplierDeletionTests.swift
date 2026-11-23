@@ -125,7 +125,10 @@ struct SyncApplierDeletionTests: FeedSuite {
         // A bring-back that raced the delete for good, and a stale iPhone's late upload.
         let applied = try await bench.apply([bench.record(of: lena, order: 0), bench.record(of: late)])
 
-        #expect(applied == Applied(deleteFromZone: [.entry(late.id), .photo("a"), .photo("b")]))
+        // The zone holds their record without the marker: it goes again, with the entry and its photos deleted there.
+        #expect(applied == Applied(
+            resend: [.gone(childID: lena.id)], deleteFromZone: [.entry(late.id), .photo("a"), .photo("b")]
+        ))
         #expect(try await bench.store.wholeSaga.readAll() == before)
         #expect(try await bench.store.profiles.fetchProfile()?.children == [nikos])
     }
@@ -143,7 +146,7 @@ struct SyncApplierDeletionTests: FeedSuite {
 
         let applied = try await bench.apply([bench.record(of: lena, order: 0), bench.record(of: recorded)])
 
-        #expect(applied == Applied(deleteFromZone: [.entry(recorded.id)]))
+        #expect(applied == Applied(resend: [.gone(childID: lena.id)], deleteFromZone: [.entry(recorded.id)]))
         #expect(try await bench.store.wholeSaga.readAll()?.profile.removedChildren.isEmpty == true)
         #expect(try await bench.store.progress.fetchEvents().isEmpty)
         #expect(try await bench.drain().contains(.gone(childID: lena.id)))

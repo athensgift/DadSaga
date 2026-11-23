@@ -179,6 +179,7 @@ public protocol SyncCloud: Sendable {
     /// the parent is asked which saga to keep (ADR-0065 §2). Nil: iCloud holds none.
     func sagaRecord() async throws -> SyncRecord?
     /// `state`: what the last engine for this database reported in `stateUpdate`; nil starts from nothing, and its
-    /// first fetch brings every zone whole.
+    /// first fetch brings every zone whole. An engine made earlier for the same database reports nothing from then
+    /// on: what the delegate does when a fetch ends counts on that fetch being the new engine's.
     func makeEngine(_ database: SyncDatabase, state: Data?, delegate: any SyncEngineDelegate) -> any SyncEngine
 }

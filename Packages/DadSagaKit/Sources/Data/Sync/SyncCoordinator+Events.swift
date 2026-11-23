@@ -12,7 +12,8 @@ extension SyncCoordinator {
         switch event {
         case .stateUpdate(let state): try await keep(state, of: database, ledger)
         case .accountChange(let change): try await accountChanged(change, ledger)
-        case .fetchedZones(_, let deleted): try await zonesWent(deleted, from: database, ledger)
+        case .fetchedZones(_, let deleted):
+            try await applying(from: database) { try await self.zonesWent(deleted, from: database, ledger) }
         case .fetchedRecords(let modified, let deleted): try await fetched(modified, deleted, from: database, ledger)
         case .sentZones(let sent): try await zonesSent(sent, from: database, ledger)
         case .sentRecords(let sent): try await self.sent(sent, from: database, ledger)
@@ -26,41 +27,55 @@ extension SyncCoordinator {
         if !unapplied.contains(database) { try await ledger.store(engineState: state, for: database) }
     }
 
-    /// A zone that couldn't be saved for lack of room: its records wait for room with it.
-    private func zonesSent(_ sent: SentZones, from database: SyncDatabase, _ ledger: SyncLedger) async throws {
-        if sent.failed.contains(where: { $0.error == .quotaExceeded }) {
-            try await ledger.pause(.iCloudFull, full: database)
-        }
-    }
-
-    // MARK: - Fetched
-
-    /// Only records of the zones this saga syncs with, each kind in its own zone: anything else in the database is
-    /// left alone.
-    private func fetched(
-        _ modified: [SyncRecord], _ deleted: [SyncChange], from database: SyncDatabase, _ ledger: SyncLedger
-    ) async throws {
-        let settings = try await ledger.settings()
-        guard let zones = settings.zones else { return }
-        func isOurs(_ name: RecordName, _ zone: SyncZone) -> Bool {
-            zones.zone(for: name.type) == zone && settings.database(for: name.type.scope) == database
-        }
+    /// What a fetch brought is applied, or the engine's state is no longer kept this run: the next launch fetches it
+    /// again.
+    private func applying(from database: SyncDatabase, _ apply: () async throws -> Void) async throws {
         do {
-            try await apply(
-                fetched: modified.filter { isOurs($0.name, $0.zone) },
-                deleted: deleted.filter { isOurs($0.name, $0.zone) }.map(\.name), ledger
-            )
+            try await apply()
         } catch {
             unapplied.insert(database)
             throw error
         }
     }
 
+    /// A zone that couldn't be saved for lack of room: its records wait for room with it. And the parent's own zone
+    /// that a join left is gone.
+    private func zonesSent(_ sent: SentZones, from database: SyncDatabase, _ ledger: SyncLedger) async throws {
+        if sent.failed.contains(where: { $0.error == .quotaExceeded }) {
+            try await ledger.pause(.iCloudFull, full: database)
+        }
+        for case .family(let id, _) in sent.deleted { try await ledger.oldZoneDeleted(id) }
+    }
+
+    // MARK: - Fetched
+
+    /// Only records of the zones this saga syncs with, each kind in its own zone: anything else in the database is
+    /// left alone. So is the family's zone while `saga` names another to follow: only the family's sync is off then,
+    /// and the parent's own zone goes on, or this iPhone would never see `saga` change (ADR-0065 §4).
+    private func fetched(
+        _ modified: [SyncRecord], _ deleted: [SyncChange], from database: SyncDatabase, _ ledger: SyncLedger
+    ) async throws {
+        let settings = try await ledger.settings()
+        guard let zones = settings.zones else { return }
+        func isOurs(_ name: RecordName, _ zone: SyncZone) -> Bool {
+            let scope = name.type.scope
+            return zones.zone(for: name.type) == zone && settings.database(for: scope) == database
+                && (scope == .personal || settings.follow == nil)
+        }
+        try await applying(from: database) {
+            try await self.apply(
+                fetched: modified.filter { isOurs($0.name, $0.zone) },
+                deleted: deleted.filter { isOurs($0.name, $0.zone) }.map(\.name), ledger
+            )
+        }
+    }
+
     /// What came, into the store and `Sync.store`: a fetched batch, and the server's record of a save that met a
     /// newer one. A photo is placed under its id before the entry that lists it is applied, so the timeline finds it;
     /// an offer answered on another iPhone is answered here; the rows go through the applier, which leaves every
-    /// field whose local change waits. Then `Sync.store` keeps the system fields of what came and forgets what went,
-    /// and the files of deleted entries go.
+    /// field whose local change waits, and applies a join's child map with the batch that brings the last of the
+    /// family's children it names. Then `Sync.store` keeps the system fields of what came, the members and the family
+    /// `saga` names, and forgets what went; and the files of deleted entries go.
     func apply(fetched records: [SyncRecord], deleted: [RecordName], _ ledger: SyncLedger) async throws {
         // First what the dad changed: it waits, and an expired token is dealt with before the applier meets it.
         try await drain(ledger)
@@ -71,18 +86,20 @@ extension SyncCoordinator {
         let rows = records.filter { $0.name.type.mirrorsARow }.map(\.clearingAbsentFields)
         var applied = Applied()
         if !rows.isEmpty || deletions.contains(where: { $0.type.mirrorsARow }) {
+            let settings = try await ledger.settings()
             let context = ApplyContext(
                 waiting: try await ledger.waitingFields(for: Set(rows.map(\.name) + deletions)),
-                historyToken: try await ledger.settings().historyToken, gone: try await ledger.goneIDs(),
-                catalog: try await content.fetchCatalog()
+                historyToken: settings.historyToken, gone: try await ledger.goneIDs(),
+                catalog: try await content.fetchCatalog(), map: settings.childMapWaits ? settings.childMap : nil
             )
             applied = try await saga.open().applier.apply(FetchedBatch(records: rows, deletions: deletions), context)
         }
         try await ledger.fetched(FetchOutcome(
             records: records, deleted: deletions, gone: applied.goneLearned, resend: applied.resend,
-            deleteFromZone: applied.deleteFromZone
+            deleteFromZone: applied.deleteFromZone, mapped: applied.mapped
         ))
         for photoID in applied.photosToDelete { await photos.delete(id: photoID) }
+        if let mapped = applied.mapped { try await renameOffers(by: mapped, ledger) }
         // The title kept before this parent's entries went is the dad's own change: it is sent.
         try await drain(ledger)
     }
@@ -99,8 +116,9 @@ extension SyncCoordinator {
     }
 
     /// A fetch ended. What was held behind it goes now: the fetch reported no deletion for it, so it is sent as a new
-    /// record, with its zone saved again in case the zone was what the save didn't find (ADR-0065 §4). And after an
-    /// expired history token, every row the zone lacks is sent, while one it has keeps the server's values.
+    /// record, with its zone saved again in case the zone was what the save didn't find (ADR-0065 §4). After an
+    /// expired history token, every row the zone lacks is sent, while one it has keeps the server's values. And when
+    /// it was the whole fetch of the family's zone, what the zone lacks is sent or deleted by the rejoin's rule.
     private func fetchEnded(from database: SyncDatabase, _ ledger: SyncLedger) async throws {
         let settings = try await ledger.settings()
         let scopes = SyncScope.allCases.filter { settings.database(for: $0) == database }
@@ -110,12 +128,19 @@ extension SyncCoordinator {
             fetchedSinceExpiry.insert(database)
             try await ledger.send(neverSent: names, endingResend: fetchedSinceExpiry.isSuperset(of: settings.databases))
         }
+        if settings.fullSendAfterFetch, settings.follow == nil, scopes.contains(.family) { try await fullSend(ledger) }
+        if database == .shared, familyZoneNotFound {
+            // A save found no zone, and this fetch brought none: the partner's sharing has ended.
+            familyZoneNotFound = false
+            try await familyLeft(ledger)
+        }
         let released = try await ledger.releaseAfterFetch(scopes)
         // Only where this parent makes zones: one in the partner's iCloud is theirs to make.
         if database == .private, let zones = settings.zones {
             await engines[database]?.add(Set(released.map { zones.zone(for: $0.type) }).map(ZoneChange.save))
         }
         try await give(ledger)
+        try await endMove(ledger)
     }
 
     // MARK: - The account

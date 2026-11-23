@@ -75,7 +75,9 @@ struct OfferSyncTests: SyncBench {
         await phone.offers.markAnswered(world)
         try await settle(phone)
 
-        try await phone.coordinator.renameOffers(by: ChildMap(familyIDs: [lena.id: familys]))
+        try await phone.coordinator.onChain {
+            try await phone.coordinator.renameOffers(by: ChildMap(familyIDs: [lena.id: familys]), try await phone.ledger())
+        }
         try await settle(phone)
 
         let renamed = "\(familys.uuidString)/birthday/1"

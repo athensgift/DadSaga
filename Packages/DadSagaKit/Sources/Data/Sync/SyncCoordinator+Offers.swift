@@ -15,18 +15,15 @@ extension SyncCoordinator {
     /// A join or a follow made this iPhone's children the family's (ADR-0065 §1): an occasion's id begins with its
     /// child's, so the answers are renamed, in the defaults first; then the old records go and the family child's are
     /// written. A kill in between offers a film once more (ADR-0037 §5).
-    func renameOffers(by map: ChildMap) async throws {
-        try await onChain {
-            let answered = await self.offers.answeredOccasionIDs()
-            let renamed = Set(answered.map(map.occasionID))
-            let old = answered.subtracting(renamed)
-            guard !old.isEmpty else { return }
-            await self.offers.deleteAll()
-            for occasionID in renamed { await self.offers.markAnswered(occasionID) }
-            guard let ledger = try await self.ledgerWhileOn() else { return }
-            try await ledger.record(old.sorted().map { .delete(.offer(occasionID: $0)) })
-            try await ledger.send(neverSent: await self.offerRecords())
-            try await self.give(ledger)
-        }
+    func renameOffers(by map: ChildMap, _ ledger: SyncLedger) async throws {
+        let answered = await offers.answeredOccasionIDs()
+        let renamed = Set(answered.map(map.occasionID))
+        let old = answered.subtracting(renamed)
+        guard !old.isEmpty else { return }
+        await offers.deleteAll()
+        for occasionID in renamed { await offers.markAnswered(occasionID) }
+        try await ledger.record(old.sorted().map { .delete(.offer(occasionID: $0)) })
+        try await ledger.send(neverSent: await offerRecords())
+        try await give(ledger)
     }
 }

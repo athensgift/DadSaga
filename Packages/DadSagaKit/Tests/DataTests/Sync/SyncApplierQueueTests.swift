@@ -135,16 +135,21 @@ struct SyncApplierQueueTests: FeedSuite {
         try await bench.store.progress.add(stays)
         try await bench.drain()
         try await bench.markEverythingSent()
+        let map = ChildMap(familyIDs: [lena.id: familys.id, nikos.id: nikos.id, UUID(): UUID()])
+        // The family's child is not here yet: nothing moves, so no child is hidden meanwhile.
+        #expect(try await bench.applier.apply(map) == ChildMap())
+        #expect(try await bench.store.profiles.fetchProfile()?.children == [lena, nikos])
+        try await bench.apply([bench.record(of: familys, order: 0)])
         // An edit the feed hasn't read when the join lands.
         var renamed = lena
         renamed.name = "Ελένη"
         try await bench.store.profiles.save(FamilyEdit(changed: [ChildEdit(child: renamed, fields: [.name])]))
         let before = try storeHistory(at: bench.storeURL).count
 
-        let went = try await bench.applier.apply(ChildMap(familyIDs: [lena.id: familys.id, nikos.id: nikos.id, UUID(): UUID()]))
+        let applied = try await bench.applier.apply(map)
 
-        #expect(went == [lena.id])
-        #expect(try await bench.store.profiles.fetchProfile()?.children == [nikos])
+        #expect(applied == ChildMap(familyIDs: [lena.id: familys.id]))
+        #expect(try await bench.store.profiles.fetchProfile()?.children == [familys, nikos])
         let events = try await bench.store.progress.fetchEvents()
         #expect(Set(events.map(\.id)) == [moved.id, stays.id])
         #expect(events.first { $0.id == moved.id }?.childID == familys.id)
@@ -155,9 +160,39 @@ struct SyncApplierQueueTests: FeedSuite {
         #expect(try storeAuthors(at: bench.storeURL).last == "sync")
         #expect(try await bench.drain().isEmpty)
         #expect(try await bench.ledger.goneIDs().isEmpty)
-        // The family's child then comes like any record, and the entry is theirs.
-        try await bench.apply([bench.record(of: familys, order: 0)])
-        #expect(try await bench.store.profiles.fetchProfile()?.children == [familys, nikos])
-        #expect(try await bench.applier.apply(ChildMap(familyIDs: [lena.id: familys.id])).isEmpty)
+        // Applied again (a kill before `Sync.store` knew): the same answer, and nothing more moves.
+        #expect(try await bench.applier.apply(map) == applied)
+        #expect(try await bench.store.progress.fetchEvents().first { $0.id == stays.id }?.childID == nikos.id)
+    }
+
+    @Test("Given a child map waiting, when the batch that brings the family's child comes, then both are one save")
+    func aWaitingChildMapIsAppliedWithItsBatch() async throws {
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let bench = try await synced()
+        let familys = Child(name: "Λένα", birthDay: .day(2025, 6, 2), gender: .girl)
+        let moved = entry(with: lena)
+        try await bench.store.progress.add(moved)
+        try await bench.drain()
+        let map = ChildMap(familyIDs: [lena.id: familys.id])
+        func apply(_ records: [SyncRecord]) async throws -> Applied {
+            try await bench.applier.apply(FetchedBatch(records: records), ApplyContext(
+                waiting: [:], historyToken: try await bench.ledger.settings().historyToken, gone: [], catalog: .threeTitles,
+                map: map
+            ))
+        }
+
+        // A batch without the family's child: the map still waits, and the family is as it was.
+        #expect(try await apply([bench.record(.child(nikos.id), ["name": .string("Νικόλας")])]).mapped == nil)
+        #expect(try await bench.store.profiles.fetchProfile()?.children.map(\.id) == [lena.id, nikos.id])
+        let before = try storeHistory(at: bench.storeURL).count
+
+        let applied = try await apply([bench.record(of: familys, order: 0)])
+
+        // Never a save with the child twice, and never one with neither.
+        #expect(applied.mapped == map)
+        #expect(try storeHistory(at: bench.storeURL).count == before + 1)
+        #expect(try await bench.store.profiles.fetchProfile()?.children.map(\.id) == [familys.id, nikos.id])
+        #expect(try await bench.store.progress.fetchEvents().map(\.childID) == [familys.id])
+        #expect(try await bench.drain().isEmpty)
     }
 }

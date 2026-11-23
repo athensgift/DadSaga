@@ -17,13 +17,17 @@ struct ApplyContext: Sendable {
     /// The children deleted for good that `Sync.store` knows.
     let gone: Set<UUID>
     let catalog: ContentCatalog
+    /// A join's or a follow's child map that still waits: it is applied with the batch that brings the last of the
+    /// family's children it names, in the same save, so the family is never read with a child twice or with none.
+    var map: ChildMap?
 }
 
 /// What applying a batch left for the coordinator to do.
 struct Applied: Hashable, Sendable {
     /// The photos of entries that went, that no entry lists any more: their files go.
     var photosToDelete: [String] = []
-    /// Changes that came and were not applied, to send again: the removal that would have left no child in the family.
+    /// Changes that came and were not applied, to send again: the removal that would have left no child in the
+    /// family, and the marker of a child deleted for good whose record came without it.
     var resend: [LocalChange] = []
     /// Records to delete from the zone: an entry of a child deleted for good, and the photos it names.
     var deleteFromZone: [RecordName] = []
@@ -31,6 +35,8 @@ struct Applied: Hashable, Sendable {
     var goneLearned: [UUID] = []
     /// Whether a row changed: the widget reloads on it.
     var changedSomething = false
+    /// The context's child map as it was applied with this batch; nil: it still waits, or there was none.
+    var mapped: ChildMap?
 }
 
 enum SyncApplyError: Error, Equatable {
@@ -62,7 +68,8 @@ actor SwiftDataSyncApplier: SagaStoreActor {
         var turn = try Turn(batch, context, unread: modelContext.localChanges(after: context.historyToken))
         try keepTitle(before: turn)
         let changed = try modelContext.saveAllOrNothing(as: .sync) {
-            try applyChildren(&turn)
+            let children = try applyChildren(&turn)
+            if let map = turn.map { turn.applied.mapped = try move(by: map, among: children, onlyWhole: true) }
             try applyEntries(&turn)
             try applyHero(turn)
             try applyWardrobe(turn)
@@ -74,26 +81,38 @@ actor SwiftDataSyncApplier: SagaStoreActor {
         return turn.applied
     }
 
-    /// A join or a follow (ADR-0065 §4): each mapped child's entries move to the family's child, keeping their ids, and
-    /// the mapped child's own row goes, under `sync`, so the change feed never reads it as deleted for good. Every
-    /// entry moves by the child it had before the map, whatever order the map is read in. Returns the ids of the rows
-    /// that went.
-    func apply(_ map: ChildMap) throws -> [UUID] {
-        let moves = map.familyIDs.filter { $0.key != $0.value }
-        let mapped = Array(moves.keys)
-        guard !mapped.isEmpty else { return [] }
+    /// A join or a follow (ADR-0065 §4), for the children whose family's child is here: each one's entries move to the
+    /// family's child, keeping their ids, and their own row goes, under `sync`, so the change feed never reads it as
+    /// deleted for good. A child whose family's child is not here stays as they are: nothing they have is hidden or
+    /// dropped. Returns the part of the map that was applied.
+    func apply(_ map: ChildMap) throws -> ChildMap {
+        guard !map.moves.isEmpty else { return ChildMap() }
         return try modelContext.saveAllOrNothing(as: .sync) {
-            let entries = try modelContext.fetch(FetchDescriptor<ProgressEventRecord>(
-                predicate: #Predicate { mapped.contains($0.childID) }
-            ))
-            for entry in entries {
-                if let family = moves[entry.childID] { entry.update(\.childID, to: family) }
-            }
-            let rows = try modelContext.fetch(FetchDescriptor<ChildRecord>(predicate: #Predicate { mapped.contains($0.childID) }))
-            let went = rows.map(\.childID).sorted { $0.uuidString < $1.uuidString }
-            for row in rows { modelContext.delete(row) }
-            return went
+            let children = Dictionary(
+                try modelContext.fetch(FetchDescriptor<ChildRecord>()).map { ($0.childID, $0) },
+                uniquingKeysWith: { first, _ in first }
+            )
+            return try move(by: map, among: children, onlyWhole: false) ?? ChildMap()
         }
+    }
+
+    /// Inside a save. `onlyWhole`: nothing moves, and nil is returned, unless every family's child the map names is
+    /// among `children`. Every entry moves by the child it had before the map, whatever order the map is read in.
+    private func move(by map: ChildMap, among children: [UUID: ChildRecord], onlyWhole: Bool) throws -> ChildMap? {
+        let moves = map.moves.filter { children[$0.value] != nil }
+        if onlyWhole, moves.count != map.moves.count { return nil }
+        let mapped = Array(moves.keys)
+        guard !mapped.isEmpty else { return ChildMap() }
+        let entries = try modelContext.fetch(FetchDescriptor<ProgressEventRecord>(
+            predicate: #Predicate { mapped.contains($0.childID) }
+        ))
+        for entry in entries {
+            if let family = moves[entry.childID] { entry.update(\.childID, to: family) }
+        }
+        for own in mapped {
+            if let row = children[own] { modelContext.delete(row) }
+        }
+        return ChildMap(familyIDs: moves)
     }
 
     // MARK: - The title first
@@ -122,7 +141,8 @@ actor SwiftDataSyncApplier: SagaStoreActor {
 
     // MARK: - Records
 
-    private func applyChildren(_ turn: inout Turn) throws {
+    /// Returns the children's rows as the batch leaves them.
+    private func applyChildren(_ turn: inout Turn) throws -> [UUID: ChildRecord] {
         var rows = Dictionary(
             try modelContext.fetch(FetchDescriptor<ChildRecord>()).map { ($0.childID, $0) },
             uniquingKeysWith: { first, _ in first }
@@ -134,8 +154,9 @@ actor SwiftDataSyncApplier: SagaStoreActor {
             if record.isGoneMarker {
                 try deleteForGood(id, row: rows.removeValue(forKey: id), &turn)
             } else if turn.gone.contains(id) {
-                // A save onto a child deleted for good is ignored: `gone` is final.
-                continue
+                // A save onto a child deleted for good is ignored: `gone` is final. The zone holds their record
+                // without the marker (an iPhone that was off sent it), so the marker goes again.
+                turn.applied.resend.append(.gone(childID: id))
             } else if let row = rows[id] {
                 var fields = turn.fieldsToSet(record, on: row)
                 if fields[SyncField.Child.isRemoved] == .bool(true) {
@@ -147,8 +168,9 @@ actor SwiftDataSyncApplier: SagaStoreActor {
                 rows[id] = row
             }
         }
-        // A family with no child before the batch (a child map applied, its family still to come) is left as it is.
+        // A family with no child before the batch is left as it is.
         if hadFamily { applyRemovals(removals, among: Array(rows.values), &turn) }
+        return rows
     }
 
     /// A removal that would leave no child in the family is not applied (ADR-0065 §4): the child whose removal came
@@ -260,7 +282,7 @@ actor SwiftDataSyncApplier: SagaStoreActor {
     }
 
     /// Those of `photoIDs` no entry lists now, once each, read after the save.
-    private func unlisted(_ photoIDs: [String]) throws -> [String] {
+    func unlisted(_ photoIDs: [String]) throws -> [String] {
         guard !photoIDs.isEmpty else { return [] }
         var listed = Set(try modelContext.fetch(FetchDescriptor<ProgressEventRecord>()).flatMap(\.photoIDs))
         return photoIDs.filter { listed.insert($0).inserted }
@@ -279,6 +301,8 @@ private struct Turn {
     /// The children deleted for good: known to `Sync.store`, by the dad since the history was last read, and learned
     /// from this batch as it goes.
     var gone: Set<UUID>
+    /// The child map that waits for the family's children.
+    let map: ChildMap?
     var photosOfDeletedEntries: [String] = []
     var applied = Applied()
 
@@ -295,6 +319,7 @@ private struct Turn {
         catalog = context.catalog
         waiting = context.waiting
         gone = context.gone
+        map = context.map
         for change in changes {
             switch change {
             case .save(let name, let fields): waiting[name, default: []].formUnion(fields ?? SyncField.all(of: name.type))

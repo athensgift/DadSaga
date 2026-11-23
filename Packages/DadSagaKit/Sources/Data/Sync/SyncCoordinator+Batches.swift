@@ -61,8 +61,8 @@ extension SyncCoordinator {
                 guard let account = settings.account else { continue }
                 record.fields = [SyncField.Member.userRecordName: .string(account)]
             case .saga:
-                guard let id = settings.familyZoneID, let owner = settings.familyOwner else { continue }
-                record.fields = [SyncField.Saga.familyZone: .string(id.uuidString), SyncField.Saga.familyOwner: .string(owner)]
+                guard let fields = settings.sagaFields else { continue }
+                record.fields = fields
             case .photo:
                 guard let entryID = entries[name.id], let file = try await photos.fileURL(id: name.id) else { continue }
                 record.fields = [SyncField.Photo.entryID: .string(entryID.uuidString)]
@@ -123,13 +123,17 @@ extension SyncCoordinator {
         }
         try await ledger.hold(asNew, asNew: true)
         try await ledger.hold(held, asNew: false)
+        // In the partner's iCloud a zone that isn't there is not this parent's to make: the next fetch decides.
+        if database == .shared, !held.isEmpty { familyZoneNotFound = true }
         if isFull { try await ledger.pause(.iCloudFull, full: database) }
         for name in sent.saved.map(\.name) + sent.failed.map(\.record.name) + deleted { outgoing[name] = nil }
         // The engine has let go of everything it sent: a record that changed while its batch was out goes again now.
         let settings = try await ledger.settings()
-        guard settings.pause == nil else { return }
-        let waiting = try await ledger.pending().filter { !$0.behindFetch && again.contains($0.name) }
-        await engines[database]?.add(changes(for: waiting, in: database, settings))
+        if settings.pause == nil {
+            let waiting = try await ledger.pending().filter { !$0.behindFetch && again.contains($0.name) }
+            await engines[database]?.add(changes(for: waiting, in: database, settings))
+        }
+        try await endMove(ledger)
     }
 
     /// A save met a record newer than the one it was set on. The server's record is applied like a fetched one, the
