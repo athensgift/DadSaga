@@ -1,26 +1,26 @@
 import DesignSystem
 import SwiftUI
 
-/// How home lays out the hero and today's adventure (ADR-0011, ADR-0043, ADR-0061 §1, ADR-0064).
+/// How home lays out the hero and today's adventure (ADR-0011, ADR-0043, ADR-0061 §1, ADR-0066).
 enum HomeArrangement: Equatable, Sendable {
-    /// One scrolling column: iPhones in portrait, the iPhone Duo's cover display.
+    /// One scrolling column, the hero and the adventure scrolling up together: iPhones, the iPhone Duo open flat
+    /// (upright or on its side) and its cover display, iPads.
     case column
-    /// Two columns side by side: 600 pt and wider with no fold across (the iPhone Duo on its side, open flat or
-    /// half-open like a book; large iPhones in landscape).
+    /// Two columns side by side: the iPhone Duo half-open like a book on its side, 600 pt and wider, one column on
+    /// each side of the fold.
     case columns
-    /// The hero above the fold and the adventure below it: the iPhone Duo held upright, half-open like a laptop or
-    /// open flat, where the fold is the line down the hinge's middle (ADR-0064).
+    /// The hero above the fold and the adventure below it: the iPhone Duo held upright, half-open like a laptop.
     case stacked(HorizontalFold)
 
+    /// Home splits into panes only around a fold the dad can feel: a display that lies flat is one column, however
+    /// wide (ADR-0066).
     /// - Parameters:
     ///   - width: the width home has.
     ///   - fold: the fold that runs across home while the device is half-open, if any.
-    ///   - flatFold: where the fold runs across home while the device lies flat, as a line, if it does. It splits
-    ///     home only where there would otherwise be two columns, so a narrow window over it stays one column.
-    static func make(width: CGFloat, fold: HorizontalFold?, flatFold: HorizontalFold? = nil) -> HomeArrangement {
+    ///   - foldRunsDown: whether a fold runs down home while the device is half-open, like a book on its side.
+    static func make(width: CGFloat, fold: HorizontalFold?, foldRunsDown: Bool = false) -> HomeArrangement {
         if let fold { return .stacked(fold) }
-        guard width >= twoColumnWidth else { return .column }
-        return flatFold.map(HomeArrangement.stacked) ?? .columns
+        return foldRunsDown && width >= twoColumnWidth ? .columns : .column
     }
 
     /// Two panes that scroll separately. They have no navigation bar: the title heads the hero's pane, and above a
