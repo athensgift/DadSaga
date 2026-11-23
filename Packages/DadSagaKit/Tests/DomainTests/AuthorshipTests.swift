@@ -78,6 +78,21 @@ struct AuthorshipTests {
         #expect(Timeline.entries(from: events, catalog: catalog).map(\.id) == [mine.id, theirs.id])
     }
 
+    @Test("Given a first both captured on the same date, when read in either order, then the lower id's is the child's")
+    func sameDateCaptureIsTheSameEverywhere() throws {
+        let lower = try #require(UUID(uuidString: "00000000-0000-4000-8000-000000000001"))
+        let higher = try #require(UUID(uuidString: "00000000-0000-4000-8000-000000000002"))
+        let date = Date(timeIntervalSince1970: 5)
+        let theirs = ProgressEvent(id: lower, authorID: .partner, kind: .first(id: "f1"), childID: anna, date: date)
+        let mine = ProgressEvent(id: higher, kind: .first(id: "f1"), childID: anna, date: date)
+
+        let one = FamilyMoments(events: [mine, theirs], catalog: catalog).moments(for: anna)
+        let other = FamilyMoments(events: [theirs, mine], catalog: catalog).moments(for: anna)
+
+        #expect(one == other)
+        #expect(one.map(\.authorID) == [.partner])
+    }
+
     @Test("Given a boss both beat with one child, when counting, then it counts once for each and the film shows both")
     func bossBeatenByBoth() throws {
         let saga = SagaFixtures()
