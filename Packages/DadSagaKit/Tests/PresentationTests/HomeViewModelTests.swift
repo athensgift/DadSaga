@@ -207,7 +207,6 @@ struct HomeViewModelTests {
         #expect(content.companionLine == "Νίκος · 10 μηνών")
         #expect(content.dadTitle?.text == "Επίπεδο 0 · Σε αναμονή")
         #expect(content.worldTitle == "Κόσμος")
-        // Quests first, bosses last.
         #expect(content.cards.map(\.id) == ["q1", "b1"])
         #expect(content.cards.map(\.symbol) == ["heart.fill", "flame.fill"])
         #expect(content.cards.map(\.badge) == [nil, "BOSS"])
