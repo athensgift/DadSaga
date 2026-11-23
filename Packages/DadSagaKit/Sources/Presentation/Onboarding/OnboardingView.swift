@@ -61,10 +61,11 @@ public struct OnboardingView: View {
                         .foregroundStyle(DSColor.textSecondary)
                 }
                 .multilineTextAlignment(.center)
-                ForEach(Array($viewModel.family.children.enumerated()), id: \.element.id) { index, $child in
+                // By id, not by position: a removed card still draws while it leaves, after its place is gone.
+                ForEach(viewModel.family.children) { child in
                     ChildEditorCard(
-                        child: $child,
-                        number: index + 1,
+                        child: $viewModel.family.child(child),
+                        number: viewModel.family.number(of: child.id),
                         labels: content.childEditor,
                         latestBirthDate: viewModel.latestBirthDate,
                         timeZone: viewModel.timeZone,

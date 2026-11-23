@@ -22,7 +22,7 @@ extension SagaCopyBench {
         Child(id: SagaCopyPeople.lenaID, name: "Λένα 🌟", birthDay: .day(2023, 11, 14), gender: .girl, skinTone: .medium)
     }
     var unborn: Child { Child(id: SagaCopyPeople.unbornID, name: "Μπέμπης", birthDay: nil, gender: .boy, skinTone: .dark) }
-    /// A child removed from the family, as only a copy from a co-op version can bring one (ADR-0065 §5).
+    /// A child removed from the family, kept to bring back or delete for good (ADR-0065 §4).
     var removed: Child { Child(id: SagaCopyPeople.removedID, name: "Ίρις", birthDay: .day(2022, 3, 1)) }
 
     func phone(_ name: String) -> Phone {
