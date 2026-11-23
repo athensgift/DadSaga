@@ -272,9 +272,7 @@ final class AppContainer {
     func makeTimelineViewModel() -> TimelineViewModel {
         TimelineViewModel(
             getProfile: getProfileUseCase,
-            getTimeline: DefaultGetTimelineUseCase(
-                contentRepository: contentRepository, progressRepository: store.progress, profileRepository: store.profiles
-            ),
+            getTimeline: DefaultGetTimelineUseCase(contentRepository: contentRepository, wholeSaga: store.wholeSaga),
             getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore),
             deleteEvent: DefaultDeleteEventUseCase(
                 contentRepository: contentRepository,

@@ -51,7 +51,8 @@ struct SagaCopySagaV1: Codable, Equatable {
         let birthDay: String?
         let gender: String
         let skinTone: String
-        /// Removed from the family (ADR-0065 §4). Removed children may sit anywhere in `children`.
+        /// Removed from the family (ADR-0065 §4). This version writes them after the family; it reads them anywhere in
+        /// `children`, as a later version may write them.
         let removed: Bool
     }
 

@@ -39,6 +39,8 @@ actor SwiftDataProfileRepository: ProfileRepository {
             }
             for (order, child) in profile.children.enumerated() {
                 if let record = stored.removeValue(forKey: child.id) {
+                    // Only bringing a child back changes a removed row (ADR-0065 §4), and nothing does that yet.
+                    guard !record.isRemoved else { continue }
                     record.update(from: child, order: order)
                 } else {
                     modelContext.insert(ChildRecord(child: child, order: order, isRemoved: false))

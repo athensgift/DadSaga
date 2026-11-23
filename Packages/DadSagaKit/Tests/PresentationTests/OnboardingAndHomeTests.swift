@@ -110,6 +110,26 @@ struct OnboardingViewModelTests {
         #expect(sut.step == .child)
     }
 
+    @Test("Given two dads onboarding, when each finishes, then each is saved as a player of his own")
+    func eachOnboardingMakesAPlayer() async throws {
+        var ids: [UUID] = []
+        for _ in 0..<2 {
+            let spy = SpySaveProfile()
+            let sut = OnboardingViewModel(
+                loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)), saveProfile: spy,
+                locale: Locale(identifier: "el_GR"), now: HeroStub.today, onFinished: {}
+            )
+            sut.family.children[0].name = "Νίκος"
+            sut.continueToHero()
+            sut.selectHero(id: "h-cool")
+            await sut.finish()
+            ids.append(try #require(await spy.saved?.id))
+        }
+
+        #expect(Set(ids).count == 2)
+        #expect(!ids.contains(.testDad))
+    }
+
     @Test("Given a name and a chosen hero, when finishing, then the profile is saved and onFinished is called")
     func finishSaves() async {
         var finished = false

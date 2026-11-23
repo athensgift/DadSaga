@@ -338,9 +338,7 @@ extension SagaFixture {
         calendar.locale = locale
         return TimelineViewModel(
             getProfile: DefaultGetProfileUseCase(repository: store.profiles),
-            getTimeline: DefaultGetTimelineUseCase(
-                contentRepository: content, progressRepository: store.progress, profileRepository: store.profiles
-            ),
+            getTimeline: DefaultGetTimelineUseCase(contentRepository: content, wholeSaga: store.wholeSaga),
             getPhoto: DefaultGetPhotoUseCase(photoStore: photos),
             deleteEvent: DefaultDeleteEventUseCase(
                 contentRepository: content,

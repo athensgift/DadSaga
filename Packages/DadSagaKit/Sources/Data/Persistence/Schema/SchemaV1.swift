@@ -7,7 +7,8 @@ import SwiftData
 /// `DadSagaMigrationPlan`.
 /// A column is optional only where nil means something. No literal defaults and no indexes. Every id is `#Unique`, one
 /// row per id, and kept in the history when its row is deleted, so a change can name the row it took (ADR-0065 §5).
-/// No write relies on the upsert a unique column does: rows are fetched by id, then updated or deleted.
+/// No write relies on the upsert a unique column does: a row whose id may be stored is fetched, then updated or
+/// deleted, and only a new id (an entry's fresh UUID, a new child) is inserted without a fetch.
 enum SchemaV1: VersionedSchema {
     static var versionIdentifier: Schema.Version { Schema.Version(1, 0, 0) }
 

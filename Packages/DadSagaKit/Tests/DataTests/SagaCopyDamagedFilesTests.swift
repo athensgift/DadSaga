@@ -172,6 +172,19 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
         }
     }
 
+    /// One row per id, which a sync that names rows by id needs (ADR-0065 §5). A store frozen without one would need a
+    /// new version that removes duplicates first.
+    @Test("Given the current schema, when listing its unique columns, then each entity's id is unique, and only it")
+    func idsAreUnique() {
+        let unique: [String: [[String]]] = [
+            "ProfileRecord": [["profileID"]], "ChildRecord": [["childID"]], "ProgressEventRecord": [["eventID"]],
+            "OutfitRecord": [["skill"]]
+        ]
+        for entity in Schema(versionedSchema: CurrentSchema.self).entities {
+            #expect(entity.uniquenessConstraints == unique[entity.name], "\(entity.name)")
+        }
+    }
+
     @Test("Given format 1's names, when reading each one back, then it is the value it names")
     func formatNamesReadBack() throws {
         typealias Names = SagaCopyNamesV1

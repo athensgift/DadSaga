@@ -75,6 +75,25 @@ struct StoreVersioningTests {
         #expect(try storedRowCount(ProfileRecord.self, at: storeURL) == 1)
     }
 
+    @Test("Given a removed child, when a family naming their id is saved, then their row stays removed and as it was")
+    func familySaveNeverBringsBack() async throws {
+        let lena = Child(name: "Λένα", birthDay: .day(2020, 1, 1))
+        let iris = Child(name: "Ίρις", birthDay: nil)
+        let store = LocalStore.live(in: directory)
+        try await store.wholeSaga.replaceAll(with: StoredSaga(
+            profile: PlayerProfile(children: [lena], heroClassID: "chef"), removedChildren: [iris], events: [],
+            outfit: Outfit(), kept: KeptStanding()
+        ))
+        var renamed = iris
+        renamed.name = "Άλλη"
+
+        try await store.profiles.save(PlayerProfile(children: [renamed, lena], heroClassID: "chef"))
+
+        #expect(try await store.profiles.fetchProfile()?.children == [lena])
+        #expect(try await store.wholeSaga.readAll()?.removedChildren == [iris])
+        #expect(try storedRowCount(ChildRecord.self, at: storeURL) == 2)
+    }
+
     @Test("Given a dad onboarded, when his hero and family are edited and the store reopened, then his id is the first")
     func theProfileKeepsItsID() async throws {
         let id = UUID()

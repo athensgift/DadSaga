@@ -48,8 +48,7 @@ struct RemovedChildTests: SagaCopyBench {
         #expect(try await phone.store.wholeSaga.readAll()?.removedChildren == [removed])
         #expect(try await home(on: phone, childID: removed.id)?.child.id == lena.id)
         let timeline = try await DefaultGetTimelineUseCase(
-            contentRepository: BundledContentRepository(), progressRepository: phone.store.progress,
-            profileRepository: phone.store.profiles
+            contentRepository: BundledContentRepository(), wholeSaga: phone.store.wholeSaga
         ).execute()
         #expect(!timeline.isEmpty)
         #expect(timeline.allSatisfy { $0.childID != removed.id })

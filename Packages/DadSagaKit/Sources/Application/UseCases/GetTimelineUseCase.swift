@@ -6,28 +6,22 @@ public protocol GetTimelineUseCase: Sendable {
     func execute() async throws -> [TimelineEntry]
 }
 
-/// Lists only the entries of children in the family: a child removed from it takes their entries off the timeline,
-/// though they still count for their author (ADR-0012, ADR-0065 §5). No profile, no entries.
+/// Leaves out the entries of a child removed from the family (ADR-0065 §5): only a copy from the co-op version can
+/// bring one until then. Their entries still count for their author. No saga, no entries.
 public struct DefaultGetTimelineUseCase: GetTimelineUseCase {
     private let contentRepository: any ContentRepository
-    private let progressRepository: any ProgressRepository
-    private let profileRepository: any ProfileRepository
+    private let wholeSaga: any WholeSagaRepository
 
-    public init(
-        contentRepository: any ContentRepository,
-        progressRepository: any ProgressRepository,
-        profileRepository: any ProfileRepository
-    ) {
+    public init(contentRepository: any ContentRepository, wholeSaga: any WholeSagaRepository) {
         self.contentRepository = contentRepository
-        self.progressRepository = progressRepository
-        self.profileRepository = profileRepository
+        self.wholeSaga = wholeSaga
     }
 
     public func execute() async throws -> [TimelineEntry] {
-        async let profile = profileRepository.fetchProfile()
+        async let saga = wholeSaga.readAll()
         let catalog = try await contentRepository.fetchCatalog()
-        let entries = Timeline.entries(from: try await progressRepository.fetchEvents(), catalog: catalog)
-        let family = Set(try await profile?.children.map(\.id) ?? [])
-        return entries.filter { family.contains($0.childID) }
+        guard let saga = try await saga else { return [] }
+        let removed = Set(saga.removedChildren.map(\.id))
+        return Timeline.entries(from: saga.events, catalog: catalog).filter { !removed.contains($0.childID) }
     }
 }
