@@ -11,7 +11,7 @@ DadSaga turns the first years of fatherhood into a game, without turning your ch
 
 <p align="center">
   <a href="https://dadsaga.app"><img src="web/assets/demo/demo-en-poster.jpg" width="270" alt="DadSaga's home screen: the dad's hero, his two children and today's quests. Opens the demo video on dadsaga.app."></a>
-  <br><sub>A 45-second tour of the real app, ending on the film it makes: <a href="web/assets/demo/demo-en.mp4">demo video</a> · <a href="https://dadsaga.app">dadsaga.app</a></sub>
+  <br><sub>A 40-second tour of the real app, ending on the film it makes: <a href="web/assets/demo/demo-en.mp4">demo video</a> · <a href="https://dadsaga.app">dadsaga.app</a></sub>
 </p>
 
 This README is also the project's case study: why the app exists, the decisions that shaped it, and how it was built.
@@ -58,7 +58,7 @@ was rejected and why. A few that show the shape of the project:
   ([ADR-0047](docs/adr/0047-choosing-and-framing-film-photos-on-device.md)). The film is never stored: it is made
   when asked for and handed to the share sheet.
 - **The hero and the children are drawn in code**
-  ([ADR-0028](docs/adr/0028-screen-queries-and-hero-art-target.md)): hair, beard, glasses and gear in SwiftUI
+  ([ADR-0008](docs/adr/0008-hero-classes-and-code-drawn-avatar.md)): hair, beard, glasses and gear in SwiftUI
   shapes, so the same figure appears in the app, the film and the website.
 - **Game content is data.** Worlds, quests, bosses, firsts and gear are bilingual JSON, validated when loaded
   ([ADR-0005](docs/adr/0005-content-as-data.md)); adding a quest never touches Swift.
@@ -83,8 +83,8 @@ a real phone. The work is
 split between agents with fixed roles ([`.claude/agents`](.claude/agents)):
 
 - an **architect** plans every change that crosses layers and drafts its ADR;
-- a **reviewer** reads every pull request against the ADRs before it opens, with a stronger model for persistence and
-  sync;
+- a **reviewer** reads every pull request against the ADRs before it opens, with a stronger model for persistence,
+  migrations, sync and the film;
 - a **content** writer drafts the cards in both languages, and a separate **fact-check** agent checks every health
   claim against primary sources;
 - a **ui-check** agent draws each UI change in the simulator (the fold, dark mode, both languages) and reports what
@@ -98,9 +98,9 @@ bug before its fix, and deleting the old path when new code replaces it.
 | | |
 |---|---|
 | Swift, app and package | ~29,000 lines |
-| Tests | ~28,000 lines, 1,300+ Swift Testing tests, one target per layer, plus screen snapshots and an accessibility audit |
+| Tests | ~29,000 lines, 1,300+ Swift Testing tests, one target per layer, plus screen snapshots and an accessibility audit |
 | Decisions | 70 ADRs |
-| Pull requests | 106 merged into `develop` |
+| Pull requests | 105 merged into `develop` |
 | Languages | Greek and English, every string and card |
 | Data sent off the device | none |
 
