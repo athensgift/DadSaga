@@ -60,7 +60,8 @@ public struct DefaultGetWardrobeUseCase: GetWardrobeUseCase {
         async let pendingKept = standingRepository.fetchKept()
         let catalog = try await pendingCatalog
         let profile = try await pendingProfile
-        let progress = DadProgress(events: try await pendingEvents, catalog: catalog)
+        let events = try await pendingEvents
+        let progress = profile.map { DadProgress(of: $0, events: events, catalog: catalog) } ?? .none
         return Wardrobe(
             profile: profile,
             hero: profile.flatMap(catalog.hero(for:)),
@@ -83,17 +84,20 @@ public protocol SetOutfitChoiceUseCase: Sendable {
 
 public struct DefaultSetOutfitChoiceUseCase: SetOutfitChoiceUseCase {
     private let contentRepository: any ContentRepository
+    private let profileRepository: any ProfileRepository
     private let progressRepository: any ProgressRepository
     private let outfitRepository: any OutfitRepository
     private let standingRepository: any StandingRepository
 
     public init(
         contentRepository: any ContentRepository,
+        profileRepository: any ProfileRepository,
         progressRepository: any ProgressRepository,
         outfitRepository: any OutfitRepository,
         standingRepository: any StandingRepository
     ) {
         self.contentRepository = contentRepository
+        self.profileRepository = profileRepository
         self.progressRepository = progressRepository
         self.outfitRepository = outfitRepository
         self.standingRepository = standingRepository
@@ -102,7 +106,9 @@ public struct DefaultSetOutfitChoiceUseCase: SetOutfitChoiceUseCase {
     public func execute(skill: Skill, choice: OutfitChoice) async throws -> Outfit {
         if case .item(let id) = choice {
             let catalog = try await contentRepository.fetchCatalog()
-            let progress = DadProgress(events: try await progressRepository.fetchEvents(), catalog: catalog)
+            let events = try await progressRepository.fetchEvents()
+            let progress = try await profileRepository.fetchProfile()
+                .map { DadProgress(of: $0, events: events, catalog: catalog) } ?? .none
             let earned = DadStanding(progress: progress, catalog: catalog, kept: try await standingRepository.fetchKept()).gear
             guard earned.contains(where: { $0.id == id && $0.skill == skill }) else { throw OutfitError.notEarned(id) }
         }

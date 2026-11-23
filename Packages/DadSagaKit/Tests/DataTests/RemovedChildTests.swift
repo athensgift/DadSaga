@@ -54,18 +54,23 @@ struct RemovedChildTests: SagaCopyBench {
         #expect(timeline.allSatisfy { $0.childID != removed.id })
     }
 
-    @Test("Given an imported removed child, when reading home, then their entry still counts in the dad's progress")
+    @Test("Given an imported removed child, when reading home, then the dad's entries with them count, the partner's don't")
     func theirEntriesStillCount() async throws {
         defer { try? FileManager.default.removeItem(at: root) }
-        let imported = try await imported()
-        let (phone, original) = (imported.phone, imported.original)
+        let phone = try await imported().phone
         let catalog = try await BundledContentRepository().fetchCatalog()
-        let withoutThem = original.events.filter { $0.childID != removed.id }
+        let fever = dads(.boss(id: "b-w1-first-fever"), childID: removed.id, date: madeAt.addingTimeInterval(-3_000))
+        let before = try #require(try await home(on: phone, childID: nil)?.progress)
 
-        let progress = try #require(try await home(on: phone, childID: nil)?.progress)
+        try await phone.store.progress.add(fever)
+        let after = try #require(try await home(on: phone, childID: nil)?.progress)
 
-        #expect(progress == DadProgress(events: try await phone.store.progress.fetchEvents(), catalog: catalog))
-        #expect(progress.totalXP > DadProgress(events: withoutThem, catalog: catalog).totalXP)
+        #expect(after.totalXP > before.totalXP)
+        #expect(after.defeatedBossIDs(for: removed.id) == ["b-w1-first-fever"])
+        // Every card in the timeline but the partner's first with the removed child.
+        let listed = Timeline.entries(from: try await phone.store.progress.fetchEvents(), catalog: catalog)
+        #expect(listed.contains { $0.authorID == SagaCopyPeople.partnerID })
+        #expect(after.cardsDone == listed.count - 1)
     }
 
     @Test("Given four children and a removed one, when the family is renamed and saved, then the removed row stays")

@@ -58,7 +58,9 @@ struct SagaFixtures {
 
     func storyboard(_ events: [ProgressEvent], period: SagaPeriod = .everything) -> SagaStoryboard? {
         SagaStoryboard.make(
-            events: events, child: child, period: period, catalog: catalog, now: date(months: 80), timeZone: timeZone
+            events: events,
+            cast: SagaCast(hero: .testDad, child: child),
+            period: period, catalog: catalog, now: date(months: 80), timeZone: timeZone
         )
     }
 

@@ -9,8 +9,9 @@ public protocol ProgressRepository: Sendable {
     /// whatever the child. A photo not in it belongs to no entry (ADR-0048 §6).
     func referencedPhotoIDs() async throws -> Set<String>
     func add(_ event: ProgressEvent) async throws
-    /// Adds the event unless the same child already has one for the same content, checked and stored in one step so two
-    /// saves at the same moment can never both land. Returns whether it was added.
+    /// Adds a boss or a first unless it is already recorded with the child: a boss by the same author, a first by
+    /// anyone (ADR-0065 §3.3). Checked and stored in one step, so two saves at the same moment can never both land.
+    /// Returns whether it was added.
     func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool
     /// Replaces the stored event that has the same id. Throws `ProgressError.unknownEvent` if there is none (deleted
     /// meanwhile), so a caller that wrote photos for it can remove them again.

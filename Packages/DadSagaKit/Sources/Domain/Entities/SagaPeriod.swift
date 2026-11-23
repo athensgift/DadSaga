@@ -52,7 +52,7 @@ public enum SagaPeriod: Hashable, Sendable {
     }
 
     /// The periods a film can tell today: every year so far (the current one included, none before the birth) and every
-    /// world the child has been in, each only with something the dad did with the child in it, and everything. A film
+    /// world the child has been in, each only with an entry with the child in it, whoever recorded it, and everything. A film
     /// is never offered for a stretch with nothing in it (ADR-0006).
     public static func available(
         for child: Child,
@@ -61,7 +61,7 @@ public enum SagaPeriod: Hashable, Sendable {
         now: Date,
         timeZone: TimeZone = .autoupdatingCurrent
     ) -> [SagaPeriod] {
-        let dates = Timeline.countedEntries(from: events, catalog: catalog)
+        let dates = Timeline.familyEntries(from: events, catalog: catalog)
             .filter { $0.childID == child.id }
             .map(\.date)
         let months = child.age(on: CalendarDay(now, in: timeZone)).months

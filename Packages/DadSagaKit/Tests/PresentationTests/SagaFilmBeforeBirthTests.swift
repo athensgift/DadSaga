@@ -14,7 +14,7 @@ struct SagaFilmBeforeBirthTests {
         let catalog = HarbourStub.catalog
         let event = ProgressEvent(kind: .first(id: "f-found-out"), childID: child.id, date: HarbourStub.today)
         let storyboard = try #require(SagaStoryboard.make(
-            events: [event], child: child, period: .world(id: "w0"), catalog: catalog,
+            events: [event], cast: SagaCast(hero: .testDad, child: child), period: .world(id: "w0"), catalog: catalog,
             now: HarbourStub.today.addingTimeInterval(86_400), timeZone: .gmt
         ))
         let film = SagaFilm(

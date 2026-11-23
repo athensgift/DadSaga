@@ -31,8 +31,9 @@ struct DadProgressTests {
         #expect(progress.questCompletions(for: niko).isEmpty)
         #expect(progress.defeatedBossIDs(for: anna) == ["b1"])
         #expect(progress.defeatedBossIDs(for: niko) == ["b1"])
-        #expect(progress.capturedFirstIDs(for: anna).isEmpty)
-        #expect(progress.capturedFirstIDs(for: niko) == ["f1"])
+        let moments = FamilyMoments(events: events, catalog: catalog)
+        #expect(moments.capturedFirstIDs(for: anna).isEmpty)
+        #expect(moments.capturedFirstIDs(for: niko) == ["f1"])
         #expect(progress.allDefeatedBossIDs == ["b1"])
     }
 
@@ -50,7 +51,7 @@ struct DadProgressTests {
             ProgressEvent(kind: .first(id: "a"), childID: child, date: Date(timeIntervalSince1970: 100), note: "πρώτο"),
             ProgressEvent(kind: .first(id: "b"), childID: child, date: Date(timeIntervalSince1970: 200))
         ]
-        let moments = DadProgress(events: events, catalog: catalog).moments(for: child)
+        let moments = FamilyMoments(events: events, catalog: catalog).moments(for: child)
         #expect(moments.map(\.first.id) == ["b", "a"])
         #expect(moments.map(\.note) == [nil, "πρώτο"])
     }
@@ -60,7 +61,7 @@ struct DadProgressTests {
         let event = ProgressEvent(
             kind: .first(id: "f1"), childID: Fixtures.child, date: .distantPast, photoIDs: ["c", "a", "b"]
         )
-        let moment = DadProgress(events: [event], catalog: catalog).moments(for: Fixtures.child).first
+        let moment = FamilyMoments(events: [event], catalog: catalog).moments(for: Fixtures.child).first
         #expect(moment?.photoIDs == ["c", "a", "b"])
         #expect(moment?.coverPhotoID == "c")
     }
@@ -88,7 +89,7 @@ struct DadProgressTests {
         let progress = DadProgress(events: events, catalog: catalog)
         #expect(progress.totalXP == 30)
         #expect(progress.skillXP.isEmpty)
-        #expect(progress.capturedFirstIDs(for: Fixtures.child) == ["f1"])
+        #expect(FamilyMoments(events: events, catalog: catalog).capturedFirstIDs(for: Fixtures.child) == ["f1"])
     }
 
     @Test("Given an event for removed content, when aggregating, then it is ignored")

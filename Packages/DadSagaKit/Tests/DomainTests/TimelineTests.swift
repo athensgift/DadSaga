@@ -31,16 +31,19 @@ struct TimelineTests {
         #expect(entries.first?.coverPhotoID == "p1")
     }
 
-    @Test("Given a boss twice for one child and once for another, when building, then it shows once per child")
-    func bossOncePerChild() {
+    @Test("Given a boss twice for one child and once for another, when building, then each is listed, counted once per child")
+    func bossListedEveryTimeCountedOncePerChild() {
         let events = [
             event(.boss(id: "b1"), child: anna, at: 1),
             event(.boss(id: "b1"), child: anna, at: 2),
             event(.boss(id: "b1"), child: niko, at: 3)
         ]
+
         let entries = Timeline.entries(from: events, catalog: Fixtures.catalog)
-        #expect(entries.map(\.childID) == [niko, anna])
-        #expect(entries.last?.date == Date(timeIntervalSince1970: 1))
+
+        #expect(entries.map(\.childID) == [niko, anna, anna])
+        #expect(entries.map(\.authorID) == [.testDad, .testDad, .testDad])
+        #expect(DadProgress(events: events, catalog: Fixtures.catalog).cardsDone == 2)
     }
 
     @Test("Given a boss and a first with the same id for one child, when building, then both count")

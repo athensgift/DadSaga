@@ -1,6 +1,7 @@
 import Foundation
 
-/// What the dad did in a film's period, for its credits. Never totals of XP or levels (ADR-0006).
+/// What the parent making the film did in its period, for its credits: their own entries only, never totals for the
+/// two parents (ADR-0065 §3.5), nor of XP or levels (ADR-0006).
 public struct SagaCredits: Hashable, Sendable {
     public let questsDone: Int
     public let bossesBeaten: Int
@@ -8,6 +9,18 @@ public struct SagaCredits: Hashable, Sendable {
     public init(questsDone: Int, bossesBeaten: Int) {
         self.questsDone = questsDone
         self.bossesBeaten = bossesBeaten
+    }
+}
+
+/// Who a saga film is about: the hero of the parent making it and one of the family's children. The scenes are the
+/// family's; the credits are the hero's (ADR-0065 §3.5).
+public struct SagaCast: Hashable, Sendable {
+    public let hero: PlayerProfile
+    public let child: Child
+
+    public init(hero: PlayerProfile, child: Child) {
+        self.hero = hero
+        self.child = child
     }
 }
 
@@ -31,7 +44,8 @@ public struct SagaScene: Hashable, Sendable {
 
 /// The scenes of a saga film, oldest first (ADR-0036). Pure and deterministic.
 ///
-/// Built from the timeline's counted entries, so the film never disagrees with the timeline or the dad's XP. Quests
+/// Built from the family's entries, whoever recorded them, with a first once per child, the earlier capture (ADR-0065
+/// §3.2, §3.3); the credits count only the entries of the parent making it. Quests
 /// without a photo are left out; every first is kept. An entry's scene is followed by up to
 /// `SagaPacing.morePhotosPerEntry` of its further photos, in the dad's order. A film over `SagaPacing.maxSeconds`
 /// loses, each evenly and keeping the first and the last, further photos, then quests, then bosses without a photo,
@@ -58,21 +72,23 @@ public struct SagaStoryboard: Hashable, Sendable {
     /// `nil` when the period has no interval for this child (see `SagaPeriod.interval`).
     public static func make(
         events: [ProgressEvent],
-        child: Child,
+        cast: SagaCast,
         period: SagaPeriod,
         catalog: ContentCatalog,
         now: Date,
         timeZone: TimeZone = .autoupdatingCurrent,
         pacing: SagaPacing = .standard
     ) -> SagaStoryboard? {
+        let child = cast.child
         guard let interval = period.interval(for: child, catalog: catalog, now: now, timeZone: timeZone) else {
             return nil
         }
-        let entries = Timeline.countedEntries(from: events, catalog: catalog)
+        let entries = Timeline.familyEntries(from: events, catalog: catalog)
             .filter { $0.childID == child.id && interval.holds($0.date) }
+        let own = entries.filter { $0.authorID == cast.hero.id }
         let credits = SagaCredits(
-            questsDone: entries.count { if case .quest = $0.kind { true } else { false } },
-            bossesBeaten: entries.count { if case .boss = $0.kind { true } else { false } }
+            questsDone: own.count { if case .quest = $0.kind { true } else { false } },
+            bossesBeaten: own.count { if case .boss = $0.kind { true } else { false } }
         )
         let shown = entries.filter { if case .quest = $0.kind { !$0.photoIDs.isEmpty } else { true } }
         // An entry dated before the birth day is before birth: it belongs to the world before birth.

@@ -180,11 +180,11 @@ extension SagaFixture {
                     profileRepository: store.profiles, photoStore: photos
                 ),
                 deleteEvent: DefaultDeleteEventUseCase(
-                    contentRepository: content, progressRepository: store.progress,
+                    contentRepository: content, profileRepository: store.profiles, progressRepository: store.progress,
                     standingRepository: store.standing, photoStore: photos
                 ),
                 undoRecord: DefaultUndoRecordUseCase(
-                    contentRepository: content, progressRepository: store.progress,
+                    contentRepository: content, profileRepository: store.profiles, progressRepository: store.progress,
                     standingRepository: store.standing, photoStore: photos
                 ),
                 moments: HomeViewModel.MomentUseCases(
@@ -324,7 +324,8 @@ extension SagaFixture {
                     standingRepository: store.standing
                 ),
                 setChoice: DefaultSetOutfitChoiceUseCase(
-                    contentRepository: content, progressRepository: store.progress, outfitRepository: store.outfit,
+                    contentRepository: content, profileRepository: store.profiles, progressRepository: store.progress,
+                    outfitRepository: store.outfit,
                     standingRepository: store.standing
                 )
             ),
@@ -341,7 +342,7 @@ extension SagaFixture {
             getTimeline: DefaultGetTimelineUseCase(contentRepository: content, wholeSaga: store.wholeSaga),
             getPhoto: DefaultGetPhotoUseCase(photoStore: photos),
             deleteEvent: DefaultDeleteEventUseCase(
-                contentRepository: content,
+                contentRepository: content, profileRepository: store.profiles,
                 progressRepository: store.progress,
                 standingRepository: store.standing,
                 photoStore: photos

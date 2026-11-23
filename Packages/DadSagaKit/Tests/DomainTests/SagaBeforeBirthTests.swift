@@ -71,7 +71,8 @@ struct SagaBeforeBirthTests {
         let first = saga.date(months: 1, days: 3)
         let storyboard = try #require(SagaStoryboard.make(
             events: [ProgressEvent(kind: .first(id: "f1"), childID: child.id, date: first)],
-            child: child, period: .everything, catalog: saga.catalog, now: saga.date(months: 4), timeZone: saga.timeZone
+            cast: SagaCast(hero: .testDad, child: child),
+            period: .everything, catalog: saga.catalog, now: saga.date(months: 4), timeZone: saga.timeZone
         ))
         #expect(storyboard.childAge == .beforeBirth)
         #expect(storyboard.span.start == CalendarDay(first, in: saga.timeZone).start(in: saga.timeZone))
@@ -90,7 +91,8 @@ struct SagaBeforeBirthTests {
         let storyboard = try #require(SagaStoryboard.make(
             events: events
                 + [ProgressEvent(kind: .first(id: "f2"), childID: child.id, date: entry.addingTimeInterval(-86_400))],
-            child: child, period: .everything, catalog: saga.catalog, now: now, timeZone: athens
+            cast: SagaCast(hero: .testDad, child: child),
+            period: .everything, catalog: saga.catalog, now: now, timeZone: athens
         ))
         let chapters = storyboard.scenes.compactMap { scene -> String? in
             if case .chapter(let world, _) = scene.kind { world.id } else { nil }

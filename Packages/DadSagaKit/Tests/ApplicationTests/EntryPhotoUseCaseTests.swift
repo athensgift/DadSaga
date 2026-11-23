@@ -186,7 +186,7 @@ struct EntryPhotoUseCaseTests {
         let event = try await questWithThreePhotos(store: store)
 
         try await DefaultDeleteEventUseCase(
-            contentRepository: StubContentRepository(result: .success(Stub.catalog)),
+            contentRepository: StubContentRepository(result: .success(Stub.catalog)), profileRepository: TheDad(),
             progressRepository: repository,
             standingRepository: InMemoryStanding(),
             photoStore: store

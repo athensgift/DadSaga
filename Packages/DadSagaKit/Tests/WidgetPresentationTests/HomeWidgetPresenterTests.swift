@@ -32,6 +32,7 @@ struct HomeWidgetPresenterTests {
     )
     let moment = CapturedMoment(
         eventID: UUID(),
+        authorID: UUID(),
         first: FirstMoment(id: "f-steps", order: 1, emoji: "👣",
                            title: LocalizedText(el: "Πρώτα βήματα", en: "First steps"), xp: 30, companionTrait: nil),
         date: Date(timeIntervalSince1970: 1_780_000_000),

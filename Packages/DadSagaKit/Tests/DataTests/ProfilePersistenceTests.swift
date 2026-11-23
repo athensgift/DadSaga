@@ -261,6 +261,20 @@ struct LocalStoreTests {
         #expect(try await sut.fetchEvents().count == 3)
     }
 
+    @Test("Given a boss and a first the partner recorded, when the dad adds both, then his boss is added, his first isn't")
+    func addUnlessRecordedChecksTheAuthorForABossOnly() async throws {
+        let sut = LocalStore.inMemory().progress
+        let child = UUID()
+        let partner = UUID()
+        try await sut.add(ProgressEvent(authorID: partner, kind: .boss(id: "b"), childID: child, date: birth))
+        try await sut.add(ProgressEvent(authorID: partner, kind: .first(id: "f"), childID: child, date: birth))
+
+        #expect(try await sut.addUnlessRecorded(ProgressEvent(kind: .boss(id: "b"), childID: child, date: birth)))
+        #expect(try await !sut.addUnlessRecorded(ProgressEvent(kind: .boss(id: "b"), childID: child, date: birth)))
+        #expect(try await !sut.addUnlessRecorded(ProgressEvent(kind: .first(id: "f"), childID: child, date: birth)))
+        #expect(try await sut.fetchEvents().map(\.authorID).sorted() == [partner, partner, .testDad].sorted())
+    }
+
     @Test("Given the most photos an entry keeps, when saved and read back from disk, then they come back in the same order")
     func photosKeepTheirOrder() async throws {
         let directory = FileManager.default.temporaryDirectory.appending(path: "dadsaga-photos-order-" + UUID().uuidString)

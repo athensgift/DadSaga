@@ -167,6 +167,19 @@ struct HomeMomentsTests {
         #expect(choice(sut)?.options.isEmpty == true)
     }
 
+    @Test("Given a first the partner captured, when appearing and opening step 1, then it shows captured and isn't offered")
+    func partnersMomentIsTheChilds() async {
+        await progress.seedMoment(photos: [Data([1])], by: .partner)
+        let sut = await makeSUT()
+
+        sut.startCapture()
+
+        #expect(loadedMoments(sut)?.cards.count == 1)
+        #expect(loadedMoments(sut)?.progress == "1")
+        #expect(choice(sut)?.options.isEmpty == true)
+        #expect(await progress.current.totalXP == 0)
+    }
+
     @Test("Given step 2, when saving an earlier date, then the card moves to that date")
     func stepTwoSavesTheDate() async throws {
         let sut = await makeSUT()

@@ -123,16 +123,19 @@ public struct DefaultGetSagaFilmUseCase: GetSagaFilmUseCase {
             ?? .everything
         let storyboard = [chosen, .everything].lazy.compactMap {
             SagaStoryboard.make(
-                events: events, child: child, period: $0, catalog: catalog, now: date, timeZone: timeZone
+                events: events,
+                cast: SagaCast(hero: profile, child: child), period: $0, catalog: catalog, now: date, timeZone: timeZone
             )
         }.first
         guard let storyboard else { preconditionFailure("Everything always has an interval") }
-        let progress = DadProgress(events: events.filter { $0.date < storyboard.asOf }, catalog: catalog)
-        let firsts = progress.capturedFirstIDs(for: child.id)
+        let before = events.filter { $0.date < storyboard.asOf }
+        // The hero, his title, gear and medals are the dad's own; the child's firsts are the family's (ADR-0065 §3).
+        let progress = DadProgress(of: profile, events: before, catalog: catalog)
+        let firsts = FamilyMoments(events: before, catalog: catalog).capturedFirstIDs(for: child.id)
         let kept = try await pendingKept
         // A film that runs to today shows the dad as home does, so it never shows a lower title (ADR-0055 §9).
         let standing = storyboard.asOf >= date
-            ? DadStanding(progress: DadProgress(events: events, catalog: catalog), catalog: catalog, kept: kept)
+            ? DadStanding(progress: DadProgress(of: profile, events: events, catalog: catalog), catalog: catalog, kept: kept)
             : DadStanding.asOf(progress, catalog: catalog)
         return SagaFilm(
             profile: profile,

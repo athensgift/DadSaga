@@ -15,12 +15,14 @@ struct FakeHomeOverview: GetHomeOverviewUseCase {
 
     func execute(childID: UUID?, worldID: String?, on date: Date) async throws -> HomeOverview? {
         guard let profile, let child = profile.child(childID) else { return nil }
+        let log = try await progress.overviewLog()
         return HomeOverview(
             profile: profile,
             child: child,
             catalog: catalog,
             adventure: adventure(child),
-            progress: try await progress.overviewProgress(),
+            progress: log.progress,
+            moments: log.moments,
             kept: await progress.kept,
             outfit: await outfit.stored,
             worldID: worldID,

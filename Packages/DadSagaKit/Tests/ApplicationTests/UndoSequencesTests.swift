@@ -121,7 +121,8 @@ struct UndoSequencesTests {
 
         func delete(_ eventID: UUID) async throws {
             try await DefaultDeleteEventUseCase(
-                contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
+                contentRepository: content, profileRepository: TheDad(), progressRepository: progress,
+                standingRepository: standing, photoStore: photos
             )
             .execute(eventID: eventID)
         }
@@ -130,7 +131,8 @@ struct UndoSequencesTests {
         func undo(_ eventID: UUID, in steps: [Step]) async throws {
             let had = try await stand()
             let held = try await DefaultUndoRecordUseCase(
-                contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
+                contentRepository: content, profileRepository: TheDad(), progressRepository: progress,
+                standingRepository: standing, photoStore: photos
             )
             .execute(undoing: eventID)
             let has = try await stand()

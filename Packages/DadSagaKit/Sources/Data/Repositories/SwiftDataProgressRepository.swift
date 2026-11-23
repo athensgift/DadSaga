@@ -27,9 +27,21 @@ actor SwiftDataProgressRepository: ProgressRepository {
         let kind = record.kind
         let contentID = record.contentID
         let childID = event.childID
-        var existing = FetchDescriptor<ProgressEventRecord>(
-            predicate: #Predicate { $0.kind == kind && $0.contentID == contentID && $0.childID == childID }
-        )
+        let authorID = event.authorID
+        // A boss is what a parent does: once per child for each of them. A first is what a child does: once per child,
+        // whoever captured it (ADR-0065 §3.3).
+        let predicate: Predicate<ProgressEventRecord>
+        if case .boss = event.kind {
+            predicate = #Predicate<ProgressEventRecord> { record in
+                record.kind == kind && record.contentID == contentID && record.childID == childID
+                    && record.authorID == authorID
+            }
+        } else {
+            predicate = #Predicate<ProgressEventRecord> { record in
+                record.kind == kind && record.contentID == contentID && record.childID == childID
+            }
+        }
+        var existing = FetchDescriptor<ProgressEventRecord>(predicate: predicate)
         existing.fetchLimit = 1
         return try modelContext.saveAllOrNothing {
             guard try modelContext.fetch(existing).isEmpty else { return false }

@@ -5,7 +5,7 @@ import Foundation
 /// (ADR-0023). Not tied to the widget, so the weekly notification can suggest the same quest.
 public struct WeeklyHighlights: Hashable, Sendable {
     public enum QuestSlot: Hashable, Sendable {
-        /// The quest of the week, and whether the dad already did it with this child this week.
+        /// The quest of the week, and whether the dad himself already did it with this child this week (ADR-0065 §3.3).
         case suggested(Quest, isDone: Bool)
         /// No quest fits this age (older than every world, or not born with no world before birth): adventures for it
         /// are coming.
@@ -16,6 +16,7 @@ public struct WeeklyHighlights: Hashable, Sendable {
     /// Children in the family; a name only matters when there is more than one.
     public let childCount: Int
     public let quest: QuestSlot
+    /// The child's newest first, whoever captured it (ADR-0065 §3.2).
     public let latestMoment: CapturedMoment?
     /// A small copy of the moment's cover photo, only when one was asked for and exists.
     public let momentPhoto: Data?
@@ -73,7 +74,7 @@ public struct DefaultGetWeeklyHighlightsUseCase: GetWeeklyHighlightsUseCase {
         let catalog = try await contentRepository.fetchCatalog()
         let events = try await progressRepository.fetchEvents()
         let week = WeeklyQuest.week(containing: date, calendar: calendar)
-        let moment = DadProgress(events: events, catalog: catalog).moments(for: child.id).first
+        let moment = FamilyMoments(events: events, catalog: catalog).moments(for: child.id).first
         var photo: Data?
         if let maxPixelSize = photoMaxPixelSize, let photoID = moment?.coverPhotoID {
             photo = await photoStore.thumbnail(id: photoID, maxPixelSize: maxPixelSize)
@@ -83,7 +84,7 @@ public struct DefaultGetWeeklyHighlightsUseCase: GetWeeklyHighlightsUseCase {
             childCount: profile.children.count,
             quest: questSlot(
                 for: child, family: FamilyFacts(profile: profile, child: child), week: week, catalog: catalog,
-                events: events
+                events: events.filter { $0.authorID == profile.id }
             ),
             latestMoment: moment,
             momentPhoto: photo,

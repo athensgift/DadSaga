@@ -271,8 +271,12 @@ actor SpyProgressRepository: ProgressRepository {
         events.append(event)
     }
 
+    /// As the store: a boss by the same author, a first by anyone (ADR-0065 §3.3).
     func addUnlessRecorded(_ event: ProgressEvent) async throws -> Bool {
-        guard !events.contains(where: { $0.kind == event.kind && $0.childID == event.childID }) else { return false }
+        let isBoss = if case .boss = event.kind { true } else { false }
+        guard !events.contains(where: {
+            $0.kind == event.kind && $0.childID == event.childID && (!isBoss || $0.authorID == event.authorID)
+        }) else { return false }
         events.append(event)
         return true
     }

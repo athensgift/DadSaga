@@ -171,7 +171,9 @@ struct SagaStoryboardTests {
         for hour in [0, 15] {
             let born = SagaFixtures(birth: DateComponents(year: 2024, month: 1, day: 15, hour: hour))
             let storyboard = try #require(SagaStoryboard.make(
-                events: [], child: born.child, period: .year(1), catalog: born.catalog, now: born.date(months: 30),
+                events: [],
+                cast: SagaCast(hero: .testDad, child: born.child),
+                period: .year(1), catalog: born.catalog, now: born.date(months: 30),
                 timeZone: born.timeZone
             ))
             #expect(storyboard.childAge == .months(11))
@@ -181,7 +183,9 @@ struct SagaStoryboardTests {
     @Test("Given a year still going, when making its film, then the child is drawn at their age today")
     func childAgeToday() throws {
         let storyboard = try #require(SagaStoryboard.make(
-            events: [], child: saga.child, period: .year(3), catalog: saga.catalog, now: saga.date(months: 26, days: 2),
+            events: [],
+            cast: SagaCast(hero: .testDad, child: saga.child),
+            period: .year(3), catalog: saga.catalog, now: saga.date(months: 26, days: 2),
             timeZone: saga.timeZone
         ))
         #expect(storyboard.childAge == .months(26))
@@ -197,7 +201,9 @@ struct SagaStoryboardTests {
     func spanOfTheCurrentYear() throws {
         let now = saga.date(months: 26, days: 2)
         let storyboard = try #require(SagaStoryboard.make(
-            events: [], child: saga.child, period: .year(3), catalog: saga.catalog, now: now, timeZone: saga.timeZone
+            events: [],
+            cast: SagaCast(hero: .testDad, child: saga.child),
+            period: .year(3), catalog: saga.catalog, now: now, timeZone: saga.timeZone
         ))
         #expect(storyboard.span == DateInterval(start: saga.date(months: 24), end: now))
     }

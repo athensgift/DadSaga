@@ -36,7 +36,8 @@ struct StandingUseCaseTests {
 
     func delete(_ progress: any ProgressRepository, _ standing: InMemoryStanding) -> DefaultDeleteEventUseCase {
         DefaultDeleteEventUseCase(
-            contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
+            contentRepository: content, profileRepository: TheDad(), progressRepository: progress,
+            standingRepository: standing, photoStore: photos
         )
     }
 
@@ -64,7 +65,8 @@ struct StandingUseCaseTests {
         _ change: ProgressChange, _ progress: any ProgressRepository, _ standing: InMemoryStanding
     ) async throws -> DadTitle? {
         try await DefaultUndoRecordUseCase(
-            contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
+            contentRepository: content, profileRepository: TheDad(), progressRepository: progress,
+            standingRepository: standing, photoStore: photos
         )
         .execute(undoing: try #require(change.eventID))
     }
@@ -199,7 +201,8 @@ struct StandingUseCaseTests {
         let progress = SpyProgressRepository()
         let standing = InMemoryStanding()
         let sut = DefaultUndoRecordUseCase(
-            contentRepository: content, progressRepository: progress, standingRepository: standing, photoStore: photos
+            contentRepository: content, profileRepository: TheDad(), progressRepository: progress,
+            standingRepository: standing, photoStore: photos
         )
 
         await #expect(throws: ProgressError.unknownEvent) { try await sut.execute(undoing: UUID()) }

@@ -22,8 +22,8 @@ struct EventRecorder {
     let progressRepository: any ProgressRepository
     let photoStore: any PhotoStore
 
-    /// Stores the event by `authorID` with the journal. A boss or a first that this child already has is not stored
-    /// again: then the result is `nil` and no photo is kept.
+    /// Stores the event by `authorID` with the journal. A boss this author already beat with the child, or a first
+    /// anyone already captured with them, is not stored again: then the result is `nil` and no photo is kept.
     func record(
         _ kind: ProgressEvent.Kind,
         authorID: UUID,

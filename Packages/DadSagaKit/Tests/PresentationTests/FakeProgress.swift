@@ -132,12 +132,17 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         overviewFails = false
     }
 
-    /// The progress home's overview reads, or an error once `failOverview()` was called.
-    func overviewProgress() async throws -> DadProgress {
-        let early = readsBeforeHolding ? current : nil
+    /// The family's captured firsts in the log, read against the hero stub catalog.
+    var currentMoments: FamilyMoments {
+        FamilyMoments(events: frozen ?? events, catalog: HeroStub.catalog)
+    }
+
+    /// The dad's progress and the family's moments home's overview reads, or an error once `failOverview()` was called.
+    func overviewLog() async throws -> (progress: DadProgress, moments: FamilyMoments) {
+        let early = readsBeforeHolding ? (current, currentMoments) : nil
         await waitIfHeld()
         if overviewFails { throw StubError.boom }
-        return early ?? current
+        return early ?? (current, currentMoments)
     }
 
     /// The photos each quest or boss was recorded with.
@@ -162,7 +167,12 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         let before = DadProgress(events: events, catalog: HeroStub.catalog)
         let event = ProgressEvent(kind: .first(id: request.firstID), childID: request.childID, date: request.date)
         events.append(event)
-        return ProgressChange(before: before, after: DadProgress(events: events, catalog: HeroStub.catalog), eventID: event.id)
+        let moment = FamilyMoments(events: events, catalog: HeroStub.catalog)
+            .moments(for: request.childID).first { $0.eventID == event.id }
+        return ProgressChange(
+            before: before, after: DadProgress(events: events, catalog: HeroStub.catalog), eventID: event.id,
+            moment: moment
+        )
     }
 
     func execute(momentID: UUID, happenedOn date: Date, note: String?, photos: [EntryPhoto], now: Date) async throws {
@@ -180,10 +190,12 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
         )
     }
 
-    /// A moment of the first `HeroStub.niko` can capture, already holding these photos.
-    func seedMoment(photos: [Data]) {
+    /// A moment of the first `HeroStub.niko` can capture, already holding these photos, captured by the dad unless
+    /// another author is named.
+    func seedMoment(photos: [Data], by authorID: UUID = .testDad) {
         events.append(ProgressEvent(
-            kind: .first(id: "f1"), childID: HeroStub.niko.id, date: HeroStub.today, photoIDs: photos.map(store)
+            authorID: authorID, kind: .first(id: "f1"), childID: HeroStub.niko.id, date: HeroStub.today,
+            photoIDs: photos.map(store)
         ))
     }
 

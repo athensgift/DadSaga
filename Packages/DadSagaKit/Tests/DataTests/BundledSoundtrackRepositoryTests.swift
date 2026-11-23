@@ -84,7 +84,7 @@ struct BundledSoundtrackRepositoryTests {
         }
         let film = try #require(SagaStoryboard.make(
             events: firsts + quests + bosses,
-            child: child,
+            cast: SagaCast(hero: .testDad, child: child),
             period: .everything,
             catalog: catalog,
             now: birth.adding(months: lastMonths + 12).start(in: .gmt),
