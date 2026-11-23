@@ -113,11 +113,12 @@ public final class FamilyViewModel {
             )
             try await updateFamily.execute(edit, on: latestBirthDate)
             stored = saving
-            // A child just removed joins the removed ones, for when the page stays open.
-            if !edit.removedIDs.isEmpty, let profile = try? await getProfile.execute() {
+            if family == saving {
+                onSaved()
+            } else if !edit.removedIDs.isEmpty, let profile = try? await getProfile.execute() {
+                // The page stays open: a child just removed joins the removed ones.
                 removedChildren = rows(profile.removedChildren)
             }
-            if family == saving { onSaved() }
         } catch {
             errorMessage = strings.text("Couldn't save. Please try again.")
         }
@@ -126,7 +127,7 @@ public final class FamilyViewModel {
     /// Brings a removed child back at once, in their place; the dad's unsaved changes stay unsaved.
     public func bringBack(id: UUID) async {
         guard canBringBack else { return }
-        await act(failure: strings.text("Couldn't save. Please try again.")) {
+        await act(on: id, failure: strings.text("Couldn't save. Please try again.")) {
             try await bringBackChild.execute(childID: id)
         }
     }
@@ -154,23 +155,31 @@ public final class FamilyViewModel {
     public func confirmDeletion(id: UUID) async {
         deletion = nil
         guard !isSaving else { return }
-        await act(failure: strings.text("Couldn't delete. Please try again.")) {
+        await act(on: id, failure: strings.text("Couldn't delete. Please try again.")) {
             try await deleteChildForGood.execute(childID: id)
         }
     }
 
-    /// Runs an act that saves at once, then reads the family again and puts the dad's unsaved changes back on it, so a
-    /// brought-back child shows in their place and a pending rename is still pending.
-    private func act(failure: String, _ work: () async throws -> Void) async {
+    /// Runs an act on the removed child `id` that saves at once, then reads the family again and puts the dad's unsaved
+    /// changes back on it, so a brought-back child shows in their place and a pending rename is still pending. Only the
+    /// act's own failure says it failed: once it is done, a failed read takes the row away and says the family didn't
+    /// load, rather than offer an act that already happened.
+    private func act(on id: UUID, failure: String, _ work: () async throws -> Void) async {
         isSaving = true
         defer { isSaving = false }
         errorMessage = nil
         do {
             try await work()
+        } catch {
+            errorMessage = failure
+            return
+        }
+        do {
             guard let profile = try await getProfile.execute() else { return }
             rebase(on: profile)
         } catch {
-            errorMessage = failure
+            removedChildren.removeAll { $0.id == id }
+            errorMessage = strings.text("Your family failed to load.")
         }
     }
 
@@ -217,12 +226,12 @@ public final class FamilyViewModel {
             unsaved: JournalLabels(locale: locale),
             removed: RemovedChildrenLabels(
                 title: strings.text("Removed from the family"),
-                line: strings.text("Kept with everything recorded with them, so you can bring them back whenever you like."),
+                line: strings.text("Kept with everything recorded with them."),
                 bringBack: strings.text("Bring back"),
                 deleteForGood: strings.text("Delete for good"),
                 full: strings.text("The family has room for four children. To bring one back, remove another first.")
             ),
-            footnote: strings.text("If you remove a child, everything you earned together stays, and you can bring them back.")
+            footnote: strings.text("If you remove a child, everything you earned together stays.")
         )
     }
 

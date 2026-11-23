@@ -2942,19 +2942,19 @@
         }
       }
     },
-    "If you remove a child, everything you earned together stays, and you can bring them back." : {
+    "If you remove a child, everything you earned together stays." : {
       "extractionState" : "manual",
       "localizations" : {
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Αν αφαιρέσεις ένα παιδί, ό,τι κέρδισες μαζί του μένει, και μπορείς να το φέρεις πίσω."
+            "value" : "Αν αφαιρέσεις ένα παιδί, ό,τι κέρδισες μαζί του μένει."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "If you remove a child, everything you earned together stays, and you can bring them back."
+            "value" : "If you remove a child, everything you earned together stays."
           }
         }
       }
@@ -2976,19 +2976,19 @@
         }
       }
     },
-    "Kept with everything recorded with them, so you can bring them back whenever you like." : {
+    "Kept with everything recorded with them." : {
       "extractionState" : "manual",
       "localizations" : {
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Μένουν φυλαγμένα με ό,τι έχει καταγραφεί μαζί τους, για να τα φέρεις πίσω όποτε θέλεις."
+            "value" : "Μένουν φυλαγμένα με ό,τι έχει καταγραφεί μαζί τους."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Kept with everything recorded with them, so you can bring them back whenever you like."
+            "value" : "Kept with everything recorded with them."
           }
         }
       }

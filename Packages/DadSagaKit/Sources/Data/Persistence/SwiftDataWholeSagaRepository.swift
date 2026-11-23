@@ -11,8 +11,8 @@ import SwiftData
 actor SwiftDataWholeSagaRepository: WholeSagaRepository {
     /// In one actor turn, so no write lands between the reads.
     func readAll() async throws -> StoredSaga? {
-        guard let record = try modelContext.fetch(FetchDescriptor<ProfileRecord>()).first,
-              let profile = try modelContext.readProfile() else { return nil }
+        guard let record = try modelContext.fetch(FetchDescriptor<ProfileRecord>()).first else { return nil }
+        let profile = try modelContext.readProfile(record)
         let events = try modelContext
             .fetch(FetchDescriptor<ProgressEventRecord>(sortBy: [SortDescriptor(\.date)]))
             .compactMap { $0.toDomain() }

@@ -19,7 +19,7 @@ enum SagaCopyV1Fixture {
     static let baby = Child(
         id: id("BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB"), name: "Μπέμπης", birthDay: nil, gender: .boy, skinTone: .light
     )
-    /// Removed from the family in a co-op version (ADR-0065 §4), with an entry by the partner.
+    /// Removed from the family (ADR-0065 §4), with an entry by the partner.
     static let iris = Child(
         id: id("CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC"), name: "Ίρις", birthDay: CalendarDay(year: 2023, month: 6, day: 1),
         gender: .girl, skinTone: .medium

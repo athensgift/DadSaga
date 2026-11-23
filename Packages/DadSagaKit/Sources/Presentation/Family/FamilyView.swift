@@ -152,10 +152,9 @@ private struct RemovedChildrenCard: View {
     }
 }
 
-/// One removed child: the name, and the two acts under it, so each keeps its words on one line. The question hangs on
-/// its own "Delete for good", so it rises from that button.
+/// One removed child: the name, and the two acts under it, side by side while their words fit on one line each, one
+/// under the other once they don't. The question hangs on the row, so it rises from the child it is about.
 private struct RemovedChild: View {
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let viewModel: FamilyViewModel
     let row: RemovedChildRow
     let labels: RemovedChildrenLabels
@@ -164,44 +163,51 @@ private struct RemovedChild: View {
         VStack(alignment: .leading, spacing: DSSpacing.s) {
             Text(row.name)
                 .font(DSFont.headline)
-            AdaptiveStack(spacing: DSSpacing.s) {
-                if !viewModel.isFamilyFull {
-                    Button { Task { await viewModel.bringBack(id: row.id) } } label: { oneLine(labels.bringBack) }
-                        .buttonStyle(.glass)
-                        .disabled(!viewModel.canBringBack)
-                        .accessibilityLabel(row.bringBackLabel)
-                }
-                Button(role: .destructive) { viewModel.requestDeletion(id: row.id) } label: { oneLine(labels.deleteForGood) }
-                    .buttonStyle(.glass)
-                    .disabled(viewModel.isSaving)
-                    .accessibilityLabel(row.deleteLabel)
-                    .confirmationDialog(
-                        viewModel.deletion?.title ?? "",
-                        isPresented: Binding(
-                            get: { viewModel.deletion?.id == row.id },
-                            set: { if !$0 { viewModel.cancelDeletion() } }
-                        ),
-                        titleVisibility: .visible,
-                        presenting: viewModel.deletion
-                    ) { prompt in
-                        Button(prompt.confirmTitle, role: .destructive) {
-                            Task { await viewModel.confirmDeletion(id: prompt.id) }
-                        }
-                        Button(prompt.cancelTitle, role: .cancel) { viewModel.cancelDeletion() }
-                    } message: { prompt in
-                        Text(prompt.message)
-                    }
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: DSSpacing.s) { buttons(wrapping: false) }
+                VStack(alignment: .leading, spacing: DSSpacing.s) { buttons(wrapping: true) }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .confirmationDialog(
+            viewModel.deletion?.title ?? "",
+            isPresented: Binding(
+                get: { viewModel.deletion?.id == row.id },
+                set: { if !$0 { viewModel.cancelDeletion() } }
+            ),
+            titleVisibility: .visible,
+            presenting: viewModel.deletion
+        ) { prompt in
+            Button(prompt.confirmTitle, role: .destructive) {
+                Task { await viewModel.confirmDeletion(id: prompt.id) }
+            }
+            Button(prompt.cancelTitle, role: .cancel) { viewModel.cancelDeletion() }
+        } message: { prompt in
+            Text(prompt.message)
+        }
     }
 
-    /// Never hyphenated or broken: from the accessibility sizes on the buttons stack, and only then may the words wrap.
-    private func oneLine(_ title: String) -> some View {
-        let wraps = dynamicTypeSize.isAccessibilitySize
-        return Text(title)
-            .lineLimit(wraps ? nil : 1)
-            .fixedSize(horizontal: !wraps, vertical: false)
+    /// Side by side, each title keeps to one line, never hyphenated; stacked, a title may wrap whole.
+    @ViewBuilder
+    private func buttons(wrapping: Bool) -> some View {
+        if !viewModel.isFamilyFull {
+            Button { Task { await viewModel.bringBack(id: row.id) } } label: { title(labels.bringBack, wrapping: wrapping) }
+                .buttonStyle(.glass)
+                .disabled(!viewModel.canBringBack)
+                .accessibilityLabel(row.bringBackLabel)
+        }
+        Button(role: .destructive) { viewModel.requestDeletion(id: row.id) } label: {
+            title(labels.deleteForGood, wrapping: wrapping)
+        }
+        .buttonStyle(.glass)
+        .disabled(viewModel.isSaving)
+        .accessibilityLabel(row.deleteLabel)
+    }
+
+    private func title(_ text: String, wrapping: Bool) -> some View {
+        Text(text)
+            .lineLimit(wrapping ? nil : 1)
+            .fixedSize(horizontal: !wrapping, vertical: false)
     }
 }
 

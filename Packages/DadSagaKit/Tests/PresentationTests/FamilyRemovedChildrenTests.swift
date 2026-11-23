@@ -14,9 +14,11 @@ struct FamilyRemovedChildrenTests {
     let nikos = Child(name: "Νίκος", birthDay: nil)
     let update = SpyUpdateFamily()
 
-    func makeSUT(_ family: FakeFamily, locale: String = "el_GR") -> FamilyViewModel {
+    func makeSUT(
+        _ family: FakeFamily, locale: String = "el_GR", saves: (any UpdateFamilyUseCase)? = nil
+    ) -> FamilyViewModel {
         FamilyViewModel(
-            getProfile: family, updateFamily: update, bringBack: FakeBringBack(family: family),
+            getProfile: family, updateFamily: saves ?? update, bringBack: FakeBringBack(family: family),
             deleteForGood: FakeDeleteForGood(family: family),
             locale: Locale(identifier: locale), now: HeroStub.today, timeZone: .gmt, onSaved: {}
         )
@@ -142,28 +144,147 @@ struct FamilyRemovedChildrenTests {
         #expect(sut.family.children.map(\.name) == ["Λένα", "Νίκος"])
         #expect(!sut.isSaving)
     }
+
+    @Test("Given four stored and one removed in the draft, unsaved, when My family shows, then a child can't be brought back yet")
+    func fullUntilSaved() async {
+        let four = (1...4).map { number in (Child(name: "Παιδί \(number)", birthDay: nil), false) }
+        let sut = makeSUT(FakeFamily(children: four + [(iris, true)]))
+        await sut.onAppear()
+
+        sut.removeChild(id: sut.family.children[0].id)
+
+        #expect(sut.family.canAddChild)
+        #expect(sut.isFamilyFull)
+        #expect(!sut.canBringBack)
+    }
+
+    @Test("Given a removal, an added child and the partner switch unsaved, when a child is brought back, then all stay pending")
+    func pendingEditsSurvive() async {
+        let sut = makeSUT(family())
+        await sut.onAppear()
+        sut.removeChild(id: lena.id)
+        sut.addChild()
+        sut.family.children[1].name = "Άρης"
+        sut.family.hasPartner = false
+
+        await sut.bringBack(id: iris.id)
+
+        #expect(sut.family.children.map(\.name) == ["Ίρις", "Νίκος", "Άρης"])
+        #expect(!sut.family.hasPartner)
+        await sut.save()
+        let edit = await update.saved
+        #expect(edit?.removedIDs == [lena.id])
+        #expect(edit?.added.map(\.name) == ["Άρης"])
+        #expect(edit?.hasPartner == false)
+        #expect(edit?.changed.isEmpty == true)
+    }
+
+    @Test("Given an act under way, when Save, the other act or the question is tried, then each waits for it")
+    func oneActAtATime() async {
+        let family = family()
+        let sut = makeSUT(family)
+        await sut.onAppear()
+        sut.family.children[0].name = "Λενιώ"
+        await family.holdNext()
+        let bringing = Task { await sut.bringBack(id: iris.id) }
+        while !sut.isSaving { await Task.yield() }
+
+        #expect(!sut.canSave)
+        #expect(!sut.canBringBack)
+        sut.requestDeletion(id: iris.id)
+        #expect(sut.deletion == nil)
+        await sut.confirmDeletion(id: iris.id)
+        await family.release()
+        await bringing.value
+
+        #expect(await family.deletedForGood.isEmpty)
+        #expect(sut.family.children.map(\.name) == ["Λενιώ", "Ίρις", "Νίκος"])
+    }
+
+    @Test("Given a delete for good that succeeds, when the family can't be read again, then the row goes and the error says so")
+    func failedReadAfterAnAct() async {
+        let family = family()
+        let sut = makeSUT(family)
+        await sut.onAppear()
+        await family.failReading()
+
+        await sut.confirmDeletion(id: iris.id)
+
+        #expect(await family.deletedForGood == [iris.id])
+        #expect(sut.removedChildren.isEmpty)
+        #expect(sut.errorMessage == "Η οικογένεια δεν φόρτωσε.")
+    }
+
+    @Test("Given a removal saved while the dad keeps editing, when the save ends, then the page lists the child as removed")
+    func saveListsTheRemovedChild() async {
+        let family = family()
+        let sut = makeSUT(family, saves: family)
+        await sut.onAppear()
+        sut.removeChild(id: nikos.id)
+        await family.holdNext()
+        let saving = Task { await sut.save() }
+        while !sut.isSaving { await Task.yield() }
+
+        sut.family.children[0].name = "Λενιώ"
+        await family.release()
+        await saving.value
+
+        #expect(sut.removedChildren.map(\.name) == ["Ίρις", "Νίκος"])
+        #expect(sut.hasUnsavedChanges)
+    }
 }
 
 /// One family, read and changed as the store would: removed children keep their place in the order.
-actor FakeFamily: GetProfileUseCase {
+actor FakeFamily: GetProfileUseCase, UpdateFamilyUseCase {
     private var children: [(child: Child, isRemoved: Bool)]
     private var fails = false
+    private var failsReading = false
     private(set) var deletedForGood: [UUID] = []
+    private var holds = false
+    private var released = false
+    private var held: CheckedContinuation<Void, Never>?
 
     init(children: [(Child, Bool)]) {
         self.children = children.map { (child: $0.0, isRemoved: $0.1) }
     }
 
     func fail() { fails = true }
+    func failReading() { failsReading = true }
+
+    /// The next write waits until `release()`.
+    func holdNext() { holds = true }
+
+    func release() {
+        released = true
+        held?.resume()
+        held = nil
+    }
+
+    private func waitIfHeld() async {
+        guard holds else { return }
+        holds = false
+        if !released { await withCheckedContinuation { held = $0 } }
+        released = false
+    }
 
     func execute() async throws -> PlayerProfile? {
-        PlayerProfile(
+        if failsReading { throw StubFailure() }
+        return PlayerProfile(
             children: children.filter { !$0.isRemoved }.map(\.child), heroClassID: "h-cool",
             removedChildren: children.filter(\.isRemoved).map(\.child)
         )
     }
 
-    func bringBack(_ id: UUID) throws {
+    /// Only removals are kept: what these tests need of a save.
+    func execute(_ edit: FamilyEdit, on date: Date) async throws {
+        await waitIfHeld()
+        for index in children.indices where edit.removedIDs.contains(children[index].child.id) {
+            children[index].isRemoved = true
+        }
+    }
+
+    func bringBack(_ id: UUID) async throws {
+        await waitIfHeld()
         if fails { throw StubFailure() }
         guard let index = children.firstIndex(where: { $0.child.id == id && $0.isRemoved }) else {
             throw ProfileEditError.notRemoved

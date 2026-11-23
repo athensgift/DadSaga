@@ -114,9 +114,15 @@ extension ProfileRecord {
 
 extension ModelContext {
     /// The profile, with every child row in order, split into the family and the children removed from it
-    /// (ADR-0065 §4). `nil` before onboarding.
+    /// (ADR-0065 §4). `nil` before onboarding. A removed child is read like any other, so a damaged removed row fails
+    /// the read as a damaged child in the family does; neither the app nor a copy writes one.
     func readProfile() throws -> PlayerProfile? {
         guard let profile = try fetch(FetchDescriptor<ProfileRecord>()).first else { return nil }
+        return try readProfile(profile)
+    }
+
+    /// `profile` with its children, for a caller that already holds the row.
+    func readProfile(_ profile: ProfileRecord) throws -> PlayerProfile {
         let rows = try fetch(FetchDescriptor<ChildRecord>(sortBy: [SortDescriptor(\.order)]))
         return profile.toDomain(
             children: try rows.filter { !$0.isRemoved }.map { try $0.toDomain() },

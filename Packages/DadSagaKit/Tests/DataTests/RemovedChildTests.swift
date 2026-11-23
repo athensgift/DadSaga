@@ -5,8 +5,8 @@ import Testing
 @testable import Data
 
 /// A child removed from the family (ADR-0065 §4, §8): set by removing in "My family", cleared by bringing them back,
-/// carried by a copy, and gone only when deleted for good. On no screen and in none of the family's counts, their
-/// entries still counting for their author; removing and bringing back change no one's standing.
+/// carried by a copy, and gone only when deleted for good. Listed only on "My family" and in none of the family's
+/// counts, their entries still counting for their author; removing and bringing back change no one's standing.
 @Suite("A child removed from the family", .serialized)
 struct RemovedChildTests: SagaCopyBench {
     let root = FileManager.default.temporaryDirectory.appending(path: "dadsaga-removed-" + UUID().uuidString)
@@ -166,6 +166,7 @@ struct RemovedChildTests: SagaCopyBench {
         let timeline = try await DefaultGetTimelineUseCase(
             contentRepository: BundledContentRepository(), wholeSaga: phone.store.wholeSaga
         ).execute()
+        let homeChild = try await home(on: phone, childID: lena.id)?.child.id
         try await DefaultBringBackChildUseCase(profileRepository: phone.store.profiles).execute(childID: lena.id)
         let back = try #require(try await phone.store.profiles.fetchProfile())
 
@@ -173,11 +174,15 @@ struct RemovedChildTests: SagaCopyBench {
         #expect(removedStanding == before)
         #expect(profile.children.map(\.id) == [unborn.id])
         #expect(profile.removedChildren.map(\.id) == [lena.id])
-        #expect(try await home(on: phone, childID: nil) != nil)
+        #expect(homeChild == unborn.id)
         #expect(timeline.isEmpty)
         #expect(try await standing(on: phone) == before)
         #expect(back.children.map(\.id) == [lena.id, unborn.id])
         #expect(back.removedChildren.isEmpty)
+        let timelineBack = try await DefaultGetTimelineUseCase(
+            contentRepository: BundledContentRepository(), wholeSaga: phone.store.wholeSaga
+        ).execute()
+        #expect(timelineBack.count == 2)
     }
 
     @Test("Given four in the family and a removed child, when bringing them back, then it is refused and nothing is written")
@@ -205,7 +210,10 @@ struct RemovedChildTests: SagaCopyBench {
             authorID: SagaCopyPeople.partnerID, kind: .first(id: "f-smile"), childID: lena.id, date: madeAt
         )
         try await phone.store.progress.add(partners)
-        let other = dads(.quest(id: "q-w0-go-bag"), childID: unborn.id, date: madeAt.addingTimeInterval(-1_000))
+        let keptPhoto = try await phone.photos.save(try png(width: 60, height: 30))
+        let other = dads(
+            .quest(id: "q-w0-go-bag"), childID: unborn.id, date: madeAt.addingTimeInterval(-1_000), photoIDs: [keptPhoto]
+        )
         try await phone.store.progress.add(other)
         try await remove(lena, on: phone)
 
@@ -218,6 +226,7 @@ struct RemovedChildTests: SagaCopyBench {
         #expect(try await phone.store.profiles.fetchProfile()?.removedChildren.isEmpty == true)
         #expect(try await phone.store.profiles.fetchProfile()?.children.map(\.id) == [unborn.id])
         #expect((try? await phone.photos.storedData(id: photo)) == nil)
+        #expect((try? await phone.photos.storedData(id: keptPhoto)) != nil)
     }
 
     @Test("Given a child in the family or an unknown id, when deleting for good, then notRemoved and nothing is written")
