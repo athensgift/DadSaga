@@ -56,9 +56,10 @@
      this version doesn't map is never touched.
    - A fetched deletion is applied only to a record this iPhone knows (it holds its system fields, or it waits behind
      that fetch), so an iPhone's own deletion handed back to it never deletes a row set again since.
-   - The partner's family is taken as stopped when its zone is reported deleted, or when a save answers
-     `zoneNotFound` and the fetch that follows doesn't list the zone; then sync goes off with the reason
-     `zoneDeleted`, or the partner's saga goes to a zone of their own (ADR-0065 §4).
+   - For a partner, the family is taken as stopped when its shared zone is reported deleted, or when a save answers
+     `zoneNotFound` and the fetch that follows doesn't list the zone: their saga goes to a zone of their own
+     (ADR-0065 §4). A parent's own zone deleted by another of their iPhones turns sync off with the reason
+     `zoneDeleted`, unless `saga` names a family to follow.
    - Nothing brings a removed child back by itself. A fetched removal that would leave no child is not applied: the
      child whose removal arrived last stays and is sent again (ADR-0065 §4). A fetched `gone` marker brings no removed
      child back, so a family can still end with no child in it (each parent deleting the other's last child for good).
