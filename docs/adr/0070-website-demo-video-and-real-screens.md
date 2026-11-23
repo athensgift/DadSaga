@@ -14,7 +14,7 @@
   the site with more of the app in it, and the case study in the README.
 
 ## Decision
-1. **A demo video per language replaces the timeline clip.** About 40 seconds of the real app in the simulator, light
+1. **A demo video per language replaces the timeline clip.** About 41 seconds of the real app in the simulator, light
    appearance, a clean status bar: home with the hero and both children; a quest done with a photo, its calm reward
    and the title card it brings; a boss fight's survival guide; the timeline for one child and back to both; the saga
    film playing for a few seconds. Encoded to 540 × 1174 H.264 MP4 at 30 fps with no audio track, about 3.1 MB each,

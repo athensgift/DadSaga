@@ -70,7 +70,7 @@ xcrun simctl status_bar $UDID clear
 
 The tour was played once per language without stopping, logging a timestamp before each tap. The recording only
 has frames when the screen changes, so the encode joins the kept ranges and repeats the latest frame at 30 fps.
-No ffmpeg on the Mac: three small AVFoundation scripts in `Tools/DemoVideo/`, run as `swift Tools/DemoVideo/<name>.swift`:
+No ffmpeg on the Mac: three small AVFoundation scripts, next to makephotos in `Tools/DemoVideo/`, run as `swift Tools/DemoVideo/<name>.swift`:
 
 - `cut <take.mp4> <out.mp4> <bitrate> <start-end>…` — `AVMutableComposition` of the ranges,
   `AVAssetReaderVideoCompositionOutput` scaled to 540 px wide (540 × 1174), `AVAssetWriter` H.264 High, 650 kbit/s,

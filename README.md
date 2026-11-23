@@ -11,7 +11,7 @@ DadSaga turns the first years of fatherhood into a game, without turning your ch
 
 <p align="center">
   <a href="https://dadsaga.app"><img src="web/assets/demo/demo-en-poster.jpg" width="270" alt="DadSaga's home screen: the dad's hero, his two children and today's quests. Opens the demo video on dadsaga.app."></a>
-  <br><sub>A 40-second tour of the real app, ending on the film it makes: <a href="web/assets/demo/demo-en.mp4">demo video</a> · <a href="https://dadsaga.app">dadsaga.app</a></sub>
+  <br><sub>A 41-second tour of the real app, ending on the film it makes: <a href="web/assets/demo/demo-en.mp4">demo video</a> · <a href="https://dadsaga.app">dadsaga.app</a></sub>
 </p>
 
 This README is also the project's case study: why the app exists, the decisions that shaped it, and how it was built.

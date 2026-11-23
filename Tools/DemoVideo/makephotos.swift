@@ -52,7 +52,6 @@ for photo in photos {
     // soft sun
     ctx.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: 0.25))
     ctx.fillEllipse(in: CGRect(x: width * 0.68, y: height * 0.72, width: 260, height: 260))
-    // ground ellipse shadow
     for fig in photo.figs {
         let image = figureImage(fig.name)
         let figWidth = fig.height * CGFloat(image.width) / CGFloat(image.height)
