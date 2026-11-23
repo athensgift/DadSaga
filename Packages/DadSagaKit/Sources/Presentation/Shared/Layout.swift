@@ -3,9 +3,8 @@ import SwiftUI
 /// Widest the main column gets on large screens, so lines stay readable.
 let readableWidth: CGFloat = 560
 
-/// From this width on, home shows two columns (the iPhone Duo's inner display open flat, upright or on its side, or
-/// half-open like a book; landscape on large iPhones). Half-open like a laptop, it is split at the fold instead
-/// (ADR-0061 §1).
+/// From this width on, home shows two columns while the iPhone Duo is half-open like a book on its side. Open flat it
+/// is one column, however wide; half-open like a laptop, it is split at the fold instead (ADR-0066).
 let twoColumnWidth: CGFloat = 600
 
 /// The least height a pane above a fold needs for a screen to split at the fold (ADR-0043).

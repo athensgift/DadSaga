@@ -11,28 +11,27 @@ struct HomeArrangementTests {
         #expect(!HomeArrangement.column.hasPanes)
     }
 
-    @Test("Given the iPhone Duo open flat on its side, when home is laid out, then it is two columns")
-    func openFlatOnItsSide() {
-        #expect(HomeArrangement.make(width: 951, fold: nil) == .columns)
+    @Test("Given the iPhone Duo open flat, upright or on its side, when home is laid out, then it is one column")
+    func openFlat() {
+        #expect(HomeArrangement.make(width: 669, fold: nil) == .column)
+        #expect(HomeArrangement.make(width: 951, fold: nil) == .column)
     }
 
-    @Test("Given the iPhone Duo open flat and upright, when home is laid out, then the hero is above the hinge")
-    func openFlatUpright() {
-        let line = HorizontalFold(top: 440, bottom: 440)
-        #expect(HomeArrangement.make(width: 669, fold: nil, flatFold: line) == .stacked(line))
-        #expect(HomeArrangement.stacked(line).hasPanes)
+    @Test("Given an iPad, when home is laid out, then it is one column, with the bar")
+    func iPad() {
+        #expect(HomeArrangement.make(width: 1032, fold: nil) == .column)
     }
 
-    @Test("Given a narrow window over the flat Duo's fold, when home is laid out, then it stays one column")
-    func narrowOverTheFlatFold() {
-        let line = HorizontalFold(top: 440, bottom: 440)
-        #expect(HomeArrangement.make(width: 330, fold: nil, flatFold: line) == .column)
+    @Test("Given the iPhone Duo half-open on its side, when home is laid out, then it is two columns")
+    func halfOpenOnItsSide() {
+        #expect(HomeArrangement.make(width: 951, fold: nil, foldRunsDown: true) == .columns)
+        #expect(HomeArrangement.columns.hasPanes)
     }
 
-    @Test("Given home exactly as wide as two columns need, when it is laid out, then it is two columns; narrower, one")
+    @Test("Given a fold down home, when it is exactly as wide as two columns need, then it is two columns; narrower, one")
     func justWideEnough() {
-        #expect(HomeArrangement.make(width: 600, fold: nil) == .columns)
-        #expect(HomeArrangement.make(width: 599, fold: nil) == .column)
+        #expect(HomeArrangement.make(width: 600, fold: nil, foldRunsDown: true) == .columns)
+        #expect(HomeArrangement.make(width: 599, fold: nil, foldRunsDown: true) == .column)
     }
 
     @Test("Given a fold across home, when it is laid out, then the hero is above it and the adventure below, also when narrow")
@@ -43,13 +42,11 @@ struct HomeArrangementTests {
         #expect(HomeArrangement.stacked(fold).hasPanes)
     }
 
-    @Test("Given the upright iPhone Duo, when it folds and opens again, then the rows stay and only the gap at the hinge changes")
-    func foldingKeepsTheRows() {
-        let flat = HorizontalFold(top: 440, bottom: 440)
+    @Test("Given the upright iPhone Duo, when it folds and opens flat again, then the rows give way to one column")
+    func foldingAndOpening() {
         let halfOpen = HorizontalFold(top: 420, bottom: 460)
-        #expect(HomeArrangement.make(width: 669, fold: nil, flatFold: flat) == .stacked(flat))
-        #expect(HomeArrangement.make(width: 669, fold: halfOpen, flatFold: flat) == .stacked(halfOpen))
-        #expect(HomeArrangement.make(width: 669, fold: nil, flatFold: flat) == .stacked(flat))
+        #expect(HomeArrangement.make(width: 669, fold: halfOpen) == .stacked(halfOpen))
+        #expect(HomeArrangement.make(width: 669, fold: nil) == .column)
     }
 
     @Test("Given a tall pane above the fold, when the hero is sized, then he is as big as in the two columns")
