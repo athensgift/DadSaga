@@ -10,8 +10,8 @@ for (const figure of document.querySelectorAll(".figure")) {
   });
 }
 
-// The timeline clip plays while it is on screen, and never for visitors who asked for reduced motion: they see the
-// poster, a still of the same screen.
+// The demo video (ADR-0070) plays while it is on screen, and never for visitors who asked for reduced motion: they see the
+// poster, a still of home.
 const clip = document.querySelector(".clip");
 const calm = matchMedia("(prefers-reduced-motion: reduce)");
 if (clip && "IntersectionObserver" in window) {
