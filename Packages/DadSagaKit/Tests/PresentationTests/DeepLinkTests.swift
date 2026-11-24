@@ -112,7 +112,7 @@ struct RootLinkTests {
         await sut.onAppear()
         sut.selectedTab = .timeline
         let note = UUID()
-        sut.unsavedWork.set(note, in: UnsavedScope.timelineJournal, hasUnsavedChanges: true)
+        sut.unsavedWork.set(note, in: UnsavedScope.timelineEditor, hasUnsavedChanges: true)
         let older = AppLink.child(HeroStub.niko.id)
         let newer = AppLink.quest(id: "q1", childID: HeroStub.niko.id)
 
@@ -121,7 +121,7 @@ struct RootLinkTests {
         #expect(sut.selectedTab == .timeline)
         #expect(sut.pendingLink == nil)
 
-        sut.unsavedWork.end(scope: UnsavedScope.timelineJournal)
+        sut.unsavedWork.end(scope: UnsavedScope.timelineEditor)
         #expect(sut.selectedTab == .adventure)
         #expect(sut.pendingLink == PendingLink(newer))
     }
