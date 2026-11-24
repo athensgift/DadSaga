@@ -97,9 +97,11 @@ struct MomentChoiceStep: View {
                     .font(DSFont.caption)
                     .foregroundStyle(DSColor.textPrimary)
                     .multilineTextAlignment(.center)
-                    .lineLimit(2, reservesSpace: true)
+                    // Every word of a long first, on as many lines as it takes.
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            .frame(maxWidth: .infinity)
+            // As tall as the row's tallest, so the tiles in a row line up.
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .padding(.vertical, DSSpacing.s)
             .padding(.horizontal, DSSpacing.xs)
             .background(DSColor.surface, in: shape)

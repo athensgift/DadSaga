@@ -62,11 +62,7 @@ struct ChildEditorCard: View {
                     .pickerStyle(.segmented)
                 }
                 row {
-                    AdaptiveStack(spacing: DSSpacing.s) {
-                        Text(labels.skinToneLabel)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                        SkinTonePicker(selection: $child.skinTone, names: labels.skinToneNames)
-                    }
+                    SkinToneRow(label: labels.skinToneLabel, selection: $child.skinTone, names: labels.skinToneNames)
                 }
             }
         }
@@ -95,6 +91,38 @@ struct ChildEditorCard: View {
                 .padding(.horizontal, DSSpacing.m)
                 .frame(minHeight: 50)
         }
+    }
+}
+
+/// The skin tone's name with its swatches: side by side when the name fits on one line beside them, otherwise the
+/// name above them. The swatches keep a fixed 200pt, so beside them a name like «Τόνος δέρματος» was squeezed into
+/// two lines.
+struct SkinToneRow: View {
+    let label: String
+    @Binding var selection: SkinToneChoice
+    let names: [String]
+
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: DSSpacing.s) {
+                Text(label)
+                    .lineLimit(1)
+                    .fixedSize()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                picker
+            }
+            VStack(alignment: .leading, spacing: DSSpacing.xs) {
+                Text(label)
+                    .fixedSize(horizontal: false, vertical: true)
+                picker
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, DSSpacing.xs)
+        }
+    }
+
+    private var picker: some View {
+        SkinTonePicker(selection: $selection, names: names)
     }
 }
 
