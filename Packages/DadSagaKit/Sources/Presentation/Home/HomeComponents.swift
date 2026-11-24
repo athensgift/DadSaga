@@ -40,33 +40,21 @@ struct TitleLine: View {
     }
 }
 
-/// Whose world and quests are shown, when there are several children.
-/// The picker keeps its own selection and reports changes, so it needs no `Binding(get:set:)`: that would turn
-/// `onSelect` into an `@isolated(any) @Sendable` closure, which the Xcode 26 compiler cannot build.
+/// Whose world and quests are shown, when there are several children. The selection is home's own
+/// (`HomeViewModel.pickedChildID`), not a copy: a copy kept in `@State` missed a child chosen on the map while home's
+/// tab was hidden, and then showed the old child highlighted over the new one's world.
 struct ChildPicker: View {
     let content: HomeContent
-    let onSelect: (UUID) -> Void
-
-    @State private var selection: UUID
-
-    init(content: HomeContent, onSelect: @escaping (UUID) -> Void) {
-        self.content = content
-        self.onSelect = onSelect
-        _selection = State(initialValue: content.selectedChildID)
-    }
+    @Bindable var viewModel: HomeViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: DSSpacing.s) {
-            Picker(content.familyTitle, selection: $selection) {
+            Picker(content.familyTitle, selection: $viewModel.pickedChildID) {
                 ForEach(content.childTabs) { tab in
-                    Text(tab.name).tag(tab.id)
+                    Text(tab.name).tag(Optional(tab.id))
                 }
             }
             .pickerStyle(.segmented)
-            .onChange(of: selection) { _, id in
-                if id != content.selectedChildID { onSelect(id) }
-            }
-            .onChange(of: content.selectedChildID) { _, id in selection = id }
             if let line = content.selectedChildLine {
                 Text(line)
                     .font(DSFont.subheadline)

@@ -176,7 +176,7 @@ public struct HomeView: View {
     private func adventure(_ content: HomeContent) -> some View {
         LazyVStack(alignment: .leading, spacing: DSSpacing.s) {
             if !content.childTabs.isEmpty {
-                ChildPicker(content: content) { id in Task { await viewModel.selectChild(id: id) } }
+                ChildPicker(content: content, viewModel: viewModel)
             }
             offerCard
             WorldHeader(content: content) {

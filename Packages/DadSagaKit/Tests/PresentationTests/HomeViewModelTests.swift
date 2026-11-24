@@ -304,6 +304,32 @@ struct HomeViewModelTests {
 }
 
 extension HomeViewModelTests {
+    @Test("Given two children, when one is picked on the map, then home's picker shows her too, at once and after loading")
+    func pickerFollowsTheMap() async {
+        let sut = makeSUT(profile: HeroStub.family)
+        await sut.onAppear()
+        #expect(sut.pickedChildID == HeroStub.niko.id)
+
+        // The map's picker and home's both read and write `pickedChildID`: there is no second copy to fall behind.
+        sut.pickedChildID = HeroStub.eleni.id
+        #expect(sut.pickedChildID == HeroStub.eleni.id)
+        for _ in 0..<1_000 {
+            if case .loaded(let content) = sut.state, content.selectedChildID == HeroStub.eleni.id { break }
+            await Task.yield()
+        }
+
+        guard case .loaded(let content) = sut.state else {
+            Issue.record("Expected loaded state, got \(sut.state)")
+            return
+        }
+        #expect(content.selectedChildID == HeroStub.eleni.id)
+        #expect(sut.pickedChildID == HeroStub.eleni.id)
+
+        // Chosen elsewhere on home (the family stage), every picker moves back with it.
+        await sut.selectChild(id: HeroStub.niko.id)
+        #expect(sut.pickedChildID == HeroStub.niko.id)
+    }
+
     @Test("Given another save still running, when undoing, then nothing is lost: the offer stays to tap again")
     func undoDuringSave() async {
         let sut = makeSUT(profile: HeroStub.profile)

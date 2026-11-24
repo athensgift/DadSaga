@@ -85,7 +85,7 @@ public struct WorldMapView: View {
                         .padding(.bottom, DSSpacing.m)
                 } else {
                     // A child chosen here is home's.
-                    ChildPicker(content: content) { id in Task { await viewModel.selectChild(id: id) } }
+                    ChildPicker(content: content, viewModel: viewModel)
                 }
                 WorldMapPath(map: map, markedID: previewedID ?? map.worlds.first(where: \.isShown)?.id) { id in
                     if isSplit { self.previewedID = id } else { choose(id) }

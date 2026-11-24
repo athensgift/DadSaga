@@ -101,11 +101,27 @@ public final class HomeViewModel {
     }
 
     public func selectChild(id: UUID) async {
-        guard id != selectedChildID else { return }
+        guard choose(childID: id) else { return }
+        await load()
+    }
+
+    /// The child every picker shows (home's and the map's): home's own choice, read and written here, so a picker never
+    /// keeps a copy that could fall out of step with what home shows. Setting it shows that child at once and loads.
+    public var pickedChildID: UUID? {
+        get { selectedChildID }
+        set {
+            guard let newValue, choose(childID: newValue) else { return }
+            Task { await load() }
+        }
+    }
+
+    /// Makes the child home's choice. `false` if it already was.
+    private func choose(childID id: UUID) -> Bool {
+        guard id != selectedChildID else { return false }
         selectedChildID = id
         viewedWorldID = nil
         situationalVisit += 1
-        await load()
+        return true
     }
 
     /// Opens the sheet for a quest ("did you do it?") or a boss (survival guide).

@@ -100,6 +100,19 @@ struct BundledContentRepositoryTests {
             #expect(!text.el.isEmpty && !text.en.isEmpty)
         }
     }
+
+    /// A first is the same card for a boy and a girl, so its Greek title can't use a word that agrees with the child:
+    /// "Κάθισε μόνο του" read wrong for a girl. Speaking to the child ("Έγραψες το όνομά σου") or past the child
+    /// ("χωρίς βοήθεια") reads right for both. "του μπαμπά" is the dad's, not the child's.
+    @Test("Given the bundled firsts, when reading a Greek title, then no word in it agrees with the child's gender")
+    func firstsFitBoysAndGirls() async throws {
+        let catalog = try await repository.fetchCatalog()
+        let gendered = /\b(του|της|μόνο|μόνη|μόνος|ίδιο|ίδια|ίδιος)\b/
+        for first in catalog.firsts {
+            let title = first.title.el.replacing("του μπαμπά", with: "")
+            #expect(title.firstMatch(of: gendered) == nil, "\(first.id): \(first.title.el)")
+        }
+    }
 }
 
 @Suite("Mapping")
