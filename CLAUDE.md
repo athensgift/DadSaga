@@ -69,5 +69,5 @@ Gitflow ([ADR-0009](docs/adr/0009-gitflow.md)): `feature/<name>` from `develop`,
 - Alone in the repository: a `feature/<name>` branch in the main checkout, no worktree.
 - Several sessions at once: each works in its own git worktree, never in another session's checkout, which may switch
   branch under it.
-- PR descriptions have no "Generated with Claude Code" line.
+- PR descriptions have no "Generated with Claude Code" line, and commits no "Co-Authored-By: Claude" trailer.
 - Turn on Auto-fix for every PR as soon as it is opened, without asking.
