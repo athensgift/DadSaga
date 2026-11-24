@@ -6,7 +6,7 @@
   { "id": "f-smile", "order": 5, "emoji": "😊", "xp": 30, "companionTrait": "smile", "title": { "el": "Πρώτο χαμόγελο", "en": "First smile" } },
   { "id": "f-laugh", "order": 6, "emoji": "😂", "xp": 30, "companionTrait": "laugh", "title": { "el": "Πρώτο γέλιο", "en": "First laugh" } },
   { "id": "f-roll-over", "order": 7, "emoji": "🔄", "xp": 30, "companionTrait": null, "title": { "el": "Γύρισε μπρούμυτα", "en": "Rolled over" } },
-  { "id": "f-sit", "order": 8, "emoji": "🪑", "xp": 30, "companionTrait": "sit", "title": { "el": "Κάθισε μόνο του", "en": "Sat up alone" } },
+  { "id": "f-sit", "order": 8, "emoji": "🪑", "xp": 30, "companionTrait": "sit", "title": { "el": "Κάθισε χωρίς στήριξη", "en": "Sat up alone" } },
   { "id": "f-first-food", "order": 9, "emoji": "🥄", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη τροφή", "en": "First food" } },
   { "id": "f-crawl", "order": 10, "emoji": "🐛", "xp": 30, "companionTrait": "crawl", "title": { "el": "Μπουσούλησε", "en": "Crawled" } },
   { "id": "f-tooth", "order": 11, "emoji": "🦷", "xp": 30, "companionTrait": "tooth", "title": { "el": "Πρώτο δόντι", "en": "First tooth" } },
@@ -23,7 +23,7 @@
   { "id": "f-trip", "order": 22, "emoji": "🧳", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο ταξίδι", "en": "First trip" } },
   { "id": "f-swim", "order": 23, "emoji": "🏊", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη βουτιά", "en": "First swim" } },
   { "id": "f-bike", "order": 24, "emoji": "🚲", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη βόλτα με ποδήλατο", "en": "First bike ride" } },
-  { "id": "f-wrote-name", "order": 25, "emoji": "✏️", "xp": 30, "companionTrait": null, "title": { "el": "Έγραψε το όνομά του", "en": "Wrote their own name" } },
+  { "id": "f-wrote-name", "order": 25, "emoji": "✏️", "xp": 30, "companionTrait": null, "title": { "el": "Έγραψε το όνομα", "en": "Wrote their own name" } },
   { "id": "f-lost-tooth", "order": 26, "emoji": "🧚", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο δόντι που έπεσε", "en": "First lost tooth" } },
   { "id": "f-friend", "order": 27, "emoji": "🤝", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτος φίλος", "en": "First friend" } },
   { "id": "f-school", "order": 28, "emoji": "🎒", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη μέρα στο σχολείο", "en": "First day of school" } },
@@ -31,5 +31,5 @@
   { "id": "f-story", "order": 30, "emoji": "📚", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη ιστορία που μου είπε", "en": "First story they told me" } },
   { "id": "f-song", "order": 31, "emoji": "🎤", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο ολόκληρο τραγούδι", "en": "First whole song" } },
   { "id": "f-read-word", "order": 32, "emoji": "📖", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη λέξη που διάβασε", "en": "First word they read" } },
-  { "id": "f-dressed", "order": 33, "emoji": "👕", "xp": 30, "companionTrait": null, "title": { "el": "Ντύθηκε μόνο του", "en": "Got dressed alone" } }
+  { "id": "f-dressed", "order": 33, "emoji": "👕", "xp": 30, "companionTrait": null, "title": { "el": "Ντύθηκε χωρίς βοήθεια", "en": "Got dressed alone" } }
 ]
