@@ -12,7 +12,22 @@ struct MomentDetailsStep: View {
     let errorMessage: String?
     let isSaving: Bool
     let loader: PhotoLoader
-    let actions: MomentSheet.Actions
+    let actions: Actions
+
+    /// What the page asks its presenter to do.
+    struct Actions {
+        let onSave: (_ date: Date, _ note: String, _ photos: PhotoDrafts) -> Void
+        /// Delete, confirmed, in a moment opened to edit.
+        let onDelete: () -> Void
+        let onClose: () -> Void
+        /// "Saved · Undo", for a moment just recorded; `nil` where the page only edits.
+        var undo: Undo?
+    }
+
+    struct Undo {
+        let onUndo: () -> Void
+        let onExpired: (_ id: Int) -> Void
+    }
 
     @State private var date: Date
     @State private var note: String
@@ -30,7 +45,7 @@ struct MomentDetailsStep: View {
         errorMessage: String?,
         isSaving: Bool,
         loader: @escaping PhotoLoader,
-        actions: MomentSheet.Actions
+        actions: Actions
     ) {
         self.details = details
         self.errorMessage = errorMessage
@@ -150,9 +165,9 @@ struct MomentDetailsStep: View {
     }
 
     @ViewBuilder private var undoBar: some View {
-        if let offer = details.undoOffer {
-            UndoBar(offer: offer, onUndo: actions.onUndo) {
-                actions.onUndoExpired(offer.id)
+        if let offer = details.undoOffer, let undo = actions.undo {
+            UndoBar(offer: offer, onUndo: undo.onUndo) {
+                undo.onExpired(offer.id)
             }
             // While Save runs, an Undo would be refused: it waits instead of being lost.
             .disabled(isSaving)

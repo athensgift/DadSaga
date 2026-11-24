@@ -40,7 +40,12 @@ struct MomentSheet: View {
                     errorMessage: errorMessage,
                     isSaving: isSaving,
                     loader: loader,
-                    actions: actions
+                    actions: MomentDetailsStep.Actions(
+                        onSave: actions.onSave,
+                        onDelete: actions.onDelete,
+                        onClose: actions.onClose,
+                        undo: MomentDetailsStep.Undo(onUndo: actions.onUndo, onExpired: actions.onUndoExpired)
+                    )
                 )
                 // A moment's own fields, never another's.
                 .id(details.momentID)

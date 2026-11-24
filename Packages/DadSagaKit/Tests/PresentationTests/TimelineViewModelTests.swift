@@ -31,9 +31,16 @@ struct TimelineViewModelTests {
             getPhoto: StubGetPhoto(),
             deleteEvent: log(events),
             updateJournal: log(events),
+            updateMoment: log(events),
             locale: Locale(identifier: "el_GR"),
-            calendar: calendar
+            calendar: calendar,
+            now: { Date(timeIntervalSince1970: 10_000_000) }
         )
+    }
+
+    /// The note and photos editor, open on a quest or a boss.
+    func journal(_ sut: TimelineViewModel) -> JournalEditor? {
+        if case .journal(let editor) = sut.editor { editor } else { nil }
     }
 
     var familyEvents: [ProgressEvent] {
@@ -143,6 +150,7 @@ struct TimelineViewModelTests {
             getPhoto: StubGetPhoto(),
             deleteEvent: log([quest, boss]),
             updateJournal: log([quest, boss]),
+            updateMoment: log([quest, boss]),
             locale: Locale(identifier: "en_US"),
             calendar: calendar
         )
@@ -177,12 +185,12 @@ struct TimelineViewModelTests {
         await sut.onAppear()
         let quest = try #require(loadedContent(sut)?.sections.last?.items.first)
 
-        sut.editJournal(id: quest.id)
-        #expect(sut.journalEditor?.title == "Αποστολή")
-        #expect(sut.journalEditor?.note == "")
+        sut.edit(id: quest.id)
+        #expect(journal(sut)?.title == "Αποστολή")
+        #expect(journal(sut)?.note == "")
         await sut.saveJournal(note: "γέλασε πολύ", photos: PhotoDrafts())
 
-        #expect(sut.journalEditor == nil)
+        #expect(sut.editor == nil)
         #expect(loadedContent(sut)?.sections.last?.items.first?.subtitle.hasSuffix(" · γέλασε πολύ") == true)
     }
 
@@ -191,13 +199,13 @@ struct TimelineViewModelTests {
         let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
         await sut.onAppear()
         let quest = try #require(loadedContent(sut)?.sections.last?.items.first)
-        sut.editJournal(id: quest.id)
+        sut.edit(id: quest.id)
 
         sut.linkWillOpen(editorHoldsChanges: true)
-        #expect(sut.journalEditor != nil)
+        #expect(sut.editor != nil)
 
         sut.linkWillOpen(editorHoldsChanges: false)
-        #expect(sut.journalEditor == nil)
+        #expect(sut.editor == nil)
     }
 
     @Test("Given an entry with two photos, when adding one and making it the cover, then it is saved first")
@@ -207,15 +215,15 @@ struct TimelineViewModelTests {
         await sut.onAppear()
         #expect(loadedContent(sut)?.sections.first?.items.first?.photoIDs == ["a", "b"])
 
-        sut.editJournal(id: quest.id)
-        var photos = PhotoDrafts(storedIDs: try #require(sut.journalEditor?.photoIDs))
+        sut.edit(id: quest.id)
+        var photos = PhotoDrafts(storedIDs: try #require(journal(sut)?.photoIDs))
         photos.append([Data([1])])
         photos.makeCover(id: try #require(photos.items.last?.id))
         photos.remove(id: "b")
         await sut.saveJournal(note: "", photos: photos)
 
-        sut.editJournal(id: quest.id)
-        #expect(sut.journalEditor?.photoIDs == ["new-photo-0", "a"])
+        sut.edit(id: quest.id)
+        #expect(journal(sut)?.photoIDs == ["new-photo-0", "a"])
         #expect(loadedContent(sut)?.sections.first?.items.first?.photoCount == "2 φωτογραφίες")
     }
 
@@ -285,8 +293,16 @@ final class TimelineLogs {
     }
 }
 
-actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseCase {
+actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseCase, UpdateMomentUseCase {
     private var events: [ProgressEvent]
+    /// Every change throws from now on.
+    private var isFailing = false
+    /// The `now` the last moment update was given.
+    private(set) var lastMomentNow: Date?
+
+    func failFromNowOn() {
+        isFailing = true
+    }
 
     init(events: [ProgressEvent]) {
         self.events = events
@@ -297,10 +313,12 @@ actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseC
     }
 
     func execute(eventID: UUID) async throws {
+        if isFailing { throw MomentError.unknownMoment }
         events.removeAll { $0.id == eventID }
     }
 
     func execute(eventID: UUID, note: String?, photos: [EntryPhoto]) async throws {
+        if isFailing { throw MomentError.unknownMoment }
         guard let index = events.firstIndex(where: { $0.id == eventID }) else { return }
         let old = events[index]
         let photoIDs = photos.enumerated().map { index, photo in
@@ -311,6 +329,16 @@ actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseC
         }
         events[index] = ProgressEvent(
             id: old.id, kind: old.kind, childID: old.childID, date: old.date, note: note, photoIDs: photoIDs
+        )
+    }
+
+    func execute(momentID: UUID, happenedOn date: Date, note: String?, photos: [EntryPhoto], now: Date) async throws {
+        guard let index = events.firstIndex(where: { $0.id == momentID }) else { return }
+        lastMomentNow = now
+        try await execute(eventID: momentID, note: note, photos: photos)
+        let old = events[index]
+        events[index] = ProgressEvent(
+            id: old.id, kind: old.kind, childID: old.childID, date: date, note: old.note, photoIDs: old.photoIDs
         )
     }
 }

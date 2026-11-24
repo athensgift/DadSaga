@@ -60,8 +60,8 @@ enum UnsavedScope {
     static let homeSheet = "home-sheet"
     /// The Settings tab and the pages pushed in it, such as "My family".
     static let settings = "settings"
-    /// The timeline's note and photos editor.
-    static let timelineJournal = "timeline-journal"
+    /// The timeline's editor: a quest's or a boss's note and photos, or a first's page.
+    static let timelineEditor = "timeline-editor"
 }
 
 extension EnvironmentValues {

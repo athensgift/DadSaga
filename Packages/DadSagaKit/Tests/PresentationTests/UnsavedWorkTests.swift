@@ -28,7 +28,7 @@ struct UnsavedWorkTests {
         var releases = 0
         sut.onRelease = { releases += 1 }
         sut.set(UUID(), in: UnsavedScope.settings, hasUnsavedChanges: true)
-        sut.set(UUID(), in: UnsavedScope.timelineJournal, hasUnsavedChanges: true)
+        sut.set(UUID(), in: UnsavedScope.timelineEditor, hasUnsavedChanges: true)
         #expect(sut.isHeld)
 
         sut.endAll()
