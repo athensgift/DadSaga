@@ -15,13 +15,13 @@ public struct TimelineView: View {
     @State private var previewedID: UUID?
     private let makeSagaFilm: SagaFilmSheet.MakeViewModel
     private let isOpeningLink: Bool
-    /// The app's editors holding unsaved changes: the note editor stays open for a link while it holds some.
+    /// The app's editors holding unsaved changes: the editor stays open for a link while it holds some.
     @Environment(UnsavedWork.self) private var unsavedWork: UnsavedWork?
 
     /// - Parameters:
     ///   - makeSagaFilm: builds the film sheet behind "Make a film".
     ///   - isOpeningLink: a link from outside the app (the widget) is opening on another tab; the film sheet and the
-    ///     photo viewer close so they do not cover that screen, and so does the note editor unless it is saving or
+    ///     photo viewer close so they do not cover that screen, and so does the editor unless it is saving or
     ///     holds unsaved changes. Then it stays, and the link waits for it (ADR-0050).
     public init(
         viewModel: TimelineViewModel,
@@ -126,15 +126,11 @@ public struct TimelineView: View {
                     errorMessage: viewModel.errorMessage,
                     isSaving: viewModel.isSaving,
                     loader: loader,
-                    actions: MomentSheet.Actions(
-                        // Opened to edit: no step 1 and no undo here.
-                        onCapture: { _, _ in },
+                    actions: MomentDetailsStep.Actions(
                         onSave: { date, note, photos in
                             Task { await viewModel.saveMoment(date: date, note: note, photos: photos) }
                         },
                         onDelete: { Task { await viewModel.deleteMoment() } },
-                        onUndo: {},
-                        onUndoExpired: { _ in },
                         onClose: { viewModel.closeEditor() }
                     )
                 )

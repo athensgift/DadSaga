@@ -295,6 +295,14 @@ final class TimelineLogs {
 
 actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseCase, UpdateMomentUseCase {
     private var events: [ProgressEvent]
+    /// Every change throws from now on.
+    private var isFailing = false
+    /// The `now` the last moment update was given.
+    private(set) var lastMomentNow: Date?
+
+    func failFromNowOn() {
+        isFailing = true
+    }
 
     init(events: [ProgressEvent]) {
         self.events = events
@@ -305,10 +313,12 @@ actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseC
     }
 
     func execute(eventID: UUID) async throws {
+        if isFailing { throw MomentError.unknownMoment }
         events.removeAll { $0.id == eventID }
     }
 
     func execute(eventID: UUID, note: String?, photos: [EntryPhoto]) async throws {
+        if isFailing { throw MomentError.unknownMoment }
         guard let index = events.firstIndex(where: { $0.id == eventID }) else { return }
         let old = events[index]
         let photoIDs = photos.enumerated().map { index, photo in
@@ -324,6 +334,7 @@ actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseC
 
     func execute(momentID: UUID, happenedOn date: Date, note: String?, photos: [EntryPhoto], now: Date) async throws {
         guard let index = events.firstIndex(where: { $0.id == momentID }) else { return }
+        lastMomentNow = now
         try await execute(eventID: momentID, note: note, photos: photos)
         let old = events[index]
         events[index] = ProgressEvent(

@@ -122,15 +122,10 @@ public final class TimelineViewModel {
         guard let entry = entries.first(where: { $0.id == id }) else { return }
         errorMessage = nil
         switch entry.kind {
-        case .quest, .boss:
-            editor = .journal(JournalEditor(
-                id: id,
-                title: title(of: entry),
-                note: entry.note ?? "",
-                photoIDs: entry.photoIDs,
-                labels: JournalLabels(locale: locale),
-                saveTitle: strings.text("Save")
-            ))
+        case .quest(let quest):
+            editor = .journal(journalEditor(for: entry, title: quest.title.resolved(for: locale)))
+        case .boss(let boss):
+            editor = .journal(journalEditor(for: entry, title: boss.title.resolved(for: locale)))
         case .first(let first):
             guard let child = children.first(where: { $0.id == entry.childID }) else { return }
             let moment = CapturedMoment(
@@ -280,12 +275,15 @@ public final class TimelineViewModel {
         )
     }
 
-    private func title(of entry: TimelineEntry) -> String {
-        switch entry.kind {
-        case .quest(let quest): quest.title.resolved(for: locale)
-        case .boss(let boss): boss.title.resolved(for: locale)
-        case .first(let first): "\(first.emoji) \(first.title.resolved(for: locale))"
-        }
+    private func journalEditor(for entry: TimelineEntry, title: String) -> JournalEditor {
+        JournalEditor(
+            id: entry.id,
+            title: title,
+            note: entry.note ?? "",
+            photoIDs: entry.photoIDs,
+            labels: JournalLabels(locale: locale),
+            saveTitle: strings.text("Save")
+        )
     }
 
     /// The month on its own, e.g. "Νοέμβριος 2026" (not the "Νοεμβρίου" form used inside a date).
