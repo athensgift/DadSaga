@@ -16,7 +16,8 @@ The checklist for a TestFlight build and an App Store release. The decisions beh
 - [ ] Age rating: "Medical/Treatment Information" is **Infrequent**.
 - [ ] Accessibility Nutrition Labels: claim only what has been checked on every screen, in light and dark (the
       accessibility audit, ADR-0033); "Sufficient Contrast" only once dark mode has been checked too.
-- [ ] App Store text says "from birth" until the world before birth exists.
+- [ ] App Store listing from `docs/appstore/` (text, screenshots, settings): the price is Free (ADR-0071), and the
+      text claims only what the build does (no iCloud, no co-op, no restore from an iCloud backup).
 - [ ] Privacy policy URL `https://dadsaga.app/privacy/`, support URL `https://dadsaga.app/support/`.
 
 ## Once, at the first App Store release

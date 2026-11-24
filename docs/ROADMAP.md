@@ -92,7 +92,7 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   is out (2026-11-24) and comes back only once the test passes
 - Screen snapshots and the accessibility audit run again and re-recorded
 - App Store metadata in Greek and English, screenshots, age rating: waits on the Greek and English translations
-- Pricing decision (free; a one-time unlock later?), with its own ADR
+- ✅ Pricing decision: 1.0 is free, with no in-app purchases; a "buy me a coffee" tip waits until after 1.0 (ADR-0071)
 
 ## Phase 5: Playground
 - iCloud sync and partner co-op: the co-op version, ADR-0065's PR 5 (CloudKit) and PR 6 (the iCloud and sharing
