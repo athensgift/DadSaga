@@ -23,11 +23,11 @@ struct HeroPicker: View {
                 .font(DSFont.subheadline)
                 .foregroundStyle(DSColor.textSecondary)
             SkinToneRow(label: content.skinToneLabel, selection: $skinTone, names: content.skinToneNames)
-            .font(DSFont.body)
-            .foregroundStyle(DSColor.textPrimary)
-            .padding(.horizontal, DSSpacing.m)
-            .frame(minHeight: 52)
-            .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
+                .font(DSFont.body)
+                .foregroundStyle(DSColor.textPrimary)
+                .padding(.horizontal, DSSpacing.m)
+                .frame(minHeight: 52)
+                .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
             if let looks {
                 looksSection(looks)
             }

@@ -15,6 +15,8 @@ struct MomentChoiceStep: View {
 
     @State private var selectedID: String?
     @State private var date: Date
+    /// Grows with the text, so large sizes get fewer, wider tiles instead of words broken mid-word.
+    @ScaledMetric(relativeTo: .caption) private var tileMinimumWidth: CGFloat = 104
 
     init(
         title: String,
@@ -46,7 +48,8 @@ struct MomentChoiceStep: View {
                     .font(DSFont.subheadline)
                     .foregroundStyle(DSColor.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: DSSpacing.s)], spacing: DSSpacing.s) {
+                let columns = [GridItem(.adaptive(minimum: max(104, tileMinimumWidth)), spacing: DSSpacing.s)]
+                LazyVGrid(columns: columns, spacing: DSSpacing.s) {
                     ForEach(choice.options) { option in
                         optionButton(option)
                     }

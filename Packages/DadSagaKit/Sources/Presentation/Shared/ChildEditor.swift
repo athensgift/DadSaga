@@ -106,7 +106,6 @@ struct SkinToneRow: View {
         ViewThatFits(in: .horizontal) {
             HStack(spacing: DSSpacing.s) {
                 Text(label)
-                    .lineLimit(1)
                     .fixedSize()
                     .frame(maxWidth: .infinity, alignment: .leading)
                 picker
@@ -117,7 +116,7 @@ struct SkinToneRow: View {
                 picker
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.vertical, DSSpacing.xs)
+            .padding(.vertical, DSSpacing.s)
         }
     }
 
