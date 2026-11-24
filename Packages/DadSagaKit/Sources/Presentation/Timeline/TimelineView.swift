@@ -15,13 +15,13 @@ public struct TimelineView: View {
     @State private var previewedID: UUID?
     private let makeSagaFilm: SagaFilmSheet.MakeViewModel
     private let isOpeningLink: Bool
-    /// The app's editors holding unsaved changes: the note editor stays open for a link while it holds some.
+    /// The app's editors holding unsaved changes: the editor stays open for a link while it holds some.
     @Environment(UnsavedWork.self) private var unsavedWork: UnsavedWork?
 
     /// - Parameters:
     ///   - makeSagaFilm: builds the film sheet behind "Make a film".
     ///   - isOpeningLink: a link from outside the app (the widget) is opening on another tab; the film sheet and the
-    ///     photo viewer close so they do not cover that screen, and so does the note editor unless it is saving or
+    ///     photo viewer close so they do not cover that screen, and so does the editor unless it is saving or
     ///     holds unsaved changes. Then it stays, and the link waits for it (ADR-0050).
     public init(
         viewModel: TimelineViewModel,
@@ -82,34 +82,60 @@ public struct TimelineView: View {
             photoViewer = nil
         }
         .sheet(
-            item: Binding(get: { viewModel.journalEditor }, set: { if $0 == nil { viewModel.closeJournal() } }),
-            onDismiss: journalDismissed,
+            item: Binding(get: { viewModel.editor }, set: { if $0 == nil { viewModel.closeEditor() } }),
+            onDismiss: editorDismissed,
             content: { editor in
-                JournalEditorSheet(
-                    editor: editor,
-                    isSaving: viewModel.isSaving,
-                    errorMessage: viewModel.errorMessage,
-                    loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
-                    onSave: { note, photos in Task { await viewModel.saveJournal(note: note, photos: photos) } },
-                    onClose: { viewModel.closeJournal() }
-                )
-                .environment(\.unsavedScope, UnsavedScope.timelineJournal)
+                editorSheet(editor)
+                    .environment(\.unsavedScope, UnsavedScope.timelineEditor)
             }
         )
         .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
         .alert(
             viewModel.errorMessage ?? "",
             isPresented: Binding(
-                // A failed save in the note and photos sheet is shown there instead.
-                get: { viewModel.errorMessage != nil && viewModel.journalEditor == nil },
+                // A failed save in the editor is shown there instead.
+                get: { viewModel.errorMessage != nil && viewModel.editor == nil },
                 set: { _ in viewModel.dismissError() }
             )
         ) {}
     }
 
-    /// The note sheet closed, saved or not: nothing in it holds a link back any more (ADR-0050).
-    private func journalDismissed() {
-        unsavedWork?.end(scope: UnsavedScope.timelineJournal)
+    /// The editor closed, saved or not: nothing in it holds a link back any more (ADR-0050).
+    private func editorDismissed() {
+        unsavedWork?.end(scope: UnsavedScope.timelineEditor)
+    }
+
+    /// A quest's or a boss's note and photos; a first opens in its own page, as from home, date included (ADR-0042 §5).
+    @ViewBuilder
+    private func editorSheet(_ editor: TimelineEditor) -> some View {
+        let loader: PhotoLoader = { await viewModel.photoData(id: $0, maxPixelSize: $1) }
+        switch editor {
+        case .journal(let journal):
+            JournalEditorSheet(
+                editor: journal,
+                isSaving: viewModel.isSaving,
+                errorMessage: viewModel.errorMessage,
+                loader: loader,
+                onSave: { note, photos in Task { await viewModel.saveJournal(note: note, photos: photos) } },
+                onClose: { viewModel.closeEditor() }
+            )
+        case .moment(let details):
+            NavigationStack {
+                MomentDetailsStep(
+                    details: details,
+                    errorMessage: viewModel.errorMessage,
+                    isSaving: viewModel.isSaving,
+                    loader: loader,
+                    actions: MomentDetailsStep.Actions(
+                        onSave: { date, note, photos in
+                            Task { await viewModel.saveMoment(date: date, note: note, photos: photos) }
+                        },
+                        onDelete: { Task { await viewModel.deleteMoment() } },
+                        onClose: { viewModel.closeEditor() }
+                    )
+                )
+            }
+        }
     }
 
     private var title: String {
@@ -133,7 +159,7 @@ public struct TimelineView: View {
                     editTitle: viewModel.editTitle,
                     loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
                     onShowPhotos: { showPhotos(of: previewed, content: content) },
-                    onEdit: { viewModel.editJournal(id: previewed.id) }
+                    onEdit: { viewModel.edit(id: previewed.id) }
                 )
                 // A new entry is a new view: its photo never shows under another entry's title while it loads.
                 .id(previewed.id)
@@ -199,14 +225,14 @@ private extension TimelineView {
             loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) },
             deleteTitle: viewModel.deleteTitle,
             onOpen: {
-                if previewedID == nil { viewModel.editJournal(id: item.id) } else { self.previewedID = item.id }
+                if previewedID == nil { viewModel.edit(id: item.id) } else { self.previewedID = item.id }
             },
             onShowPhotos: { showPhotos(of: item, content: content) },
             onDelete: { viewModel.requestDeletion(id: item.id) }
         )
         .contextMenu {
             Button(viewModel.editTitle, systemImage: "square.and.pencil") {
-                viewModel.editJournal(id: item.id)
+                viewModel.edit(id: item.id)
             }
             Button(viewModel.deleteTitle, systemImage: "trash", role: .destructive) {
                 viewModel.requestDeletion(id: item.id)

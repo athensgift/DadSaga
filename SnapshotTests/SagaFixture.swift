@@ -327,8 +327,7 @@ extension SagaFixture {
                 ),
                 setChoice: DefaultSetOutfitChoiceUseCase(
                     contentRepository: content, profileRepository: store.profiles, progressRepository: store.progress,
-                    outfitRepository: store.outfit,
-                    standingRepository: store.standing
+                    outfitRepository: store.outfit, standingRepository: store.standing
                 )
             ),
             locale: locale
@@ -344,12 +343,13 @@ extension SagaFixture {
             getTimeline: DefaultGetTimelineUseCase(contentRepository: content, wholeSaga: store.wholeSaga),
             getPhoto: DefaultGetPhotoUseCase(photoStore: photos),
             deleteEvent: DefaultDeleteEventUseCase(
-                contentRepository: content, profileRepository: store.profiles,
-                progressRepository: store.progress,
-                standingRepository: store.standing,
-                photoStore: photos
+                contentRepository: content, profileRepository: store.profiles, progressRepository: store.progress,
+                standingRepository: store.standing, photoStore: photos
             ),
             updateJournal: DefaultUpdateJournalUseCase(
+                profileRepository: store.profiles, progressRepository: store.progress, photoStore: photos
+            ),
+            updateMoment: DefaultUpdateMomentUseCase(
                 profileRepository: store.profiles, progressRepository: store.progress, photoStore: photos
             ),
             locale: locale,

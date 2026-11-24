@@ -54,6 +54,21 @@ public struct TimelineItem: Equatable, Identifiable, Sendable {
     public let photoCount: String?
 }
 
+/// The entry open for editing.
+public enum TimelineEditor: Equatable, Identifiable, Sendable {
+    /// A quest's or a boss's note and photos.
+    case journal(JournalEditor)
+    /// A first's own page, the same as home's step 2: its date, note and photos, and Delete (ADR-0042 §5).
+    case moment(MomentDetails)
+
+    public var id: UUID {
+        switch self {
+        case .journal(let editor): editor.id
+        case .moment(let details): details.momentID
+        }
+    }
+}
+
 /// An entry's note and photos, open for editing.
 public struct JournalEditor: Equatable, Identifiable, Sendable {
     /// The entry.

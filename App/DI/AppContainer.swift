@@ -285,6 +285,9 @@ final class AppContainer {
             ),
             updateJournal: DefaultUpdateJournalUseCase(
                 profileRepository: store.profiles, progressRepository: store.progress, photoStore: photoStore
+            ),
+            updateMoment: DefaultUpdateMomentUseCase(
+                profileRepository: store.profiles, progressRepository: store.progress, photoStore: photoStore
             )
         )
     }
