@@ -25,6 +25,7 @@ struct QuestSheet: View {
                 Text(quest.title)
                     .font(DSFont.title)
                     .foregroundStyle(DSColor.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
                 Text(quest.description)
                     .font(DSFont.body)
                     .foregroundStyle(DSColor.textSecondary)
@@ -105,6 +106,11 @@ struct BossSheet: View {
             // A defeated boss has nothing left to do: its guide keeps the whole sheet.
             ReadAndActPanes(alignment: .leading, splits: !boss.isDefeated, column: BossColumn()) { _ in
                 RewardPill(text: boss.reward, tint: DSColor.boss)
+                // In the column, not the navigation bar: a bar's title is one line, and long names were cut short.
+                Text(boss.title)
+                    .font(DSFont.title)
+                    .foregroundStyle(DSColor.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
                 Text(boss.intro)
                     .font(DSFont.body)
                     .foregroundStyle(DSColor.textSecondary)
@@ -130,7 +136,6 @@ struct BossSheet: View {
                 actions
             }
             .background(DSColor.background)
-            .navigationTitle(boss.title)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(role: .close) {
