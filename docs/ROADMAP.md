@@ -45,8 +45,9 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   child's `isRemoved` and `#Unique` ids in `SchemaV1`, and the same in a copy), before the first App Store release
   branch. ✅ PR 2 (two players, every change says what changed) and ✅ PR 3 (removed children: removing marks,
   "Bring back" and "Delete for good" in My family, visible to a dad alone). 1.0 ships every part that doesn't touch
-  iCloud (ADR-0067): PRs 1 to 3, and PR 4, the sync core, wired to nothing (the change feed, the applier, the
-  coordinator, `Sync.store`'s schema, tested against a fake cloud). The co-op version is PR 5 (CloudKit) and PR 6
+  iCloud (ADR-0067): PRs 1 to 3, and ✅ PR 4, the sync core, wired to nothing (the change feed, the applier, the
+  coordinator, `Sync.store`'s schema, tested against a fake cloud; ADR-0068, and ADR-0069 for what it left open). The
+  co-op version is PR 5 (CloudKit) and PR 6
   (the iCloud and sharing screens), in Phase 5.
 - ✅ The store's work runs off the main thread, now whatever the compiler's default (ADR-0034).
 - ✅ CI pinned to Xcode 27.2 (ADR-0034).
@@ -74,7 +75,9 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 *Demonstrates:* media composition, which few mobile engineers have done.
 
 ## Phase 4: Ship
-- TestFlight / App Store, demo video (made by the app itself), case study write-up
+- TestFlight / App Store
+- ✅ Demo video of the real app, in English and Greek, from a demo saga kept in `docs/demo`; real screens on the
+  website; the case study in the README (ADR-0070)
 - ✅ Dad titles instead of levels: no XP on screen, gear by title, a calm title card, the title in the film (ADR-0055)
 - ✅ Nothing ships before the first App Store release: one store version, no shipped ids, gear only with titles;
   TestFlight testers start over when the store or an id changes (ADR-0060)
@@ -85,8 +88,8 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ Export and import of the saga: one `.dadsaga` file from Settings › Export and import, imported there or on
   onboarding's first step (ADR-0057). A v1 requirement; checked on a device with a large saga (2026-11-22)
 - Restore from an iCloud backup tested on a device: not tested, and hard for the owner to test. Until it is, the support
-  pages (en and el) must promise no more than export and import (ADR-0057): their iCloud Backup / Quick Start sentence
-  comes out unless the test passes
+  pages (en and el) promise no more than export and import (ADR-0057): ✅ their iCloud Backup / Quick Start sentence
+  is out (2026-11-24) and comes back only once the test passes
 - Screen snapshots and the accessibility audit run again and re-recorded
 - App Store metadata in Greek and English, screenshots, age rating: waits on the Greek and English translations
 - Pricing decision (free; a one-time unlock later?), with its own ADR

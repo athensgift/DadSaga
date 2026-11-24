@@ -9,6 +9,13 @@ DadSaga turns the first years of fatherhood into a game, without turning your ch
 - **Legendary moments** (first smile, first steps…) are celebrated with photos when they happen, never expected by a date.
 - **Saga**: the app turns those photos into a short film, whenever you ask and gently offered on each birthday.
 
+<p align="center">
+  <a href="https://dadsaga.app"><img src="web/assets/demo/demo-en-poster.jpg" width="270" alt="DadSaga's home screen: the dad's hero, his two children and today's quests. Opens the demo video on dadsaga.app."></a>
+  <br><sub>A 41-second tour of the real app, ending on the film it makes: <a href="web/assets/demo/demo-en.mp4">demo video</a> · <a href="https://dadsaga.app">dadsaga.app</a></sub>
+</p>
+
+This README is also the project's case study: why the app exists, the decisions that shaped it, and how it was built.
+
 ## Why
 
 Parenting apps are written mostly for mothers, and dads find them unappealing ([JMIR Pediatrics, 2025](https://pediatrics.jmir.org/2025/1/e64171/PDF)).
@@ -21,6 +28,81 @@ So DadSaga follows a few rules (see [ADR-0006](docs/adr/0006-no-pressure-game-de
 2. Nothing is ever lost: no penalties and no breakable streaks.
 3. Every world is open: the child's **age** sets the current world and paces its cards, never milestones.
 4. One skill branch, **Resilience**, is about the dad's own wellbeing.
+
+These rules are product requirements, not taste: they live in the Domain layer and its tests. XP comes only from what
+the dad records, a world is chosen by the child's age and never locked, and when levels started to read as a score,
+they were replaced by titles with no XP on screen and no "next title" hint
+([ADR-0055](docs/adr/0055-dad-titles-instead-of-levels.md)).
+
+## The constraints
+
+- **One developer, one phone, no backend.** Everything runs on the device: no account, no server, no analytics SDK.
+  A child's photos and dates never leave the iPhone unless the dad sends them
+  ([ADR-0004](docs/adr/0004-offline-first-on-device-data.md)).
+- **Two languages from day one.** Every card, guide and button exists in Greek and English.
+- **Health information that must be right and must not scare.** The boss guides (fever, colic, the first
+  vaccinations…) are short, calm, and checked claim by claim against current primary sources before they ship.
+- **A foldable from day one.** The layout adapts to any window size, including the iPhone Duo half open like a laptop
+  ([ADR-0011](docs/adr/0011-liquid-glass-and-adaptive-layout.md),
+  [ADR-0043](docs/adr/0043-panes-above-and-below-the-fold.md)).
+
+## Decisions worth a look
+
+Every significant decision is an Architecture Decision Record: 70 of them in [`docs/adr`](docs/adr), each with what
+was rejected and why. A few that show the shape of the project:
+
+- **The saga film is drawn frame by frame on the phone**
+  ([ADR-0036](docs/adr/0036-saga-video.md)). `FilmKit` composes each frame with Core Image (Ken Burns, cross-fades,
+  SwiftUI cards rendered with `ImageRenderer`) and feeds an `AVAssetWriter`, with the music mixed from an
+  `AVMutableComposition`. Vision picks and frames the photos while the film is made, keeping the children in shot
+  ([ADR-0047](docs/adr/0047-choosing-and-framing-film-photos-on-device.md)). The film is never stored: it is made
+  when asked for and handed to the share sheet.
+- **The hero and the children are drawn in code**
+  ([ADR-0008](docs/adr/0008-hero-classes-and-code-drawn-avatar.md)): hair, beard, glasses and gear in SwiftUI
+  shapes, so the same figure appears in the app, the film and the website.
+- **Game content is data.** Worlds, quests, bosses, firsts and gear are bilingual JSON, validated when loaded
+  ([ADR-0005](docs/adr/0005-content-as-data.md)); adding a quest never touches Swift.
+- **The store is versioned and never silently replaced**
+  ([ADR-0026](docs/adr/0026-versioned-store-and-unavailable-screen.md)). If it can't be opened, the app says so
+  calmly and touches nothing. The dad's own backup is one `.dadsaga` file with a manifest and checksums, checked in
+  full before anything is replaced ([ADR-0057](docs/adr/0057-saga-copy-export-and-restore.md)).
+- **Designed for two parents before shipping for one.** Partner co-op through iCloud
+  ([ADR-0065](docs/adr/0065-partner-co-op-sync.md)) was designed before 1.0, so 1.0's frozen schema already holds
+  what sync will need: stable ids, an author on every entry, a removed child marked rather than deleted. The sync core
+  (a change feed from SwiftData history, field-level merge, a coordinator) ships in 1.0, tested against a fake cloud
+  and wired to nothing ([ADR-0067](docs/adr/0067-1-0-ships-without-icloud.md)); CloudKit comes in the next version.
+- **Fewer features to ship sooner.** Nothing is kept for backward compatibility before the first release
+  ([ADR-0060](docs/adr/0060-nothing-ships-before-the-first-app-store-release.md)): an idea that didn't work is
+  deleted, not migrated.
+
+## How it was built
+
+Built by one developer with Claude Code as the engineering team, in about 400 commits between 13 and 24 November 2026.
+The developer is the product owner: sets the rules, answers the open questions each ADR raises, and checks the app on
+a real phone. The work is
+split between agents with fixed roles ([`.claude/agents`](.claude/agents)):
+
+- an **architect** plans every change that crosses layers and drafts its ADR;
+- a **reviewer** reads every pull request against the ADRs before it opens, with a stronger model for persistence,
+  migrations, sync and the film;
+- a **content** writer drafts the cards in both languages, and a separate **fact-check** agent checks every health
+  claim against primary sources;
+- a **ui-check** agent draws each UI change in the simulator (the fold, dark mode, both languages) and reports what
+  it saw.
+
+The rules they follow are in [`CLAUDE.md`](CLAUDE.md): Gitflow, one pull request per change, a test that reproduces a
+bug before its fix, and deleting the old path when new code replaces it.
+
+## In numbers
+
+| | |
+|---|---|
+| Swift, app and package | ~29,000 lines |
+| Tests | ~29,000 lines, 1,300+ Swift Testing tests, one target per layer, plus screen snapshots and an accessibility audit |
+| Decisions | 70 ADRs |
+| Pull requests | 105 merged into `develop` |
+| Languages | Greek and English, every string and card |
+| Data sent off the device | none |
 
 ## Architecture
 

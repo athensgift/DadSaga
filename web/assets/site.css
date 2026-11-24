@@ -101,6 +101,12 @@ h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.01em; line-height: 
 .card h3 { margin: 0 0 6px; font-size: 20px; display: flex; align-items: center; gap: 10px; }
 .card p { margin: 0; color: var(--text-2); }
 .card .examples { margin-top: 12px; font-size: 15px; color: var(--text); }
+/* A real screen of the app on top of a feature card: a square cut from it in the file itself, the part the card is
+   about (ADR-0070). */
+.card .shot {
+  width: 100%; aspect-ratio: 1;
+  border-radius: 14px; border: 1px solid var(--line); margin-bottom: 18px; background: var(--bg);
+}
 .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
 .dot.quest { background: var(--accent); }
 .dot.boss { background: var(--boss); }
@@ -121,7 +127,7 @@ h2 { font-size: clamp(26px, 3.6vw, 36px); letter-spacing: -0.01em; line-height: 
 .before-section { background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--legendary) 7%, transparent) 50%, transparent); }
 .before-section .note { margin-top: 20px; max-width: 46em; }
 
-/* Timeline: a recording of the real Timeline tab (Tools: simulator, ADR-0040) in a phone frame. It plays only in view,
+/* Your saga: the demo video of the real app, a tour that ends on the saga film (ADR-0070), in a phone frame. It plays only in view,
    and not with Reduce Motion (site.js); otherwise the poster shows. */
 .timeline-section { background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--accent) 8%, transparent)); }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
@@ -160,7 +166,7 @@ footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; g
 footer nav { display: flex; gap: 18px; flex-wrap: wrap; }
 footer a { color: var(--text-2); }
 
-/* Motion (ADR-0039): CSS, apart from the family's cheer and the timeline clip (ADR-0040). Calm, never looping, and only for visitors
+/* Motion (ADR-0039): CSS, apart from the family's cheer and the demo video (ADR-0040, ADR-0070). Calm, never looping, and only for visitors
    who haven't asked for reduced motion. Scroll-linked reveals need scroll-driven animations; a browser without them
    shows everything at once, as before. Reveals animate `translate` and `opacity`; hovers use `transform`, so the two
    never fight. */
