@@ -119,6 +119,9 @@ public final class HomeViewModel {
     private func choose(childID id: UUID) -> Bool {
         guard id != selectedChildID else { return false }
         selectedChildID = id
+        // A load still running reads the child chosen before: it must not put that child back once it ends. The setter
+        // starts its own load a moment later, so this can't wait for `load()` to move the generation on.
+        loadGeneration += 1
         viewedWorldID = nil
         situationalVisit += 1
         return true
