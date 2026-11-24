@@ -91,7 +91,8 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   pages (en and el) promise no more than export and import (ADR-0057): ✅ their iCloud Backup / Quick Start sentence
   is out (2026-11-24) and comes back only once the test passes
 - Screen snapshots and the accessibility audit run again and re-recorded
-- App Store metadata in Greek and English, screenshots, age rating: waits on the Greek and English translations
+- ✅ App Store metadata in Greek and English and screenshots (iPhone and both iPhone Duo displays) in `docs/appstore/`;
+  the age rating and privacy label go in once the App Store Connect record exists
 - ✅ Pricing decision: 1.0 is free, with no in-app purchases; a "buy me a coffee" tip waits until after 1.0 (ADR-0071)
 
 ## Phase 5: Playground

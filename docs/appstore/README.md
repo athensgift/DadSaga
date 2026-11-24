@@ -20,9 +20,11 @@ keywords: Apple indexes them anyway.
 | Name | 30 | 25 | 26 |
 | Subtitle | 30 | 30 | 30 |
 | Promotional text | 170 | 156 | 157 |
-| Keywords | 100 bytes | 99 | 98 |
-| Description | 4000 | 2500 | 2883 |
-| What's New | 4000 | 52 | 52 |
+| Keywords | 100 bytes | 93 | 98 |
+| Description | 4000 | 2536 | 2958 |
+| What's New | 4000 | 52 | 55 |
+
+App Store Connect may not ask for What's New on an app's first version; the text is kept for when it does.
 
 Count again after any change, for example:
 `python3 -c "import sys; t=sys.stdin.read().rstrip('\n'); print(len(t), len(t.encode()))" < field.txt`.
@@ -30,8 +32,8 @@ Count again after any change, for example:
 ## What the text keeps to
 
 - **The rules of the game:** no streaks, no penalties, no deadlines, nothing compared
-  ([ADR-0006](../adr/0006-no-pressure-game-design.md)); titles, never levels or XP
-  ([ADR-0055](../adr/0055-dad-titles-instead-of-levels.md)); worlds open by age, none locked
+  ([ADR-0006](../adr/0006-no-pressure-game-design.md)); titles, with the level beside them as home shows it, never XP
+  ([ADR-0055](../adr/0055-dad-titles-instead-of-levels.md), [ADR-0059](../adr/0059-level-beside-the-title-and-skills-on-home.md)); worlds open by age, none locked
   ([ADR-0061](../adr/0061-map-and-settings-tabs-and-every-world-open.md)). Calm wording: no risk, fear or death in
   the text, and the guides called general information, not medical advice.
 - **Before the birth is in:** the world before the birth ships in 1.0 (the Harbour of Waiting, its 15 quests and the
@@ -41,6 +43,8 @@ Count again after any change, for example:
   leaves the iPhone only by export and import ([ADR-0057](../adr/0057-saga-copy-export-and-restore.md)), and restoring
   from an iCloud backup is not promised (`docs/ROADMAP.md`, Phase 4).
 - **Free:** no in-app purchases ([ADR-0071](../adr/0071-1-0-is-free-with-no-in-app-purchases.md)).
+- **The app's Greek words:** the Greek text says «ιστορία», as the app does («Ταινία της ιστορίας»), not the
+  site's «saga», so the description matches the screenshots.
 - **The same words as the app and the site:** card, world and title names as the content JSON has them, the site's
   sentences where they fit (`web/index.html`, `web/el/index.html`).
 
@@ -66,7 +70,8 @@ Checked on 2026-11-24 against Apple's
 
 - **Required for an iPhone app:** at least one screenshot for "iPhone with Dynamic Island (medium display)",
   1206 × 2622 or 1179 × 2556 portrait (iPhone 17 and the like). Up to 10 per size, `.jpeg`, `.jpg` or `.png`,
-  **no alpha channel**. Apple scales them for the other iPhone sizes when the screens look the same.
+  **no alpha channel**. Apple scales them down for smaller iPhones when the screens look the same; a set for the large display
+  (1320 × 2868, Pro Max and Air) is optional, and none is made yet.
 - **iPhone Duo has its own two sizes:** the outer display 1398 × 2034 and the inner display 2007 × 2853 (portrait).
   They are optional today. Apple's note: from April 2027, screenshots will be required for any app using the
   iOS 27.1 SDK or later, and a product page with iPhone Duo screenshots shows a badge that the app is made for iPhone
@@ -77,7 +82,7 @@ Checked on 2026-11-24 against Apple's
 
 | Folder | Display | Simulator | Size |
 | --- | --- | --- | --- |
-| `iphone-6.1-1206x2622` | iPhone with Dynamic Island (medium display), required | iPhone 17 | 1206 × 2622 |
+| `iphone-medium-1206x2622` | iPhone with Dynamic Island (medium display), required | iPhone 17 | 1206 × 2622 |
 | `duo-outer-1398x2034` | iPhone Duo, outer display (closed) | iPhone Duo, `--display=1` | 1398 × 2034 |
 | `duo-inner-2007x2853` | iPhone Duo, inner display (open flat) | iPhone Duo, `--display=3` | 2007 × 2853 |
 
@@ -106,4 +111,4 @@ recorded on camera, so the saga stays as imported).
 | `08-map` | `06-map` | The world map, Lena in the Swamp of No Sleep |
 
 They go out of date as `docs/demo/README.md` says the demo video does: when a screen they show changes, and as the demo
-saga ages (Lena leaves the Swamp of No Sleep at 8 months, about March 2027). Taking them again follows the steps above.
+saga ages (Lena leaves the Swamp of No Sleep at 9 months, on 12 April 2027). Taking them again follows the steps above.

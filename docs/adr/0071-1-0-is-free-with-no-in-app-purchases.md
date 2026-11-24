@@ -6,7 +6,8 @@
 - The roadmap left the price open: "free; a one-time unlock later?" (Phase 4).
 - DadSaga's rules leave little to sell. XP comes only from the dad's own actions, with no penalties, streaks or
   deadlines (ADR-0006); titles come from what he does, and they bring the hero's gear (ADR-0055). Selling gear, a title
-  or a world would break both. The copy of the saga is "never asked for, never paid for" (ADR-0057).
+  or a world would break both. The copy of the saga is "never behind a paywall, whatever the pricing ADR decides"
+  (ADR-0057).
 - The app has no account, server, analytics or ads (ADR-0004), and the privacy label is "Data Not Collected"
   (`docs/RELEASE.md`). A paid app or an in-app purchase needs the Paid Applications Agreement, banking and tax forms in
   App Store Connect, StoreKit code, its tests, and a review of both privacy pages (ADR-0051). None of it is there.

@@ -21,10 +21,10 @@ Fatherhood as a calm adventure
 Free, with no ads and no account. Quests for every week, calm guides for the hard days, and your child's firsts kept with photos and made into a short film.
 ```
 
-## Keywords (100, comma-separated, no spaces)
+## Keywords (100 bytes, comma-separated, no spaces)
 
 ```text
-father,fatherhood,baby,newborn,pregnancy,parenting,dad to be,daddy,baby book,journal,memories,quest
+father,baby,newborn,pregnancy,parenting,dad to be,daddy,toddler,journal,memories,quest,photos
 ```
 
 ## Description (4000)
@@ -35,7 +35,7 @@ An RPG for new dads and dads-to-be. You're the hero, your kid is your companion,
 DadSaga turns fatherhood into a game, from the months before the birth to age six, without turning your child into a scoreboard.
 
 QUESTS
-Real things you do with and for your kid: a bath, a bedtime story, a night shift, cuddle time. Tap when you did one. That's all it takes. Each comes with a short, practical tip.
+Real things you do with and for your kid: a bath, a bedtime story, a night shift, cuddle time. Tap when you did one. That's all it takes. Most come with a short, practical tip.
 
 BOSS FIGHTS
 The hard parts of real life, like The First Fever, The Endless Cry or The Sleep That Vanished, each with a short, calm survival guide.
@@ -66,7 +66,7 @@ MADE FOR YOUR FAMILY
 - In English and Greek.
 
 YOUR FAMILY STAYS ON YOUR PHONE
-No account, no sign-up, no ads, no tracking, no analytics. Your child's details and photos stay on your iPhone. Export a copy of your saga as a single file whenever you like, and import it on a new iPhone.
+No account, no sign-up, no ads, no tracking, no analytics. Your child's details and photos stay on your iPhone, and in its backups if you make them. Export a copy of your saga as a single file whenever you like, and import it on a new iPhone.
 
 Free, with no in-app purchases.
 
