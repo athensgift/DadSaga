@@ -3,7 +3,6 @@
   "strings" : {
     "CFBundleDisplayName" : {
       "comment" : "Bundle display name",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -16,7 +15,6 @@
     },
     "CFBundleName" : {
       "comment" : "Bundle name",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -28,7 +26,22 @@
       "shouldTranslate" : false
     },
     "DadSaga copy" : {
-
+      "comment" : "The name of an exported saga's file type",
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αντίγραφο DadSaga"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DadSaga copy"
+          }
+        }
+      }
     },
     "DadSagaPrivacyPolicyURL" : {
       "comment" : "The privacy policy Settings opens, in the app's language",
@@ -50,7 +63,6 @@
     },
     "NSCameraUsageDescription" : {
       "comment" : "Privacy - Camera Usage Description",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "el" : {
           "stringUnit" : {
@@ -68,7 +80,6 @@
     },
     "NSPhotoLibraryAddUsageDescription" : {
       "comment" : "Privacy - Photo Library Additions Usage Description",
-      "extractionState" : "extracted_with_value",
       "localizations" : {
         "el" : {
           "stringUnit" : {

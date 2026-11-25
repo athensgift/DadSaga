@@ -5,7 +5,8 @@ options:
   deploymentTarget:
     iOS: "26.0"
   createIntermediateGroups: true
-  developmentLanguage: el
+  # The language a phone with neither Greek nor English gets from the system: English, as the app's own text (ADR-0077).
+  developmentLanguage: en
 
 settings:
   base:
@@ -58,7 +59,7 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLName: com.athinodoros.dadsaga
             CFBundleURLSchemes: [dadsaga]
-        CFBundleDevelopmentRegion: el
+        CFBundleDevelopmentRegion: en
         CFBundleLocalizations: [el, en]
         # Always show the per-app language in iOS Settings; Settings' language row opens it (ADR-0030).
         UIPrefersShowingLanguageSettings: true
@@ -158,7 +159,7 @@ targets:
         CFBundleDisplayName: DadSaga
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        CFBundleDevelopmentRegion: el
+        CFBundleDevelopmentRegion: en
         CFBundleLocalizations: [el, en]
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
