@@ -50,7 +50,7 @@ struct BundledContentRepositoryTests {
     func readsNewFields() async throws {
         let catalog = try await repository.fetchCatalog()
         #expect(catalog.quests.compactMap(\.tip).count == 85)
-        #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 28)
+        #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 30)
         #expect(catalog.quests.filter(\.isEvergreen).count == 29)
         #expect(catalog.bosses.filter { !$0.onlyFor.isEmpty }.map(\.id) == [
             "b-w0-birth-day", "b-w0-caesarean", "b-w1-fourth-trimester", "b-w3-new-sibling"
@@ -227,6 +227,59 @@ struct ContentValidatorTests {
         )
         #expect(throws: ContentDataError.emptyTip(itemID: "q")) {
             try ContentValidator.validate(catalog)
+        }
+    }
+
+    /// Six are allowed: the bundled content has tips of six.
+    @Test("Given a tip of seven steps, when validating, then longTip is thrown")
+    func longTip() {
+        let world = World(id: "w", order: 1, title: text, tagline: text, span: .months(min: 0, max: nil))
+        let quest = Quest(id: "q", worldID: "w", title: text, description: text, skill: .care, xp: 1, minAgeMonths: 0,
+                          tip: QuestTip(title: text, steps: Array(repeating: text, count: 7)))
+        #expect(throws: ContentDataError.longTip(itemID: "q")) {
+            try ContentValidator.validate(ContentCatalog(worlds: [world], quests: [quest], bosses: [], firsts: []))
+        }
+    }
+
+    @Test("Given a boss with no guide, when validating, then emptyGuide is thrown")
+    func emptyGuide() {
+        let world = World(id: "w", order: 1, title: text, tagline: text, span: .months(min: 0, max: nil))
+        let boss = BossFight(id: "b", worldID: "w", title: text, intro: text, guide: [], badge: text, skill: .care, xp: 1,
+                             minAgeMonths: 0)
+        #expect(throws: ContentDataError.emptyGuide(itemID: "b")) {
+            try ContentValidator.validate(ContentCatalog(worlds: [world], quests: [], bosses: [boss], firsts: []))
+        }
+    }
+
+    @Test("Given a quest, a boss or a first with no XP, when validating, then invalidXP is thrown")
+    func invalidXP() {
+        let world = World(id: "w", order: 1, title: text, tagline: text, span: .months(min: 0, max: nil))
+        let quest = Quest(id: "q", worldID: "w", title: text, description: text, skill: .care, xp: 0, minAgeMonths: 0)
+        let boss = BossFight(id: "b", worldID: "w", title: text, intro: text, guide: [text], badge: text, skill: .care,
+                             xp: -1, minAgeMonths: 0)
+        let first = FirstMoment(id: "f", order: 1, emoji: "", title: text, xp: 0, companionTrait: nil)
+        let catalogs = [
+            "q": ContentCatalog(worlds: [world], quests: [quest], bosses: [], firsts: []),
+            "b": ContentCatalog(worlds: [world], quests: [], bosses: [boss], firsts: []),
+            "f": ContentCatalog(worlds: [world], quests: [], bosses: [], firsts: [first])
+        ]
+        for (id, catalog) in catalogs {
+            #expect(throws: ContentDataError.invalidXP(itemID: id)) { try ContentValidator.validate(catalog) }
+        }
+    }
+
+    @Test(
+        "Given worlds whose ages leave a gap, overlap, end before they start or don't start at 0, when validating, then refused",
+        arguments: [
+            [(0, 8), (10, 23)], [(0, 8), (8, 23)], [(0, 8), (9, 7)], [(1, 8)], [(0, nil), (9, 23)]
+        ] as [[(Int, Int?)]]
+    )
+    func worldAges(ages: [(Int, Int?)]) {
+        let worlds = ages.enumerated().map { index, span in
+            World(id: "w\(index)", order: index, title: text, tagline: text, span: .months(min: span.0, max: span.1))
+        }
+        #expect(throws: ContentDataError.worldAgesNotInARow(worldID: "w\(ages.count - 1)")) {
+            try ContentValidator.validate(ContentCatalog(worlds: worlds, quests: [], bosses: [], firsts: []))
         }
     }
 

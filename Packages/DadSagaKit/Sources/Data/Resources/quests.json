@@ -424,8 +424,8 @@
       },
       "steps": [
         {
-          "el": "Περίπου ένας στους δέκα άντρες περνά κατάθλιψη ήδη από την εγκυμοσύνη, όχι μόνο μετά τη γέννα.",
-          "en": "About one man in ten goes through depression during the pregnancy itself, not only after the birth."
+          "el": "Πολλοί μπαμπάδες περνούν κατάθλιψη ήδη από την εγκυμοσύνη, όχι μόνο μετά τη γέννα.",
+          "en": "Many dads go through depression during the pregnancy itself, not only after the birth."
         },
         {
           "el": "Δεν μοιάζει πάντα με λύπη: νεύρα, κακός ύπνος, απόσυρση, παραπάνω ώρες στη δουλειά.",
@@ -1569,8 +1569,8 @@
       },
       "steps": [
         {
-          "el": "Σε έρευνα σε τέσσερις χώρες, σχεδόν ένας στους τέσσερις μπαμπάδες είπε ότι ένιωσε απομονωμένος όταν έγινε πατέρας. Ο άλλος μπαμπάς στην παιδική χαρά μάλλον περιμένει κι αυτός να μιλήσει κάποιος πρώτος.",
-          "en": "In a survey across four countries, nearly one dad in four said he felt isolated when he became a father. The other dad at the playground is probably waiting for someone to speak first, too."
+          "el": "Πολλοί μπαμπάδες νιώθουν απομονωμένοι όταν έρχεται το παιδί. Ο άλλος μπαμπάς στην παιδική χαρά μάλλον περιμένει κι αυτός να μιλήσει κάποιος πρώτος.",
+          "en": "Many dads feel isolated when their child arrives. The other dad at the playground is probably waiting for someone to speak first, too."
         },
         {
           "el": "Δεν χρειάζεται «να μιλήσουμε». Φτάνει να κάνετε κάτι δίπλα δίπλα: περπάτημα, μπάλα, μαστόρεμα. Η κουβέντα έρχεται μόνη της.",
@@ -2166,7 +2166,7 @@
     "worldID": "w3-no-land",
     "skill": "care",
     "xp": 35,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Αρχηγός του ύπνου",
       "en": "Bedtime boss"
@@ -2197,7 +2197,7 @@
     "worldID": "w3-no-land",
     "skill": "play",
     "xp": 25,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Κάστρο από κουβέρτες",
       "en": "Blanket fort"
@@ -2212,7 +2212,7 @@
     "worldID": "w3-no-land",
     "skill": "resilience",
     "xp": 35,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "evergreen": true,
     "title": {
       "el": "Βράδυ με φίλους",
@@ -2228,7 +2228,7 @@
     "worldID": "w3-no-land",
     "skill": "play",
     "xp": 25,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Βουτιά στις λακκούβες",
       "en": "Puddle jumping"
@@ -2243,7 +2243,7 @@
     "worldID": "w3-no-land",
     "skill": "play",
     "xp": 20,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "evergreen": true,
     "title": {
       "el": "Το τετράδιο με τις ατάκες",
@@ -2271,7 +2271,7 @@
     "worldID": "w3-no-land",
     "skill": "patience",
     "xp": 35,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "evergreen": true,
     "title": {
       "el": "Η συγγνώμη",
@@ -2307,7 +2307,7 @@
     "worldID": "w3-no-land",
     "skill": "play",
     "xp": 25,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Δέκα λεπτά, δικοί του κανόνες",
       "en": "Ten minutes, their rules"
@@ -2342,7 +2342,7 @@
     "worldID": "w3-no-land",
     "skill": "patience",
     "xp": 25,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Δύο επιλογές",
       "en": "Two choices"
@@ -2369,7 +2369,7 @@
     "worldID": "w3-no-land",
     "skill": "patience",
     "xp": 25,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Πιάσ' το στο καλό",
       "en": "Catch them being good"
@@ -2408,7 +2408,7 @@
     "worldID": "w3-no-land",
     "skill": "resilience",
     "xp": 35,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "evergreen": true,
     "title": {
       "el": "Σέρβις στη δική σου μηχανή",
@@ -2445,7 +2445,7 @@
     "worldID": "w3-no-land",
     "skill": "care",
     "xp": 20,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Ο κόφτης των σταφυλιών",
       "en": "Grape cutter"
@@ -2485,7 +2485,7 @@
     "worldID": "w3-no-land",
     "skill": "resilience",
     "xp": 30,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "evergreen": true,
     "title": {
       "el": "Κράτα ένα, άλλαξε ένα",
@@ -2525,7 +2525,7 @@
     "worldID": "w3-no-land",
     "skill": "care",
     "xp": 20,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Τα κανονικά ονόματα",
       "en": "Real names"
@@ -2568,7 +2568,7 @@
     "worldID": "w3-no-land",
     "skill": "care",
     "xp": 20,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "evergreen": true,
     "title": {
       "el": "Πρώτα η σκιά",
@@ -2617,7 +2617,7 @@
     "worldID": "w3-no-land",
     "skill": "play",
     "xp": 20,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "evergreen": true,
     "title": {
       "el": "Η γλώσσα σου, οι ιστορίες σου",
@@ -2653,7 +2653,8 @@
           "el": "Αν σε προβληματίζει η ομιλία του, ρώτα τον γιατρό του ή έναν λογοθεραπευτή. Μην κόψεις μια γλώσσα όσο περιμένεις απάντηση.",
           "en": "If their speech worries you, ask their doctor or a speech therapist. Don't drop a language while you wait for an answer."
         }
-      ]
+      ],
+      "medical": true
     }
   },
   {
@@ -2661,7 +2662,7 @@
     "worldID": "w3-no-land",
     "skill": "play",
     "xp": 20,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Σειρά μου, σειρά σου",
       "en": "My turn, your turn"
@@ -3077,7 +3078,8 @@
           "el": "Αν έχεις χρόνια να γυμναστείς ή κάποιο θέμα υγείας, ρώτα πρώτα έναν γιατρό.",
           "en": "If it's been years since you exercised or you have a health condition, ask a doctor first."
         }
-      ]
+      ],
+      "medical": true
     }
   },
   {
