@@ -336,7 +336,7 @@ extension AppContainer {
         )
     }
 
-    /// Deletes exported files: once Settings closes, and at launch for what a crash or a kill left (ADR-0057 §6).
+    /// Deletes exported files: once the dad leaves their page, and at launch for what a crash or a kill left (ADR-0057 §6).
     func discardLeftoverExports() {
         let makeCopy = makeSagaCopyUseCase
         Task { await makeCopy.discardCopies() }

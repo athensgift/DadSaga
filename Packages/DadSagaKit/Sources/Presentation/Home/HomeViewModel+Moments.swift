@@ -92,7 +92,7 @@ extension HomeViewModel {
     /// stays (ADR-0055 §3).
     public func deleteMoment() async {
         guard let details = momentCapture?.details else { return }
-        await perform {
+        await perform(orSay: strings.text("Couldn't delete. Please try again.")) {
             // A deletion keeps the title he holds now, the last card's included: the bar's Undo could no longer
             // take that card back whole, so its offer ends.
             self.undoOffer = nil

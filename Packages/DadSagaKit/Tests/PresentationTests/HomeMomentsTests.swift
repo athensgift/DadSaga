@@ -255,4 +255,35 @@ struct HomeMomentsTests {
         #expect(details.isNew)
         #expect(loadedMoments(sut)?.cards.isEmpty == true)
     }
+
+    @Test("Given a moment with photos, a note, both or neither, when asking to delete it, then it says what goes, for good",
+          arguments: [
+              (photos: 1, note: "πρώτα", goes: "Μαζί θα σβηστούν οι φωτογραφίες και η σημείωσή σου, χωρίς επιστροφή. "),
+              (photos: 1, note: nil, goes: "Μαζί θα σβηστούν οι φωτογραφίες σου, χωρίς επιστροφή. "),
+              (photos: 0, note: "πρώτα", goes: "Μαζί θα σβηστεί η σημείωσή σου, χωρίς επιστροφή. "),
+              (photos: 0, note: nil, goes: "")
+          ])
+    func deleteQuestionSaysWhatGoes(photos: Int, note: String?, goes: String) async throws {
+        await progress.seedMoment(photos: Array(repeating: Data([1]), count: photos), note: note)
+        let sut = await makeSUT()
+        sut.editMoment(id: try #require(loadedMoments(sut)?.cards.first?.id))
+
+        let question = try #require(sut.momentCapture?.details?.labels.deletion)
+        #expect(question.title == "Διαγραφή από το χρονολόγιο;")
+        #expect(question.message == goes + "Ο τίτλος σου και ό,τι πήρες μένουν.")
+    }
+
+    @Test("Given an edited moment, when deleting it fails, then the page stays open and says it wasn't deleted")
+    func failedDeletionSaysSo() async throws {
+        await progress.seedMoment(photos: [])
+        let sut = await makeSUT()
+        sut.editMoment(id: try #require(loadedMoments(sut)?.cards.first?.id))
+        await progress.failNext()
+
+        await sut.deleteMoment()
+
+        #expect(sut.momentCapture != nil)
+        #expect(sut.errorMessage == "Δεν διαγράφηκε. Δοκίμασε ξανά.")
+        #expect(loadedMoments(sut)?.cards.count == 1)
+    }
 }

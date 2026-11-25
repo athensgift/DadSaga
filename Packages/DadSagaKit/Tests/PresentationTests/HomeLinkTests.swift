@@ -165,17 +165,6 @@ struct HomeLinkTests {
         #expect(sut.pendingLink == nil)
     }
 
-    @Test("Given a celebration read out, when its time starts again, then VoiceOver doesn't read it twice")
-    func celebrationIsReadOnce() async throws {
-        let sut = await makeSUT()
-        sut.select(cardID: "q1")
-        await sut.completeSelectedQuest()
-        let celebration = try #require(sut.celebration)
-
-        #expect(sut.shouldAnnounce(celebration))
-        #expect(!sut.shouldAnnounce(celebration))
-    }
-
     @Test("Given a quest's sheet open with the note just written, when undoing that entry, then the sheet drops the note")
     func undoRefreshesTheOpenSheet() async throws {
         let sut = await makeSUT()

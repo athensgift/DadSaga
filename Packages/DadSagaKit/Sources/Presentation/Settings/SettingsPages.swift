@@ -29,7 +29,7 @@ public struct SettingsPages {
     let makeFamily: MakeFamily
     let makeReminder: MakeReminder
     let makeDataExport: MakeDataExport
-    /// Deletes the exported files once Settings closes: by then they were saved or sent (ADR-0057 §6).
+    /// Deletes the exported files once the dad leaves Export and import: by then they were saved or sent (ADR-0057 §6).
     let discardExports: @MainActor () -> Void
 
     public init(

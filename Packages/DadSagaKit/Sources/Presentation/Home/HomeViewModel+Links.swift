@@ -34,7 +34,7 @@ extension HomeViewModel {
     }
 
     /// Shows the link's child, then the quest's sheet or the moment. A child no longer in the family opens home
-    /// as it is; a quest that no longer exists or isn't offered to this child (retired, too early, for someone else:
+    /// on the first child; a quest that no longer exists or isn't offered to this child (retired, too early, for someone else:
     /// ADR-0053) or a moment that no longer exists opens no sheet.
     /// It reads what its own load returned, and opens only if the screen still shows the link's child: a load started
     /// meanwhile (the app coming back) may hold the previous child, and the dad or a newer link may have picked

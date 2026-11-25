@@ -43,23 +43,25 @@ extension HomeView {
 // MARK: - Celebrations
 
 extension HomeView {
-    /// A celebration's time on screen, kept here rather than in its badge, so drawing the badge again (one pane to
-    /// two) doesn't restart it. VoiceOver reads it once, a moment in, when the card's sheet has finished closing and
-    /// moving focus would no longer cut it off. Cancelled when a newer celebration replaces it: that one keeps its own.
-    /// VoiceOver hears a new title card once, as it appears, its level included; closing it says nothing (ADR-0055 §6).
-    func announce(_ card: TitleCard?) {
-        guard let card else { return }
-        AccessibilityNotification.Announcement(card.announcement).post()
+    /// VoiceOver reads the news once, a moment in, when the card's sheet has finished closing and moving focus would no
+    /// longer cut it off. Cancelled when newer news replaces it: that one starts its own wait.
+    func speakNews() async {
+        guard let news = viewModel.spokenNews else { return }
+        do {
+            try await Task.sleep(for: .milliseconds(600))
+        } catch {
+            return
+        }
+        AccessibilityNotification.Announcement(news.text).post()
+        viewModel.spoke(news)
     }
 
+    /// A celebration's time on screen, kept here rather than in its badge, so drawing the badge again (one pane to
+    /// two) doesn't restart it. Cancelled when a newer celebration replaces it: that one keeps its own.
     func celebrationTime() async {
         guard let celebration = viewModel.celebration else { return }
         do {
-            try await Task.sleep(for: .milliseconds(600))
-            if viewModel.shouldAnnounce(celebration) {
-                AccessibilityNotification.Announcement(celebration.announcement).post()
-            }
-            try await Task.sleep(for: .seconds(celebration.highlight >= .moment ? 2.6 : 1.6))
+            try await Task.sleep(for: .seconds(celebration.highlight >= .moment ? 3.2 : 2.2))
         } catch {
             return
         }

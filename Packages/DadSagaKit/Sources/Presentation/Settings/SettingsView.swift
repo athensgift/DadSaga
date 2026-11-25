@@ -52,7 +52,11 @@ public struct SettingsView: View {
         .onChange(of: pendingLink) { _, link in
             guard link != nil else { return }
             viewModel.linkWillOpen()
-            if case .family(let family) = page { family.linkWillOpen() }
+            switch page {
+            case .family(let family): family.linkWillOpen()
+            case .data(let data): Task { await data.importer.linkWillOpen() }
+            case .hero, .wardrobe, .reminder, nil: break
+            }
         }
     }
 

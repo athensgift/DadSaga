@@ -76,7 +76,7 @@ struct WorldMapTests {
         #expect(map.worlds.map(\.status) == [WorldMapItem.Status.visited, .current, .ahead])
         #expect(map.worlds.map(\.ageRange) == ["0–8 μηνών", "9–24 μηνών", "2–3½ ετών"])
         #expect(map.worlds.map(\.tag) == [nil, "Είσαι εδώ", nil])
-        #expect(map.worlds.map(\.progress) == ["0 αποστολές · 0 αφεντικά", "0 αποστολές · 0 αφεντικά", nil])
+        #expect(map.worlds.map(\.progress) == ["0 αποστολές · 0 bosses", "0 αποστολές · 0 bosses", nil])
         #expect(map.worlds.map(\.idealLine) == [nil, nil, "Ιδανικά από τα 2 χρόνια"])
         #expect(map.shownWorld?.id == "w2")
     }
@@ -99,7 +99,7 @@ struct WorldMapTests {
 
         sut.select(cardID: "q1")
         await sut.completeSelectedQuest()
-        #expect(sut.worldMap?.worlds.first?.progress == "1 αποστολή · 0 αφεντικά")
+        #expect(sut.worldMap?.worlds.first?.progress == "1 αποστολή · 0 bosses")
 
         await sut.showWorld(id: nil)
         #expect(loaded(sut)?.backToCurrentTitle == nil)

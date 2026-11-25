@@ -125,6 +125,13 @@ public final class DataImportViewModel: Identifiable {
         await discardOpened()
     }
 
+    /// A link from outside is about to open home: the file picker and the question close, and nothing is lost by it
+    /// (ADR-0061 §2). Never while a file is read or imported: the link waits for that (`isWorking`).
+    public func linkWillOpen() async {
+        isPicking = false
+        await decline()
+    }
+
     /// The screen closed: a file read but never answered is let go.
     public func closed() async {
         if case .asking = state { state = .ready }

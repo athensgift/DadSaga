@@ -34,7 +34,7 @@ extension HomeViewModel {
             reward: boss.badge.resolved(for: locale),
             disclaimer: strings.medicalFooter,
             isDefeated: overview.defeatedBossIDs.contains(boss.id),
-            defeatedText: strings.defeatedText(for: boss),
+            recordedText: strings.recordedText(for: boss),
             confirmTitle: strings.text("We made it through!"),
             journal: JournalLabels(locale: locale),
             lastJournal: lastJournal(for: .boss(id: boss.id), in: overview)

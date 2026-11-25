@@ -95,7 +95,7 @@ public struct HomeView: View {
         .task { await midnights() }
         .task(id: pendingLink) { await openPendingLink() }
         .task(id: viewModel.celebration?.id) { await celebrationTime() }
-        .onChange(of: viewModel.titleCard) { _, card in announce(card) }
+        .task(id: viewModel.spokenNews) { await speakNews() }
         .sheet(item: activeSheet, onDismiss: homeSheetDismissed) { sheet in
             sheetContent(sheet)
                 .environment(\.unsavedScope, UnsavedScope.homeSheet)

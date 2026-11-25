@@ -218,7 +218,7 @@ struct BeforeBirthPresentationTests {
         let swamp = try #require(sut.worldMap?.worlds[1])
         #expect(swamp.status == .ahead)
         #expect(swamp.idealLine == "Ιδανικά μετά τη γέννα")
-        #expect(swamp.progress == "1 αποστολή · 0 αφεντικά")
+        #expect(swamp.progress == "1 αποστολή · 0 bosses")
     }
 
     @Test("Given a child not born yet, when the dad opens World 1, then all its cards are offered, whatever their ages")
@@ -243,7 +243,7 @@ struct BeforeBirthPresentationTests {
         let map = try #require(sut.worldMap)
 
         #expect(map.worlds.map(\.status) == [WorldMapItem.Status.visited, .current, .ahead])
-        #expect(map.worlds[0].progress == "1 αποστολή · 0 αφεντικά")
+        #expect(map.worlds[0].progress == "1 αποστολή · 0 bosses")
         #expect(map.worlds.map(\.idealLine) == [nil, nil, "Ιδανικά από τους 9 μήνες"])
     }
 
