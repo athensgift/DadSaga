@@ -48,8 +48,8 @@ struct WholePhoto: View {
                     .scaledToFit()
             }
             // The longest side the photo can take: the width, or the height of the tallest frame.
-            .onGeometryChange(for: Int.self) { [scale] proxy in
-                Int((proxy.size.width / Self.frameRatios.lowerBound * scale).rounded(.up))
+            .onGeometryChange(for: Int.self) { [scale, tallest = Self.frameRatios.lowerBound] proxy in
+                Int((proxy.size.width / tallest * scale).rounded(.up))
             } action: { size in
                 // A frame given no room (hidden while the keyboard has its half of a folded display) asks for
                 // nothing: the photo it has stays, and comes back without loading again.

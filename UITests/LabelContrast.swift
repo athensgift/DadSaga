@@ -13,6 +13,7 @@ import XCTest
 /// - "Add a child": two shades of the glass, 1.02:1; its label is the accent itself, `#3755CD`, 6.0:1 on the glass;
 /// - a stock `.glass` button on a plain ground fails the same way with a black label (20:1), and passes with the
 ///   same colours once the label is heavy enough to outnumber the second shade.
+@MainActor
 enum LabelContrast {
     /// WCAG AA for small text.
     static let smallText = 4.5

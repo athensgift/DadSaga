@@ -47,7 +47,7 @@ public struct Quest: ContentItem, Hashable, Identifiable, Sendable {
     }
 }
 
-/// A short, practical "how to" on a quest. Medical tips end with a fixed "ask your paediatrician" line in the app.
+/// A short, practical "how to" on a quest. Medical tips end with a fixed "does not replace a doctor's advice" line in the app.
 public struct QuestTip: Hashable, Sendable {
     public let title: LocalizedText
     public let steps: [LocalizedText]

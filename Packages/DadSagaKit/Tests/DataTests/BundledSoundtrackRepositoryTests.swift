@@ -34,7 +34,8 @@ struct BundledSoundtrackRepositoryTests {
             let asset = AVURLAsset(url: track.audioURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
             let audio = try await asset.loadTracks(withMediaType: .audio)
             #expect(audio.count == 1, "\(track.id) has \(audio.count) audio tracks")
-            let range = try await try #require(audio.first).load(.timeRange)
+            let audioTrack = try #require(audio.first)
+            let range = try await audioTrack.load(.timeRange)
 
             #expect(
                 range.duration.seconds >= film.seconds,
