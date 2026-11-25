@@ -104,7 +104,7 @@ struct JournalPhotosField: View {
                     addMenu
                 }
             }
-            .padding(.vertical, 2)
+            .padding(.vertical, DSSpacing.xxs)
         }
         .scrollIndicators(.hidden)
     }
@@ -120,11 +120,11 @@ struct JournalPhotosField: View {
                 .overlay(alignment: .bottomLeading) {
                     if isCover {
                         Image(systemName: "star.fill")
-                            .font(.caption2.weight(.bold))
+                            .font(DSFont.badge)
                             .foregroundStyle(DSColor.onTint)
-                            .padding(4)
+                            .padding(DSSpacing.xs)
                             .background(DSColor.legendary, in: Circle())
-                            .padding(4)
+                            .padding(DSSpacing.xs)
                     }
                 }
         }

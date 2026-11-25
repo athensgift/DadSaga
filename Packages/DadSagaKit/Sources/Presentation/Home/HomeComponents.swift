@@ -157,7 +157,7 @@ extension CelebrationHaptic {
     }
 }
 
-/// The world's name and motto, and a way back when an earlier world is shown. The world map is in the toolbar.
+/// The world's name and motto, and a way back when an earlier world is shown.
 struct WorldHeader: View {
     let content: HomeContent
     let onBack: () -> Void

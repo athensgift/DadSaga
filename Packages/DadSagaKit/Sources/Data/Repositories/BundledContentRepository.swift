@@ -7,6 +7,12 @@ public enum ContentDataError: Error, Equatable {
     case duplicateID(String)
     case unknownWorld(itemID: String, worldID: String)
     case emptyTip(itemID: String)
+    /// A tip with more steps than `ContentValidator.maxTipSteps` (ADR-0073).
+    case longTip(itemID: String)
+    /// A boss with no survival guide.
+    case emptyGuide(itemID: String)
+    /// A card or first whose XP isn't above 0.
+    case invalidXP(itemID: String)
     case unknownLicence(itemID: String, licence: String)
     case emptyText(itemID: String)
     /// A look option whose part or id the app cannot draw.
@@ -17,6 +23,8 @@ public enum ContentDataError: Error, Equatable {
     case unknownAudience(itemID: String, audience: String)
     /// A world neither before birth without ages, nor with a minimum age (ADR-0053 §7).
     case invalidWorldAges(worldID: String)
+    /// A world whose ages don't start the month after the world before it ends, the first one at 0.
+    case worldAgesNotInARow(worldID: String)
     /// A second world before birth, or one that isn't the first world by order.
     case misplacedBeforeBirthWorld(worldID: String)
     /// A card in the world before birth with a minimum age above 0 months.

@@ -120,6 +120,59 @@ struct WardrobeViewModelTests {
         #expect(await outfit.stored == Outfit(choices: [.care: .hidden, .play: .hidden]))
     }
 
+    @Test("Given a slow save, when the same slot is tapped again meanwhile, then the last tap is shown and stored")
+    func quickTapsOnOneSlot() async throws {
+        await progress.seed(times: 3)
+        let sut = makeSUT()
+        await sut.onAppear()
+        await outfit.slowNext()
+
+        let slow = Task { await sut.select(slotID: "care", optionID: "hidden") }
+        await outfit.waitUntilSlowStarted()
+        await sut.select(slotID: "care", optionID: "g1")
+        #expect(loaded(sut)?.slots.first?.options.map(\.isSelected) == [false, false, true])
+        await slow.value
+
+        #expect(loaded(sut)?.slots.first?.options.map(\.isSelected) == [false, false, true])
+        #expect(await outfit.stored == Outfit(choices: [.care: .item("g1")]))
+    }
+
+    @Test("Given a slow save that fails, when the same slot was tapped again meanwhile, then the last tap is stored")
+    func quickTapAfterAFailingSave() async throws {
+        await progress.seed(times: 3)
+        let sut = makeSUT()
+        await sut.onAppear()
+        await outfit.slowNext()
+        await outfit.failNext()
+
+        let slow = Task { await sut.select(slotID: "care", optionID: "hidden") }
+        await outfit.waitUntilSlowStarted()
+        await sut.select(slotID: "care", optionID: "g1")
+        await slow.value
+
+        #expect(sut.errorMessage == nil)
+        #expect(loaded(sut)?.slots.first?.options.map(\.isSelected) == [false, false, true])
+        #expect(await outfit.stored == Outfit(choices: [.care: .item("g1")]))
+    }
+
+    @Test("Given two quick taps on one slot, when only the second save fails, then the first is what stays")
+    func secondQuickTapFails() async throws {
+        await progress.seed(times: 3)
+        let sut = makeSUT()
+        await sut.onAppear()
+        await outfit.slowNext()
+
+        let slow = Task { await sut.select(slotID: "care", optionID: "hidden") }
+        await outfit.waitUntilSlowStarted()
+        await outfit.failNext()
+        await sut.select(slotID: "care", optionID: "g1")
+        await slow.value
+
+        #expect(sut.errorMessage == "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.")
+        #expect(loaded(sut)?.slots.first?.options.map(\.isSelected) == [false, true, false])
+        #expect(await outfit.stored == Outfit(choices: [.care: .hidden]))
+    }
+
     @Test("Given saving fails, when choosing, then the previous choice stays and an error shows")
     func saveFailure() async throws {
         await progress.seed(times: 3)
@@ -226,6 +279,12 @@ actor FakeOutfit: SetOutfitChoiceUseCase {
     func execute(skill: Skill, choice: OutfitChoice) async throws -> Outfit {
         if isSlow {
             isSlow = false
+            if shouldFail {
+                shouldFail = false
+                slowStarted = true
+                try? await Task.sleep(for: .milliseconds(200))
+                throw StubError.boom
+            }
             stored.choices[skill] = choice == .automatic ? nil : choice
             let reply = stored
             slowStarted = true

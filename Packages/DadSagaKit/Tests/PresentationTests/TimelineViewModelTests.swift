@@ -208,6 +208,19 @@ struct TimelineViewModelTests {
         #expect(sut.editor == nil)
     }
 
+    @Test("Given the delete question open, when a link is about to open home, then the question closes and nothing goes")
+    func linkClosesTheDeleteQuestion() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        sut.requestDeletion(id: try #require(loadedContent(sut)?.sections.first?.items.first).id)
+        #expect(sut.deletion != nil)
+
+        sut.linkWillOpen(editorHoldsChanges: false)
+
+        #expect(sut.deletion == nil)
+        #expect(loadedContent(sut)?.sections.flatMap(\.items).count == 3)
+    }
+
     @Test("Given an entry with two photos, when adding one and making it the cover, then it is saved first")
     func savesArrangedPhotos() async throws {
         let quest = ProgressEvent(kind: .quest(id: "q1"), childID: HeroStub.niko.id, date: january, photoIDs: ["a", "b"])
@@ -297,6 +310,8 @@ actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseC
     private var events: [ProgressEvent]
     /// Every change throws from now on.
     private var isFailing = false
+    /// Every read throws while it is set.
+    private var isFailingReads = false
     /// The `now` the last moment update was given.
     private(set) var lastMomentNow: Date?
 
@@ -304,12 +319,21 @@ actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseC
         isFailing = true
     }
 
+    func failReadsFromNowOn() {
+        isFailingReads = true
+    }
+
+    func readAgain() {
+        isFailingReads = false
+    }
+
     init(events: [ProgressEvent]) {
         self.events = events
     }
 
     func execute() async throws -> [TimelineEntry] {
-        Timeline.entries(from: events, catalog: HeroStub.catalog)
+        if isFailingReads { throw StubError.boom }
+        return Timeline.entries(from: events, catalog: HeroStub.catalog)
     }
 
     func execute(eventID: UUID) async throws {

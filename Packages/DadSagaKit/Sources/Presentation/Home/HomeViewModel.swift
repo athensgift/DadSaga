@@ -93,8 +93,8 @@ public final class HomeViewModel {
         await load()
     }
 
-    /// Back in the app, perhaps a day later: the child's age, world and suggestions are read again. Not while a load
-    /// is under way: that one already reads what is true now.
+    /// Back in the app, or midnight passed on home, so perhaps a day later: the child's age, world and suggestions are
+    /// read again. Not while a load is under way: that one already reads what is true now.
     public func appBecameActive() async {
         guard state != .loading, loadsUnderWay == 0 else { return }
         await load()
@@ -267,7 +267,7 @@ public final class HomeViewModel {
                 childID: selectedChildID, worldID: viewedWorldID, on: now()
             ) else {
                 guard generation == loadGeneration else { return nil }
-                state = .failed(message: strings.text("No profile found."))
+                state = .failed(failure(strings.text("No profile found.")))
                 return nil
             }
             let titleCard = makeTitleCard(overview)
@@ -292,7 +292,7 @@ public final class HomeViewModel {
                 if let overview { chooseWhatIsShown(in: overview) }
                 return nil
             }
-            state = .failed(message: strings.text("Content failed to load."))
+            state = .failed(failure(strings.text("Content failed to load.")))
             return nil
         }
     }
@@ -342,5 +342,20 @@ public final class HomeViewModel {
             situational: situationalCards(overview),
             moments: momentsFormatter.section(for: child, age: adventure.age, catalog: catalog, moments: overview.moments)
         )
+    }
+}
+
+// MARK: A home that couldn't load
+
+extension HomeViewModel {
+    /// "Try again", on home or on the map, after the first load failed.
+    public func retry() async {
+        guard case .failed = state else { return }
+        state = .loading
+        await load()
+    }
+
+    private func failure(_ message: String) -> LoadFailure {
+        LoadFailure(message: message, retryTitle: strings.text("Try again"))
     }
 }

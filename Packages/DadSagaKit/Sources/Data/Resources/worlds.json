@@ -38,7 +38,7 @@
       "en": "Everything gets touched, tasted and dropped."
     },
     "minAgeMonths": 9,
-    "maxAgeMonths": 24
+    "maxAgeMonths": 23
   },
   {
     "id": "w3-no-land",
@@ -51,7 +51,7 @@
       "el": "Μικρός άνθρωπος, μεγάλα συναισθήματα, πολλά «όχι».",
       "en": "Small person, big feelings, lots of “no”."
     },
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "maxAgeMonths": 41
   },
   {

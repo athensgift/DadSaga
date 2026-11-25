@@ -21,7 +21,7 @@ keywords: Apple indexes them anyway.
 | Subtitle | 30 | 30 | 30 |
 | Promotional text | 170 | 156 | 157 |
 | Keywords | 100 bytes | 93 | 98 |
-| Description | 4000 | 2536 | 2958 |
+| Description | 4000 | 2601 | 2997 |
 | What's New | 4000 | 52 | 55 |
 
 App Store Connect may not ask for What's New on an app's first version; the text is kept for when it does.
@@ -33,7 +33,7 @@ Count again after any change, for example:
 
 - **The rules of the game:** no streaks, no penalties, no deadlines, nothing compared
   ([ADR-0006](../adr/0006-no-pressure-game-design.md)); titles, with the level beside them as home shows it, never XP
-  ([ADR-0055](../adr/0055-dad-titles-instead-of-levels.md), [ADR-0059](../adr/0059-level-beside-the-title-and-skills-on-home.md)); worlds open by age, none locked
+  ([ADR-0055](../adr/0055-dad-titles-instead-of-levels.md), [ADR-0059](../adr/0059-level-beside-the-title-and-skills-on-home.md)); every world open, age only sets the current one
   ([ADR-0061](../adr/0061-map-and-settings-tabs-and-every-world-open.md)). Calm wording: no risk, fear or death in
   the text, and the guides called general information, not medical advice.
 - **Before the birth is in:** the world before the birth ships in 1.0 (the Harbour of Waiting, its 15 quests and the

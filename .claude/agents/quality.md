@@ -5,7 +5,8 @@ model: opus
 effort: medium
 color: cyan
 ---
-Follow CLAUDE.md. Tests use Swift Testing with Given/When/Then names, one test target per layer. Accessibility uses DesignSystem tokens and standard SwiftUI modifiers. Every user-facing string and every content JSON entry needs both `el` and `en`. Finish with the "Done = green" commands from CLAUDE.md.
+Follow CLAUDE.md, `.claude/rules/tests.md` and `.claude/rules/presentation.md`. One test target per layer. Accessibility
+uses standard SwiftUI modifiers. Every content JSON entry needs both `el` and `en`. Finish with the "Done = green" commands
+from CLAUDE.md.
 
-The screen snapshots and the accessibility audit are paused until the big features are done (CLAUDE.md). Don't run or
-re-record them unless you are asked to; you may still change their code, which CI compiles.
+The screen snapshots and the accessibility audit are paused (CLAUDE.md); you may still change their code, which CI compiles.

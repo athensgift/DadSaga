@@ -431,8 +431,8 @@
         "en": "Tell one person in these words: “I'm not OK.”"
       },
       {
-        "el": "Περίπου ένας στους δέκα νέους μπαμπάδες περνά κατάθλιψη. Δεν μοιάζει πάντα με λύπη: μπορεί να είναι νεύρα, απόσυρση, ή να χάνεσαι με τις ώρες στη δουλειά και στο κινητό.",
-        "en": "About one new dad in ten goes through depression. It doesn't always look like sadness: it can be a short fuse, pulling away, or disappearing for hours into work or your phone."
+        "el": "Πολλοί νέοι μπαμπάδες περνούν κατάθλιψη. Δεν μοιάζει πάντα με λύπη: μπορεί να είναι νεύρα, απόσυρση, ή να χάνεσαι με τις ώρες στη δουλειά και στο κινητό.",
+        "en": "Many new dads go through depression. It doesn't always look like sadness: it can be a short fuse, pulling away, or disappearing for hours into work or your phone."
       },
       {
         "el": "Αν είσαι έτσι τις περισσότερες μέρες για πάνω από δύο εβδομάδες, μίλα με έναν γιατρό ή έναν ψυχολόγο. Αντιμετωπίζεται, και όσο νωρίτερα μιλήσεις τόσο πιο εύκολα.",
@@ -794,8 +794,8 @@
         "en": "A cough like a barking seal and a hoarse voice, often at night after a cold: hold them upright in your arms and stay calm; crying makes it worse."
       },
       {
-        "el": "Όχι μπάνιο γεμάτο ατμούς. Δεν έχει αποδειχτεί ότι βοηθά και υπάρχει κίνδυνος εγκαύματος. Μίλα με γιατρό ή με τη γραμμή ιατρικών συμβουλών, ακόμα κι αν μοιάζει ήπιο: μπορεί να χρειάζεται φάρμακο.",
-        "en": "No steam-filled bathroom. It isn't proven to help and scalds are a risk. Speak to a doctor or a medical advice line even if it seems mild: they may need medicine."
+        "el": "Μίλα με γιατρό την ίδια μέρα, ακόμα κι αν μοιάζει ήπιο· τη νύχτα, η γραμμή ιατρικών συμβουλών μπορεί να σου πει τι να κάνεις. Ο γιατρός μπορεί να δώσει φάρμακο που βοηθά να περάσει πιο γρήγορα. Άσε τους ατμούς: ένα μπάνιο γεμάτο ατμό δεν έχει αποδειχτεί ότι βοηθά, και το καυτό νερό καλύτερα να μένει μακριά από το παιδί.",
+        "en": "Speak to a doctor the same day, even if it seems mild; at night, a medical advice line can tell you what to do. The doctor may give medicine that helps it pass sooner. Skip the steam: a steamy bathroom isn't proven to help, and hot water is best kept away from your child."
       },
       {
         "el": "Κάλεσε τον αριθμό έκτακτης ανάγκης αν δυσκολεύεται να αναπνεύσει (τραχύς ήχος σε κάθε εισπνοή ενώ ησυχάζει, δέρμα που ρουφιέται στον λαιμό ή κάτω από τα πλευρά), αν τα χείλη του γίνουν μπλε ή γκρίζα, αν τρέχουν σάλια και δεν μπορεί να καταπιεί, ή αν είναι ξαφνικά πολύ ήσυχο, χαλαρό και δεν ξυπνά εύκολα. Αν δεν ηρεμεί με τίποτα, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
@@ -968,7 +968,7 @@
     "worldID": "w3-no-land",
     "skill": "patience",
     "xp": 100,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Το Μεγάλο Ξέσπασμα",
       "en": "The Great Meltdown"
@@ -1009,7 +1009,7 @@
     "worldID": "w3-no-land",
     "skill": "care",
     "xp": 100,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "onlyFor": ["youngerSibling"],
     "title": {
       "el": "Ο Νέος Συγκάτοικος",
@@ -1055,7 +1055,7 @@
     "worldID": "w3-no-land",
     "skill": "patience",
     "xp": 100,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Ο Μικρός Κριτικός Γεύσης",
       "en": "The Tiny Food Critic"
@@ -1100,7 +1100,7 @@
     "worldID": "w3-no-land",
     "skill": "patience",
     "xp": 100,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Η Κόκκινη Ομίχλη",
       "en": "The Red Mist"
@@ -1153,7 +1153,7 @@
     "worldID": "w3-no-land",
     "skill": "patience",
     "xp": 100,
-    "minAgeMonths": 25,
+    "minAgeMonths": 24,
     "title": {
       "el": "Ο Μικρός Καβγατζής",
       "en": "The Tiny Brawler"

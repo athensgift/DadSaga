@@ -4,6 +4,9 @@ import Domain
 
 /// Catches content mistakes at load time instead of as silent bugs at runtime.
 enum ContentValidator {
+    /// The most steps a card's tip may have (ADR-0073).
+    static let maxTipSteps = 6
+
     static func validate(_ catalog: ContentCatalog) throws {
         var seen: Set<String> = []
         // A former id is reserved like a current one (ADR-0048 §5): it may not name anything else, nor be listed twice.
@@ -24,10 +27,37 @@ enum ContentValidator {
         for quest in catalog.quests where quest.tip?.steps.isEmpty == true {
             throw ContentDataError.emptyTip(itemID: quest.id)
         }
+        for quest in catalog.quests where (quest.tip?.steps.count ?? 0) > maxTipSteps {
+            throw ContentDataError.longTip(itemID: quest.id)
+        }
+        for boss in catalog.bosses where boss.guide.isEmpty {
+            throw ContentDataError.emptyGuide(itemID: boss.id)
+        }
+        try validateXP(catalog)
+        try validateWorldAges(catalog)
         try validateBeforeBirth(catalog)
         try validateAppearance(catalog.appearanceOptions)
         try validateTitles(catalog)
         try validateSkillCurves(catalog.skillCurves)
+    }
+
+    private static func validateXP(_ catalog: ContentCatalog) throws {
+        let rewards = catalog.quests.map { ($0.id, $0.xp) } + catalog.bosses.map { ($0.id, $0.xp) }
+            + catalog.firsts.map { ($0.id, $0.xp) }
+        if let (id, _) = rewards.first(where: { $0.1 <= 0 }) { throw ContentDataError.invalidXP(itemID: id) }
+    }
+
+    /// After the birth each world takes up where the one before it ends: from 0 months, by order, with no gap, no
+    /// overlap and no world that ends before it starts. Only the last one may be open-ended.
+    private static func validateWorldAges(_ catalog: ContentCatalog) throws {
+        var expected: Int? = 0
+        for world in catalog.worlds.sorted(by: { $0.order < $1.order }) {
+            guard case .months(let min, let max) = world.span else { continue }
+            guard min == expected, max.map({ $0 >= min }) ?? true else {
+                throw ContentDataError.worldAgesNotInARow(worldID: world.id)
+            }
+            expected = max.map { $0 + 1 }
+        }
     }
 
     /// Each skill has exactly one curve, and each half-grown XP is above 0 (ADR-0059 §2).

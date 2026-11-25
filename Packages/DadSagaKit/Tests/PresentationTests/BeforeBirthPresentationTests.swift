@@ -277,7 +277,13 @@ struct BeforeBirthPresentationTests {
         sut.startCapture()
         guard case .choose(let choice) = sut.momentCapture?.step else { throw StubError.boom }
         #expect(choice.options.map(\.id) == ["f-smile"])
-        #expect(choice.options.first?.earliestDate == child.birthDay?.start(in: .gmt))
+        let birthDay = try #require(child.birthDay?.start(in: .gmt))
+        let smile = try #require(choice.options.first)
+        #expect(smile.earliestDate == birthDay)
+        // A day before the birth moves up to the birth day's noon, not its first moment: read further west, 00:00 is
+        // the day before the birth. A day from the birth on stays as picked.
+        #expect(smile.date(for: birthDay.addingTimeInterval(-86_400)) == birthDay.addingTimeInterval(12 * 3_600))
+        #expect(smile.date(for: birthDay.addingTimeInterval(60)) == birthDay.addingTimeInterval(60))
 
         let all = events + [ProgressEvent(kind: .first(id: "f-smile"), childID: child.id, date: HarbourStub.today)]
         let complete = home(profile([child]), events: all)

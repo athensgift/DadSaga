@@ -40,11 +40,13 @@ struct MomentsFormatter {
     ) -> MomentCapture {
         let captured = moments.capturedFirstIDs(for: child.id)
         let options = UnlockRules.firsts(in: catalog, age: age).filter { !captured.contains($0.id) }.map { first in
-            MomentOption(
+            let earliest = earliestDate(of: first, for: child, now: now)
+            return MomentOption(
                 id: first.id,
                 emoji: first.emoji,
                 title: first.title.resolved(for: locale),
-                earliestDate: earliestDate(of: first, for: child, now: now)
+                earliestDate: earliest,
+                movedDate: min(earliest.addingTimeInterval(12 * 3_600), now)
             )
         }
         let choice = MomentChoice(

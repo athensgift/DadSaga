@@ -1,6 +1,6 @@
 # ADR-0050: Unsaved changes are kept on every editor, a link waits for them, and the question never records
 
-**Status:** Proposed (2026-11-21). The owner chose the dialog's buttons and its Greek wording; the rest follows the
+**Status:** Accepted (proposed 2026-11-21, accepted by the owner 2026-11-25). The owner chose the dialog's buttons and its Greek wording; the rest follows the
 reviewer's findings on the UI pull request. Changes ADR-0042 §5 ("Closing never loses the moment": which screens ask,
 which buttons the question offers, its Greek "Keep editing") and ADR-0023 (when a link from outside opens).
 

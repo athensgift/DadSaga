@@ -151,7 +151,9 @@ final class AppContainer {
 
     /// The version, and the three `DadSaga…` keys from `project.yml`; an empty key hides its row.
     private var appInfo: AppInfo {
-        AppInfo(infoDictionary: Bundle.main.infoDictionary ?? [:], systemVersion: UIDevice.current.systemVersion)
+        // In the app's language: the Greek privacy policy in Greek (`InfoPlist.xcstrings`).
+        let info = (Bundle.main.infoDictionary ?? [:]).merging(Bundle.main.localizedInfoDictionary ?? [:]) { $1 }
+        return AppInfo(infoDictionary: info, systemVersion: UIDevice.current.systemVersion)
     }
 
     func makeOnboardingViewModel(onFinished: @escaping @MainActor () -> Void) -> OnboardingViewModel {

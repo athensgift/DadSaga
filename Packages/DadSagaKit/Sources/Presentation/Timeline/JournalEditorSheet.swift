@@ -88,6 +88,7 @@ struct JournalEditorSheet: View {
                 isAsking: $isConfirmingDiscard,
                 labels: editor.labels,
                 canSave: !isSaving && !photos.isLoading,
+                isSaving: isSaving,
                 onSave: { onSave(note, photos) },
                 onDiscard: onClose
             ))

@@ -3,7 +3,7 @@
 **Status:** Accepted (2026-11-21). From the owner's review of the card set (2026-11-21, two rounds): every card he kept
 ships in v1, World 0 included, and a tick "Not born yet" where the child's name is entered is how the app knows a
 child is in World 0. Drafted by the architect; the owner then chose the recommendation on the four open points
-(`docs/plans/v1-card-set.md`): first aid folds into `q-w0-first-aid` (§6), the partner question (§4), "When life
+(`docs/plans/v1-card-set.md`, since removed; last version in commit `b49afc5`): first aid folds into `q-w0-first-aid` (§6), the partner question (§4), "When life
 changes" (§5) and longer tracks (§9, decided in ADR-0052). Numbered 0053: 0051 went to the release ADR while this was
 in review. Changes ADR-0005 (new content fields), ADR-0012 (a child may not be born yet), ADR-0013 (a mark for a
 child on the way), ADR-0019 (a world before birth; what a locked world says before the birth), ADR-0020 §2–§3

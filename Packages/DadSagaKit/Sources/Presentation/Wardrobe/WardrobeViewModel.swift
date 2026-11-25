@@ -28,6 +28,10 @@ public final class WardrobeViewModel {
     private let useCases: UseCases
     private let locale: Locale
     private var wardrobe: Wardrobe?
+    /// Slots with a save under way, and the choice tapped meanwhile, which is saved next: one save at a time for each
+    /// slot, so the last tap is the one stored.
+    private var savingSlots: Set<Skill> = []
+    private var nextChoices: [Skill: OutfitChoice] = [:]
 
     public init(useCases: UseCases, locale: Locale = .current) {
         self.useCases = useCases
@@ -55,18 +59,39 @@ public final class WardrobeViewModel {
             choice = .item(optionID)
         }
         // Only this slot changes on screen, so a reply for another slot never undoes a tap made meanwhile.
-        let previous = wardrobe.outfit.choices[skill]
-        self.wardrobe?.outfit.choices[skill] = choice == .automatic ? nil : choice
+        let stored = wardrobe.outfit.choices[skill]
+        show(choice == .automatic ? nil : choice, in: skill)
         // The last error goes as the next try starts, so the same error again is read out again.
         errorMessage = nil
-        rebuild()
-        do {
-            let saved = try await useCases.setChoice.execute(skill: skill, choice: choice)
-            self.wardrobe?.outfit.choices[skill] = saved.choices[skill]
-        } catch {
-            self.wardrobe?.outfit.choices[skill] = previous
-            errorMessage = strings.text("Couldn't save. Please try again.")
+        guard savingSlots.insert(skill).inserted else {
+            nextChoices[skill] = choice
+            return
         }
+        defer { savingSlots.remove(skill) }
+        await save(choice, in: skill, over: stored)
+    }
+
+    /// Saves the choice, then the one tapped meanwhile, until none is waiting. Only the last one's reply shows: what is
+    /// stored then, the one before it if it failed.
+    private func save(_ choice: OutfitChoice, in skill: Skill, over stored: OutfitChoice?) async {
+        var stored = stored
+        var next: OutfitChoice? = choice
+        while let choice = next {
+            var didFail = false
+            do {
+                stored = try await useCases.setChoice.execute(skill: skill, choice: choice).choices[skill]
+            } catch {
+                didFail = true
+            }
+            next = nextChoices.removeValue(forKey: skill)
+            guard next == nil else { continue }
+            show(stored, in: skill)
+            if didFail { errorMessage = strings.text("Couldn't save. Please try again.") }
+        }
+    }
+
+    private func show(_ choice: OutfitChoice?, in skill: Skill) {
+        wardrobe?.outfit.choices[skill] = choice
         rebuild()
     }
 

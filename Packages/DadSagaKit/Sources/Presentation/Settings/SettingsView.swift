@@ -13,10 +13,14 @@ public struct SettingsView: View {
     @State private var page: SettingsPage?
     @Environment(\.openURL) private var openURL
     private let pages: SettingsPages
+    private let pendingLink: PendingLink?
 
-    public init(viewModel: SettingsViewModel, pages: SettingsPages) {
+    /// - Parameter pendingLink: a link from outside the app (the widget) opening on another tab: any question or alert
+    ///   here closes, and the pages stay where they were (ADR-0061 §2).
+    public init(viewModel: SettingsViewModel, pages: SettingsPages, pendingLink: PendingLink? = nil) {
         _viewModel = State(initialValue: viewModel)
         self.pages = pages
+        self.pendingLink = pendingLink
     }
 
     public var body: some View {
@@ -43,6 +47,12 @@ public struct SettingsView: View {
                 case .data(let data): DataExportView(viewModel: data)
                 }
             }
+        }
+        // Around the stack, so a pushed page that covers the form doesn't keep it from hearing of the link.
+        .onChange(of: pendingLink) { _, link in
+            guard link != nil else { return }
+            viewModel.linkWillOpen()
+            if case .family(let family) = page { family.linkWillOpen() }
         }
     }
 

@@ -74,17 +74,17 @@ struct PhotoThumbnail: View {
             .clipShape(RoundedRectangle(cornerRadius: DSRadius.tile, style: .continuous))
             .overlay(alignment: .bottomTrailing) {
                 if photoIDs.count > 1 {
-                    HStack(spacing: 2) {
+                    HStack(spacing: DSSpacing.xxs) {
                         Image(systemName: "square.stack.fill")
                         Text(verbatim: "\(photoIDs.count)")
                     }
-                        .font(.caption2.weight(.semibold))
+                        .font(DSFont.badge)
                         .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 5)
-                        .padding(.vertical, 2)
-                        .background(.black.opacity(0.6), in: Capsule())
-                        .padding(3)
+                        .foregroundStyle(DSColor.onPhoto)
+                        .padding(.horizontal, DSSpacing.xs)
+                        .padding(.vertical, DSSpacing.xxs)
+                        .background(DSColor.photoLabelGround, in: Capsule())
+                        .padding(DSSpacing.xxs)
                 }
             }
             .accessibilityHidden(true)

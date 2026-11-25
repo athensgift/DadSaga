@@ -156,13 +156,19 @@ struct HomeWhenThingsGoWrongTests {
         #expect(sut.state == .loaded(before))
     }
 
-    @Test("Given home never loaded, when loading fails, then it shows the error")
+    @Test("Given home never loaded, when loading fails, then it says so and offers to try again, which loads it")
     func firstLoadFailureShowsTheError() async {
         await progress.failOverview()
-
         let sut = await makeSUT()
+        #expect(sut.state == .failed(LoadFailure(message: "Το περιεχόμενο δεν φόρτωσε.", retryTitle: "Δοκίμασε ξανά")))
 
-        #expect(sut.state == .failed(message: "Το περιεχόμενο δεν φόρτωσε."))
+        await progress.mendOverview()
+        await sut.retry()
+
+        guard case .loaded = sut.state else {
+            Issue.record("Expected loaded state, got \(sut.state)")
+            return
+        }
     }
 
     @Test("Given home loaded yesterday, when the dad comes back to the app, then home shows what is true now")

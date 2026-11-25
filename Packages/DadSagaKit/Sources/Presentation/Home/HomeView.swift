@@ -65,8 +65,8 @@ public struct HomeView: View {
                         ProgressView()
                     case .loaded(let content):
                         loaded(content)
-                    case .failed(let message):
-                        ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
+                    case .failed(let failure):
+                        LoadFailureView(failure: failure) { await viewModel.retry() }
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -92,6 +92,7 @@ public struct HomeView: View {
         .sagaFilmSheet($sagaFilm)
         .task { await viewModel.onAppear() }
         .onChange(of: scenePhase) { _, phase in scenePhaseChanged(to: phase) }
+        .task { await midnights() }
         .task(id: pendingLink) { await openPendingLink() }
         .task(id: viewModel.celebration?.id) { await celebrationTime() }
         .onChange(of: viewModel.titleCard) { _, card in announce(card) }
@@ -102,6 +103,13 @@ public struct HomeView: View {
         .photoViewer($photoViewer, loader: { await viewModel.photoData(id: $0, maxPixelSize: $1) })
         // Last, so the sheets see it too.
         .environment(unsavedWork)
+    }
+
+    /// Midnight while home is on screen: the app is active all along, so nothing else reads the new day.
+    private func midnights() async {
+        for await _ in NotificationCenter.default.notifications(named: .NSCalendarDayChanged).map({ _ in }) {
+            await viewModel.appBecameActive()
+        }
     }
 
     private var title: String {

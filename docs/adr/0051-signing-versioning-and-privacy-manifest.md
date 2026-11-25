@@ -1,6 +1,6 @@
 # ADR-0051: Signing, versioning and the privacy manifest
 
-**Status:** Proposed (2026-11-21). From the review of 2026-11-21 (§0.6, §0.7 point 4 and "CI και κυκλοφορία"); the
+**Status:** Accepted (proposed 2026-11-21, accepted by the owner 2026-11-25). From the review of 2026-11-21 (§0.6, §0.7 point 4 and "CI και κυκλοφορία"); the
 owner asked for the release preparation. Adds to ADR-0009 (how a release is numbered and built) and ADR-0004 (how the
 app tells Apple what it touches), and changes ADR-0034 §5 (CI compiles the snapshots). The steps themselves are in [`docs/RELEASE.md`](../RELEASE.md).
 

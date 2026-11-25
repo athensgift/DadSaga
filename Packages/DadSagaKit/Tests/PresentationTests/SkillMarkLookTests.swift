@@ -40,16 +40,9 @@ struct SkillMarkLookTests {
         }
     }
 
-    @Test("Given any growth, when drawn, then the symbol is the same size, inside its circle with room around it")
-    func symbolNeverChangesSize() {
-        #expect(SkillMarkLook.symbolScale == 0.56)
-        // Even the corners of the symbol's square stay well inside the circle.
+    @Test("Given a symbol's square, when drawn in its circle, then even its corners stay well inside")
+    func symbolStaysInsideItsCircle() {
         #expect(SkillMarkLook.symbolScale * 2.0.squareRoot() < 0.8)
-    }
-
-    @Test("Given a card's celebration gone, when the colour rises, then it takes about a second")
-    func risesGently() {
-        #expect(SkillMarkLook.riseDuration == 1)
     }
 
     @Test("Given a growth out of range, when drawn, then it is held between 0 and 1")

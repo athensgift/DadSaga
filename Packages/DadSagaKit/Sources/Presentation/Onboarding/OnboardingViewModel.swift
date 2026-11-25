@@ -67,8 +67,15 @@ public final class OnboardingViewModel {
             let catalog = try await loadCatalog.execute()
             state = .loaded(makeContent(from: catalog))
         } catch {
-            state = .failed(message: strings.text("Content failed to load."))
+            state = .failed(LoadFailure(message: strings.text("Content failed to load."), retryTitle: strings.text("Try again")))
         }
+    }
+
+    /// "Try again", after the content failed to load.
+    public func retry() async {
+        guard case .failed = state else { return }
+        state = .loading
+        await onAppear()
     }
 
     public func continueToHero() {

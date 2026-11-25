@@ -48,7 +48,7 @@ they were replaced by titles with no XP on screen and no "next title" hint
 
 ## Decisions worth a look
 
-Every significant decision is an Architecture Decision Record: 70 of them in [`docs/adr`](docs/adr), each with what
+Every significant decision is an Architecture Decision Record: 73 of them in [`docs/adr`](docs/adr), each with what
 was rejected and why. A few that show the shape of the project:
 
 - **The saga film is drawn frame by frame on the phone**
@@ -77,7 +77,7 @@ was rejected and why. A few that show the shape of the project:
 
 ## How it was built
 
-Built by one developer with Claude Code as the engineering team, in about 400 commits between 13 and 24 November 2026.
+Built by one developer with Claude Code as the engineering team, in about 430 commits between 13 and 25 November 2026.
 The developer is the product owner: sets the rules, answers the open questions each ADR raises, and checks the app on
 a real phone. The work is
 split between agents with fixed roles ([`.claude/agents`](.claude/agents)):
@@ -97,10 +97,10 @@ bug before its fix, and deleting the old path when new code replaces it.
 
 | | |
 |---|---|
-| Swift, app and package | ~29,000 lines |
-| Tests | ~29,000 lines, 1,300+ Swift Testing tests, one target per layer, plus screen snapshots and an accessibility audit |
-| Decisions | 70 ADRs |
-| Pull requests | 105 merged into `develop` |
+| Swift, app and package | ~30,000 lines |
+| Tests | ~30,000 lines, 1,300+ Swift Testing tests, one target per layer, plus screen snapshots and an accessibility audit |
+| Decisions | 73 ADRs |
+| Pull requests | 110+ merged into `develop` |
 | Languages | Greek and English, every string and card |
 | Data sent off the device | none |
 

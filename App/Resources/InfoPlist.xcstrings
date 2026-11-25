@@ -7,7 +7,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "DadSaga"
           }
         }
@@ -20,7 +20,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "DadSaga"
           }
         }
@@ -30,6 +30,24 @@
     "DadSaga copy" : {
 
     },
+    "DadSagaPrivacyPolicyURL" : {
+      "comment" : "The privacy policy Settings opens, in the app's language",
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://dadsaga.app/el/privacy/"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "https://dadsaga.app/privacy/"
+          }
+        }
+      }
+    },
     "NSCameraUsageDescription" : {
       "comment" : "Privacy - Camera Usage Description",
       "extractionState" : "extracted_with_value",
@@ -37,13 +55,13 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Τράβηξε μια φωτογραφία για μια θρυλική στιγμή. Οι φωτογραφίες μένουν σε αυτή τη συσκευή."
+            "value" : "Τράβηξε μια φωτογραφία για μια καταχώριση. Οι φωτογραφίες μένουν σε αυτή τη συσκευή."
           }
         },
         "en" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "Take a photo for a legendary moment. Photos stay on this device."
+            "state" : "translated",
+            "value" : "Take a photo for an entry. Photos stay on this device."
           }
         }
       }
@@ -60,7 +78,7 @@
         },
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Save your saga film to Photos."
           }
         }

@@ -54,16 +54,38 @@ public final class TimelineViewModel {
 
     /// Loads again every time, so it shows what was just done on the other tab.
     public func onAppear() async {
+        // A timeline that loaded once stays if it can't be read again: it is still the dad's, only not refreshed.
+        if await !load(), !isLoaded { state = .failed(failure) }
+    }
+
+    /// Reads again after a change. A failure shows here: entries from before the change would open an editor that could
+    /// save the old words and photos over the new ones.
+    private func loadAfterChange() async {
+        if await !load() { state = .failed(failure) }
+    }
+
+    /// Whether the timeline could be read.
+    private func load() async -> Bool {
         do {
-            children = try await getProfile.execute()?.children ?? []
+            let children = try await getProfile.execute()?.children ?? []
             entries = try await getTimeline.execute()
-            if let selectedFilter, !children.contains(where: { $0.id == selectedFilter }) {
-                self.selectedFilter = nil
-            }
-            state = .loaded(makeContent())
+            self.children = children
         } catch {
-            state = .failed(message: strings.text("The timeline failed to load."))
+            return false
         }
+        if let selectedFilter, !children.contains(where: { $0.id == selectedFilter }) {
+            self.selectedFilter = nil
+        }
+        state = .loaded(makeContent())
+        return true
+    }
+
+    private var isLoaded: Bool {
+        if case .loaded = state { true } else { false }
+    }
+
+    private var failure: LoadFailure {
+        LoadFailure(message: strings.text("The timeline failed to load."), retryTitle: strings.text("Try again"))
     }
 
     public func select(filter: UUID?) {
@@ -110,7 +132,7 @@ public final class TimelineViewModel {
         deletion = nil
         do {
             try await deleteEvent.execute(eventID: id)
-            await onAppear()
+            await loadAfterChange()
         } catch {
             errorMessage = strings.text("Couldn't delete. Please try again.")
         }
@@ -146,10 +168,11 @@ public final class TimelineViewModel {
         errorMessage = nil
     }
 
-    /// A link from outside is about to open home. The editor closes only if that loses nothing: not while it saves,
-    /// and not while it holds changes the dad hasn't saved (ADR-0050). The root holds a link back while the editor holds
-    /// changes, so this is the last check, not the only one.
+    /// A link from outside is about to open home. The delete question closes; nothing is lost by it. The editor closes
+    /// only if that loses nothing: not while it saves, and not while it holds changes the dad hasn't saved (ADR-0050).
+    /// The root holds a link back meanwhile, so this is the last check, not the only one.
     public func linkWillOpen(editorHoldsChanges: Bool) {
+        deletion = nil
         guard editor != nil, !isSaving, !editorHoldsChanges else { return }
         closeEditor()
     }
@@ -189,25 +212,10 @@ public final class TimelineViewModel {
         do {
             try await action()
             editor = nil
-            await onAppear()
+            await loadAfterChange()
         } catch {
             errorMessage = failure ?? strings.text("Couldn't save. Please try again.")
         }
-    }
-
-    /// The film "Make a film" opens: the child the timeline is filtered to, or the first child's (ADR-0037 §6).
-    public var filmRequest: SagaFilmRequest {
-        SagaFilmRequest(childID: selectedFilter)
-    }
-
-    /// The labels of the row's actions.
-    public var editTitle: String {
-        strings.text("Note and photos")
-    }
-
-    /// The label of the row's delete action.
-    public var deleteTitle: String {
-        strings.text("Delete")
     }
 
     // MARK: Building
@@ -301,5 +309,35 @@ public final class TimelineViewModel {
 
     private var momentsFormatter: MomentsFormatter {
         MomentsFormatter(strings: HomeStrings(locale: locale), locale: locale, timeZone: calendar.timeZone)
+    }
+}
+
+// MARK: A timeline that couldn't load
+
+extension TimelineViewModel {
+    /// "Try again", after the first load failed.
+    public func retry() async {
+        guard case .failed = state else { return }
+        state = .loading
+        await onAppear()
+    }
+}
+
+// MARK: The rows' labels and the film
+
+extension TimelineViewModel {
+    /// The film "Make a film" opens: the child the timeline is filtered to, or the first child's (ADR-0037 §6).
+    public var filmRequest: SagaFilmRequest {
+        SagaFilmRequest(childID: selectedFilter)
+    }
+
+    /// The labels of the row's actions.
+    public var editTitle: String {
+        strings.text("Note and photos")
+    }
+
+    /// The label of the row's delete action.
+    public var deleteTitle: String {
+        strings.text("Delete")
     }
 }

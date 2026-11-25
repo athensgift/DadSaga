@@ -88,7 +88,11 @@ public struct RootView: View {
                             makeSagaFilm: makeSagaFilm,
                             isOpeningLink: viewModel.pendingLink != nil
                         ),
-                        settings: SettingsView(viewModel: settings, pages: settingsPages)
+                        settings: SettingsView(
+                            viewModel: settings,
+                            pages: settingsPages,
+                            pendingLink: viewModel.pendingLink
+                        )
                     )
                     .environment(viewModel.unsavedWork)
                     // A new presenter is a new home: its sheets, Settings included, close with the old one, and the
@@ -101,10 +105,6 @@ public struct RootView: View {
             }
         }
         .onChange(of: viewModel.state, initial: true) { _, state in prepareScreen(for: state) }
-        // Settings closes its own question and alert as a link opens, as the timeline closes its film sheet.
-        .onChange(of: viewModel.pendingLink) { _, link in
-            if link != nil { settings?.linkWillOpen() }
-        }
         .onChange(of: viewModel.sagaGeneration) { rebuildHome() }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(DSColor.background)

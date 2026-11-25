@@ -41,8 +41,8 @@ public struct TimelineView: View {
                     ProgressView()
                 case .loaded(let content):
                     loaded(content)
-                case .failed(let message):
-                    ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
+                case .failed(let failure):
+                    LoadFailureView(failure: failure) { await viewModel.retry() }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

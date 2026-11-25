@@ -2,7 +2,7 @@
 public enum OnboardingViewState: Equatable, Sendable {
     case loading
     case loaded(OnboardingContent)
-    case failed(message: String)
+    case failed(LoadFailure)
 }
 
 public struct OnboardingContent: Equatable, Sendable {

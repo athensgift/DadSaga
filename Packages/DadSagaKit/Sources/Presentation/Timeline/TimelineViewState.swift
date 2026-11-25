@@ -4,7 +4,7 @@ import Foundation
 public enum TimelineViewState: Equatable, Sendable {
     case loading
     case loaded(TimelineContent)
-    case failed(message: String)
+    case failed(LoadFailure)
 }
 
 public struct TimelineContent: Equatable, Sendable {

@@ -4,7 +4,7 @@ import Foundation
 public enum HomeViewState: Equatable, Sendable {
     case loading
     case loaded(HomeContent)
-    case failed(message: String)
+    case failed(LoadFailure)
 }
 
 public struct HomeContent: Equatable, Sendable {
@@ -61,7 +61,7 @@ public struct SituationalCards: Equatable, Identifiable, Sendable {
 
 public struct MomentsSection: Equatable, Sendable {
     public let title: String
-    /// Captured out of all, e.g. "2 / 14".
+    /// How many are captured, with no total, e.g. "2" (ADR-0020 §4).
     public let progress: String
     public let addTitle: String
     /// Newest first, as gold cards.
@@ -162,6 +162,14 @@ public struct MomentOption: Equatable, Identifiable, Sendable {
     public let title: String
     /// The earliest day this first can be dated (ADR-0053 §3).
     public let earliestDate: Date
+    /// When a day before the earliest becomes this first's: the earliest day's noon, or now if that is earlier.
+    let movedDate: Date
+
+    /// The picked date, or the earliest day for one before it: a first after the birth isn't dated before it. Never
+    /// the day's first moment, which read further west is the day before.
+    public func date(for picked: Date) -> Date {
+        picked < earliestDate ? movedDate : picked
+    }
 }
 
 /// The sheet asking the dad whether he did a quest.
@@ -297,7 +305,7 @@ public struct WorldMapItem: Equatable, Identifiable, Sendable {
     public let number: Int
     public let title: String
     public let tagline: String
-    /// e.g. "9–24 μηνών".
+    /// e.g. "9–23 μηνών".
     public let ageRange: String
     public let status: Status
     /// When a world ahead is ideal («Ιδανικά από τους 9 μήνες»); `nil` for a world the child has reached, where nothing

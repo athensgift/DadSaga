@@ -44,7 +44,7 @@ LEGENDARY MOMENTS
 The first smile, the first laugh, the first steps. Keep them with a photo and a note, celebrated when they happen. Never expected by a date, never shown as late.
 
 WORLDS AND TITLES
-Five worlds, from the Harbour of Waiting before the birth to the Kingdom of Why, open as your child grows, by age alone. What you do earns you new titles, like "Steady hands", and most bring gear for your hero.
+Five worlds, from the Harbour of Waiting before the birth to the Kingdom of Why. All of them are open; your child's age only says which one you are in. What you do earns you new titles, like "Steady hands", and most bring gear for your hero.
 
 BEFORE THE BIRTH
 Add your child as "Not born yet" and your saga starts in the Harbour of Waiting: practical quests for the months before, and the first firsts, like the day you found out. DadSaga never asks for a due date and never counts down.
@@ -55,7 +55,7 @@ Every quest, boss and first, with your notes and photos, gathered month by month
 A GAME WITH NO PRESSURE
 - Titles are for what you do. Never for your child's development.
 - Nothing is ever lost. No penalties, no streaks to break.
-- Worlds open by age. Never by milestones or a due date, and never compared to anyone.
+- Every world is open. Only age says which one you are in: never milestones or a due date, and never compared to anyone.
 - Look after yourself too. A whole skill, Resilience, is about you.
 
 MADE FOR YOUR FAMILY

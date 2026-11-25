@@ -18,6 +18,13 @@ The checklist for a TestFlight build and an App Store release. The decisions beh
       accessibility audit, ADR-0033); "Sufficient Contrast" only once dark mode has been checked too.
 - [ ] App Store listing from `docs/appstore/` (text, screenshots, settings): the price is Free (ADR-0071), and the
       text claims only what the build does (no iCloud, no co-op, no restore from an iCloud backup).
+- [ ] The App Store id in `DadSagaAppStoreID` (`project.yml`), so "Rate" and "Tell a friend" show.
+- [ ] The website, in both languages, once the app is live (ADR-0031): the App Store badge instead of "coming to the
+      App Store", and the Smart App Banner (`apple-itunes-app`).
+- [ ] The website's accessibility line (`web/index.html` and `web/el/index.html`: large text, VoiceOver, Reduce Motion)
+      holds after the accessibility audit; otherwise soften it with the description's.
+- [ ] The website's video and screens drawn again (`docs/demo/README.md`) if what they show has changed. Known: the boss
+      sheet's title is in the column since PR 109, and `worlds-en.jpg` shows the top of "9–24 months" (now 9–23).
 - [ ] Privacy policy and support URLs per language, as `docs/appstore/README.md` lists them.
 - [ ] The description's accessibility line (large text, VoiceOver, Reduce Motion) holds after the accessibility audit;
       otherwise soften it in `docs/appstore/` before submitting.
@@ -25,11 +32,11 @@ The checklist for a TestFlight build and an App Store release. The decisions beh
 ## Once, at the first App Store release
 On the first release branch, for the build submitted for review (ADR-0060 §5). If review asks for another build, the
 record follows that build; it is fixed once the build is released, and reaches `develop` when `main` is merged back.
-- [ ] ADR-0065's PR 1 merged into `develop` before the release branch: the profile id, the entries' authors, a child's
+- [x] ADR-0065's PR 1 is on `develop` (merged before the release branch): the profile id, the entries' authors, a child's
       `isRemoved`, `#Unique` ids and ids kept in history in `SchemaV1`; `hero.id`, `author` and each child's `removed`
       in format 1, whose reader takes any number of children from one. Both freeze with this build.
-- [ ] What 1.0 ships of ADR-0065 (ADR-0067): PRs 1, 2a, 2b and 3, and PR 4, the sync core, if it is on `develop`.
-      PR 4 is wired to nothing: no `import CloudKit` in any target, no iCloud entitlement, no `CKSharingSupported` or
+- [ ] What 1.0 ships of ADR-0065 (ADR-0067): PRs 1, 2a, 2b and 3, and PR 4, the sync core, all on
+      `develop`. PR 4 is wired to nothing: no `import CloudKit` in any target, no iCloud entitlement, no `CKSharingSupported` or
       `remote-notification`, and no build creates `Sync.store`. `SyncSchemaV1` doesn't freeze with this build; it
       freezes with the co-op version (PR 5 and PR 6), whose release adds its own checks here: CloudKit's schema to
       production before its first TestFlight build, `aps-environment` as `production` in the archive.
@@ -50,8 +57,23 @@ record follows that build; it is fixed once the build is released, and reaches `
       the widget opens a copy read-only and reads it.
 - [ ] `Tests/DataTests/Fixtures/SagaCopyV1`: recorded again with that build (a format-1 copy of the saga, ADR-0057 §4),
       then fixed: never recorded again.
-- [ ] `.claude/rules/domain-and-data.md` and `.claude/agents/content.md`: drop the "until the first App Store release"
-      rules.
+- [ ] `.claude/rules/domain-and-data.md`: drop the "until the first App Store release" rules.
+
+## Open device checks
+What the ADRs say is still to be checked on a real phone or a real iPhone Duo; each ADR's own list has the details.
+Tick them on the first TestFlight build.
+- [ ] ADR-0055, titles: a title then Undo, the first quest after onboarding, deleting an old entry, no XP on screen, a
+      Greek film on an English phone. Not its "installing over a version 6 build" (ADR-0060).
+- [ ] ADR-0056 and ADR-0058, home: what is left of them (ADR-0061, ADR-0066) on a real iPhone Duo, with VoiceOver and at
+      the accessibility text sizes.
+- [ ] ADR-0057, the copy of the saga, with 500 photos or more: making, sharing, restoring, refusing a damaged or newer
+      one; with VoiceOver, at the accessibility text sizes and on the iPhone Duo folded.
+- [ ] ADR-0059, the skills' marks: under a celebration, after an Undo, light and dark, VoiceOver.
+- [ ] ADR-0060, the calm screen with a store that can't be opened, in Greek and English; a fresh install's first quest,
+      first with photos, widget, film and start over.
+- [ ] ADR-0061, the four tabs, the map and Settings half-open, "My family" holding changes while a widget link waits, a
+      link while a question is up.
+- [ ] ADR-0066, home in one column, on a real iPhone Duo.
 
 ## Every TestFlight build before the first App Store release
 - [ ] Compare with the last uploaded build: the release branch's commit that set its build number (ADR-0060 §6). The

@@ -6,10 +6,12 @@ Replies to the owner are in Greek.
 ## Commands (Done = green)
 ```bash
 swiftlint --strict
-(cd Packages/DadSagaKit && swift test --build-system swiftbuild 2>&1 | grep -E "error:|✘|failed|passed after|Executed" | tail -40)
+(cd Packages/DadSagaKit && mkdir -p .build && log=.build/tests.log; swift test --build-system swiftbuild > $log 2>&1; code=$?
+  grep -E "^/.*error:|^error:|✘|Test run with" $log; exit $code)
 xcodegen generate && xcodebuild build -quiet -project DadSaga.xcodeproj -scheme DadSaga \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ```
+- Green tests: exit status 0 and eight "Test run with" lines, one per test target, all passed.
 - Keep command output out of the context: `xcodebuild` always with `-quiet`, tests filtered to failures and the summary
   as above. Read the full log only when the filtered one doesn't explain a failure.
 - One suite: `swift test --build-system swiftbuild --filter DeepLinkTests` (from `Packages/DadSagaKit`).

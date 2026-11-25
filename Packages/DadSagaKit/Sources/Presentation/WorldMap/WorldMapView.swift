@@ -28,8 +28,8 @@ public struct WorldMapView: View {
             Group {
                 if let map = viewModel.worldMap, case .loaded(let content) = viewModel.state {
                     loaded(map, content: content)
-                } else if case .failed(let message) = viewModel.state {
-                    ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
+                } else if case .failed(let failure) = viewModel.state {
+                    LoadFailureView(failure: failure) { await viewModel.retry() }
                 } else {
                     ProgressView()
                 }

@@ -1,7 +1,7 @@
 import Application
 import Domain
 import Foundation
-import Presentation
+@testable import Presentation
 import Testing
 
 @MainActor
@@ -48,17 +48,35 @@ struct RootViewModelTests {
         #expect(sut.preferences.appearance == .light)
     }
 
-    @Test("Given home on the timeline with a link waiting, when the saga was erased, then onboarding opens clean")
+    @Test("Given an editor on the timeline keeping a link waiting, when the saga was erased, then onboarding opens clean")
     func startedOver() async throws {
         let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
         await sut.onAppear()
         sut.selectedTab = .timeline
-        sut.open(url: try #require(URL(string: "dadsaga://quest/q1")))
+        sut.unsavedWork.set(UUID(), in: UnsavedScope.timelineEditor, hasUnsavedChanges: true)
+        sut.open(url: AppLink.quest(id: "q1", childID: HeroStub.niko.id).url)
+        #expect(sut.selectedTab == .timeline)
+        #expect(sut.pendingLink == nil)
 
         sut.startedOver()
 
         #expect(sut.state == .onboarding)
         #expect(sut.selectedTab == .adventure)
+        // Neither then nor once the new saga's home opens.
+        #expect(sut.pendingLink == nil)
+        sut.onboardingFinished()
+        #expect(sut.pendingLink == nil)
+    }
+
+    @Test("Given home with a link opening, when the saga was erased, then the link goes with it")
+    func startedOverWithAnOpeningLink() async {
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
+        await sut.onAppear()
+        sut.open(url: AppLink.quest(id: "q1", childID: HeroStub.niko.id).url)
+        #expect(sut.pendingLink != nil)
+
+        sut.startedOver()
+
         #expect(sut.pendingLink == nil)
     }
 }
@@ -77,6 +95,27 @@ struct StubGetPreferences: GetPreferencesUseCase {
 @Suite("OnboardingViewModel")
 struct OnboardingViewModelTests {
     let save = SpySaveProfile()
+
+    @Test("Given the content fails to load, when trying again works, then onboarding shows")
+    func tryAgain() async {
+        let catalog = FlakyLoadCatalog()
+        let sut = OnboardingViewModel(
+            loadCatalog: catalog,
+            saveProfile: save,
+            locale: Locale(identifier: "el_GR"),
+            now: { HeroStub.today },
+            onFinished: {}
+        )
+        await sut.onAppear()
+        #expect(sut.state == .failed(LoadFailure(message: "Το περιεχόμενο δεν φόρτωσε.", retryTitle: "Δοκίμασε ξανά")))
+
+        await sut.retry()
+
+        guard case .loaded = sut.state else {
+            Issue.record("Expected loaded state, got \(sut.state)")
+            return
+        }
+    }
 
     func makeSUT(onFinished: @escaping @MainActor () -> Void = {}) -> OnboardingViewModel {
         OnboardingViewModel(
