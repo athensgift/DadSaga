@@ -4,8 +4,8 @@ import SwiftUI
 /// Loads a stored photo by id, no larger than `maxPixelSize` on its longest side.
 typealias PhotoLoader = (_ id: String, _ maxPixelSize: Int) async -> Data?
 
-/// A photo filling its frame. Shows the placeholder until it loads, or if it is missing. Decodes it only as large as
-/// it fills the frame, off the main actor, so a small square never holds a full photo.
+/// A photo filling its frame. Shows the placeholder until it loads, or if it is missing. Decodes it only about as
+/// large as it fills the frame, off the main actor, so a small square never holds a full photo.
 struct SquarePhoto<Placeholder: View>: View {
     let source: PhotoSource?
     let loader: PhotoLoader
@@ -27,23 +27,20 @@ struct SquarePhoto<Placeholder: View>: View {
         // takes taps for. Clipping alone only hides the overflow: a tap beside the frame would still open the photo.
         Color.clear
             .overlay {
-                Group {
-                    if let image {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                    } else {
-                        placeholder()
-                    }
+                if let image {
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    placeholder()
                 }
-                // Measured filled, not the frame: a photo filling a square needs its shortest side at the frame's,
-                // so its longest side, what the loader limits, runs past it. The frame first, then the photo's size.
-                .onGeometryChange(for: Int.self) { [scale] proxy in
-                    Int((max(proxy.size.width, proxy.size.height) * scale).rounded(.up))
-                } action: { maxPixelSize = $0 }
             }
             .clipped()
             .contentShape(.rect)
+            // The frame, measured once: the size asked for never depends on the photo, so a photo loads once.
+            .onGeometryChange(for: Int.self) { [scale] proxy in
+                PhotoFill.pixelSize(filling: proxy.size, scale: scale)
+            } action: { maxPixelSize = $0 }
             .task(id: Request(source: source, maxPixelSize: maxPixelSize)) {
                 guard maxPixelSize > 0 else { return }
                 let data: Data? = switch source {
@@ -56,6 +53,20 @@ struct SquarePhoto<Placeholder: View>: View {
                 guard !Task.isCancelled else { return }
                 image = decoded?.image
             }
+    }
+}
+
+/// How large a photo is loaded to fill a frame.
+enum PhotoFill {
+    /// The longest shape, as its long side over its short one, that still fills a frame at full sharpness: a phone's
+    /// camera gives 4:3 and 16:9. A longer photo (a panorama) fills the frame a little soft.
+    static let longestShape: CGFloat = 16.0 / 9.0
+
+    /// The longest side to load, in pixels, for a photo filling a frame of `size` points. The loader limits a photo's
+    /// longest side, and a photo filling a frame needs its shortest side at the frame's longest; its shape isn't
+    /// known before it loads, so it is taken to be `longestShape`.
+    static func pixelSize(filling size: CGSize, scale: CGFloat) -> Int {
+        Int((max(size.width, size.height) * scale * longestShape).rounded(.up))
     }
 }
 

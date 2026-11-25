@@ -31,7 +31,6 @@ struct SagaFilmTimelineBuilder {
                 FilmClip(
                     frames: max(1, Int((scene.seconds * Double(spec.framesPerSecond)).rounded())),
                     picture: picture(for: card, glide: glide),
-                    fit: .fitOverBlur,
                     overlay: overlay(for: card),
                     transitionIn: transition(from: previous, to: card)
                 )

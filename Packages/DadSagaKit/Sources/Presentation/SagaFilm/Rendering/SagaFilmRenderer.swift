@@ -11,6 +11,8 @@ public enum SagaFilmRenderError: Error, Equatable {
     case cardNotDrawn
     /// The stand-in for a photo that can't be read couldn't be made.
     case pictureNotDrawn
+    /// The device ran out of room for the film.
+    case notEnoughSpace
 }
 
 /// Draws a saga film: its cards with SwiftUI, its photos through the photo use case with the camera on each photo's
@@ -79,7 +81,9 @@ public struct SagaFilmRenderer: SagaFilmRendering {
             input.finish()
             await shown.value
             try? FileManager.default.removeItem(at: folder)
-            throw error
+            // Its own error, so the sheet can say what would help instead of "try again".
+            throw FilmEncoder.isOutOfSpace(error) || error as? FilmError == .notEnoughSpace
+                ? SagaFilmRenderError.notEnoughSpace : error
         }
     }
 

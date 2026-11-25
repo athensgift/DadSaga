@@ -6,7 +6,8 @@ import Foundation
 public protocol PhotoAnalyzer: Sendable {
     /// How memorable the photo looks.
     func rating(of imageData: Data) async -> PhotoRating?
-    /// The faces in the photo, and whether each looks like a child's.
+    /// The faces in the photo, and whether each looks like a child's. A face in the background
+    /// (`PhotoSubject.isInForeground`) is found but not looked at: its `isChild` is `nil`.
     func faces(in imageData: Data) async -> [PhotoFace]
     /// What draws the eye in a photo.
     func salientObjects(in imageData: Data) async -> [PhotoRegion]

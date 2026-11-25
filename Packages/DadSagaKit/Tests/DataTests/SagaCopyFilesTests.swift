@@ -53,6 +53,27 @@ struct SagaCopyFilesTests: SagaCopyBench {
         #expect(await new.offers.answeredOccasionIDs() == ["lena/birthday/1", "lena/world/w2"])
     }
 
+    @Test("Given a stored photo whose file is damaged, when exporting, then the copy opens elsewhere, the entry without it")
+    func damagedPhotoStaysOutOfTheCopy() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let old = phone("old")
+        _ = try await fill(old)
+        let original = try #require(try await old.store.wholeSaga.readAll())
+        let broken = try #require(original.photoIDs.first)
+        let file = root.appending(path: "old/MomentPhotos/\(broken).jpg")
+        #expect(FileManager.default.fileExists(atPath: file.path))
+        try Data("not a photo".utf8).write(to: file)
+
+        let made = try await make(on: old).execute(on: madeAt) { _ in }
+        let new = phone("new")
+        let opened = try await restore(on: new).open(fileAt: made.url) { _ in }
+        try await restore(on: new).restore(opened, on: madeAt)
+
+        let restored = try #require(try await new.store.wholeSaga.readAll())
+        #expect(restored.photoIDs.count == original.photoIDs.count - 1)
+        #expect(restored.events.map(\.id) == original.events.map(\.id))
+    }
+
     @Test("Given a phone with its own saga, when a copy is imported, then the old saga and its photos are gone")
     func importReplacesTheSagaOnThePhone() async throws {
         defer { try? FileManager.default.removeItem(at: root) }
@@ -160,6 +181,29 @@ struct SagaCopyFilesTests: SagaCopyBench {
 
         await #expect(throws: Unreadable.self) {
             try await files.write(copy, photo: { _ in throw Unreadable() }, progress: { _ in })
+        }
+
+        let left = (try? FileManager.default.subpathsOfDirectory(atPath: folder.path)) ?? []
+        #expect(left.isEmpty)
+    }
+
+    @Test("Given a saga too large for the import to read, when exporting, then it fails and leaves no file behind")
+    func oversizedSagaIsNotWritten() async throws {
+        defer { try? FileManager.default.removeItem(at: root) }
+        let folder = root.appending(path: "tmp")
+        let files = AppleArchiveSagaCopyFiles(app: "test", folder: folder)
+        let note = String(repeating: "α", count: SagaCopyFormat.sagaLimit / 2 + 1)
+        let copy = SagaCopy(
+            saga: StoredSaga(
+                profile: PlayerProfile(children: [lena], heroClassID: "h-chef"),
+                events: [ProgressEvent(kind: .first(id: "f-steps"), childID: lena.id, date: madeAt, note: note)],
+                outfit: Outfit(), kept: KeptStanding()
+            ),
+            answeredOccasionIDs: [], madeAt: madeAt
+        )
+
+        await #expect(throws: SagaCopyError.failed) {
+            try await files.write(copy, photo: { _ in Data() }, progress: { _ in })
         }
 
         let left = (try? FileManager.default.subpathsOfDirectory(atPath: folder.path)) ?? []

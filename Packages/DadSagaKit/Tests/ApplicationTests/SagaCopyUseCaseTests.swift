@@ -58,6 +58,24 @@ struct SagaCopyUseCaseTests {
         #expect(await files.written?.saga.events.map(\.photoIDs) == [[kept]])
     }
 
+    @Test("Given an entry with a damaged photo file, when exporting, then the entry goes without it and the rest is written")
+    func exportSkipsDamagedPhotos() async throws {
+        let photos = SpyPhotoStore()
+        let kept = try await photos.save(Data("kept".utf8))
+        let broken = try await photos.save(Data("broken".utf8))
+        await photos.damage(broken)
+        let files = ScriptedCopyFiles()
+        let sut = DefaultMakeSagaCopyUseCase(
+            wholeSaga: MemorySaga(saga(lena, photos: [[broken, kept]])), sagaOffers: FakeSagaOffers(), photoStore: photos,
+            files: files
+        )
+
+        _ = try await sut.execute(on: today) { _ in }
+
+        #expect(await files.written?.saga.events.map(\.photoIDs) == [[kept]])
+        #expect(await files.photoBytes == [Data("kept".utf8)])
+    }
+
     @Test("Given no saga yet, when exporting, then there is nothing to export")
     func exportWithoutSaga() async {
         let sut = DefaultMakeSagaCopyUseCase(

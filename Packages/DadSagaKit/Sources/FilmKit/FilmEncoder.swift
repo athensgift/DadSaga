@@ -12,6 +12,8 @@ public enum FilmError: Error, Equatable {
     /// Music that ends before its file says it does: a damaged file.
     case musicUnreadable(URL)
     case writerFailed(String)
+    /// The device ran out of room while the film was being written.
+    case notEnoughSpace
 }
 
 /// Writes a `FilmTimeline` to an MP4 file (ADR-0036 §3).
@@ -20,7 +22,7 @@ public enum FilmError: Error, Equatable {
 /// `PixelBufferReceiver`; the music is appended at the same time from another child task, so the writer can interleave
 /// the two. Images load one clip ahead. The work runs off the caller's actor (`@concurrent`). Cancelling the calling
 /// task stops the writer, deletes the file and throws `CancellationError`; a failure in either track stops the other
-/// and deletes the file too.
+/// and deletes the file too. A full disk is `FilmError.notEnoughSpace`, whatever the writer called it.
 public struct FilmEncoder: Sendable {
     public init() {}
 
@@ -78,9 +80,44 @@ public struct FilmEncoder: Sendable {
             }
             progress(1)
         } catch {
+            let writerError = writer.error
             writer.cancelWriting()
             try? FileManager.default.removeItem(at: url)
-            throw Task.isCancelled ? CancellationError() : error
+            if Task.isCancelled { throw CancellationError() }
+            throw Self.ranOutOfSpace(error, writerError: writerError, beside: url) ? FilmError.notEnoughSpace : error
+        }
+    }
+
+    /// Whether `error`, or an error under it, says the disk is full.
+    public static func isOutOfSpace(_ error: any Error) -> Bool {
+        var next: NSError? = error as NSError
+        while let current = next {
+            switch (current.domain, current.code) {
+            case (AVFoundationErrorDomain, AVError.Code.diskFull.rawValue),
+                 (NSCocoaErrorDomain, NSFileWriteOutOfSpaceError),
+                 (NSPOSIXErrorDomain, Int(ENOSPC)):
+                return true
+            default:
+                next = current.userInfo[NSUnderlyingErrorKey] as? NSError
+            }
+        }
+        return false
+    }
+
+    /// The writer often reports a full disk only as an unknown error. So when the writer itself failed, a small
+    /// write beside the film tells which it was, without asking iOS for the free space, a required-reason API (as a
+    /// copy of the saga does, ADR-0057 §6).
+    private static func ranOutOfSpace(_ error: any Error, writerError: (any Error)?, beside url: URL) -> Bool {
+        if isOutOfSpace(error) { return true }
+        guard let writerError else { return false }
+        if isOutOfSpace(writerError) { return true }
+        let probe = url.deletingLastPathComponent().appending(path: "space-probe-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: probe) }
+        do {
+            try Data(count: 256 * 1024).write(to: probe)
+            return false
+        } catch {
+            return isOutOfSpace(error)
         }
     }
 

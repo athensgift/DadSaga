@@ -50,13 +50,17 @@ enum FilmCards {
 /// The photo store's side of the film: JPEG data by id, or nothing.
 struct StubPhotos: GetPhotoUseCase {
     private let photos: [String: Data]
+    /// What the store makes of any photo asked for smaller than it keeps: a new JPEG, never the file.
+    private let resized: Data?
 
-    init(_ photos: [String: Data] = [:]) {
+    init(_ photos: [String: Data] = [:], resized: Data? = nil) {
         self.photos = photos
+        self.resized = resized
     }
 
     func execute(id: String, maxPixelSize: Int) async -> Data? {
-        photos[id]
+        guard let photo = photos[id] else { return nil }
+        return maxPixelSize >= StoredPhoto.longestSide ? photo : resized ?? photo
     }
 }
 

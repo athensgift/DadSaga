@@ -4,7 +4,7 @@ import FilmKit
 import Foundation
 import ImageIO
 
-/// Decodes a scene's photo for the film, no larger than the film's frame, and aims its glide at its subject.
+/// Decodes a scene's photo for the film, as the store keeps it, and aims its glide at its subject.
 struct SagaFilmPhotoLoader: Sendable {
     /// Which way a photo glides: towards its close-up, or away from it.
     enum Glide {
@@ -20,9 +20,13 @@ struct SagaFilmPhotoLoader: Sendable {
     let getPhoto: any GetPhotoUseCase
     let findSubject: any FindPhotoSubjectUseCase
 
-    /// The photo, upright as the store returns it and already decoded, so the encoder never decodes on a frame. A
-    /// photo that can't be read comes back black: its scene keeps its words on the dark, and the film is still made
-    /// (ADR-0037 §2).
+    /// The photo, upright as the store returns it and already decoded, so the encoder never decodes on a frame. It is
+    /// asked for at the size the store keeps, a little over the film's 1920: its file comes back as it is, never as a
+    /// JPEG of a JPEG (ADR-0042 §1), and `FilmKit` scales it as it draws.
+    ///
+    /// A photo that can't be read comes back black: a first's or a boss's scene keeps its words on the dark, and the
+    /// film is still made (ADR-0037 §2). A photo shown alone is checked before the film starts and left out
+    /// (ADR-0075), so black alone is only the last resort, for a file whose header reads and whose pixels don't.
     ///
     /// The subject is looked for here, one clip ahead of the one being written, so it costs the film no time of its
     /// own. `glide` is the way the photo glides when no child is found in it: with a child, it always moves in on
@@ -30,7 +34,7 @@ struct SagaFilmPhotoLoader: Sendable {
     @concurrent
     func photo(id: String, spec: FilmSpec, glide: Glide?) async throws -> FilmPhoto {
         let options = [kCGImageSourceShouldCacheImmediately: true] as CFDictionary
-        guard let data = await getPhoto.execute(id: id, maxPixelSize: max(spec.width, spec.height)),
+        guard let data = await getPhoto.execute(id: id, maxPixelSize: StoredPhoto.longestSide),
               let source = CGImageSourceCreateWithData(data as CFData, nil),
               let image = CGImageSourceCreateImageAtIndex(source, 0, options)
         else { return FilmPhoto(try Self.blank(), motion: glide.map { Self.motion($0, closeUp: Self.closeUp) }) }
@@ -42,7 +46,6 @@ struct SagaFilmPhotoLoader: Sendable {
                 on: FilmRegion(left: subject.left, top: subject.top, width: subject.width, height: subject.height),
                 pictureSize: CGSize(width: image.width, height: image.height),
                 spec: spec,
-                fit: .fitOverBlur,
                 maxZoom: Self.subjectZoomLimit
             )
             if framing.showsChild {

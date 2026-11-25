@@ -125,4 +125,17 @@ struct PhotoDraftsTests {
         #expect(english.couldNotOpen(1) == "1 photo couldn't be opened. If it's in iCloud, try again in a moment.")
         #expect(english.couldNotOpen(3) == "3 photos couldn't be opened. If they're in iCloud, try again in a moment.")
     }
+
+    @Test("Given a camera photo that couldn't be kept, when the field says so, then it says it in Greek and English")
+    func couldNotKeepShotMessage() {
+        #expect(PhotoLabels(locale: Locale(identifier: "el_GR")).couldNotKeepShot == "Η φωτογραφία δεν κρατήθηκε. Τράβηξέ την ξανά.")
+        #expect(PhotoLabels(locale: Locale(identifier: "en_US")).couldNotKeepShot == "That photo couldn't be kept. Please take it again.")
+    }
+
+    @Test("Given a square of 64 points at 3x, when a photo fills it, then it is asked for once, large enough for a 16:9 photo")
+    func fillingPixelSize() {
+        // 64 pt × 3 = 192 px for the short side; a 16:9 photo's long side is then 342 px.
+        #expect(PhotoFill.pixelSize(filling: CGSize(width: 64, height: 64), scale: 3) == 342)
+        #expect(PhotoFill.pixelSize(filling: .zero, scale: 3) == 0)
+    }
 }

@@ -185,6 +185,11 @@ public final class SagaFilmViewModel: Identifiable {
             showChoices(notice: leftNotice)
         case .failure(let error) where error is CancellationError:
             showChoices(notice: nil)
+        case .failure(let error) where error as? SagaFilmRenderError == .notEnoughSpace:
+            // Trying again wouldn't help, and leaving the app didn't cause it.
+            showChoices(
+                notice: strings.text("There isn't enough free space on this iPhone. Free up some space and try again.")
+            )
         case .failure:
             showChoices(notice: strings.text("Couldn't make the film. Please try again."))
             failedAt = now()

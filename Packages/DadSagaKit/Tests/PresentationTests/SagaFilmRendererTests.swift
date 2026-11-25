@@ -136,6 +136,19 @@ final class SagaFilmRendererTests {
         }
     }
 
+    @Test("Given a store that re-encodes a photo asked for smaller than it keeps, when rendering, then the film shows the stored file")
+    func photoAsStored() async throws {
+        let photos = StubPhotos(
+            ["p-white": try TestPhoto.jpeg { _, _ in .white }], resized: try TestPhoto.jpeg { _, _ in .red }
+        )
+        let scenes = [scene(.photo(photoID: "p-white"), seconds: 0.5)]
+
+        let url = try await small(photos).render(script(scenes, reduceMotion: true)) { _ in }
+
+        let pixel = try await FilmProbe.pixel(url, at: 0.2, across: 0.5, down: 0.5)
+        #expect(min(pixel.red, pixel.green, pixel.blue) > 200, "\(pixel)")
+    }
+
     // MARK: Motion
 
     @Test("Given a photo, when rendering, then it glides closer; with Reduce Motion it stays still", arguments: [false, true])

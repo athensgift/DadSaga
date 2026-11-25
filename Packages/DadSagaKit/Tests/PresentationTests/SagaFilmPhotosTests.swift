@@ -88,6 +88,7 @@ private struct IDPhotoStore: PhotoStore {
     func delete(id: String) async {}
     func deleteAll() async {}
     func storedPhotos() async throws -> [StoredPhoto] { [] }
+    func readablePhotos(among ids: Set<String>) async throws -> Set<String> { ids }
 }
 
 /// Rates a photo by its id.

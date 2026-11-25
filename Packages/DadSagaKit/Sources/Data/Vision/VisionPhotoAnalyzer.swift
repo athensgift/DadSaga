@@ -26,10 +26,13 @@ public struct VisionPhotoAnalyzer: PhotoAnalyzer {
     public func faces(in imageData: Data) async -> [PhotoFace] {
         let handler = ImageRequestHandler(imageData)
         let boxes = ((try? await handler.perform(DetectFaceRectanglesRequest())) ?? []).map(\.boundingBox)
+        let regions = boxes.map(Self.region)
         var faces: [PhotoFace] = []
-        for box in boxes {
+        for (box, region) in zip(boxes, regions) {
             guard !Task.isCancelled else { return [] }
-            faces.append(PhotoFace(region: Self.region(box), isChild: await Self.looksLikeChild(box, in: handler)))
+            // Telling a child from an adult costs as much as finding the faces: only for a face the film may frame.
+            let counts = PhotoSubject.isInForeground(region, among: regions)
+            faces.append(PhotoFace(region: region, isChild: counts ? await Self.looksLikeChild(box, in: handler) : nil))
         }
         return faces
     }

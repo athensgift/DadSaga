@@ -21,6 +21,11 @@ struct JournalPhotosField: View {
     /// Picked photos the last pick couldn't open. A note for the dad, not part of the entry: it never counts as a
     /// change to save, and it goes with the dad's next change to the photos (`change`).
     @State private var unreadCount = 0
+    /// The camera gave no photo the app could keep. A note like `unreadCount`, and it goes the same way.
+    @State private var cameraFailed = false
+    #if os(iOS)
+    @State private var shot: CameraShot?
+    #endif
 
     static let squareSize: CGFloat = 64
 
@@ -46,11 +51,17 @@ struct JournalPhotosField: View {
             }
             #if os(iOS)
             .fullScreenCover(isPresented: $isShowingCamera) {
-                CameraPicker { data in
-                    if let data { change { $0.append([data]) } }
+                CameraPicker { taken in
+                    if let taken { shot = taken }
                     isShowingCamera = false
                 }
                 .ignoresSafeArea()
+            }
+            // Cancelled with the field, as the library's photos are.
+            .task(id: shot?.id) { await add(shot) }
+            .onChange(of: cameraFailed) { _, failed in
+                guard failed else { return }
+                AccessibilityNotification.Announcement(labels.couldNotKeepShot).post()
             }
             #endif
     }
@@ -83,8 +94,8 @@ struct JournalPhotosField: View {
 
     /// Says how many picked photos couldn't be opened, and what to try, instead of leaving them out without a word.
     @ViewBuilder private var unreadNote: some View {
-        if unreadCount > 0 {
-            Label(labels.couldNotOpen(unreadCount), systemImage: "exclamationmark.triangle")
+        if let note = cameraFailed ? labels.couldNotKeepShot : unreadCount > 0 ? labels.couldNotOpen(unreadCount) : nil {
+            Label(note, systemImage: "exclamationmark.triangle")
                 .font(DSFont.caption)
                 .foregroundStyle(DSColor.textSecondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -202,6 +213,7 @@ struct JournalPhotosField: View {
     /// A change the dad makes to the photos; the note about photos that couldn't be opened goes with it.
     private func change(_ edit: (inout PhotoDrafts) -> Void) {
         unreadCount = 0
+        cameraFailed = false
         edit(&photos)
     }
 
@@ -239,6 +251,27 @@ struct JournalPhotosField: View {
         pickedItems = []
     }
 
+    #if os(iOS)
+    /// Adds the photo just taken. Its JPEG is made off the main actor: a 48 MP shot takes long enough to stall the
+    /// sheet. A shot that gives none is said, never dropped without a word.
+    private func add(_ shot: CameraShot?) async {
+        guard let shot else { return }
+        change { $0.startLoading(1) }
+        let data = await shot.jpeg()
+        guard !Task.isCancelled else {
+            photos.finishLoading()
+            return
+        }
+        self.shot = nil
+        if let data {
+            photos.finishLoading([data], picked: 1)
+        } else {
+            photos.finishLoading()
+            cameraFailed = true
+        }
+    }
+    #endif
+
     private var canUseCamera: Bool {
         #if os(iOS)
         CameraPicker.isAvailable
@@ -249,11 +282,23 @@ struct JournalPhotosField: View {
 }
 
 #if os(iOS)
-/// The system camera. Hands back JPEG data, or `nil` if the dad cancelled.
+/// A photo the camera has just handed back, not yet encoded.
+private struct CameraShot: Identifiable, Sendable {
+    let id = UUID()
+    /// `nil` when the camera finished without a picture.
+    let image: UIImage?
+
+    @concurrent
+    func jpeg() async -> Data? {
+        image?.jpegData(compressionQuality: 0.9)
+    }
+}
+
+/// The system camera. Hands back what it took, or `nil` if the dad cancelled.
 private struct CameraPicker: UIViewControllerRepresentable {
     static var isAvailable: Bool { UIImagePickerController.isSourceTypeAvailable(.camera) }
 
-    let onFinish: (Data?) -> Void
+    let onFinish: (CameraShot?) -> Void
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
@@ -269,9 +314,9 @@ private struct CameraPicker: UIViewControllerRepresentable {
     }
 
     final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let onFinish: (Data?) -> Void
+        let onFinish: (CameraShot?) -> Void
 
-        init(onFinish: @escaping (Data?) -> Void) {
+        init(onFinish: @escaping (CameraShot?) -> Void) {
             self.onFinish = onFinish
         }
 
@@ -279,7 +324,7 @@ private struct CameraPicker: UIViewControllerRepresentable {
             _ picker: UIImagePickerController,
             didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
         ) {
-            onFinish((info[.originalImage] as? UIImage)?.jpegData(compressionQuality: 0.9))
+            onFinish(CameraShot(image: info[.originalImage] as? UIImage))
         }
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {

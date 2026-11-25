@@ -130,6 +130,7 @@ actor DatedPhotoStore: PhotoStore {
         files.map { StoredPhoto(id: $0.key, savedAt: $0.value) }
     }
 
+    func readablePhotos(among ids: Set<String>) async throws -> Set<String> { ids.intersection(files.keys) }
     func save(_ imageData: Data) async throws -> String { "" }
     func thumbnail(id: String, maxPixelSize: Int) async -> Data? { nil }
     func storedData(id: String) async throws -> Data { Data() }
