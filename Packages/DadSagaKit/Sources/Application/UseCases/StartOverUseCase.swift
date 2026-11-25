@@ -11,25 +11,20 @@ public struct DefaultStartOverUseCase: StartOverUseCase {
     private let photoStore: any PhotoStore
     private let reminderSettings: any ReminderSettingsRepository
     private let sagaOffers: any SagaOfferRepository
-    private let schedule: any ScheduleWeeklyRemindersUseCase
-    private let notificationScheduler: any NotificationScheduler
+    private let renewReminders: any RenewWeeklyRemindersUseCase
 
-    /// - Parameter schedule: the app's one reschedule, so a run already under way cannot put notifications back after
-    ///   this one cleared them (ADR-0024).
     public init(
         wholeSaga: any WholeSagaRepository,
         photoStore: any PhotoStore,
         reminderSettings: any ReminderSettingsRepository,
         sagaOffers: any SagaOfferRepository,
-        schedule: any ScheduleWeeklyRemindersUseCase,
-        notificationScheduler: any NotificationScheduler
+        renewReminders: any RenewWeeklyRemindersUseCase
     ) {
         self.wholeSaga = wholeSaga
         self.photoStore = photoStore
         self.reminderSettings = reminderSettings
         self.sagaOffers = sagaOffers
-        self.schedule = schedule
-        self.notificationScheduler = notificationScheduler
+        self.renewReminders = renewReminders
     }
 
     /// The store goes first, in one write. If it fails nothing else is touched, so the saga is still whole.
@@ -38,10 +33,8 @@ public struct DefaultStartOverUseCase: StartOverUseCase {
         await reminderSettings.deleteAll()
         // The answers were about the saga that is gone (ADR-0036 §7).
         await sagaOffers.deleteAll()
-        // Finds the reminder off and clears what is waiting.
-        await schedule.execute(on: date)
-        // Notes already shown name the children and link to them.
-        await notificationScheduler.removeDelivered()
+        // Finds the reminder off, so what is waiting goes too.
+        await renewReminders.execute(on: date)
         await photoStore.deleteAll()
     }
 }

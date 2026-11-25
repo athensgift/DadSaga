@@ -79,11 +79,11 @@ struct RemovedChildTests: SagaCopyBench {
         defer { try? FileManager.default.removeItem(at: root) }
         let phone = try await imported().phone
         var family = [lena, unborn, Child(name: "Γιάννης", birthDay: nil), Child(name: "Μαρία", birthDay: nil)]
-        try await DefaultUpdateFamilyUseCase(profileRepository: phone.store.profiles)
+        try await DefaultUpdateFamilyUseCase(profileRepository: phone.store.profiles, renewReminders: NoReminders())
             .execute(FamilyEdit(added: Array(family.suffix(2))), on: madeAt)
         family[0].name = "Λενιώ"
 
-        try await DefaultUpdateFamilyUseCase(profileRepository: phone.store.profiles)
+        try await DefaultUpdateFamilyUseCase(profileRepository: phone.store.profiles, renewReminders: NoReminders())
             .execute(FamilyEdit(changed: [ChildEdit(child: family[0], fields: [.name])]), on: madeAt)
 
         let saga = try #require(try await phone.store.wholeSaga.readAll())
@@ -126,14 +126,15 @@ struct RemovedChildTests: SagaCopyBench {
     }
 
     func remove(_ child: Child, on phone: Phone) async throws {
-        try await DefaultUpdateFamilyUseCase(profileRepository: phone.store.profiles)
+        try await DefaultUpdateFamilyUseCase(profileRepository: phone.store.profiles, renewReminders: NoReminders())
             .execute(FamilyEdit(removedIDs: [child.id]), on: madeAt)
     }
 
     func deleteForGood(on phone: Phone) -> DefaultDeleteChildForGoodUseCase {
         DefaultDeleteChildForGoodUseCase(
             contentRepository: BundledContentRepository(), profileRepository: phone.store.profiles,
-            progressRepository: phone.store.progress, standingRepository: phone.store.standing, photoStore: phone.photos
+            progressRepository: phone.store.progress, standingRepository: phone.store.standing, photoStore: phone.photos,
+            renewReminders: NoReminders()
         )
     }
 
@@ -191,7 +192,7 @@ struct RemovedChildTests: SagaCopyBench {
         let (phone, _) = try await family()
         try await remove(lena, on: phone)
         let others = ["Γιάννης", "Μαρία", "Άρης"].map { Child(name: $0, birthDay: nil) }
-        try await DefaultUpdateFamilyUseCase(profileRepository: phone.store.profiles)
+        try await DefaultUpdateFamilyUseCase(profileRepository: phone.store.profiles, renewReminders: NoReminders())
             .execute(FamilyEdit(added: others), on: madeAt)
 
         await #expect(throws: ProfileValidationError.tooManyChildren) {
@@ -217,7 +218,7 @@ struct RemovedChildTests: SagaCopyBench {
         try await phone.store.progress.add(other)
         try await remove(lena, on: phone)
 
-        try await deleteForGood(on: phone).execute(childID: lena.id)
+        try await deleteForGood(on: phone).execute(childID: lena.id, on: madeAt)
 
         let after = try await standing(on: phone)
         #expect(after.totalXP == 20)
@@ -235,11 +236,15 @@ struct RemovedChildTests: SagaCopyBench {
         let (phone, photo) = try await family()
         let before = try #require(try await phone.store.wholeSaga.readAll())
 
-        await #expect(throws: ProfileEditError.notRemoved) { try await deleteForGood(on: phone).execute(childID: lena.id) }
+        await #expect(throws: ProfileEditError.notRemoved) {
+            try await deleteForGood(on: phone).execute(childID: lena.id, on: madeAt)
+        }
         await #expect(throws: ProfileEditError.notRemoved) {
             try await phone.store.profiles.deleteForGood(childID: lena.id)
         }
-        await #expect(throws: ProfileEditError.notRemoved) { try await deleteForGood(on: phone).execute(childID: UUID()) }
+        await #expect(throws: ProfileEditError.notRemoved) {
+            try await deleteForGood(on: phone).execute(childID: UUID(), on: madeAt)
+        }
 
         #expect(try await phone.store.wholeSaga.readAll() == before)
         #expect((try? await phone.photos.storedData(id: photo)) != nil)
@@ -254,7 +259,7 @@ struct RemovedChildTests: SagaCopyBench {
         let removedCopy = try await make(on: source).execute(on: madeAt) { _ in }
         let first = phone("first")
         try await restore(on: first).restore(try await restore(on: first).open(fileAt: removedCopy.url) { _ in }, on: madeAt)
-        try await deleteForGood(on: source).execute(childID: lena.id)
+        try await deleteForGood(on: source).execute(childID: lena.id, on: madeAt)
         let deletedCopy = try await make(on: source).execute(on: madeAt) { _ in }
         let second = phone("second")
         try await restore(on: second).restore(try await restore(on: second).open(fileAt: deletedCopy.url) { _ in }, on: madeAt)

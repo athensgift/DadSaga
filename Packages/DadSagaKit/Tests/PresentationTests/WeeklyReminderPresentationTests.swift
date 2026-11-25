@@ -8,7 +8,7 @@ extension ReminderUseCases {
     /// iOS already said no, so home never offers the reminder.
     static var neverOffered: ReminderUseCases {
         let fake = FakeReminder(authorization: .denied)
-        return ReminderUseCases(get: fake, update: fake)
+        return ReminderUseCases(get: fake, update: fake, schedule: CountingReschedules())
     }
 }
 
@@ -23,6 +23,10 @@ actor FakeReminder: GetWeeklyReminderUseCase, UpdateWeeklyReminderUseCase {
     init(authorization: NotificationAuthorization = .notDetermined, allows: Bool = true) {
         self.authorization = authorization
         self.allows = allows
+    }
+
+    func setAuthorization(_ authorization: NotificationAuthorization) {
+        self.authorization = authorization
     }
 
     func execute() async -> WeeklyReminderStatus {
@@ -49,7 +53,7 @@ struct WeeklyReminderPresentationTests {
             profile: HeroStub.profile,
             progress: progress,
             locale: locale,
-            reminder: ReminderUseCases(get: fake, update: fake)
+            reminder: ReminderUseCases(get: fake, update: fake, schedule: CountingReschedules())
         )
     }
 
@@ -129,7 +133,7 @@ struct WeeklyReminderPresentationTests {
     func settingsSave() async {
         let fake = FakeReminder()
         let sut = ReminderSettingsViewModel(
-            useCases: ReminderUseCases(get: fake, update: fake),
+            useCases: ReminderUseCases(get: fake, update: fake, schedule: CountingReschedules()),
             locale: Locale(identifier: "el_GR"),
             calendar: Self.greekCalendar
         )
@@ -152,7 +156,7 @@ struct WeeklyReminderPresentationTests {
     func denied() async {
         let fake = FakeReminder(allows: false)
         let sut = ReminderSettingsViewModel(
-            useCases: ReminderUseCases(get: fake, update: fake),
+            useCases: ReminderUseCases(get: fake, update: fake, schedule: CountingReschedules()),
             locale: Locale(identifier: "el_GR"),
             calendar: Self.greekCalendar
         )
@@ -163,6 +167,52 @@ struct WeeklyReminderPresentationTests {
         #expect(sut.deniedMessage == "Οι ειδοποιήσεις του DadSaga είναι κλειστές στις ρυθμίσεις του iPhone.")
         await sut.setEnabled(false)
         #expect(sut.deniedMessage == nil)
+    }
+
+    @Test("Given notifications off in iPhone Settings, when the dad allows them and comes back, then the note is scheduled")
+    func allowedInTheIPhonesSettings() async {
+        let fake = FakeReminder(allows: false)
+        let schedule = CountingReschedules()
+        let sut = ReminderSettingsViewModel(
+            useCases: ReminderUseCases(get: fake, update: fake, schedule: schedule),
+            locale: Locale(identifier: "el_GR"),
+            calendar: Self.greekCalendar
+        )
+        await sut.onAppear()
+        await sut.setEnabled(true)
+        #expect(sut.deniedMessage != nil)
+
+        await fake.setAuthorization(.allowed)
+        await sut.appBecameActive()
+
+        #expect(sut.deniedMessage == nil)
+        #expect(sut.isEnabled)
+        #expect(await schedule.runs == 1)
+
+        await fake.setAuthorization(.denied)
+        await sut.appBecameActive()
+
+        #expect(sut.deniedMessage != nil)
+        #expect(await schedule.runs == 1)
+    }
+
+    @Test("Given a change still being saved, when the app becomes active again, then the screen keeps the change")
+    func activeWhileSaving() async {
+        let fake = SlowFirstReminder()
+        let sut = ReminderSettingsViewModel(
+            useCases: ReminderUseCases(get: fake, update: fake, schedule: CountingReschedules()),
+            locale: Locale(identifier: "el_GR"),
+            calendar: Self.greekCalendar
+        )
+        await sut.onAppear()
+
+        let turningOn = Task { await sut.setEnabled(true) }
+        while await fake.calls == 0 { await Task.yield() }
+        await sut.appBecameActive()
+        #expect(sut.isEnabled)
+
+        await turningOn.value
+        #expect(sut.isEnabled)
     }
 
     @Test("Given a quest title, when writing the notification, then a name leads only when there are siblings")
@@ -185,7 +235,7 @@ struct WeeklyReminderPresentationTests {
     func lateResultDoesNotWin() async {
         let fake = SlowFirstReminder()
         let sut = ReminderSettingsViewModel(
-            useCases: ReminderUseCases(get: fake, update: fake),
+            useCases: ReminderUseCases(get: fake, update: fake, schedule: CountingReschedules()),
             locale: Locale(identifier: "el_GR"),
             calendar: Self.greekCalendar
         )
@@ -206,7 +256,7 @@ struct WeeklyReminderPresentationTests {
         calendar.firstWeekday = 1
         let fake = FakeReminder()
         let sut = ReminderSettingsViewModel(
-            useCases: ReminderUseCases(get: fake, update: fake),
+            useCases: ReminderUseCases(get: fake, update: fake, schedule: CountingReschedules()),
             locale: Locale(identifier: "en_US"),
             calendar: calendar
         )
@@ -228,4 +278,10 @@ actor SlowFirstReminder: GetWeeklyReminderUseCase, UpdateWeeklyReminderUseCase {
         if calls == 1 { try? await Task.sleep(for: .milliseconds(200)) }
         return WeeklyReminderStatus(reminder: reminder, authorization: .allowed)
     }
+}
+
+/// How many times the notes were scheduled again.
+actor CountingReschedules: ScheduleWeeklyRemindersUseCase {
+    private(set) var runs = 0
+    func execute(on date: Date) async { runs += 1 }
 }

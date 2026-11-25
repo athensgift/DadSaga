@@ -16,8 +16,9 @@ struct RemovedChildSyncTests: SyncBench {
     func deleteForGood(_ child: Child, on phone: SyncPhone) async throws {
         try await DefaultDeleteChildForGoodUseCase(
             contentRepository: phone.content, profileRepository: phone.store.profiles,
-            progressRepository: phone.store.progress, standingRepository: phone.store.standing, photoStore: phone.photos
-        ).execute(childID: child.id)
+            progressRepository: phone.store.progress, standingRepository: phone.store.standing, photoStore: phone.photos,
+            renewReminders: NoReminders()
+        ).execute(childID: child.id, on: .now)
     }
 
     /// The family, with Λένα removed on both iPhones.

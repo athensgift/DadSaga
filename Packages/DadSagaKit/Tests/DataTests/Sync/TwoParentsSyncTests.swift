@@ -160,7 +160,7 @@ struct TwoParentsSyncTests: SyncBench {
         #expect(Set(children.map(\.name)) == ["Λένα", "Νίκος", "Γιάννης", "Μαρία", "Άρης"])
         // Two were added at the same place: both iPhones show them in the same order.
         #expect(try await mum.children() == children)
-        let edit = DefaultUpdateFamilyUseCase(profileRepository: mum.store.profiles)
+        let edit = DefaultUpdateFamilyUseCase(profileRepository: mum.store.profiles, renewReminders: NoReminders())
         var renamed = hers
         renamed.name = "Άρης ο μικρός"
         try await edit.execute(FamilyEdit(changed: [ChildEdit(child: renamed, fields: [.name])]), on: .now)

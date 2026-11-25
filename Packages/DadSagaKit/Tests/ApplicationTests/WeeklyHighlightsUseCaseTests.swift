@@ -85,6 +85,40 @@ struct WeeklyHighlightsUseCaseTests {
         #expect(thursday?.validUntil == Self.date(2026, 11, 23, 0))
     }
 
+    /// World 0 before birth, then the same worlds of months.
+    static let catalogFromBeforeBirth = ContentCatalog(
+        worlds: [World(id: "w0", order: 0, title: text, tagline: text, span: .beforeBirth)] + catalog.worlds,
+        quests: [
+            Quest(id: "q0", worldID: "w0", title: text, description: text, skill: .care, xp: 15, minAgeMonths: 0)
+        ] + catalog.quests,
+        bosses: [],
+        firsts: []
+    )
+
+    @Test(
+        "Given a baby born in the middle of the week, when executing, then the week's quest is for after the birth",
+        arguments: [16, 18, 22]
+    )
+    func bornThisWeek(_ day: Int) async throws {
+        // The week began on Monday 16, before the birth on Wednesday 18.
+        try await onboard([Child(name: "Lena", birthDay: .day(2026, 11, 18))])
+        let sut = DefaultGetWeeklyHighlightsUseCase(
+            contentRepository: StubContentRepository(result: .success(Self.catalogFromBeforeBirth)),
+            profileRepository: profiles,
+            progressRepository: progress,
+            photoStore: photos,
+            calendar: Self.calendar
+        )
+
+        let highlights = try await sut.execute(childID: nil, on: Self.date(2026, 11, day), photoMaxPixelSize: nil)
+
+        guard case .suggested(let quest, _) = highlights?.quest else {
+            Issue.record("Expected a quest")
+            return
+        }
+        #expect(quest.id == "q1")
+    }
+
     @Test("Given the quest was done with this child this week, when executing, then it is marked done")
     func doneThisWeek() async throws {
         let baby = Child(name: "Lena", birthDay: CalendarDay(Self.date(2026, 6, 1), in: .gmt))

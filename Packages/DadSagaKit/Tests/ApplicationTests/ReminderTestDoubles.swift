@@ -4,10 +4,17 @@ import Foundation
 
 actor FakeReminderSettings: ReminderSettingsRepository {
     var stored: WeeklyReminder?
+    private var times: [DateComponents] = []
 
     func fetch() async -> WeeklyReminder { stored ?? .default }
     func save(_ reminder: WeeklyReminder) async { stored = reminder }
-    func deleteAll() async { stored = nil }
+    func noteTimes() async -> [DateComponents] { times }
+    func saveNoteTimes(_ times: [DateComponents]) async { self.times = times }
+
+    func deleteAll() async {
+        stored = nil
+        times = []
+    }
 }
 
 actor FakeNotificationScheduler: NotificationScheduler {
@@ -39,6 +46,10 @@ actor FakeNotificationScheduler: NotificationScheduler {
         guard !pending.isEmpty else { return }
         delivered.append(pending.removeFirst())
     }
+}
+
+struct NoReminders: RenewWeeklyRemindersUseCase {
+    func execute(on date: Date) async {}
 }
 
 struct EchoReminderText: ReminderTextProvider {
@@ -78,6 +89,8 @@ actor SlowFirstSettings: ReminderSettingsRepository {
         stored = reminder
     }
 
+    func noteTimes() async -> [DateComponents] { [] }
+    func saveNoteTimes(_ times: [DateComponents]) async {}
     func deleteAll() async { stored = nil }
 }
 

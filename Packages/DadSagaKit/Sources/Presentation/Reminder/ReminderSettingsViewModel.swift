@@ -8,10 +8,16 @@ import Observation
 public struct ReminderUseCases: Sendable {
     let get: any GetWeeklyReminderUseCase
     let update: any UpdateWeeklyReminderUseCase
+    let schedule: any ScheduleWeeklyRemindersUseCase
 
-    public init(get: any GetWeeklyReminderUseCase, update: any UpdateWeeklyReminderUseCase) {
+    public init(
+        get: any GetWeeklyReminderUseCase,
+        update: any UpdateWeeklyReminderUseCase,
+        schedule: any ScheduleWeeklyRemindersUseCase
+    ) {
         self.get = get
         self.update = update
+        self.schedule = schedule
     }
 }
 
@@ -37,6 +43,7 @@ public final class ReminderSettingsViewModel {
     /// Each save takes a number; only the latest one may update the screen, so a slow earlier save that finishes last
     /// cannot put back an older day or time.
     private var saveGeneration = 0
+    private var savesUnderWay = 0
 
     public init(
         useCases: ReminderUseCases,
@@ -67,6 +74,20 @@ public final class ReminderSettingsViewModel {
     }
 
     public func onAppear() async {
+        await refresh()
+    }
+
+    /// Back in the app, perhaps from the iPhone's settings with notifications allowed: the notes are scheduled at once.
+    public func appBecameActive() async {
+        guard isLoaded else { return }
+        let wasDenied = deniedMessage != nil
+        await refresh()
+        if wasDenied, isEnabled, deniedMessage == nil { await useCases.schedule.execute(on: now()) }
+    }
+
+    /// A save under way brings the newer status itself; iOS's own prompt, for one, makes the app inactive and active.
+    private func refresh() async {
+        guard savesUnderWay == 0 else { return }
         let generation = saveGeneration
         let status = await useCases.get.execute()
         guard generation == saveGeneration else { return }
@@ -96,7 +117,9 @@ public final class ReminderSettingsViewModel {
         weekday = reminder.weekday
         hour = reminder.hour
         minute = reminder.minute
+        savesUnderWay += 1
         let status = await useCases.update.execute(reminder, on: now())
+        savesUnderWay -= 1
         guard generation == saveGeneration else { return }
         apply(status)
     }

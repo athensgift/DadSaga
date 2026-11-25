@@ -6,7 +6,11 @@ public protocol ReminderSettingsRepository: Sendable {
     /// `WeeklyReminder.default` until something was saved.
     func fetch() async -> WeeklyReminder
     func save(_ reminder: WeeklyReminder) async
-    /// Only starting over uses this.
+    /// When the notes last scheduled are due (`PendingReminder.time`), and this week's if it has arrived: the next
+    /// reschedule tells from them that this week has had its note. Empty until something was scheduled.
+    func noteTimes() async -> [DateComponents]
+    func saveNoteTimes(_ times: [DateComponents]) async
+    /// The settings and the times. Only starting over uses this.
     func deleteAll() async
 }
 
@@ -43,7 +47,7 @@ public protocol NotificationScheduler: Sendable {
     func requestAuthorization() async -> Bool
     /// Removes every DadSaga notification still waiting and schedules these instead.
     func replacePending(with reminders: [PendingReminder]) async
-    /// Removes DadSaga's notifications already shown in Notification Center. Only starting over uses this.
+    /// Removes DadSaga's notifications already shown in Notification Center, when the family they name changed.
     func removeDelivered() async
 }
 

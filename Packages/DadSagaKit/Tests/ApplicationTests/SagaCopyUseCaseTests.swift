@@ -102,7 +102,7 @@ struct SagaCopyUseCaseTests {
         let schedule = CountingSchedule()
         let sut = DefaultRestoreSagaUseCase(
             wholeSaga: store, progressRepository: store, photoStore: photos, sagaOffers: offers, files: files,
-            schedule: schedule, notificationScheduler: scheduler
+            renewReminders: DefaultRenewWeeklyRemindersUseCase(schedule: schedule, scheduler: scheduler)
         )
         return Restore(sut: sut, store: store, photos: photos, offers: offers, scheduler: scheduler, schedule: schedule)
     }

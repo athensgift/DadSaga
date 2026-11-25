@@ -84,6 +84,10 @@ final class AppContainer {
         text: WeeklyReminderText()
     )
 
+    private var renewReminders: any RenewWeeklyRemindersUseCase {
+        DefaultRenewWeeklyRemindersUseCase(schedule: scheduleWeeklyReminders, scheduler: notificationScheduler)
+    }
+
     /// One instance for home's offer and the settings screen, so every change waits for the one before it.
     private lazy var reminderUseCases = ReminderUseCases(
         get: DefaultGetWeeklyReminderUseCase(settings: reminderSettings, scheduler: notificationScheduler),
@@ -91,7 +95,8 @@ final class AppContainer {
             settings: reminderSettings,
             scheduler: notificationScheduler,
             schedule: scheduleWeeklyReminders
-        )
+        ),
+        schedule: scheduleWeeklyReminders
     )
 
     // MARK: Presentation
@@ -111,8 +116,7 @@ final class AppContainer {
                     photoStore: photoStore,
                     reminderSettings: reminderSettings,
                     sagaOffers: sagaOffers,
-                    schedule: scheduleWeeklyReminders,
-                    notificationScheduler: notificationScheduler
+                    renewReminders: renewReminders
                 ),
                 getHeroChoice: getHeroChoice
             ),
@@ -248,11 +252,12 @@ final class AppContainer {
     func makeFamilyViewModel(onSaved: @escaping @MainActor () -> Void) -> FamilyViewModel {
         FamilyViewModel(
             getProfile: getProfileUseCase,
-            updateFamily: DefaultUpdateFamilyUseCase(profileRepository: store.profiles),
+            updateFamily: DefaultUpdateFamilyUseCase(profileRepository: store.profiles, renewReminders: renewReminders),
             bringBack: DefaultBringBackChildUseCase(profileRepository: store.profiles),
             deleteForGood: DefaultDeleteChildForGoodUseCase(
                 contentRepository: contentRepository, profileRepository: store.profiles,
-                progressRepository: store.progress, standingRepository: store.standing, photoStore: photoStore
+                progressRepository: store.progress, standingRepository: store.standing, photoStore: photoStore,
+                renewReminders: renewReminders
             ),
             onSaved: onSaved
         )
@@ -319,8 +324,7 @@ extension AppContainer {
                 photoStore: photoStore,
                 sagaOffers: sagaOffers,
                 files: sagaCopyFiles,
-                schedule: scheduleWeeklyReminders,
-                notificationScheduler: notificationScheduler
+                renewReminders: renewReminders
             ),
             backgroundTime: UIKitBackgroundTime(),
             replacesSaga: replacesSaga,

@@ -37,8 +37,7 @@ public struct DefaultRestoreSagaUseCase: RestoreSagaUseCase {
     private let photoStore: any PhotoStore
     private let sagaOffers: any SagaOfferRepository
     private let files: any SagaCopyFiles
-    private let schedule: any ScheduleWeeklyRemindersUseCase
-    private let notificationScheduler: any NotificationScheduler
+    private let renewReminders: any RenewWeeklyRemindersUseCase
 
     /// - Parameter schedule: the app's one reschedule, so the reminders follow the restored family (ADR-0024).
     public init(
@@ -47,16 +46,14 @@ public struct DefaultRestoreSagaUseCase: RestoreSagaUseCase {
         photoStore: any PhotoStore,
         sagaOffers: any SagaOfferRepository,
         files: any SagaCopyFiles,
-        schedule: any ScheduleWeeklyRemindersUseCase,
-        notificationScheduler: any NotificationScheduler
+        renewReminders: any RenewWeeklyRemindersUseCase
     ) {
         self.wholeSaga = wholeSaga
         self.progressRepository = progressRepository
         self.photoStore = photoStore
         self.sagaOffers = sagaOffers
         self.files = files
-        self.schedule = schedule
-        self.notificationScheduler = notificationScheduler
+        self.renewReminders = renewReminders
     }
 
     /// Photos adopted before a failure are new files no entry points to; a kill before they are deleted leaves them
@@ -103,9 +100,7 @@ public struct DefaultRestoreSagaUseCase: RestoreSagaUseCase {
         for occasionID in opened.copy.answeredOccasionIDs.sorted() {
             await sagaOffers.markAnswered(occasionID)
         }
-        await schedule.execute(on: date)
-        // Notes already shown name the old family and link to it.
-        await notificationScheduler.removeDelivered()
+        await renewReminders.execute(on: date)
     }
 
     /// Never a photo the saga points to: after a restore, the adopted photos are the saga's own. When the entries

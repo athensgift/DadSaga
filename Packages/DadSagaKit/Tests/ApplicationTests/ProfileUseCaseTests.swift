@@ -120,7 +120,7 @@ extension ProfileUseCaseTests {
         let id = UUID()
         let five = (1...5).map { Child(name: "Παιδί \($0)", birthDay: nil) }
         await repository.seed(PlayerProfile(id: id, children: five, heroClassID: "h1"))
-        let family = DefaultUpdateFamilyUseCase(profileRepository: repository)
+        let family = DefaultUpdateFamilyUseCase(profileRepository: repository, renewReminders: NoReminders())
 
         try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: repository)
             .execute(HeroEdit(dadSkinTone: .dark))
@@ -145,7 +145,8 @@ extension ProfileUseCaseTests {
         let repository = SpyProfileRepository()
         await repository.seed(PlayerProfile(children: [Child(name: "Λένα", birthDay: nil)], heroClassID: "h1"))
 
-        try await DefaultUpdateFamilyUseCase(profileRepository: repository).execute(FamilyEdit(), on: today)
+        try await DefaultUpdateFamilyUseCase(profileRepository: repository, renewReminders: NoReminders())
+            .execute(FamilyEdit(), on: today)
         try await DefaultUpdateHeroUseCase(contentRepository: content, profileRepository: repository).execute(HeroEdit())
 
         #expect(await repository.editCount == 0)
@@ -158,7 +159,7 @@ extension ProfileUseCaseTests {
         await repository.seed(PlayerProfile(children: [lena], heroClassID: "h1"))
 
         await #expect(throws: ProfileValidationError.noChildren) {
-            try await DefaultUpdateFamilyUseCase(profileRepository: repository)
+            try await DefaultUpdateFamilyUseCase(profileRepository: repository, renewReminders: NoReminders())
                 .execute(FamilyEdit(removedIDs: [lena.id]), on: today)
         }
         #expect(try await repository.fetchProfile()?.children == [lena])

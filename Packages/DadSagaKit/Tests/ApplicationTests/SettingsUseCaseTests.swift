@@ -13,8 +13,8 @@ extension WeeklyReminderUseCaseTests {
         offers: FakeSagaOffers = FakeSagaOffers()
     ) -> DefaultStartOverUseCase {
         DefaultStartOverUseCase(
-            wholeSaga: wholeSaga, photoStore: photos, reminderSettings: settings, sagaOffers: offers, schedule: schedule,
-            notificationScheduler: scheduler
+            wholeSaga: wholeSaga, photoStore: photos, reminderSettings: settings, sagaOffers: offers,
+            renewReminders: DefaultRenewWeeklyRemindersUseCase(schedule: schedule, scheduler: scheduler)
         )
     }
 
@@ -199,7 +199,7 @@ struct EditProfileUseCaseTests {
                 glasses: shavedNoBeard.glasses
             ))
 
-        try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
+        try await DefaultUpdateFamilyUseCase(profileRepository: profiles, renewReminders: NoReminders())
             .execute(FamilyEdit(removedIDs: [nikos.id]), on: today)
 
         let profile = try #require(try await profiles.fetchProfile())
@@ -217,7 +217,7 @@ struct EditProfileUseCaseTests {
                 .execute(HeroEdit(beard: .full))
         }
         await #expect(throws: ProfileEditError.noProfile) {
-            try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
+            try await DefaultUpdateFamilyUseCase(profileRepository: profiles, renewReminders: NoReminders())
                 .execute(FamilyEdit(removedIDs: [anna.id]), on: today)
         }
     }
@@ -251,7 +251,7 @@ struct EditProfileUseCaseTests {
         let profiles = SpyProfileRepository()
         await profiles.seed(PlayerProfile(children: [anna, nikos], heroClassID: "gone", dadSkinTone: .light))
 
-        try await DefaultUpdateFamilyUseCase(profileRepository: profiles)
+        try await DefaultUpdateFamilyUseCase(profileRepository: profiles, renewReminders: NoReminders())
             .execute(FamilyEdit(removedIDs: [nikos.id]), on: today)
 
         let profile = try #require(try await profiles.fetchProfile())

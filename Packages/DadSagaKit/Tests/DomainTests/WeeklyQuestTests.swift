@@ -25,9 +25,18 @@ struct WeeklyQuestTests {
     let child = UUID(uuidString: "11111111-2222-3333-4444-555555555555") ?? UUID()
     let sibling = UUID(uuidString: "99999999-8888-7777-6666-555555555555") ?? UUID()
 
-    func pick(on date: Date, for childID: UUID? = nil) -> Quest? {
-        let week = WeeklyQuest.week(containing: date, calendar: Self.calendar)
-        return WeeklyQuest.pick(from: pool, childID: childID ?? child, week: week, calendar: Self.calendar)
+    /// The quest of a child born on 1 January 2026, offered the same cards all year.
+    func pick(on date: Date, for childID: UUID? = nil, from pool: [Quest]? = nil) -> Quest? {
+        let world = World(
+            id: "w1", order: 1, title: Self.text, tagline: Self.text, span: .months(min: 0, max: 24)
+        )
+        return WeeklyQuest.pick(
+            for: Child(id: childID ?? child, name: "Lena", birthDay: CalendarDay(year: 2026, month: 1, day: 1)),
+            family: .everyone,
+            in: ContentCatalog(worlds: [world], quests: pool ?? self.pool, bosses: [], firsts: []),
+            week: WeeklyQuest.week(containing: date, calendar: Self.calendar),
+            calendar: Self.calendar
+        )
     }
 
     @Test("Given any day of one week, when picking, then the quest is the same")
@@ -56,9 +65,10 @@ struct WeeklyQuestTests {
         #expect(next == picks.first)
     }
 
-    @Test("Given fixed inputs, when picking, then the quest is a known one, so every process agrees")
+    @Test("Given fixed inputs, when picking, then the quests are known ones, so every process agrees")
     func stableAcrossProcesses() {
-        #expect(pick(on: Self.date(2026, 11, 18))?.id == "q2")
+        let weeks = (0..<6).map { Self.date(2026, 11, 18).addingTimeInterval(Double($0) * 7 * 86_400) }
+        #expect(weeks.map { pick(on: $0)?.id } == ["q6", "q4", "q2", "q5", "q1", "q3"])
     }
 
     @Test("Given two siblings, when picking over the weeks, then their orders differ")
@@ -70,8 +80,7 @@ struct WeeklyQuestTests {
 
     @Test("Given an empty pool, when picking, then there is no quest")
     func emptyPool() {
-        let week = WeeklyQuest.week(containing: Self.date(2026, 11, 18), calendar: Self.calendar)
-        #expect(WeeklyQuest.pick(from: [], childID: child, week: week, calendar: Self.calendar) == nil)
+        #expect(pick(on: Self.date(2026, 11, 18), from: []) == nil)
     }
 
     @Test("Given completions, when checking this week, then only this child's and this week's count")
