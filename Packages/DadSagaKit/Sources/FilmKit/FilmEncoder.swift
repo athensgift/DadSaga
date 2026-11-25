@@ -80,11 +80,13 @@ public struct FilmEncoder: Sendable {
             }
             progress(1)
         } catch {
-            let writerError = writer.error
+            // Asked while the part of the film already written still takes its room: deleting it first would free
+            // enough for the probe to pass on a full disk.
+            let isFull = !Task.isCancelled && Self.ranOutOfSpace(error, writerError: writer.error, beside: url)
             writer.cancelWriting()
             try? FileManager.default.removeItem(at: url)
             if Task.isCancelled { throw CancellationError() }
-            throw Self.ranOutOfSpace(error, writerError: writerError, beside: url) ? FilmError.notEnoughSpace : error
+            throw isFull ? FilmError.notEnoughSpace : error
         }
     }
 

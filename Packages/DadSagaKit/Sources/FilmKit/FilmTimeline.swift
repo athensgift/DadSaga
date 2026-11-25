@@ -87,7 +87,6 @@ public extension FilmCamera {
     /// lowered until it fits, never below 1. Centred on the focus as far as the picture allows: on a side the picture
     /// fills, its edge never comes into the frame; on a side it doesn't, the picture stays in the middle, whole.
     ///
-    /// - Parameters:
     /// - Parameter pictureSize: the photo's size in pixels, as the clip will draw it.
     static func closest(on focus: FilmRegion, pictureSize: CGSize, spec: FilmSpec, maxZoom: Double) -> FilmCamera {
         guard pictureSize.width > 0, pictureSize.height > 0 else { return FilmCamera() }

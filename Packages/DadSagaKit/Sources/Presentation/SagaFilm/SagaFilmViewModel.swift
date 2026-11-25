@@ -156,6 +156,7 @@ public final class SagaFilmViewModel: Identifiable {
             let chosen = await choosePhotos.execute(film)
             // A cancel while choosing returns the film unchanged: stop here, before the renderer starts.
             try Task.checkCancellation()
+            guard chosen.hasSomethingToShow else { throw SagaFilmRenderError.nothingToShow }
             let script = builder.script(
                 for: chosen, format: format, reduceMotion: reduceMotion, showsDates: showsDates, music: music
             )
@@ -186,10 +187,9 @@ public final class SagaFilmViewModel: Identifiable {
         case .failure(let error) where error is CancellationError:
             showChoices(notice: nil)
         case .failure(let error):
-            let noSpace = error as? SagaFilmRenderError == .notEnoughSpace
-            showChoices(notice: Strings(locale: locale).failedFilmNotice(noSpace: noSpace))
+            showChoices(notice: strings.failedFilmNotice(for: error))
             // A full disk isn't the dad leaving the app, however soon he leaves after it.
-            if !noSpace { failedAt = now() }
+            if (error as? SagaFilmRenderError)?.isLasting != true { failedAt = now() }
         }
     }
 
@@ -387,14 +387,5 @@ extension SagaFilmViewModel {
         listens += 1
         listening?.cancel()
         listening = nil
-    }
-}
-
-private extension Strings {
-    /// Why the film wasn't made: a full disk says what would help, since trying again wouldn't.
-    func failedFilmNotice(noSpace: Bool) -> String {
-        noSpace
-            ? text("There isn't enough free space on this iPhone. Free up some space and try again.")
-            : text("Couldn't make the film. Please try again.")
     }
 }

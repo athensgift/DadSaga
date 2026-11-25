@@ -174,7 +174,7 @@ extension FilmKitTests {
         }
 
         @Test("Given a tall photo fitted over its blur in a wide film, when encoding, then the sides show it blurred, not black")
-        func fitOverBlur() async throws {
+        func tallPhotoOverItsBlur() async throws {
             let photo = try Fixture.image(width: 100, height: 300) { _, row in
                 row < 150 ? Fixture.Paint(red: 255) : Fixture.Paint(blue: 255)
             }

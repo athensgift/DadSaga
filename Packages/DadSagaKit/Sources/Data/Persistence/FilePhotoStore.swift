@@ -121,9 +121,12 @@ public actor FilePhotoStore: PhotoStore {
     /// The same check as `adopt`, on each file's header: what this calls readable, a copy of the saga can bring back.
     public func readablePhotos(among ids: Set<String>) async throws -> Set<String> {
         let directory = try folder()
+        // The folder is listed first, and that throws as `storedPhotos` does: a folder that can't be read is an
+        // error, never a saga without photos.
+        let stored = Set(try await storedPhotos().map(\.id))
         var readable: Set<String> = []
-        for id in ids where UUID(uuidString: id) != nil {
-            guard !Task.isCancelled else { break }
+        for id in ids.intersection(stored) {
+            try Task.checkCancellation()
             if let source = CGImageSourceCreateWithURL(url(for: id, in: directory) as CFURL, nil), Self.isStorable(source) {
                 readable.insert(id)
             }

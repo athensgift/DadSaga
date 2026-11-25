@@ -13,6 +13,11 @@ public enum SagaFilmRenderError: Error, Equatable {
     case pictureNotDrawn
     /// The device ran out of room for the film.
     case notEnoughSpace
+    /// Once the photos that can't be read were left out, the film had an opening and credits and nothing between.
+    case nothingToShow
+
+    /// Trying again at once wouldn't help, and the dad leaving the app didn't cause it.
+    var isLasting: Bool { self == .notEnoughSpace || self == .nothingToShow }
 }
 
 /// Draws a saga film: its cards with SwiftUI, its photos through the photo use case with the camera on each photo's

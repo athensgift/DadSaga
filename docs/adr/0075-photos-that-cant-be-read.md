@@ -54,4 +54,7 @@ the background are not classified) and ADR-0057 §2 and §6 (a copy carries only
   every further photo fits now reads headers, but still rates no photo.
 - A film can have fewer scenes than the sheet's storyboard: ADR-0047 §1's "how many scenes" holds for Vision only.
 - Fewer faces are told child or adult: less is guessed about people in the background (ADR-0047 §7).
-- No stored schema, copy format, content, privacy manifest or UI text changes.
+- A film left with only its opening and credits (every scene it had was a photo alone that can't be read, and the
+  credits count nothing) is not made: the sheet says the film can't be made right now, a text it already had.
+- `FilmFit.fitOverBlur`, which ADR-0037 and ADR-0047 name, is gone with `FilmFit`: every photo is drawn that way.
+- No stored schema, copy format, content or privacy manifest changes.

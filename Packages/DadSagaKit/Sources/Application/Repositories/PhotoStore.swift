@@ -20,7 +20,8 @@ public protocol PhotoStore: Sendable {
     /// see the files deletes none (ADR-0048 §6).
     func storedPhotos() async throws -> [StoredPhoto]
     /// Of `ids`, the photos that can be read: their file is there and is a JPEG `adopt` would take. Only each file's
-    /// header is read. Throws if the folder can't be found, so a caller never takes every photo for unreadable.
+    /// header is read. Throws if the folder can't be found or listed, so a caller never takes every photo for unreadable,
+    /// and `CancellationError` when cancelled, never a part of the answer.
     func readablePhotos(among ids: Set<String>) async throws -> Set<String>
 }
 
