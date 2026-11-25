@@ -38,8 +38,9 @@ checked). Records the world ages the owner set on 2026-11-25, which ADR-0019 sti
   come after it. Children with a birthday on the same day (twins) are still offered one after the other (ADR-0037 §5).
 - The film sheet opened with no period takes the same occasion: the year.
 - With today's ages, home offers every birthday, and the films of World 0 (on the birth day), World 1 (at 9 months) and
-  the Land of No (at 42 months). The films of World 2 and the Kingdom of Why, which end on a birthday, are made from the
-  film sheet or the timeline, and never offered.
+  the Land of No (at 42 months). The films of World 2 and the Kingdom of Why, which end on a birthday, are offered
+  only when that birthday's year has no entry with the child and the world has one (World 2: entries at 9–11 months
+  only); otherwise they are made from the film sheet or the timeline.
 - `SagaOccasions.latest` loses its `windowDays` parameter, which only tests passed: with the real ages no two occasions
   of one child are less than 30 days apart unless they fall on the same day.
 
@@ -99,7 +100,7 @@ changed.
 
 ## Consequences
 - Every child with an entry in the year is offered a film on each birthday, one to seven. World 2's and World 4's films
-  are made on demand only.
+  are offered only when the year that ended has no entry, and are otherwise made on demand.
 - Tests that relied on a world first, or on a month between World 2's end and the second birthday, change. A new one
   walks seven years with an entry every month and answers each offer as it comes.
 - A first can't be captured for a child who isn't in the family. Recording a quest or a boss for one is still taken

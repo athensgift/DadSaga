@@ -24,6 +24,8 @@ public struct SyncedSagaOfferRepository: SagaOfferRepository {
         Task { await sync.offersChanged() }
     }
 
+    /// Only what this iPhone keeps. The child's records in the parent's zone are not deleted yet: that comes with the
+    /// co-op version (ADR-0078 §3), and until then nothing in the app is built with this repository (ADR-0067).
     public func forget(childID: UUID) async {
         await stored.forget(childID: childID)
     }

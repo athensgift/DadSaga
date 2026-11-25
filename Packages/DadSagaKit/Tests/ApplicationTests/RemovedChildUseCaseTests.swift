@@ -42,18 +42,21 @@ struct RemovedChildUseCaseTests {
         #expect(await offers.answered == [lenas])
     }
 
-    @Test("Given a child still in the family, when deleting them for good is refused, then their film answers stay")
-    func aRefusalForgetsNothing() async throws {
-        let repository = await profiles(family: [lena], removed: [iris])
+    @Test("Given a removed child the store fails to delete, when deleting them for good, then their film answers stay")
+    func aFailedDeletionForgetsNothing() async throws {
+        let stored = PlayerProfile(children: [lena], heroClassID: "h1", removedChildren: [iris])
+        let answer = "\(iris.id.uuidString)/birthday/1"
         let offers = FakeSagaOffers()
-        await offers.markAnswered("\(lena.id.uuidString)/birthday/1")
+        await offers.markAnswered(answer)
+        let sut = DefaultDeleteChildForGoodUseCase(
+            contentRepository: content, profileRepository: StoreThatCannotDelete(profile: stored),
+            progressRepository: SpyProgressRepository(), standingRepository: InMemoryStanding(), sagaOffers: offers,
+            photoStore: photos, renewReminders: NoReminders()
+        )
 
-        await #expect(throws: ProfileEditError.notRemoved) {
-            try await deleteForGood(repository, SpyProgressRepository(), InMemoryStanding(), offers: offers)
-                .execute(childID: lena.id, on: .now)
-        }
+        await #expect(throws: StoreThatCannotDelete.Failure.self) { try await sut.execute(childID: iris.id, on: .now) }
 
-        #expect(await offers.answered.count == 1)
+        #expect(await offers.answered == [answer])
     }
 
     @Test("Given a removed child, when bringing them back, then they are in the family and no longer removed")
@@ -148,4 +151,17 @@ struct RemovedChildUseCaseTests {
         #expect(await repository.editCount == 0)
         #expect(try await progress.fetchEvents().count == 1)
     }
+}
+
+/// A family whose store refuses the deletion in its own turn, as a full disk or a refusal there would (ADR-0068 §3).
+private struct StoreThatCannotDelete: ProfileRepository {
+    struct Failure: Error {}
+    let profile: PlayerProfile
+
+    func fetchProfile() async throws -> PlayerProfile? { profile }
+    func create(_ profile: PlayerProfile) async throws {}
+    func save(_ edit: FamilyEdit) async throws {}
+    func save(_ edit: HeroEdit) async throws {}
+    func bringBack(childID: UUID) async throws {}
+    func deleteForGood(childID: UUID) async throws -> [String] { throw Failure() }
 }
