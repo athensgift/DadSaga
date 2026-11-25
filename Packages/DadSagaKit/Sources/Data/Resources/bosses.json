@@ -19,8 +19,8 @@
         "en": "The start is often slow. Eat, rest, and call the maternity unit or midwife when they told you to."
       },
       {
-        "el": "Αν έσπασαν τα νερά, υπάρχει αίμα, το μωρό κινείται λιγότερο ή είναι πριν από τις 37 εβδομάδες, πάρε τώρα το μαιευτήριο ή τη μαία, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις. Αν χάνει πολύ αίμα, λιποθυμήσει ή το μωρό έρχεται πριν προλάβετε να φύγετε, κάλεσε τον αριθμό έκτακτης ανάγκης.",
-        "en": "If her waters have broken, there's bleeding, the baby is moving less, or it's before 37 weeks, call the maternity unit or midwife now, whatever the hour, and the emergency number if they tell you to or if you can't reach them. If she's losing a lot of blood, faints, or the baby is coming before you can set off, call the emergency number."
+        "el": "Αν έσπασαν τα νερά, υπάρχει αίμα, το μωρό κινείται λιγότερο ή ο τοκετός αρχίζει πριν από τις 37 εβδομάδες, πάρε τώρα το μαιευτήριο ή τη μαία, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις. Αν χάνει πολύ αίμα, λιποθυμήσει ή το μωρό έρχεται πριν προλάβετε να φύγετε, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+        "en": "If her waters have broken, there's bleeding, the baby is moving less, or labour starts before 37 weeks, call the maternity unit or midwife now, whatever the hour, and the emergency number if they tell you to or if you can't reach them. If she's losing a lot of blood, faints, or the baby is coming before you can set off, call the emergency number."
       },
       {
         "el": "Μέσα: νερό, ένα χέρι να σφίξει, ανάσες μαζί της. Αν θέλει ησυχία, ησυχία.",
@@ -44,7 +44,7 @@
       },
       {
         "el": "Τις επόμενες μέρες μιλήστε για το πώς ήταν. Αν κάτι από εκείνη τη μέρα σε βαραίνει ακόμα μετά από εβδομάδες, πες το σε γιατρό: συμβαίνει και στους μπαμπάδες.",
-        "en": "In the days after, talk about how it was. If something you saw is still with you weeks later, tell a doctor: it happens to dads too."
+        "en": "In the days after, talk about how it was. If something from that day is still with you weeks later, tell a doctor: it happens to dads too."
       }
     ],
     "badge": {
@@ -123,8 +123,8 @@
     },
     "guide": [
       {
-        "el": "Το κλάμα δυναμώνει από τη δεύτερη εβδομάδα, κορυφώνεται γύρω στις 6 με 8 και υποχωρεί ως τους τρεις μήνες περίπου. Δεν θα κρατήσει για πάντα.",
-        "en": "Crying builds from the second week, peaks at around 6 to 8 weeks and eases by about three months. It won't last forever."
+        "el": "Το κλάμα δυναμώνει από τη δεύτερη εβδομάδα, συνήθως κορυφώνεται μέσα στον δεύτερο μήνα και υποχωρεί τους επόμενους μήνες. Το πότε διαφέρει από μωρό σε μωρό. Δεν θα κρατήσει για πάντα.",
+        "en": "Crying builds from the second week, usually peaks in the second month and eases over the months after. The timing differs from baby to baby. It won't last forever."
       },
       {
         "el": "Δοκίμασε με τη σειρά: τάισμα, πάνα, αγκαλιά δέρμα με δέρμα, περπάτημα, σιγανό τραγούδι, βόλτα με το καρότσι.",
@@ -253,6 +253,7 @@
     "skill": "resilience",
     "xp": 100,
     "minAgeMonths": 0,
+    "situational": true,
     "title": {
       "el": "Το Πρόωρο Ξεκίνημα",
       "en": "The Early Start"
@@ -263,12 +264,12 @@
     },
     "guide": [
       {
-        "el": "Συχνά φτάνεις εσύ πρώτος στη μονάδα νεογνών (ΜΕΝΝ), όσο η μητέρα αναρρώνει. Ρώτα τρία πράγματα: τι έχει, πώς μπορώ να βοηθήσω, πώς μαθαίνω νέα όταν λείπω.",
-        "en": "Often you reach the neonatal unit (NICU) first, while the mother recovers. Ask three things: what's going on, how can I help, how do I get news when I'm not here."
+        "el": "Αν η μητέρα αναρρώνει, συχνά φτάνεις εσύ πρώτος στη μονάδα νεογνών (ΜΕΝΝ). Ρώτα τρία πράγματα: τι έχει, πώς μπορώ να βοηθήσω, πώς μαθαίνω νέα όταν λείπω.",
+        "en": "If the mother is recovering, you're often the first to reach the neonatal unit (NICU). Ask three things: what's going on, how can I help, how do I get news when I'm not here."
       },
       {
-        "el": "Βγάλε φωτογραφίες και βίντεο για εκείνη, αν δεν μπορεί να έρθει ακόμα.",
-        "en": "Take photos and videos for her if she can't come yet."
+        "el": "Αν η μητέρα δεν μπορεί να έρθει ακόμα, βγάλε φωτογραφίες και βίντεο για εκείνη.",
+        "en": "If the mother can't come yet, take photos and videos for her."
       },
       {
         "el": "Ζήτα να σου δείξουν πώς το αγγίζεις και πώς το κρατάς δέρμα με δέρμα. Και για τα πολύ μικρά μωρά, η αγκαλιά του γονιού είναι μέρος της φροντίδας.",
@@ -283,8 +284,8 @@
         "en": "If the mother is expressing milk, you're the courier: bottles, labels, fridge, deliveries."
       },
       {
-        "el": "Φόβος, θυμός, ενοχή που γυρνάς στη δουλειά, περηφάνια: όλα την ίδια μέρα. Κι εκείνη μπορεί να τα νιώθει με άλλη σειρά.",
-        "en": "Fear, anger, guilt at going back to work, pride: all in the same day. And she may be feeling them in a different order."
+        "el": "Φόβος, θυμός, ενοχή που γυρνάς στη δουλειά, περηφάνια: όλα την ίδια μέρα. Αν είστε δύο, ο άλλος μπορεί να τα νιώθει με άλλη σειρά.",
+        "en": "Fear, anger, guilt at going back to work, pride: all in the same day. If there are two of you, the other one may be feeling them in a different order."
       },
       {
         "el": "Ρώτα στη μονάδα αν υπάρχει ψυχολόγος, κοινωνικός λειτουργός ή ομάδα γονέων, και στη δουλειά τι άδεια προβλέπεται όταν νοσηλεύεται το μωρό.",
@@ -311,7 +312,7 @@
       "en": "The First Night Home"
     },
     "intro": {
-      "el": "Η πόρτα κλείνει, οι μαίες έμειναν πίσω, και στο σαλόνι σας υπάρχει ένας ολοκαίνουργιος άνθρωπος. Κανείς δεν νιώθει έτοιμος. Αυτό είναι το φυσιολογικό.",
+      "el": "Η πόρτα κλείνει, οι μαίες έμειναν πίσω, και στο σαλόνι σου υπάρχει ένας ολοκαίνουργιος άνθρωπος. Κανείς δεν νιώθει έτοιμος. Αυτό είναι το φυσιολογικό.",
       "en": "The door closes, the midwives are somewhere else, and there's a brand-new person in your living room. Nobody feels ready. That's the normal part."
     },
     "guide": [
@@ -320,28 +321,28 @@
         "en": "Tonight's goal: the baby is fed, neither too hot nor too cold, and asleep on their back in their own bed. Nothing else counts tonight."
       },
       {
-        "el": "Τα νεογέννητα τρώνε πολύ συχνά, μέρα και νύχτα. Δεν κάνετε κάτι λάθος.",
+        "el": "Τα νεογέννητα τρώνε πολύ συχνά, μέρα και νύχτα. Δεν κάνεις κάτι λάθος.",
         "en": "Newborns feed very often, day and night. You're not doing it wrong."
       },
       {
-        "el": "Μοιράστε τη νύχτα από τώρα: ποιος σηκώνεται πότε. Αν θηλάζει, εσύ φέρνεις το μωρό, το αλλάζεις, το βάζεις να ρευτεί, το ξαναβάζεις για ύπνο.",
-        "en": "Split the night now: who's up when. If she's breastfeeding, you fetch the baby, change, burp and resettle."
+        "el": "Αν είστε δύο, μοιράστε τη νύχτα από τώρα: ποιος σηκώνεται πότε. Αν η μητέρα θηλάζει, εσύ φέρνεις το μωρό, το αλλάζεις, το βάζεις να ρευτεί, το ξαναβάζεις για ύπνο. Αν είσαι μόνος, κοιμήσου όποτε κοιμάται το μωρό.",
+        "en": "If there are two of you, split the night now: who's up when. If the mother is breastfeeding, you fetch the baby, change, burp and resettle. If you're on your own, sleep whenever the baby sleeps."
       },
       {
         "el": "Αν νιώσεις ότι σε παίρνει ο ύπνος με το μωρό πάνω σου, βάλ' το πρώτα στο κρεβατάκι του. Ποτέ ύπνος μαζί του σε καναπέ ή πολυθρόνα.",
         "en": "If you feel yourself nodding off with the baby on you, put them in their own bed first. Never fall asleep with them on a sofa or armchair."
       },
       {
-        "el": "Δίπλα στο κρεβάτι, γραμμένα: ποιον παίρνετε τηλέφωνο τη νύχτα για το μωρό, ποιον για τη μητέρα, και ο αριθμός έκτακτης ανάγκης.",
-        "en": "By the bed, written down: who you call at night about the baby, who about the mother, and the emergency number."
+        "el": "Δίπλα στο κρεβάτι, γραμμένα: ποιον παίρνεις τηλέφωνο τη νύχτα για το μωρό, ποιον για τη μητέρα αν είναι μαζί σου, και ο αριθμός έκτακτης ανάγκης.",
+        "en": "By the bed, written down: who you call at night about the baby, who about the mother if she's with you, and the emergency number."
       },
       {
         "el": "Για το μωρό: αν δυσκολεύεται να αναπνεύσει, γίνεται μπλε ή γκρι, ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης. Αν έχει πυρετό ή δεν τρώει, πάρε τώρα τον γιατρό ή το νοσοκομείο, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις.",
         "en": "For the baby: if they struggle to breathe, look blue or grey, or won't wake, call the emergency number. If they have a fever or won't feed, call the doctor or hospital now, whatever the hour, and the emergency number if they tell you to or if you can't reach them."
       },
       {
-        "el": "Για τη μητέρα: αν χάνει πολύ αίμα, δυσκολεύεται να ανασάνει ή πονά το στήθος της, κάλεσε τον αριθμό έκτακτης ανάγκης. Αν έχει πυρετό ή δυνατό πονοκέφαλο που δεν περνά, πάρε τώρα τη μαία ή τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις.",
-        "en": "For the mother: if she's losing a lot of blood, struggling to breathe or has chest pain, call the emergency number. If she has a fever or a bad headache that won't go, call the midwife or doctor now, and the emergency number if they tell you to or if you can't reach them."
+        "el": "Για τη μητέρα, αν γέννησε εκείνη και είναι μαζί σου: αν χάνει πολύ αίμα, δυσκολεύεται να ανασάνει ή πονά το στήθος της, κάλεσε τον αριθμό έκτακτης ανάγκης. Αν έχει πυρετό ή δυνατό πονοκέφαλο που δεν περνά, πάρε τώρα τη μαία ή τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις.",
+        "en": "For the mother, if she gave birth and is with you: if she's losing a lot of blood, struggling to breathe or has chest pain, call the emergency number. If she has a fever or a bad headache that won't go, call the midwife or doctor now, and the emergency number if they tell you to or if you can't reach them."
       },
       {
         "el": "Επισκέψεις απόψε: καμία. Αύριο: όποιος φέρνει φαγητό και φεύγει σε μισή ώρα.",
@@ -570,8 +571,8 @@
     },
     "guide": [
       {
-        "el": "Το πότε και με τι ξεκινάτε το λέει ο γιατρός του. Η δική σου δουλειά είναι το τραπέζι: ήρεμο, χωρίς βιασύνη, με χαρτοπετσέτες κοντά.",
-        "en": "When to start, and with what, is for their doctor to say. Your job is the table: calm, unhurried, napkins within reach."
+        "el": "Το πότε, συνήθως γύρω στους έξι μήνες, και με τι ξεκινάτε το λέει ο γιατρός του. Η δική σου δουλειά είναι το τραπέζι: ήρεμο, χωρίς βιασύνη, με χαρτοπετσέτες κοντά.",
+        "en": "When to start, usually at around six months, and with what, is for their doctor to say. Your job is the table: calm, unhurried, napkins within reach."
       },
       {
         "el": "Όταν το φαγητό πάει πολύ πίσω, το μωρό το σπρώχνει μπροστά με θόρυβο: βήχει, δακρύζει, βγάζει τη γλώσσα και συνεχίζει. Αυτό είναι φυσιολογικό. Η πνιγμονή είναι αθόρυβη. Μάθε τη διαφορά πριν το πρώτο κουτάλι.",
@@ -590,8 +591,12 @@
         "en": "Common allergens such as egg and peanut don't need to be put off. Ask their doctor how to offer them. If they have eczema or have already reacted to a food, ask before you try them."
       },
       {
-        "el": "Λίγη κοκκινίλα μόνο γύρω από το στόμα συνήθως είναι ερεθισμός από την επαφή. Εξάνθημα στο σώμα, πρήξιμο στα χείλη ή στο πρόσωπο, ή εμετός μετά από καινούργια τροφή: σταμάτα την και πάρε τώρα τον γιατρό του, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν πρηστεί η γλώσσα ή ο λαιμός, αναπνέει με δυσκολία ή με θόρυβο, σφυρίζει ή βήχει συνέχεια, βραχνιάσει η φωνή ή το κλάμα του, ή γίνει χλωμό και χαλαρό, κάλεσε τον αριθμό έκτακτης ανάγκης και κράτα το ξαπλωμένο, όχι όρθιο.",
-        "en": "A little redness just around the mouth is usually irritation from contact. A rash on the body, swollen lips or face, or vomiting after a new food: stop that food and call their doctor now, and the emergency number if they tell you to or if you can't reach them. If their tongue or throat swells, their breathing is difficult or noisy, they wheeze or keep coughing, their voice or cry turns hoarse, or they turn pale and floppy, call the emergency number and keep them lying flat, not upright."
+        "el": "Λίγη κοκκινίλα μόνο γύρω από το στόμα συνήθως είναι ερεθισμός από την επαφή. Εξάνθημα στο σώμα, πρήξιμο στα χείλη ή στο πρόσωπο, ή εμετός μετά από καινούργια τροφή: σταμάτα την και πάρε τώρα τον γιατρό του, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+        "en": "A little redness just around the mouth is usually irritation from contact. A rash on the body, swollen lips or face, or vomiting after a new food: stop that food and call their doctor now, and the emergency number if they tell you to or if you can't reach them."
+      },
+      {
+        "el": "Αν πρηστεί η γλώσσα ή ο λαιμός, αναπνέει με δυσκολία ή με θόρυβο, σφυρίζει ή βήχει συνέχεια, βραχνιάσει η φωνή ή το κλάμα του, ή γίνει χλωμό και χαλαρό, κάλεσε τον αριθμό έκτακτης ανάγκης. Κράτα το ξαπλωμένο στην αγκαλιά σου, όχι όρθιο. Αν έτσι δυσκολεύεται πιο πολύ να αναπνεύσει, ανασήκωσέ το λίγο και κάνε ό,τι σου πουν στο τηλέφωνο.",
+        "en": "If their tongue or throat swells, their breathing is difficult or noisy, they wheeze or keep coughing, their voice or cry turns hoarse, or they turn pale and floppy, call the emergency number. Hold them lying across your arms, not upright. If that makes breathing harder, raise them a little and do what you're told on the phone."
       },
       {
         "el": "Πάντα καθιστό και πάντα μαζί σου. Αν γυρίσει το κεφάλι, το γεύμα τελείωσε. Εσύ προσφέρεις, εκείνο αποφασίζει πόσο.",
@@ -794,8 +799,8 @@
         "en": "A cough like a barking seal and a hoarse voice, often at night after a cold: hold them upright in your arms and stay calm; crying makes it worse."
       },
       {
-        "el": "Μίλα με γιατρό την ίδια μέρα, ακόμα κι αν μοιάζει ήπιο· τη νύχτα, η γραμμή ιατρικών συμβουλών μπορεί να σου πει τι να κάνεις. Ο γιατρός μπορεί να δώσει φάρμακο που βοηθά να περάσει πιο γρήγορα. Άσε τους ατμούς: ένα μπάνιο γεμάτο ατμό δεν έχει αποδειχτεί ότι βοηθά, και το καυτό νερό καλύτερα να μένει μακριά από το παιδί.",
-        "en": "Speak to a doctor the same day, even if it seems mild; at night, a medical advice line can tell you what to do. The doctor may give medicine that helps it pass sooner. Skip the steam: a steamy bathroom isn't proven to help, and hot water is best kept away from your child."
+        "el": "Μίλα με γιατρό την ίδια μέρα, ακόμα κι αν μοιάζει ήπιο· τη νύχτα, η γραμμή ιατρικών συμβουλών, αν υπάρχει, μπορεί να σου πει τι να κάνεις. Ο γιατρός μπορεί να δώσει φάρμακο που βοηθά να περάσει πιο γρήγορα. Άσε τους ατμούς: ένα μπάνιο γεμάτο ατμό δεν έχει αποδειχτεί ότι βοηθά, και το καυτό νερό καλύτερα να μένει μακριά από το παιδί.",
+        "en": "Speak to a doctor the same day, even if it seems mild; at night, a medical advice line, if there is one, can tell you what to do. The doctor may give medicine that helps it pass sooner. Skip the steam: a steamy bathroom isn't proven to help, and hot water is best kept away from your child."
       },
       {
         "el": "Κάλεσε τον αριθμό έκτακτης ανάγκης αν δυσκολεύεται να αναπνεύσει (τραχύς ήχος σε κάθε εισπνοή ενώ ησυχάζει, δέρμα που ρουφιέται στον λαιμό ή κάτω από τα πλευρά), αν τα χείλη του γίνουν μπλε ή γκρίζα, αν τρέχουν σάλια και δεν μπορεί να καταπιεί, ή αν είναι ξαφνικά πολύ ήσυχο, χαλαρό και δεν ξυπνά εύκολα. Αν δεν ηρεμεί με τίποτα, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
@@ -888,8 +893,8 @@
         "en": "No cough or cold syrups and no decongestants for a child this small, “herbal” or homeopathic ones included, unless their doctor says so. They don't cure it faster, and at this age they aren't safe."
       },
       {
-        "el": "Κοίτα την αναπνοή, όχι τον βήχα. Κάλεσε τον αριθμό έκτακτης ανάγκης αν παλεύει για κάθε ανάσα (το δέρμα ρουφιέται κάτω από τα πλευρά, βγάζει ένα γρύλισμα σε κάθε εκπνοή), αν κάνει παύσεις στην ανάσα, ή αν τα χείλη του γίνουν μπλε ή γκρίζα. Αν απλώς αναπνέει πιο γρήγορα από το συνηθισμένο, πάρε τώρα τον γιατρό του, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
-        "en": "Watch the breathing, not the cough. Call the emergency number if they're fighting for every breath (skin sucking in under the ribs, grunting), pause between breaths, or their lips turn blue or grey. If they're just breathing faster than usual, call their doctor now, and the emergency number if they tell you to or if you can't reach them."
+        "el": "Κοίτα την αναπνοή, όχι τον βήχα. Κάλεσε τον αριθμό έκτακτης ανάγκης αν παλεύει για κάθε ανάσα (το δέρμα ρουφιέται κάτω από τα πλευρά, γρυλίζει καθώς εκπνέει), αν κάνει παύσεις στην ανάσα, ή αν τα χείλη του γίνουν μπλε ή γκρίζα. Αν απλώς αναπνέει πιο γρήγορα από το συνηθισμένο, πάρε τώρα τον γιατρό του, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+        "en": "Watch the breathing, not the cough. Call the emergency number if they're fighting for every breath (skin sucking in under the ribs, grunting as they breathe out), pause between breaths, or their lips turn blue or grey. If they're just breathing faster than usual, call their doctor now, and the emergency number if they tell you to or if you can't reach them."
       },
       {
         "el": "Πάρε τον γιατρό του την ίδια μέρα αν πίνει πολύ λιγότερο, αν έχει πολύ λιγότερες βρεγμένες πάνες ή αν ο πυρετός επιμένει. Σε μωρό κάτω των τριών μηνών, κάθε πυρετός σημαίνει τηλέφωνο στον γιατρό τώρα. Για βήχα που κρατά εβδομάδες, κλείσε ραντεβού.",
@@ -1452,6 +1457,51 @@
     }
   },
   {
+    "id": "b-w4-first-lie",
+    "worldID": "w4-why-kingdom",
+    "skill": "patience",
+    "xp": 100,
+    "minAgeMonths": 42,
+    "title": {
+      "el": "Το Πρώτο Ψέμα",
+      "en": "The First Lie"
+    },
+    "intro": {
+      "el": "«Δεν ήμουν εγώ, ο αρκούδος το έκανε.» Με σοκολάτα ως τα φρύδια. Συγχαρητήρια: μόλις ανακάλυψε ότι δεν διαβάζεις τη σκέψη του.",
+      "en": "“It wasn't me, Teddy did it.” With chocolate up to the eyebrows. Congratulations: they've just discovered you can't read their mind."
+    },
+    "guide": [
+      {
+        "el": "Πάρε μια ανάσα. Το ψέμα σε αυτή την ηλικία είναι βήμα στη σκέψη, όχι ρωγμή στον χαρακτήρα.",
+        "en": "Take a breath. At this age a lie is a step in thinking, not a crack in their character."
+      },
+      {
+        "el": "Οι ιστορίες που επινοεί δεν είναι ψέματα, είναι φαντασία. Απόλαυσέ τες μαζί του και μπες κι εσύ στο παιχνίδι: «Τι ωραία ιστορία! Να τη γράψουμε;»",
+        "en": "The stories they make up aren't lies, they're imagination. Enjoy them together and join in: “What a great story! Shall we write it down?”"
+      },
+      {
+        "el": "Μη στήνεις παγίδα. Αν ξέρεις τι έγινε, μη ρωτάς «εσύ το έκανες;». Πες «βλέπω ότι χύθηκε το γάλα, πάμε να το μαζέψουμε».",
+        "en": "Don't set a trap. If you know what happened, don't ask “did you do it?”. Say “I see the milk got spilled, let's clean it up.”"
+      },
+      {
+        "el": "Κάνε την αλήθεια πιο φτηνή από το ψέμα. Όταν ομολογεί, πρώτα «χαίρομαι που μου το είπες», και μετά λύνετε μαζί το πρόβλημα.",
+        "en": "Make the truth cheaper than the lie. When they own up, start with “I'm glad you told me”, then sort the problem out together."
+      },
+      {
+        "el": "Ποτέ «είσαι ψεύτης». Αν το πιστέψει, δεν έχει λόγο να σταματήσει. Μίλα για αυτό που έγινε, όχι για αυτό που είναι.",
+        "en": "Never “you're a liar”. If they believe it, there's no reason to stop. Talk about what happened, not about what they are."
+      },
+      {
+        "el": "Σε ακούει όταν λες «πες ότι δεν είμαι εδώ». Αυτό που βλέπει μετράει περισσότερο από αυτό που του λες.",
+        "en": "They hear you say “tell them I'm not in”. What they see counts for more than what you tell them."
+      }
+    ],
+    "badge": {
+      "el": "Φίλος της Αλήθειας",
+      "en": "Friend of the Truth"
+    }
+  },
+  {
     "id": "b-w4-kindergarten",
     "worldID": "w4-why-kingdom",
     "skill": "resilience",
@@ -1647,51 +1697,6 @@
     "badge": {
       "el": "Πλοηγός της Μετακόμισης",
       "en": "Navigator of the Move"
-    }
-  },
-  {
-    "id": "b-w4-first-lie",
-    "worldID": "w4-why-kingdom",
-    "skill": "patience",
-    "xp": 100,
-    "minAgeMonths": 42,
-    "title": {
-      "el": "Το Πρώτο Ψέμα",
-      "en": "The First Lie"
-    },
-    "intro": {
-      "el": "«Δεν ήμουν εγώ, ο αρκούδος το έκανε.» Με σοκολάτα ως τα φρύδια. Συγχαρητήρια: μόλις ανακάλυψε ότι δεν διαβάζεις τη σκέψη του.",
-      "en": "“It wasn't me, Teddy did it.” With chocolate up to the eyebrows. Congratulations: they've just discovered you can't read their mind."
-    },
-    "guide": [
-      {
-        "el": "Πάρε μια ανάσα. Το ψέμα σε αυτή την ηλικία είναι βήμα στη σκέψη, όχι ρωγμή στον χαρακτήρα.",
-        "en": "Take a breath. At this age a lie is a step in thinking, not a crack in their character."
-      },
-      {
-        "el": "Οι ιστορίες που επινοεί δεν είναι ψέματα, είναι φαντασία. Απόλαυσέ τες μαζί του και μπες κι εσύ στο παιχνίδι: «Τι ωραία ιστορία! Να τη γράψουμε;»",
-        "en": "The stories they make up aren't lies, they're imagination. Enjoy them together and join in: “What a great story! Shall we write it down?”"
-      },
-      {
-        "el": "Μη στήνεις παγίδα. Αν ξέρεις τι έγινε, μη ρωτάς «εσύ το έκανες;». Πες «βλέπω ότι χύθηκε το γάλα, πάμε να το μαζέψουμε».",
-        "en": "Don't set a trap. If you know what happened, don't ask “did you do it?”. Say “I see the milk got spilled, let's clean it up.”"
-      },
-      {
-        "el": "Κάνε την αλήθεια πιο φτηνή από το ψέμα. Όταν ομολογεί, πρώτα «χαίρομαι που μου το είπες», και μετά λύνετε μαζί το πρόβλημα.",
-        "en": "Make the truth cheaper than the lie. When they own up, start with “I'm glad you told me”, then sort the problem out together."
-      },
-      {
-        "el": "Ποτέ «είσαι ψεύτης». Αν το πιστέψει, δεν έχει λόγο να σταματήσει. Μίλα για αυτό που έγινε, όχι για αυτό που είναι.",
-        "en": "Never “you're a liar”. If they believe it, there's no reason to stop. Talk about what happened, not about what they are."
-      },
-      {
-        "el": "Σε ακούει όταν λες «πες ότι δεν είμαι εδώ». Αυτό που βλέπει μετράει περισσότερο από αυτό που του λες.",
-        "en": "They hear you say “tell them I'm not in”. What they see counts for more than what you tell them."
-      }
-    ],
-    "badge": {
-      "el": "Φίλος της Αλήθειας",
-      "en": "Friend of the Truth"
     }
   },
   {

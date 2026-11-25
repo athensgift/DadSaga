@@ -193,8 +193,8 @@
           "en": "Techniques for babies and children differ from adults' and the guidance changes: learn them from an instructor, not an old video."
         },
         {
-          "el": "Ρώτα το μαιευτήριο, τον γιατρό του παιδιού ή τον Ερυθρό Σταυρό της χώρας σου πού γίνονται μαθήματα.",
-          "en": "Ask the maternity unit, your child's doctor or your country's Red Cross where classes are held."
+          "el": "Ρώτα το μαιευτήριο, τον γιατρό του παιδιού ή τον Ερυθρό Σταυρό (ή την Ερυθρά Ημισέληνο) της χώρας σου πού γίνονται μαθήματα.",
+          "en": "Ask the maternity unit, your child's doctor or your country's Red Cross or Red Crescent where classes are held."
         },
         {
           "el": "Πάρε μαζί γιαγιά, παππού ή όποιον άλλον το προσέχει.",
@@ -494,7 +494,7 @@
       "en": "Their first corner"
     },
     "description": {
-      "el": "Στήσε εκεί που θα κοιμηθεί την πρώτη του νύχτα: δικό του, επίπεδο, σκληρό στρώμα, χωρίς τίποτα άλλο μέσα, και πάντα ξαπλώνει ανάσκελα. Στο δικό σας δωμάτιο.",
+      "el": "Στήσε εκεί που θα κοιμηθεί την πρώτη του νύχτα: δικό του, επίπεδο, σκληρό στρώμα, χωρίς τίποτα άλλο μέσα, και πάντα ξαπλώνει ανάσκελα. Στο δικό σου δωμάτιο.",
       "en": "Set up where they'll sleep on their first night: their own flat, firm mattress with nothing else in it, and they always go down on their back. In your room."
     },
     "tip": {
@@ -662,7 +662,7 @@
           "en": "Always on their back, for every sleep, day and night, in an empty cot: no pillow, no duvet, no soft toys, no bumper."
         },
         {
-          "el": "Τους πρώτους έξι μήνες η κούνια του μένει στο δικό σας δωμάτιο.",
+          "el": "Τους πρώτους έξι μήνες η κούνια του μένει στο δικό σου δωμάτιο.",
           "en": "For the first six months their cot stays in your room."
         },
         {
@@ -888,20 +888,20 @@
       },
       "steps": [
         {
-          "el": "Κοιτάζει προς τα πίσω από την πρώτη διαδρομή, και για όσο το επιτρέπει το κάθισμα. Ποτέ μπροστά σε ενεργό αερόσακο.",
-          "en": "Rear-facing from the very first ride, and for as long as the seat allows. Never in front of an active airbag."
+          "el": "Το μωρό κοιτάζει προς τα πίσω από την πρώτη διαδρομή, και για όσο το επιτρέπει το κάθισμα. Ποτέ μπροστά σε ενεργό αερόσακο.",
+          "en": "A baby rides rear-facing from the very first ride, and for as long as the seat allows. Never in front of an active airbag."
         },
         {
-          "el": "Σφίξε τις ζώνες μέχρι να μην μπορείς να τσιμπήσεις ιμάντα στον ώμο του. Χωρίς μπουφάν ή φόρμα εξόδου από κάτω: η κουβέρτα μπαίνει από πάνω.",
-          "en": "Tighten the straps until you can't pinch any webbing at their shoulder. No puffy coat or snowsuit underneath: the blanket goes on top."
+          "el": "Αν το κάθισμα έχει δικές του ζώνες, σφίξ' τες μέχρι να μην μπορείς να τσιμπήσεις ιμάντα στον ώμο του. Στο ανυψωτικό κάθισμα (booster), η ζώνη του αυτοκινήτου περνά από τη μέση του ώμου και χαμηλά στους γοφούς. Χωρίς μπουφάν ή φόρμα εξόδου από κάτω: η κουβέρτα μπαίνει από πάνω.",
+          "en": "If the seat has its own harness, tighten the straps until you can't pinch any webbing at their shoulder. In a booster seat, the car's belt crosses the middle of the shoulder and sits low on the hips. No puffy coat or snowsuit underneath: the blanket goes on top."
         },
         {
-          "el": "Δέσ' το όπως λέει το εγχειρίδιο του καθίσματος και του αυτοκινήτου. Τράβηξέ το στη βάση του: πρέπει να κουνιέται ελάχιστα. Στο νεογέννητο η κλίση είναι τέτοια που το κεφάλι δεν πέφτει μπροστά.",
-          "en": "Fit it the way the seat's manual and the car's manual say. Tug it at the base: it should barely shift. For a newborn, the recline keeps their head from flopping forward."
+          "el": "Δέσ' το όπως λέει το εγχειρίδιο του καθίσματος και του αυτοκινήτου. Αν έχει δικές του ζώνες, τράβηξέ το στη βάση του: πρέπει να κουνιέται ελάχιστα. Στο νεογέννητο η κλίση είναι τέτοια που το κεφάλι δεν πέφτει μπροστά.",
+          "en": "Fit it the way the seat's manual and the car's manual say. If it has its own harness, tug it at the base: it should barely shift. For a newborn, the recline keeps their head from flopping forward."
         },
         {
-          "el": "Το κάθισμα είναι για τη διαδρομή, όχι για ύπνο. Μόλις φτάσετε, το μωρό βγαίνει. Στα μεγάλα ταξίδια κάνε συχνές στάσεις και, αν γίνεται, κάθεται ένας μεγάλος πίσω μαζί του.",
-          "en": "The seat is for the ride, not for sleep. When you arrive, the baby comes out. On long trips stop often and, if you can, an adult rides in the back with them."
+          "el": "Για το μωρό, το κάθισμα είναι για τη διαδρομή, όχι για ύπνο. Μόλις φτάσετε, βγαίνει. Στα μεγάλα ταξίδια κάνε συχνές στάσεις και, αν γίνεται, κάθεται ένας μεγάλος πίσω μαζί του.",
+          "en": "For a baby, the seat is for the ride, not for sleep. When you arrive, they come out. On long trips stop often and, if you can, an adult rides in the back with them."
         },
         {
           "el": "Μεταχειρισμένο μόνο αν ξέρεις την ιστορία του: όχι αν έχει περάσει τρακάρισμα, όχι αν έχει λήξει ή του λείπουν κομμάτια.",
@@ -928,8 +928,8 @@
     },
     "tip": {
       "title": {
-        "el": "Κουρασμένος μπαμπάς, ασφαλές μωρό",
-        "en": "Tired dad, safe baby"
+        "el": "Λίγο λίγο",
+        "en": "A little at a time"
       },
       "steps": [
         {
@@ -941,8 +941,8 @@
           "en": "If there are two of you, agree beforehand who gets up tonight. The other one sleeps properly, door closed."
         },
         {
-          "el": "Το μωρό δεν κοιμάται στο κρεβάτι σου αν ήπιες αλκοόλ, καπνίζεις ή πήρες κάτι που φέρνει υπνηλία, ή αν γεννήθηκε πρόωρα ή μικρό. Για το κοινό κρεβάτι γενικά οι οδηγίες διαφέρουν από χώρα σε χώρα: ρώτα τον γιατρό του. Και ποτέ ύπνος μαζί του σε καναπέ ή πολυθρόνα.",
-          "en": "The baby doesn't sleep in your bed if you've had alcohol, you smoke or you've taken anything that makes you drowsy, or if they were born early or small. On bed-sharing in general the advice differs from country to country: ask their doctor. And never fall asleep with them on a sofa or in an armchair."
+          "el": "Ένα μωρό δεν κοιμάται στο κρεβάτι σου αν ήπιες αλκοόλ, καπνίζεις ή πήρες κάτι που φέρνει υπνηλία, ή αν γεννήθηκε πρόωρα ή μικρό. Για το κοινό κρεβάτι γενικά οι οδηγίες διαφέρουν από χώρα σε χώρα: ρώτα τον γιατρό του. Και ποτέ ύπνος μαζί με μωρό σε καναπέ ή πολυθρόνα.",
+          "en": "A baby doesn't sleep in your bed if you've had alcohol, you smoke or you've taken anything that makes you drowsy, or if they were born early or small. On bed-sharing in general the advice differs from country to country: ask their doctor. And never fall asleep with a baby on a sofa or in an armchair."
         }
       ],
       "medical": true
@@ -1062,8 +1062,8 @@
           "en": "The first poos are greenish-black and sticky like tar. That's normal. Within a few days they turn yellow or mustard."
         },
         {
-          "el": "Τις πρώτες δύο μέρες οι βρεγμένες πάνες είναι λίγες. Από την πέμπτη μέρα περίπου περίμενε τουλάχιστον έξι βαριές βρεγμένες πάνες το 24ωρο. Αν είναι λιγότερες, πες το στη μαία ή στον γιατρό την ίδια μέρα.",
-          "en": "In the first two days there are only a few wet nappies. From about day five, expect at least six heavy wet nappies in 24 hours. If there are fewer, tell the midwife or doctor the same day."
+          "el": "Τις πρώτες δύο μέρες οι βρεγμένες πάνες είναι λίγες. Την τρίτη και την τέταρτη περίμενε τουλάχιστον τρεις το 24ωρο. Από την πέμπτη μέρα περίπου περίμενε τουλάχιστον έξι βαριές βρεγμένες πάνες το 24ωρο. Αν είναι λιγότερες, πες το στη μαία ή στον γιατρό την ίδια μέρα.",
+          "en": "In the first two days there are only a few wet nappies. On days three and four, expect at least three in 24 hours. From about day five, expect at least six heavy wet nappies in 24 hours. If there are fewer, tell the midwife or doctor the same day."
         },
         {
           "el": "Τις πρώτες μέρες τα μωρά χάνουν λίγο βάρος και μετά το ξαναπαίρνουν. Το ζύγισμα και το αν πάει καλά το κρίνει η μαία ή ο γιατρός, όχι η ζυγαριά του μπάνιου.",
@@ -1074,8 +1074,8 @@
           "en": "The cord stump: clean and dry, with the nappy folded below it. It drops off by itself, you don't pull it. If the skin around it goes red, it smells or oozes, tell the midwife or doctor the same day. If it bleeds and doesn't stop, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
         },
         {
-          "el": "Γιατρός ή μαία την ίδια μέρα αν τα κόπρανα είναι ωχρά ή λευκά ή έχουν αίμα. Μετά τις πρώτες δύο μέρες, αν περάσουν 6 ώρες χωρίς βρεγμένη πάνα, πάρε τώρα τον γιατρό, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
-          "en": "Doctor or midwife the same day if the poo is pale or white or has blood in it. After the first two days, if 6 hours pass without a wet nappy, call the doctor now, whatever the hour, and the emergency number if they tell you to or if you can't reach them."
+          "el": "Γιατρός ή μαία την ίδια μέρα αν τα κόπρανα είναι ωχρά ή λευκά ή έχουν αίμα. Αν δεν τρώει ή, μετά τις πρώτες δύο μέρες, περάσουν πάνω από 8 ώρες χωρίς βρεγμένη πάνα, πάρε τώρα τον γιατρό, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν είναι χαλαρό σαν πανί ή ξυπνά δύσκολα, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+          "en": "Doctor or midwife the same day if the poo is pale or white or has blood in it. If they won't feed or, after the first two days, more than 8 hours pass without a wet nappy, call the doctor now, whatever the hour, and the emergency number if they tell you to or if you can't reach them. If they're floppy or hard to wake, call the emergency number."
         }
       ],
       "medical": true
@@ -1185,8 +1185,8 @@
           "en": "Your child's doctor, and who you call when they don't answer: nights, weekends, holidays."
         },
         {
-          "el": "Το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν δεν υπάρχει, για δηλητηρίαση πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
-          "en": "Your country's poison centre, if there is one. If there isn't, for poisoning call the doctor now, and the emergency number if they tell you to or if you can't reach them."
+          "el": "Το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν δεν υπάρχει, για δηλητηρίαση πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν το παιδί δυσκολεύεται να αναπνεύσει, έχει σπασμούς ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+          "en": "Your country's poison centre, if there is one. If there isn't, for poisoning call the doctor now, and the emergency number if they tell you to or if you can't reach them. If your child struggles to breathe, has a seizure or won't wake, call the emergency number."
         },
         {
           "el": "Το πιο κοντινό νοσοκομείο που δέχεται παιδιά στα επείγοντα, και πώς πας εκεί νύχτα.",
@@ -1649,8 +1649,8 @@
           "en": "Medicines, detergents and laundry capsules up high and locked. Not under the sink."
         },
         {
-          "el": "Μπαταρίες-κουμπιά και μαγνητάκια μακριά, και οι θήκες μπαταριών κλειστές καλά. Αν καταπιεί ένα, κάλεσε τον αριθμό έκτακτης ανάγκης ή πήγαινέ το αμέσως στα επείγοντα, ακόμα κι αν δείχνει καλά.",
-          "en": "Button batteries and small magnets out of reach, and battery covers shut tight. If they swallow one, call the emergency number or take them to the emergency department straight away, even if they seem fine."
+          "el": "Μπαταρίες-κουμπιά και μαγνητάκια μακριά, και οι θήκες μπαταριών κλειστές καλά. Αν καταπιεί μπαταρία ή μαγνητάκι, κάλεσε τον αριθμό έκτακτης ανάγκης ή πήγαινέ το αμέσως στα επείγοντα, ακόμα κι αν δείχνει καλά.",
+          "en": "Button batteries and small magnets out of reach, and battery covers shut tight. If they swallow a battery or a magnet, call the emergency number or take them to the emergency department straight away, even if they seem fine."
         },
         {
           "el": "Κορδόνια από στόρια και κουρτίνες δεμένα ψηλά, και η κούνια μακριά τους.",
@@ -1661,8 +1661,8 @@
           "en": "A gate on the stairs before they crawl. And from now on: never alone on a bed, sofa or changing table, not even for a second."
         },
         {
-          "el": "Αποθήκευσε στο κινητό το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν καταπιεί κάτι άλλο, πάρε τώρα εκεί ή τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις. Μην του προκαλέσεις εμετό. Αν δυσκολεύεται να αναπνεύσει ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
-          "en": "Save your country's poison centre in your phone, if there is one. If they swallow anything else, call it or the doctor now, and the emergency number if they tell you to or if you can't reach them. Don't make them sick. If they struggle to breathe or won't wake, call the emergency number."
+          "el": "Αποθήκευσε στο κινητό το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν καταπιεί κάτι άλλο, πάρε τώρα εκεί ή τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις. Μην του προκαλέσεις εμετό. Αν το παιδί δυσκολεύεται να αναπνεύσει, έχει σπασμούς ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+          "en": "Save your country's poison centre in your phone, if there is one. If they swallow anything else, call it or the doctor now, and the emergency number if they tell you to or if you can't reach them. Don't make them sick. If your child struggles to breathe, has a seizure or won't wake, call the emergency number."
         }
       ],
       "medical": true
@@ -1680,13 +1680,13 @@
       "en": "Toothbrush duty"
     },
     "description": {
-      "el": "Μόλις βγει το πρώτο δόντι, βούρτσισέ το απόψε, πριν τον ύπνο.",
-      "en": "As soon as the first tooth is through, brush it tonight, before bed."
+      "el": "Από το πρώτο δόντι και μετά: βούρτσισέ του τα δόντια απόψε, πριν τον ύπνο.",
+      "en": "From the first tooth on: brush their teeth tonight, before bed."
     },
     "tip": {
       "title": {
-        "el": "Κόκκος ρυζιού",
-        "en": "A grain of rice"
+        "el": "Βούρτσα, βιβλίο, ύπνος",
+        "en": "Brush, book, bed"
       },
       "steps": [
         {
@@ -1694,20 +1694,16 @@
           "en": "From the first tooth, twice a day. The bedtime one matters most."
         },
         {
-          "el": "Οδοντόκρεμα ελάχιστη: όσο ένας κόκκος ρυζιού. Το από πότε, με πόσο φθόριο και πότε γίνεται όσο ένα μπιζέλι διαφέρει από χώρα σε χώρα. Ρώτα τον οδοντίατρο ή τον γιατρό του.",
-          "en": "The tiniest bit of toothpaste: a grain of rice. When to start it, how much fluoride and when it becomes a pea differ by country. Ask the dentist or their doctor."
+          "el": "Λίγη οδοντόκρεμα: για μωρό όσο ένας κόκκος ρυζιού. Το από πότε, με πόσο φθόριο και πότε γίνεται όσο ένα μπιζέλι διαφέρει από χώρα σε χώρα. Ρώτα τον οδοντίατρο ή τον γιατρό του.",
+          "en": "Only a little toothpaste: a grain of rice for a baby. When to start it, how much fluoride and when it becomes a pea differ by country. Ask the dentist or their doctor."
         },
         {
-          "el": "Βουρτσίζεις εσύ, όχι εκείνο, για χρόνια ακόμα. Δώσε του μια δεύτερη οδοντόβουρτσα να κρατάει.",
-          "en": "You do the brushing, not them, for years yet. Give them a second brush to hold."
+          "el": "Βουρτσίζεις ή τελειώνεις εσύ, για χρόνια ακόμα. Δώσε του μια δεύτερη οδοντόβουρτσα να κρατάει.",
+          "en": "You do the brushing, or finish it, for years yet. Give them a second brush to hold."
         },
         {
           "el": "Όχι μπιμπερό στο κρεβάτι. Το γάλα που μένει στα δόντια όλη νύχτα τα χαλάει. Τελευταίο το βούρτσισμα, μετά βιβλίο και ύπνος.",
           "en": "No bottle in bed. Milk sitting on teeth all night is bad for them. Brushing comes last, then a book, then sleep."
-        },
-        {
-          "el": "Πρώτη επίσκεψη στον οδοντίατρο ως τα πρώτα γενέθλια περίπου. Πρώτα για γνωριμία, όχι για πρόβλημα.",
-          "en": "First dentist visit by about the first birthday. To get acquainted, not because something is wrong."
         }
       ],
       "medical": true
@@ -2127,7 +2123,7 @@
     },
     "description": {
       "el": "Σε μια κρίση κλάματος, μείνε ήρεμος και ονόμασε το συναίσθημα: «Θύμωσες».",
-      "en": "During a meltdown, stay calm and name the feeling: \"You're angry.\""
+      "en": "During a meltdown, stay calm and name the feeling: “You're angry.”"
     },
     "tip": {
       "title": {
@@ -2158,7 +2154,7 @@
     },
     "description": {
       "el": "Άφησέ το να «βοηθήσει» σε μια δουλειά του σπιτιού. Θα πάρει τριπλάσιο χρόνο.",
-      "en": "Let them \"help\" with a chore. It will take three times as long."
+      "en": "Let them “help” with a chore. It will take three times as long."
     }
   },
   {
@@ -2235,7 +2231,7 @@
     },
     "description": {
       "el": "Γαλότσες, αδιάβροχα, και πηδήξτε σε κάθε λακκούβα. Μαζί.",
-      "en": "Wellies on, and jump in every puddle. Together."
+      "en": "Wellies and raincoats on, and jump in every puddle. Together."
     }
   },
   {
@@ -2473,8 +2469,8 @@
           "en": "They eat sitting down. Not running, not lying down, not in the car, and with a grown-up watching."
         },
         {
-          "el": "Και εκτός πιάτου: μπαλόνια, κέρματα και μπαταρίες-κουμπιά μένουν μακριά του. Αν καταπιεί μπαταρία-κουμπί, κάλεσε αμέσως τον αριθμό έκτακτης ανάγκης, ακόμα κι αν δείχνει καλά.",
-          "en": "Off the plate too: balloons, coins and button batteries stay out of reach. If they swallow a button battery, call the emergency number straight away, even if they seem fine."
+          "el": "Και εκτός πιάτου: μπαλόνια, κέρματα, μπαταρίες-κουμπιά και μαγνητάκια μένουν μακριά του. Αν καταπιεί μπαταρία ή μαγνητάκι, κάλεσε τον αριθμό έκτακτης ανάγκης ή πήγαινέ το αμέσως στα επείγοντα, ακόμα κι αν δείχνει καλά.",
+          "en": "Off the plate too: balloons, coins, button batteries and small magnets stay out of reach. If they swallow a battery or a magnet, call the emergency number or take them to the emergency department straight away, even if they seem fine."
         }
       ],
       "medical": true

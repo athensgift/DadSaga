@@ -17,7 +17,7 @@
   {
     "id": "h-smart", "order": 4, "look": "smart",
     "title": { "el": "Έξυπνος Μπαμπάς", "en": "Smart Dad" },
-    "tagline": { "el": "Έχει απάντηση για κάθε «γιατί». Σχεδόν.", "en": "Has an answer for every \"why\". Almost." }
+    "tagline": { "el": "Έχει απάντηση για κάθε «γιατί». Σχεδόν.", "en": "Has an answer for every “why”. Almost." }
   },
   {
     "id": "h-chef", "order": 5, "look": "chef",
