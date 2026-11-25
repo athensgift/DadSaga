@@ -120,6 +120,7 @@ public struct OnboardingView: View {
                 SheetError(message: viewModel.errorMessage)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, DSSpacing.l)
+                    .padding(.top, viewModel.errorMessage == nil ? 0 : DSSpacing.s)
                 bottomBar(content.finishTitle, isEnabled: viewModel.canFinish) {
                     Task { await viewModel.finish() }
                 }

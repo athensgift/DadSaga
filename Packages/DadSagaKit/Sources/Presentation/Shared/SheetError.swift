@@ -2,8 +2,8 @@ import DesignSystem
 import SwiftUI
 
 /// The error when saving failed, beside the button that saves: under a screen's or a sheet's content, or pinned with a
-/// pinned button (`pinnedSheetError`). Shown in place: an alert from the screen below
-/// would wait until the sheet closed. VoiceOver reads it out as it appears, since the dad may not be looking at it.
+/// pinned button (`pinnedSheetError`). Shown in place: an alert from the screen below would wait until the sheet closed.
+/// VoiceOver reads it out as it appears, since the dad may not be looking at it.
 struct SheetError: View {
     let message: String?
 

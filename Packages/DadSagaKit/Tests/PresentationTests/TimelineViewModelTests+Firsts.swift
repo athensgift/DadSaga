@@ -86,7 +86,7 @@ extension TimelineViewModelTests {
         sut.edit(id: first.id)
         sut.requestDeletion(id: first.id)
 
-        #expect(moment(sut)?.labels.deletion == sut.deletion)
+        #expect(try #require(moment(sut)).labels.deletion == sut.deletion)
     }
 
     @Test("Given a failed deletion's alert, when a link is about to open home, then it closes")
