@@ -20,7 +20,7 @@ struct FamilyRemovedChildrenTests {
         FamilyViewModel(
             getProfile: family, updateFamily: saves ?? update, bringBack: FakeBringBack(family: family),
             deleteForGood: FakeDeleteForGood(family: family),
-            locale: Locale(identifier: locale), now: HeroStub.today, timeZone: .gmt, onSaved: {}
+            locale: Locale(identifier: locale), now: { HeroStub.today }, timeZone: .gmt, onSaved: {}
         )
     }
 

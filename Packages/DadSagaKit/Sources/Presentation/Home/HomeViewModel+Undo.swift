@@ -30,13 +30,14 @@ extension HomeViewModel {
         }
     }
 
-    /// A quest or boss sheet open meanwhile shows the last note: after an undo that may be gone.
+    /// A quest or boss sheet open meanwhile shows the last note: after an undo that may be gone. A sheet still open for
+    /// another child stays that child's.
     private func refreshOpenSheet(from overview: HomeOverview) {
-        if let open = selectedQuest, let quest = overview.catalog.quest(id: open.id) {
+        if let open = selectedQuest, open.childID == overview.child.id, let quest = overview.catalog.quest(id: open.id) {
             selectedQuest = detail(for: quest, in: overview)
         }
-        if let open = selectedBoss, let boss = overview.catalog.boss(id: open.id) {
-            selectedBoss = detail(for: boss)
+        if let open = selectedBoss, open.childID == overview.child.id, let boss = overview.catalog.boss(id: open.id) {
+            selectedBoss = detail(for: boss, in: overview)
         }
     }
 

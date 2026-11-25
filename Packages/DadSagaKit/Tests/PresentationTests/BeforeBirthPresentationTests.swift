@@ -310,7 +310,7 @@ struct BeforeBirthPresentationTests {
             loadCatalog: StubLoadCatalog(result: .success(HarbourStub.catalog)),
             saveProfile: save,
             locale: Locale(identifier: "el_GR"),
-            now: HarbourStub.today,
+            now: { HarbourStub.today },
             timeZone: .gmt,
             onFinished: {}
         )
@@ -323,7 +323,7 @@ struct BeforeBirthPresentationTests {
         #expect(sut.family.hasPartner)
 
         sut.family.children[0].name = "Μπέμπης"
-        sut.family.children[0].isBorn = false
+        sut.family.children[0].setBorn(false, now: HarbourStub.today, in: .gmt)
         sut.family.hasPartner = false
         sut.continueToHero()
         sut.selectHero(id: "h-cool")
@@ -343,7 +343,7 @@ struct BeforeBirthPresentationTests {
             bringBack: NoFamilyActs(),
             deleteForGood: NoFamilyActs(),
             locale: Locale(identifier: "el_GR"),
-            now: HarbourStub.today,
+            now: { HarbourStub.today },
             timeZone: .gmt,
             onSaved: {}
         )
@@ -355,7 +355,7 @@ struct BeforeBirthPresentationTests {
         sut.family.hasPartner = false
         #expect(sut.hasUnsavedChanges)
         sut.family.hasPartner = true
-        sut.family.children[0].isBorn = true
+        sut.family.children[0].setBorn(true, now: HarbourStub.today, in: .gmt)
         #expect(sut.hasUnsavedChanges)
         await sut.save()
 

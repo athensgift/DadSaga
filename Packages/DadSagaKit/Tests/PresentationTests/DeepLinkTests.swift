@@ -222,6 +222,18 @@ struct RootLinkTests {
         #expect(sut.tabs == RootTabs(adventure: "Περιπέτεια", map: "Χάρτης", timeline: "Χρονολόγιο", settings: "Ρυθμίσεις"))
     }
 
+    @Test("Given a link while the app is still loading, when home opens, then the link still waits for it")
+    func keepsLinkFromAColdLaunch() async {
+        let sut = RootViewModel(getProfile: StubGetProfile(profile: HeroStub.profile), getPreferences: StubGetPreferences())
+        let link = AppLink.quest(id: "q1", childID: HeroStub.niko.id)
+        sut.open(url: link.url)
+
+        await sut.onAppear()
+
+        #expect(sut.state == .home)
+        #expect(sut.pendingLink == PendingLink(link))
+    }
+
     @Test("Given a link while the app is still loading, when there turns out to be no family, then it is dropped")
     func dropsLinkForOnboarding() async {
         let sut = RootViewModel(getProfile: StubGetProfile(profile: nil), getPreferences: StubGetPreferences())

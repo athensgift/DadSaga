@@ -16,7 +16,7 @@ struct FamilyViewModelTests {
             bringBack: NoFamilyActs(),
             deleteForGood: NoFamilyActs(),
             locale: Locale(identifier: "el_GR"),
-            now: HeroStub.today,
+            now: { HeroStub.today },
             onSaved: onSaved
         )
     }
@@ -132,6 +132,33 @@ struct FamilyViewModelTests {
         #expect(sut.errorMessage == "Δεν αποθηκεύτηκε. Δοκίμασε ξανά.")
     }
 
+    @Test("Given My family left open until the next day, when adding a child and saving, then today is the new day")
+    func todayMovesOn() async throws {
+        let clock = FilmClock()
+        let sut = FamilyViewModel(
+            getProfile: StubGetProfile(profile: HeroStub.profile),
+            updateFamily: update,
+            bringBack: NoFamilyActs(),
+            deleteForGood: NoFamilyActs(),
+            locale: Locale(identifier: "el_GR"),
+            now: { clock.now },
+            timeZone: .gmt,
+            onSaved: {}
+        )
+        await sut.onAppear()
+
+        clock.advance(seconds: 86_400)
+        let tomorrow = clock.now
+        sut.appBecameActive()
+        #expect(sut.latestBirthDate == tomorrow)
+        sut.addChild()
+        #expect(sut.family.children.last?.birthDay == CalendarDay(tomorrow, in: .gmt))
+        sut.family.children[1].name = "Ελένη"
+        await sut.save()
+
+        #expect(await update.savedOn == tomorrow)
+    }
+
     @Test("Given My family just opened, when nothing is touched, then leaving loses nothing")
     func openedFamilyHasNothingToLose() async {
         let sut = makeSUT()
@@ -216,6 +243,7 @@ struct FamilyViewModelTests {
 
 actor SpyUpdateFamily: UpdateFamilyUseCase {
     private(set) var saved: FamilyEdit?
+    private(set) var savedOn: Date?
     private var shouldFail = false
 
     func failNext() {
@@ -243,5 +271,6 @@ actor SpyUpdateFamily: UpdateFamilyUseCase {
             throw StubError.boom
         }
         saved = edit
+        savedOn = date
     }
 }

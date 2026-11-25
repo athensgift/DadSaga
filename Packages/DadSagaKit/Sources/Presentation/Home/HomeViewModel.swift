@@ -132,9 +132,9 @@ public final class HomeViewModel {
         errorMessage = nil
         guard let overview else { return }
         if let quest = overview.quests.first(where: { $0.id == cardID }) {
-            selectedQuest = detail(for: quest)
+            selectedQuest = detail(for: quest, in: overview)
         } else if let boss = (overview.bosses + overview.situationalBosses).first(where: { $0.id == cardID }) {
-            selectedBoss = detail(for: boss)
+            selectedBoss = detail(for: boss, in: overview)
         }
     }
 
@@ -147,12 +147,14 @@ public final class HomeViewModel {
 
     /// Records the open quest, with the dad's optional note and photos.
     public func completeSelectedQuest(note: String = "", photos: PhotoDrafts = PhotoDrafts()) async {
-        guard let quest = selectedQuest, let childID = selectedChildID else { return }
+        guard let quest = selectedQuest else { return }
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
         let visit = departures
         let skill = overview?.catalog.quest(id: quest.id)?.skill
         guard let change = await record(growing: skill, {
-            try await self.useCases.completeQuest.execute(questID: quest.id, childID: childID, on: self.now(), journal: journal)
+            try await self.useCases.completeQuest.execute(
+                questID: quest.id, childID: quest.childID, on: self.now(), journal: journal
+            )
         }) else { return }
         selectedQuest = nil
         celebrate(change, skill: skill, begunOn: visit)
@@ -160,13 +162,13 @@ public final class HomeViewModel {
 
     /// Records the open boss as defeated, with the dad's optional note and photos.
     public func defeatSelectedBoss(note: String = "", photos: PhotoDrafts = PhotoDrafts()) async {
-        guard let boss = selectedBoss, !boss.isDefeated, let childID = selectedChildID else { return }
+        guard let boss = selectedBoss, !boss.isDefeated else { return }
         let content = overview?.catalog.boss(id: boss.id)
         let badge = content?.badge.resolved(for: locale)
         let journal = JournalInput(note: note, photos: photos.pickedPhotos)
         let visit = departures
         guard let change = await record(growing: content?.skill, {
-            try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: childID, on: self.now(), journal: journal)
+            try await self.useCases.defeatBoss.execute(bossID: boss.id, childID: boss.childID, on: self.now(), journal: journal)
         }) else { return }
         selectedBoss = nil
         celebrate(change, skill: content?.skill, badge: badge, begunOn: visit)
@@ -277,19 +279,28 @@ public final class HomeViewModel {
             self.titleCard = titleCard
             self.sagaOffer = sagaOffer
             self.reminderOffer = reminderOffer
-            selectedChildID = overview.child.id
-            viewedWorldID = overview.isShowingCurrentWorld ? nil : overview.shownWorld?.id
+            chooseWhatIsShown(in: overview)
             self.overview = overview
             state = .loaded(makeContent(overview))
             worldMap = makeWorldMap(overview)
             return overview
         } catch {
             guard generation == loadGeneration else { return nil }
-            // A home that loaded once stays as it was: what it shows is still the dad's saga, only not refreshed.
-            if case .loaded = state { return nil }
+            // A home that loaded once stays as it was: what it shows is still the dad's saga, only not refreshed. A
+            // child or world chosen for this load goes with it.
+            if case .loaded = state {
+                if let overview { chooseWhatIsShown(in: overview) }
+                return nil
+            }
             state = .failed(message: strings.text("Content failed to load."))
             return nil
         }
+    }
+
+    /// Makes the child and world home shows its choice.
+    private func chooseWhatIsShown(in overview: HomeOverview) {
+        selectedChildID = overview.child.id
+        viewedWorldID = overview.isShowingCurrentWorld ? nil : overview.shownWorld?.id
     }
 
     private func makeContent(_ overview: HomeOverview) -> HomeContent {

@@ -50,7 +50,7 @@ public struct ChildAvatar: View {
 
     /// - Parameters:
     ///   - size: the canvas height in points. A `kid` fills most of it; a `baby` about half.
-    ///   - cheerTrigger: change this value to make the child cheer.
+    ///   - cheerTrigger: raise this value to make the child cheer. Lowering it does nothing.
     ///   - traits: changes earned by legendary moments.
     public init(
         stage: Stage,
@@ -86,7 +86,7 @@ public struct ChildAvatar: View {
         .frame(width: size * Self.aspectRatio, height: size)
         .scaleEffect(hasAppeared || isStill ? 1 : 0.6, anchor: .bottom)
         .opacity(hasAppeared || isStill ? 1 : 0)
-        .onChange(of: cheerTrigger) { cheer() }
+        .onChange(of: cheerTrigger) { old, new in if new > old { cheer() } }
         .onAppear {
             // With Reduce Motion it is simply there, without growing in.
             withAnimation(reduceMotion ? nil : .spring(response: 0.5, dampingFraction: 0.6).delay(0.1)) { hasAppeared = true }

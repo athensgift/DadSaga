@@ -99,9 +99,9 @@ public final class RootViewModel {
         await onAppear()
     }
 
-    /// A URL the app was opened with (the widget). Anything that is not a DadSaga link, or any link before the family
-    /// exists, is ignored. While an editor holds unsaved changes the link waits in front of it; the newest link is the
-    /// one that waits.
+    /// A URL the app was opened with (the widget, a tapped notification). Anything that is not a DadSaga link, or any
+    /// link before the family exists, is ignored; while the app is still loading the link waits for home. While an
+    /// editor holds unsaved changes the link waits in front of it; the newest link is the one that waits.
     public func open(url: URL) {
         guard state != .onboarding, let link = AppLink(url: url) else { return }
         waitingLink = PendingLink(link)

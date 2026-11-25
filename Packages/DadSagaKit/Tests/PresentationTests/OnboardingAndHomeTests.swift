@@ -83,7 +83,7 @@ struct OnboardingViewModelTests {
             loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)),
             saveProfile: save,
             locale: Locale(identifier: "el_GR"),
-            now: HeroStub.today,
+            now: { HeroStub.today },
             onFinished: onFinished
         )
     }
@@ -117,7 +117,7 @@ struct OnboardingViewModelTests {
             let spy = SpySaveProfile()
             let sut = OnboardingViewModel(
                 loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)), saveProfile: spy,
-                locale: Locale(identifier: "el_GR"), now: HeroStub.today, onFinished: {}
+                locale: Locale(identifier: "el_GR"), now: { HeroStub.today }, onFinished: {}
             )
             sut.family.children[0].name = "Νίκος"
             sut.continueToHero()
@@ -128,6 +128,29 @@ struct OnboardingViewModelTests {
 
         #expect(Set(ids).count == 2)
         #expect(!ids.contains(.testDad))
+    }
+
+    @Test("Given onboarding left open until the next day, when adding a child and finishing, then today is the new day")
+    func todayMovesOn() async throws {
+        let clock = FilmClock()
+        let sut = OnboardingViewModel(
+            loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)), saveProfile: save,
+            locale: Locale(identifier: "el_GR"), now: { clock.now }, timeZone: .gmt, onFinished: {}
+        )
+
+        clock.advance(seconds: 86_400)
+        let tomorrow = clock.now
+        sut.appBecameActive()
+        #expect(sut.latestBirthDate == tomorrow)
+        sut.addChild()
+        #expect(sut.family.children.last?.birthDay == CalendarDay(tomorrow, in: .gmt))
+        sut.family.children[0].name = "Νίκος"
+        sut.family.children[1].name = "Ελένη"
+        sut.continueToHero()
+        sut.selectHero(id: "h-cool")
+        await sut.finish()
+
+        #expect(await save.savedOn == tomorrow)
     }
 
     @Test("Given a name and a chosen hero, when finishing, then the profile is saved and onFinished is called")
@@ -208,6 +231,7 @@ struct StubGetProfile: GetProfileUseCase {
 
 actor SpySaveProfile: SaveProfileUseCase {
     private(set) var saved: PlayerProfile?
+    private(set) var savedOn: Date?
     private var shouldFail = false
 
     func failNext() {
@@ -217,6 +241,7 @@ actor SpySaveProfile: SaveProfileUseCase {
     func execute(_ profile: PlayerProfile, on date: Date) async throws {
         if shouldFail { throw StubError.boom }
         saved = profile
+        savedOn = date
     }
 }
 

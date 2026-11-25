@@ -10,6 +10,7 @@ public struct OnboardingView: View {
     @State private var viewModel: OnboardingViewModel
     @State private var importer: DataImportViewModel?
     private let makeImport: MakeImport
+    @Environment(\.scenePhase) private var scenePhase
 
     /// - Parameter makeImport: builds the import sheet's presenter when the dad taps Import data.
     public init(viewModel: OnboardingViewModel, makeImport: @escaping MakeImport) {
@@ -34,6 +35,9 @@ public struct OnboardingView: View {
             .background(DSColor.background)
         }
         .task { await viewModel.onAppear() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { viewModel.appBecameActive() }
+        }
         .sheet(item: $importer) { importer in
             DataImportSheet(viewModel: importer) { self.importer = nil }
         }

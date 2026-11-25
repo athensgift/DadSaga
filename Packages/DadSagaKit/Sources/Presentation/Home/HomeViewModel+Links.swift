@@ -38,7 +38,7 @@ extension HomeViewModel {
     /// ADR-0053) or a moment that no longer exists opens no sheet.
     /// It reads what its own load returned, and opens only if the screen still shows the link's child: a load started
     /// meanwhile (the app coming back) may hold the previous child, and the dad or a newer link may have picked
-    /// another, whose quest this one must not open.
+    /// another, whose quest this one must not open. A sheet the dad opened meanwhile stays his, for its own child.
     public func open(_ link: AppLink) async {
         dismissSelection()
         selectedChildID = link.childID
@@ -46,7 +46,8 @@ extension HomeViewModel {
         guard let overview = await load(),
               !Task.isCancelled,
               overview.child.id == link.childID,
-              selectedChildID == link.childID else { return }
+              selectedChildID == link.childID,
+              selectedQuest == nil, selectedBoss == nil, momentCapture == nil else { return }
         switch link {
         case .quest(let id, _):
             // From the whole catalog, not just the shown world: last week's quest may belong to the previous one.
