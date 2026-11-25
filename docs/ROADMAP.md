@@ -45,8 +45,9 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
   child's `isRemoved` and `#Unique` ids in `SchemaV1`, and the same in a copy), before the first App Store release
   branch. ✅ PR 2 (two players, every change says what changed) and ✅ PR 3 (removed children: removing marks,
   "Bring back" and "Delete for good" in My family, visible to a dad alone). 1.0 ships every part that doesn't touch
-  iCloud (ADR-0067): PRs 1 to 3, and ✅ PR 4, the sync core, wired to nothing (the change feed, the applier, the
-  coordinator, `Sync.store`'s schema, tested against a fake cloud; ADR-0068, and ADR-0069 for what it left open). The
+  iCloud (ADR-0067): PRs 1 to 3, and ✅ PR 4, the sync core (the change feed, the applier, the coordinator,
+  `Sync.store`'s schema, tested against a fake cloud; ADR-0068, and ADR-0069 for what it left open), wired to nothing
+  but the history trim at launch (ADR-0081). The
   co-op version is PR 5 (CloudKit) and PR 6
   (the iCloud and sharing screens), in Phase 5.
 - ✅ The store's work runs off the main thread, now whatever the compiler's default (ADR-0034).
@@ -90,10 +91,66 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - Restore from an iCloud backup tested on a device: not tested, and hard for the owner to test. Until it is, the support
   pages (en and el) promise no more than export and import (ADR-0057): ✅ their iCloud Backup / Quick Start sentence
   is out (2026-11-24) and comes back only once the test passes
-- Screen snapshots and the accessibility audit run again and re-recorded
+- Screen snapshots and the accessibility audit run again and re-recorded, with ADR-0042 §7's images and audit, never
+  written (`docs/RELEASE.md`)
 - ✅ App Store metadata in Greek and English and screenshots (iPhone and both iPhone Duo displays) in `docs/appstore/`;
   the age rating and privacy label go in once the App Store Connect record exists
 - ✅ Pricing decision: 1.0 is free, with no in-app purchases; a "buy me a coffee" tip waits until after 1.0 (ADR-0071)
+
+## Left from the review of 2026-11-25
+What the whole-app review found that its six fix PRs (from #119) left open, and why it can wait. Not one of them blocks 1.0.
+
+### Sync (the co-op version, not 1.0)
+- `Data/Sync` writing a fetched record: nothing holds it to a copy's rules (photo limit, one photo on two entries, a
+  blank name), so one bad record would make every export fail. Check in `FieldMerge` before CloudKit is wired.
+- `ProfileRecord`: a gender or look this version doesn't know reads as the default and leaves in a copy as it. 1.0
+  writes no unknown value; fix with ADR-0065 §9's "say what was left out".
+- `SyncCoordinator+Offers`: renaming the film answers after a join deletes them all before writing any; a kill in
+  between offers every film again. Mark the new ids first.
+- A rebuilt zone sends rows of an unknown kind (ADR-0065 §1 says never); `accountReturned`'s rejoin rule is in no ADR;
+  ADR-0069 §3's family with no child can't be copied; "Delete for good" says it is for both parents.
+- `ProgressRecorder` stores an entry for a child not in the family; no 1.0 screen reaches it, a remote removal would.
+- `FilePhotoStore.adopt` keeps a JPEG's metadata and orientation, so such a photo is sideways in the film only. Only a
+  hand-made copy does it today; decide before sync whether to refuse it or decode with the transform.
+
+### Nits
+- Data: `storedPhotos()` drops an unreadable file silently, against its comment; a copy has no cap on its total size
+  (only a file the dad picks); `UserDefaultsSagaFilmChoicesRepository`'s "a stored switch carries over"; the content
+  validator checks less than the bundled-content tests (the shipped JSON is tested).
+- Domain and Application: `Wardrobe.isEarned` and `SetOutfitChoiceUseCase` write one rule twice; the weekly highlights
+  repeat `PlayerProfile.child(_:)`; `SagaPacing.init`'s ten unused parameters; stale comments in `PhotoStore`,
+  `FirstMoment`, `DadAppearance`. None changes behaviour.
+- Tests: names that promise XP or "one over" the limit without checking it; no test for
+  `RestoreSagaUseCase.discard` with unreadable entries, export's cancellation, Undo with nothing closed; `SagaStoryboardTests`' one-second wall clock; `HomeMomentsTests` "counts all firsts";
+  `NoCloudFamilySyncTests.resumeLeavesAStoreItCannotOpen` passes with an empty `resume()`; `SagaCopyLimitsTests`
+  names say more than they assert; `FilmBundledMusicTests` finds tracks by `.m4a`, and `Package.swift` still says
+  FilmKit's tests check no content. The behaviour they cover is right.
+- Film: the blurred backdrop is drawn again every frame (time on an old phone, unmeasured); `close()` empties the
+  whole films folder (not reachable by hand); an interrupted music preview keeps "Stop" for up to 20 s; the sheet
+  presenter's logic has no test.
+- Screens: only home listens for midnight; "My family" asks to discard after a born box ticked back; every remove
+  button reads "Remove child" to VoiceOver; "Couldn't load" without "Try again" in My family, Your hero, Wardrobe;
+  "Last time" with no year; raw black and white in the photo viewer; the timeline's load has no generation; segmented
+  child pickers don't grow with Dynamic Type. Each is small or rare.
+- Cards (the owner's call): the firsts' Greek titles and the tooth fairy; one Greek gender for the partner,
+  `b-w4-kindergarten`, `b-w2-velcro`'s "only one of you"; one Greek word each for doctor, cot and week; "Stroller";
+  narrow windows (`b-w3-new-sibling`) and conditional quests with no audience; a `medical` footer on seven quests; a
+  first dental visit before 30 months.
+- Website and privacy pages: Vision also looks for "what stands out", not only faces; the demo video has no pause; the
+  Greek site's "Super Dad"; `www.dadsaga.app` doesn't redirect; `docs/demo/README.md`'s picker note.
+- App and repository: the camera prompt's "stay on this device" is stricter than the privacy page; no `LICENSE`
+  (all rights reserved, the owner's call); the owner's email on public commits; `.gitignore` lacks archives and
+  signing files (none tracked); `StoreConnection` logs a store error as `.public` (local log only);
+  `SagaCopyDamagedFilesTests` keeps a back-compat reason; ADR-0058 §7 says "large" where home uses `.automatic`.
+- CI: the Mac's SwiftLint is older than CI's pinned one; upgrade it.
+
+### Owner checks on a real phone
+`docs/RELEASE.md`, "Open device checks", has each with its ADR. In short: time zones and calendars, a kill mid-save,
+a Release build without the App Group (ADR-0048); Settings' language, haptics, mail, start over (ADR-0030); every look
+(ADR-0044); the film's time on the oldest iPhone and leaving mid-film (ADR-0047); restoring an offloaded app (ADR-0023);
+the silent switch (ADR-0046); the site in Safari; the notification with the app closed, the camera, a full disk; a
+damaged or newer copy refused; home in one column on the Duo (ADR-0066); a VoiceOver pass on the screens PR 121
+changed; restore from an iCloud backup.
 
 ## Phase 5: Playground
 - iCloud sync and partner co-op: the co-op version, ADR-0065's PR 5 (CloudKit) and PR 6 (the iCloud and sharing

@@ -13,14 +13,20 @@ The checklist for a TestFlight build and an App Store release. The decisions beh
 - [ ] Trader details for the EU (Digital Services Act): name, address, phone and email, entered and verified in App
       Store Connect. Verification can take weeks: start early.
 - [ ] Privacy label: "Data Not Collected". It must match `web/privacy` and the privacy manifests.
-- [ ] Age rating: "Medical/Treatment Information" is **Infrequent**.
+- [ ] Age rating: "Medical or Treatment Information" is **Infrequent**, and "Health or Wellness Topics" is **Yes**
+      (self-care advice: the Resilience skill, sleep, feeding). Read the live table in App Store Connect for the tier it
+      gives before relying on one.
 - [ ] Accessibility Nutrition Labels: claim only what has been checked on every screen, in light and dark (the
       accessibility audit, ADR-0033); "Sufficient Contrast" only once dark mode has been checked too.
 - [ ] App Store listing from `docs/appstore/` (text, screenshots, settings): the price is Free (ADR-0071), and the
       text claims only what the build does (no iCloud, no co-op, no restore from an iCloud backup).
+- [ ] The six map screenshots retaken (`08-map.jpg` on the iPhone, `06-map.jpg` on both Duo displays, en-US and el): they
+      show World 2 as "9–24 months"; the app says 9–23.
+- [ ] App Review contact (name, phone, email) and notes: no sign-in; where the film (Timeline), the copy of the saga
+      (Settings › Export and import) and the widget are.
+- [ ] Content Rights: the app shows no third-party content (the music is original, `Tools/SagaMusic`).
+- [ ] Release: **manual**, so the website's App Store badge can go live with the app.
 - [ ] The App Store id in `DadSagaAppStoreID` (`project.yml`), so "Rate" and "Tell a friend" show.
-- [ ] The website, in both languages, once the app is live (ADR-0031): the App Store badge instead of "coming to the
-      App Store", and the Smart App Banner (`apple-itunes-app`).
 - [ ] The website's accessibility line (`web/index.html` and `web/el/index.html`: large text, VoiceOver, Reduce Motion)
       holds after the accessibility audit; otherwise soften it with the description's.
 - [ ] The website's video and screens drawn again (`docs/demo/README.md`) if what they show has changed. Known: the boss
@@ -28,6 +34,16 @@ The checklist for a TestFlight build and an App Store release. The decisions beh
 - [ ] Privacy policy and support URLs per language, as `docs/appstore/README.md` lists them.
 - [ ] The description's accessibility line (large text, VoiceOver, Reduce Motion) holds after the accessibility audit;
       otherwise soften it in `docs/appstore/` before submitting.
+- [ ] ADR-0042 §7, never written: snapshots of a first's two steps (with three photos), the photo viewer and the
+      timeline with photos; the audit of step 2 and the viewer, from a debug launch argument that starts on a saga with
+      photos (`DeviceData`). Today the audit opens no moment, boss sheet, "My family", reminder or Export and import.
+      Write them when the snapshots and the audit come back (`CLAUDE.md`), or drop them in an ADR.
+
+## Once the app is live
+- [ ] The website, in both languages (ADR-0031): the App Store badge instead of "coming to the App Store", and the
+      Smart App Banner (`apple-itunes-app`).
+- [ ] Before the first update goes to TestFlight: decide whether a schema version or an id that has only been in
+      TestFlight builds since the release may still change (ADR-0060, Deferred).
 
 ## Once, at the first App Store release
 On the first release branch, for the build submitted for review (ADR-0060 §5). If review asks for another build, the
@@ -36,13 +52,14 @@ record follows that build; it is fixed once the build is released, and reaches `
       `isRemoved`, `#Unique` ids and ids kept in history in `SchemaV1`; `hero.id`, `author` and each child's `removed`
       in format 1, whose reader takes any number of children from one. Both freeze with this build.
 - [ ] What 1.0 ships of ADR-0065 (ADR-0067): PRs 1, 2a, 2b and 3, and PR 4, the sync core, all on
-      `develop`. PR 4 is wired to nothing: no `import CloudKit` in any target, no iCloud entitlement, no `CKSharingSupported` or
+      `develop`. Of PR 4 only the history trim runs, at launch through `NoCloudFamilySync` (ADR-0081); the rest is wired
+      to nothing: no `import CloudKit` in any target, no iCloud entitlement, no `CKSharingSupported` or
       `remote-notification`, and no build creates `Sync.store`. `SyncSchemaV1` doesn't freeze with this build; it
       freezes with the co-op version (PR 5 and PR 6), whose release adds its own checks here: CloudKit's schema to
       production before its first TestFlight build, `aps-environment` as `production` in the archive.
-- [ ] The Data tests run once on an iOS 26 simulator (the saga store's one queue, ADR-0068, and the `hasChanges` gate
-      run in 1.0). The history pins (`ChangeFeedHistoryTests`: token expiry, another store's token, tombstones) run
-      there again before the co-op version.
+- [ ] The Data tests run once on an iOS 26 simulator: the saga store's one queue (ADR-0068), the `hasChanges` gate and
+      the history trim (`NoCloudFamilySyncTests`, `ChangeFeedHistoryTests.trimEmptiesTheHistory`, ADR-0081) run in 1.0.
+      The other history pins (token expiry, another store's token, tombstones) run there again before the co-op version.
 - [ ] `Tests/DataTests/Fixtures/ShippedContentIDs.json`, from the bundled content: every world, hero, quest, boss,
       first, gear item and title id; each quest's and boss's skill and XP, and each first's XP; each gear item's skill;
       each title's order, cards, XP and gear; each skill's `halfGrownXP`. From then on it only grows.
@@ -64,14 +81,26 @@ Tick them on the first TestFlight build.
       Greek film on an English phone. Not its "installing over a version 6 build" (ADR-0060).
 - [ ] ADR-0056 and ADR-0058, home: what is left of them (ADR-0061, ADR-0066) on a real iPhone Duo, with VoiceOver and at
       the accessibility text sizes.
-- [ ] ADR-0057, the copy of the saga, with 500 photos or more: making, sharing, restoring, refusing a damaged or newer
-      one; with VoiceOver, at the accessibility text sizes and on the iPhone Duo folded.
+- [ ] ADR-0057, the copy of the saga: making and importing a large saga was checked on a device (2026-11-22). Left:
+      refusing a damaged or a newer copy; with VoiceOver, at the accessibility text sizes and on the iPhone Duo folded.
 - [ ] ADR-0059, the skills' marks: under a celebration, after an Undo, light and dark, VoiceOver.
-- [ ] ADR-0060, the calm screen with a store that can't be opened, in Greek and English; a fresh install's first quest,
-      first with photos, widget, film and start over.
+- [ ] ADR-0060: the calm screen with a store that can't be opened was checked on a device (2026-11-22). Left: a fresh
+      install's first quest, first with photos, widget, film and start over.
 - [ ] ADR-0061, the four tabs, the map and Settings half-open, "My family" holding changes while a widget link waits, a
       link while a question is up.
 - [ ] ADR-0066, home in one column, on a real iPhone Duo.
+- [ ] ADR-0048, data and age: the time zone set to Auckland and to Los Angeles, an Islamic and a Hebrew calendar; a
+      Release build without the App Group; the app killed while it saves an entry with photos.
+- [ ] ADR-0030, Settings: the language row and the relaunch, haptics off, the test mail and a phone with Mail deleted,
+      start over with a reminder pending.
+- [ ] ADR-0044, the dad's look: every look in light and dark, the film's card with another look, "Your hero"'s failure
+      message, VoiceOver. ADR-0049: the appearance choice with a sheet open.
+- [ ] ADR-0047, the film's photos: the time to make a film on the oldest iPhone at hand, and the child/adult
+      classification on real photos; write the numbers here. Also: leave the app for a minute mid-film and come back.
+- [ ] ADR-0023: restoring an offloaded app keeps the saga and the widget. ADR-0046: a preview with the silent switch on.
+- [ ] The website in Safari on an iPhone (ADR-0039, ADR-0040, ADR-0070): motion, the family, the demo video.
+- [ ] From the audit of 2026-11-25: the weekly notification with the app closed; adding a photo from the camera; saving
+      with the disk full.
 
 ## Every TestFlight build before the first App Store release
 - [ ] Compare with the last uploaded build: the release branch's commit that set its build number (ADR-0060 §6). The

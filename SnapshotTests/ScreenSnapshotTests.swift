@@ -25,7 +25,7 @@ struct ScreenSnapshotTests {
 
         var locale: Locale { Locale(identifier: self == .greekLight ? "el_GR" : "en_US") }
 
-        var traits: UITraitCollection {
+        @MainActor var traits: UITraitCollection {
             UITraitCollection { traits in
                 traits.userInterfaceStyle = self == .englishDark ? .dark : .light
                 traits.preferredContentSizeCategory = self == .englishLargestText

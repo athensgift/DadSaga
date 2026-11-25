@@ -43,8 +43,8 @@ Count again after any change, for example:
   leaves the iPhone only by export and import ([ADR-0057](../adr/0057-saga-copy-export-and-restore.md)), and restoring
   from an iCloud backup is not promised (`docs/ROADMAP.md`, Phase 4).
 - **Free:** no in-app purchases ([ADR-0071](../adr/0071-1-0-is-free-with-no-in-app-purchases.md)).
-- **The app's Greek words:** the Greek text says «ιστορία», as the app does («Ταινία της ιστορίας»), not the
-  site's «saga», so the description matches the screenshots.
+- **The app's Greek words:** the Greek text says «ιστορία», as the app does («Ταινία της ιστορίας») and the
+  site do, so the description matches the screenshots.
 - **The same words as the app and the site:** card, world and title names as the content JSON has them, the site's
   sentences where they fit (`web/index.html`, `web/el/index.html`).
 
@@ -60,7 +60,7 @@ Count again after any change, for example:
 | Marketing URL | en `https://dadsaga.app/`, el `https://dadsaga.app/el/` |
 | Copyright | `2026 FAFOUTIS BROTHERS E.E.` |
 | App Privacy | **Data Not Collected**. It must match `web/privacy`, `web/el/privacy` and the privacy manifests (ADR-0051) |
-| Age rating | "Medical or Treatment Information": **Infrequent**. Everything else None or No: no violence, no mature themes, no gambling or contests, no unrestricted web access, no user-generated content shared with others (notes and photos stay on the iPhone), no messaging, no ads. Not "Made for Kids": the app is for parents |
+| Age rating | "Medical or Treatment Information": **Infrequent**. "Health or Wellness Topics": **Yes** (self-care advice: the Resilience skill, sleep, feeding). Read the live table in App Store Connect for the tier these give. Everything else None or No: no violence, no mature themes, no gambling or contests, no unrestricted web access, no user-generated content shared with others (notes and photos stay on the iPhone), no messaging, no ads. Not "Made for Kids": the app is for parents |
 | Category | The owner's choice; Lifestyle fits a parenting app best |
 
 ## Screenshots

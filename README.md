@@ -48,7 +48,7 @@ they were replaced by titles with no XP on screen and no "next title" hint
 
 ## Decisions worth a look
 
-Every significant decision is an Architecture Decision Record: 73 of them in [`docs/adr`](docs/adr), each with what
+Every significant decision is an Architecture Decision Record: more than 80 of them in [`docs/adr`](docs/adr), each with what
 was rejected and why. A few that show the shape of the project:
 
 - **The saga film is drawn frame by frame on the phone**
@@ -70,14 +70,15 @@ was rejected and why. A few that show the shape of the project:
   ([ADR-0065](docs/adr/0065-partner-co-op-sync.md)) was designed before 1.0, so 1.0's frozen schema already holds
   what sync will need: stable ids, an author on every entry, a removed child marked rather than deleted. The sync core
   (a change feed from SwiftData history, field-level merge, a coordinator) ships in 1.0, tested against a fake cloud
-  and wired to nothing ([ADR-0067](docs/adr/0067-1-0-ships-without-icloud.md)); CloudKit comes in the next version.
+  and wired to nothing but the trim of the store's history at launch ([ADR-0067](docs/adr/0067-1-0-ships-without-icloud.md),
+  [ADR-0081](docs/adr/0081-1-0-trims-the-store-history.md)); CloudKit comes in the next version.
 - **Fewer features to ship sooner.** Nothing is kept for backward compatibility before the first release
   ([ADR-0060](docs/adr/0060-nothing-ships-before-the-first-app-store-release.md)): an idea that didn't work is
   deleted, not migrated.
 
 ## How it was built
 
-Built by one developer with Claude Code as the engineering team, in about 430 commits between 13 and 25 November 2026.
+Built by one developer with Claude Code as the engineering team, in about 470 commits between 13 and 26 November 2026.
 The developer is the product owner: sets the rules, answers the open questions each ADR raises, and checks the app on
 a real phone. The work is
 split between agents with fixed roles ([`.claude/agents`](.claude/agents)):
@@ -98,9 +99,9 @@ bug before its fix, and deleting the old path when new code replaces it.
 | | |
 |---|---|
 | Swift, app and package | ~30,000 lines |
-| Tests | ~30,000 lines, 1,300+ Swift Testing tests, one target per layer, plus screen snapshots and an accessibility audit |
-| Decisions | 73 ADRs |
-| Pull requests | 110+ merged into `develop` |
+| Tests | ~30,000 lines, 1,400+ Swift Testing tests, one target per layer, plus screen snapshots and an accessibility audit |
+| Decisions | 80+ ADRs |
+| Pull requests | 120+ merged into `develop` |
 | Languages | Greek and English, every string and card |
 | Data sent off the device | none |
 
