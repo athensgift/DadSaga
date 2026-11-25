@@ -17,6 +17,10 @@ jobs:
   # The package tests and the simulator builds took 2 to 5 minutes each, one after the other in one job: typically 7 to
   # 9 minutes a run (22 to 25 November 2026). The same code takes up to twice as long from run to run: that is the
   # runner. Side by side, a pull request waits for the slower of the two (ADR-0074).
+  #
+  # `main` and `develop` require `package-tests` and `app-build` by name before a merge (ADR-0076). Renaming or
+  # splitting either, or adding a job a merge must wait for, changes the ruleset at the same moment. Neither gets an
+  # `if:` or a path filter: GitHub counts a skipped required check as passed.
   package-tests:
     # Pinned to the Mac's Xcode, so an image update never changes the toolchain under us (ADR-0034).
     runs-on: xcode-27
@@ -67,26 +71,6 @@ jobs:
             -scheme DadSagaSnapshots \
             -destination 'generic/platform=iOS Simulator' \
             CODE_SIGNING_ALLOWED=NO
-
-  # The check `main` and `develop` require before a merge is named `build-and-test`, so this job keeps the name and
-  # passes only when both jobs above did (ADR-0074). `always()`, not the default and not `!cancelled()`: after a
-  # failure above, or in a cancelled run, this job would be skipped, and GitHub counts a skipped required check as
-  # passed.
-  build-and-test:
-    if: always()
-    needs: [package-tests, app-build]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Package tests and app build both passed
-        env:
-          PACKAGE_TESTS: ${{ needs.package-tests.result }}
-          APP_BUILD: ${{ needs.app-build.result }}
-        run: |
-          if [ "$PACKAGE_TESTS" != success ] || [ "$APP_BUILD" != success ]; then
-            echo "::error::package-tests: $PACKAGE_TESTS, app-build: $APP_BUILD"
-            exit 1
-          fi
 
   # What only a release build compiles: the `#else` of `#if DEBUG`, and the optimised build (ADR-0051). Not on a PR
   # into develop, which it would only slow down: after every merge into develop, on a release branch and on its way
