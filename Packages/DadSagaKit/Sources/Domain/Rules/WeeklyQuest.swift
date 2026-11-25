@@ -51,12 +51,15 @@ public enum WeeklyQuest {
         }
     }
 
-    /// Weeks elapsed since the week of a fixed day, 1 January 2001, counted by the calendar so daylight saving never
-    /// shifts it. The day is the same one in every time zone, so a trip changes no week's number.
+    /// Weeks elapsed since the week of a fixed day, 1 January 2001: the days between the two weeks' first days, as
+    /// days on the calendar, over seven. No instant is compared, so a clock change, or a day a time zone once skipped,
+    /// never shifts it. The fixed day is the same one in every time zone, so a trip changes no week's number.
     public static func weekNumber(of week: DateInterval, calendar: Calendar) -> Int {
-        let gmtDay = CalendarDay(Date(timeIntervalSinceReferenceDate: 0), in: .gmt)
-        let reference = Self.week(containing: gmtDay.start(in: calendar.timeZone), calendar: calendar).start
-        return calendar.dateComponents([.weekOfYear], from: reference, to: week.start).weekOfYear ?? 0
+        let timeZone = calendar.timeZone
+        let fixedDay = CalendarDay(Date(timeIntervalSinceReferenceDate: 0), in: .gmt)
+        let reference = Self.week(containing: fixedDay.start(in: timeZone), calendar: calendar).start
+        let days = CalendarDay(reference, in: timeZone).days(until: CalendarDay(week.start, in: timeZone))
+        return Int((Double(days) / 7).rounded(.down))
     }
 
     /// The age a week's quest is picked at: on the day the week starts, so a birthday mid-week does not swap the card;

@@ -56,11 +56,9 @@ struct SagaFixture {
         let profile = PlayerProfile(id: UUID(), children: [Self.child], heroClassID: "h-super", dadSkinTone: .mediumLight)
         try await DefaultSaveProfileUseCase(
             contentRepository: content, profileRepository: store.profiles, timeZone: Self.calendar.timeZone
-        )
-            .execute(profile, on: Self.today.addingTimeInterval(-30 * 86_400))
+        ).execute(profile, on: Self.today.addingTimeInterval(-30 * 86_400))
         let quest = DefaultCompleteQuestUseCase(
-            contentRepository: content, progressRepository: store.progress,
-            profileRepository: store.profiles, photoStore: photos
+            contentRepository: content, progressRepository: store.progress, profileRepository: store.profiles, photoStore: photos
         )
         let quests = [("q-w1-skin-to-skin", 28.0), ("q-w1-bath-master", 20), ("q-w1-lullaby", 9)]
         for (id, daysAgo) in quests {
@@ -104,8 +102,7 @@ struct SagaFixture {
         let profile = PlayerProfile(id: UUID(), children: [alex, maya], heroClassID: "h-super", dadSkinTone: .mediumLight)
         try await DefaultSaveProfileUseCase(
             contentRepository: content, profileRepository: store.profiles, timeZone: Self.calendar.timeZone
-        )
-            .execute(profile, on: Self.day(30))
+        ).execute(profile, on: Self.day(30))
         _ = try await DefaultCompleteQuestUseCase(
             contentRepository: content, progressRepository: store.progress,
             profileRepository: store.profiles, photoStore: photos
@@ -129,7 +126,8 @@ struct SagaFixture {
         ).execute(CaptureMomentRequest(firstID: firstID, childID: Self.child.id, date: Self.day(daysAgo)), now: Self.today)
         guard let id = change.eventID, note != nil || !added.isEmpty else { return }
         try await DefaultUpdateMomentUseCase(
-            profileRepository: store.profiles, progressRepository: store.progress, photoStore: photos
+            contentRepository: content, profileRepository: store.profiles,
+            progressRepository: store.progress, photoStore: photos
         ).execute(
             momentID: id, happenedOn: Self.day(daysAgo), note: note, photos: added.map(EntryPhoto.added), now: Self.today
         )
@@ -196,7 +194,8 @@ extension SagaFixture {
                         profileRepository: store.profiles, photoStore: photos
                     ),
                     update: DefaultUpdateMomentUseCase(
-                        profileRepository: store.profiles, progressRepository: store.progress, photoStore: photos
+                        contentRepository: content, profileRepository: store.profiles,
+                        progressRepository: store.progress, photoStore: photos
                     ),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photos)
                 ),
@@ -276,8 +275,8 @@ extension SagaFixture {
                     bringBack: DefaultBringBackChildUseCase(profileRepository: store.profiles),
                     deleteForGood: DefaultDeleteChildForGoodUseCase(
                         contentRepository: content, profileRepository: store.profiles,
-                        progressRepository: store.progress, standingRepository: store.standing, photoStore: photos,
-                        renewReminders: NoSchedule()
+                        progressRepository: store.progress, standingRepository: store.standing, sagaOffers: sagaOffers,
+                        photoStore: photos, renewReminders: NoSchedule()
                     ),
                     locale: locale, now: { Self.today }, timeZone: Self.calendar.timeZone,
                     onSaved: onSaved
@@ -350,7 +349,8 @@ extension SagaFixture {
                 profileRepository: store.profiles, progressRepository: store.progress, photoStore: photos
             ),
             updateMoment: DefaultUpdateMomentUseCase(
-                profileRepository: store.profiles, progressRepository: store.progress, photoStore: photos
+                contentRepository: content, profileRepository: store.profiles,
+                progressRepository: store.progress, photoStore: photos
             ),
             locale: locale,
             calendar: calendar

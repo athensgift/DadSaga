@@ -1,4 +1,5 @@
 import Application
+import Domain
 import Foundation
 
 /// Keeps the dad's answers to the film offers in the app's own defaults (ADR-0037 §5). Each answered occasion has a key
@@ -19,6 +20,12 @@ public struct UserDefaultsSagaOfferRepository: SagaOfferRepository, @unchecked S
 
     public func markAnswered(_ occasionID: String) async {
         defaults.set(true, forKey: keyPrefix + occasionID)
+    }
+
+    public func forget(childID: UUID) async {
+        for key in answeredKeys where SagaOccasion.isID(String(key.dropFirst(keyPrefix.count)), ofChild: childID) {
+            defaults.removeObject(forKey: key)
+        }
     }
 
     public func deleteAll() async {

@@ -95,11 +95,10 @@ struct MomentsFormatter {
 
     private var dateLabel: String { strings.text("When did it happen?") }
 
-    /// A first before birth can be dated any day up to today; every other first from the start of the birth day, or
-    /// today while the child is not born.
+    /// The start of the first's earliest day (`UnlockRules.earliestDay`), for the date picker.
     private func earliestDate(of first: FirstMoment, for child: Child, now: Date) -> Date {
-        guard !first.isBeforeBirth else { return .distantPast }
-        return min(child.birthDay?.start(in: timeZone) ?? now, now)
+        let today = CalendarDay(now, in: timeZone)
+        return UnlockRules.earliestDay(for: first, child: child, today: today)?.start(in: timeZone) ?? .distantPast
     }
 
     /// Visible changes earned by the child's captured firsts.

@@ -153,7 +153,8 @@ extension WeeklyReminderUseCaseTests {
         ))
         let sut = DefaultDeleteChildForGoodUseCase(
             contentRepository: StubContentRepository(result: .success(Self.catalog)), profileRepository: profiles,
-            progressRepository: progress, standingRepository: InMemoryStanding(), photoStore: SpyPhotoStore(),
+            progressRepository: progress, standingRepository: InMemoryStanding(), sagaOffers: FakeSagaOffers(),
+            photoStore: SpyPhotoStore(),
             renewReminders: DefaultRenewWeeklyRemindersUseCase(schedule: schedule(scheduler), scheduler: scheduler)
         )
 

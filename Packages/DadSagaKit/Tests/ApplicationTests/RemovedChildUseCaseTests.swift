@@ -19,12 +19,44 @@ struct RemovedChildUseCaseTests {
 
     func deleteForGood(
         _ profiles: SpyProfileRepository, _ progress: SpyProgressRepository, _ standing: InMemoryStanding,
-        renewReminders: any RenewWeeklyRemindersUseCase = NoReminders()
+        renewReminders: any RenewWeeklyRemindersUseCase = NoReminders(), offers: FakeSagaOffers = FakeSagaOffers()
     ) -> DefaultDeleteChildForGoodUseCase {
         DefaultDeleteChildForGoodUseCase(
             contentRepository: content, profileRepository: profiles, progressRepository: progress,
-            standingRepository: standing, photoStore: photos, renewReminders: renewReminders
+            standingRepository: standing, sagaOffers: offers, photoStore: photos, renewReminders: renewReminders
         )
+    }
+
+    @Test("Given film offers answered for two children, when one is deleted for good, then no answer names them")
+    func forgetsTheFilmAnswers() async throws {
+        let repository = await profiles(family: [lena], removed: [iris])
+        let offers = FakeSagaOffers()
+        let lenas = "\(lena.id.uuidString)/birthday/1"
+        for id in [lenas, "\(iris.id.uuidString)/birthday/2", "\(iris.id.uuidString)/world/w1"] {
+            await offers.markAnswered(id)
+        }
+
+        try await deleteForGood(repository, SpyProgressRepository(), InMemoryStanding(), offers: offers)
+            .execute(childID: iris.id, on: .now)
+
+        #expect(await offers.answered == [lenas])
+    }
+
+    @Test("Given a removed child the store fails to delete, when deleting them for good, then their film answers stay")
+    func aFailedDeletionForgetsNothing() async throws {
+        let stored = PlayerProfile(children: [lena], heroClassID: "h1", removedChildren: [iris])
+        let answer = "\(iris.id.uuidString)/birthday/1"
+        let offers = FakeSagaOffers()
+        await offers.markAnswered(answer)
+        let sut = DefaultDeleteChildForGoodUseCase(
+            contentRepository: content, profileRepository: StoreThatCannotDelete(profile: stored),
+            progressRepository: SpyProgressRepository(), standingRepository: InMemoryStanding(), sagaOffers: offers,
+            photoStore: photos, renewReminders: NoReminders()
+        )
+
+        await #expect(throws: StoreThatCannotDelete.Failure.self) { try await sut.execute(childID: iris.id, on: .now) }
+
+        #expect(await offers.answered == [answer])
     }
 
     @Test("Given a removed child, when bringing them back, then they are in the family and no longer removed")
@@ -119,4 +151,17 @@ struct RemovedChildUseCaseTests {
         #expect(await repository.editCount == 0)
         #expect(try await progress.fetchEvents().count == 1)
     }
+}
+
+/// A family whose store refuses the deletion in its own turn, as a full disk or a refusal there would (ADR-0068 §3).
+private struct StoreThatCannotDelete: ProfileRepository {
+    struct Failure: Error {}
+    let profile: PlayerProfile
+
+    func fetchProfile() async throws -> PlayerProfile? { profile }
+    func create(_ profile: PlayerProfile) async throws {}
+    func save(_ edit: FamilyEdit) async throws {}
+    func save(_ edit: HeroEdit) async throws {}
+    func bringBack(childID: UUID) async throws {}
+    func deleteForGood(childID: UUID) async throws -> [String] { throw Failure() }
 }

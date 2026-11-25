@@ -20,7 +20,8 @@ struct FormerIDRecordingTests {
     )
     let repository = SpyProgressRepository()
     let photos = SpyPhotoStore()
-    let child = UUID()
+    static let lena = Child(name: "Λένα", birthDay: CalendarDay(year: 1969, month: 10, day: 1))
+    let child = lena.id
 
     @Test("Given a quest renamed from q-old, when completing it as q-old, then it is stored as q-new with its XP")
     func questUnderFormerIDStoresTheCurrentID() async throws {
@@ -58,7 +59,7 @@ struct FormerIDRecordingTests {
         DefaultCaptureMomentUseCase(
             contentRepository: content,
             progressRepository: repository,
-            profileRepository: TheDad(),
+            profileRepository: TheDad(children: [Self.lena]),
             photoStore: photos
         )
     }

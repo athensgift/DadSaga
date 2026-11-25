@@ -1,4 +1,5 @@
 import Application
+import Foundation
 
 /// The film offers answered follow the parent (ADR-0065 §1): kept on the iPhone as before (ADR-0037 §5), and with
 /// iCloud on each answer also becomes a record in the parent's own zone, so a film is offered once on whichever of
@@ -21,6 +22,12 @@ public struct SyncedSagaOfferRepository: SagaOfferRepository {
     public func markAnswered(_ occasionID: String) async {
         await stored.markAnswered(occasionID)
         Task { await sync.offersChanged() }
+    }
+
+    /// Only what this iPhone keeps. The child's records in the parent's zone are not deleted yet: that comes with the
+    /// co-op version (ADR-0078 §3), and until then nothing in the app is built with this repository (ADR-0067).
+    public func forget(childID: UUID) async {
+        await stored.forget(childID: childID)
     }
 
     public func deleteAll() async {

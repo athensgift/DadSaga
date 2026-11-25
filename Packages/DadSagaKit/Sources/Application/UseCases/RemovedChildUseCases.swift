@@ -24,9 +24,10 @@ public struct DefaultBringBackChildUseCase: BringBackChildUseCase {
 }
 
 /// Deletes a removed child for good: the child, every entry with them, whoever recorded it, and their photos
-/// (ADR-0065 §4), and no note names them. The one way a child and their entries go. Those entries' XP and skill marks
-/// go, as a deletion's do; the player's title is kept first (ADR-0055 §3), so if keeping it fails nothing is deleted.
-/// Only this iPhone's player's title is kept here; a partner's iPhone keeps theirs when the deletion reaches it (PR 4).
+/// (ADR-0065 §4), no note names them, and the answers to their film offers are forgotten (ADR-0078 §3). The one way a
+/// child and their entries go. Those entries' XP and skill marks go, as a deletion's do; the player's title is kept
+/// first (ADR-0055 §3), so if keeping it fails nothing is deleted. Only this iPhone's player's title is kept here; a
+/// partner's iPhone keeps theirs when the deletion reaches it.
 public protocol DeleteChildForGoodUseCase: Sendable {
     func execute(childID: UUID, on date: Date) async throws
 }
@@ -36,6 +37,7 @@ public struct DefaultDeleteChildForGoodUseCase: DeleteChildForGoodUseCase {
     private let profileRepository: any ProfileRepository
     private let progressRepository: any ProgressRepository
     private let standingRepository: any StandingRepository
+    private let sagaOffers: any SagaOfferRepository
     private let photoStore: any PhotoStore
     private let renewReminders: any RenewWeeklyRemindersUseCase
 
@@ -44,6 +46,7 @@ public struct DefaultDeleteChildForGoodUseCase: DeleteChildForGoodUseCase {
         profileRepository: any ProfileRepository,
         progressRepository: any ProgressRepository,
         standingRepository: any StandingRepository,
+        sagaOffers: any SagaOfferRepository,
         photoStore: any PhotoStore,
         renewReminders: any RenewWeeklyRemindersUseCase
     ) {
@@ -51,6 +54,7 @@ public struct DefaultDeleteChildForGoodUseCase: DeleteChildForGoodUseCase {
         self.profileRepository = profileRepository
         self.progressRepository = progressRepository
         self.standingRepository = standingRepository
+        self.sagaOffers = sagaOffers
         self.photoStore = photoStore
         self.renewReminders = renewReminders
     }
@@ -63,6 +67,8 @@ public struct DefaultDeleteChildForGoodUseCase: DeleteChildForGoodUseCase {
         try await TitleKeeper(contentRepository: contentRepository, standingRepository: standingRepository)
             .keepHeldTitle(of: player, events: events)
         let photoIDs = try await profileRepository.deleteForGood(childID: childID)
+        // After the rows, so a deletion that fails forgets nothing.
+        await sagaOffers.forget(childID: childID)
         await renewReminders.execute(on: date)
         // After the rows: a kill in between leaves files the orphan sweep removes (ADR-0048 §6).
         for id in photoIDs { await photoStore.delete(id: id) }
