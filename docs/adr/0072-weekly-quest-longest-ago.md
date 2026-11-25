@@ -1,7 +1,8 @@
 # ADR-0072: The weekly quest is the card on offer that came up longest ago
 
-**Status:** Proposed (2026-11-25). Changes ADR-0023 §1: the order of the weekly quest, and the age the birth week is
-taken at. Designed by the architect.
+**Status:** Accepted (2026-11-25). Changes ADR-0023 §1: the order of the weekly quest, and the age the birth week is
+taken at; and ADR-0024 §1 and §2, as §3 says. Designed by the architect; the owner approved it, with a walk that knows
+nothing of the weeks before the birth.
 
 ## Context
 - ADR-0023 §1: "Week *n* shows card *n* mod count, so every card comes up once before any repeats." That holds only
