@@ -8,8 +8,9 @@
   `LocalizedText.languageCode`). That rule reaches only what our code resolves.
 - The system picks the rest from the bundle: the permission prompts' reasons, the widget's description,
   `DadSagaPrivacyPolicyURL`, and UIKit's own words inside our screens ("Cancel", the edit menu). When the phone has none
-  of the bundle's languages, it takes the development region, which was `el` in both Info.plists. No ADR chose it: the
-  app's came with the first `project.yml`, and the widget's copied it.
+  of the bundle's languages, it takes the development region, which was `el` in both Info.plists. No ADR chose the
+  app's, which came with the first `project.yml`; ADR-0023 §5 chose the widget's, so its `Locale.current` matches the
+  app's. Both are still the same.
 - Run on 2026-11-25 on iOS 27.2 in the simulator with German as its only language. `Locale.current` is `en_DE`, so our
   text is English, while `preferredLocalizations` is `el`: both permission reasons, the widget's description, the edit
   menu, the share sheet's "Save Video" and UIKit's "Cancel" are Greek, and the privacy policy opens `/el/privacy/`. The

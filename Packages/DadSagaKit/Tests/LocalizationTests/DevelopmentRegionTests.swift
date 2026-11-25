@@ -19,7 +19,7 @@ struct DevelopmentRegionTests {
         // The key is indented under each target's `info.properties`. A third plist joins the list here.
         let regions = try Self.values(of: #"^ +CFBundleDevelopmentRegion: *([^\s#]+)"#, in: "project.yml")
         #expect(regions == ["en", "en"])
-        let plists = try Self.values(of: #"^ +path: *(\S+/Info\.plist)"#, in: "project.yml")
+        let plists = try Self.values(of: #"^ +path: *(\S+\.plist)"#, in: "project.yml")
         #expect(plists == ["App/Info.plist", "Widget/Info.plist"])
     }
 
