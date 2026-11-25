@@ -19,10 +19,18 @@ public protocol PhotoStore: Sendable {
     /// Every photo file there is, with when it was written. Throws if the folder can't be read, so a sweep that can't
     /// see the files deletes none (ADR-0048 §6).
     func storedPhotos() async throws -> [StoredPhoto]
+    /// Of `ids`, the photos that can be read: their file is there and is a JPEG `adopt` would take. Only each file's
+    /// header is read. Throws if the folder can't be found or listed, so a caller never takes every photo for unreadable,
+    /// and `CancellationError` when cancelled, never a part of the answer.
+    func readablePhotos(among ids: Set<String>) async throws -> Set<String>
 }
 
 /// A photo file and when it was written; `nil` when the date can't be read.
 public struct StoredPhoto: Hashable, Sendable {
+    /// The longest side of a stored photo, in pixels (ADR-0016). Asking the store for this size gives a photo's file
+    /// as it is, never a JPEG of a JPEG (ADR-0042 §1).
+    public static let longestSide = 2048
+
     public let id: String
     public let savedAt: Date?
 

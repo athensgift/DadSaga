@@ -15,17 +15,17 @@ public actor FilePhotoStore: PhotoStore {
     /// Finds the folder the files live in; it throws when there is none (no App Group in a release build).
     private let folder: @Sendable () throws -> URL
     private let maxPixelSize: Int
-    /// The longest side of a photo `adopt` takes: generous, since the app stores 2048 at most.
+    /// The longest side of a photo `adopt` takes: generous, since the app stores `StoredPhoto.longestSide` at most.
     private static let adoptedPixelLimit = 8192
 
     /// - Parameters:
     ///   - directory: where the files live; created on first save.
     ///   - maxPixelSize: longest side of a stored photo, in pixels.
-    public init(directory: URL, maxPixelSize: Int = 2048) {
+    public init(directory: URL, maxPixelSize: Int = StoredPhoto.longestSide) {
         self.init(folder: { directory }, maxPixelSize: maxPixelSize)
     }
 
-    init(folder: @escaping @Sendable () throws -> URL, maxPixelSize: Int = 2048) {
+    init(folder: @escaping @Sendable () throws -> URL, maxPixelSize: Int = StoredPhoto.longestSide) {
         self.folder = folder
         self.maxPixelSize = maxPixelSize
     }
@@ -103,12 +103,35 @@ public actor FilePhotoStore: PhotoStore {
 
     /// Only a JPEG whose header gives a size the app could have stored, written as `save` writes.
     private func write(storedJPEG jpeg: Data, id: String) throws {
-        guard let source = CGImageSourceCreateWithData(jpeg as CFData, nil),
-              CGImageSourceGetType(source) as String? == UTType.jpeg.identifier,
-              let side = Self.longestSide(of: source), side <= Self.adoptedPixelLimit else { throw PhotoError.notAnImage }
+        guard let source = CGImageSourceCreateWithData(jpeg as CFData, nil), Self.isStorable(source) else {
+            throw PhotoError.notAnImage
+        }
         let directory = try folder()
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         try jpeg.write(to: url(for: id, in: directory), options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+    }
+
+    /// A JPEG whose header gives a size the app could have stored. Nothing is decoded.
+    private static func isStorable(_ source: CGImageSource) -> Bool {
+        guard CGImageSourceGetType(source) as String? == UTType.jpeg.identifier,
+              let side = longestSide(of: source) else { return false }
+        return side <= adoptedPixelLimit
+    }
+
+    /// The same check as `adopt`, on each file's header: what this calls readable, a copy of the saga can bring back.
+    public func readablePhotos(among ids: Set<String>) async throws -> Set<String> {
+        let directory = try folder()
+        // The folder is listed first, and that throws as `storedPhotos` does: a folder that can't be read is an
+        // error, never a saga without photos.
+        let stored = Set(try await storedPhotos().map(\.id))
+        var readable: Set<String> = []
+        for id in ids.intersection(stored) {
+            try Task.checkCancellation()
+            if let source = CGImageSourceCreateWithURL(url(for: id, in: directory) as CFURL, nil), Self.isStorable(source) {
+                readable.insert(id)
+            }
+        }
+        return readable
     }
 
     public func delete(id: String) async {

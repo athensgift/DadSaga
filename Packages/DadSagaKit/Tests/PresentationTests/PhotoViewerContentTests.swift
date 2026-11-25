@@ -19,6 +19,7 @@ struct PhotoViewerContentTests {
         #expect(content.pages.map(\.source) == photos)
         #expect(content.counter(at: 1) == "2 / 3")
         #expect(content.closeTitle == "Κλείσιμο")
+        #expect(content.pages.map(\.missingText) == Array(repeating: "Αυτή η φωτογραφία δεν μπορεί να εμφανιστεί.", count: 3))
         #expect(labels.showPhotos == "Δες τις φωτογραφίες")
         #expect(labels.photoCount(1) == "1 φωτογραφία")
         #expect(labels.photoCount(3) == "3 φωτογραφίες")
@@ -33,6 +34,7 @@ struct PhotoViewerContentTests {
 
         #expect(content.pages.first?.label == "Photo 1 of 3, 👣 Steps")
         #expect(content.closeTitle == "Close")
+        #expect(content.pages.first?.missingText == "This photo can't be shown.")
         #expect(labels.showPhotos == "Show photos")
         #expect(labels.photoCount(1) == "1 photo")
         #expect(labels.photoCount(2) == "2 photos")

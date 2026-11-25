@@ -1,10 +1,11 @@
 import Domain
 import Foundation
 
-/// Chooses which of an entry's further photos fill its places in a film, by the device's rating (ADR-0047 §2). Run
-/// as the film is made, never by the film sheet's query; only the photos that can change the film are looked at.
+/// Chooses which of an entry's further photos fill its places in a film, by the device's rating (ADR-0047 §2), and
+/// leaves out the photos shown alone whose file can't be read (ADR-0075). Run as the film is made, never by the film
+/// sheet's query; only the photos that can change the film are looked at.
 public protocol ChooseSagaFilmPhotosUseCase: Sendable {
-    /// The same film, its further photos chosen. When the task is cancelled, or nothing can be rated, the film as given.
+    /// The same film, its further photos chosen. When the task is cancelled, the film as given.
     func execute(_ film: SagaFilm) async -> SagaFilm
 }
 
@@ -23,9 +24,19 @@ public struct DefaultChooseSagaFilmPhotosUseCase: ChooseSagaFilmPhotosUseCase {
     }
 
     public func execute(_ film: SagaFilm) async -> SagaFilm {
-        let ids = film.storyboard.photoChoices.flatMap(\.candidates)
-        guard !ids.isEmpty else { return film }
-        let ratings = await withTaskGroup(of: (String, PhotoRating?).self) { group in
+        let storyboard = film.storyboard
+        let alone = storyboard.photosShownAlone
+        guard !alone.isEmpty else { return film }
+        // Only the files' headers are read. A store that can't answer leaves the film as the sheet showed it.
+        let unreadable = alone.subtracting((try? await photoStore.readablePhotos(among: alone)) ?? alone)
+        let ratings = await ratings(of: storyboard.photoChoices(leavingOut: unreadable).flatMap(\.candidates))
+        guard !Task.isCancelled else { return film }
+        return film.replacing(storyboard: storyboard.choosingPhotos(by: ratings, leavingOut: unreadable))
+    }
+
+    private func ratings(of ids: [String]) async -> [String: PhotoRating] {
+        guard !ids.isEmpty else { return [:] }
+        return await withTaskGroup(of: (String, PhotoRating?).self) { group in
             var ratings: [String: PhotoRating] = [:]
             var pending = ids.makeIterator()
             func next() -> Bool {
@@ -45,8 +56,6 @@ public struct DefaultChooseSagaFilmPhotosUseCase: ChooseSagaFilmPhotosUseCase {
             }
             return ratings
         }
-        guard !Task.isCancelled else { return film }
-        return film.replacing(storyboard: film.storyboard.choosingPhotos(by: ratings))
     }
 }
 

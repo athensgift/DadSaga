@@ -88,16 +88,18 @@ public enum PhotoSubject {
     /// How much a face grows on every side: hair, chin and a little air around it.
     static let faceMargin = 0.35
 
-    /// The children's faces as one region; all faces when none looks like a child; the salient objects when there is
-    /// no face; `nil` when there is neither. Faces in the background count for neither.
-    public static func region(faces: [PhotoFace], salientObjects: [PhotoRegion]) -> PhotoRegion? {
-        framing(faces: faces, salientObjects: salientObjects)?.region
+    /// Whether a face is near enough to count, among all the faces found in its photo. Whoever looks at the faces
+    /// asks this first, so a face in the background is never looked at more closely.
+    public static func isInForeground(_ face: PhotoRegion, among faces: [PhotoRegion]) -> Bool {
+        face.height >= (faces.map(\.height).max() ?? 0) * backgroundShare
     }
 
-    /// The subject's region, and whether it is a child's; `nil` when there is no subject.
+    /// The subject's region, and whether it is a child's; `nil` when there is no subject: the children's faces as one
+    /// region; all faces when none looks like a child; the salient objects when there is no face. Faces in the
+    /// background count for neither.
     public static func framing(faces: [PhotoFace], salientObjects: [PhotoRegion]) -> PhotoFraming? {
-        let tallest = faces.map(\.region.height).max() ?? 0
-        let near = faces.filter { $0.region.height >= tallest * backgroundShare }
+        let regions = faces.map(\.region)
+        let near = faces.filter { isInForeground($0.region, among: regions) }
         let children = near.filter { $0.isChild == true }
         let pool = children.isEmpty ? near : children
         let subject = pool.map { $0.region.grown(by: faceMargin) }.reduce(nil) { $0?.union($1) ?? $1 }

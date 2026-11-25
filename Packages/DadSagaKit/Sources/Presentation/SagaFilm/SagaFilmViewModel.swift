@@ -156,6 +156,7 @@ public final class SagaFilmViewModel: Identifiable {
             let chosen = await choosePhotos.execute(film)
             // A cancel while choosing returns the film unchanged: stop here, before the renderer starts.
             try Task.checkCancellation()
+            guard chosen.hasSomethingToShow else { throw SagaFilmRenderError.nothingToShow }
             let script = builder.script(
                 for: chosen, format: format, reduceMotion: reduceMotion, showsDates: showsDates, music: music
             )
@@ -185,9 +186,10 @@ public final class SagaFilmViewModel: Identifiable {
             showChoices(notice: leftNotice)
         case .failure(let error) where error is CancellationError:
             showChoices(notice: nil)
-        case .failure:
-            showChoices(notice: strings.text("Couldn't make the film. Please try again."))
-            failedAt = now()
+        case .failure(let error):
+            showChoices(notice: strings.failedFilmNotice(for: error))
+            // A full disk isn't the dad leaving the app, however soon he leaves after it.
+            if (error as? SagaFilmRenderError)?.isLasting != true { failedAt = now() }
         }
     }
 

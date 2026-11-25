@@ -221,6 +221,8 @@ actor FakeFilmRenderer: SagaFilmRendering {
     enum Ending {
         case film
         case failure
+        /// The phone ran out of room.
+        case noSpace
         /// Waits after its progress: `letGo()` finishes the film, cancelling stops it.
         case wait
     }
@@ -270,6 +272,7 @@ actor FakeFilmRenderer: SagaFilmRendering {
         switch ending {
         case .film: break
         case .failure: throw StubError.boom
+        case .noSpace: throw SagaFilmRenderError.notEnoughSpace
         case .wait:
             // Ends when the test lets go, or with `nil` when the task is cancelled.
             var waiting = release.makeAsyncIterator()

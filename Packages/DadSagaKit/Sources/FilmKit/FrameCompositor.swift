@@ -35,7 +35,7 @@ struct FrameCompositor: Sendable {
         let clip = shot.clip
         var image = solid(clip.picture.backdrop)
         if let picture = shot.picture {
-            image = place(picture, fit: clip.fit, camera: camera(of: clip, at: local))
+            image = place(picture, camera: camera(of: clip, at: local))
         }
         if let overlay = shot.overlay {
             image = overlay.composited(over: image)
@@ -99,44 +99,40 @@ struct FrameCompositor: Sendable {
         )
     }
 
-    private func place(_ image: CIImage, fit: FilmFit, camera: FilmCamera) -> CIImage {
-        switch fit {
-        case .fill:
-            return transform(image, scale: coverScale(of: image) * camera.zoom, camera: camera, clamped: true)
-        case .fitOverBlur:
-            let width = CGFloat(spec.width)
-            let background = transform(image, scale: coverScale(of: image), camera: FilmCamera(), clamped: true)
-                .clampedToExtent()
-                .applyingGaussianBlur(sigma: width * 0.04)
-                .applyingFilter("CIColorControls", parameters: [kCIInputBrightnessKey: -0.12])
-                .cropped(to: frameRect)
-            let fitScale = min(width / image.extent.width, CGFloat(spec.height) / image.extent.height)
-            return transform(image, scale: fitScale * camera.zoom, camera: camera, clamped: false)
-                .composited(over: background)
-                .cropped(to: frameRect)
-        }
-    }
-
-    private func coverScale(of image: CIImage) -> CGFloat {
-        max(CGFloat(spec.width) / image.extent.width, CGFloat(spec.height) / image.extent.height)
-    }
-
-    /// Scales `image` and moves the camera's point of it to the frame's centre. When `clamped`, the picture keeps
-    /// covering the frame instead of showing an edge.
-    private func transform(_ image: CIImage, scale: CGFloat, camera: FilmCamera, clamped: Bool) -> CIImage {
+    /// The picture whole at zoom 1, over a blurred, darkened copy of itself that fills the frame: a portrait photo in
+    /// a wide film (ADR-0037 §2).
+    private func place(_ image: CIImage, camera: FilmCamera) -> CIImage {
         let width = CGFloat(spec.width)
-        let height = CGFloat(spec.height)
+        let widthScale = width / image.extent.width
+        let heightScale = CGFloat(spec.height) / image.extent.height
+        let background = transform(image, scale: max(widthScale, heightScale), camera: FilmCamera())
+            .clampedToExtent()
+            .applyingGaussianBlur(sigma: width * 0.04)
+            .applyingFilter("CIColorControls", parameters: [kCIInputBrightnessKey: -0.12])
+            .cropped(to: frameRect)
+        return transform(image, scale: min(widthScale, heightScale) * camera.zoom, camera: camera)
+            .composited(over: background)
+            .cropped(to: frameRect)
+    }
+
+    /// Scales `image` and moves the camera's point of it to the frame's centre, as far as the picture allows: along a
+    /// side it doesn't fill, it stays in the middle; along one it fills, its edge never comes into the frame. So a
+    /// glide towards a point off the middle moves a picture only once it is larger than the frame (ADR-0047 §3).
+    private func transform(_ image: CIImage, scale: CGFloat, camera: FilmCamera) -> CIImage {
         let scaledWidth = image.extent.width * scale
         let scaledHeight = image.extent.height * scale
-        var moveX = width / 2 - CGFloat(camera.centerX) * scaledWidth
-        var moveY = height / 2 - CGFloat(1 - camera.centerY) * scaledHeight
-        if clamped {
-            moveX = min(0, max(width - scaledWidth, moveX))
-            moveY = min(0, max(height - scaledHeight, moveY))
-        }
+        let moveX = Self.offset(of: scaledWidth, in: CGFloat(spec.width), center: CGFloat(camera.centerX))
+        let moveY = Self.offset(of: scaledHeight, in: CGFloat(spec.height), center: CGFloat(1 - camera.centerY))
         return image
             .transformed(by: CGAffineTransform(translationX: -image.extent.minX, y: -image.extent.minY))
             .transformed(by: CGAffineTransform(scaleX: scale, y: scale))
             .transformed(by: CGAffineTransform(translationX: moveX, y: moveY))
+    }
+
+    /// Where a picture `length` long starts along a frame side `frame` long, with `center` of it (0 to 1) aimed at
+    /// the frame's middle.
+    private static func offset(of length: CGFloat, in frame: CGFloat, center: CGFloat) -> CGFloat {
+        guard length > frame else { return (frame - length) / 2 }
+        return min(0, max(frame - length, frame / 2 - center * length))
     }
 }

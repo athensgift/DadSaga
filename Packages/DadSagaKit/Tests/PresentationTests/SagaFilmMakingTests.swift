@@ -135,6 +135,20 @@ struct SagaFilmMakingTests: SagaFilmSheetTests {
         #expect(choices(sut)?.makeTitle == "Φτιάξε την ταινία")
     }
 
+    @Test("Given a phone with no room left, when making the film, then it says to free up space, also after leaving the app")
+    func failingOnAFullDisk() async throws {
+        let sut = makeSUT()
+        await sut.onAppear()
+        await renderer.end(.noSpace)
+
+        await sut.makeFilm(reduceMotion: false)
+
+        let notice = "Δεν υπάρχει αρκετός ελεύθερος χώρος σε αυτό το iPhone. Ελευθέρωσε λίγο χώρο και δοκίμασε ξανά."
+        #expect(choices(sut)?.notice == notice)
+        sut.appWentToBackground()
+        #expect(choices(sut)?.notice == notice)
+    }
+
     @Test("Given the film fails as the dad leaves, when the app is in the background a moment later, then it says he left")
     func failingJustBeforeTheBackground() async throws {
         let clock = FilmClock()

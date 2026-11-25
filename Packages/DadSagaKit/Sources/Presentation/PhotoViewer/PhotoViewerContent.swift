@@ -6,12 +6,15 @@ public struct PhotoViewerLabels: Equatable, Sendable {
     public let close: String
     /// The action on a card or row that has photos.
     public let showPhotos: String
+    /// In place of a photo whose file is gone or can't be read.
+    let missing: String
     private let locale: Locale
 
     init(locale: Locale) {
         let strings = Strings(locale: locale)
         close = strings.text("Close")
         showPhotos = strings.text("Show photos")
+        missing = strings.text("This photo can't be shown.")
         self.locale = locale
     }
 
@@ -32,7 +35,8 @@ public struct PhotoViewerLabels: Equatable, Sendable {
                 PhotoViewerContent.Page(
                     id: offset,
                     source: source,
-                    label: photoLabel(number: offset + 1, of: photos.count, entry: entry)
+                    label: photoLabel(number: offset + 1, of: photos.count, entry: entry),
+                    missingText: missing
                 )
             },
             startIndex: min(max(index, 0), max(photos.count - 1, 0)),
@@ -50,6 +54,8 @@ struct PhotoViewerContent: Identifiable {
         let source: PhotoSource
         /// e.g. "Photo 2 of 5, 👣 First steps".
         let label: String
+        /// Shown, and read by VoiceOver, when the photo can't be loaded.
+        let missingText: String
     }
 
     /// New every time it opens, so tapping another photo opens afresh.

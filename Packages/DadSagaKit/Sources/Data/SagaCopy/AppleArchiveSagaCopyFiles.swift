@@ -84,17 +84,23 @@ public struct AppleArchiveSagaCopyFiles: SagaCopyFiles {
         let json = JSONEncoder()
         json.outputFormatting = [.sortedKeys]
         var checksums: [String: String] = [:]
-        func add(_ path: String, _ data: Data) throws {
+        // An entry the reader would refuse for its size is never written: a copy that can't come back is worse than
+        // none (ADR-0057 §6).
+        func add(_ path: String, _ data: Data, limit: Int) throws {
+            guard data.count <= limit else { throw SagaCopyError.failed }
             checksums[path] = Self.sha256(data)
             try Self.writeEntry(path, data, to: encoder)
         }
 
-        try add(SagaCopyFormat.manifestPath, json.encode(SagaCopyManifestV1(copy: copy, app: app)))
-        try add(SagaCopyFormat.sagaPath, json.encode(SagaCopySagaV1(copy: copy)))
+        try add(
+            SagaCopyFormat.manifestPath, json.encode(SagaCopyManifestV1(copy: copy, app: app)),
+            limit: SagaCopyFormat.manifestLimit
+        )
+        try add(SagaCopyFormat.sagaPath, json.encode(SagaCopySagaV1(copy: copy)), limit: SagaCopyFormat.sagaLimit)
         let photoIDs = copy.saga.photoIDs
         for (index, id) in photoIDs.enumerated() {
             try Task.checkCancellation()
-            try add(SagaCopyFormat.photoPath(id), await photo(id))
+            try add(SagaCopyFormat.photoPath(id), await photo(id), limit: SagaCopyFormat.photoLimit)
             progress(Double(index + 1) / Double(photoIDs.count + 1))
         }
         try Task.checkCancellation()

@@ -125,8 +125,8 @@ extension FilmKitTests {
                 return Fixture.Paint(red: along, blue: 255 - along)
             }
             let glide = horizontal
-                ? FilmMotion.kenBurns(start: FilmCamera(zoom: 1.5, centerX: 0.3), end: FilmCamera(zoom: 1.5, centerX: 0.7))
-                : FilmMotion.kenBurns(start: FilmCamera(zoom: 1.5, centerY: 0.3), end: FilmCamera(zoom: 1.5, centerY: 0.7))
+                ? FilmMotion.kenBurns(start: FilmCamera(zoom: 3, centerX: 0.3), end: FilmCamera(zoom: 3, centerX: 0.7))
+                : FilmMotion.kenBurns(start: FilmCamera(zoom: 3, centerY: 0.3), end: FilmCamera(zoom: 3, centerY: 0.7))
             let clip = FilmClip(frames: 30, picture: .image { FilmPhoto(gradient) }, motion: glide)
             let url = try await Fixture.encode(FilmTimeline(spec: Fixture.landscape, clips: [clip]))
             defer { try? FileManager.default.removeItem(at: url) }
@@ -137,6 +137,25 @@ extension FilmKitTests {
             #expect(last.red > first.red + 60, "\(first) → \(last)")
             #expect(last.blue < first.blue - 60, "\(first) → \(last)")
             #expect(abs(first.red - 76) < 25 && abs(last.red - 178) < 25, "\(first) → \(last)")
+        }
+
+        @Test("Given a tall photo gliding in on a point to one side, while narrower than the film, then it stays in the middle")
+        func narrowPhotoStaysCentred() async throws {
+            // Red on its left half, blue on its right: the seam shows where the photo's middle is drawn.
+            let photo = try Fixture.image(width: 100, height: 200) { column, _ in
+                column < 50 ? Fixture.Paint(red: 255) : Fixture.Paint(blue: 255)
+            }
+            // Drawn 90 wide at zoom 1 in a film 320 wide; half-way through the glide it is 225 wide.
+            let glide = FilmMotion.kenBurns(start: FilmCamera(), end: FilmCamera(zoom: 4, centerX: 0.8))
+            let clip = FilmClip(frames: 30, picture: .image { FilmPhoto(photo) }, motion: glide)
+            let url = try await Fixture.encode(FilmTimeline(spec: Fixture.landscape, clips: [clip]))
+            defer { try? FileManager.default.removeItem(at: url) }
+
+            let left = try await FilmProbe.pixel(url, at: 15.5 / 30, across: 0.45)
+            let right = try await FilmProbe.pixel(url, at: 15.5 / 30, across: 0.55)
+
+            #expect(left.red > 200 && left.blue < 60, "left of the middle: \(left)")
+            #expect(right.blue > 200 && right.red < 60, "right of the middle: \(right)")
         }
 
         @Test("Given a gradient photo and a camera that stays, when encoding, then the frames don't change")
@@ -155,11 +174,11 @@ extension FilmKitTests {
         }
 
         @Test("Given a tall photo fitted over its blur in a wide film, when encoding, then the sides show it blurred, not black")
-        func fitOverBlur() async throws {
+        func tallPhotoOverItsBlur() async throws {
             let photo = try Fixture.image(width: 100, height: 300) { _, row in
                 row < 150 ? Fixture.Paint(red: 255) : Fixture.Paint(blue: 255)
             }
-            let clip = FilmClip(frames: 15, picture: .image { FilmPhoto(photo) }, fit: .fitOverBlur)
+            let clip = FilmClip(frames: 15, picture: .image { FilmPhoto(photo) })
             let url = try await Fixture.encode(FilmTimeline(spec: Fixture.landscape, clips: [clip]))
             defer { try? FileManager.default.removeItem(at: url) }
 

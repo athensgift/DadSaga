@@ -51,6 +51,25 @@ struct SagaFilmPhotosTests: SagaFilmSheetTests {
         #expect(script.scenes.compactMap { if case .photo(let id) = $0.card { id } else { nil } } == ["p-b", "p-c", "p-d"])
     }
 
+    @Test("Given only the other parent's quest, its photo not readable here, when making the film, then it says it can't")
+    func nothingLeftToShow() async throws {
+        let quest = ProgressEvent(
+            authorID: UUID(), kind: .quest(id: "q1"), childID: FilmStub.anna.id, date: FilmStub.months(2),
+            photoIDs: ["p-away"]
+        )
+        let choose = DefaultChooseSagaFilmPhotosUseCase(
+            photoStore: IDPhotoStore(unreadable: ["p-away"]), analyzer: ScoreByID(scores: [:])
+        )
+        let sut = makeSUT(FakeGetSagaFilm(events: [quest]), choosePhotos: choose)
+        await sut.onAppear()
+        await sut.selectPeriod(id: "year-1")
+
+        await sut.makeFilm(reduceMotion: false)
+
+        #expect(await renderer.scripts.isEmpty)
+        #expect(choices(sut)?.notice == "Η ταινία δεν μπορεί να φτιαχτεί τώρα.")
+    }
+
     @Test("Given the photos still being chosen, when the dad cancels, then the choices come back and no film is drawn")
     func cancelWhileChoosing() async throws {
         let chooser = ChoosesUntilCancelled()
@@ -81,6 +100,8 @@ private struct ChoosesUntilCancelled: ChooseSagaFilmPhotosUseCase {
 
 /// Every id is a photo whose bytes are its id.
 private struct IDPhotoStore: PhotoStore {
+    var unreadable: Set<String> = []
+
     func save(_ imageData: Data) async throws -> String { "" }
     func thumbnail(id: String, maxPixelSize: Int) async -> Data? { Data(id.utf8) }
     func storedData(id: String) async throws -> Data { Data(id.utf8) }
@@ -88,6 +109,7 @@ private struct IDPhotoStore: PhotoStore {
     func delete(id: String) async {}
     func deleteAll() async {}
     func storedPhotos() async throws -> [StoredPhoto] { [] }
+    func readablePhotos(among ids: Set<String>) async throws -> Set<String> { ids.subtracting(unreadable) }
 }
 
 /// Rates a photo by its id.

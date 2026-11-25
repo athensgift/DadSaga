@@ -87,18 +87,15 @@ public extension FilmCamera {
     /// lowered until it fits, never below 1. Centred on the focus as far as the picture allows: on a side the picture
     /// fills, its edge never comes into the frame; on a side it doesn't, the picture stays in the middle, whole.
     ///
-    /// - Parameters:
-    ///   - pictureSize: the photo's size in pixels, as the clip will draw it.
-    ///   - fit: how the clip fits the photo in the frame.
-    static func closest(
-        on focus: FilmRegion, pictureSize: CGSize, spec: FilmSpec, fit: FilmFit, maxZoom: Double
-    ) -> FilmCamera {
+    /// - Parameter pictureSize: the photo's size in pixels, as the clip will draw it.
+    static func closest(on focus: FilmRegion, pictureSize: CGSize, spec: FilmSpec, maxZoom: Double) -> FilmCamera {
         guard pictureSize.width > 0, pictureSize.height > 0 else { return FilmCamera() }
         let frameWidth = Double(spec.width)
         let frameHeight = Double(spec.height)
         let widthScale = frameWidth / pictureSize.width
         let heightScale = frameHeight / pictureSize.height
-        let baseScale = fit == .fill ? max(widthScale, heightScale) : min(widthScale, heightScale)
+        // A photo is drawn whole at zoom 1.
+        let baseScale = min(widthScale, heightScale)
         // How much of the picture the frame shows across and down, at zoom 1.
         let seenAcross = frameWidth / (pictureSize.width * baseScale)
         let seenDown = frameHeight / (pictureSize.height * baseScale)
@@ -132,14 +129,6 @@ public enum FilmMotion: Hashable, Sendable {
     case kenBurns(start: FilmCamera, end: FilmCamera)
 }
 
-/// How a picture of another shape fills the frame.
-public enum FilmFit: Hashable, Sendable {
-    /// Fills the frame, cropping what doesn't fit.
-    case fill
-    /// Shows the whole picture over a blurred, darkened copy of itself: a portrait photo in a wide film.
-    case fitOverBlur
-}
-
 /// Makes one of a clip's images when the encoder is about to need it: one clip ahead of the one being written, so at
 /// most two clips' images are in memory at once. It may run on any thread, and is cancelled with the film.
 public typealias FilmImageLoader = @Sendable () async throws -> CGImage
@@ -163,7 +152,7 @@ public struct FilmPhoto: Sendable {
 /// What a clip shows under its overlay.
 public enum FilmPicture: Sendable {
     case solid(FilmColor)
-    /// A photo. The loader should return it upright and already scaled down to about the film's size: a `CGImage`
+    /// A photo. The loader should return it upright and no larger than a little over the film's size: a `CGImage`
     /// carries no EXIF orientation, and the encoder draws every pixel it is given on every frame.
     case image(FilmPhotoLoader)
 
@@ -184,7 +173,6 @@ public enum FilmTransition: Hashable, Sendable {
 public struct FilmClip: Sendable {
     public let frames: Int
     public let picture: FilmPicture
-    public let fit: FilmFit
     public let motion: FilmMotion
     /// Drawn over the picture: a card's text, a title. Transparent where the picture shows. Loaded with the picture.
     ///
@@ -196,14 +184,12 @@ public struct FilmClip: Sendable {
     public init(
         frames: Int,
         picture: FilmPicture,
-        fit: FilmFit = .fill,
         motion: FilmMotion = .still,
         overlay: FilmImageLoader? = nil,
         transitionIn: FilmTransition = .cut
     ) {
         self.frames = max(1, frames)
         self.picture = picture
-        self.fit = fit
         self.motion = motion
         self.overlay = overlay
         self.transitionIn = transitionIn
@@ -212,7 +198,7 @@ public struct FilmClip: Sendable {
     /// The same clip, moving as `motion`.
     func moving(_ motion: FilmMotion) -> FilmClip {
         FilmClip(
-            frames: frames, picture: picture, fit: fit, motion: motion, overlay: overlay, transitionIn: transitionIn
+            frames: frames, picture: picture, motion: motion, overlay: overlay, transitionIn: transitionIn
         )
     }
 

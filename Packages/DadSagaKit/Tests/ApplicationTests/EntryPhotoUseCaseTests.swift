@@ -228,6 +228,16 @@ actor SpyPhotoStore: PhotoStore {
     /// Every photo ever written, kept or not, the failed one included.
     private(set) var saveCount = 0
     private let failingOnSave: Int?
+    /// Photos whose file is there but can't be read.
+    private var damaged: Set<String> = []
+
+    func damage(_ id: String) {
+        damaged.insert(id)
+    }
+
+    func readablePhotos(among ids: Set<String>) async throws -> Set<String> {
+        ids.intersection(stored.keys).subtracting(damaged)
+    }
 
     init(failingOnSave: Int? = nil) {
         self.failingOnSave = failingOnSave

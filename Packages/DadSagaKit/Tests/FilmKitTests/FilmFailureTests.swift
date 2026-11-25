@@ -10,6 +10,28 @@ extension FilmKitTests {
     struct FailureTests {
         let encoder = FilmEncoder()
 
+        @Test("Given the errors a full disk shows up as, alone or under another, when asked, then each is out of space")
+        func outOfSpace() {
+            let full: [any Error] = [
+                AVError(.diskFull),
+                CocoaError(.fileWriteOutOfSpace),
+                POSIXError(.ENOSPC),
+                AVError(.unknown, userInfo: [NSUnderlyingErrorKey: POSIXError(.ENOSPC) as NSError]),
+                NSError(domain: AVFoundationErrorDomain, code: -11800, userInfo: [
+                    NSUnderlyingErrorKey: NSError(domain: NSCocoaErrorDomain, code: NSFileWriteUnknownError, userInfo: [
+                        NSUnderlyingErrorKey: NSError(domain: NSPOSIXErrorDomain, code: Int(ENOSPC))
+                    ])
+                ])
+            ]
+            let other: [any Error] = [
+                AVError(.unknown), CocoaError(.fileWriteNoPermission), POSIXError(.EIO), FilmError.writerFailed("x"),
+                CancellationError()
+            ]
+
+            #expect(full.allSatisfy(FilmEncoder.isOutOfSpace))
+            #expect(!other.contains(where: FilmEncoder.isOutOfSpace))
+        }
+
         @Test("Given no clips, when encoding, then it fails as an empty timeline")
         func emptyTimeline() async {
             await #expect(throws: FilmError.emptyTimeline) {

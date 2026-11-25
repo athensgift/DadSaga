@@ -128,6 +128,28 @@ struct FilePhotoStoreTests {
         #expect(photos.allSatisfy { $0.savedAt.map { abs($0.timeIntervalSinceNow) < 60 } == true })
     }
 
+    @Test("Given a saved photo and a damaged, an empty and a missing file, when asking which can be read, then only the photo")
+    func readablePhotos() async throws {
+        let sut = FilePhotoStore(directory: directory, maxPixelSize: 200)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let whole = try await sut.save(try png(width: 40, height: 20))
+        let (damaged, empty, missing, png) = (UUID().uuidString, UUID().uuidString, UUID().uuidString, UUID().uuidString)
+        try Data("not a photo".utf8).write(to: directory.appending(path: damaged + ".jpg"))
+        try Data().write(to: directory.appending(path: empty + ".jpg"))
+        try self.png(width: 10, height: 10).write(to: directory.appending(path: png + ".jpg"))
+
+        let readable = try await sut.readablePhotos(among: [whole, damaged, empty, missing, png, "../" + whole])
+
+        #expect(readable == [whole])
+    }
+
+    @Test("Given no folder for the photos, when asking which can be read, then it throws")
+    func readableWithoutFolder() async {
+        let sut = FilePhotoStore(folder: { throw SharedContainerError.appGroupUnavailable })
+
+        await #expect(throws: SharedContainerError.appGroupUnavailable) { try await sut.readablePhotos(among: ["a"]) }
+    }
+
     @Test("Given no photo saved yet, when listing, then there are none")
     func noFolderListsNothing() async throws {
         #expect(try await FilePhotoStore(directory: directory).storedPhotos().isEmpty)

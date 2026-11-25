@@ -1,3 +1,4 @@
+import Application
 import DesignSystem
 import SwiftUI
 
@@ -19,9 +20,6 @@ extension View {
 /// An entry's photos, full screen on black: swipe sideways between them, pinch or double-tap to zoom, swipe down or
 /// Close to leave. Only the shown page and its neighbours are decoded.
 struct PhotoViewer: View {
-    /// The size the store keeps (ADR-0016): the viewer never asks for more.
-    static let maxPixelSize = 2048
-
     let content: PhotoViewerContent
     let loader: PhotoLoader
     let onClose: () -> Void
@@ -95,7 +93,7 @@ struct PhotoViewer: View {
     }
 }
 
-/// One page of the viewer: the photo, loaded at up to 2048 px while it is near the one shown.
+/// One page of the viewer: the photo, loaded as large as the store keeps it while it is near the one shown.
 private struct PhotoViewerPage: View {
     let page: PhotoViewerContent.Page
     let isLoaded: Bool
@@ -106,6 +104,8 @@ private struct PhotoViewerPage: View {
     let onClose: () -> Void
 
     @State private var image: CGImage?
+    /// The photo's file is gone or can't be read: the page says so instead of waiting for it.
+    @State private var isMissing = false
     @State private var zoomRequest = ZoomablePhoto.ZoomRequest()
 
     var body: some View {
@@ -113,12 +113,19 @@ private struct PhotoViewerPage: View {
             image: image, isCurrent: isCurrent, zoomRequest: zoomRequest, onZoomChange: onZoomChange, onSwipeDown: onClose
         )
             .overlay {
-                if image == nil && isLoaded {
+                if isMissing {
+                    Label(page.missingText, systemImage: "photo")
+                        .font(DSFont.body)
+                        .foregroundStyle(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(DSSpacing.l)
+                } else if image == nil && isLoaded {
                     ProgressView().tint(.white)
                 }
             }
             .accessibilityElement()
             .accessibilityLabel(page.label)
+            .accessibilityValue(isMissing ? page.missingText : "")
             .accessibilityAddTraits(.isImage)
             .accessibilityZoomAction { action in
                 zoomRequest.next(zoomIn: action.direction == .zoomIn)
@@ -133,16 +140,18 @@ private struct PhotoViewerPage: View {
             .task(id: isLoaded) {
                 guard isLoaded else {
                     image = nil
+                    isMissing = false
                     return
                 }
                 let data: Data? = switch page.source {
                 case .data(let data): data
-                case .stored(let id): await loader(id, PhotoViewer.maxPixelSize)
+                case .stored(let id): await loader(id, StoredPhoto.longestSide)
                 }
-                guard let data else { return }
-                let decoded = await DecodedImage.decode(data, maxPixelSize: PhotoViewer.maxPixelSize)
+                var decoded: DecodedImage?
+                if let data { decoded = await DecodedImage.decode(data, maxPixelSize: StoredPhoto.longestSide) }
                 guard !Task.isCancelled else { return }
                 image = decoded?.cgImage
+                isMissing = decoded == nil
             }
     }
 }

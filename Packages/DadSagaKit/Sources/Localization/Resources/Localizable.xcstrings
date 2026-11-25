@@ -4439,6 +4439,40 @@
         }
       }
     },
+    "This photo can't be shown." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αυτή η φωτογραφία δεν μπορεί να εμφανιστεί."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This photo can't be shown."
+          }
+        }
+      }
+    },
+    "That photo couldn't be kept. Please take it again." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Η φωτογραφία δεν κρατήθηκε. Τράβηξέ την ξανά."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "That photo couldn't be kept. Please take it again."
+          }
+        }
+      }
+    },
     "The film can't be made right now." : {
       "extractionState" : "manual",
       "localizations" : {

@@ -12,6 +12,8 @@ public struct PhotoLabels: Equatable, Sendable {
     public let remove: String
     /// The one plain line once an entry holds as many as it can (`ProgressEvent.photoLimit`).
     public let limitReached: String
+    /// When the camera's photo couldn't be kept.
+    public let couldNotKeepShot: String
     public let viewer: PhotoViewerLabels
     private let locale: Locale
 
@@ -24,6 +26,7 @@ public struct PhotoLabels: Equatable, Sendable {
         makeCover = strings.text("Make cover")
         remove = strings.text("Remove")
         limitReached = strings.text("Up to \(ProgressEvent.photoLimit) photos on each entry.")
+        couldNotKeepShot = strings.text("That photo couldn't be kept. Please take it again.")
         viewer = PhotoViewerLabels(locale: locale)
     }
 

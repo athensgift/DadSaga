@@ -77,3 +77,15 @@ struct SagaFilmTexts {
         )
     }
 }
+
+extension Strings {
+    /// Why the film wasn't made: a full disk says what would help, since trying again wouldn't; a film whose photos
+    /// can't be read yet (ADR-0075) only says it can't be made now.
+    func failedFilmNotice(for error: any Error) -> String {
+        switch error as? SagaFilmRenderError {
+        case .notEnoughSpace: text("There isn't enough free space on this iPhone. Free up some space and try again.")
+        case .nothingToShow: text("The film can't be made right now.")
+        default: text("Couldn't make the film. Please try again.")
+        }
+    }
+}
