@@ -26,7 +26,22 @@
       "shouldTranslate" : false
     },
     "DadSaga copy" : {
-
+      "comment" : "The name of an exported saga's file type",
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Αντίγραφο DadSaga"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DadSaga copy"
+          }
+        }
+      }
     },
     "DadSagaPrivacyPolicyURL" : {
       "comment" : "The privacy policy Settings opens, in the app's language",

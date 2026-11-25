@@ -13,16 +13,14 @@ struct CatalogTests {
         case widget = "Widget/Localizable.xcstrings"
     }
 
-    /// The entries with words to translate. "DadSaga copy" is left out: Xcode's empty entry, the owner's to fill in.
+    /// The entries with words to translate.
     static func entries(_ catalog: Catalog = .app) throws -> [String: Entry] {
         var url = URL(filePath: #filePath)
         for _ in 1...5 { url.deleteLastPathComponent() }
         url.append(path: catalog.rawValue)
         let json = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any]
         let entries = json?["strings"] as? [String: Entry] ?? [:]
-        return entries.filter { key, entry in
-            entry["shouldTranslate"] as? Bool != false && !(catalog == .infoPlist && key == "DadSaga copy")
-        }
+        return entries.filter { $0.value["shouldTranslate"] as? Bool != false }
     }
 
     /// The "other" form for plurals, the plain value otherwise.
