@@ -15,7 +15,7 @@ import PackageDescription
 // The app target is the composition root: the only place that knows every layer and wires them together.
 let package = Package(
     name: "DadSagaKit",
-    defaultLocalization: "el",
+    defaultLocalization: "en",
     platforms: [.iOS(.v26), .macOS(.v26)],
     products: [
         .library(name: "Domain", targets: ["Domain"]),
