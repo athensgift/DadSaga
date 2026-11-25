@@ -91,7 +91,7 @@ public struct RootView: View {
                         settings: SettingsView(
                             viewModel: settings,
                             pages: settingsPages,
-                            isOpeningLink: viewModel.pendingLink != nil
+                            pendingLink: viewModel.pendingLink
                         )
                     )
                     .environment(viewModel.unsavedWork)

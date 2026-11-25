@@ -12,5 +12,9 @@
 2. **`ContentValidator` refuses a longer one** (`maxTipSteps`), as it refuses one with no steps. A boss's guide has no
    upper limit: it is the whole of its card.
 
+## Rejected
+- **Cutting the two cards to five steps:** each of their steps says something of its own.
+- **No limit, as for a boss's guide:** a tip is the short "how" under a quest, not the card itself.
+
 ## Consequences
 - No card changes. A seventh step stops the content from loading, in the tests first.

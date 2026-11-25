@@ -54,24 +54,38 @@ public final class TimelineViewModel {
 
     /// Loads again every time, so it shows what was just done on the other tab.
     public func onAppear() async {
+        // A timeline that loaded once stays if it can't be read again: it is still the dad's, only not refreshed.
+        if await !load(), !isLoaded { state = .failed(failure) }
+    }
+
+    /// Reads again after a change. A failure shows here: entries from before the change would open an editor that could
+    /// save the old words and photos over the new ones.
+    private func loadAfterChange() async {
+        if await !load() { state = .failed(failure) }
+    }
+
+    /// Whether the timeline could be read.
+    private func load() async -> Bool {
         do {
             let children = try await getProfile.execute()?.children ?? []
             entries = try await getTimeline.execute()
             self.children = children
-            if let selectedFilter, !children.contains(where: { $0.id == selectedFilter }) {
-                self.selectedFilter = nil
-            }
-            state = .loaded(makeContent())
         } catch {
-            // A timeline that loaded once stays: what it shows is still the dad's, only not refreshed.
-            if case .loaded = state {
-                state = .loaded(makeContent())
-                return
-            }
-            state = .failed(LoadFailure(
-                message: strings.text("The timeline failed to load."), retryTitle: strings.text("Try again")
-            ))
+            return false
         }
+        if let selectedFilter, !children.contains(where: { $0.id == selectedFilter }) {
+            self.selectedFilter = nil
+        }
+        state = .loaded(makeContent())
+        return true
+    }
+
+    private var isLoaded: Bool {
+        if case .loaded = state { true } else { false }
+    }
+
+    private var failure: LoadFailure {
+        LoadFailure(message: strings.text("The timeline failed to load."), retryTitle: strings.text("Try again"))
     }
 
     public func select(filter: UUID?) {
@@ -118,9 +132,7 @@ public final class TimelineViewModel {
         deletion = nil
         do {
             try await deleteEvent.execute(eventID: id)
-            // Gone even if the timeline can't be read again.
-            entries.removeAll { $0.id == id }
-            await onAppear()
+            await loadAfterChange()
         } catch {
             errorMessage = strings.text("Couldn't delete. Please try again.")
         }
@@ -188,7 +200,6 @@ public final class TimelineViewModel {
         guard case .moment(let details) = editor else { return }
         await perform(orSay: strings.text("Couldn't delete. Please try again.")) {
             try await self.deleteEvent.execute(eventID: details.momentID)
-            self.entries.removeAll { $0.id == details.momentID }
         }
     }
 
@@ -201,7 +212,7 @@ public final class TimelineViewModel {
         do {
             try await action()
             editor = nil
-            await onAppear()
+            await loadAfterChange()
         } catch {
             errorMessage = failure ?? strings.text("Couldn't save. Please try again.")
         }

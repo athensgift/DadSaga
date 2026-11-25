@@ -305,7 +305,7 @@ public struct WorldMapItem: Equatable, Identifiable, Sendable {
     public let number: Int
     public let title: String
     public let tagline: String
-    /// e.g. "9–24 μηνών".
+    /// e.g. "9–23 μηνών".
     public let ageRange: String
     public let status: Status
     /// When a world ahead is ideal («Ιδανικά από τους 9 μήνες»); `nil` for a world the child has reached, where nothing

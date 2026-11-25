@@ -6,8 +6,8 @@ Replies to the owner are in Greek.
 ## Commands (Done = green)
 ```bash
 swiftlint --strict
-(cd Packages/DadSagaKit && swift test --build-system swiftbuild > /tmp/dadsaga-tests.log 2>&1; code=$?
-  grep -E "^/.*error:|^error:|✘|Test run with" /tmp/dadsaga-tests.log; exit $code)
+(cd Packages/DadSagaKit && mkdir -p .build && log=.build/tests.log; swift test --build-system swiftbuild > $log 2>&1; code=$?
+  grep -E "^/.*error:|^error:|✘|Test run with" $log; exit $code)
 xcodegen generate && xcodebuild build -quiet -project DadSaga.xcodeproj -scheme DadSaga \
   -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO
 ```

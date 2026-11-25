@@ -15,17 +15,27 @@ extension TimelineViewModelTests {
         #expect(loadedContent(sut)?.sections.flatMap(\.items).count == 3)
     }
 
-    @Test("Given an entry deleted, when loading the timeline again fails, then the entry is gone and the rest stays")
-    func failedReloadAfterDeleting() async throws {
+    @Test("Given an entry deleted or edited, when the timeline can't be read again, then it says so, not the old entry")
+    func failedReloadAfterAChange() async throws {
+        let failure = TimelineViewState.failed(LoadFailure(message: "Το χρονολόγιο δεν φόρτωσε.", retryTitle: "Δοκίμασε ξανά"))
         let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
         await sut.onAppear()
-        let id = try #require(loadedContent(sut)?.sections.first?.items.first).id
+        let quest = try #require(loadedContent(sut)?.sections.last?.items.first)
+        sut.edit(id: quest.id)
         await log(familyEvents).failReadsFromNowOn()
 
-        await sut.confirmDeletion(id: id)
+        await sut.saveJournal(note: "γέλασε πολύ", photos: PhotoDrafts())
+        #expect(sut.editor == nil)
+        #expect(sut.state == failure)
 
+        await log(familyEvents).readAgain()
+        await sut.retry()
+        #expect(loadedContent(sut)?.sections.last?.items.first?.subtitle.hasSuffix(" · γέλασε πολύ") == true)
+
+        await log(familyEvents).failReadsFromNowOn()
+        await sut.confirmDeletion(id: quest.id)
         #expect(sut.errorMessage == nil)
-        #expect(loadedContent(sut)?.sections.flatMap(\.items).map(\.kind) == [.boss, .quest])
+        #expect(sut.state == failure)
     }
 
     @Test("Given the timeline never loaded, when trying again works, then it shows")
