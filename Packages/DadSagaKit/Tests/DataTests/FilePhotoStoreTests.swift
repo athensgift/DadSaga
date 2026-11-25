@@ -128,7 +128,7 @@ struct FilePhotoStoreTests {
         #expect(photos.allSatisfy { $0.savedAt.map { abs($0.timeIntervalSinceNow) < 60 } == true })
     }
 
-    @Test("Given a saved photo, a damaged file, an empty one and a missing one, when asking which can be read, then only the photo")
+    @Test("Given a saved photo and a damaged, an empty and a missing file, when asking which can be read, then only the photo")
     func readablePhotos() async throws {
         let sut = FilePhotoStore(directory: directory, maxPixelSize: 200)
         defer { try? FileManager.default.removeItem(at: directory) }

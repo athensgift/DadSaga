@@ -10,7 +10,7 @@ extension FilmKitTests {
     struct FailureTests {
         let encoder = FilmEncoder()
 
-        @Test("Given the errors a full disk shows up as, alone or under another, when asked, then each is out of space; others aren't")
+        @Test("Given the errors a full disk shows up as, alone or under another, when asked, then each is out of space")
         func outOfSpace() {
             let full: [any Error] = [
                 AVError(.diskFull),

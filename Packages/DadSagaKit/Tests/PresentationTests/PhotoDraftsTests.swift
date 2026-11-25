@@ -128,8 +128,11 @@ struct PhotoDraftsTests {
 
     @Test("Given a camera photo that couldn't be kept, when the field says so, then it says it in Greek and English")
     func couldNotKeepShotMessage() {
-        #expect(PhotoLabels(locale: Locale(identifier: "el_GR")).couldNotKeepShot == "Η φωτογραφία δεν κρατήθηκε. Τράβηξέ την ξανά.")
-        #expect(PhotoLabels(locale: Locale(identifier: "en_US")).couldNotKeepShot == "That photo couldn't be kept. Please take it again.")
+        let greek = PhotoLabels(locale: Locale(identifier: "el_GR"))
+        let english = PhotoLabels(locale: Locale(identifier: "en_US"))
+
+        #expect(greek.couldNotKeepShot == "Η φωτογραφία δεν κρατήθηκε. Τράβηξέ την ξανά.")
+        #expect(english.couldNotKeepShot == "That photo couldn't be kept. Please take it again.")
     }
 
     @Test("Given a square of 64 points at 3x, when a photo fills it, then it is asked for once, large enough for a 16:9 photo")

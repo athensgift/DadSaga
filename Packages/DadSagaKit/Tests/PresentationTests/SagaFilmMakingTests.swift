@@ -135,7 +135,7 @@ struct SagaFilmMakingTests: SagaFilmSheetTests {
         #expect(choices(sut)?.makeTitle == "Φτιάξε την ταινία")
     }
 
-    @Test("Given a phone with no room left, when making the film, then the choices say to free up space, also after leaving the app")
+    @Test("Given a phone with no room left, when making the film, then it says to free up space, also after leaving the app")
     func failingOnAFullDisk() async throws {
         let sut = makeSUT()
         await sut.onAppear()

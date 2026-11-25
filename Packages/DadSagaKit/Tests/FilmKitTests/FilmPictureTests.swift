@@ -139,7 +139,7 @@ extension FilmKitTests {
             #expect(abs(first.red - 76) < 25 && abs(last.red - 178) < 25, "\(first) → \(last)")
         }
 
-        @Test("Given a tall photo gliding in on a point to one side, when it is still narrower than the film, then it stays in the middle")
+        @Test("Given a tall photo gliding in on a point to one side, while narrower than the film, then it stays in the middle")
         func narrowPhotoStaysCentred() async throws {
             // Red on its left half, blue on its right: the seam shows where the photo's middle is drawn.
             let photo = try Fixture.image(width: 100, height: 200) { column, _ in

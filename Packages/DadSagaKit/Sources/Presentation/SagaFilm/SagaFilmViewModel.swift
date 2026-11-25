@@ -185,14 +185,11 @@ public final class SagaFilmViewModel: Identifiable {
             showChoices(notice: leftNotice)
         case .failure(let error) where error is CancellationError:
             showChoices(notice: nil)
-        case .failure(let error) where error as? SagaFilmRenderError == .notEnoughSpace:
-            // Trying again wouldn't help, and leaving the app didn't cause it.
-            showChoices(
-                notice: strings.text("There isn't enough free space on this iPhone. Free up some space and try again.")
-            )
-        case .failure:
-            showChoices(notice: strings.text("Couldn't make the film. Please try again."))
-            failedAt = now()
+        case .failure(let error):
+            let noSpace = error as? SagaFilmRenderError == .notEnoughSpace
+            showChoices(notice: Strings(locale: locale).failedFilmNotice(noSpace: noSpace))
+            // A full disk isn't the dad leaving the app, however soon he leaves after it.
+            if !noSpace { failedAt = now() }
         }
     }
 
@@ -390,5 +387,14 @@ extension SagaFilmViewModel {
         listens += 1
         listening?.cancel()
         listening = nil
+    }
+}
+
+private extension Strings {
+    /// Why the film wasn't made: a full disk says what would help, since trying again wouldn't.
+    func failedFilmNotice(noSpace: Bool) -> String {
+        noSpace
+            ? text("There isn't enough free space on this iPhone. Free up some space and try again.")
+            : text("Couldn't make the film. Please try again.")
     }
 }

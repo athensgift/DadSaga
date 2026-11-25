@@ -63,6 +63,30 @@ struct SagaFilmPhotosUseCaseTests {
         #expect(await store.read.isEmpty)
     }
 
+    @Test("Given a further photo whose file is damaged, when choosing, then it is neither rated nor in the film")
+    func damagedPhotoIsLeftOut() async throws {
+        let original = try await firstWithFivePhotos()
+        let analyzer = FakePhotoAnalyzer(ratings: ["a": 1, "b": 0.9, "c": 0.1, "d": 0.4])
+        let store = NamedPhotoStore(unreadable: ["a"])
+
+        let chosen = await DefaultChooseSagaFilmPhotosUseCase(photoStore: store, analyzer: analyzer).execute(original)
+
+        #expect(Self.photoIDs(in: chosen) == ["b", "c", "d"])
+        #expect(await store.read.isEmpty)
+    }
+
+    @Test("Given a store that can't say which photos can be read, when choosing, then photos are chosen as if all could")
+    func storeThatCannotAnswer() async throws {
+        let original = try await firstWithFivePhotos()
+        let analyzer = FakePhotoAnalyzer(ratings: ["a": -0.5, "b": 0.9, "c": 0.1, "d": 0.4])
+
+        let chosen = await DefaultChooseSagaFilmPhotosUseCase(
+            photoStore: NamedPhotoStore(failsToCheck: true), analyzer: analyzer
+        ).execute(original)
+
+        #expect(Self.photoIDs(in: chosen) == ["b", "c", "d"])
+    }
+
     @Test("Given a child and an adult, when finding the subject, then it is around the child")
     func subjectIsTheChild() async throws {
         let child = PhotoRegion(left: 0.1, top: 0.4, width: 0.2, height: 0.2)
@@ -108,7 +132,16 @@ struct FakePhotoAnalyzer: PhotoAnalyzer {
 
 /// Every id is a photo whose data is its id; it remembers which were read.
 actor NamedPhotoStore: PhotoStore {
+    struct Failure: Error {}
+
     private(set) var read: [String] = []
+    private let unreadable: Set<String>
+    private let failsToCheck: Bool
+
+    init(unreadable: Set<String> = [], failsToCheck: Bool = false) {
+        self.unreadable = unreadable
+        self.failsToCheck = failsToCheck
+    }
 
     func save(_ imageData: Data) async throws -> String { UUID().uuidString }
 
@@ -122,5 +155,8 @@ actor NamedPhotoStore: PhotoStore {
     func delete(id: String) async {}
     func deleteAll() async {}
     func storedPhotos() async throws -> [StoredPhoto] { [] }
-    func readablePhotos(among ids: Set<String>) async throws -> Set<String> { ids }
+    func readablePhotos(among ids: Set<String>) async throws -> Set<String> {
+        if failsToCheck { throw Failure() }
+        return ids.subtracting(unreadable)
+    }
 }
