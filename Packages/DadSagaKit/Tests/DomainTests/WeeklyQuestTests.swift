@@ -71,27 +71,44 @@ struct WeeklyQuestTests {
         #expect(weeks.map { pick(on: $0)?.id } == ["q6", "q4", "q2", "q5", "q1", "q3"])
     }
 
+    /// The last five are zones whose rules changed after 2001: three where the week can start on the day the clocks go
+    /// back, two that skipped a day in 2011.
+    static let zones = [
+        "America/New_York", "Atlantic/Azores", "Europe/Athens", "Pacific/Auckland",
+        "America/Ojinaga", "America/North_Dakota/Beulah", "America/North_Dakota/New_Salem",
+        "Pacific/Apia", "Pacific/Fakaofo"
+    ]
+
     @Test(
-        "Given a child not born yet, when the dad travels, then the week and its quest stay",
-        arguments: ["America/New_York", "Atlantic/Azores", "Europe/Athens", "Pacific/Auckland"]
+        "Given a child not born yet, when the dad travels, then the week and its quest stay, week after week",
+        arguments: zones, [1, 2, 7]
     )
-    func sameInEveryTimeZone(_ identifier: String) throws {
-        var there = Self.calendar
+    func sameInEveryTimeZone(_ identifier: String, firstWeekday: Int) throws {
+        var here = Self.calendar
+        here.firstWeekday = firstWeekday
+        var there = here
         there.timeZone = try #require(TimeZone(identifier: identifier))
-        let wednesday = DateComponents(year: 2026, month: 11, day: 18, hour: 12)
-        let home = WeeklyQuest.week(containing: Self.date(2026, 11, 18), calendar: Self.calendar)
-        let away = WeeklyQuest.week(containing: try #require(there.date(from: wednesday)), calendar: there)
         let world = World(id: "w1", order: 0, title: Self.text, tagline: Self.text, span: .beforeBirth)
         let catalog = ContentCatalog(worlds: [world], quests: pool, bosses: [], firsts: [])
         let coming = Child(id: child, name: "Lena", birthDay: nil)
+        let first = try #require(CalendarDay(year: 2026, month: 11, day: 18))
 
-        #expect(
-            WeeklyQuest.weekNumber(of: away, calendar: there) == WeeklyQuest.weekNumber(of: home, calendar: Self.calendar)
-        )
-        #expect(
-            WeeklyQuest.pick(for: coming, family: .everyone, in: catalog, week: away, calendar: there)
-                == WeeklyQuest.pick(for: coming, family: .everyone, in: catalog, week: home, calendar: Self.calendar)
-        )
+        // Two years of Wednesdays at noon, so every clock change is crossed.
+        for offset in 0..<110 {
+            let wednesday = first.adding(days: 7 * offset)
+            let noon = { (calendar: Calendar) in wednesday.start(in: calendar.timeZone).addingTimeInterval(12 * 3_600) }
+            let home = WeeklyQuest.week(containing: noon(here), calendar: here)
+            let away = WeeklyQuest.week(containing: noon(there), calendar: there)
+
+            #expect(
+                WeeklyQuest.weekNumber(of: away, calendar: there) == WeeklyQuest.weekNumber(of: home, calendar: here),
+                "the week of \(wednesday)"
+            )
+            #expect(
+                WeeklyQuest.pick(for: coming, family: .everyone, in: catalog, week: away, calendar: there)
+                    == WeeklyQuest.pick(for: coming, family: .everyone, in: catalog, week: home, calendar: here)
+            )
+        }
     }
 
     @Test("Given two siblings, when picking over the weeks, then their orders differ")

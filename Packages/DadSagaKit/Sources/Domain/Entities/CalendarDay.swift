@@ -54,6 +54,12 @@ public struct CalendarDay: Hashable, Comparable, Sendable {
         return CalendarDay(date, in: .gmt)
     }
 
+    /// Days from this day to `later`: negative when `later` is earlier. Counted on the calendar, so no time zone's
+    /// clock change or skipped day is in it.
+    public func days(until later: CalendarDay) -> Int {
+        Self.gregorian(.gmt).dateComponents([.day], from: start(in: .gmt), to: later.start(in: .gmt)).day ?? 0
+    }
+
     /// Completed months from this day to `later`. Never negative.
     public func months(until later: CalendarDay) -> Int {
         let months = (later.year - year) * 12 + (later.month - month)

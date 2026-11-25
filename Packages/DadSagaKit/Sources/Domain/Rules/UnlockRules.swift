@@ -74,6 +74,22 @@ public enum UnlockRules {
         }
     }
 
+    /// The first day a first can be dated for this child (ADR-0053 §3): a first before birth any day, so `nil`; every
+    /// other first from the birth day. Never after `today`, for a child not born yet.
+    public static func earliestDay(for first: FirstMoment, child: Child, today: CalendarDay) -> CalendarDay? {
+        guard !first.isBeforeBirth else { return nil }
+        return min(child.birthDay ?? today, today)
+    }
+
+    /// Whether a first's moment can be dated `day`: not before its earliest day. A moment already dated earlier
+    /// (`current`) keeps that day or any later one, so correcting its note never has to move it.
+    public static func canDate(
+        _ first: FirstMoment, on day: CalendarDay, child: Child, today: CalendarDay, current: CalendarDay? = nil
+    ) -> Bool {
+        guard let earliest = earliestDay(for: first, child: child, today: today) else { return true }
+        return day >= min(earliest, current ?? earliest)
+    }
+
     /// Before the birth, only the cards of a world before birth; after it, every card of its minimum age.
     private static func isReached(minAgeMonths: Int, worldID: String, in catalog: ContentCatalog, at age: ChildAge) -> Bool {
         guard let months = age.months else { return catalog.world(id: worldID)?.isBeforeBirth == true }

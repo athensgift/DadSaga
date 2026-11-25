@@ -199,7 +199,8 @@ final class AppContainer {
                         photoStore: photoStore
                     ),
                     update: DefaultUpdateMomentUseCase(
-                        profileRepository: store.profiles, progressRepository: store.progress, photoStore: photoStore
+                        contentRepository: contentRepository, profileRepository: store.profiles,
+                        progressRepository: store.progress, photoStore: photoStore
                     ),
                     getPhoto: DefaultGetPhotoUseCase(photoStore: photoStore)
                 ),
@@ -258,8 +259,8 @@ final class AppContainer {
             bringBack: DefaultBringBackChildUseCase(profileRepository: store.profiles),
             deleteForGood: DefaultDeleteChildForGoodUseCase(
                 contentRepository: contentRepository, profileRepository: store.profiles,
-                progressRepository: store.progress, standingRepository: store.standing, photoStore: photoStore,
-                renewReminders: renewReminders
+                progressRepository: store.progress, standingRepository: store.standing, sagaOffers: sagaOffers,
+                photoStore: photoStore, renewReminders: renewReminders
             ),
             onSaved: onSaved
         )
@@ -294,7 +295,8 @@ final class AppContainer {
                 profileRepository: store.profiles, progressRepository: store.progress, photoStore: photoStore
             ),
             updateMoment: DefaultUpdateMomentUseCase(
-                profileRepository: store.profiles, progressRepository: store.progress, photoStore: photoStore
+                contentRepository: contentRepository, profileRepository: store.profiles,
+                progressRepository: store.progress, photoStore: photoStore
             )
         )
     }

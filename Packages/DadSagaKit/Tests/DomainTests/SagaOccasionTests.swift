@@ -30,39 +30,55 @@ struct SagaOccasionTests {
     }
 
     @Test("Given an entry in the first world, when the child turns 9 months, then it offers the world they left")
-    func newWorldAtMaxPlusOne() {
+    func newWorldAtMaxPlusOne() throws {
         let events = [saga.event(.first(id: "f1"), months: 3)]
 
         #expect(saga.occasion(events, months: 9, days: -1) == nil)
         let occasion = saga.occasion(events, months: 9)
-        #expect(occasion?.kind == .newWorld(left: saga.catalog.worlds[0]))
+        #expect(occasion?.kind == (try saga.leaving("w1")))
         #expect(occasion?.period == .world(id: "w1"))
     }
 
-    @Test("Given a second birthday and a new world a month later, when both show, then the newest wins")
-    func newestWins() {
-        let events = [saga.event(.quest(id: "q1"), months: 20)]
-        func occasion(months: Int) -> SagaOccasion? {
-            SagaOccasions.latest(
-                for: saga.child, events: events, catalog: saga.catalog, on: saga.date(months: months, days: 1),
-                timeZone: saga.timeZone, windowDays: 60
-            )
+    @Test("Given entries in the second year, when the second birthday is also the day World 2 ends, then the birthday wins")
+    func sameDayBirthdayWins() {
+        let events = [saga.event(.quest(id: "q1"), months: 10), saga.event(.quest(id: "q1"), months: 20)]
+
+        #expect(saga.occasion(events, months: 24)?.kind == .birthday(years: 2))
+        #expect(saga.occasion(events, months: 24, days: 29)?.period == .year(2))
+    }
+
+    @Test("Given entries in World 2 but none in the second year, when the child turns two, then the world they left is offered")
+    func aWorldWithNoBirthdayFilm() throws {
+        let events = [saga.event(.quest(id: "q1"), months: 10)]
+
+        #expect(saga.occasion(events, months: 24)?.kind == (try saga.leaving("w2")))
+    }
+
+    @Test("Given an entry in the last world but none in the sixth year, when the child grows past it, then it still offers it")
+    func leavingTheLastWorld() throws {
+        let events = [saga.event(.quest(id: "q1"), months: 50)]
+        #expect(saga.occasion(events, months: 72, days: 1)?.kind == (try saga.leaving("w4")))
+    }
+
+    @Test("Given an entry in the sixth year, when the sixth birthday is also the last world's end, then the birthday wins")
+    func sixthBirthdayWins() {
+        let events = [saga.event(.quest(id: "q1"), months: 66), saga.event(.quest(id: "q1"), months: 50)]
+        #expect(saga.occasion(events, months: 72)?.kind == .birthday(years: 6))
+    }
+
+    @Test(
+        "Given an entry every month and each offer answered as it comes, when a birthday comes, then its film is offered",
+        arguments: 1...7
+    )
+    func everyBirthdayIsOffered(years: Int) {
+        let events = (0..<(12 * years)).map { saga.event(.quest(id: "q1"), months: $0, days: 1) }
+        var answered: Set<String> = []
+        // A look every month up to the birthday, answering whatever is offered, as a dad who opens the app would.
+        for month in 0..<(12 * years) {
+            if let offered = saga.occasion(events, months: month, answered: answered) { answered.insert(offered.id) }
         }
 
-        #expect(occasion(months: 24)?.kind == .birthday(years: 2))
-        #expect(occasion(months: 25)?.kind == .newWorld(left: saga.catalog.worlds[1]))
-    }
-
-    @Test("Given an entry in the last world, when the child grows past it at 72 months, then it still offers it")
-    func leavingTheLastWorld() {
-        let events = [saga.event(.quest(id: "q1"), months: 50)]
-        #expect(saga.occasion(events, months: 72, days: 1)?.kind == .newWorld(left: saga.catalog.worlds[3]))
-    }
-
-    @Test("Given an entry in the sixth year, when the sixth birthday is also the last world's end, then the world wins")
-    func sameDayWorldWins() {
-        let events = [saga.event(.quest(id: "q1"), months: 66), saga.event(.quest(id: "q1"), months: 50)]
-        #expect(saga.occasion(events, months: 72)?.kind == .newWorld(left: saga.catalog.worlds[3]))
+        #expect(saga.occasion(events, months: 12 * years, answered: answered)?.kind == .birthday(years: years))
     }
 
     @Test("Given a child past the last world, when they turn seven, then the birthday is still offered")
@@ -80,18 +96,12 @@ struct SagaOccasionTests {
         #expect(afternoon.occasion(events, months: 24, hours: -1) == nil)
     }
 
-    @Test("Given the dad answered the newest occasion, when an older one still shows, then nothing is offered")
+    @Test("Given the dad answered the birthday, when the world that ended the same day still shows, then nothing is offered")
     func answeredMeansNone() throws {
         let events = [saga.event(.quest(id: "q1"), months: 20)]
-        func occasion(answered: Set<String>) -> SagaOccasion? {
-            SagaOccasions.latest(
-                for: saga.child, events: events, catalog: saga.catalog, on: saga.date(months: 25, days: 1),
-                answered: answered, timeZone: saga.timeZone, windowDays: 60
-            )
-        }
-        let newest = try #require(occasion(answered: []))
+        let birthday = try #require(saga.occasion(events, months: 24, days: 1))
 
-        #expect(occasion(answered: [newest.id]) == nil)
+        #expect(saga.occasion(events, months: 24, days: 1, answered: [birthday.id]) == nil)
     }
 
     @Test("Given a world with no end, when the child is in it, then it is never offered as left")
@@ -115,9 +125,9 @@ struct SagaOccasionTests {
 
     @Test("Given two occasions, when comparing ids, then each is stable and its own")
     func stableIDs() throws {
-        let events = [saga.event(.quest(id: "q1"), months: 20)]
+        let events = [saga.event(.quest(id: "q1"), months: 5), saga.event(.quest(id: "q1"), months: 20)]
         let birthday = try #require(saga.occasion(events, months: 24))
-        let world = try #require(saga.occasion(events, months: 25, days: 1))
+        let world = try #require(saga.occasion(events, months: 9, days: 1))
 
         #expect(birthday.id == saga.occasion(events, months: 24, days: 5)?.id)
         #expect(birthday.id != world.id)

@@ -52,6 +52,21 @@ struct SagaOfferRepositoryTests {
         #expect(await repository.answeredOccasionIDs() == Set(ids))
     }
 
+    @Test("Given two children's answers, when one child is forgotten, then only the other's are left, for a new repository too")
+    func forgetsOneChild() async throws {
+        defer { cleanUp() }
+        let gone = UUID()
+        let stays = UUID()
+        let kept: Set = ["\(stays.uuidString)/birthday/1", "\(stays.uuidString)/world/w1"]
+        for id in kept.union(["\(gone.uuidString)/birthday/2", "\(gone.uuidString)/world/w2"]) {
+            try await makeRepository().markAnswered(id)
+        }
+
+        try await makeRepository().forget(childID: gone)
+
+        #expect(try await makeRepository().answeredOccasionIDs() == kept)
+    }
+
     @Test("Given answers, the reminder and preferences in the same defaults, when deleting all, then only the answers go")
     func deleteAllKeepsTheRest() async throws {
         defer { cleanUp() }

@@ -43,18 +43,23 @@ struct ProgressRecorder {
     let profileRepository: any ProfileRepository
     let photoStore: any PhotoStore
 
-    /// - Parameter unknown: thrown when the catalog has no such content.
+    /// - Parameters:
+    ///   - unknown: thrown when the catalog has no such content.
+    ///   - check: a rule of this kind of entry, asked with the content's current id before anything is read or
+    ///     written for it; what it throws is passed on.
     func record(
         _ kind: ProgressEvent.Kind,
         childID: UUID,
         date: Date,
         journal: JournalInput,
-        unknown: some Error
+        unknown: some Error,
+        check: (PlayerProfile, ContentCatalog, ProgressEvent.Kind) throws -> Void = { _, _, _ in }
     ) async throws -> ProgressChange {
         guard let player = try await profileRepository.fetchProfile() else { throw ProgressError.noProfile }
         let catalog = try await contentRepository.fetchCatalog()
         // Stored under the content's current id, even when asked by a former one (e.g. an old widget link).
         guard let kind = catalog.canonical(kind) else { throw unknown }
+        try check(player, catalog, kind)
         let events = try await progressRepository.fetchEvents()
         let before = DadProgress(of: player, events: events, catalog: catalog)
         let unchanged = ProgressChange(before: before, after: before, eventID: nil)

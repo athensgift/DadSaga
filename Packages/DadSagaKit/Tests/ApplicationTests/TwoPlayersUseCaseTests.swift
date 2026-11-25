@@ -21,7 +21,7 @@ struct TwoPlayersUseCaseTests {
     )
 
     let today = Date(timeIntervalSince1970: 400 * 86_400)
-    let dad = TheDad()
+    let dad = TheDad(children: [Child(name: "Λένα", birthDay: CalendarDay(year: 1970, month: 6, day: 1))])
     var child: Child { dad.profile.children[0] }
     let content = StubContentRepository(result: .success(Self.catalog))
     let progress = SpyProgressRepository()
@@ -127,7 +127,9 @@ struct TwoPlayersUseCaseTests {
         try await progress.add(quest)
         try await progress.add(moment)
         let journal = DefaultUpdateJournalUseCase(profileRepository: dad, progressRepository: progress, photoStore: photos)
-        let moments = DefaultUpdateMomentUseCase(profileRepository: dad, progressRepository: progress, photoStore: photos)
+        let moments = DefaultUpdateMomentUseCase(
+            contentRepository: content, profileRepository: dad, progressRepository: progress, photoStore: photos
+        )
 
         await #expect(throws: ProgressError.notYourEntry) {
             try await journal.execute(eventID: quest.id, note: "μαζί", photos: [.added(Data([3]))])

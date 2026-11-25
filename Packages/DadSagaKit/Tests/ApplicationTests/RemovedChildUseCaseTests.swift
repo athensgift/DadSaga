@@ -19,12 +19,41 @@ struct RemovedChildUseCaseTests {
 
     func deleteForGood(
         _ profiles: SpyProfileRepository, _ progress: SpyProgressRepository, _ standing: InMemoryStanding,
-        renewReminders: any RenewWeeklyRemindersUseCase = NoReminders()
+        renewReminders: any RenewWeeklyRemindersUseCase = NoReminders(), offers: FakeSagaOffers = FakeSagaOffers()
     ) -> DefaultDeleteChildForGoodUseCase {
         DefaultDeleteChildForGoodUseCase(
             contentRepository: content, profileRepository: profiles, progressRepository: progress,
-            standingRepository: standing, photoStore: photos, renewReminders: renewReminders
+            standingRepository: standing, sagaOffers: offers, photoStore: photos, renewReminders: renewReminders
         )
+    }
+
+    @Test("Given film offers answered for two children, when one is deleted for good, then no answer names them")
+    func forgetsTheFilmAnswers() async throws {
+        let repository = await profiles(family: [lena], removed: [iris])
+        let offers = FakeSagaOffers()
+        let lenas = "\(lena.id.uuidString)/birthday/1"
+        for id in [lenas, "\(iris.id.uuidString)/birthday/2", "\(iris.id.uuidString)/world/w1"] {
+            await offers.markAnswered(id)
+        }
+
+        try await deleteForGood(repository, SpyProgressRepository(), InMemoryStanding(), offers: offers)
+            .execute(childID: iris.id, on: .now)
+
+        #expect(await offers.answered == [lenas])
+    }
+
+    @Test("Given a child still in the family, when deleting them for good is refused, then their film answers stay")
+    func aRefusalForgetsNothing() async throws {
+        let repository = await profiles(family: [lena], removed: [iris])
+        let offers = FakeSagaOffers()
+        await offers.markAnswered("\(lena.id.uuidString)/birthday/1")
+
+        await #expect(throws: ProfileEditError.notRemoved) {
+            try await deleteForGood(repository, SpyProgressRepository(), InMemoryStanding(), offers: offers)
+                .execute(childID: lena.id, on: .now)
+        }
+
+        #expect(await offers.answered.count == 1)
     }
 
     @Test("Given a removed child, when bringing them back, then they are in the family and no longer removed")

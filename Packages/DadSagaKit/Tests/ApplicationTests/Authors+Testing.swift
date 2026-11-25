@@ -53,6 +53,13 @@ struct TheDad: ProfileRepository {
     func deleteForGood(childID: UUID) async throws -> [String] { [] }
 }
 
+extension TheDad {
+    /// The test dad with these children, for what looks at who a child is: a first's day is checked against the birth.
+    init(children: [Child]) {
+        self.init(profile: PlayerProfile(children: children, heroClassID: "h1"))
+    }
+}
+
 extension PlayerProfile {
     /// The test dad, for what is built for a player: his progress, his film's credits.
     static let testDad = PlayerProfile(children: [], heroClassID: "h1")

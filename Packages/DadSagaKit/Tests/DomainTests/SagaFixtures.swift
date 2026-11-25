@@ -1,7 +1,9 @@
 import Domain
 import Foundation
+import Testing
 
-/// A child born on 15 January 2024 (UTC), and content with the app's four worlds.
+/// A child born on 15 January 2024 (UTC), and content with the app's five worlds at their ages in `worlds.json`
+/// (ADR-0078): the second and the sixth birthday fall on the day a world ends.
 struct SagaFixtures {
     let calendar: Calendar
     let child: Child
@@ -20,9 +22,10 @@ struct SagaFixtures {
         let text = Fixtures.text
         catalog = ContentCatalog(
             worlds: worlds ?? [
+                World(id: "w0", order: 0, title: text, tagline: text, span: .beforeBirth),
                 World(id: "w1", order: 1, title: text, tagline: text, span: .months(min: 0, max: 8)),
-                World(id: "w2", order: 2, title: text, tagline: text, span: .months(min: 9, max: 24)),
-                World(id: "w3", order: 3, title: text, tagline: text, span: .months(min: 25, max: 41)),
+                World(id: "w2", order: 2, title: text, tagline: text, span: .months(min: 9, max: 23)),
+                World(id: "w3", order: 3, title: text, tagline: text, span: .months(min: 24, max: 41)),
                 World(id: "w4", order: 4, title: text, tagline: text, span: .months(min: 42, max: 71))
             ],
             quests: [
@@ -36,6 +39,11 @@ struct SagaFixtures {
                 FirstMoment(id: "f\($0)", order: $0, emoji: "😊", title: text, xp: 30, companionTrait: nil)
             }
         )
+    }
+
+    /// The world a child leaves, as an occasion names it.
+    func leaving(_ worldID: String) throws -> SagaOccasion.Kind {
+        .newWorld(left: try #require(catalog.world(id: worldID)))
     }
 
     /// `months` and `days` after the start of the child's birth day, plus `hours`.

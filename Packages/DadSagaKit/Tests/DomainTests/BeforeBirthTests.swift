@@ -207,6 +207,39 @@ struct BeforeBirthTests {
 
     // MARK: - Profile
 
+    @Test("Given a first before birth, when asking its earliest day, then any day; any other first, from the birth day")
+    func earliestDayOfAFirst() throws {
+        let today = try #require(CalendarDay(year: 2026, month: 11, day: 25))
+        let birthDay = today.adding(months: -3)
+        let born = Child(name: "Λένα", birthDay: birthDay)
+        let coming = Child(name: "Ίρις", birthDay: nil)
+        let picture = Self.first("f-picture", order: 1, beforeBirth: true)
+        let smile = Self.first("f-smile", order: 2)
+
+        #expect(UnlockRules.earliestDay(for: picture, child: born, today: today) == nil)
+        #expect(UnlockRules.earliestDay(for: picture, child: coming, today: today) == nil)
+        #expect(UnlockRules.earliestDay(for: smile, child: born, today: today) == birthDay)
+        // Never after today, so a day can always be picked: a child not born yet, or born on a day still to come.
+        #expect(UnlockRules.earliestDay(for: smile, child: coming, today: today) == today)
+        #expect(UnlockRules.earliestDay(for: smile, child: born, today: birthDay.adding(days: -1)) == birthDay.adding(days: -1))
+    }
+
+    @Test("Given a first of after the birth, when dating it, then never before the birth, unless it already is dated earlier")
+    func datingAFirst() throws {
+        let today = try #require(CalendarDay(year: 2026, month: 11, day: 25))
+        let birthDay = today.adding(months: -3)
+        let born = Child(name: "Λένα", birthDay: birthDay)
+        let smile = Self.first("f-smile", order: 2)
+        let early = birthDay.adding(days: -10)
+
+        #expect(UnlockRules.canDate(smile, on: birthDay, child: born, today: today))
+        #expect(!UnlockRules.canDate(smile, on: birthDay.adding(days: -1), child: born, today: today))
+        #expect(UnlockRules.canDate(Self.first("f-picture", order: 1, beforeBirth: true), on: early, child: born, today: today))
+        #expect(UnlockRules.canDate(smile, on: early, child: born, today: today, current: early))
+        #expect(UnlockRules.canDate(smile, on: early.adding(days: 3), child: born, today: today, current: early))
+        #expect(!UnlockRules.canDate(smile, on: early.adding(days: -1), child: born, today: today, current: early))
+    }
+
     @Test("Given a child not born yet, when validating, then it is valid; a born child dated tomorrow is not")
     func profileRules() throws {
         let coming = Child(name: " Μπέμπης ", birthDay: nil)

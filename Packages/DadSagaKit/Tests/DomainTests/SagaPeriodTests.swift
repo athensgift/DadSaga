@@ -17,7 +17,7 @@ struct SagaPeriodTests {
 
     @Test("Given a world, when asking its interval, then it runs from its minimum age to the month after its maximum")
     func world() {
-        #expect(interval(.world(id: "w2")) == DateInterval(start: saga.date(months: 9), end: saga.date(months: 25)))
+        #expect(interval(.world(id: "w2")) == DateInterval(start: saga.date(months: 9), end: saga.date(months: 24)))
     }
 
     @Test("Given a year below one, a year not started, or an unknown world, when asking, then there is no interval")

@@ -17,10 +17,10 @@ struct SagaStoryboardTests {
 
         #expect(storyboard.scenes.map(\.kind) == [
             .opening,
-            .chapter(saga.catalog.worlds[0], number: 1),
+            .chapter(try #require(saga.catalog.world(id: "w1")), number: 1),
             .entry(try entry(for: questPhoto, in: storyboard)),
             .entry(try entry(for: first, in: storyboard)),
-            .chapter(saga.catalog.worlds[1], number: 2),
+            .chapter(try #require(saga.catalog.world(id: "w2")), number: 2),
             .entry(try entry(for: boss, in: storyboard)),
             .credits(SagaCredits(questsDone: 2, bossesBeaten: 1))
         ])

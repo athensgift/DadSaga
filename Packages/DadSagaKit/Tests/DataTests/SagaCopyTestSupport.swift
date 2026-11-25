@@ -176,6 +176,7 @@ actor MemoryOffers: SagaOfferRepository {
     private var answered: Set<String> = []
     func answeredOccasionIDs() async -> Set<String> { answered }
     func markAnswered(_ occasionID: String) async { answered.insert(occasionID) }
+    func forget(childID: UUID) async { answered = answered.filter { !SagaOccasion.isID($0, ofChild: childID) } }
     func deleteAll() async { answered = [] }
 }
 

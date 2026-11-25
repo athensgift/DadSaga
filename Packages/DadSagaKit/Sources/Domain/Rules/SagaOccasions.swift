@@ -37,11 +37,18 @@ public struct SagaOccasion: Hashable, Identifiable, Sendable {
         self.period = period
     }
 
-    /// On the same day, leaving a world comes before a birthday: its film tells the longer story.
+    /// Whether `id` is the id of an occasion of this child, so their answers can be forgotten with them (ADR-0078).
+    public static func isID(_ id: String, ofChild childID: UUID) -> Bool {
+        id.hasPrefix(idPrefix(ofChild: childID))
+    }
+
+    fileprivate static func idPrefix(ofChild childID: UUID) -> String { "\(childID.uuidString)/" }
+
+    /// On the same day a birthday comes before leaving a world: it is the day the dad expects a film for (ADR-0078).
     fileprivate var rank: Int {
         switch kind {
-        case .birthday: 0
-        case .newWorld: 1
+        case .birthday: 1
+        case .newWorld: 0
         }
     }
 }
@@ -49,18 +56,18 @@ public struct SagaOccasion: Hashable, Identifiable, Sendable {
 /// When home may gently offer a film (ADR-0036, ADR-0006): from the occasion's day for `windowDays` days, only if the
 /// family has an entry from that period with the child, whoever recorded it. Never a deadline: the offer just stops showing.
 public enum SagaOccasions {
-    public static let windowDays = 30
+    static let windowDays = 30
 
-    /// The one occasion to offer on `now`: the newest showing, unless the dad has answered it. An older occasion never
-    /// takes the place of an answered one, so there is only ever one offer at a time.
+    /// The one occasion to offer on `now`: the newest showing, and of two on one day the birthday (ADR-0078), unless the
+    /// dad has answered it. No other occasion takes the place of an answered one, so there is only ever one offer at a
+    /// time.
     public static func latest(
         for child: Child,
         events: [ProgressEvent],
         catalog: ContentCatalog,
         on now: Date,
         answered: Set<String> = [],
-        timeZone: TimeZone = .autoupdatingCurrent,
-        windowDays: Int = windowDays
+        timeZone: TimeZone = .autoupdatingCurrent
     ) -> SagaOccasion? {
         let dates = Timeline.familyEntries(from: events, catalog: catalog)
             .filter { $0.childID == child.id }
@@ -88,12 +95,9 @@ public enum SagaOccasions {
         catalog: ContentCatalog,
         on now: Date,
         answered: Set<String> = [],
-        timeZone: TimeZone = .autoupdatingCurrent,
-        windowDays: Int = windowDays
+        timeZone: TimeZone = .autoupdatingCurrent
     ) -> SagaOccasion? {
-        let newest = children.compactMap {
-            latest(for: $0, events: events, catalog: catalog, on: now, timeZone: timeZone, windowDays: windowDays)
-        }
+        let newest = children.compactMap { latest(for: $0, events: events, catalog: catalog, on: now, timeZone: timeZone) }
         guard let date = newest.map(\.date).max() else { return nil }
         return newest.first { $0.date == date && answered.isDisjoint(with: $0.answerIDs) }
     }
@@ -112,7 +116,7 @@ public enum SagaOccasions {
         let birthdays = (0..<(months / 12)).map { index in
             let years = index + 1
             return SagaOccasion(
-                id: "\(child.id.uuidString)/birthday/\(years)",
+                id: "\(SagaOccasion.idPrefix(ofChild: child.id))birthday/\(years)",
                 kind: .birthday(years: years),
                 childID: child.id,
                 date: birthDay.adding(months: 12 * years).start(in: timeZone),
@@ -126,7 +130,7 @@ public enum SagaOccasions {
             case .months(_, let max?): ends = birthDay.adding(months: max + 1)
             case .months(_, nil): return nil
             }
-            let id = { (worldID: String) in "\(child.id.uuidString)/world/\(worldID)" }
+            let id = { (worldID: String) in "\(SagaOccasion.idPrefix(ofChild: child.id))world/\(worldID)" }
             return SagaOccasion(
                 id: id(world.id),
                 kind: .newWorld(left: world),

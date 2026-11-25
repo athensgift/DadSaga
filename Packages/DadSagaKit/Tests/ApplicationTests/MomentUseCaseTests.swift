@@ -6,26 +6,44 @@ import Testing
 @Suite("Moment use cases")
 struct MomentUseCaseTests {
     static let first = FirstMoment(id: "f-steps", order: 1, emoji: "👣", title: Stub.text, xp: 30, companionTrait: "walk")
+    static let picture = FirstMoment(
+        id: "f-picture", order: 2, emoji: "🖼️", title: Stub.text, xp: 30, companionTrait: nil, isBeforeBirth: true
+    )
+    static let retired = FirstMoment(
+        id: "f-old", order: 3, emoji: "🧸", title: Stub.text, xp: 30, companionTrait: nil, isRetired: true
+    )
+    static let utc = TimeZone(identifier: "UTC") ?? .gmt
+    /// 12 January 1970, 13:46 UTC.
     let today = Date(timeIntervalSince1970: 1_000_000)
+    /// Born on 1 October 1969, her sister a month later; one more is on the way.
+    static let lena = Child(name: "Λένα", birthDay: CalendarDay(year: 1969, month: 10, day: 1))
+    static let iris = Child(name: "Ίρις", birthDay: CalendarDay(year: 1969, month: 11, day: 1))
+    static let coming = Child(name: "Μικρό", birthDay: nil)
+    let dad = TheDad(children: [lena, iris, coming])
+    var birth: Date { Self.lena.birthDay?.start(in: Self.utc) ?? .distantPast }
     let content = StubContentRepository(
-        result: .success(ContentCatalog(worlds: [], quests: [], bosses: [], firsts: [Self.first]))
+        result: .success(ContentCatalog(worlds: [], quests: [], bosses: [], firsts: [Self.first, Self.picture, Self.retired]))
     )
     let repository = SpyProgressRepository()
     let photos = SpyPhotoStore()
-    let child = UUID()
+    let child = lena.id
     let firstID = Self.first.id
 
     var capture: DefaultCaptureMomentUseCase {
         DefaultCaptureMomentUseCase(
             contentRepository: content,
             progressRepository: repository,
-            profileRepository: TheDad(),
-            photoStore: photos
+            profileRepository: dad,
+            photoStore: photos,
+            timeZone: Self.utc
         )
     }
 
     var update: DefaultUpdateMomentUseCase {
-        DefaultUpdateMomentUseCase(profileRepository: TheDad(), progressRepository: repository, photoStore: photos)
+        DefaultUpdateMomentUseCase(
+            contentRepository: content, profileRepository: dad, progressRepository: repository, photoStore: photos,
+            timeZone: Self.utc
+        )
     }
 
     func request(child: UUID? = nil, date: Date? = nil) -> CaptureMomentRequest {
@@ -75,7 +93,7 @@ struct MomentUseCaseTests {
         await #expect(throws: MomentError.alreadyCaptured(firstID)) {
             try await capture.execute(request(), now: today)
         }
-        _ = try await capture.execute(request(child: UUID()), now: today)
+        _ = try await capture.execute(request(child: Self.iris.id), now: today)
         #expect(try await repository.fetchEvents().count == 2)
     }
 
@@ -126,7 +144,8 @@ struct MomentUseCaseTests {
     func failedUpdateLeavesNoPhoto() async throws {
         let moment = try await captured(photos: [Data([1])])
         let sut = DefaultUpdateMomentUseCase(
-            profileRepository: TheDad(), progressRepository: FailingUpdates(repository), photoStore: photos
+            contentRepository: content, profileRepository: dad, progressRepository: FailingUpdates(repository),
+            photoStore: photos, timeZone: Self.utc
         )
 
         await #expect(throws: FailingUpdates.Failure.self) {
@@ -216,8 +235,7 @@ struct MomentUseCaseTests {
         let quest = ProgressEvent(kind: .quest(id: "q1"), childID: UUID(), date: today)
         try await repository.add(quest)
         await #expect(throws: MomentError.unknownMoment) {
-            try await DefaultUpdateMomentUseCase(profileRepository: TheDad(), progressRepository: repository, photoStore: photos)
-                .execute(momentID: quest.id, happenedOn: today, note: nil, photos: [], now: today)
+            try await update.execute(momentID: quest.id, happenedOn: today, note: nil, photos: [], now: today)
         }
         #expect(try await repository.fetchEvents().count == 1)
     }

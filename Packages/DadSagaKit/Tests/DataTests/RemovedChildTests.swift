@@ -133,8 +133,8 @@ struct RemovedChildTests: SagaCopyBench {
     func deleteForGood(on phone: Phone) -> DefaultDeleteChildForGoodUseCase {
         DefaultDeleteChildForGoodUseCase(
             contentRepository: BundledContentRepository(), profileRepository: phone.store.profiles,
-            progressRepository: phone.store.progress, standingRepository: phone.store.standing, photoStore: phone.photos,
-            renewReminders: NoReminders()
+            progressRepository: phone.store.progress, standingRepository: phone.store.standing, sagaOffers: MemoryOffers(),
+            photoStore: phone.photos, renewReminders: NoReminders()
         )
     }
 
