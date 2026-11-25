@@ -43,8 +43,6 @@ record follows that build; it is fixed once the build is released, and reaches `
 - [ ] The Data tests run once on an iOS 26 simulator (the saga store's one queue, ADR-0068, and the `hasChanges` gate
       run in 1.0). The history pins (`ChangeFeedHistoryTests`: token expiry, another store's token, tombstones) run
       there again before the co-op version.
-- [ ] Known and accepted: 1.0 keeps the store's history untrimmed (`StoreChangeFeed.trim()` runs only once PR 5 wires
-      sync); the first co-op launch trims it.
 - [ ] `Tests/DataTests/Fixtures/ShippedContentIDs.json`, from the bundled content: every world, hero, quest, boss,
       first, gear item and title id; each quest's and boss's skill and XP, and each first's XP; each gear item's skill;
       each title's order, cards, XP and gear; each skill's `halfGrownXP`. From then on it only grows.
