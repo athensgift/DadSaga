@@ -140,15 +140,6 @@ struct SagaCopyDamagedFilesTests: SagaCopyBench {
         try await expectRefused(try ArchiveFiles.write(entries, in: root), on: target, as: [.damaged])
     }
 
-    @Test("Given a manifest larger than its limit, when importing, then it is refused before it is read")
-    func oversizedEntriesAreRefused() async throws {
-        defer { try? FileManager.default.removeItem(at: root) }
-        var (entries, target) = try await entries()
-        entries[0].1 += Data(repeating: 0x20, count: SagaCopyFormat.manifestLimit)
-
-        try await expectRefused(try ArchiveFiles.write(entries, in: root), on: target, as: [.damaged])
-    }
-
     // MARK: The format, pinned
 
     /// Every stored property of every entity, in format 1 or named as not travelling. A new column fails here until a

@@ -14,7 +14,8 @@ actor StoreConnection {
         let outfit: SwiftDataOutfitRepository
         let standing: SwiftDataStandingRepository
         let wholeSaga: SwiftDataWholeSagaRepository
-        /// The store's history as the changes sync sends (ADR-0065 §2). Nothing reads it until iCloud is wired.
+        /// The store's history as the changes sync sends (ADR-0065 §2). Nothing reads it until iCloud is wired;
+        /// `NoCloudFamilySync` trims it at launch (ADR-0081).
         let feed: StoreChangeFeed
         /// Writes what sync fetched (ADR-0065 §2). Nothing calls it until iCloud is wired.
         let applier: SwiftDataSyncApplier

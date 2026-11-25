@@ -17,6 +17,7 @@ struct DadSagaApp: App {
         container.discardLeftoverFilms()
         container.discardLeftoverExports()
         container.sweepOrphanPhotos()
+        container.resumeFamilySync()
     }
 
     var body: some Scene {

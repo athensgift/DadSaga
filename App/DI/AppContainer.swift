@@ -11,6 +11,9 @@ final class AppContainer {
     private lazy var contentRepository: any ContentRepository = BundledContentRepository()
     /// The saga's store, opened on first use; if it cannot be opened, the app says so and waits (ADR-0026).
     private let store: LocalStore
+    /// Sync, in a build with no iCloud: at launch it only trims the store's history (ADR-0081). The build that wires
+    /// iCloud puts `SyncCoordinator` here in its place.
+    private lazy var familySync: any FamilySync = NoCloudFamilySync(store: store)
     /// Photos of legendary moments, kept on the device, next to the store.
     private let photoStore: any PhotoStore
     /// The weekly reminder (ADR-0024): its settings stay in the app's own defaults, the notifications are local.
@@ -299,6 +302,17 @@ final class AppContainer {
                 progressRepository: store.progress, photoStore: photoStore
             )
         )
+    }
+}
+
+// MARK: - Sync (ADR-0081)
+
+extension AppContainer {
+    /// Trims the store's history, which nothing reads while there is no iCloud (ADR-0081). Run once, at launch, at
+    /// low priority; a failure is logged and the next launch tries again.
+    func resumeFamilySync() {
+        let sync = familySync
+        Task(priority: .utility) { await sync.resume() }
     }
 }
 

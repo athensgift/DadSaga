@@ -72,7 +72,7 @@ let package = Package(
             dependencies: ["Presentation", "Application", "Domain", "FilmTestSupport"]
         ),
         .testTarget(name: "LocalizationTests", dependencies: ["Localization", "Domain"]),
-        .testTarget(name: "FilmKitTests", dependencies: ["FilmKit", "FilmTestSupport"]),
+        .testTarget(name: "FilmKitTests", dependencies: ["FilmKit", "FilmTestSupport", "SagaMusic"]),
         .testTarget(name: "WidgetPresentationTests", dependencies: ["WidgetPresentation", "Application", "Domain"]),
     ]
 )
