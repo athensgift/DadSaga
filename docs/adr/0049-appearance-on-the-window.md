@@ -1,6 +1,6 @@
 # ADR-0049: The Appearance choice is set on the window, not with `preferredColorScheme`
 
-**Status:** Proposed (2026-11-21). The owner reported the bug and confirmed it; the fix waits for the owner's review.
+**Status:** Accepted (proposed 2026-11-21, accepted by the owner 2026-11-25). The owner reported the bug and confirmed it.
 Changes ADR-0030 §"Preferences" (how the root applies the look, and Settings' own copy of it). It takes the fallback
 ADR-0030 named for this case, the window's `overrideUserInterfaceStyle`, but sets it from `RootView` rather than from the
 app target: `RootView` already holds the choice, and each window gets the look from the view inside it.

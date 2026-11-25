@@ -7,7 +7,7 @@ in it, no free-space check, the copy's size shown when it is ready, and plain na
 saved or shared through the share sheet; a file picker to restore; the whole saga replaced, never merged; a clear
 confirmation; nothing nags; never behind a paywall; photos as stored). The owner decided on 2026-11-22 that it ships in
 v1 whatever the iCloud Backup restore test shows: it is a v1 requirement and gates the first App Store release. The
-plan is [`docs/plans/saga-export.md`](../plans/saga-export.md). Changes ADR-0004 (the export it asked for: a copy the
+plan is `docs/plans/saga-export.md`, since removed (last version in commit `b49afc5`). Changes ADR-0004 (the export it asked for: a copy the
 dad makes is how his data leaves the device), ADR-0016 (photos leave the device only in that copy), ADR-0026 (export
 and backup decided; a restore replaces every row in one save; `SagaEraser` becomes part of `WholeSagaRepository`),
 ADR-0030 (§1 a "Your data" section; §7 the About statement; §8 start over through `WholeSagaRepository`), ADR-0037 §5
