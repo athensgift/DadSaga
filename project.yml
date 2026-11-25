@@ -62,7 +62,8 @@ targets:
         CFBundleLocalizations: [el, en]
         # Always show the per-app language in iOS Settings; Settings' language row opens it (ADR-0030).
         UIPrefersShowingLanguageSettings: true
-        # Settings' contact, rate/share and privacy rows (ADR-0030). An empty value hides its row.
+        # Settings' contact, rate/share and privacy rows (ADR-0030). An empty value hides its row. The privacy URL of
+        # each language is in InfoPlist.xcstrings.
         DadSagaFeedbackAddress: "hello@dadsaga.app"
         DadSagaAppStoreID: ""
         DadSagaPrivacyPolicyURL: "https://dadsaga.app/privacy/"

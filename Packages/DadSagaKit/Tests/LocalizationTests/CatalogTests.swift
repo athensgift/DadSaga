@@ -104,6 +104,13 @@ struct CatalogTests {
         }
     }
 
+    @Test("Given the Info.plist's catalog, then the privacy policy opens in the app's language")
+    func privacyPolicyURLs() throws {
+        let entry = try #require(try Self.entries(.infoPlist)["DadSagaPrivacyPolicyURL"])
+        #expect(Self.value(entry, "el") == "https://dadsaga.app/el/privacy/")
+        #expect(Self.value(entry, "en") == "https://dadsaga.app/privacy/")
+    }
+
     @Test("Given a catalog, then every Greek text has the same placeholders as its key", arguments: [Catalog.app, .widget])
     func placeholdersMatch(catalog: Catalog) throws {
         for (key, entry) in try Self.entries(catalog) {
