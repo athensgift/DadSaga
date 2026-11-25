@@ -82,10 +82,12 @@ Tick them on the first TestFlight build.
 - [ ] ADR-0056 and ADR-0058, home: what is left of them (ADR-0061, ADR-0066) on a real iPhone Duo, with VoiceOver and at
       the accessibility text sizes.
 - [ ] ADR-0057, the copy of the saga: making and importing a large saga was checked on a device (2026-11-22). Left:
-      refusing a damaged or a newer copy; with VoiceOver, at the accessibility text sizes and on the iPhone Duo folded.
+      sharing it, refusing a damaged or a newer copy; with VoiceOver, at the accessibility text sizes and on the iPhone
+      Duo folded.
 - [ ] ADR-0059, the skills' marks: under a celebration, after an Undo, light and dark, VoiceOver.
-- [ ] ADR-0060: the calm screen with a store that can't be opened was checked on a device (2026-11-22). Left: a fresh
-      install's first quest, first with photos, widget, film and start over.
+- [ ] ADR-0060: the calm screen with a store that can't be opened was checked on a device (2026-11-22). Left: the same
+      in the other language, if only one was seen; a fresh install's first quest, first with photos, widget, film and
+      start over.
 - [ ] ADR-0061, the four tabs, the map and Settings half-open, "My family" holding changes while a widget link waits, a
       link while a question is up.
 - [ ] ADR-0066, home in one column, on a real iPhone Duo.
@@ -99,6 +101,7 @@ Tick them on the first TestFlight build.
       classification on real photos; write the numbers here. Also: leave the app for a minute mid-film and come back.
 - [ ] ADR-0023: restoring an offloaded app keeps the saga and the widget. ADR-0046: a preview with the silent switch on.
 - [ ] The website in Safari on an iPhone (ADR-0039, ADR-0040, ADR-0070): motion, the family, the demo video.
+- [ ] PR 121's screens with VoiceOver: a celebration and its title heard once, the delete question of a first.
 - [ ] From the audit of 2026-11-25: the weekly notification with the app closed; adding a photo from the camera; saving
       with the disk full.
 

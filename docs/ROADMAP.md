@@ -98,7 +98,8 @@ child avatars, hero gear and wardrobe, world map, timeline, Liquid Glass and ada
 - ✅ Pricing decision: 1.0 is free, with no in-app purchases; a "buy me a coffee" tip waits until after 1.0 (ADR-0071)
 
 ## Left from the review of 2026-11-25
-What the whole-app review found that its six fix PRs (from #119) left open, and why it can wait. Not one of them blocks 1.0.
+What the whole-app review found that its six fix PRs (from #119) left open, and why it can wait. Not one of them blocks
+1.0.
 
 ### Sync (the co-op version, not 1.0)
 - `Data/Sync` writing a fetched record: nothing holds it to a copy's rules (photo limit, one photo on two entries, a
@@ -120,11 +121,11 @@ What the whole-app review found that its six fix PRs (from #119) left open, and 
 - Domain and Application: `Wardrobe.isEarned` and `SetOutfitChoiceUseCase` write one rule twice; the weekly highlights
   repeat `PlayerProfile.child(_:)`; `SagaPacing.init`'s ten unused parameters; stale comments in `PhotoStore`,
   `FirstMoment`, `DadAppearance`. None changes behaviour.
-- Tests: names that promise XP or "one over" the limit without checking it; no test for
-  `RestoreSagaUseCase.discard` with unreadable entries, export's cancellation, Undo with nothing closed; `SagaStoryboardTests`' one-second wall clock; `HomeMomentsTests` "counts all firsts";
-  `NoCloudFamilySyncTests.resumeLeavesAStoreItCannotOpen` passes with an empty `resume()`; `SagaCopyLimitsTests`
-  names say more than they assert; `FilmBundledMusicTests` finds tracks by `.m4a`, and `Package.swift` still says
-  FilmKit's tests check no content. The behaviour they cover is right.
+- Tests: names that promise XP or "one over" the limit without checking it; no test for `RestoreSagaUseCase.discard`
+  with unreadable entries, export's cancellation, Undo with nothing closed; `SagaStoryboardTests`' one-second wall
+  clock; `HomeMomentsTests` "counts all firsts"; `NoCloudFamilySyncTests.resumeLeavesAStoreItCannotOpen` passes with an
+  empty `resume()`; `SagaCopyLimitsTests` names say more than they assert; `FilmBundledMusicTests` finds tracks by
+  `.m4a`, and `Package.swift` still says FilmKit's tests check no content. The behaviour they cover is right.
 - Film: the blurred backdrop is drawn again every frame (time on an old phone, unmeasured); `close()` empties the
   whole films folder (not reachable by hand); an interrupted music preview keeps "Stop" for up to 20 s; the sheet
   presenter's logic has no test.
@@ -134,8 +135,8 @@ What the whole-app review found that its six fix PRs (from #119) left open, and 
   child pickers don't grow with Dynamic Type. Each is small or rare.
 - Cards (the owner's call): the firsts' Greek titles and the tooth fairy; one Greek gender for the partner,
   `b-w4-kindergarten`, `b-w2-velcro`'s "only one of you"; one Greek word each for doctor, cot and week; "Stroller";
-  narrow windows (`b-w3-new-sibling`) and conditional quests with no audience; a `medical` footer on seven quests; a
-  first dental visit before 30 months.
+  narrow windows (`b-w3-new-sibling`) and conditional quests with no audience; a `medical` footer missing on seven
+  quests with a checkable claim; a first dental visit before 30 months.
 - Website and privacy pages: Vision also looks for "what stands out", not only faces; the demo video has no pause; the
   Greek site's "Super Dad"; `www.dadsaga.app` doesn't redirect; `docs/demo/README.md`'s picker note.
 - App and repository: the camera prompt's "stay on this device" is stricter than the privacy page; no `LICENSE`
@@ -145,12 +146,12 @@ What the whole-app review found that its six fix PRs (from #119) left open, and 
 - CI: the Mac's SwiftLint is older than CI's pinned one; upgrade it.
 
 ### Owner checks on a real phone
-`docs/RELEASE.md`, "Open device checks", has each with its ADR. In short: time zones and calendars, a kill mid-save,
+`docs/RELEASE.md`, "Open device checks", has these with their ADRs. In short: time zones and calendars, a kill mid-save,
 a Release build without the App Group (ADR-0048); Settings' language, haptics, mail, start over (ADR-0030); every look
 (ADR-0044); the film's time on the oldest iPhone and leaving mid-film (ADR-0047); restoring an offloaded app (ADR-0023);
 the silent switch (ADR-0046); the site in Safari; the notification with the app closed, the camera, a full disk; a
 damaged or newer copy refused; home in one column on the Duo (ADR-0066); a VoiceOver pass on the screens PR 121
-changed; restore from an iCloud backup.
+changed. Restore from an iCloud backup stays in Phase 4.
 
 ## Phase 5: Playground
 - iCloud sync and partner co-op: the co-op version, ADR-0065's PR 5 (CloudKit) and PR 6 (the iCloud and sharing

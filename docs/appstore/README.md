@@ -43,7 +43,7 @@ Count again after any change, for example:
   leaves the iPhone only by export and import ([ADR-0057](../adr/0057-saga-copy-export-and-restore.md)), and restoring
   from an iCloud backup is not promised (`docs/ROADMAP.md`, Phase 4).
 - **Free:** no in-app purchases ([ADR-0071](../adr/0071-1-0-is-free-with-no-in-app-purchases.md)).
-- **The app's Greek words:** the Greek text says «ιστορία», as the app does («Ταινία της ιστορίας») and the
+- **The app's Greek words:** the Greek text says «ιστορία», as the app («Ταινία της ιστορίας») and the
   site do, so the description matches the screenshots.
 - **The same words as the app and the site:** card, world and title names as the content JSON has them, the site's
   sentences where they fit (`web/index.html`, `web/el/index.html`).
