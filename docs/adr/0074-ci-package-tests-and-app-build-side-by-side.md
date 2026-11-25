@@ -1,8 +1,8 @@
 # ADR-0074: CI runs the package tests and the simulator builds side by side
 
-**Status:** Accepted (2026-11-25). The owner asked for a faster pull request check with nothing else changed: the same
+**Status:** Accepted (2026-11-25, by the owner). The owner asked for a faster pull request check with nothing else changed: the same
 checks, the same runner, no cache and no skipped paths. The third job on Ubuntu is this ADR's answer to the required
-check's name and waits for his word. Changes ADR-0034 §5 (one job of CI runs on Ubuntu; it runs no
+check's name, accepted with the rest. Changes ADR-0034 §5 (one job of CI runs on Ubuntu; it runs no
 toolchain) and how ADR-0062's pull request check is laid out (two jobs, not one).
 
 ## Context
