@@ -50,6 +50,17 @@ extension WeeklyReminderUseCaseTests {
         #expect(await scheduler.pending.first?.time == DateComponents(year: 2026, month: 11, day: 28, hour: 20, minute: 0))
     }
 
+    @Test("Given last week's note arrived, when rescheduling this week, then this week's note is waiting")
+    func theNextWeekHasItsOwn() async throws {
+        let scheduler = FakeNotificationScheduler(status: .allowed)
+        try await noteArrived(scheduler)
+
+        await schedule(scheduler).execute(on: Fixture.date(2026, 11, 25))
+
+        #expect(await scheduler.pending.first?.time == Self.tenOClock(2026, 11, 28))
+        #expect(await settings.noteTimes().first == Self.tenOClock(2026, 11, 28))
+    }
+
     @Test("Given this week's note hasn't arrived, when the dad moves it, then it still comes this week, once")
     func movedBeforeItArrives() async throws {
         try await onboard([lena])
@@ -110,6 +121,26 @@ extension WeeklyReminderUseCaseTests {
         let pending = await scheduler.pending
         #expect(!pending.isEmpty)
         #expect(pending.allSatisfy { $0.link.childID == lena.id && !$0.body.contains(nikos.name) })
+    }
+
+    @Test("Given a shown note, when the dad renames a child, then the note stays")
+    func renamingKeepsTheShownNote() async throws {
+        try await onboard([lena])
+        await enable()
+        let scheduler = FakeNotificationScheduler(status: .allowed)
+        let schedule = schedule(scheduler)
+        await schedule.execute(on: today)
+        await scheduler.deliverNext()
+        var renamed = lena
+        renamed.name = "Eleni"
+        let family = DefaultUpdateFamilyUseCase(
+            profileRepository: profiles,
+            renewReminders: DefaultRenewWeeklyRemindersUseCase(schedule: schedule, scheduler: scheduler)
+        )
+
+        try await family.execute(FamilyEdit(changed: [ChildEdit(child: renamed, fields: [.name])]), on: today)
+
+        #expect(await scheduler.delivered.count == 1)
     }
 
     @Test("Given notes of the family, when a removed child is deleted for good, then the notes are renewed")

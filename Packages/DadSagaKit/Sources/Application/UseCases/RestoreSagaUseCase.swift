@@ -39,7 +39,7 @@ public struct DefaultRestoreSagaUseCase: RestoreSagaUseCase {
     private let files: any SagaCopyFiles
     private let renewReminders: any RenewWeeklyRemindersUseCase
 
-    /// - Parameter schedule: the app's one reschedule, so the reminders follow the restored family (ADR-0024).
+    /// - Parameter renewReminders: so the reminders follow the restored family (ADR-0024).
     public init(
         wholeSaga: any WholeSagaRepository,
         progressRepository: any ProgressRepository,

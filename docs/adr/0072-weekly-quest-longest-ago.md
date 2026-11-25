@@ -29,13 +29,23 @@ With a pool that doesn't change this is the fixed cycle of ADR-0023.
 - **One rule for a week's age,** used for the asked week and for every week walked: the age on the week's first day, and
   in the birth week the age on the birth day, so a baby born mid-week gets a card for after the birth that week.
 
-### 3. Where the code goes
+### 3. One note a week, about this family
+- The reminder keeps when its notes are due, in the app's own defaults. A week whose note's time has passed gets no
+  other, whatever the dad changes (ADR-0024 §1). A note is due by the clock on the wall, as iOS delivers it, so one
+  that arrived just before the dad crossed a border to the west can come again within that hour.
+- Besides ADR-0024 §2, the notes are scheduled again when the dad comes back with notifications allowed, and when a
+  child is removed or deleted for good. Removing or deleting a child also takes away the notes already shown, as
+  starting over and importing do.
+- When the saga can't be read, the notes already waiting stay.
+
+### 4. Where the code goes
 | Layer | Changes |
 |---|---|
 | Domain | `WeeklyQuest.pick(for:family:in:week:calendar:)` takes the child, the family's facts and the catalog, and works out each week's age and pool itself through `UnlockRules`. `pick(from:childID:week:calendar:)` goes: a caller can't give the pool of a week it doesn't know. |
 | Application | `GetWeeklyHighlightsUseCase` hands the facts over; no age or pool of its own. |
 
-No stored data, schema, content id or Info.plist key changes (ADR-0051).
+The quest stores nothing: no schema, content id or Info.plist key changes. The note times of §3 are on the privacy
+pages (ADR-0051).
 
 ## What is guaranteed
 From the birth week on, and apart before it, with the same catalog, family facts, birth day and first day of the week:

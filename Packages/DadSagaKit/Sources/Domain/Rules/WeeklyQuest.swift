@@ -51,9 +51,11 @@ public enum WeeklyQuest {
         }
     }
 
-    /// Weeks elapsed since a fixed reference week, counted by the calendar so daylight saving never shifts it.
+    /// Weeks elapsed since the week of a fixed day, 1 January 2001, counted by the calendar so daylight saving never
+    /// shifts it. The day is the same one in every time zone, so a trip changes no week's number.
     public static func weekNumber(of week: DateInterval, calendar: Calendar) -> Int {
-        let reference = Self.week(containing: Date(timeIntervalSinceReferenceDate: 0), calendar: calendar).start
+        let gmtDay = CalendarDay(Date(timeIntervalSinceReferenceDate: 0), in: .gmt)
+        let reference = Self.week(containing: gmtDay.start(in: calendar.timeZone), calendar: calendar).start
         return calendar.dateComponents([.weekOfYear], from: reference, to: week.start).weekOfYear ?? 0
     }
 

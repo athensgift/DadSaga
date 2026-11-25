@@ -77,7 +77,7 @@ public struct DefaultUpdateWeeklyReminderUseCase: UpdateWeeklyReminderUseCase {
 
 /// Schedules the next four weekly notifications, each with the quest of its own week (ADR-0024). A week that has had
 /// its note gets no other, whatever the dad changes.
-/// Run whenever the app leaves the foreground and after every settings change.
+/// Run whenever the app leaves the foreground, after every settings change, and when permission or the family changed.
 public protocol ScheduleWeeklyRemindersUseCase: Sendable {
     func execute(on date: Date) async
 }
