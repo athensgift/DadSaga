@@ -22,8 +22,8 @@ public final class FamilyViewModel {
     public private(set) var removedChildren: [RemovedChildRow] = []
     /// Asked before a removed child is deleted for good.
     public private(set) var deletion: DeletionPrompt?
-    /// A child cannot be born in the future.
-    public var latestBirthDate: Date { now() }
+    /// A child cannot be born in the future: now, as last read.
+    public private(set) var latestBirthDate: Date
 
     public var canSave: Bool { family.isComplete && !isSaving }
     /// Bringing back is adding (ADR-0065 §4): the family on screen and the stored one both have room.
@@ -72,6 +72,7 @@ public final class FamilyViewModel {
         self.timeZone = timeZone
         self.onSaved = onSaved
         self.now = now
+        latestBirthDate = now()
     }
 
     public func onAppear() async {
@@ -90,7 +91,13 @@ public final class FamilyViewModel {
         }
     }
 
+    /// Back in the app, perhaps a day later: a child can be born today.
+    public func appBecameActive() {
+        latestBirthDate = now()
+    }
+
     public func addChild() {
+        latestBirthDate = now()
         family.addChild(birthDay: CalendarDay(latestBirthDate, in: timeZone))
     }
 
@@ -112,7 +119,7 @@ public final class FamilyViewModel {
                 shown: shown.children.map(\.child), hasPartner: shown.hasPartner,
                 edited: saving.children.map(\.child), hasPartner: saving.hasPartner
             )
-            try await updateFamily.execute(edit, on: latestBirthDate)
+            try await updateFamily.execute(edit, on: now())
             stored = saving
             if family == saving {
                 onSaved()
@@ -217,7 +224,7 @@ public final class FamilyViewModel {
         }
     }
 
-    private var today: CalendarDay { CalendarDay(latestBirthDate, in: timeZone) }
+    private var today: CalendarDay { CalendarDay(now(), in: timeZone) }
 
     private func makeContent() -> FamilyContent {
         FamilyContent(

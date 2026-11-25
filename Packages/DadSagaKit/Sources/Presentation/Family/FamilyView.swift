@@ -6,6 +6,7 @@ struct FamilyView: View {
     @State var viewModel: FamilyViewModel
     @State private var isConfirmingDiscard = false
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         Group {
@@ -55,6 +56,9 @@ struct FamilyView: View {
         // Bringing back and deleting for good save with nothing unsaved: a link waits for them too (ADR-0050 §4).
         .holdsLinks(whileWorking: viewModel.isSaving)
         .task { await viewModel.onAppear() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { viewModel.appBecameActive() }
+        }
     }
 
     private func goBack() {

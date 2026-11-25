@@ -61,6 +61,35 @@ struct HomeSheetChildTests {
         #expect(sut.momentCapture?.title == HeroStub.niko.name)
     }
 
+    @Test("Given one child's quest opened while a link to another's loads, when it has loaded, then the sheet is as it was")
+    func linkLeavesASheetOpenedMeanwhile() async {
+        let sut = await makeSUT()
+        await progress.holdOverviews()
+        let opening = Task { await sut.open(.quest(id: "q1", childID: maria.id)) }
+        await progress.waitUntilHeld(1)
+        sut.select(cardID: "q1")
+        await progress.releaseAllOverviews()
+        await opening.value
+
+        await sut.completeSelectedQuest()
+
+        #expect(sut.selectedChildID == maria.id)
+        #expect(await progress.recordedChildIDs == [HeroStub.niko.id])
+    }
+
+    @Test("Given one child's quest opened while another child loads, when undoing an earlier one, then it stays the first's")
+    func undoKeepsTheSheetsChild() async {
+        let sut = await makeSUT()
+        sut.select(cardID: "q1")
+        await sut.completeSelectedQuest()
+        await whileMariaLoads(sut) { sut.select(cardID: "q1") }
+        await sut.undoLastRecord()
+
+        await sut.completeSelectedQuest()
+
+        #expect(await progress.recordedChildIDs == [HeroStub.niko.id])
+    }
+
     @Test("Given another child picked, when loading them fails, then home's choice is again the child it shows")
     func failedPickGoesBack() async {
         let sut = await makeSUT()

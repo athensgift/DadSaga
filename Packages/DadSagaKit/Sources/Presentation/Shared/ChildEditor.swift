@@ -73,7 +73,7 @@ struct ChildEditorCard: View {
 
     /// "Not born yet" is the child not being born.
     private var notBornYet: Binding<Bool> {
-        Binding(get: { !child.isBorn }, set: { child.isBorn = !$0 })
+        Binding(get: { !child.isBorn }, set: { child.setBorn(!$0, now: latestBirthDate, in: timeZone) })
     }
 
     /// The picker shows and sets the stored day; the day itself never goes through a time of day.

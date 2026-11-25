@@ -96,6 +96,33 @@ struct BirthDayEditorTests {
         #expect(calendar.isDate(draft.pickerDate(in: auckland), inSameDayAs: evening))
     }
 
+    @Test("Given a child not born yet, when unticking it the day after the page opened, then the picker is at the new day")
+    func bornTheNextDay() {
+        var draft = ChildDraft(name: "Άννα", birthDay: .day(2025, 3, 15), isBorn: false)
+
+        draft.setBorn(true, now: CalendarDay.day(2025, 3, 16).start(in: .gmt), in: .gmt)
+        #expect(draft.birthDay == .day(2025, 3, 16))
+
+        // A day he picked is his, however he moves the switch after.
+        draft.pickBirthDate(CalendarDay.day(2025, 3, 14).start(in: .gmt), in: .gmt)
+        draft.setBorn(false, now: CalendarDay.day(2025, 3, 16).start(in: .gmt), in: .gmt)
+        draft.setBorn(true, now: CalendarDay.day(2025, 3, 17).start(in: .gmt), in: .gmt)
+        #expect(draft.birthDay == .day(2025, 3, 14))
+    }
+
+    @Test("Given a stored birth day, when ticking not born and unticking it, then that day is back")
+    func storedDayComesBack() async throws {
+        let anna = Child(name: "Άννα", birthDay: .day(2025, 3, 15))
+        let sut = makeFamily(profile: PlayerProfile(children: [anna], heroClassID: "h-cool"), timeZone: .gmt)
+        await sut.onAppear()
+
+        sut.family.children[0].setBorn(false, now: CalendarDay.day(2025, 6, 1).start(in: .gmt), in: .gmt)
+        sut.family.children[0].setBorn(true, now: CalendarDay.day(2025, 6, 1).start(in: .gmt), in: .gmt)
+
+        #expect(sut.family.children[0].birthDay == .day(2025, 3, 15))
+        #expect(!sut.hasUnsavedChanges)
+    }
+
     private func makeFamily(profile: PlayerProfile, timeZone: TimeZone) -> FamilyViewModel {
         FamilyViewModel(
             getProfile: StubGetProfile(profile: profile),

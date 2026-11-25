@@ -19,8 +19,8 @@ public final class OnboardingViewModel {
     public private(set) var isSaving = false
     public private(set) var errorMessage: String?
     public var family: FamilyDraft
-    /// A child cannot be born in the future.
-    public var latestBirthDate: Date { now() }
+    /// A child cannot be born in the future: now, as last read.
+    public private(set) var latestBirthDate: Date
 
     /// The look the profile is created with: the standard one for the chosen skin tone (ADR-0044 §2).
     public var dadAppearance: DadAppearanceChoice {
@@ -55,6 +55,7 @@ public final class OnboardingViewModel {
         self.saveProfile = saveProfile
         self.locale = locale
         self.now = now
+        latestBirthDate = now()
         self.timeZone = timeZone
         self.onFinished = onFinished
         family = FamilyDraft(children: [ChildDraft(birthDay: CalendarDay(now(), in: timeZone))])
@@ -75,7 +76,13 @@ public final class OnboardingViewModel {
         step = .hero
     }
 
+    /// Back in the app, perhaps a day later: a child can be born today.
+    public func appBecameActive() {
+        latestBirthDate = now()
+    }
+
     public func addChild() {
+        latestBirthDate = now()
         family.addChild(birthDay: CalendarDay(latestBirthDate, in: timeZone))
     }
 
@@ -107,7 +114,7 @@ public final class OnboardingViewModel {
                 dadSkinTone: family.dadSkinTone.domain,
                 hasPartner: family.hasPartner
             )
-            try await saveProfile.execute(profile, on: latestBirthDate)
+            try await saveProfile.execute(profile, on: now())
             onFinished()
         } catch {
             errorMessage = strings.text("Couldn't save. Please try again.")

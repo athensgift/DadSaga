@@ -17,11 +17,13 @@ public struct ChildDraft: Identifiable, Equatable, Sendable {
     public var name: String
     /// Off while the switch "Not born yet" is on (ADR-0053 §1): then no day is kept, and date, gender and skin tone
     /// aren't asked.
-    public var isBorn: Bool
+    public private(set) var isBorn: Bool
     /// The day the dad picked (ADR-0048 §2), or the day the picker shows when he unticks "Not born yet": today for a
     /// child not born yet. It is kept as a day, so a time zone change while the screen is open moves nothing; only the
     /// picker converts, through `pickerDate(in:)` and `pickBirthDate(_:in:)`.
-    public var birthDay: CalendarDay
+    public private(set) var birthDay: CalendarDay
+    /// The day is one the dad gave, now or before, rather than the one the picker starts at.
+    private var isDayChosen: Bool
     public var gender: GenderChoice
     public var skinTone: SkinToneChoice
 
@@ -37,12 +39,20 @@ public struct ChildDraft: Identifiable, Equatable, Sendable {
     /// The dad picked `date` in a picker drawn in `timeZone`: only its day is kept.
     public mutating func pickBirthDate(_ date: Date, in timeZone: TimeZone) {
         birthDay = CalendarDay(date, in: timeZone)
+        isDayChosen = true
+    }
+
+    /// The switch "Not born yet" moved. Unticked, the picker starts at the day of `now` unless the dad has given a day.
+    public mutating func setBorn(_ isBorn: Bool, now: Date, in timeZone: TimeZone) {
+        self.isBorn = isBorn
+        if isBorn, !isDayChosen { birthDay = CalendarDay(now, in: timeZone) }
     }
 
     public init(
         id: UUID = UUID(),
         name: String = "",
         birthDay: CalendarDay,
+        isDayChosen: Bool = false,
         isBorn: Bool = true,
         gender: GenderChoice = .boy,
         skinTone: SkinToneChoice = .mediumLight
@@ -51,6 +61,7 @@ public struct ChildDraft: Identifiable, Equatable, Sendable {
         self.name = name
         self.isBorn = isBorn
         self.birthDay = birthDay
+        self.isDayChosen = isDayChosen
         self.gender = gender
         self.skinTone = skinTone
     }
@@ -182,6 +193,7 @@ extension ChildDraft {
             id: child.id,
             name: child.name,
             birthDay: child.birthDay ?? today,
+            isDayChosen: child.birthDay != nil,
             isBorn: child.isBorn,
             gender: GenderChoice(child.gender),
             skinTone: SkinToneChoice(child.skinTone)

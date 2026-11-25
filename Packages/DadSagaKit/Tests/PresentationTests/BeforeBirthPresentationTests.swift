@@ -323,7 +323,7 @@ struct BeforeBirthPresentationTests {
         #expect(sut.family.hasPartner)
 
         sut.family.children[0].name = "Μπέμπης"
-        sut.family.children[0].isBorn = false
+        sut.family.children[0].setBorn(false, now: HarbourStub.today, in: .gmt)
         sut.family.hasPartner = false
         sut.continueToHero()
         sut.selectHero(id: "h-cool")
@@ -355,7 +355,7 @@ struct BeforeBirthPresentationTests {
         sut.family.hasPartner = false
         #expect(sut.hasUnsavedChanges)
         sut.family.hasPartner = true
-        sut.family.children[0].isBorn = true
+        sut.family.children[0].setBorn(true, now: HarbourStub.today, in: .gmt)
         #expect(sut.hasUnsavedChanges)
         await sut.save()
 

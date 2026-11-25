@@ -140,6 +140,7 @@ struct OnboardingViewModelTests {
 
         clock.advance(seconds: 86_400)
         let tomorrow = clock.now
+        sut.appBecameActive()
         #expect(sut.latestBirthDate == tomorrow)
         sut.addChild()
         #expect(sut.family.children.last?.birthDay == CalendarDay(tomorrow, in: .gmt))
