@@ -889,7 +889,7 @@
       "steps": [
         {
           "el": "Το μωρό κοιτάζει προς τα πίσω από την πρώτη διαδρομή, και για όσο το επιτρέπει το κάθισμα. Κάθισμα που κοιτάζει προς τα πίσω δεν μπαίνει ποτέ μπροστά σε ενεργό αερόσακο, και σε κάθε ηλικία το πίσω κάθισμα είναι η πιο ασφαλής θέση.",
-          "en": "A baby rides rear-facing from the very first ride, and for as long as the seat allows. A rear-facing seat never goes in front of an active airbag, and at every age the back seat is the safer place."
+          "en": "A baby rides rear-facing from the very first ride, and for as long as the seat allows. A rear-facing seat never goes in front of an active airbag, and at every age the back seat is the safest place."
         },
         {
           "el": "Αν το κάθισμα έχει δικές του ζώνες, σφίξ' τες μέχρι να μην μπορείς να τσιμπήσεις ιμάντα στον ώμο του. Χωρίς μπουφάν ή φόρμα εξόδου από κάτω: η κουβέρτα μπαίνει από πάνω. Στο ανυψωτικό κάθισμα (booster), η ζώνη του αυτοκινήτου περνά από τη μέση του ώμου και χαμηλά στους γοφούς.",
@@ -1185,8 +1185,8 @@
           "en": "Your child's doctor, and who you call when they don't answer: nights, weekends, holidays."
         },
         {
-          "el": "Το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν δεν υπάρχει, για δηλητηρίαση πάρε τώρα τον γιατρό ή πήγαινε στα επείγοντα, και κάλεσε τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν το παιδί δυσκολεύεται να αναπνεύσει, έχει σπασμούς ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
-          "en": "Your country's poison centre, if there is one. If there isn't, for poisoning call the doctor now or go to the emergency department, and call the emergency number if they tell you to or if you can't reach them. If your child struggles to breathe, has a seizure or won't wake, call the emergency number."
+          "el": "Το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν δεν υπάρχει, για δηλητηρίαση πάρε τώρα τον γιατρό, ή πήγαινε στα επείγοντα, και κάλεσε τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν το παιδί δυσκολεύεται να αναπνεύσει, έχει σπασμούς ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+          "en": "Your country's poison centre, if there is one. If there isn't, for poisoning call the doctor now, or go to the emergency department, and call the emergency number if they tell you to or if you can't reach them. If your child struggles to breathe, has a seizure or won't wake, call the emergency number."
         },
         {
           "el": "Το πιο κοντινό νοσοκομείο που δέχεται παιδιά στα επείγοντα, και πώς πας εκεί νύχτα.",
@@ -1661,8 +1661,8 @@
           "en": "A gate on the stairs before they crawl. And from now on: never alone on a bed, sofa or changing table, not even for a second."
         },
         {
-          "el": "Αποθήκευσε στο κινητό το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν καταπιεί κάτι άλλο, πάρε τώρα εκεί ή τον γιατρό ή πήγαινε στα επείγοντα, και κάλεσε τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις. Μην του προκαλέσεις εμετό. Αν το παιδί δυσκολεύεται να αναπνεύσει, έχει σπασμούς ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
-          "en": "Save your country's poison centre in your phone, if there is one. If they swallow anything else, call it or the doctor now or go to the emergency department, and call the emergency number if they tell you to or if you can't reach them. Don't make them sick. If your child struggles to breathe, has a seizure or won't wake, call the emergency number."
+          "el": "Αποθήκευσε στο κινητό το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν καταπιεί κάτι άλλο, πάρε τώρα εκεί ή τον γιατρό, ή πήγαινε στα επείγοντα, και κάλεσε τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις. Μην του προκαλέσεις εμετό. Αν το παιδί δυσκολεύεται να αναπνεύσει, έχει σπασμούς ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+          "en": "Save your country's poison centre in your phone, if there is one. If they swallow anything else, call it or the doctor now, or go to the emergency department, and call the emergency number if they tell you to or if you can't reach them. Don't make them sick. If your child struggles to breathe, has a seizure or won't wake, call the emergency number."
         }
       ],
       "medical": true
