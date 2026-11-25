@@ -68,15 +68,10 @@ public final class TimelineViewModel {
                 state = .loaded(makeContent())
                 return
             }
-            state = .failed(LoadFailure(message: strings.text("The timeline failed to load."), retryTitle: strings.text("Try again")))
+            state = .failed(LoadFailure(
+                message: strings.text("The timeline failed to load."), retryTitle: strings.text("Try again")
+            ))
         }
-    }
-
-    /// "Try again", after the first load failed.
-    public func retry() async {
-        guard case .failed = state else { return }
-        state = .loading
-        await onAppear()
     }
 
     public func select(filter: UUID?) {
@@ -212,21 +207,6 @@ public final class TimelineViewModel {
         }
     }
 
-    /// The film "Make a film" opens: the child the timeline is filtered to, or the first child's (ADR-0037 §6).
-    public var filmRequest: SagaFilmRequest {
-        SagaFilmRequest(childID: selectedFilter)
-    }
-
-    /// The labels of the row's actions.
-    public var editTitle: String {
-        strings.text("Note and photos")
-    }
-
-    /// The label of the row's delete action.
-    public var deleteTitle: String {
-        strings.text("Delete")
-    }
-
     // MARK: Building
 
     private func makeContent() -> TimelineContent {
@@ -318,5 +298,35 @@ public final class TimelineViewModel {
 
     private var momentsFormatter: MomentsFormatter {
         MomentsFormatter(strings: HomeStrings(locale: locale), locale: locale, timeZone: calendar.timeZone)
+    }
+}
+
+// MARK: A timeline that couldn't load
+
+extension TimelineViewModel {
+    /// "Try again", after the first load failed.
+    public func retry() async {
+        guard case .failed = state else { return }
+        state = .loading
+        await onAppear()
+    }
+}
+
+// MARK: The rows' labels and the film
+
+extension TimelineViewModel {
+    /// The film "Make a film" opens: the child the timeline is filtered to, or the first child's (ADR-0037 §6).
+    public var filmRequest: SagaFilmRequest {
+        SagaFilmRequest(childID: selectedFilter)
+    }
+
+    /// The labels of the row's actions.
+    public var editTitle: String {
+        strings.text("Note and photos")
+    }
+
+    /// The label of the row's delete action.
+    public var deleteTitle: String {
+        strings.text("Delete")
     }
 }

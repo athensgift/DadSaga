@@ -93,15 +93,8 @@ public final class HomeViewModel {
         await load()
     }
 
-    /// "Try again", on home or on the map, after the first load failed.
-    public func retry() async {
-        guard case .failed = state else { return }
-        state = .loading
-        await load()
-    }
-
-    /// Back in the app, or midnight passed on home, so perhaps a day later: the child's age, world and suggestions are read again. Not while a load
-    /// is under way: that one already reads what is true now.
+    /// Back in the app, or midnight passed on home, so perhaps a day later: the child's age, world and suggestions are
+    /// read again. Not while a load is under way: that one already reads what is true now.
     public func appBecameActive() async {
         guard state != .loading, loadsUnderWay == 0 else { return }
         await load()
@@ -304,10 +297,6 @@ public final class HomeViewModel {
         }
     }
 
-    private func failure(_ message: String) -> LoadFailure {
-        LoadFailure(message: message, retryTitle: strings.text("Try again"))
-    }
-
     /// Makes the child and world home shows its choice.
     private func chooseWhatIsShown(in overview: HomeOverview) {
         selectedChildID = overview.child.id
@@ -353,5 +342,20 @@ public final class HomeViewModel {
             situational: situationalCards(overview),
             moments: momentsFormatter.section(for: child, age: adventure.age, catalog: catalog, moments: overview.moments)
         )
+    }
+}
+
+// MARK: A home that couldn't load
+
+extension HomeViewModel {
+    /// "Try again", on home or on the map, after the first load failed.
+    public func retry() async {
+        guard case .failed = state else { return }
+        state = .loading
+        await load()
+    }
+
+    private func failure(_ message: String) -> LoadFailure {
+        LoadFailure(message: message, retryTitle: strings.text("Try again"))
     }
 }
