@@ -59,7 +59,7 @@ struct BundledContentRepositoryTests {
         #expect(catalog.boss(id: "b-w3-new-sibling")?.onlyFor == [.youngerSibling])
     }
 
-    @Test("Given the bundled JSON, when fetching, then the cards ADR-0053 and ADR-0054 name carry their flags")
+    @Test("Given the bundled JSON, when fetching, then the cards ADR-0053, 0054 and 0080 name carry their flags")
     func readsTheDecidedFlags() async throws {
         let catalog = try await repository.fetchCatalog()
         #expect(Set(catalog.quests.filter { $0.onlyFor == [.partner] }.map(\.id)) == [
@@ -70,7 +70,7 @@ struct BundledContentRepositoryTests {
         #expect(catalog.quests.filter { $0.onlyFor == [.olderSibling] }.map(\.id) == ["q-w1-meet-the-crew"])
         #expect(catalog.firsts.filter(\.isBeforeBirth).map(\.id) == ["f-found-out", "f-first-picture"])
         #expect(catalog.bosses.filter(\.isSituational).map(\.id) == [
-            "b-w4-two-homes", "b-w4-big-goodbye", "b-w4-big-move"
+            "b-w1-early-start", "b-w4-two-homes", "b-w4-big-goodbye", "b-w4-big-move"
         ])
         #expect(catalog.bosses.filter(\.isEvergreen).map(\.id) == ["b-w1-double-shift", "b-w2-long-grind"])
     }
