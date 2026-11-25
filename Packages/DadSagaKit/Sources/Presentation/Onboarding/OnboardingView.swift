@@ -110,15 +110,20 @@ public struct OnboardingView: View {
                     appearance: viewModel.dadAppearance,
                     selectedHeroID: viewModel.selectedHeroID
                 ) { viewModel.selectHero(id: $0) }
-                SheetError(message: viewModel.errorMessage)
             }
             .padding(DSSpacing.m)
         }
         .background(DSColor.background)
         .navigationTitle(content.heroTitle)
         .safeAreaBar(edge: .bottom) {
-            bottomBar(content.finishTitle, isEnabled: viewModel.canFinish) {
-                Task { await viewModel.finish() }
+            VStack(spacing: 0) {
+                SheetError(message: viewModel.errorMessage)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, DSSpacing.l)
+                    .padding(.top, viewModel.errorMessage == nil ? 0 : DSSpacing.s)
+                bottomBar(content.finishTitle, isEnabled: viewModel.canFinish) {
+                    Task { await viewModel.finish() }
+                }
             }
         }
     }

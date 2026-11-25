@@ -139,8 +139,8 @@ public struct MomentDetails: Equatable, Sendable {
 public struct MomentLabels: Equatable, Sendable {
     public let journal: JournalLabels
     public let delete: String
-    public let deleteConfirmation: String
-    public let cancel: String
+    /// The question before it goes, the timeline's own.
+    public let deletion: DeletionPrompt
 }
 
 /// A captured moment as a gold card.
@@ -210,7 +210,8 @@ public struct BossDetail: Equatable, Identifiable, Sendable {
     public let reward: String
     public let disclaimer: String
     public let isDefeated: Bool
-    public let defeatedText: String
+    /// Once recorded, e.g. "Defeated · Hero of the School Bag".
+    public let recordedText: String
     public let confirmTitle: String
     public let journal: JournalLabels
     /// What he wrote when they got through it, once defeated.
@@ -311,7 +312,7 @@ public struct WorldMapItem: Equatable, Identifiable, Sendable {
     /// When a world ahead is ideal («Ιδανικά από τους 9 μήνες»); `nil` for a world the child has reached, where nothing
     /// is ever late.
     public let idealLine: String?
-    /// What was kept there ("7 αποστολές · 1 αφεντικό"): always for a world reached, for one ahead once the dad has
+    /// What was kept there ("7 αποστολές · 1 boss"): always for a world reached, for one ahead once the dad has
     /// done something there.
     public let progress: String?
     /// "Είσαι εδώ", "Βλέπεις αυτόν τον κόσμο", or nil.

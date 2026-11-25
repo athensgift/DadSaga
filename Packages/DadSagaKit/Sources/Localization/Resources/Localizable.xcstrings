@@ -44,13 +44,13 @@
               "one" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld αφεντικό"
+                  "value" : "%lld boss"
                 }
               },
               "other" : {
                 "stringUnit" : {
                   "state" : "translated",
-                  "value" : "%lld αφεντικά"
+                  "value" : "%lld bosses"
                 }
               }
             }
@@ -620,7 +620,7 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ό,τι υπάρχει τώρα σε αυτό το iPhone θα αντικατασταθεί από όσα έχει το αντίγραφο: η οικογένεια και ο ήρωάς σου, ο τίτλος και η ντουλάπα σου, κάθε αποστολή, αφεντικό και στιγμή με τις σημειώσεις και τις φωτογραφίες τους. Δεν αναιρείται."
+            "value" : "Ό,τι υπάρχει τώρα σε αυτό το iPhone θα αντικατασταθεί από όσα έχει το αντίγραφο: η οικογένεια και ο ήρωάς σου, ο τίτλος και η ντουλάπα σου, κάθε αποστολή, boss και στιγμή με τις σημειώσεις και τις φωτογραφίες τους. Δεν αναιρείται."
           }
         },
         "en" : {
@@ -637,7 +637,7 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Θα διαγραφούν όλα από αυτό το iPhone: η οικογένεια και ο ήρωάς σου, κάθε αποστολή, αφεντικό και στιγμή με τις σημειώσεις και τις φωτογραφίες τους, η ντουλάπα και η εβδομαδιαία υπενθύμιση. Δεν αναιρείται."
+            "value" : "Θα διαγραφούν όλα από αυτό το iPhone: η οικογένεια και ο ήρωάς σου, κάθε αποστολή, boss και στιγμή με τις σημειώσεις και τις φωτογραφίες τους, η ντουλάπα και η εβδομαδιαία υπενθύμιση. Δεν αναιρείται."
           }
         },
         "en" : {
@@ -1172,7 +1172,7 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Ένα αρχείο με την ιστορία σου: την οικογένεια και τον ήρωά σου, τον τίτλο και την ντουλάπα σου, κάθε αποστολή, αφεντικό και στιγμή με τις σημειώσεις και τις φωτογραφίες τους. Κράτα το στα Αρχεία ή σε έναν υπολογιστή, ή στείλ' το σε άλλο iPhone."
+            "value" : "Ένα αρχείο με την ιστορία σου: την οικογένεια και τον ήρωά σου, τον τίτλο και την ντουλάπα σου, κάθε αποστολή, boss και στιγμή με τις σημειώσεις και τις φωτογραφίες τους. Κράτα το στα Αρχεία ή σε έναν υπολογιστή, ή στείλ' το σε άλλο iPhone."
           }
         },
         "en" : {
@@ -1332,23 +1332,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The import stopped when you left DadSaga. Try again whenever you like, and keep DadSaga open until it's done."
-          }
-        }
-      }
-    },
-    "The moment and its photos will be removed. Your title and what you got stay." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "el" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Η στιγμή και οι φωτογραφίες της θα διαγραφούν. Ο τίτλος σου και ό,τι πήρες μένουν."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The moment and its photos will be removed. Your title and what you got stay."
           }
         }
       }
@@ -2051,6 +2034,23 @@
         }
       }
     },
+    "Your note will be deleted with it, for good." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μαζί θα σβηστεί η σημείωσή σου, χωρίς επιστροφή."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your note will be deleted with it, for good."
+          }
+        }
+      }
+    },
     "Your patience grew" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2074,13 +2074,30 @@
         "el" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Οι φωτογραφίες και η σημείωσή σου θα σβηστούν μαζί του, χωρίς επιστροφή."
+            "value" : "Μαζί θα σβηστούν οι φωτογραφίες και η σημείωσή σου, χωρίς επιστροφή."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your photos and note will be deleted with it, for good."
+          }
+        }
+      }
+    },
+    "Your photos will be deleted with it, for good." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Μαζί θα σβηστούν οι φωτογραφίες σου, χωρίς επιστροφή."
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your photos will be deleted with it, for good."
           }
         }
       }
@@ -2625,6 +2642,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Day"
+          }
+        }
+      }
+    },
+    "You were there" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "el" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ήσουν εκεί"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You were there"
           }
         }
       }

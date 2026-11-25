@@ -33,7 +33,7 @@ enum FilmCards {
             lines: [
                 SagaFilmCreditLine(role: "Πρωταγωνιστεί", name: "Άννα"),
                 SagaFilmCreditLine(role: "Ο ήρωας", name: "Cool Μπαμπάς"),
-                SagaFilmCreditLine(role: "Μαζί", name: "4 αποστολές · 1 αφεντικό"),
+                SagaFilmCreditLine(role: "Μαζί", name: "4 αποστολές · 1 boss"),
                 SagaFilmCreditLine(role: "Μουσική", name: "Saga Theme · DadSaga")
             ],
             signature: "Φτιαγμένο με το DadSaga"

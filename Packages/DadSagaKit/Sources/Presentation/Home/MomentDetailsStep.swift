@@ -120,9 +120,11 @@ struct MomentDetailsStep: View {
             onSave: { actions.onSave(date, note, photos) },
             onDiscard: actions.onClose
         ))
-        .confirmationDialog(details.labels.deleteConfirmation, isPresented: $isConfirmingDelete, titleVisibility: .visible) {
-            Button(details.labels.delete, role: .destructive, action: actions.onDelete)
-            Button(details.labels.cancel, role: .cancel) {}
+        .confirmationDialog(details.labels.deletion.title, isPresented: $isConfirmingDelete, titleVisibility: .visible) {
+            Button(details.labels.deletion.confirmTitle, role: .destructive, action: actions.onDelete)
+            Button(details.labels.deletion.cancelTitle, role: .cancel) {}
+        } message: {
+            Text(details.labels.deletion.message)
         }
     }
 

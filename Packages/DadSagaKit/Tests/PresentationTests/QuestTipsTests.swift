@@ -103,6 +103,6 @@ struct QuestTipsTests {
         await sut.completeSelectedQuest()
 
         let map = try #require(sut.worldMap)
-        #expect(map.worlds.map(\.progress) == ["1 αποστολή · 0 αφεντικά", "0 αποστολές · 0 αφεντικά"])
+        #expect(map.worlds.map(\.progress) == ["1 αποστολή · 0 bosses", "0 αποστολές · 0 bosses"])
     }
 }

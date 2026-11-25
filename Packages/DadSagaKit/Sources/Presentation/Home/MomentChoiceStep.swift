@@ -54,12 +54,12 @@ struct MomentChoiceStep: View {
                         optionButton(option)
                     }
                 }
-                SheetError(message: errorMessage)
             }
             .frame(maxWidth: readableWidth)
             .padding(DSSpacing.m)
             .frame(maxWidth: .infinity)
         }
+        .pinnedSheetError(errorMessage)
         .background(DSColor.background)
         .navigationTitle(title)
         // Nor swiped away while it saves: step 2, with the moment's Undo, comes in this sheet.

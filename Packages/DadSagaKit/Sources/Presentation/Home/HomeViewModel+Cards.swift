@@ -38,7 +38,7 @@ extension HomeViewModel {
                 badge: strings.text("BOSS"),
                 symbol: "flame.fill",
                 kind: .boss,
-                footnote: defeatedBossIDs.contains(boss.id) ? strings.defeatedText(for: boss) : nil
+                footnote: defeatedBossIDs.contains(boss.id) ? strings.recordedText(for: boss) : nil
             )
         }
     }

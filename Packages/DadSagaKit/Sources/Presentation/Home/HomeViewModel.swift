@@ -27,7 +27,12 @@ public final class HomeViewModel {
     /// The offer of a saga film, until the dad answers it (ADR-0037 §5).
     public internal(set) var sagaOffer: SagaFilmOffer?
     /// The card for a new title: shown before any offer (ADR-0055 §6).
-    public internal(set) var titleCard: TitleCard?
+    public internal(set) var titleCard: TitleCard? {
+        didSet {
+            // A card taken down by an Undo is heard again when it comes back.
+            if titleCard == nil { spokenTitleID = nil }
+        }
+    }
     /// Titles whose card was closed in this session, so a reload while the close is being saved can't bring it back.
     /// An Undo that takes a title back forgets its card (`takeBack`).
     var closedTitleCards: Set<String> = []
@@ -57,7 +62,9 @@ public final class HomeViewModel {
     private(set) var overview: HomeOverview?
     @ObservationIgnored private var celebrationCount = 0
     /// The last celebration VoiceOver read.
-    @ObservationIgnored private var announcedCelebrationID: Int?
+    var spokenCelebrationID: Int?
+    /// The title whose card VoiceOver read, while the card is there.
+    var spokenTitleID: String?
     /// Each load takes a number; only the latest one may update the screen, so an older load that finishes last
     /// (e.g. home appearing while a widget link opens another child) cannot put back what it read.
     @ObservationIgnored private var loadGeneration = 0
@@ -194,14 +201,6 @@ public final class HomeViewModel {
     func show(_ celebration: Celebration) {
         if let replaced = self.celebration, replaced.id != celebration.id { raiseMark(grownBy: replaced.id) }
         self.celebration = celebration
-    }
-
-    /// Whether VoiceOver should read this celebration now: only the first time. Its time on screen starts again when
-    /// home comes back from the other tab, but it was already read.
-    public func shouldAnnounce(_ celebration: Celebration) -> Bool {
-        guard celebration.id != announcedCelebrationID else { return false }
-        announcedCelebrationID = celebration.id
-        return true
     }
 
     /// Runs a progress action and refreshes the screen. Returns what it changed, or `nil` after showing an error.

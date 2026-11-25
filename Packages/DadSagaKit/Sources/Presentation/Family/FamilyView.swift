@@ -108,12 +108,12 @@ struct FamilyView: View {
                 RemovedChildrenCard(viewModel: viewModel, labels: content.removed)
             }
             PartnerRow(hasPartner: $viewModel.family.hasPartner, labels: content.partner)
-            SheetError(message: viewModel.errorMessage)
             if !isSplit {
                 footnote(content)
             }
         }
         .motion(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.family.children.count)
+        .pinnedSheetError(viewModel.errorMessage)
     }
 
     private func footnote(_ content: FamilyContent) -> some View {

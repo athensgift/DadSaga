@@ -10,7 +10,7 @@ import Testing
 struct DataTransferTests {
     let made = Date(timeIntervalSince1970: 1_790_000_000)
 
-    private func importer(
+    func importer(
         _ restore: FakeRestore,
         replacesSaga: Bool = true,
         backgroundTime: any BackgroundTime = ImmediateBackgroundTime(),
@@ -31,7 +31,7 @@ struct DataTransferTests {
         )
     }
 
-    private func copy(names: [String]) -> OpenedSagaCopy {
+    func copy(names: [String]) -> OpenedSagaCopy {
         let children = names.map { Child(name: $0, birthDay: nil) }
         return OpenedSagaCopy(
             copy: SagaCopy(

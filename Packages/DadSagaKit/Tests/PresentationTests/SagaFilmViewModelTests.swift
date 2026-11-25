@@ -154,7 +154,7 @@ struct SagaFilmViewModelTests: SagaFilmSheetTests {
                     SagaFilmCreditLine(role: "Πρωταγωνιστεί", name: "Άννα"),
                     SagaFilmCreditLine(role: "Ο ήρωας", name: "Cool Μπαμπάς"),
                     SagaFilmCreditLine(role: "Τίτλος", name: "Σίγουρα χέρια"),
-                    SagaFilmCreditLine(role: "Μαζί", name: "4 αποστολές · 1 αφεντικό"),
+                    SagaFilmCreditLine(role: "Μαζί", name: "4 αποστολές · 1 boss"),
                     SagaFilmCreditLine(role: "Μουσική", name: "Το θέμα της ιστορίας · DadSaga")
                 ],
                 signature: "Φτιαγμένο με το DadSaga"

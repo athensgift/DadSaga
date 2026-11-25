@@ -136,7 +136,7 @@ struct TimelineViewModelTests {
 
         let prompt = try #require(sut.deletion)
         #expect(prompt.title == "Διαγραφή από το χρονολόγιο;")
-        #expect(prompt.message.hasPrefix("Οι φωτογραφίες και η σημείωσή σου θα σβηστούν μαζί του, χωρίς επιστροφή."))
+        #expect(prompt.message.hasPrefix("Μαζί θα σβηστούν οι φωτογραφίες και η σημείωσή σου, χωρίς επιστροφή."))
         #expect(prompt.message.hasSuffix(" Ο τίτλος σου και ό,τι πήρες μένουν."))
     }
 
@@ -157,10 +157,11 @@ struct TimelineViewModelTests {
         await sut.onAppear()
 
         sut.requestDeletion(id: quest.id)
-        let photosGo = "Your photos and note will be deleted with it, for good."
-        #expect(sut.deletion?.message == photosGo + " Your title and what you got stay.")
+        #expect(sut.deletion?.message
+            == "Your photos will be deleted with it, for good. Your title and what you got stay.")
         sut.requestDeletion(id: boss.id)
-        #expect(sut.deletion?.message == photosGo + " Its badge will be removed. Your title and what you got stay.")
+        #expect(sut.deletion?.message
+            == "Your note will be deleted with it, for good. Its badge will be removed. Your title and what you got stay.")
     }
 
     @Test("Given a quest entry, when deleting it and confirming, then it leaves the timeline")

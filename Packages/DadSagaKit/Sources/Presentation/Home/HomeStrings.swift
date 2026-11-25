@@ -15,8 +15,10 @@ struct HomeStrings {
         strings.text(key)
     }
 
-    func defeatedText(for boss: BossFight) -> String {
-        strings.text("Defeated") + " · " + boss.badge.resolved(for: locale)
+    /// A boss the dad recorded: defeated, unless it is one for when life changes, which no one defeats (ADR-0079).
+    func recordedText(for boss: BossFight) -> String {
+        let done = boss.isSituational ? strings.text("You were there") : strings.text("Defeated")
+        return done + " · " + boss.badge.resolved(for: locale)
     }
 
     func skill(_ skill: Skill) -> String {

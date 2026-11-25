@@ -102,20 +102,12 @@ public final class TimelineViewModel {
         guard let entry = entries.first(where: { $0.id == id }) else { return }
         errorMessage = nil
         let isBoss = if case .boss = entry.kind { true } else { false }
-        // Only the entry, and a boss's badge, go: the title and gear stay (ADR-0055 §3, §7).
-        let stays = isBoss
-            ? strings.text("Its badge will be removed. Your title and what you got stay.")
-            : strings.text("Your title and what you got stay.")
-        let hasJournal = !entry.photoIDs.isEmpty || entry.note != nil
-        let message = hasJournal
-            ? strings.text("Your photos and note will be deleted with it, for good.") + " " + stays
-            : stays
-        deletion = DeletionPrompt(
+        deletion = .entry(
             id: id,
-            title: strings.text("Delete from the timeline?"),
-            message: message,
-            confirmTitle: strings.text("Delete"),
-            cancelTitle: strings.text("Cancel")
+            hasPhotos: !entry.photoIDs.isEmpty,
+            hasNote: entry.note != nil,
+            isBoss: isBoss,
+            strings: strings
         )
     }
 
@@ -168,12 +160,13 @@ public final class TimelineViewModel {
         errorMessage = nil
     }
 
-    /// A link from outside is about to open home. The delete question closes; nothing is lost by it. The editor closes
-    /// only if that loses nothing: not while it saves, and not while it holds changes the dad hasn't saved (ADR-0050).
-    /// The root holds a link back meanwhile, so this is the last check, not the only one.
+    /// A link from outside is about to open home. The delete question and a failure's alert close; nothing is lost by
+    /// it. The editor closes with its error, but only if that loses nothing: not while it saves, and not while it holds
+    /// changes the dad hasn't saved (ADR-0050). The root holds a link back meanwhile, so this is the last check, not
+    /// the only one.
     public func linkWillOpen(editorHoldsChanges: Bool) {
         deletion = nil
-        guard editor != nil, !isSaving, !editorHoldsChanges else { return }
+        if editor != nil, isSaving || editorHoldsChanges { return }
         closeEditor()
     }
 

@@ -165,7 +165,7 @@ struct BossSheet: View {
         VStack(spacing: DSSpacing.s) {
             SheetError(message: errorMessage)
             if boss.isDefeated {
-                Label(boss.defeatedText, systemImage: "rosette")
+                Label(boss.recordedText, systemImage: "rosette")
                     .font(DSFont.headline)
                     .foregroundStyle(DSColor.xp)
                     .padding(.vertical, DSSpacing.s)

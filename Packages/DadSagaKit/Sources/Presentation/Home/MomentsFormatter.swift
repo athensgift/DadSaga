@@ -86,8 +86,12 @@ struct MomentsFormatter {
             labels: MomentLabels(
                 journal: JournalLabels(locale: locale),
                 delete: strings.text("Delete moment"),
-                deleteConfirmation: strings.text("The moment and its photos will be removed. Your title and what you got stay."),
-                cancel: strings.text("Cancel")
+                deletion: .entry(
+                    id: moment.eventID,
+                    hasPhotos: !moment.photoIDs.isEmpty,
+                    hasNote: moment.note != nil,
+                    strings: strings.strings
+                )
             ),
             undoOffer: undoOffer
         )

@@ -76,4 +76,43 @@ extension TimelineViewModelTests {
         sut.linkWillOpen(editorHoldsChanges: false)
         #expect(sut.editor == nil)
     }
+
+    @Test("Given a first's page, when asking to delete it there, then the question is the timeline's own")
+    func firstsPageAsksAsTheRowDoes() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        let first = try #require(loadedContent(sut)?.sections.first?.items.first)
+
+        sut.edit(id: first.id)
+        sut.requestDeletion(id: first.id)
+
+        #expect(try #require(moment(sut)).labels.deletion == sut.deletion)
+    }
+
+    @Test("Given a failed deletion's alert, when a link is about to open home, then it closes")
+    func linkClosesTheFailureAlert() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        let first = try #require(loadedContent(sut)?.sections.first?.items.first)
+        await log(familyEvents).failFromNowOn()
+        await sut.confirmDeletion(id: first.id)
+        #expect(sut.errorMessage != nil)
+
+        sut.linkWillOpen(editorHoldsChanges: false)
+
+        #expect(sut.errorMessage == nil)
+    }
+
+    @Test("Given an editor that stays for its unsaved changes, when a link is about to open home, then its error stays too")
+    func stayingEditorKeepsItsError() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        sut.edit(id: try #require(loadedContent(sut)?.sections.first?.items.first).id)
+        await log(familyEvents).failFromNowOn()
+        await sut.deleteMoment()
+
+        sut.linkWillOpen(editorHoldsChanges: true)
+
+        #expect(sut.errorMessage == "Δεν διαγράφηκε. Δοκίμασε ξανά.")
+    }
 }

@@ -34,7 +34,7 @@ struct HomeStringsTests {
 
     @Test("Given a world with 1 quest and 2 bosses kept, then each count takes its own form")
     func worldProgress() {
-        #expect(greek.worldProgress(quests: 1, bosses: 2) == "1 αποστολή · 2 αφεντικά")
+        #expect(greek.worldProgress(quests: 1, bosses: 2) == "1 αποστολή · 2 bosses")
         #expect(english.worldProgress(quests: 1, bosses: 2) == "1 quest · 2 bosses")
         #expect(english.worldProgress(quests: 7, bosses: 1) == "7 quests · 1 boss")
     }
@@ -54,5 +54,20 @@ struct HomeStringsTests {
         #expect(english.ageRange(.months(min: 72, max: nil)) == "from 6 years")
         #expect(greek.ageRange(.beforeBirth) == "πριν τη γέννα")
         #expect(english.ageRange(.beforeBirth) == "before birth")
+    }
+
+    @Test("Given a boss for when life changes, once recorded, then it reads as having been there, every other as defeated")
+    func recordedBoss() {
+        func boss(isSituational: Bool) -> BossFight {
+            BossFight(
+                id: "b", worldID: "w", title: HeroStub.text, intro: HeroStub.text, guide: [],
+                badge: LocalizedText(el: "Σταθερό έδαφος", en: "Solid Ground"), skill: .resilience, xp: 100,
+                minAgeMonths: 0, isSituational: isSituational
+            )
+        }
+        #expect(greek.recordedText(for: boss(isSituational: true)) == "Ήσουν εκεί · Σταθερό έδαφος")
+        #expect(english.recordedText(for: boss(isSituational: true)) == "You were there · Solid Ground")
+        #expect(greek.recordedText(for: boss(isSituational: false)) == "Νικήθηκε · Σταθερό έδαφος")
+        #expect(english.recordedText(for: boss(isSituational: false)) == "Defeated · Solid Ground")
     }
 }

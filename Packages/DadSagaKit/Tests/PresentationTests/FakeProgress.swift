@@ -192,10 +192,10 @@ actor FakeProgress: CompleteQuestUseCase, DefeatBossUseCase, CaptureMomentUseCas
 
     /// A moment of the first `HeroStub.niko` can capture, already holding these photos, captured by the dad unless
     /// another author is named.
-    func seedMoment(photos: [Data], by authorID: UUID = .testDad) {
+    func seedMoment(photos: [Data], note: String? = nil, by authorID: UUID = .testDad) {
         events.append(ProgressEvent(
             authorID: authorID, kind: .first(id: "f1"), childID: HeroStub.niko.id, date: HeroStub.today,
-            photoIDs: photos.map(store)
+            note: note, photoIDs: photos.map(store)
         ))
     }
 
