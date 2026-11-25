@@ -27,8 +27,8 @@ public struct OnboardingView: View {
                 case .loaded(let content):
                     childStep(content)
                         .navigationDestination(isPresented: isOnHeroStep) { heroStep(content) }
-                case .failed(let message):
-                    ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
+                case .failed(let failure):
+                    LoadFailureView(failure: failure) { await viewModel.retry() }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

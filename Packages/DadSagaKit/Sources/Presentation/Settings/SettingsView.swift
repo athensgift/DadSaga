@@ -13,10 +13,14 @@ public struct SettingsView: View {
     @State private var page: SettingsPage?
     @Environment(\.openURL) private var openURL
     private let pages: SettingsPages
+    private let isOpeningLink: Bool
 
-    public init(viewModel: SettingsViewModel, pages: SettingsPages) {
+    /// - Parameter isOpeningLink: a link from outside the app (the widget) is opening on another tab: any question or
+    ///   alert here closes, and the pages stay where they were (ADR-0061 §2).
+    public init(viewModel: SettingsViewModel, pages: SettingsPages, isOpeningLink: Bool = false) {
         _viewModel = State(initialValue: viewModel)
         self.pages = pages
+        self.isOpeningLink = isOpeningLink
     }
 
     public var body: some View {
@@ -33,6 +37,11 @@ public struct SettingsView: View {
             // Leaving Export and import is its closing: the files it made were saved or sent by then (ADR-0057 §6).
             .onChange(of: page) { old, _ in
                 if case .data = old { pages.discardExports() }
+            }
+            .onChange(of: isOpeningLink) { _, opening in
+                guard opening else { return }
+                viewModel.linkWillOpen()
+                if case .family(let family) = page { family.linkWillOpen() }
             }
             .navigationDestination(item: $page) { page in
                 switch page {

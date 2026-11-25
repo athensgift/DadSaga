@@ -299,7 +299,7 @@ struct HomeViewModelTests {
     func noProfile() async {
         let sut = makeSUT(profile: nil)
         await sut.onAppear()
-        #expect(sut.state == .failed(message: "Δεν βρέθηκε προφίλ."))
+        #expect(sut.state == .failed(LoadFailure(message: "Δεν βρέθηκε προφίλ.", retryTitle: "Δοκίμασε ξανά")))
     }
 }
 

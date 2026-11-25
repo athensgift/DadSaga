@@ -98,7 +98,7 @@ struct WorldAgesAndTag: View {
                 Text(tag)
                     .font(DSFont.caption)
                     .padding(.horizontal, DSSpacing.s)
-                    .padding(.vertical, 2)
+                    .padding(.vertical, DSSpacing.xxs)
                     .background(world.tint.opacity(0.15), in: Capsule())
                     .foregroundStyle(world.tint)
             }

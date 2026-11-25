@@ -159,6 +159,11 @@ public final class FamilyViewModel {
         deletion = nil
     }
 
+    /// A link from outside is about to open home: the question closes, and nothing is lost by it.
+    public func linkWillOpen() {
+        cancelDeletion()
+    }
+
     /// Takes the id rather than reading `deletion`: the dialog clears its binding before the button's action runs.
     public func confirmDeletion(id: UUID) async {
         deletion = nil

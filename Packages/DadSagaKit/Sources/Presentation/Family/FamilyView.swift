@@ -50,11 +50,11 @@ struct FamilyView: View {
             isAsking: $isConfirmingDiscard,
             labels: unsavedLabels,
             canSave: viewModel.canSave,
+            // Bringing back and deleting for good save with nothing unsaved: a link waits for them too (ADR-0050 §4).
+            isSaving: viewModel.isSaving,
             onSave: { Task { await viewModel.save() } },
             onDiscard: { dismiss() }
         ))
-        // Bringing back and deleting for good save with nothing unsaved: a link waits for them too (ADR-0050 §4).
-        .holdsLinks(whileWorking: viewModel.isSaving)
         .task { await viewModel.onAppear() }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { viewModel.appBecameActive() }

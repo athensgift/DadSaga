@@ -128,6 +128,19 @@ struct FamilyRemovedChildrenTests {
         #expect(await family.deletedForGood == [iris.id])
     }
 
+    @Test("Given the question, when a link is about to open home, then it closes and nothing is deleted")
+    func linkClosesTheQuestion() async {
+        let family = family()
+        let sut = makeSUT(family)
+        await sut.onAppear()
+        sut.requestDeletion(id: iris.id)
+
+        sut.linkWillOpen()
+
+        #expect(sut.deletion == nil)
+        #expect(await family.deletedForGood.isEmpty)
+    }
+
     @Test("Given the store fails, when bringing back or deleting for good, then an error shows and nothing changes")
     func failedActs() async {
         let family = family()

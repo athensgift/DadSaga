@@ -208,6 +208,56 @@ struct TimelineViewModelTests {
         #expect(sut.editor == nil)
     }
 
+    @Test("Given the delete question open, when a link is about to open home, then the question closes and nothing goes")
+    func linkClosesTheDeleteQuestion() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        sut.requestDeletion(id: try #require(loadedContent(sut)?.sections.first?.items.first).id)
+        #expect(sut.deletion != nil)
+
+        sut.linkWillOpen(editorHoldsChanges: false)
+
+        #expect(sut.deletion == nil)
+        #expect(loadedContent(sut)?.sections.flatMap(\.items).count == 3)
+    }
+
+    @Test("Given a loaded timeline, when loading it again fails, then it stays as it was")
+    func failedReloadKeepsTheTimeline() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        await log(familyEvents).failReadsFromNowOn()
+
+        await sut.onAppear()
+
+        #expect(loadedContent(sut)?.sections.flatMap(\.items).count == 3)
+    }
+
+    @Test("Given an entry deleted, when loading the timeline again fails, then the entry is gone and the rest stays")
+    func failedReloadAfterDeleting() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await sut.onAppear()
+        let id = try #require(loadedContent(sut)?.sections.first?.items.first).id
+        await log(familyEvents).failReadsFromNowOn()
+
+        await sut.confirmDeletion(id: id)
+
+        #expect(sut.errorMessage == nil)
+        #expect(loadedContent(sut)?.sections.flatMap(\.items).map(\.kind) == [.boss, .quest])
+    }
+
+    @Test("Given the timeline never loaded, when trying again works, then it shows")
+    func tryAgain() async throws {
+        let sut = makeSUT(profile: HeroStub.family, events: familyEvents)
+        await log(familyEvents).failReadsFromNowOn()
+        await sut.onAppear()
+        #expect(sut.state == .failed(LoadFailure(message: "Το χρονολόγιο δεν φόρτωσε.", retryTitle: "Δοκίμασε ξανά")))
+
+        await log(familyEvents).readAgain()
+        await sut.retry()
+
+        #expect(loadedContent(sut)?.sections.flatMap(\.items).count == 3)
+    }
+
     @Test("Given an entry with two photos, when adding one and making it the cover, then it is saved first")
     func savesArrangedPhotos() async throws {
         let quest = ProgressEvent(kind: .quest(id: "q1"), childID: HeroStub.niko.id, date: january, photoIDs: ["a", "b"])
@@ -297,6 +347,8 @@ actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseC
     private var events: [ProgressEvent]
     /// Every change throws from now on.
     private var isFailing = false
+    /// Every read throws while it is set.
+    private var isFailingReads = false
     /// The `now` the last moment update was given.
     private(set) var lastMomentNow: Date?
 
@@ -304,12 +356,21 @@ actor FakeTimelineLog: GetTimelineUseCase, DeleteEventUseCase, UpdateJournalUseC
         isFailing = true
     }
 
+    func failReadsFromNowOn() {
+        isFailingReads = true
+    }
+
+    func readAgain() {
+        isFailingReads = false
+    }
+
     init(events: [ProgressEvent]) {
         self.events = events
     }
 
     func execute() async throws -> [TimelineEntry] {
-        Timeline.entries(from: events, catalog: HeroStub.catalog)
+        if isFailingReads { throw StubError.boom }
+        return Timeline.entries(from: events, catalog: HeroStub.catalog)
     }
 
     func execute(eventID: UUID) async throws {

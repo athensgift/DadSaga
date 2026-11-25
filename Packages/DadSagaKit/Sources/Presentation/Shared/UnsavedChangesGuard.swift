@@ -4,7 +4,7 @@ import SwiftUI
 /// can't close it, and Close asks first. The question is an alert, so every answer is a visible button: discard, keep
 /// editing, and save where saving only keeps his edit (ADR-0042 §5, ADR-0050). A swipe can't close it while a save is
 /// under way either; each sheet disables its own Close button then (ADR-0055 §3). It also tells the app's
-/// `UnsavedWork` while there is something to lose, so a link from outside waits for it.
+/// `UnsavedWork` while there is something to lose or a save is under way, so a link from outside waits for it.
 struct UnsavedChangesGuard: ViewModifier {
     let hasUnsavedChanges: Bool
     @Binding var isAsking: Bool
@@ -36,7 +36,7 @@ struct UnsavedChangesGuard: ViewModifier {
                 }
                 Button(labels.keepEditing, role: .cancel) {}
             }
-            .onChange(of: hasUnsavedChanges, initial: true) { _, held in
+            .onChange(of: hasUnsavedChanges || isSaving, initial: true) { _, held in
                 guard held || registration != nil else { return }
                 let registration = registration ?? EditorRegistration()
                 self.registration = registration

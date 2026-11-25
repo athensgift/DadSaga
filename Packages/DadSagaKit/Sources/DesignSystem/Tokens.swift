@@ -37,6 +37,10 @@ public enum DSColor {
     /// For a button's label, use `onTintLabel()`, which leaves a disabled button to the system.
     public static let onTint = Color(DSTint.onTint)
 
+    /// Behind a label that lies on a photo, and the label itself: the same in light and dark, as the photo is.
+    public static let photoLabelGround = Color.black.opacity(0.6)
+    public static let onPhoto = Color.white
+
     // MARK: Hero avatar palette
     // The hero's own colours, apart from the tints, so making the interface readable never repaints the hero.
     /// Gold: crowns, stars, buckles.
@@ -102,7 +106,7 @@ package enum DSTint {
 }
 
 public enum DSSpacing {
-    /// The ring of space between a swatch and its selection outline.
+    /// The least space: inside a small badge, or the ring between a swatch and its selection outline.
     public static let xxs: CGFloat = 3
     public static let xs: CGFloat = 4
     public static let s: CGFloat = 8
@@ -131,6 +135,8 @@ public enum DSFont {
     /// A symbol inside a tile or row, e.g. a lock or a placeholder star.
     public static let tileSymbol = Font.system(.body, weight: .semibold)
     public static let smallSymbol = Font.system(.subheadline, weight: .semibold)
+    /// The symbol and number of a small badge on a photo.
+    public static let badge = Font.system(.caption2, weight: .semibold)
     /// A large emoji used as a picture.
     public static let emoji = Font.system(.title)
 }

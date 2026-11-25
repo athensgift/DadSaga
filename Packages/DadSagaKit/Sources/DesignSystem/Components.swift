@@ -25,13 +25,12 @@ public struct PrimaryButton: View {
 /// A row for a quest, boss fight or legendary moment: icon tile, text, and a reward or tag.
 public struct QuestCard: View {
     public enum Style: Sendable {
-        case quest, boss, legendary
+        case quest, boss
 
         public var tint: Color {
             switch self {
             case .quest: DSColor.accent
             case .boss: DSColor.boss
-            case .legendary: DSColor.legendary
             }
         }
     }

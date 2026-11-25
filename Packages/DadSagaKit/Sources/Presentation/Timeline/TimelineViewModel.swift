@@ -55,15 +55,28 @@ public final class TimelineViewModel {
     /// Loads again every time, so it shows what was just done on the other tab.
     public func onAppear() async {
         do {
-            children = try await getProfile.execute()?.children ?? []
+            let children = try await getProfile.execute()?.children ?? []
             entries = try await getTimeline.execute()
+            self.children = children
             if let selectedFilter, !children.contains(where: { $0.id == selectedFilter }) {
                 self.selectedFilter = nil
             }
             state = .loaded(makeContent())
         } catch {
-            state = .failed(message: strings.text("The timeline failed to load."))
+            // A timeline that loaded once stays: what it shows is still the dad's, only not refreshed.
+            if case .loaded = state {
+                state = .loaded(makeContent())
+                return
+            }
+            state = .failed(LoadFailure(message: strings.text("The timeline failed to load."), retryTitle: strings.text("Try again")))
         }
+    }
+
+    /// "Try again", after the first load failed.
+    public func retry() async {
+        guard case .failed = state else { return }
+        state = .loading
+        await onAppear()
     }
 
     public func select(filter: UUID?) {
@@ -110,6 +123,8 @@ public final class TimelineViewModel {
         deletion = nil
         do {
             try await deleteEvent.execute(eventID: id)
+            // Gone even if the timeline can't be read again.
+            entries.removeAll { $0.id == id }
             await onAppear()
         } catch {
             errorMessage = strings.text("Couldn't delete. Please try again.")
@@ -146,10 +161,11 @@ public final class TimelineViewModel {
         errorMessage = nil
     }
 
-    /// A link from outside is about to open home. The editor closes only if that loses nothing: not while it saves,
-    /// and not while it holds changes the dad hasn't saved (ADR-0050). The root holds a link back while the editor holds
-    /// changes, so this is the last check, not the only one.
+    /// A link from outside is about to open home. The delete question closes; nothing is lost by it. The editor closes
+    /// only if that loses nothing: not while it saves, and not while it holds changes the dad hasn't saved (ADR-0050).
+    /// The root holds a link back meanwhile, so this is the last check, not the only one.
     public func linkWillOpen(editorHoldsChanges: Bool) {
+        deletion = nil
         guard editor != nil, !isSaving, !editorHoldsChanges else { return }
         closeEditor()
     }
@@ -177,6 +193,7 @@ public final class TimelineViewModel {
         guard case .moment(let details) = editor else { return }
         await perform(orSay: strings.text("Couldn't delete. Please try again.")) {
             try await self.deleteEvent.execute(eventID: details.momentID)
+            self.entries.removeAll { $0.id == details.momentID }
         }
     }
 

@@ -11,6 +11,19 @@ struct StubLoadCatalog: LoadContentCatalogUseCase {
     }
 }
 
+/// The first load fails, every later one works.
+actor FlakyLoadCatalog: LoadContentCatalogUseCase {
+    private var hasFailed = false
+
+    func execute() async throws -> ContentCatalog {
+        guard hasFailed else {
+            hasFailed = true
+            throw StubError.boom
+        }
+        return HeroStub.catalog
+    }
+}
+
 enum Stub {
     static let catalog = ContentCatalog(
         worlds: [

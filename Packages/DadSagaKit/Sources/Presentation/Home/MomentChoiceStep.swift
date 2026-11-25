@@ -91,8 +91,7 @@ struct MomentChoiceStep: View {
         let shape = RoundedRectangle(cornerRadius: DSRadius.tile + 4, style: .continuous)
         return Button {
             selectedID = option.id
-            // A day before this first's earliest moves up to it: a first after the birth isn't dated before it.
-            date = max(date, option.earliestDate)
+            date = option.date(for: date)
         } label: {
             VStack(spacing: DSSpacing.xs) {
                 Text(option.emoji).font(DSFont.emoji)
