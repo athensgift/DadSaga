@@ -112,17 +112,20 @@ public struct RootView: View {
         .windowAppearance(viewModel.preferences.appearance)
         .environment(\.isHapticsEnabled, viewModel.preferences.isHapticsEnabled)
         .animation(.easeInOut(duration: 0.35), value: viewModel.state)
-        .task {
-            await viewModel.onAppear()
-            openIncomingURL()
-        }
+        .task { await viewModel.onAppear() }
         .onOpenURL { viewModel.open(url: $0) }
         // Back in the app after freeing space, say: try the store again.
         .onChange(of: scenePhase) { _, phase in
             guard phase == .active, viewModel.state == .unavailable else { return }
             Task { await viewModel.retry() }
         }
-        .onChange(of: incomingURL) { openIncomingURL() }
+        // A cold launch may bring it before or after this view appears, and before the app knows whether there is a
+        // family: the view model keeps it until then.
+        .onChange(of: incomingURL, initial: true) { _, url in
+            guard let url else { return }
+            viewModel.open(url: url)
+            onIncomingURLHandled()
+        }
     }
 
     /// Builds the screen's ViewModel when it appears and lets go of the other screen's.
@@ -155,13 +158,6 @@ public struct RootView: View {
         timeline = makeTimeline()
         settings = makeSettings(viewModel.preferences, settingsActions)
         viewModel.onLeftAdventure = { home.leftForAnotherTab() }
-    }
-
-    /// Waits until the app knows whether there is a family, so a cold-launch link is not dropped while loading.
-    private func openIncomingURL() {
-        guard let incomingURL, viewModel.state != .loading else { return }
-        viewModel.open(url: incomingURL)
-        onIncomingURLHandled()
     }
 
     private var settingsActions: SettingsActions {

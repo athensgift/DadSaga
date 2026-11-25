@@ -84,6 +84,8 @@ public struct MomentCapture: Equatable, Identifiable, Sendable {
 
     /// The same through both steps, so the sheet stays open while it moves on.
     public let id: UUID
+    /// The child it was opened for, and is recorded with.
+    let childID: UUID
     /// The child's name.
     public let title: String
     public internal(set) var step: Step
@@ -165,6 +167,8 @@ public struct MomentOption: Equatable, Identifiable, Sendable {
 /// The sheet asking the dad whether he did a quest.
 public struct QuestDetail: Equatable, Identifiable, Sendable {
     public let id: String
+    /// The child it was opened for, and is recorded with.
+    let childID: UUID
     public let title: String
     public let description: String
     /// The skill it grows, e.g. "Care". No XP (ADR-0055 §7).
@@ -188,6 +192,8 @@ public struct TipDetail: Equatable, Sendable {
 /// The sheet for a boss fight: intro, survival guide and the "we made it" action.
 public struct BossDetail: Equatable, Identifiable, Sendable {
     public let id: String
+    /// The child it was opened for, and is recorded with.
+    let childID: UUID
     public let title: String
     public let intro: String
     public let guideTitle: String

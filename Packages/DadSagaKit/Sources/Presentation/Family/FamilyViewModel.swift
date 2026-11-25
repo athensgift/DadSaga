@@ -23,7 +23,7 @@ public final class FamilyViewModel {
     /// Asked before a removed child is deleted for good.
     public private(set) var deletion: DeletionPrompt?
     /// A child cannot be born in the future.
-    public let latestBirthDate: Date
+    public var latestBirthDate: Date { now() }
 
     public var canSave: Bool { family.isComplete && !isSaving }
     /// Bringing back is adding (ADR-0065 §4): the family on screen and the stored one both have room.
@@ -49,6 +49,7 @@ public final class FamilyViewModel {
     private let bringBackChild: any BringBackChildUseCase
     private let deleteChildForGood: any DeleteChildForGoodUseCase
     private let locale: Locale
+    private let now: @Sendable () -> Date
     /// The zone the date pickers draw in, and the one "today" is read in.
     public let timeZone: TimeZone
     private let onSaved: @MainActor () -> Void
@@ -59,7 +60,7 @@ public final class FamilyViewModel {
         bringBack: any BringBackChildUseCase,
         deleteForGood: any DeleteChildForGoodUseCase,
         locale: Locale = .current,
-        now: Date = .now,
+        now: @escaping @Sendable () -> Date = Date.init,
         timeZone: TimeZone = .autoupdatingCurrent,
         onSaved: @escaping @MainActor () -> Void
     ) {
@@ -70,7 +71,7 @@ public final class FamilyViewModel {
         self.locale = locale
         self.timeZone = timeZone
         self.onSaved = onSaved
-        latestBirthDate = now
+        self.now = now
     }
 
     public func onAppear() async {
@@ -192,6 +193,7 @@ public final class FamilyViewModel {
         )
         // A draft the dad already has keeps what only the draft holds, such as the picker's day of a child not born.
         let drafts = family.children + shown.children
+        let today = today
         func draft(_ child: Child) -> ChildDraft {
             drafts.first { $0.id == child.id && $0.child == child } ?? ChildDraft(child, today: today)
         }

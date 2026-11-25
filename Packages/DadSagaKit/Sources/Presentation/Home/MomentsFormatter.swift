@@ -55,7 +55,7 @@ struct MomentsFormatter {
             nextLine: strings.text("Next, if you like: photos or a few words."),
             saveTitle: strings.text("Save")
         )
-        return MomentCapture(id: UUID(), title: child.name, step: .choose(choice))
+        return MomentCapture(id: UUID(), childID: child.id, title: child.name, step: .choose(choice))
     }
 
     /// Step 2 for a moment: just recorded (`isNew`, with its undo) or opened to edit.

@@ -245,7 +245,7 @@ struct UndoBar: View {
     private var duration: Duration { voiceOver ? .seconds(15) : .seconds(6) }
 
     var body: some View {
-        HStack(spacing: DSSpacing.m) {
+        AdaptiveStack(spacing: DSSpacing.m) {
             Label {
                 Text(offer.message).foregroundStyle(DSColor.textPrimary)
             } icon: {
@@ -256,7 +256,7 @@ struct UndoBar: View {
                 }
             }
             .font(DSFont.subheadline)
-            Spacer(minLength: 0)
+            .frame(maxWidth: .infinity, alignment: .leading)
             Button(offer.actionTitle, systemImage: "arrow.uturn.backward", action: onUndo)
                 .font(DSFont.headline)
                 .buttonStyle(.borderless)
@@ -265,7 +265,7 @@ struct UndoBar: View {
         .padding(.horizontal, DSSpacing.m)
         .padding(.vertical, DSSpacing.s)
         // Solid, not clear glass: the cards scrolling underneath made the text hard to read.
-        .background(DSColor.surface, in: Capsule())
+        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: DSRadius.card, style: .continuous))
         .shadow(color: DSColor.heroInk.opacity(0.15), radius: 12, y: 4)
         .frame(maxWidth: readableWidth)
         .padding(.horizontal, DSSpacing.m)

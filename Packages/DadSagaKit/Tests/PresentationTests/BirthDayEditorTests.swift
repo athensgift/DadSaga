@@ -22,7 +22,7 @@ struct BirthDayEditorTests {
             bringBack: NoFamilyActs(),
             deleteForGood: NoFamilyActs(),
             locale: Locale(identifier: "el_GR"),
-            now: HeroStub.today,
+            now: { HeroStub.today },
             timeZone: losAngeles,
             onSaved: {}
         )
@@ -70,7 +70,7 @@ struct BirthDayEditorTests {
             loadCatalog: StubLoadCatalog(result: .success(HeroStub.catalog)),
             saveProfile: save,
             locale: Locale(identifier: "el_GR"),
-            now: evening,
+            now: { evening },
             timeZone: auckland,
             onFinished: {}
         )
@@ -103,7 +103,7 @@ struct BirthDayEditorTests {
             bringBack: NoFamilyActs(),
             deleteForGood: NoFamilyActs(),
             locale: Locale(identifier: "el_GR"),
-            now: HeroStub.today,
+            now: { HeroStub.today },
             timeZone: timeZone,
             onSaved: {}
         )

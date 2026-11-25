@@ -5,7 +5,7 @@ import Foundation
 /// Legendary moments, in two steps (ADR-0042 §5): choosing the first records it; photos and a few words follow, if
 /// the dad likes. Editing a moment opens straight at the second step.
 extension HomeViewModel {
-    /// Opens step 1 for the selected child.
+    /// Opens step 1 for the child home shows.
     public func startCapture() {
         guard let overview else { return }
         errorMessage = nil
@@ -22,7 +22,8 @@ extension HomeViewModel {
     /// in it. The celebration waits for the sheet to close, so the dad sees it on home. On failure step 1 stays, with
     /// an error.
     public func captureMoment(firstID: String, date: Date) async {
-        guard let capture = momentCapture, case .choose(let choice) = capture.step, let child = overview?.child,
+        guard let capture = momentCapture, case .choose(let choice) = capture.step,
+              let child = overview?.profile.children.first(where: { $0.id == capture.childID }),
               let option = choice.options.first(where: { $0.id == firstID }) else { return }
         let request = CaptureMomentRequest(firstID: firstID, childID: child.id, date: date)
         guard let change = await record({ try await self.useCases.moments.capture.execute(request, now: self.now()) }),
@@ -56,7 +57,9 @@ extension HomeViewModel {
               let moment = overview.moments.moments(for: overview.child.id).first(where: { $0.eventID == id }) else { return }
         errorMessage = nil
         let details = momentsFormatter.details(moment, for: overview.child, now: now(), isNew: false)
-        momentCapture = MomentCapture(id: UUID(), title: overview.child.name, step: .details(details))
+        momentCapture = MomentCapture(
+            id: UUID(), childID: overview.child.id, title: overview.child.name, step: .details(details)
+        )
     }
 
     /// Step 2's Save: the moment's date, note and photos as the dad left them. Closes the sheet.

@@ -152,4 +152,19 @@ struct WorldMapTests {
         #expect(loaded(sut)?.worldTitle == "Πεδιάδα")
         #expect(sut.worldMap?.subtitle.hasPrefix(HeroStub.eleni.name) == true)
     }
+
+    @Test("Given a world chosen, when loading it fails, then the next load shows the world home still shows")
+    func failedWorldGoesBack() async throws {
+        let sut = makeSUT(months: 10)
+        await sut.onAppear()
+        let before = try #require(loaded(sut)?.worldTitle)
+        await progress.failOverview()
+
+        await sut.showWorld(id: "w1")
+
+        await progress.mendOverview()
+        await sut.reload()
+        #expect(loaded(sut)?.worldTitle == before)
+        #expect(loaded(sut)?.backToCurrentTitle == nil)
+    }
 }

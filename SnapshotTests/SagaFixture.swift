@@ -158,7 +158,7 @@ extension SagaFixture {
                 contentRepository: content, profileRepository: store.profiles, timeZone: Self.calendar.timeZone
             ),
             locale: locale,
-            now: Self.today,
+            now: { Self.today },
             timeZone: Self.calendar.timeZone,
             onFinished: {}
         )
@@ -279,7 +279,7 @@ extension SagaFixture {
                         contentRepository: content, profileRepository: store.profiles,
                         progressRepository: store.progress, standingRepository: store.standing, photoStore: photos
                     ),
-                    locale: locale, now: Self.today, timeZone: Self.calendar.timeZone,
+                    locale: locale, now: { Self.today }, timeZone: Self.calendar.timeZone,
                     onSaved: onSaved
                 )
             },

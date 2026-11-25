@@ -23,7 +23,7 @@ public struct HeroAvatar: View {
 
     /// - Parameters:
     ///   - size: the avatar's height in points.
-    ///   - cheerTrigger: change this value to make the hero cheer, as if he had been tapped.
+    ///   - cheerTrigger: raise this value to make the hero cheer, as if he had been tapped. Lowering it does nothing.
     ///   - skin: the dad's skin tone.
     ///   - features: the dad's hair, beard and glasses; `nil` is the standard look, with the hair colour of `skin`.
     ///   - items: earned gear to draw; at most one per slot (the last one wins).
@@ -62,7 +62,7 @@ public struct HeroAvatar: View {
         .opacity(hasAppeared || isStill ? 1 : 0)
         .contentShape(Rectangle())
         .onTapGesture(perform: cheer)
-        .onChange(of: cheerTrigger) { cheer() }
+        .onChange(of: cheerTrigger) { old, new in if new > old { cheer() } }
         .sensoryFeedback(.impact, trigger: isCheering) { _, cheering in cheering && isHapticsEnabled }
         .onAppear {
             // With Reduce Motion it is simply there, without growing in.

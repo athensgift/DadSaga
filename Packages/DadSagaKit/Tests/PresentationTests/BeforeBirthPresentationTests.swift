@@ -310,7 +310,7 @@ struct BeforeBirthPresentationTests {
             loadCatalog: StubLoadCatalog(result: .success(HarbourStub.catalog)),
             saveProfile: save,
             locale: Locale(identifier: "el_GR"),
-            now: HarbourStub.today,
+            now: { HarbourStub.today },
             timeZone: .gmt,
             onFinished: {}
         )
@@ -343,7 +343,7 @@ struct BeforeBirthPresentationTests {
             bringBack: NoFamilyActs(),
             deleteForGood: NoFamilyActs(),
             locale: Locale(identifier: "el_GR"),
-            now: HarbourStub.today,
+            now: { HarbourStub.today },
             timeZone: .gmt,
             onSaved: {}
         )

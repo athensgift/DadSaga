@@ -31,7 +31,7 @@ struct OfferCard: View {
                     .foregroundStyle(DSColor.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            HStack(spacing: DSSpacing.s) {
+            AdaptiveStack(spacing: DSSpacing.s) {
                 Button(accept) { onAnswer(true) }
                     .buttonStyle(.glassProminent)
                     .onTintLabel()

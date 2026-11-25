@@ -20,7 +20,7 @@ public final class OnboardingViewModel {
     public private(set) var errorMessage: String?
     public var family: FamilyDraft
     /// A child cannot be born in the future.
-    public let latestBirthDate: Date
+    public var latestBirthDate: Date { now() }
 
     /// The look the profile is created with: the standard one for the chosen skin tone (ADR-0044 §2).
     public var dadAppearance: DadAppearanceChoice {
@@ -38,6 +38,7 @@ public final class OnboardingViewModel {
     private let loadCatalog: any LoadContentCatalogUseCase
     private let saveProfile: any SaveProfileUseCase
     private let locale: Locale
+    private let now: @Sendable () -> Date
     /// The zone the date pickers draw in, and the one "today" is read in.
     public let timeZone: TimeZone
     private let onFinished: @MainActor () -> Void
@@ -46,17 +47,17 @@ public final class OnboardingViewModel {
         loadCatalog: any LoadContentCatalogUseCase,
         saveProfile: any SaveProfileUseCase,
         locale: Locale = .current,
-        now: Date = .now,
+        now: @escaping @Sendable () -> Date = Date.init,
         timeZone: TimeZone = .autoupdatingCurrent,
         onFinished: @escaping @MainActor () -> Void
     ) {
         self.loadCatalog = loadCatalog
         self.saveProfile = saveProfile
         self.locale = locale
+        self.now = now
         self.timeZone = timeZone
         self.onFinished = onFinished
-        family = FamilyDraft(children: [ChildDraft(birthDay: CalendarDay(now, in: timeZone))])
-        latestBirthDate = now
+        family = FamilyDraft(children: [ChildDraft(birthDay: CalendarDay(now(), in: timeZone))])
     }
 
     public func onAppear() async {
