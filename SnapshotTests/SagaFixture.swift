@@ -46,7 +46,8 @@ struct SagaFixture {
     private var reminder: ReminderUseCases {
         ReminderUseCases(
             get: DefaultGetWeeklyReminderUseCase(settings: reminderSettings, scheduler: scheduler),
-            update: DefaultUpdateWeeklyReminderUseCase(settings: reminderSettings, scheduler: scheduler, schedule: NoSchedule())
+            update: DefaultUpdateWeeklyReminderUseCase(settings: reminderSettings, scheduler: scheduler, schedule: NoSchedule()),
+            schedule: NoSchedule()
         )
     }
 
@@ -243,12 +244,8 @@ extension SagaFixture {
             useCases: SettingsViewModel.UseCases(
                 savePreferences: DefaultSavePreferencesUseCase(repository: preferences),
                 startOver: DefaultStartOverUseCase(
-                    wholeSaga: store.wholeSaga,
-                    photoStore: photos,
-                    reminderSettings: reminderSettings,
-                    sagaOffers: sagaOffers,
-                    schedule: NoSchedule(),
-                    notificationScheduler: scheduler
+                    wholeSaga: store.wholeSaga, photoStore: photos, reminderSettings: reminderSettings,
+                    sagaOffers: sagaOffers, renewReminders: NoSchedule()
                 ),
                 getHeroChoice: DefaultGetHeroChoiceUseCase(contentRepository: content, profileRepository: store.profiles)
             ),
@@ -273,11 +270,14 @@ extension SagaFixture {
             makeFamily: { onSaved in
                 FamilyViewModel(
                     getProfile: DefaultGetProfileUseCase(repository: store.profiles),
-                    updateFamily: DefaultUpdateFamilyUseCase(profileRepository: store.profiles, timeZone: Self.calendar.timeZone),
+                    updateFamily: DefaultUpdateFamilyUseCase(
+                        profileRepository: store.profiles, renewReminders: NoSchedule(), timeZone: Self.calendar.timeZone
+                    ),
                     bringBack: DefaultBringBackChildUseCase(profileRepository: store.profiles),
                     deleteForGood: DefaultDeleteChildForGoodUseCase(
                         contentRepository: content, profileRepository: store.profiles,
-                        progressRepository: store.progress, standingRepository: store.standing, photoStore: photos
+                        progressRepository: store.progress, standingRepository: store.standing, photoStore: photos,
+                        renewReminders: NoSchedule()
                     ),
                     locale: locale, now: { Self.today }, timeZone: Self.calendar.timeZone,
                     onSaved: onSaved
@@ -305,7 +305,7 @@ extension SagaFixture {
         DataImportViewModel(
             restore: DefaultRestoreSagaUseCase(
                 wholeSaga: store.wholeSaga, progressRepository: store.progress, photoStore: photos,
-                sagaOffers: sagaOffers, files: sagaCopyFiles, schedule: NoSchedule(), notificationScheduler: scheduler
+                sagaOffers: sagaOffers, files: sagaCopyFiles, renewReminders: NoSchedule()
             ),
             backgroundTime: ImmediateBackgroundTime(),
             replacesSaga: replacesSaga,
@@ -366,7 +366,7 @@ private struct SilentScheduler: NotificationScheduler {
     func removeDelivered() async {}
 }
 
-private struct NoSchedule: ScheduleWeeklyRemindersUseCase {
+private struct NoSchedule: ScheduleWeeklyRemindersUseCase, RenewWeeklyRemindersUseCase {
     func execute(on date: Date) async {}
 }
 

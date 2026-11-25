@@ -44,7 +44,7 @@ extension SagaCopyBench {
     func restore(on phone: Phone) -> DefaultRestoreSagaUseCase {
         DefaultRestoreSagaUseCase(
             wholeSaga: phone.store.wholeSaga, progressRepository: phone.store.progress, photoStore: phone.photos,
-            sagaOffers: phone.offers, files: phone.files, schedule: NoSchedule(), notificationScheduler: NoNotifications()
+            sagaOffers: phone.offers, files: phone.files, renewReminders: NoReminders()
         )
     }
 
@@ -179,15 +179,8 @@ actor MemoryOffers: SagaOfferRepository {
     func deleteAll() async { answered = [] }
 }
 
-struct NoSchedule: ScheduleWeeklyRemindersUseCase {
+struct NoReminders: RenewWeeklyRemindersUseCase {
     func execute(on date: Date) async {}
-}
-
-struct NoNotifications: NotificationScheduler {
-    func authorization() async -> NotificationAuthorization { .denied }
-    func requestAuthorization() async -> Bool { false }
-    func replacePending(with reminders: [PendingReminder]) async {}
-    func removeDelivered() async {}
 }
 
 /// Reads and writes Apple Archive files entry by entry, so tests can make copies the app never would. Checksums are

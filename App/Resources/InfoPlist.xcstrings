@@ -27,6 +27,9 @@
       },
       "shouldTranslate" : false
     },
+    "DadSaga copy" : {
+
+    },
     "NSCameraUsageDescription" : {
       "comment" : "Privacy - Camera Usage Description",
       "extractionState" : "extracted_with_value",

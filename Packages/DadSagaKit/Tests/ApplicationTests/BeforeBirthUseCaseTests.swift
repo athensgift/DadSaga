@@ -121,7 +121,7 @@ struct BeforeBirthUseCaseTests {
         var born = coming
         born.birthDay = CalendarDay(today, in: .gmt)
 
-        try await DefaultUpdateFamilyUseCase(profileRepository: profiles, timeZone: .gmt)
+        try await DefaultUpdateFamilyUseCase(profileRepository: profiles, renewReminders: NoReminders(), timeZone: .gmt)
             .execute(FamilyEdit(changed: [ChildEdit(child: born, fields: [.birthDay])], hasPartner: false), on: today)
 
         let profile = try #require(try await profiles.fetchProfile())

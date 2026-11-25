@@ -7,7 +7,7 @@ public protocol WholeSagaRepository: Sendable {
     /// The profile, the children (those removed from the family apart), every entry the store maps, the wardrobe and
     /// the kept standing, read together. `nil` when there is no profile.
     func readAll() async throws -> StoredSaga?
-    /// Every row replaced by `saga` in one save. The kept standing is written as it is, `nil` gear included.
+    /// Every row replaced by `saga` in one save. The kept standing is written as it is.
     func replaceAll(with saga: StoredSaga) async throws
     /// Starting over: every row deleted in one save.
     func eraseAll() async throws

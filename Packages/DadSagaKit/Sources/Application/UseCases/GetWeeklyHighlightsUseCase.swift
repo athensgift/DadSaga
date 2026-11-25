@@ -92,9 +92,6 @@ public struct DefaultGetWeeklyHighlightsUseCase: GetWeeklyHighlightsUseCase {
         )
     }
 
-    /// The age is taken on the day the week starts, so a birthday mid-week does not swap the card. It is the Gregorian
-    /// age, whatever calendar the week is counted on (ADR-0048 §2). Only a quest offered to this family is picked: never
-    /// a retired one or one for someone else (ADR-0053).
     private func questSlot(
         for child: Child,
         family: FamilyFacts,
@@ -102,15 +99,7 @@ public struct DefaultGetWeeklyHighlightsUseCase: GetWeeklyHighlightsUseCase {
         catalog: ContentCatalog,
         events: [ProgressEvent]
     ) -> WeeklyHighlights.QuestSlot {
-        let age = child.age(on: CalendarDay(week.start, in: calendar.timeZone))
-        guard !UnlockRules.isBeyondContent(catalog, age: age),
-              let world = UnlockRules.currentWorld(in: catalog, age: age),
-              let quest = WeeklyQuest.pick(
-                  from: UnlockRules.quests(for: world, in: catalog, age: age, family: family),
-                  childID: child.id,
-                  week: week,
-                  calendar: calendar
-              )
+        guard let quest = WeeklyQuest.pick(for: child, family: family, in: catalog, week: week, calendar: calendar)
         else { return .comingSoon }
         return .suggested(quest, isDone: WeeklyQuest.isDone(quest, childID: child.id, week: week, events: events))
     }

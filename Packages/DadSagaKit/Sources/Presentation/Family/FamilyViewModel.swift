@@ -164,7 +164,7 @@ public final class FamilyViewModel {
         deletion = nil
         guard !isSaving else { return }
         await act(on: id, failure: strings.text("Couldn't delete. Please try again.")) {
-            try await deleteChildForGood.execute(childID: id)
+            try await deleteChildForGood.execute(childID: id, on: now())
         }
     }
 

@@ -144,7 +144,8 @@ struct HomeSagaOfferTests {
         await progress.seed(times: 1)
         let reminder = FakeReminder()
         let sut = makeHome(
-            FakeFilmOffers(occasion: Self.birthday), reminder: ReminderUseCases(get: reminder, update: reminder)
+            FakeFilmOffers(occasion: Self.birthday),
+            reminder: ReminderUseCases(get: reminder, update: reminder, schedule: CountingReschedules())
         )
         await sut.onAppear()
         // The seeded quest brought a title: its card comes before the film (ADR-0055 §6).

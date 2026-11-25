@@ -47,18 +47,25 @@ public struct DefaultUpdateHeroUseCase: UpdateHeroUseCase {
 /// (ADR-0048 §5).
 public struct DefaultUpdateFamilyUseCase: UpdateFamilyUseCase {
     private let profileRepository: any ProfileRepository
+    private let renewReminders: any RenewWeeklyRemindersUseCase
     private let timeZone: TimeZone
 
-    public init(profileRepository: any ProfileRepository, timeZone: TimeZone = .autoupdatingCurrent) {
+    public init(
+        profileRepository: any ProfileRepository,
+        renewReminders: any RenewWeeklyRemindersUseCase,
+        timeZone: TimeZone = .autoupdatingCurrent
+    ) {
         self.profileRepository = profileRepository
+        self.renewReminders = renewReminders
         self.timeZone = timeZone
     }
 
-    /// Checked against the family as it stands; an empty edit saves nothing.
+    /// Checked against the family as it stands; an empty edit saves nothing. Removing a child leaves no note naming them.
     public func execute(_ edit: FamilyEdit, on date: Date) async throws {
         guard let profile = try await profileRepository.fetchProfile() else { throw ProfileEditError.noProfile }
         guard !edit.isEmpty else { return }
         let valid = try ProfileRules.validated(edit, for: profile.children, on: CalendarDay(date, in: timeZone))
         try await profileRepository.save(valid)
+        if !valid.removedIDs.isEmpty { await renewReminders.execute(on: date) }
     }
 }

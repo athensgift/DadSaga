@@ -309,10 +309,11 @@ struct FakeBringBack: BringBackChildUseCase {
 
 struct FakeDeleteForGood: DeleteChildForGoodUseCase {
     let family: FakeFamily
-    func execute(childID: UUID) async throws { try await family.deleteForGood(childID) }
+    func execute(childID: UUID, on date: Date) async throws { try await family.deleteForGood(childID) }
 }
 
 /// For the tests that never bring back or delete for good.
 struct NoFamilyActs: BringBackChildUseCase, DeleteChildForGoodUseCase {
     func execute(childID: UUID) async throws {}
+    func execute(childID: UUID, on date: Date) async throws {}
 }

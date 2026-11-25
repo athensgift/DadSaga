@@ -69,7 +69,9 @@ struct WeeklyReminderUseCaseTests {
     /// The quest the widget shows for this child in the week of `date`.
     func weeklyQuest(for child: Child, on date: Date) -> String? {
         let week = WeeklyQuest.week(containing: date, calendar: Fixture.calendar)
-        return WeeklyQuest.pick(from: Self.catalog.quests, childID: child.id, week: week, calendar: Fixture.calendar)?.id
+        return WeeklyQuest.pick(
+            for: child, family: .everyone, in: Self.catalog, week: week, calendar: Fixture.calendar
+        )?.id
     }
 
     @Test("Given the reminder is on and allowed, when scheduling, then the next four Saturdays carry their week's quest")
@@ -168,7 +170,6 @@ struct WeeklyReminderUseCaseTests {
         _ = await update(scheduler).execute(reminder, on: today)
 
         #expect(await scheduler.promptCount == 1)
-        #expect(status.isActive)
         #expect(!status.canOffer)
         #expect(await scheduler.pending.count == 4)
     }
@@ -184,7 +185,7 @@ struct WeeklyReminderUseCaseTests {
         #expect(!(await DefaultGetWeeklyReminderUseCase(settings: settings, scheduler: scheduler).execute().canOffer))
     }
 
-    @Test("Given iOS refuses, when the dad turns it on, then it is saved on but not active")
+    @Test("Given iOS refuses, when the dad turns it on, then it is saved on and nothing waits")
     func refused() async {
         let scheduler = FakeNotificationScheduler(status: .notDetermined, allowsWhenAsked: false)
         var reminder = WeeklyReminder.default
@@ -193,7 +194,6 @@ struct WeeklyReminderUseCaseTests {
         let status = await update(scheduler).execute(reminder, on: today)
 
         #expect(status.authorization == .denied)
-        #expect(!status.isActive)
         #expect(await scheduler.pending.isEmpty)
     }
 

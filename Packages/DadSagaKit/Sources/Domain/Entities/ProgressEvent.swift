@@ -26,7 +26,7 @@ public struct ProgressEvent: Hashable, Identifiable, Sendable {
     public let childID: UUID
     /// When it happened. For a first, the day the dad says it happened, which may be in the past.
     public let date: Date
-    /// The dad's own words, for firsts.
+    /// The dad's own words, on any entry.
     public let note: String?
     /// Photos kept on the device, in the dad's order; the first is the cover (ADR-0042). At most `photoLimit`.
     public let photoIDs: [String]

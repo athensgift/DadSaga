@@ -18,11 +18,12 @@ struct RemovedChildUseCaseTests {
     }
 
     func deleteForGood(
-        _ profiles: SpyProfileRepository, _ progress: SpyProgressRepository, _ standing: InMemoryStanding
+        _ profiles: SpyProfileRepository, _ progress: SpyProgressRepository, _ standing: InMemoryStanding,
+        renewReminders: any RenewWeeklyRemindersUseCase = NoReminders()
     ) -> DefaultDeleteChildForGoodUseCase {
         DefaultDeleteChildForGoodUseCase(
             contentRepository: content, profileRepository: profiles, progressRepository: progress,
-            standingRepository: standing, photoStore: photos
+            standingRepository: standing, photoStore: photos, renewReminders: renewReminders
         )
     }
 
@@ -69,7 +70,7 @@ struct RemovedChildUseCaseTests {
         try await progress.add(ProgressEvent(kind: .quest(id: "q1"), childID: iris.id, date: .now))
         let standing = InMemoryStanding()
 
-        try await deleteForGood(repository, progress, standing).execute(childID: iris.id)
+        try await deleteForGood(repository, progress, standing).execute(childID: iris.id, on: .now)
 
         #expect(await standing.kept.titleID == "t1")
         let stored = try #require(try await repository.fetchProfile())
@@ -86,7 +87,7 @@ struct RemovedChildUseCaseTests {
         await standing.failKeeping()
 
         await #expect(throws: StubError.boom) {
-            try await deleteForGood(repository, progress, standing).execute(childID: iris.id)
+            try await deleteForGood(repository, progress, standing).execute(childID: iris.id, on: .now)
         }
         #expect(try await repository.fetchProfile()?.removedChildren == [iris])
         #expect(await repository.editCount == 0)
@@ -99,7 +100,7 @@ struct RemovedChildUseCaseTests {
         let ours = try await photos.save(Data("b".utf8))
         await repository.setPhotosOfRemoved([theirs])
 
-        try await deleteForGood(repository, SpyProgressRepository(), InMemoryStanding()).execute(childID: iris.id)
+        try await deleteForGood(repository, SpyProgressRepository(), InMemoryStanding()).execute(childID: iris.id, on: .now)
 
         #expect(await photos.stored.keys.sorted() == [ours])
     }
@@ -112,7 +113,7 @@ struct RemovedChildUseCaseTests {
         let standing = InMemoryStanding()
 
         await #expect(throws: ProfileEditError.notRemoved) {
-            try await deleteForGood(repository, progress, standing).execute(childID: iris.id)
+            try await deleteForGood(repository, progress, standing).execute(childID: iris.id, on: .now)
         }
         #expect(await standing.writes == 0)
         #expect(await repository.editCount == 0)

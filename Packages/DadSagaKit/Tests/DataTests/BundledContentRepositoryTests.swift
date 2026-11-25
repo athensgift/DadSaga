@@ -1,4 +1,5 @@
 import Domain
+import Foundation
 import Testing
 @testable import Data
 
@@ -13,6 +14,36 @@ struct BundledContentRepositoryTests {
         #expect(catalog.quests.count == 95)
         #expect(catalog.bosses.count == 35)
         #expect(catalog.firsts.count == 33)
+    }
+
+    @Test("Given the bundled quests, when a child's weeks pass from birth to six, then none returns before the others")
+    func weeklyQuestNeverRepeatsEarly() async throws {
+        let catalog = try await repository.fetchCatalog()
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .gmt
+        calendar.firstWeekday = 2
+        // A Monday, so the age on a week's first day is the age on this weekday.
+        let birth = try #require(CalendarDay(year: 2026, month: 3, day: 2))
+        let child = Child(
+            id: try #require(UUID(uuidString: "11111111-2222-3333-4444-555555555555")), name: "Lena", birthDay: birth
+        )
+        let family = FamilyFacts(hasPartner: true, hasOlderSibling: false, hasYoungerSibling: false)
+        var lastShown: [String: Int] = [:]
+        for number in 0..<312 {
+            let day = birth.adding(days: number * 7)
+            let week = WeeklyQuest.week(containing: day.start(in: .gmt), calendar: calendar)
+            let quest = try #require(
+                WeeklyQuest.pick(for: child, family: family, in: catalog, week: week, calendar: calendar)
+            )
+            let age = child.age(on: day)
+            let world = try #require(UnlockRules.currentWorld(in: catalog, age: age))
+            let offered = UnlockRules.quests(for: world, in: catalog, age: age, family: family)
+            #expect(offered.contains(quest))
+            if let last = lastShown[quest.id] {
+                #expect(offered.allSatisfy { lastShown[$0.id, default: -1] >= last }, "week \(number): \(quest.id)")
+            }
+            lastShown[quest.id] = number
+        }
     }
 
     @Test("Given the bundled JSON, when fetching, then tips, evergreen quests and audiences are read")

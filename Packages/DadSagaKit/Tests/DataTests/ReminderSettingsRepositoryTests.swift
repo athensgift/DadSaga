@@ -27,4 +27,20 @@ struct ReminderSettingsRepositoryTests {
         #expect(try await makeRepository().fetch() == .default)
         UserDefaults().removePersistentDomain(forName: suite)
     }
+
+    @Test("Given saved note times, when a new repository reads them, then they come back; after delete, none")
+    func noteTimesRoundTrip() async throws {
+        let times = [
+            DateComponents(year: 2026, month: 11, day: 28, hour: 10, minute: 0),
+            DateComponents(year: 2026, month: 12, day: 5, hour: 10, minute: 0)
+        ]
+        #expect(try await makeRepository().noteTimes().isEmpty)
+
+        try await makeRepository().saveNoteTimes(times)
+        #expect(try await makeRepository().noteTimes() == times)
+
+        try await makeRepository().deleteAll()
+        #expect(try await makeRepository().noteTimes().isEmpty)
+        UserDefaults().removePersistentDomain(forName: suite)
+    }
 }

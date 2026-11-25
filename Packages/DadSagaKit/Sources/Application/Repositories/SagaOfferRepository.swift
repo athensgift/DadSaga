@@ -4,6 +4,6 @@ public protocol SagaOfferRepository: Sendable {
     /// The ids of the occasions the dad has answered, either way.
     func answeredOccasionIDs() async -> Set<String>
     func markAnswered(_ occasionID: String) async
-    /// Only starting over uses this.
+    /// Starting over, and before an import brings the answers of its copy.
     func deleteAll() async
 }

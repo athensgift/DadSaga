@@ -8,6 +8,7 @@ import UIKit
 struct ReminderSettingsView: View {
     @State var viewModel: ReminderSettingsViewModel
     @Environment(\.openURL) private var openURL
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         Group {
@@ -22,6 +23,9 @@ struct ReminderSettingsView: View {
         .navigationTitle(viewModel.labels.title)
         .toolbarTitleDisplayMode(.inline)
         .task { await viewModel.onAppear() }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { Task { await viewModel.appBecameActive() } }
+        }
     }
 
     private var form: some View {
