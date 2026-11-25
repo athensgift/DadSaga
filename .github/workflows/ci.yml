@@ -20,7 +20,8 @@ jobs:
   #
   # `main` and `develop` require `package-tests` and `app-build` by name before a merge (ADR-0076). Renaming or
   # splitting either, or adding a job a merge must wait for, changes the ruleset at the same moment. Neither gets an
-  # `if:` or a path filter: GitHub counts a skipped required check as passed.
+  # `if:` (GitHub counts a skipped required check as passed), and the workflow gets no path filter (a workflow that
+  # doesn't run leaves the check waiting, and the merge blocked).
   package-tests:
     # Pinned to the Mac's Xcode, so an image update never changes the toolchain under us (ADR-0034).
     runs-on: xcode-27
