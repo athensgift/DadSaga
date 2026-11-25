@@ -6,13 +6,15 @@
 ## Context
 - The app's own text is Greek for Greek and English for every other language (ADR-0027 §2,
   `LocalizedText.languageCode`). That rule reaches only what our code resolves.
-- The system picks the rest from the bundle: the permission prompts, the widget's name, description and configuration,
-  `DadSagaPrivacyPolicyURL`, and the system's own words inside our screens ("Cancel", the pickers). When the phone has
-  none of the bundle's languages, it takes the development region, which was `el` in both Info.plists. No ADR chose
-  it: it came with the first `project.yml`.
-- Run on 2026-11-25 on iOS 27.2 in the simulator with German as its only language: `Locale.current` is `en_DE`, so our
-  text is English, while the bundle's `preferredLocalizations` is `el`, both permission texts and UIKit's "Cancel" are
-  Greek, and the privacy policy opens `/el/privacy/`. 1.0 goes to every territory (ADR-0071).
+- The system picks the rest from the bundle: the permission prompts' reasons, the widget's description,
+  `DadSagaPrivacyPolicyURL`, and UIKit's own words inside our screens ("Cancel", the edit menu). When the phone has none
+  of the bundle's languages, it takes the development region, which was `el` in both Info.plists. No ADR chose it: the
+  app's came with the first `project.yml`, and the widget's copied it.
+- Run on 2026-11-25 on iOS 27.2 in the simulator with German as its only language. `Locale.current` is `en_DE`, so our
+  text is English, while `preferredLocalizations` is `el`: both permission reasons, the widget's description, the edit
+  menu, the share sheet's "Save Video" and UIKit's "Cancel" are Greek, and the privacy policy opens `/el/privacy/`. The
+  widget's parameter names are English, the date picker follows `Locale.current`, and what iOS draws itself (the
+  prompts' buttons, the photo picker) is German. 1.0 goes to every territory (ADR-0071).
 
 ## Decision
 1. **The development region is `en`** for the app and the widget (`CFBundleDevelopmentRegion` in `project.yml`), for the
@@ -33,5 +35,7 @@
   further from the line a reader looks for.
 
 ## Consequences
-- A phone with neither language reads English everywhere, as a mixed one did for our own text only. A phone with Greek
-  anywhere before English in its list is Greek, and the reverse, as before.
+- A phone with neither Greek nor English reads English in what the bundle gives. Run on the same simulator with the
+  region `en`: `preferredLocalizations` is `en` for German only and for French only, and Greek and English phones are
+  as they were. A list with German first is still settled by Greek or English, whichever comes next.
+- What iOS draws itself stays in the phone's language.
