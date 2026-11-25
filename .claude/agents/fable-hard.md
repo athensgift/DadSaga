@@ -1,6 +1,6 @@
 ---
 name: fable-hard
-description: Fable for genuinely hard problems - the Saga video engine (AVFoundation composition, Core Animation overlays, export), iCloud/CloudKit sync and partner co-op, or a bug the main session failed to fix twice. Hand it the problem as soon as a fix has failed twice.
+description: Fable for genuinely hard problems - the Saga video engine (frames drawn on the device, AVFoundation encoding, export), iCloud/CloudKit sync and partner co-op, or a bug the main session failed to fix twice. Hand it the problem as soon as a fix has failed twice.
 model: fable
 effort: high
 color: orange

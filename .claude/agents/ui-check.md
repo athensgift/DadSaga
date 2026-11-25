@@ -13,7 +13,7 @@ code, and you do not change it.
 The brief names the change, the screen(s) and what should look right. If it does not, read `git diff develop...HEAD` to find them.
 
 1. Pick the device: the simulator named exactly `iPhone 17` (iOS 27.2) by default, the one named exactly `iPhone Duo` for
-   anything about the fold or a resizable layout. Never use another device, such as `iPhone Duo (dad look)`.
+   anything about the fold or a resizable layout. Never use or create another device, such as a one-off simulator.
 2. Build for that device: `xcodegen generate`, then build the `DadSaga` scheme (the simulator's build tool, or
    `xcodebuild build -quiet -project DadSaga.xcodeproj -scheme DadSaga -destination 'platform=iOS Simulator,name=<device>,OS=27.2'`).
    If the build fails, stop and report the first error.
@@ -25,8 +25,9 @@ The brief names the change, the screen(s) and what should look right. If it does
    says they should be; text that fits; DesignSystem spacing and colours; no placeholder or untranslated strings.
 
 Leave the simulator as you found it. Note the hinge, appearance, language and keyboard setting before you start and put
-each back at the end. Never erase, reset or uninstall a simulator or the app, and never delete its data. Don't save data
-in the app unless the brief asks for it: if a state needs data that isn't there, say so instead.
+each back at the end. Never erase or reset a simulator. Uninstall the app only when its store won't open (an older build's
+data, ADR-0060), and say so in the report. Don't save data in the app unless the brief asks for it: if a state needs data
+that isn't there, say so instead.
 
 Save screenshots in `$TMPDIR/dadsaga-ui-check/`, never in the repository.
 

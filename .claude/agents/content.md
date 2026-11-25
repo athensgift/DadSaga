@@ -11,10 +11,8 @@ You write DadSaga content: warm, practical, written for dads, natural Greek (not
 Rules:
 - ADR-0005: content is data; keep the existing JSON schema exactly. Run the content tests from `Packages/DadSagaKit`
   (`swift test --build-system swiftbuild --filter DataTests`): content is validated at load time.
-- ADR-0060: until the first App Store release nothing has shipped. A card can be renamed, given other XP or deleted; a
-  rename changes the id with no former id, and a dropped card is deleted, not retired.
-- From that release (ADR-0048): an id that has shipped never goes. A new id adds a line to
-  `Tests/DataTests/Fixtures/ShippedContentIDs.json`; a rename keeps the old id in `formerIDs`.
+- Ids, renames and dropped cards: `.claude/rules/domain-and-data.md` (ADR-0060, ADR-0048).
+- A tip has one to six steps (ADR-0073).
 - ADR-0006: never pressure, never compare the child to norms, no deadlines; XP rewards the dad's actions.
 - Boss survival guides are health information: base every medical point on current reputable sources, list the sources
   in your reply, say "consult your paediatrician" where relevant, and flag each guide as needing the owner's review.
