@@ -1,6 +1,6 @@
 # ADR-0075: A photo that can't be read stays out of the film's wordless scenes and out of a copy
 
-**Status:** Proposed (2026-11-25). From the 2026-11-25 audit (its part C); drafted by the architect. Changes ADR-0037
+**Status:** Accepted (2026-11-25, by the owner). From the 2026-11-25 audit (its part C); drafted by the architect. Changes ADR-0037
 §2 (a photo alone that can't be read is left out, not shown as black), ADR-0047 §1, §2, §4 and §8 (a film may lose a
 scene; an unreadable photo is the last choice; the film's photos are checked as it is made), ADR-0047 §3 (faces in
 the background are not classified) and ADR-0057 §2 and §6 (a copy carries only photos its import takes).
