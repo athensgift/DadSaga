@@ -5,7 +5,7 @@ Changes ADR-0053 §5 and ADR-0080 §2 (the situational bosses) and ADR-0072 §1 
 
 ## Context
 - `b-w3-new-sibling` ("The New Roommate", `onlyFor: ["youngerSibling"]`) lives in World 3, 24–41 months. A brother or
-  sister who arrives when the child is four or five never met it: World 4 didn't offer it. Its intro said "A baby has
+  sister who arrives when the child is four or five never met it: World 4 didn't offer it (still so, see Consequences). Its intro said "A baby has
   arrived", though ADR-0053 §4 offers it while the sibling is still on the way.
 - `FamilyFacts.hasYoungerSibling` holds for a younger sibling of any age. A boss for a new sibling, open on home, stood
   in front of a child whose sibling is long settled. Made evergreen, it would have stood there to age six.
