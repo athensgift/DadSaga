@@ -37,7 +37,7 @@ struct BundledContentRepositoryTests {
             )
             let age = child.age(on: day)
             let world = try #require(UnlockRules.currentWorld(in: catalog, age: age))
-            let offered = UnlockRules.quests(for: world, in: catalog, age: age, family: family)
+            let offered = UnlockRules.quests(for: world, in: catalog, age: age, family: family).filter(\.isWeekly)
             #expect(offered.contains(quest))
             if let last = lastShown[quest.id] {
                 #expect(offered.allSatisfy { lastShown[$0.id, default: -1] >= last }, "week \(number): \(quest.id)")
@@ -50,7 +50,7 @@ struct BundledContentRepositoryTests {
     func readsNewFields() async throws {
         let catalog = try await repository.fetchCatalog()
         #expect(catalog.quests.compactMap(\.tip).count == 85)
-        #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 30)
+        #expect(catalog.quests.compactMap(\.tip).filter(\.isMedical).count == 34)
         #expect(catalog.quests.filter(\.isEvergreen).count == 29)
         #expect(catalog.bosses.filter { !$0.onlyFor.isEmpty }.map(\.id) == [
             "b-w0-birth-day", "b-w0-caesarean", "b-w1-fourth-trimester", "b-w3-new-sibling"
@@ -59,7 +59,7 @@ struct BundledContentRepositoryTests {
         #expect(catalog.boss(id: "b-w3-new-sibling")?.onlyFor == [.youngerSibling])
     }
 
-    @Test("Given the bundled JSON, when fetching, then the cards ADR-0053, 0054 and 0080 name carry their flags")
+    @Test("Given the bundled JSON, when fetching, then the cards ADR-0053, 0054, 0080 and 0082 name carry their flags")
     func readsTheDecidedFlags() async throws {
         let catalog = try await repository.fetchCatalog()
         #expect(Set(catalog.quests.filter { $0.onlyFor == [.partner] }.map(\.id)) == [
@@ -70,9 +70,12 @@ struct BundledContentRepositoryTests {
         #expect(catalog.quests.filter { $0.onlyFor == [.olderSibling] }.map(\.id) == ["q-w1-meet-the-crew"])
         #expect(catalog.firsts.filter(\.isBeforeBirth).map(\.id) == ["f-found-out", "f-first-picture"])
         #expect(catalog.bosses.filter(\.isSituational).map(\.id) == [
-            "b-w1-early-start", "b-w4-two-homes", "b-w4-big-goodbye", "b-w4-big-move"
+            "b-w1-early-start", "b-w3-new-sibling", "b-w4-two-homes", "b-w4-big-goodbye", "b-w4-big-move"
         ])
         #expect(catalog.bosses.filter(\.isEvergreen).map(\.id) == ["b-w1-double-shift", "b-w2-long-grind"])
+        #expect(Set(catalog.quests.filter { !$0.isWeekly }.map(\.id)) == [
+            "q-w0-welcome-crew", "q-w1-bottle-engineer", "q-w1-pet-intro", "q-w3-repair"
+        ])
     }
 
     @Test("Given the bundled heroes, when fetching, then each dad is drawn with his own look")
@@ -176,6 +179,14 @@ struct MappingTests {
         let quest = try dto.toDomain()
         #expect(quest.tip == nil)
         #expect(!quest.isEvergreen)
+        #expect(quest.isWeekly)
+    }
+
+    @Test("Given a quest DTO with weekly false, when mapping, then it is left out of the weekly pick")
+    func mapsWeekly() throws {
+        var dto = QuestDTO(id: "q", worldID: "w", title: text, description: text, skill: "care", xp: 10, minAgeMonths: 0)
+        dto.weekly = false
+        #expect(try !dto.toDomain().isWeekly)
     }
 
     @Test("Given DTOs with former ids, when mapping, then the Domain items keep them; without, they have none")

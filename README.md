@@ -162,4 +162,8 @@ See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Disclaimer
 
-DadSaga's guides are general information, not medical advice. Always consult your paediatrician.
+DadSaga's guides are general information, not medical advice. Always consult your child's doctor.
+
+## Copyright
+
+© FAFOUTIS BROTHERS E.E. The code and the content are public to read only; no licence to use, copy or change them is given.

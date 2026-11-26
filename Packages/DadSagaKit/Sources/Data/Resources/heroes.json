@@ -12,7 +12,7 @@
   {
     "id": "h-strong", "order": 3, "look": "strong",
     "title": { "el": "Δυνατός Μπαμπάς", "en": "Strong Dad" },
-    "tagline": { "el": "Καρότσι, τσάντα και παιδί. Με το ένα χέρι.", "en": "Stroller, bag and kid. With one arm." }
+    "tagline": { "el": "Καρότσι, τσάντα και παιδί. Με το ένα χέρι.", "en": "Buggy, bag and kid. With one arm." }
   },
   {
     "id": "h-smart", "order": 4, "look": "smart",

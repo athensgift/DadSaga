@@ -100,12 +100,13 @@ public enum WeeklyQuest {
             self.catalog = catalog
         }
 
-        /// Only a quest offered to this family: never a retired one or one for someone else (ADR-0053).
+        /// Only a quest offered to this family that may be the weekly quest: never a retired one, one for someone else
+        /// (ADR-0053) or one left out of the weekly pick (ADR-0082 §2).
         mutating func pool(at age: ChildAge) -> [Quest] {
             if let pool = byAge[age] { return pool }
             var pool: [Quest] = []
             if !UnlockRules.isBeyondContent(catalog, age: age), let world = UnlockRules.currentWorld(in: catalog, age: age) {
-                let offered = UnlockRules.quests(for: world, in: catalog, age: age, family: family)
+                let offered = UnlockRules.quests(for: world, in: catalog, age: age, family: family).filter(\.isWeekly)
                 let ranked: [(quest: Quest, rank: UInt64)] = offered.map { ($0, WeeklyQuest.rank($0, childID: child.id)) }
                 pool = ranked.sorted { lhs, rhs in (lhs.rank, lhs.quest.id) < (rhs.rank, rhs.quest.id) }.map(\.quest)
             }

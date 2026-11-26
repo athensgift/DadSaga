@@ -29,6 +29,8 @@ public enum ContentDataError: Error, Equatable {
     case misplacedBeforeBirthWorld(worldID: String)
     /// A card in the world before birth with a minimum age above 0 months.
     case agedBeforeBirth(itemID: String)
+    /// A world with quests of its own, none of which may be the weekly quest (ADR-0082 §3).
+    case noWeeklyQuest(worldID: String)
     /// Title orders that don't run 0, 1, 2… without a gap or a repeat: the order is the dad's level (ADR-0059 §1).
     case invalidTitleOrder(titleID: String)
     /// A skill `skills.json` doesn't give a curve (ADR-0059 §2).

@@ -63,11 +63,13 @@ struct ContentBeforeBirthTests {
         #expect(throws: ContentDataError.unknownAudience(itemID: "q", audience: "twoHomes")) { try quest.toDomain() }
     }
 
-    func catalog(worlds: [World], questAge: Int = 0, questWorld: String = "w0") -> ContentCatalog {
+    func catalog(
+        worlds: [World], questAge: Int = 0, questWorld: String = "w0", questIsWeekly: Bool = true
+    ) -> ContentCatalog {
         ContentCatalog(
             worlds: worlds,
             quests: [Quest(id: "q", worldID: questWorld, title: domainText, description: domainText, skill: .care, xp: 1,
-                           minAgeMonths: questAge)],
+                           minAgeMonths: questAge, isWeekly: questIsWeekly)],
             bosses: [],
             firsts: [],
             skillCurves: SkillCurve.forEverySkill,
@@ -101,6 +103,13 @@ struct ContentBeforeBirthTests {
     func agedCard() {
         #expect(throws: ContentDataError.agedBeforeBirth(itemID: "q")) {
             try ContentValidator.validate(catalog(worlds: [harbour, swamp], questAge: 2))
+        }
+    }
+
+    @Test("Given a world whose only quest is never weekly, when validating, then noWeeklyQuest is thrown")
+    func worldWithoutWeeklyQuest() {
+        #expect(throws: ContentDataError.noWeeklyQuest(worldID: "w0")) {
+            try ContentValidator.validate(catalog(worlds: [harbour, swamp], questIsWeekly: false))
         }
     }
 }
