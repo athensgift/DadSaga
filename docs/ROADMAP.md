@@ -138,8 +138,7 @@ What the whole-app review found that its six fix PRs (from #119) left open, and 
 - Cards, decided by the owner on 2026-11-26 and kept as they are (don't raise again): `f-roll-over` «Γύρισε
   μπρούμυτα», the 🧚 on `f-lost-tooth`, «τη νηπιαγωγό» in `b-w4-kindergarten`, `q-w3-dentist-run`, and no medical
   footer on `q-w2-barefoot`, `q-w2-phone-away`, `q-w3-bike-pilot`. Open, for the owner: «Έγραψε το όνομά του» for
-  `f-wrote-name` reads wrong for a girl (firsts fit both, a test checks it), so the title stays «Έγραψε το όνομα»;
-  evergreen `b-w3-new-sibling` also reaches a child whose younger sibling is years old (ADR-0082): make it situational?
+  `f-wrote-name` reads wrong for a girl (firsts fit both, a test checks it), so the title stays «Έγραψε το όνομα».
 - Website and privacy pages: Vision also looks for "what stands out", not only faces; the demo video has no pause; the
   Greek site's "Super Dad"; `www.dadsaga.app` doesn't redirect; `docs/demo/README.md`'s picker note.
 - App and repository: the camera prompt's "stay on this device" is stricter than the privacy page; the owner's email

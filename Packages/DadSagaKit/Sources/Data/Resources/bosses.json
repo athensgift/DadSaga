@@ -1016,7 +1016,7 @@
     "xp": 100,
     "minAgeMonths": 24,
     "onlyFor": ["youngerSibling"],
-    "evergreen": true,
+    "situational": true,
     "title": {
       "el": "Ο Νέος Συγκάτοικος",
       "en": "The New Roommate"
