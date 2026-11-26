@@ -149,8 +149,8 @@ What the whole-app review found that its six fix PRs (from #119) left open, and 
 Done on 2026-11-26 on the owner's iPhone Duo (`docs/RELEASE.md`, "Open device checks", has each with its ADR). Two bugs
 were found and fixed in the same PR: a tap on the weekly notification crashed the app, and the shaved head and the short
 beard were drawn wrong; both checked again on the phone. Left: the film's time and the child/adult classification on the
-oldest iPhone at hand (ADR-0047); the skills' marks in light and dark (ADR-0059); a full disk; restoring an offloaded
-app (ADR-0023) and from an iCloud backup, both on the first TestFlight build.
+oldest iPhone at hand (ADR-0047); a full disk; restoring an offloaded app (ADR-0023) and from an iCloud backup, both on
+the first TestFlight build.
 
 ## Phase 5: Playground
 - iCloud sync and partner co-op: the co-op version, ADR-0065's PR 5 (CloudKit) and PR 6 (the iCloud and sharing

@@ -85,8 +85,7 @@ after it names what was done when only part was, and what is left.
 - [x] ADR-0057, the copy of the saga: making and importing a large saga was checked on a device (2026-11-22). Left:
       sharing it, refusing a damaged or a newer copy; with VoiceOver, at the accessibility text sizes and on the iPhone
       Duo folded. Duo, 2026-11-26.
-- [ ] ADR-0059, the skills' marks: under a celebration, after an Undo, light and dark, VoiceOver. Duo, 2026-11-26: all
-      but light and dark. Left: the marks in light and dark.
+- [x] ADR-0059, the skills' marks: under a celebration, after an Undo, light and dark, VoiceOver. Duo, 2026-11-26.
 - [x] ADR-0060: the calm screen with a store that can't be opened was checked on a device (2026-11-22). Left: the same
       in the other language, if only one was seen; a fresh install's first quest, first with photos, widget, film and
       start over. Duo, 2026-11-26: all of them, the calm screen in English and Greek from a build without the App Group.
