@@ -122,8 +122,8 @@ enum ContentValidator {
         if let itemID = aged.first { throw ContentDataError.agedBeforeBirth(itemID: itemID) }
     }
 
-    /// A world's own quests are never all left out of the weekly pick: `"weekly": false` is for a few cards, and the
-    /// week keeps a card of the world it is in (ADR-0082 §3).
+    /// A world's own quests are never all left out of the weekly pick: `"weekly": false` is for a few cards. The check
+    /// is per world, not per dad: it doesn't weigh `onlyFor` or ages (ADR-0082 §3).
     private static func validateWeekly(_ catalog: ContentCatalog) throws {
         for world in catalog.worlds {
             let own = catalog.quests.filter { $0.worldID == world.id && !$0.isRetired }
