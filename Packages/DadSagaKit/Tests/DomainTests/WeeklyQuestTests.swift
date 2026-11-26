@@ -118,6 +118,18 @@ struct WeeklyQuestTests {
         #expect(weeks.map { pick(on: $0)?.id } != weeks.map { pick(on: $0, for: sibling)?.id })
     }
 
+    @Test("Given a quest left out of the weekly pick, when picking over many weeks, then it never comes up")
+    func notWeeklyNeverPicked() {
+        let quiet = Quest(
+            id: "q-quiet", worldID: "w1", title: Self.text, description: Self.text, skill: .care, xp: 15,
+            minAgeMonths: 0, isWeekly: false
+        )
+        let start = Self.date(2026, 2, 2)
+        let picks = (0..<40).map { pick(on: start.addingTimeInterval(Double($0) * 7 * 24 * 60 * 60), from: pool + [quiet]) }
+        #expect(picks.allSatisfy { $0 != nil && $0?.id != "q-quiet" })
+        #expect(pick(on: start, from: [quiet]) == nil)
+    }
+
     @Test("Given an empty pool, when picking, then there is no quest")
     func emptyPool() {
         #expect(pick(on: Self.date(2026, 11, 18), from: []) == nil)

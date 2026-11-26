@@ -35,6 +35,8 @@ struct QuestDTO: Decodable, Sendable {
     var onlyFor: [String]?
     /// A shipped card never offered again (ADR-0053 §6).
     var retired: Bool?
+    /// `false`: never the weekly quest, still on the map and on home (ADR-0082 §2).
+    var weekly: Bool?
 }
 
 struct QuestTipDTO: Decodable, Sendable {

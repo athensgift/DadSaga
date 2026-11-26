@@ -134,7 +134,7 @@
       "en": "The feeding plan"
     },
     "description": {
-      "el": "Ρώτα τη σύντροφό σου πώς σκέφτεται να ταΐσει το μωρό, και μάθε ένα πράγμα που μπορείς να κάνεις εσύ για να πάει καλά.",
+      "el": "Ρώτα τη μητέρα του μωρού πώς σκέφτεται να το ταΐσει, και μάθε ένα πράγμα που μπορείς να κάνεις εσύ για να πάει καλά.",
       "en": "Ask your partner how she's thinking of feeding the baby, and learn one thing you can do to help it go well."
     },
     "tip": {
@@ -193,8 +193,8 @@
           "en": "Techniques for babies and children differ from adults' and the guidance changes: learn them from an instructor, not an old video."
         },
         {
-          "el": "Ρώτα το μαιευτήριο, τον γιατρό του παιδιού ή τον Ερυθρό Σταυρό (ή την Ερυθρά Ημισέληνο) της χώρας σου πού γίνονται μαθήματα.",
-          "en": "Ask the maternity unit, your child's doctor or your country's Red Cross or Red Crescent where classes are held."
+          "el": "Ρώτα το μαιευτήριο, τον παιδίατρο ή τον Ερυθρό Σταυρό (ή την Ερυθρά Ημισέληνο) της χώρας σου πού γίνονται μαθήματα.",
+          "en": "Ask the maternity unit, their doctor or your country's Red Cross or Red Crescent where classes are held."
         },
         {
           "el": "Πάρε μαζί γιαγιά, παππού ή όποιον άλλον το προσέχει.",
@@ -375,7 +375,7 @@
       "en": "The talk before the baby"
     },
     "description": {
-      "el": "Κάτσε με τον σύντροφό σου και πείτε ο καθένας έναν φόβο και μία ελπίδα για τους πρώτους μήνες. Απόψε δεν λύνετε τίποτα, μόνο ακούτε.",
+      "el": "Καθίστε οι δυο σας και πείτε από έναν φόβο και μία ελπίδα για τους πρώτους μήνες. Απόψε δεν λύνετε τίποτα, μόνο ακούτε.",
       "en": "Sit down with your partner and each name one fear and one hope for the first months. Nothing gets fixed tonight; you just listen."
     },
     "tip": {
@@ -529,6 +529,7 @@
     "skill": "care",
     "xp": 25,
     "minAgeMonths": 0,
+    "weekly": false,
     "title": {
       "el": "Η επιτροπή υποδοχής",
       "en": "The welcome committee"
@@ -755,7 +756,8 @@
           "el": "Χαμηλό φως, λίγα λόγια, καθόλου παιχνίδι. Η νύχτα πρέπει να είναι βαρετή.",
           "en": "Low light, few words, no play. Nights should be boring."
         }
-      ]
+      ],
+      "medical": true
     }
   },
   {
@@ -792,6 +794,7 @@
     "skill": "care",
     "xp": 25,
     "minAgeMonths": 0,
+    "weekly": false,
     "title": {
       "el": "Ο μηχανικός του μπιμπερό",
       "en": "Bottle engineer"
@@ -941,7 +944,7 @@
           "en": "If there are two of you, agree beforehand who gets up tonight. The other one sleeps properly, door closed."
         },
         {
-          "el": "Ένα μωρό δεν κοιμάται στο κρεβάτι σου αν ήπιες αλκοόλ, καπνίζεις ή πήρες κάτι που φέρνει υπνηλία, ή αν γεννήθηκε πρόωρα ή μικρό. Για το κοινό κρεβάτι γενικά οι οδηγίες διαφέρουν από χώρα σε χώρα: ρώτα τον γιατρό του. Και ποτέ ύπνος μαζί με μωρό σε καναπέ ή πολυθρόνα.",
+          "el": "Ένα μωρό δεν κοιμάται στο κρεβάτι σου αν ήπιες αλκοόλ, καπνίζεις ή πήρες κάτι που φέρνει υπνηλία, ή αν γεννήθηκε πρόωρα ή μικρό. Για το κοινό κρεβάτι γενικά οι οδηγίες διαφέρουν από χώρα σε χώρα: ρώτα τον παιδίατρο. Και ποτέ ύπνος μαζί με μωρό σε καναπέ ή πολυθρόνα.",
           "en": "A baby doesn't sleep in your bed if you've had alcohol, you smoke or you've taken anything that makes you drowsy, or if they were born early or small. On bed-sharing in general the advice differs from country to country: ask their doctor. And never fall asleep with a baby on a sofa or in an armchair."
         }
       ],
@@ -1062,19 +1065,19 @@
           "en": "The first poos are greenish-black and sticky like tar. That's normal. Within a few days they turn yellow or mustard."
         },
         {
-          "el": "Τις πρώτες δύο μέρες οι βρεγμένες πάνες είναι λίγες. Την τρίτη και την τέταρτη περίμενε τουλάχιστον τρεις το 24ωρο. Από την πέμπτη μέρα περίπου περίμενε τουλάχιστον έξι βαριές βρεγμένες πάνες το 24ωρο. Αν είναι λιγότερες, πες το στη μαία ή στον γιατρό την ίδια μέρα.",
+          "el": "Τις πρώτες δύο μέρες οι βρεγμένες πάνες είναι λίγες. Την τρίτη και την τέταρτη περίμενε τουλάχιστον τρεις το 24ωρο. Από την πέμπτη μέρα περίπου περίμενε τουλάχιστον έξι βαριές βρεγμένες πάνες το 24ωρο. Αν είναι λιγότερες, πες το στη μαία ή στον παιδίατρο την ίδια μέρα.",
           "en": "In the first two days there are only a few wet nappies. On days three and four, expect at least three in 24 hours. From about day five, expect at least six heavy wet nappies in 24 hours. If there are fewer, tell the midwife or doctor the same day."
         },
         {
-          "el": "Τις πρώτες μέρες τα μωρά χάνουν λίγο βάρος και μετά το ξαναπαίρνουν. Το ζύγισμα και το αν πάει καλά το κρίνει η μαία ή ο γιατρός, όχι η ζυγαριά του μπάνιου.",
+          "el": "Τις πρώτες μέρες τα μωρά χάνουν λίγο βάρος και μετά το ξαναπαίρνουν. Το ζύγισμα και το αν πάει καλά το κρίνει η μαία ή ο παιδίατρος, όχι η ζυγαριά του μπάνιου.",
           "en": "In the first days babies lose a little weight and then put it back on. The weighing, and whether it's going well, is for the midwife or doctor to judge, not the bathroom scales."
         },
         {
-          "el": "Ο αφαλός: καθαρός και στεγνός, με την πάνα διπλωμένη από κάτω του. Πέφτει μόνος του, δεν τον τραβάς. Αν κοκκινίσει το δέρμα γύρω, μυρίζει ή βγάζει υγρό, πες το στη μαία ή στον γιατρό την ίδια μέρα. Αν αιμορραγεί και δεν σταματά, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+          "el": "Ο αφαλός: καθαρός και στεγνός, με την πάνα διπλωμένη από κάτω του. Πέφτει μόνος του, δεν τον τραβάς. Αν κοκκινίσει το δέρμα γύρω, μυρίζει ή βγάζει υγρό, πες το στη μαία ή στον παιδίατρο την ίδια μέρα. Αν αιμορραγεί και δεν σταματά, πάρε τώρα τον παιδίατρο, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
           "en": "The cord stump: clean and dry, with the nappy folded below it. It drops off by itself, you don't pull it. If the skin around it goes red, it smells or oozes, tell the midwife or doctor the same day. If it bleeds and doesn't stop, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
         },
         {
-          "el": "Γιατρός ή μαία την ίδια μέρα αν τα κόπρανα είναι ωχρά ή λευκά ή έχουν αίμα. Αν δεν τρώει ή, από την πέμπτη μέρα περίπου, περάσουν πάνω από 8 ώρες χωρίς βρεγμένη πάνα, πάρε τώρα τον γιατρό, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν είναι χαλαρό σαν πανί ή ξυπνά δύσκολα, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+          "el": "Παιδίατρος ή μαία την ίδια μέρα αν τα κόπρανα είναι ωχρά ή λευκά ή έχουν αίμα. Αν δεν τρώει ή, από την πέμπτη μέρα περίπου, περάσουν πάνω από 8 ώρες χωρίς βρεγμένη πάνα, πάρε τώρα τον παιδίατρο, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν είναι χαλαρό σαν πανί ή ξυπνά δύσκολα, κάλεσε τον αριθμό έκτακτης ανάγκης.",
           "en": "Doctor or midwife the same day if the poo is pale or white or has blood in it. If they won't feed or, from about day five, more than 8 hours pass without a wet nappy, call the doctor now, whatever the hour, and the emergency number if they tell you to or if you can't reach them. If they're floppy or hard to wake, call the emergency number."
         }
       ],
@@ -1087,6 +1090,7 @@
     "skill": "care",
     "xp": 20,
     "minAgeMonths": 0,
+    "weekly": false,
     "title": {
       "el": "Ο τετράποδος συγκάτοικος",
       "en": "The four-legged roommate"
@@ -1117,7 +1121,8 @@
           "el": "Πλένεις τα χέρια σου μετά το ζώο, το φαγητό του ή την άμμο, πριν πιάσεις το μωρό.",
           "en": "Wash your hands after the pet, its food or the litter tray, before you pick up the baby."
         }
-      ]
+      ],
+      "medical": true
     }
   },
   {
@@ -1181,11 +1186,11 @@
           "en": "Your country's emergency number. When you travel, learn the local one too."
         },
         {
-          "el": "Ο γιατρός του παιδιού, και ποιον παίρνεις όταν δεν απαντά: νύχτα, σαββατοκύριακο, αργία.",
-          "en": "Your child's doctor, and who you call when they don't answer: nights, weekends, holidays."
+          "el": "Ο παιδίατρος, και ποιον παίρνεις όταν δεν απαντά: νύχτα, σαββατοκύριακο, αργία.",
+          "en": "Their doctor, and who you call when they don't answer: nights, weekends, holidays."
         },
         {
-          "el": "Το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν δεν υπάρχει, για δηλητηρίαση πάρε τώρα τον γιατρό, ή πήγαινε στα επείγοντα, και κάλεσε τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν το παιδί δυσκολεύεται να αναπνεύσει, έχει σπασμούς ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+          "el": "Το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν δεν υπάρχει, για δηλητηρίαση πάρε τώρα τον παιδίατρο, ή πήγαινε στα επείγοντα, και κάλεσε τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν το παιδί δυσκολεύεται να αναπνεύσει, έχει σπασμούς ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
           "en": "Your country's poison centre, if there is one. If there isn't, for poisoning call the doctor now, or go to the emergency department, and call the emergency number if they tell you to or if you can't reach them. If your child struggles to breathe, has a seizure or won't wake, call the emergency number."
         },
         {
@@ -1229,8 +1234,8 @@
           "en": "Indoors, in a shop and in a warm car, the hat and the outdoor clothes come off. Babies lose heat through their head."
         },
         {
-          "el": "Κάτω από 6 μηνών, καθόλου απευθείας στον ήλιο: σκιά, ελαφριά ρούχα που το καλύπτουν, καπέλο με φαρδύ γύρο. Για το αντηλιακό σε αυτή την ηλικία οι οδηγίες διαφέρουν: ρώτα τον γιατρό του παιδιού.",
-          "en": "Under 6 months, no direct sun at all: shade, light clothes that cover them, a brimmed hat. On sunscreen at this age the advice differs: ask your child's doctor."
+          "el": "Κάτω από 6 μηνών, καθόλου απευθείας στον ήλιο: σκιά, ελαφριά ρούχα που το καλύπτουν, καπέλο με φαρδύ γύρο. Για το αντηλιακό σε αυτή την ηλικία οι οδηγίες διαφέρουν: ρώτα τον παιδίατρο.",
+          "en": "Under 6 months, no direct sun at all: shade, light clothes that cover them, a brimmed hat. On sunscreen at this age the advice differs: ask their doctor."
         },
         {
           "el": "Μη σκεπάζεις το καρότσι με κουβέρτα ή πανί: από κάτω η ζέστη παγιδεύεται. Βάλε ομπρέλα ή σκίαστρο που αφήνει τον αέρα να περνά.",
@@ -1245,7 +1250,7 @@
     }
   },
   {
-    "id": "q-w1-paediatrician",
+    "id": "q-w1-checkup",
     "worldID": "w1-swamp",
     "skill": "care",
     "xp": 30,
@@ -1253,7 +1258,7 @@
     "evergreen": true,
     "title": {
       "el": "Μαζί στον παιδίατρο",
-      "en": "At the paediatrician"
+      "en": "At the doctor's"
     },
     "description": {
       "el": "Πήγαινε στο ραντεβού ή στο εμβόλιο και κάνε μία δική σου ερώτηση.",
@@ -1266,7 +1271,7 @@
       },
       "steps": [
         {
-          "el": "Γράφε τις απορίες στο κινητό όπως έρχονται μέσα στη βδομάδα. Στο ιατρείο θα τις έχεις ξεχάσει.",
+          "el": "Γράφε τις απορίες στο κινητό όπως έρχονται μέσα στην εβδομάδα. Στο ιατρείο θα τις έχεις ξεχάσει.",
           "en": "Note questions on your phone as they come up during the week. In the surgery you'll have forgotten them."
         },
         {
@@ -1307,7 +1312,7 @@
           "en": "Pick three that matter: how they sleep, how they travel, what they don't eat yet. The advice has changed since you were raised."
         },
         {
-          "el": "Πες το «τι» μαζί με το «γιατί», και βάλε μπροστά τον γιατρό: «έτσι μας είπε ο γιατρός του».",
+          "el": "Πες το «τι» μαζί με το «γιατί», και βάλε μπροστά τον παιδίατρο: «έτσι μας είπε ο παιδίατρος».",
           "en": "Give the “what” with the “why”, and put the doctor in front: “that's what their doctor told us.”"
         },
         {
@@ -1315,7 +1320,7 @@
           "en": "On everything else, let them do it their way. Your child gains from people who love them differently."
         },
         {
-          "el": "Τα όρια στους δικούς σου γονείς τα βάζεις εσύ, όχι ο σύντροφός σου. Αν είστε δύο, ο καθένας μιλά στους δικούς του.",
+          "el": "Τα όρια στους δικούς σου γονείς τα βάζεις εσύ, όχι ο άλλος γονιός. Αν είστε δύο, ο καθένας μιλά στους δικούς του.",
           "en": "Limits with your own parents are yours to set, not your partner's. If there are two of you, each talks to their own."
         },
         {
@@ -1348,11 +1353,11 @@
       },
       "steps": [
         {
-          "el": "Η δουλειά δεν είναι μόνο «πήγα το παιδί στον γιατρό». Είναι και ποιος θυμήθηκε το εμβόλιο, ποιος έκλεισε το ραντεβού, ποιος ξέρει πού είναι το βιβλιάριο υγείας.",
+          "el": "Η δουλειά δεν είναι μόνο «πήγα το παιδί στον παιδίατρο». Είναι και ποιος θυμήθηκε το εμβόλιο, ποιος έκλεισε το ραντεβού, ποιος ξέρει πού είναι το βιβλιάριο υγείας.",
           "en": "The job isn't only “I took them to the doctor”. It's also who remembered the vaccine, who booked the appointment, who knows where the health record is."
         },
         {
-          "el": "Ιδέες: τα ρούχα στο σωστό νούμερο, τα ραντεβού με τον γιατρό, οι πάνες και το γάλα πριν τελειώσουν, τα δώρα για τα πάρτι.",
+          "el": "Ιδέες: τα ρούχα στο σωστό νούμερο, τα ραντεβού με τον παιδίατρο, οι πάνες και το γάλα πριν τελειώσουν, τα δώρα για τα πάρτι.",
           "en": "Ideas: clothes in the right size, the doctor's appointments, nappies and milk before they run out, presents for parties."
         },
         {
@@ -1438,7 +1443,8 @@
           "el": "Στο κάθισμα αυτοκινήτου χωρίς μπουφάν κάτω από τις ζώνες. Η κουβέρτα μπαίνει από πάνω.",
           "en": "In the car seat, no puffy coat under the straps. The blanket goes on top."
         }
-      ]
+      ],
+      "medical": true
     }
   },
   {
@@ -1469,7 +1475,7 @@
       "en": "How are we doing?"
     },
     "description": {
-      "el": "Ρώτα τον σύντροφό σου «πώς είμαστε εμείς οι δύο;» και άκου την απάντηση ως το τέλος. Όχι για το παιδί, όχι για τα ψώνια.",
+      "el": "Κάνε την ερώτηση «πώς είμαστε εμείς οι δύο;» και άκου την απάντηση ως το τέλος. Όχι για το παιδί, όχι για τα ψώνια.",
       "en": "Ask your partner “how are the two of us doing?” and listen to the whole answer. Not about the kid, not about the shopping."
     },
     "tip": {
@@ -1479,7 +1485,7 @@
       },
       "steps": [
         {
-          "el": "Τρεις ερωτήσεις φτάνουν: τι πήγε καλά αυτή τη βδομάδα, τι σε βάρυνε, τι χρειάζεσαι από μένα.",
+          "el": "Τρεις ερωτήσεις φτάνουν: τι πήγε καλά αυτή την εβδομάδα, τι σε βάρυνε, τι χρειάζεσαι από μένα.",
           "en": "Three questions are enough: what went well this week, what weighed on you, what do you need from me."
         },
         {
@@ -1495,7 +1501,7 @@
           "en": "Many couples take a hit after a child, and time alone doesn't usually repair it. It doesn't mean something's broken between you: it means it needs maintenance."
         },
         {
-          "el": "Αν οι καβγάδες έγιναν ο κανόνας, ένας σύμβουλος ζευγαριών δεν είναι ήττα. Είναι co-op. Αν όμως φοβάσαι τον σύντροφό σου ή νιώθεις ότι σε ελέγχει, αυτό δεν είναι δουλειά για σύμβουλο ζευγαριών: μίλα μόνος σου με έναν γιατρό ή με μια γραμμή στήριξης της χώρας σου.",
+          "el": "Αν οι καβγάδες έγιναν ο κανόνας, ένας σύμβουλος ζευγαριών δεν είναι ήττα. Είναι co-op. Αν όμως μέσα στη σχέση φοβάσαι ή νιώθεις ότι σε ελέγχουν, αυτό δεν είναι δουλειά για σύμβουλο ζευγαριών: μίλα μόνος σου με έναν γιατρό ή με μια γραμμή στήριξης της χώρας σου.",
           "en": "If arguing has become the default, a couples counsellor isn't a defeat. It's co-op mode. But if you're afraid of your partner or feel controlled by them, that's not a job for couples counselling: talk on your own to a doctor or to a support line in your country."
         }
       ]
@@ -1514,7 +1520,7 @@
       "en": "Close again"
     },
     "description": {
-      "el": "Ρώτα τον σύντροφό σου πώς νιώθει με την εγγύτητα μετά το μωρό, και πες και το δικό σου. Χωρίς βιασύνη και χωρίς στόχο για απόψε.",
+      "el": "Ρώτα πώς είναι η εγγύτητα για τους δυο σας μετά το μωρό, και πες και το δικό σου. Χωρίς βιασύνη και χωρίς στόχο για απόψε.",
       "en": "Ask your partner how they feel about closeness since the baby, and say how you feel too. No hurry and no goal for tonight."
     },
     "tip": {
@@ -1536,11 +1542,11 @@
           "en": "If you feel sidelined, say it as a feeling, not a complaint: “I miss you”, not “you never…”."
         },
         {
-          "el": "Αν η σύντροφός σου γέννησε: ο πόνος στο σεξ δεν είναι κάτι που «συνηθίζεται». Το λέει στον γιατρό ή στη μαία.",
+          "el": "Αν γέννησε εκείνη: ο πόνος στο σεξ δεν είναι κάτι που «συνηθίζεται». Το λέει στον γιατρό ή στη μαία.",
           "en": "If your partner gave birth: pain during sex isn't something to “get used to”. It's something to tell the doctor or midwife."
         },
         {
-          "el": "Αν η σύντροφός σου γέννησε: νέα εγκυμοσύνη μπορεί να έρθει ήδη από τις πρώτες εβδομάδες, πριν από την πρώτη περίοδο και ακόμα και με θηλασμό. Αν δεν το έχετε κάνει ήδη, μιλήστε για αντισύλληψη με τον γιατρό ή τη μαία.",
+          "el": "Αν γέννησε εκείνη: νέα εγκυμοσύνη μπορεί να έρθει ήδη από τις πρώτες εβδομάδες, πριν από την πρώτη περίοδο και ακόμα και με θηλασμό. Αν δεν το έχετε κάνει ήδη, μιλήστε για αντισύλληψη με τον γιατρό ή τη μαία.",
           "en": "If your partner gave birth: another pregnancy can happen within the first weeks, before the first period and even while breastfeeding. If you haven't already, talk about contraception with the doctor or midwife."
         }
       ],
@@ -1600,7 +1606,7 @@
       "en": "Date night"
     },
     "description": {
-      "el": "Οργάνωσε εσύ μια βραδιά για σένα και τον σύντροφό σου, ολόκληρη: από την ιδέα μέχρι το ποιος θα κρατήσει το παιδί.",
+      "el": "Οργάνωσε εσύ μια βραδιά για τους δυο σας, ολόκληρη: από την ιδέα μέχρι το ποιος θα κρατήσει το παιδί.",
       "en": "Plan an evening for you and your partner, all of it: from the idea to who's minding your child."
     },
     "tip": {
@@ -1661,7 +1667,7 @@
           "en": "A gate on the stairs before they crawl. And from now on: never alone on a bed, sofa or changing table, not even for a second."
         },
         {
-          "el": "Αποθήκευσε στο κινητό το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν καταπιεί κάτι άλλο, πάρε τώρα εκεί ή τον γιατρό, ή πήγαινε στα επείγοντα, και κάλεσε τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις. Μην του προκαλέσεις εμετό. Αν το παιδί δυσκολεύεται να αναπνεύσει, έχει σπασμούς ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+          "el": "Αποθήκευσε στο κινητό το Κέντρο Δηλητηριάσεων της χώρας σου, αν υπάρχει. Αν καταπιεί κάτι άλλο, πάρε τώρα εκεί ή τον παιδίατρο, ή πήγαινε στα επείγοντα, και κάλεσε τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις. Μην του προκαλέσεις εμετό. Αν το παιδί δυσκολεύεται να αναπνεύσει, έχει σπασμούς ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης.",
           "en": "Save your country's poison centre in your phone, if there is one. If they swallow anything else, call it or the doctor now, or go to the emergency department, and call the emergency number if they tell you to or if you can't reach them. Don't make them sick. If your child struggles to breathe, has a seizure or won't wake, call the emergency number."
         }
       ],
@@ -1694,7 +1700,7 @@
           "en": "From the first tooth, twice a day. The bedtime one matters most."
         },
         {
-          "el": "Λίγη οδοντόκρεμα: για μωρό όσο ένας κόκκος ρυζιού. Το από πότε, με πόσο φθόριο και πότε γίνεται όσο ένα μπιζέλι διαφέρει από χώρα σε χώρα. Ρώτα τον οδοντίατρο ή τον γιατρό του.",
+          "el": "Λίγη οδοντόκρεμα: για μωρό όσο ένας κόκκος ρυζιού. Το από πότε, με πόσο φθόριο και πότε γίνεται όσο ένα μπιζέλι διαφέρει από χώρα σε χώρα. Ρώτα τον οδοντίατρο ή τον παιδίατρο.",
           "en": "Only a little toothpaste: a grain of rice for a baby. When to start it, how much fluoride and when it becomes a pea differ by country. Ask the dentist or their doctor."
         },
         {
@@ -1704,6 +1710,10 @@
         {
           "el": "Όχι μπιμπερό στο κρεβάτι. Το γάλα που μένει στα δόντια όλη νύχτα τα χαλάει. Τελευταίο το βούρτσισμα, μετά βιβλίο και ύπνος.",
           "en": "No bottle in bed. Milk sitting on teeth all night is bad for them. Brushing comes last, then a book, then sleep."
+        },
+        {
+          "el": "Η πρώτη επίσκεψη στον οδοντίατρο γίνεται μέχρι τα πρώτα γενέθλια.",
+          "en": "The first visit to the dentist happens by their first birthday."
         }
       ],
       "medical": true
@@ -1953,7 +1963,7 @@
       },
       "steps": [
         {
-          "el": "Η αποστολή αυτή είναι για παιδί που τρώει ήδη στερεές τροφές. Το πότε ξεκινά το λέει ο γιατρός του, συνήθως γύρω στους έξι μήνες· ως τότε το γάλα του είναι όλο το γεύμα.",
+          "el": "Η αποστολή αυτή είναι για παιδί που τρώει ήδη στερεές τροφές. Το πότε ξεκινά το λέει ο παιδίατρος, συνήθως γύρω στους έξι μήνες· ως τότε το γάλα του είναι όλο το γεύμα.",
           "en": "This one is for a child who already eats solids. When they start is for their doctor to say, usually at around six months; until then their milk is the whole meal."
         },
         {
@@ -1969,8 +1979,8 @@
           "en": "No honey before their first birthday."
         },
         {
-          "el": "Σταφύλια και ντοματίνια κομμένα στα τέσσερα, κατά μήκος. Ολόκληροι ξηροί καρποί όχι ακόμα. Ως ποια ηλικία διαφέρει ανά χώρα: ρώτα τον γιατρό του παιδιού.",
-          "en": "Grapes and cherry tomatoes cut into quarters, lengthways. No whole nuts yet. Until what age differs by country: ask your child's doctor."
+          "el": "Σταφύλια και ντοματίνια κομμένα στα τέσσερα, κατά μήκος. Ολόκληροι ξηροί καρποί όχι ακόμα. Ως ποια ηλικία διαφέρει ανά χώρα: ρώτα τον παιδίατρο.",
+          "en": "Grapes and cherry tomatoes cut into quarters, lengthways. No whole nuts yet. Until what age differs by country: ask their doctor."
         }
       ],
       "medical": true
@@ -2092,7 +2102,7 @@
       },
       "steps": [
         {
-          "el": "Με μωρό στους πρώτους μήνες, ρώτα πρώτα τον γιατρό του: το από πότε μπαίνει σε πισίνα διαφέρει από χώρα σε χώρα. Και τότε ζεστό νερό, λίγα λεπτά, και έξω μόλις αρχίσει να τρέμει.",
+          "el": "Με μωρό στους πρώτους μήνες, ρώτα πρώτα τον παιδίατρο: το από πότε μπαίνει σε πισίνα διαφέρει από χώρα σε χώρα. Και τότε ζεστό νερό, λίγα λεπτά, και έξω μόλις αρχίσει να τρέμει.",
           "en": "With a baby in their first months, ask their doctor first: from when a pool is fine differs by country. Then warm water, a short dip, and out as soon as they shiver."
         },
         {
@@ -2185,7 +2195,8 @@
           "el": "Πες από πριν ποιο είναι το τελευταίο παραμύθι. Και κράτα το.",
           "en": "Say in advance which story is the last one. Then stick to it."
         }
-      ]
+      ],
+      "medical": true
     }
   },
   {
@@ -2268,6 +2279,7 @@
     "skill": "patience",
     "xp": 35,
     "minAgeMonths": 24,
+    "weekly": false,
     "evergreen": true,
     "title": {
       "el": "Η συγγνώμη",
@@ -2461,8 +2473,8 @@
           "en": "Anything round, hard or sticky still needs cutting or waiting. Sausages get cut lengthways into thin strips, not rounds; popcorn and hard sweets can wait."
         },
         {
-          "el": "Ολόκληροι ξηροί καρποί όχι ακόμα. Αλεσμένοι, ή ως λεπτή στρώση φιστικοβούτυρο ή άλλο βούτυρο ξηρών καρπών στο ψωμί, ναι. Ως ποια ηλικία διαφέρει ανά χώρα: ρώτα τον γιατρό του παιδιού.",
-          "en": "No whole nuts yet. Ground, or as a thin layer of peanut butter or another nut butter on bread, yes. Until what age differs by country: ask your child's doctor."
+          "el": "Ολόκληροι ξηροί καρποί όχι ακόμα. Αλεσμένοι, ή ως λεπτή στρώση φιστικοβούτυρο ή άλλο βούτυρο ξηρών καρπών στο ψωμί, ναι. Ως ποια ηλικία διαφέρει ανά χώρα: ρώτα τον παιδίατρο.",
+          "en": "No whole nuts yet. Ground, or as a thin layer of peanut butter or another nut butter on bread, yes. Until what age differs by country: ask their doctor."
         },
         {
           "el": "Τρώει καθιστό. Όχι τρέχοντας, όχι ξαπλωμένο, όχι στο αυτοκίνητο, και με έναν μεγάλο να το βλέπει.",
@@ -2545,7 +2557,7 @@
           "en": "Vulva is the word for the whole outside part on a girl, the part you can see."
         },
         {
-          "el": "Τα ψεύτικα ονόματα δίνουν την ιδέα ότι αυτά τα μέρη είναι κάτι κρυφό ή κακό. Με τα σωστά, μπορεί να πει σε σένα ή στον γιατρό ακριβώς τι πονάει.",
+          "el": "Τα ψεύτικα ονόματα δίνουν την ιδέα ότι αυτά τα μέρη είναι κάτι κρυφό ή κακό. Με τα σωστά, μπορεί να πει σε σένα ή στον παιδίατρο ακριβώς τι πονάει.",
           "en": "Made-up names can suggest those parts are secret or bad. With the right ones, they can tell you or a doctor exactly what hurts."
         },
         {
@@ -2585,7 +2597,7 @@
           "en": "The order matters: shade around the middle of the day, clothes and a hat with a brim all the way round, and then sunscreen. A cap leaves the ears and neck bare."
         },
         {
-          "el": "Μωρό κάτω των έξι μηνών μένει εκτός άμεσου ήλιου: σκιά και ελαφριά ρούχα κάνουν τη δουλειά. Το αν μπαίνει αντηλιακό τόσο νωρίς διαφέρει ανά χώρα: ρώτα τον γιατρό του.",
+          "el": "Μωρό κάτω των έξι μηνών μένει εκτός άμεσου ήλιου: σκιά και ελαφριά ρούχα κάνουν τη δουλειά. Το αν μπαίνει αντηλιακό τόσο νωρίς διαφέρει ανά χώρα: ρώτα τον παιδίατρο.",
           "en": "A baby under six months stays out of direct sun: shade and light clothes do the job. Whether sunscreen is used that young differs by country: ask their doctor."
         },
         {
@@ -2646,7 +2658,7 @@
           "en": "If they answer in the other language, keep going. Understanding you counts."
         },
         {
-          "el": "Αν σε προβληματίζει η ομιλία του, ρώτα τον γιατρό του ή έναν λογοθεραπευτή. Μην κόψεις μια γλώσσα όσο περιμένεις απάντηση.",
+          "el": "Αν σε προβληματίζει η ομιλία του, ρώτα τον παιδίατρο ή έναν λογοθεραπευτή. Μην κόψεις μια γλώσσα όσο περιμένεις απάντηση.",
           "en": "If their speech worries you, ask their doctor or a speech therapist. Don't drop a language while you wait for an answer."
         }
       ],

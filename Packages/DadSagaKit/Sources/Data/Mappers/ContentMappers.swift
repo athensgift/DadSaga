@@ -42,6 +42,7 @@ extension QuestDTO {
             isEvergreen: evergreen ?? false,
             onlyFor: try Self.audiences(onlyFor, itemID: id),
             isRetired: retired ?? false,
+            isWeekly: weekly ?? true,
             formerIDs: formerIDs ?? []
         )
     }

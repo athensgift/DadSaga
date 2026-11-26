@@ -17,6 +17,9 @@ public struct Quest: ContentItem, Hashable, Identifiable, Sendable {
     public let onlyFor: Set<Audience>
     /// A shipped card that is never offered again; it stays for what the dad already did with it (ADR-0053 §6).
     public let isRetired: Bool
+    /// Whether it may be the weekly quest. A card that only fits some homes or some days stays on the map and on
+    /// home, and is never the week's one suggestion (ADR-0082 §2).
+    public let isWeekly: Bool
 
     public init(
         id: String,
@@ -30,6 +33,7 @@ public struct Quest: ContentItem, Hashable, Identifiable, Sendable {
         isEvergreen: Bool = false,
         onlyFor: Set<Audience> = [],
         isRetired: Bool = false,
+        isWeekly: Bool = true,
         formerIDs: [String] = []
     ) {
         self.id = id
@@ -44,6 +48,7 @@ public struct Quest: ContentItem, Hashable, Identifiable, Sendable {
         self.isEvergreen = isEvergreen
         self.onlyFor = onlyFor
         self.isRetired = isRetired
+        self.isWeekly = isWeekly
     }
 }
 

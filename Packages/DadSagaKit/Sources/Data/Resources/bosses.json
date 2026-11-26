@@ -139,7 +139,7 @@
         "en": "If there are two of you, swap shifts before you're both spent, not after."
       },
       {
-        "el": "Αν το κλάμα ακούγεται διαφορετικό, αν έχει πυρετό, δεν τρώει ή κάτι σε ανησυχεί, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν είναι χαλαρό σαν πανί, ξυπνά δύσκολα, δυσκολεύεται να αναπνεύσει ή γίνεται μπλε ή γκρι, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+        "el": "Αν το κλάμα ακούγεται διαφορετικό, αν έχει πυρετό, δεν τρώει ή κάτι σε ανησυχεί, πάρε τώρα τον παιδίατρο, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν είναι χαλαρό σαν πανί, ξυπνά δύσκολα, δυσκολεύεται να αναπνεύσει ή γίνεται μπλε ή γκρι, κάλεσε τον αριθμό έκτακτης ανάγκης.",
         "en": "If the cry sounds different, they have a fever, won't feed or something worries you, call the doctor now, and the emergency number if they tell you to or if you can't reach them. If they're floppy, hard to wake, struggle to breathe or turn blue or grey, call the emergency number."
       }
     ],
@@ -168,23 +168,23 @@
         "en": "Take the temperature and note the time and reading."
       },
       {
-        "el": "Αν το μωρό είναι κάτω από 3 μηνών και έχει 38°C ή παραπάνω, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+        "el": "Αν το μωρό είναι κάτω από 3 μηνών και έχει 38°C ή παραπάνω, πάρε τώρα τον παιδίατρο, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
         "en": "If the baby is under 3 months and has 38°C (100.4°F) or higher, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
       },
       {
         "el": "Από 3 έως 6 μηνών, με 39°C ή παραπάνω, πάρε επίσης τον παιδίατρο την ίδια μέρα.",
-        "en": "From 3 to 6 months, 39°C (102.2°F) or higher also means calling your paediatrician the same day."
+        "en": "From 3 to 6 months, 39°C (102.2°F) or higher also means calling their doctor the same day."
       },
       {
         "el": "Μη δώσεις φάρμακο χωρίς οδηγία του παιδιάτρου για τη δόση.",
-        "en": "Don't give any medicine without your paediatrician's dosing advice."
+        "en": "Don't give any medicine without their doctor's dosing advice."
       },
       {
         "el": "Δίνε συχνά γάλα ή υγρά. Μην το κουκουλώνεις και μην το γδύνεις για να δροσιστεί.",
         "en": "Offer feeds or fluids often. Don't bundle them up, and don't strip them off to cool them."
       },
       {
-        "el": "Κοίτα το παιδί, όχι μόνο τον αριθμό: πίνει; σε κοιτάζει; Αν πίνει πολύ λιγότερο ή δεν είναι ο εαυτός του, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+        "el": "Κοίτα το παιδί, όχι μόνο τον αριθμό: πίνει; σε κοιτάζει; Αν πίνει πολύ λιγότερο ή δεν είναι ο εαυτός του, πάρε τώρα τον παιδίατρο, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
         "en": "Watch the child, not just the number: are they drinking? looking at you? If they're drinking much less or don't seem themselves, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
       },
       {
@@ -317,8 +317,8 @@
     },
     "guide": [
       {
-        "el": "Στόχος της νύχτας: το μωρό έφαγε, δεν κρυώνει ούτε ζεσταίνεται, και κοιμάται ανάσκελα στο δικό του κρεβατάκι. Τίποτα άλλο δεν μετράει απόψε.",
-        "en": "Tonight's goal: the baby is fed, neither too hot nor too cold, and asleep on their back in their own bed. Nothing else counts tonight."
+        "el": "Στόχος της νύχτας: το μωρό έφαγε, δεν κρυώνει ούτε ζεσταίνεται, και κοιμάται ανάσκελα στη δική του κούνια. Τίποτα άλλο δεν μετράει απόψε.",
+        "en": "Tonight's goal: the baby is fed, neither too hot nor too cold, and asleep on their back in their own cot. Nothing else counts tonight."
       },
       {
         "el": "Τα νεογέννητα τρώνε πολύ συχνά, μέρα και νύχτα. Δεν κάνεις κάτι λάθος.",
@@ -329,15 +329,15 @@
         "en": "If there are two of you, split the night now: who's up when. If the mother is breastfeeding, you fetch the baby, change, burp and resettle. If you're on your own, sleep whenever the baby sleeps."
       },
       {
-        "el": "Αν νιώσεις ότι σε παίρνει ο ύπνος με το μωρό πάνω σου, βάλ' το πρώτα στο κρεβατάκι του. Ποτέ ύπνος μαζί του σε καναπέ ή πολυθρόνα.",
-        "en": "If you feel yourself nodding off with the baby on you, put them in their own bed first. Never fall asleep with them on a sofa or armchair."
+        "el": "Αν νιώσεις ότι σε παίρνει ο ύπνος με το μωρό πάνω σου, βάλ' το πρώτα στην κούνια του. Ποτέ ύπνος μαζί του σε καναπέ ή πολυθρόνα.",
+        "en": "If you feel yourself nodding off with the baby on you, put them in their own cot first. Never fall asleep with them on a sofa or armchair."
       },
       {
         "el": "Δίπλα στο κρεβάτι, γραμμένα: ποιον παίρνεις τηλέφωνο τη νύχτα για το μωρό, ποιον για τη μητέρα αν είναι μαζί σου, και ο αριθμός έκτακτης ανάγκης.",
         "en": "By the bed, written down: who you call at night about the baby, who about the mother if she's with you, and the emergency number."
       },
       {
-        "el": "Για το μωρό: αν δυσκολεύεται να αναπνεύσει, γίνεται μπλε ή γκρι, ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης. Αν έχει πυρετό ή δεν τρώει, πάρε τώρα τον γιατρό ή το νοσοκομείο, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις.",
+        "el": "Για το μωρό: αν δυσκολεύεται να αναπνεύσει, γίνεται μπλε ή γκρι, ή δεν ξυπνά, κάλεσε τον αριθμό έκτακτης ανάγκης. Αν έχει πυρετό ή δεν τρώει, πάρε τώρα τον παιδίατρο ή το νοσοκομείο, όποια ώρα κι αν είναι, και τον αριθμό έκτακτης ανάγκης αν σου το πουν ή αν δεν τους βρίσκεις.",
         "en": "For the baby: if they struggle to breathe, look blue or grey, or won't wake, call the emergency number. If they have a fever or won't feed, call the doctor or hospital now, whatever the hour, and the emergency number if they tell you to or if you can't reach them."
       },
       {
@@ -448,7 +448,7 @@
         "en": "If you feel you might lose control: put the baby down on their back in the cot, leave the room and call someone to come over. If the baby is in danger right now, call the emergency number."
       },
       {
-        "el": "Αν μεγαλώνετε μαζί το μωρό, έχε τον νου σου και στον σύντροφό σου. Αν δεις τα ίδια σημάδια, πες το με αγάπη. Αν ξαφνικά μοιάζει μπερδεμένος, λέει πράγματα που δεν βγάζουν νόημα ή δεν κοιμάται καθόλου, ζητήστε ιατρική βοήθεια τώρα· αν κάποιος κινδυνεύει τώρα, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+        "el": "Αν μεγαλώνετε μαζί το μωρό, έχε τον νου σου και στον άλλο γονιό. Αν δεις τα ίδια σημάδια, πες το με αγάπη. Αν ξαφνικά μπερδεύεται, λέει πράγματα που δεν βγάζουν νόημα ή δεν κοιμάται καθόλου, ζητήστε ιατρική βοήθεια τώρα· αν κάποιος κινδυνεύει τώρα, κάλεσε τον αριθμό έκτακτης ανάγκης.",
         "en": "If you're raising the baby with a partner, look out for them too. If you see the same signs, say so with love. If they suddenly seem confused, say things that make no sense or don't sleep at all, get medical help now; if anyone is in danger right now, call the emergency number."
       }
     ],
@@ -501,7 +501,7 @@
         "en": "Split the night into shifts so each of you gets a few unbroken hours. If you're on your own, ask someone for one morning so you can sleep. It isn't a luxury."
       },
       {
-        "el": "Το πότε κόβονται τα νυχτερινά γεύματα το λέει ο γιατρός του, όχι ο γείτονας. Ρώτα τον και αν κάτι στον ύπνο του σε ανησυχεί, ή αν απλώς δεν αντέχεις άλλο. Και αυτό είναι λόγος.",
+        "el": "Το πότε κόβονται τα νυχτερινά γεύματα το λέει ο παιδίατρος, όχι ο γείτονας. Ρώτα τον και αν κάτι στον ύπνο του σε ανησυχεί, ή αν απλώς δεν αντέχεις άλλο. Και αυτό είναι λόγος.",
         "en": "When night feeds stop is for their doctor to say, not the neighbour. Ask them too if something about their sleep worries you, or if you simply can't go on. That counts as a reason."
       }
     ],
@@ -543,7 +543,7 @@
       },
       {
         "el": "Ρώτα τον παιδίατρο πριν από οποιοδήποτε gel ή παυσίπονο.",
-        "en": "Ask your paediatrician before any gel or painkiller."
+        "en": "Ask their doctor before any gel or painkiller."
       },
       {
         "el": "Πυρετός 38°C και πάνω δεν είναι από τα δόντια. Αντιμετώπισέ τον σαν πυρετό.",
@@ -571,7 +571,7 @@
     },
     "guide": [
       {
-        "el": "Το πότε, συνήθως γύρω στους έξι μήνες, και με τι ξεκινάτε το λέει ο γιατρός του. Η δική σου δουλειά είναι το τραπέζι: ήρεμο, χωρίς βιασύνη, με χαρτοπετσέτες κοντά.",
+        "el": "Το πότε, συνήθως γύρω στους έξι μήνες, και με τι ξεκινάτε το λέει ο παιδίατρος. Η δική σου δουλειά είναι το τραπέζι: ήρεμο, χωρίς βιασύνη, με χαρτοπετσέτες κοντά.",
         "en": "When to start, usually at around six months, and with what, is for their doctor to say. Your job is the table: calm, unhurried, napkins within reach."
       },
       {
@@ -583,15 +583,15 @@
         "en": "Spoon or pieces they pick up themselves: both are fine, and so is a mix. Anything you hand them should squash between your fingers."
       },
       {
-        "el": "Όχι μέλι πριν κλείσει τον πρώτο χρόνο. Ολόκληροι ξηροί καρποί όχι ακόμα. Ως ποια ηλικία διαφέρει ανά χώρα: ρώτα τον γιατρό του παιδιού. Σταφύλια και ντοματίνια κομμένα στα τέσσερα, κατά μήκος.",
-        "en": "No honey before their first birthday. No whole nuts yet. Until what age differs by country: ask your child's doctor. Grapes and cherry tomatoes cut into quarters, lengthways."
+        "el": "Όχι μέλι πριν κλείσει τον πρώτο χρόνο. Ολόκληροι ξηροί καρποί όχι ακόμα. Ως ποια ηλικία διαφέρει ανά χώρα: ρώτα τον παιδίατρο. Σταφύλια και ντοματίνια κομμένα στα τέσσερα, κατά μήκος.",
+        "en": "No honey before their first birthday. No whole nuts yet. Until what age differs by country: ask their doctor. Grapes and cherry tomatoes cut into quarters, lengthways."
       },
       {
-        "el": "Τα συχνά αλλεργιογόνα, όπως το αυγό και το αράπικο φιστίκι, δεν χρειάζεται να τα αναβάλλεις. Ρώτα τον γιατρό του πώς να τα δώσεις. Αν έχει έκζεμα ή έχει ήδη αντιδράσει σε κάποια τροφή, ρώτα τον πριν τα δοκιμάσετε.",
+        "el": "Τα συχνά αλλεργιογόνα, όπως το αυγό και το αράπικο φιστίκι, δεν χρειάζεται να τα αναβάλλεις. Ρώτα τον παιδίατρο πώς να τα δώσεις. Αν έχει έκζεμα ή έχει ήδη αντιδράσει σε κάποια τροφή, ρώτα τον πριν τα δοκιμάσετε.",
         "en": "Common allergens such as egg and peanut don't need to be put off. Ask their doctor how to offer them. If they have eczema or have already reacted to a food, ask before you try them."
       },
       {
-        "el": "Λίγη κοκκινίλα μόνο γύρω από το στόμα συνήθως είναι ερεθισμός από την επαφή. Εξάνθημα στο σώμα, πρήξιμο στα χείλη ή στο πρόσωπο, ή εμετός μετά από καινούργια τροφή: σταμάτα την και πάρε τώρα τον γιατρό του, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν το πρήξιμο ήρθε απότομα ή μεγαλώνει, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+        "el": "Λίγη κοκκινίλα μόνο γύρω από το στόμα συνήθως είναι ερεθισμός από την επαφή. Εξάνθημα στο σώμα, πρήξιμο στα χείλη ή στο πρόσωπο, ή εμετός μετά από καινούργια τροφή: σταμάτα την και πάρε τώρα τον παιδίατρο, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Αν το πρήξιμο ήρθε απότομα ή μεγαλώνει, κάλεσε τον αριθμό έκτακτης ανάγκης.",
         "en": "A little redness just around the mouth is usually irritation from contact. A rash on the body, swollen lips or face, or vomiting after a new food: stop that food and call their doctor now, and the emergency number if they tell you to or if you can't reach them. If the swelling comes on fast or keeps growing, call the emergency number."
       },
       {
@@ -677,7 +677,7 @@
         "en": "Also call the emergency number if they were knocked out, even briefly, or if after the knock clear fluid runs from the nose or an ear, an ear bleeds, a bruise appears behind an ear or around an eye that wasn't hit, or there's a dent in the head."
       },
       {
-        "el": "Αν είναι κάτω των τριών μηνών, μετά από κάθε χτύπημα στο κεφάλι πήγαινέ το αμέσως σε γιατρό ή στα επείγοντα, ακόμα κι αν δείχνει καλά. Το ίδιο αν είναι κάτω του ενός έτους και έχει μελανιά, πρήξιμο ή μεγάλο κόψιμο στο κεφάλι, ή αν έπεσε από ύψος γύρω στο ένα μέτρο και πάνω ή από πέντε σκαλιά και πάνω.",
+        "el": "Αν είναι κάτω των τριών μηνών, μετά από κάθε χτύπημα στο κεφάλι πήγαινέ το αμέσως σε παιδίατρο ή στα επείγοντα, ακόμα κι αν δείχνει καλά. Το ίδιο αν είναι κάτω του ενός έτους και έχει μελανιά, πρήξιμο ή μεγάλο κόψιμο στο κεφάλι, ή αν έπεσε από ύψος γύρω στο ένα μέτρο και πάνω ή από πέντε σκαλιά και πάνω.",
         "en": "If they're under three months, take them to a doctor or the emergency department straight away after any knock to the head, even if they seem fine. The same if they're under one and have a bruise, swelling or a large cut on the head, or if they fell from about a metre or more, or down five or more stairs."
       },
       {
@@ -693,7 +693,7 @@
         "en": "If none of this applies, and they cried straight away and settled in your arms, that's a good sign. Hold something cold wrapped in a towel on the bump, a few minutes at a time."
       },
       {
-        "el": "Μπορεί να κοιμηθεί αν είναι η ώρα του. Το πρώτο εικοσιτετράωρο ένας ενήλικας μένει κοντά του. Αν κάποιο από τα σημάδια φανεί τις επόμενες μέρες, ισχύουν τα ίδια. Πριν δώσεις παυσίπονο, ρώτα τον γιατρό του.",
+        "el": "Μπορεί να κοιμηθεί αν είναι η ώρα του. Το πρώτο εικοσιτετράωρο ένας ενήλικας μένει κοντά του. Αν κάποιο από τα σημάδια φανεί τις επόμενες μέρες, ισχύουν τα ίδια. Πριν δώσεις παυσίπονο, ρώτα τον παιδίατρο.",
         "en": "They can sleep if it's their usual time. For the first 24 hours an adult stays close. If any of these signs shows up over the next few days, the same steps apply. Ask their doctor before giving a painkiller."
       },
       {
@@ -734,19 +734,19 @@
         "en": "Breastfeeding or their usual milk carries on, and formula isn't watered down. No juice or fizzy drinks: they make diarrhoea worse."
       },
       {
-        "el": "Ρώτα τον φαρμακοποιό ή τον γιατρό του για διάλυμα ενυδάτωσης από το στόμα. Φάρμακα που σταματούν τη διάρροια ή τον εμετό μόνο αν τα πει γιατρός.",
+        "el": "Ρώτα τον φαρμακοποιό ή τον παιδίατρο για διάλυμα ενυδάτωσης από το στόμα. Φάρμακα που σταματούν τη διάρροια ή τον εμετό μόνο αν τα πει ο παιδίατρος.",
         "en": "Ask the pharmacist or their doctor about oral rehydration solution. Medicines that stop diarrhoea or vomiting only if a doctor says so."
       },
       {
-        "el": "Μέτρα τις βρεγμένες πάνες. Πολύ λιγότερες από το συνηθισμένο, κλάμα χωρίς δάκρυα, στεγνό στόμα, βαθουλωμένα μάτια ή βαθουλωμένη πηγή στο κεφάλι: να το δει γιατρός σήμερα.",
+        "el": "Μέτρα τις βρεγμένες πάνες. Πολύ λιγότερες από το συνηθισμένο, κλάμα χωρίς δάκρυα, στεγνό στόμα, βαθουλωμένα μάτια ή βαθουλωμένη πηγή στο κεφάλι: να το δει παιδίατρος σήμερα.",
         "en": "Count the wet nappies. Far fewer than usual, crying without tears, a dry mouth, sunken eyes or a sunken soft spot on the head: a doctor sees them today."
       },
       {
-        "el": "Πάρε γιατρό την ίδια μέρα και αν δεν κρατά καθόλου υγρά, αν σταμάτησε να πίνει ή αν δεν βελτιώνεται. Αν δεις αίμα στην πάνα, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Όσο πιο μικρό το μωρό, τόσο πιο γρήγορα παίρνεις τηλέφωνο. Με μωρό κάτω των έξι μηνών, πάρε τον γιατρό την ίδια μέρα σε κάθε περίπτωση.",
+        "el": "Πάρε τον παιδίατρο την ίδια μέρα και αν δεν κρατά καθόλου υγρά, αν σταμάτησε να πίνει ή αν δεν βελτιώνεται. Αν δεις αίμα στην πάνα, πάρε τώρα τον παιδίατρο, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις. Όσο πιο μικρό το μωρό, τόσο πιο γρήγορα παίρνεις τηλέφωνο. Με μωρό κάτω των έξι μηνών, πάρε τον παιδίατρο την ίδια μέρα σε κάθε περίπτωση.",
         "en": "Also call a doctor the same day if they keep no fluids down, stop drinking, or it isn't getting better. If you see blood in the nappy, call the doctor now, and the emergency number if they tell you to or if you can't reach them. The younger the baby, the sooner you call. With a baby under six months, call the doctor the same day in any case."
       },
       {
-        "el": "Αν κάνει πράσινο εμετό ή εμετό με αίμα, ή έχει ξαφνικό, πολύ δυνατό πόνο στην κοιλιά, πήγαινέ το τώρα στα επείγοντα ή κάλεσε τον αριθμό έκτακτης ανάγκης. Αν είναι πολύ χλωμό, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+        "el": "Αν κάνει πράσινο εμετό ή εμετό με αίμα, ή έχει ξαφνικό, πολύ δυνατό πόνο στην κοιλιά, πήγαινέ το τώρα στα επείγοντα ή κάλεσε τον αριθμό έκτακτης ανάγκης. Αν είναι πολύ χλωμό, πάρε τώρα τον παιδίατρο, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
         "en": "If they bring up green vomit or vomit with blood, or have sudden, severe tummy pain, go to the emergency department now or call the emergency number. If they look very pale, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
       },
       {
@@ -787,11 +787,11 @@
         "en": "Call the emergency number if it's their first seizure, if it lasts more than five minutes, if they struggle to breathe or if they don't come round."
       },
       {
-        "el": "Το ίδιο αν τινάζεται μόνο η μία πλευρά ή αν ξαναγίνει την ίδια μέρα. Αν το έχει ξαναπάθει, σταμάτησε γρήγορα και συνήλθε, πάρε τον γιατρό του την ίδια μέρα.",
+        "el": "Το ίδιο αν τινάζεται μόνο η μία πλευρά ή αν ξαναγίνει την ίδια μέρα. Αν το έχει ξαναπάθει, σταμάτησε γρήγορα και συνήλθε, πάρε τον παιδίατρο την ίδια μέρα.",
         "en": "The same if only one side is jerking or it happens again the same day. If it has happened before, stopped quickly and they came round, call their doctor the same day."
       },
       {
-        "el": "Τις περισσότερες φορές είναι πυρετικοί σπασμοί: κρατούν λίγα λεπτά, τα παιδιά συνέρχονται πλήρως και δεν είναι επιληψία. Τι ήταν θα το πει ο γιατρός. Δεν το προκάλεσες και δεν μπορούσες να το προλάβεις.",
+        "el": "Τις περισσότερες φορές είναι πυρετικοί σπασμοί: κρατούν λίγα λεπτά, τα παιδιά συνέρχονται πλήρως και δεν είναι επιληψία. Τι ήταν θα το πει ο παιδίατρος. Δεν το προκάλεσες και δεν μπορούσες να το προλάβεις.",
         "en": "Most often it's a febrile seizure: it lasts a few minutes, children recover fully, and it isn't epilepsy. A doctor will tell you what it was. You didn't cause it and you couldn't have prevented it."
       },
       {
@@ -799,11 +799,11 @@
         "en": "A cough like a barking seal and a hoarse voice, often at night after a cold: hold them upright in your arms and stay calm; crying makes it worse."
       },
       {
-        "el": "Μίλα με γιατρό την ίδια μέρα, ακόμα κι αν μοιάζει ήπιο· τη νύχτα, η γραμμή ιατρικών συμβουλών, αν υπάρχει, μπορεί να σου πει τι να κάνεις. Ο γιατρός μπορεί να δώσει φάρμακο που βοηθά να περάσει πιο γρήγορα. Άσε τους ατμούς: ένα μπάνιο γεμάτο ατμό δεν έχει αποδειχτεί ότι βοηθά, και το καυτό νερό καλύτερα να μένει μακριά από το παιδί.",
+        "el": "Μίλα με τον παιδίατρο την ίδια μέρα, ακόμα κι αν μοιάζει ήπιο· τη νύχτα, η γραμμή ιατρικών συμβουλών, αν υπάρχει, μπορεί να σου πει τι να κάνεις. Ο παιδίατρος μπορεί να δώσει φάρμακο που βοηθά να περάσει πιο γρήγορα. Άσε τους ατμούς: ένα μπάνιο γεμάτο ατμό δεν έχει αποδειχτεί ότι βοηθά, και το καυτό νερό καλύτερα να μένει μακριά από το παιδί.",
         "en": "Speak to a doctor the same day, even if it seems mild; at night, a medical advice line, if there is one, can tell you what to do. The doctor may give medicine that helps it pass sooner. Skip the steam: a steamy bathroom isn't proven to help, and hot water is best kept away from your child."
       },
       {
-        "el": "Κάλεσε τον αριθμό έκτακτης ανάγκης αν δυσκολεύεται να αναπνεύσει (τραχύς ήχος σε κάθε εισπνοή ενώ ησυχάζει, δέρμα που ρουφιέται στον λαιμό ή κάτω από τα πλευρά), αν τα χείλη του γίνουν μπλε ή γκρίζα, αν τρέχουν σάλια και δεν μπορεί να καταπιεί, ή αν είναι ξαφνικά πολύ ήσυχο, χαλαρό και δεν ξυπνά εύκολα. Αν δεν ηρεμεί με τίποτα, πάρε τώρα τον γιατρό, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+        "el": "Κάλεσε τον αριθμό έκτακτης ανάγκης αν δυσκολεύεται να αναπνεύσει (τραχύς ήχος σε κάθε εισπνοή ενώ ησυχάζει, δέρμα που ρουφιέται στον λαιμό ή κάτω από τα πλευρά), αν τα χείλη του γίνουν μπλε ή γκρίζα, αν τρέχουν σάλια και δεν μπορεί να καταπιεί, ή αν είναι ξαφνικά πολύ ήσυχο, χαλαρό και δεν ξυπνά εύκολα. Αν δεν ηρεμεί με τίποτα, πάρε τώρα τον παιδίατρο, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
         "en": "Call the emergency number if they struggle to breathe (a harsh sound on every breath in while resting, skin sucking in at the neck or under the ribs), their lips turn blue or grey, they drool and can't swallow, or they're suddenly very quiet, floppy and hard to wake. If nothing will calm them, call the doctor now, and the emergency number if they tell you to or if you can't reach them."
       }
     ],
@@ -852,11 +852,11 @@
         "en": "Leave them something of yours, or their favourite toy."
       },
       {
-        "el": "Αν για ένα διάστημα θέλει μόνο έναν από εσάς και διώχνει τον άλλον, δεν είναι απόρριψη. Αλλάζει με τον καιρό.",
-        "en": "If for a while they only want one of you and push the other away, it isn't rejection. It changes with time."
+        "el": "Αν για ένα διάστημα θέλει μόνο εσένα, ή μόνο κάποιον άλλον και σε διώχνει, δεν είναι απόρριψη. Αλλάζει με τον καιρό.",
+        "en": "If for a while they want only you, or only someone else and push you away, it isn't rejection. It changes with time."
       },
       {
-        "el": "Μίλα με τον γιατρό του αν η αναστάτωση είναι πολύ μεγάλη, αν κρατά πολλή ώρα αφότου έφυγες, ή αν συνεχίζεται για εβδομάδες χωρίς να μαλακώνει.",
+        "el": "Μίλα με τον παιδίατρο αν η αναστάτωση είναι πολύ μεγάλη, αν κρατά πολλή ώρα αφότου έφυγες, ή αν συνεχίζεται για εβδομάδες χωρίς να μαλακώνει.",
         "en": "Talk to their doctor if the distress is very strong, lasts a long time after you've gone, or carries on for weeks without easing."
       }
     ],
@@ -889,19 +889,19 @@
         "en": "Fluids (for a baby under six months, their usual milk), rest, cuddles, and saline for a blocked nose. Antibiotics do nothing against viruses."
       },
       {
-        "el": "Όχι σιρόπια για βήχα ή κρυολόγημα και όχι αποσυμφορητικά σε τόσο μικρό παιδί, ούτε «φυτικά» ή ομοιοπαθητικά, εκτός αν τα πει ο γιατρός του. Δεν το γιατρεύουν πιο γρήγορα και σε αυτή την ηλικία δεν είναι ασφαλή.",
+        "el": "Όχι σιρόπια για βήχα ή κρυολόγημα και όχι αποσυμφορητικά σε τόσο μικρό παιδί, ούτε «φυτικά» ή ομοιοπαθητικά, εκτός αν τα πει ο παιδίατρος. Δεν το γιατρεύουν πιο γρήγορα και σε αυτή την ηλικία δεν είναι ασφαλή.",
         "en": "No cough or cold syrups and no decongestants for a child this small, “herbal” or homeopathic ones included, unless their doctor says so. They don't cure it faster, and at this age they aren't safe."
       },
       {
-        "el": "Κοίτα την αναπνοή, όχι τον βήχα. Κάλεσε τον αριθμό έκτακτης ανάγκης αν παλεύει για κάθε ανάσα (το δέρμα ρουφιέται κάτω από τα πλευρά, γρυλίζει καθώς εκπνέει), αν κάνει παύσεις στην ανάσα, ή αν τα χείλη του γίνουν μπλε ή γκρίζα. Αν απλώς αναπνέει πιο γρήγορα από το συνηθισμένο, πάρε τώρα τον γιατρό του, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
+        "el": "Κοίτα την αναπνοή, όχι τον βήχα. Κάλεσε τον αριθμό έκτακτης ανάγκης αν παλεύει για κάθε ανάσα (το δέρμα ρουφιέται κάτω από τα πλευρά, γρυλίζει καθώς εκπνέει), αν κάνει παύσεις στην ανάσα, ή αν τα χείλη του γίνουν μπλε ή γκρίζα. Αν απλώς αναπνέει πιο γρήγορα από το συνηθισμένο, πάρε τώρα τον παιδίατρο, και τον αριθμό έκτακτης ανάγκης αν σου το πει ή αν δεν τον βρίσκεις.",
         "en": "Watch the breathing, not the cough. Call the emergency number if they're fighting for every breath (skin sucking in under the ribs, grunting as they breathe out), pause between breaths, or their lips turn blue or grey. If they're just breathing faster than usual, call their doctor now, and the emergency number if they tell you to or if you can't reach them."
       },
       {
-        "el": "Πάρε τον γιατρό του την ίδια μέρα αν πίνει πολύ λιγότερο, αν έχει πολύ λιγότερες βρεγμένες πάνες ή αν ο πυρετός επιμένει. Σε μωρό κάτω των τριών μηνών, κάθε πυρετός σημαίνει τηλέφωνο στον γιατρό τώρα. Για βήχα που κρατά εβδομάδες, κλείσε ραντεβού.",
+        "el": "Πάρε τον παιδίατρο την ίδια μέρα αν πίνει πολύ λιγότερο, αν έχει πολύ λιγότερες βρεγμένες πάνες ή αν ο πυρετός επιμένει. Σε μωρό κάτω των τριών μηνών, κάθε πυρετός σημαίνει τηλέφωνο στον παιδίατρο τώρα. Για βήχα που κρατά εβδομάδες, κλείσε ραντεβού.",
         "en": "Call their doctor the same day if they drink much less, have far fewer wet nappies or the fever won't go away. For a baby under three months, any fever means calling the doctor now. For a cough that lasts for weeks, book a visit."
       },
       {
-        "el": "Αν τραβάει το αυτί του και κλαίει, μπορεί να είναι ωτίτιδα. Πολλές περνούν μόνες τους σε λίγες μέρες· το αν θέλει φάρμακο το κρίνει ο γιατρός. Τίποτα μέσα στο αυτί, ούτε μπατονέτα.",
+        "el": "Αν τραβάει το αυτί του και κλαίει, μπορεί να είναι ωτίτιδα. Πολλές περνούν μόνες τους σε λίγες μέρες· το αν θέλει φάρμακο το κρίνει ο παιδίατρος. Τίποτα μέσα στο αυτί, ούτε μπατονέτα.",
         "en": "If they pull at an ear and cry, it may be an ear infection. Many clear on their own in a few days; whether it needs medicine is the doctor's call. Nothing goes in the ear, cotton buds included."
       },
       {
@@ -943,7 +943,7 @@
         "en": "It's not your stamina. It comes when, for a long time, what drains you outweighs what refills you. The fix is to change the balance, not to grit your teeth harder."
       },
       {
-        "el": "Γράψε τρία πράγματα που σε αδειάζουν και τρία που σε γεμίζουν. Αυτή τη βδομάδα κόψε, μοίρασε ή ζήτα βοήθεια για ένα από τα πρώτα, και βάλε στο ημερολόγιο ένα από τα δεύτερα.",
+        "el": "Γράψε τρία πράγματα που σε αδειάζουν και τρία που σε γεμίζουν. Αυτή την εβδομάδα κόψε, μοίρασε ή ζήτα βοήθεια για ένα από τα πρώτα, και βάλε στο ημερολόγιο ένα από τα δεύτερα.",
         "en": "Write down three things that drain you and three that refill you. This week drop, hand over or get help with one of the first, and put one of the second in the calendar."
       },
       {
@@ -1001,7 +1001,7 @@
       },
       {
         "el": "Αν τα ξεσπάσματα είναι πολύ συχνά ή έντονα, μίλα με τον παιδίατρο.",
-        "en": "If meltdowns are very frequent or intense, talk to your paediatrician."
+        "en": "If meltdowns are very frequent or intense, talk to their doctor."
       }
     ],
     "badge": {
@@ -1016,13 +1016,14 @@
     "xp": 100,
     "minAgeMonths": 24,
     "onlyFor": ["youngerSibling"],
+    "evergreen": true,
     "title": {
       "el": "Ο Νέος Συγκάτοικος",
       "en": "The New Roommate"
     },
     "intro": {
-      "el": "Ήρθε μωρό στο σπίτι και το μεγάλο ξαφνικά θέλει πάλι πιπίλα. Δεν γύρισε πίσω: σε ρωτά αν έχεις ακόμα χώρο γι' αυτό.",
-      "en": "A baby has arrived and the big one suddenly wants a dummy again. They haven't gone backwards: they're asking whether you still have room for them."
+      "el": "Έρχεται μωρό στο σπίτι, ή μόλις ήρθε, και το μεγάλο ξαφνικά θέλει να είναι πάλι μωρό. Δεν γύρισε πίσω: σε ρωτά αν έχεις ακόμα χώρο γι' αυτό.",
+      "en": "A baby is on the way, or has just arrived, and the big one suddenly wants to be a baby again. They haven't gone backwards: they're asking whether you still have room for them."
     },
     "guide": [
       {
@@ -1091,8 +1092,8 @@
         "en": "A small portion, and eat the same food together. They learn by watching you."
       },
       {
-        "el": "Αν χάνει βάρος, τρώει ελάχιστα είδη τροφών ή κάτι σε ανησυχεί, μίλα με τον γιατρό του παιδιού.",
-        "en": "If they're losing weight, eat only a handful of foods, or something worries you, talk to your child's doctor."
+        "el": "Αν χάνει βάρος, τρώει ελάχιστα είδη τροφών ή κάτι σε ανησυχεί, μίλα με τον παιδίατρο.",
+        "en": "If they're losing weight, eat only a handful of foods, or something worries you, talk to their doctor."
       }
     ],
     "badge": {
@@ -1193,8 +1194,8 @@
         "en": "Notice the gentle moments too, and say them out loud: “You waited your turn for the swing. Nice one.”"
       },
       {
-        "el": "Συνήθως αραιώνει όσο έρχονται οι λέξεις. Αν κρατά εβδομάδες, αν κάποιος χτυπάει σοβαρά ή αν σας παίρνουν συχνά τηλέφωνο από τον παιδικό σταθμό, μίλα με τον γιατρό του παιδιού.",
-        "en": "It usually fades as the words arrive. If it goes on for weeks, if someone is getting badly hurt, or if daycare keeps calling you, talk to your child's doctor."
+        "el": "Συνήθως αραιώνει όσο έρχονται οι λέξεις. Αν κρατά εβδομάδες, αν κάποιος χτυπάει σοβαρά ή αν σας παίρνουν συχνά τηλέφωνο από τον παιδικό σταθμό, μίλα με τον παιδίατρο.",
+        "en": "It usually fades as the words arrive. If it goes on for weeks, if someone is getting badly hurt, or if daycare keeps calling you, talk to their doctor."
       }
     ],
     "badge": {
@@ -1234,7 +1235,7 @@
         "en": "Praise the effort, not only success. Never punish or shame an accident. Always carry a change of clothes."
       },
       {
-        "el": "Αν κόλλησε, κοίτα πρώτα τα κακά. Όταν είναι σκληρά ή πονάνε, το παιδί κρατιέται, και τότε δυσκολεύουν όλα. Αν τα κάνει μόνο στην πάνα, δώσ' του την πάνα: καλύτερα από το να κρατιέται. Και μίλα με τον γιατρό του.",
+        "el": "Αν κόλλησε, κοίτα πρώτα τα κακά. Όταν είναι σκληρά ή πονάνε, το παιδί κρατιέται, και τότε δυσκολεύουν όλα. Αν τα κάνει μόνο στην πάνα, δώσ' του την πάνα: καλύτερα από το να κρατιέται. Και μίλα με τον παιδίατρο.",
         "en": "If it's stuck, look at the poo first. When it's hard or it hurts, a child holds on, and then everything gets harder. If they'll only go in a nappy, give them the nappy: better than holding on. And talk to their doctor."
       },
       {
@@ -1246,7 +1247,7 @@
         "en": "Nights are a different level: they can come months or even years after days. The night nappy stays as long as it's needed. No punishing a wet bed, and no waking them every night for the toilet."
       },
       {
-        "el": "Ρώτα τον γιατρό του αν πονάει, αν δεις αίμα, αν κρατά τα κακά του, ή αν ξαναβρέχεται ενώ ήταν στεγνό για μήνες.",
+        "el": "Ρώτα τον παιδίατρο αν πονάει, αν δεις αίμα, αν κρατά τα κακά του, ή αν ξαναβρέχεται ενώ ήταν στεγνό για μήνες.",
         "en": "Ask their doctor if it hurts, if you see blood, if they're holding in their poo, or if they start wetting again after months of being dry."
       }
     ],
@@ -1348,8 +1349,8 @@
         "en": "Give it several nights of exactly the same response before you judge whether it's working."
       },
       {
-        "el": "Αν ο ύπνος σάς εξαντλεί όλους για εβδομάδες, ή αν ροχαλίζει δυνατά τα περισσότερα βράδια, μίλα με τον γιατρό του παιδιού.",
-        "en": "If sleep is wearing you all out for weeks, or they snore loudly most nights, talk to your child's doctor."
+        "el": "Αν ο ύπνος σάς εξαντλεί όλους για εβδομάδες, ή αν ροχαλίζει δυνατά τα περισσότερα βράδια, μίλα με τον παιδίατρο.",
+        "en": "If sleep is wearing you all out for weeks, or they snore loudly most nights, talk to their doctor."
       }
     ],
     "badge": {
@@ -1393,8 +1394,8 @@
         "en": "Calm evenings: fewer screens, a familiar routine, enough sleep. Being overtired brings them on."
       },
       {
-        "el": "Αν οι εφιάλτες είναι συχνοί ή ήρθαν μετά από κάτι δύσκολο, ή αν οι νυχτερινοί τρόμοι επαναλαμβάνονται, μίλα με τον γιατρό του παιδιού.",
-        "en": "If nightmares are frequent or followed something hard, or the night terrors keep happening, talk to your child's doctor."
+        "el": "Αν οι εφιάλτες είναι συχνοί ή ήρθαν μετά από κάτι δύσκολο, ή αν οι νυχτερινοί τρόμοι επαναλαμβάνονται, μίλα με τον παιδίατρο.",
+        "en": "If nightmares are frequent or followed something hard, or the night terrors keep happening, talk to their doctor."
       }
     ],
     "badge": {
@@ -1447,7 +1448,7 @@
         "en": "It will show in their behaviour: clinging, anger, going quiet, going backwards. That's the feeling talking, not your child."
       },
       {
-        "el": "Αν κρατά καιρό, μίλα με τον γιατρό του. Και βρες κάποιον για σένα: δεν μπορείς να είσαι στήριγμα χωρίς δικό σου στήριγμα.",
+        "el": "Αν κρατά καιρό, μίλα με τον παιδίατρο. Και βρες κάποιον για σένα: δεν μπορείς να είσαι στήριγμα χωρίς δικό σου στήριγμα.",
         "en": "If it goes on, talk to their doctor. And find someone for yourself: you can't be the solid ground without some of your own."
       }
     ],
@@ -1636,8 +1637,8 @@
         "en": "Give them a way to say goodbye. If they want to come to the funeral, tell them beforehand what they'll see, and name one adult who'll step outside with them. Otherwise a drawing, a plant, a photo."
       },
       {
-        "el": "Αν μετά από εβδομάδες ο ύπνος, το φαγητό ή το παιχνίδι του δεν έχουν ξαναβρεί ρυθμό, μίλα με τον γιατρό του παιδιού. Και για σένα ισχύει το ίδιο.",
-        "en": "If weeks later their sleep, eating or play haven't found their rhythm again, talk to your child's doctor. The same goes for you."
+        "el": "Αν μετά από εβδομάδες ο ύπνος, το φαγητό ή το παιχνίδι του δεν έχουν ξαναβρεί ρυθμό, μίλα με τον παιδίατρο. Και για σένα, με τον δικό σου γιατρό.",
+        "en": "If weeks later their sleep, eating or play haven't found their rhythm again, talk to their doctor. The same goes for you."
       }
     ],
     "badge": {
@@ -1690,7 +1691,7 @@
         "en": "Goodbyes count: a photo at the old house, a “bye” to friends, and a date for a video call."
       },
       {
-        "el": "Είναι φυσικό να του λείπει το παλιό σπίτι, και σε σένα το ίδιο. Αν μετά από αρκετό καιρό δεν κοιμάται καλά, δεν τρώει ή έχει κλειστεί στον εαυτό του, μίλα με τον γιατρό του.",
+        "el": "Είναι φυσικό να του λείπει το παλιό σπίτι, και σε σένα το ίδιο. Αν μετά από αρκετό καιρό δεν κοιμάται καλά, δεν τρώει ή έχει κλειστεί στον εαυτό του, μίλα με τον παιδίατρο.",
         "en": "It's natural for them to miss the old place, and for you too. If after a good while they're not sleeping well, not eating or have gone quiet, talk to their doctor."
       }
     ],

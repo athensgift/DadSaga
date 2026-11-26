@@ -36,6 +36,7 @@ enum ContentValidator {
         try validateXP(catalog)
         try validateWorldAges(catalog)
         try validateBeforeBirth(catalog)
+        try validateWeekly(catalog)
         try validateAppearance(catalog.appearanceOptions)
         try validateTitles(catalog)
         try validateSkillCurves(catalog.skillCurves)
@@ -119,6 +120,17 @@ enum ContentValidator {
         let aged = catalog.quests.filter { $0.worldID == world.id && $0.minAgeMonths > 0 }.map(\.id)
             + catalog.bosses.filter { $0.worldID == world.id && $0.minAgeMonths > 0 }.map(\.id)
         if let itemID = aged.first { throw ContentDataError.agedBeforeBirth(itemID: itemID) }
+    }
+
+    /// A world's own quests are never all left out of the weekly pick: `"weekly": false` is for a few cards, and the
+    /// week keeps a card of the world it is in (ADR-0082 §2).
+    private static func validateWeekly(_ catalog: ContentCatalog) throws {
+        for world in catalog.worlds {
+            let own = catalog.quests.filter { $0.worldID == world.id && !$0.isRetired }
+            if !own.isEmpty, !own.contains(where: \.isWeekly) {
+                throw ContentDataError.noWeeklyQuest(worldID: world.id)
+            }
+        }
     }
 
     /// Each part names every option the app can draw, once, and nothing else (ADR-0044 §3). Ids are unique within

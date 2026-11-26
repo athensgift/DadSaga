@@ -115,6 +115,8 @@ What the whole-app review found that its six fix PRs (from #119) left open, and 
   hand-made copy does it today; decide before sync whether to refuse it or decode with the transform.
 
 ### Nits
+- Decided (owner, 2026-11-26): no `LICENSE` file; the README says the code and content are © FAFOUTIS BROTHERS
+  E.E., public to read only.
 - Data: `storedPhotos()` drops an unreadable file silently, against its comment; a copy has no cap on its total size
   (only a file the dad picks); `UserDefaultsSagaFilmChoicesRepository`'s "a stored switch carries over"; the content
   validator checks less than the bundled-content tests (the shipped JSON is tested).
@@ -133,15 +135,14 @@ What the whole-app review found that its six fix PRs (from #119) left open, and 
   button reads "Remove child" to VoiceOver; "Couldn't load" without "Try again" in My family, Your hero, Wardrobe;
   "Last time" with no year; raw black and white in the photo viewer; the timeline's load has no generation; segmented
   child pickers don't grow with Dynamic Type. Each is small or rare.
-- Cards (the owner's call): the firsts' Greek titles and the tooth fairy; one Greek gender for the partner,
-  `b-w4-kindergarten`, `b-w2-velcro`'s "only one of you"; one Greek word each for doctor, cot and week; "Stroller";
-  narrow windows (`b-w3-new-sibling`) and conditional quests with no audience; a `medical` footer missing on seven
-  quests with a checkable claim; a first dental visit before 30 months.
+- Cards, decided by the owner on 2026-11-26 and kept as they are (don't raise again): `f-roll-over` «Γύρισε
+  μπρούμυτα», the 🧚 on `f-lost-tooth`, «τη νηπιαγωγό» in `b-w4-kindergarten`, and `q-w3-dentist-run`. Open: the
+  owner's «Έγραψε το όνομά του» for `f-wrote-name` reads wrong for a girl (firsts fit both, a test checks it); the
+  title stays «Έγραψε το όνομα» until he picks a wording that fits both.
 - Website and privacy pages: Vision also looks for "what stands out", not only faces; the demo video has no pause; the
   Greek site's "Super Dad"; `www.dadsaga.app` doesn't redirect; `docs/demo/README.md`'s picker note.
-- App and repository: the camera prompt's "stay on this device" is stricter than the privacy page; no `LICENSE`
-  (all rights reserved, the owner's call); the owner's email on public commits; `.gitignore` lacks archives and
-  signing files (none tracked); `StoreConnection` logs a store error as `.public` (local log only);
+- App and repository: the camera prompt's "stay on this device" is stricter than the privacy page; the owner's email
+  on public commits; `StoreConnection` logs a store error as `.public` (local log only);
   `SagaCopyDamagedFilesTests` keeps a back-compat reason; ADR-0058 §7 says "large" where home uses `.automatic`.
 - CI: the Mac's SwiftLint is older than CI's pinned one; upgrade it.
 

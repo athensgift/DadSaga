@@ -19,7 +19,7 @@
   { "id": "f-birthday", "order": 18, "emoji": "🎂", "xp": 30, "companionTrait": "party-hat", "title": { "el": "Πρώτα γενέθλια", "en": "First birthday" } },
   { "id": "f-i-love-you", "order": 19, "emoji": "❤️", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο «σ' αγαπώ»", "en": "First “I love you”" } },
   { "id": "f-joke", "order": 20, "emoji": "😜", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο αστείο", "en": "First joke" } },
-  { "id": "f-drawing", "order": 21, "emoji": "🖍️", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη ζωγραφιά του μπαμπά", "en": "First drawing of Dad" } },
+  { "id": "f-drawing", "order": 21, "emoji": "🖍️", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη φορά που ζωγράφισε τον μπαμπά", "en": "First drawing of Dad" } },
   { "id": "f-trip", "order": 22, "emoji": "🧳", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτο ταξίδι", "en": "First trip" } },
   { "id": "f-swim", "order": 23, "emoji": "🏊", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη βουτιά", "en": "First swim" } },
   { "id": "f-bike", "order": 24, "emoji": "🚲", "xp": 30, "companionTrait": null, "title": { "el": "Πρώτη βόλτα με ποδήλατο", "en": "First bike ride" } },

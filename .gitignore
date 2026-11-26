@@ -13,9 +13,16 @@ DerivedData/
 .build/
 .swiftpm/
 *.xcresult
+*.xcarchive
 
 # Local only
 .claude/worktrees/
 .claude/settings.local.json
 build/
 *.ipa
+.review/
+
+# Signing (never in the repository)
+*.p8
+*.p12
+*.mobileprovision

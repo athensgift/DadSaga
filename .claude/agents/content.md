@@ -15,8 +15,13 @@ Rules:
 - A tip has one to six steps (ADR-0073).
 - ADR-0006: never pressure, never compare the child to norms, no deadlines; XP rewards the dad's actions.
 - Boss survival guides are health information: base every medical point on current reputable sources, list the sources
-  in your reply, say "consult your paediatrician" where relevant, and flag each guide as needing the owner's review.
+  in your reply, point to the doctor where relevant, and flag each guide as needing the owner's review.
   Never give medication doses or phone numbers.
+- Words (the owner, 2026-11-26): the child's doctor is «ο παιδίατρος» in Greek and "their doctor" in English, never
+  "paediatrician"; «γιατρός» / "doctor" for the dad's or the mother's. The baby's bed is «κούνια» / "cot". «εβδομάδα»,
+  not «βδομάδα». The partner has no gender in Greek: «ο άλλος γονιός» on a card about the child; a card about the
+  couple is worded so the partner needs no gendered noun, adjective or participle. «μητέρα» only where the card means
+  the mother (pregnancy, birth, breastfeeding).
 
 Cards never scare the dad: fear is pressure, which ADR-0006 rules out.
 - Keep the safety content (what to watch for, when to call for help), written as calm instructions: "If X, call the
