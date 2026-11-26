@@ -150,7 +150,8 @@ Done on 2026-11-26 on the owner's iPhone Duo (`docs/RELEASE.md`, "Open device ch
 were found and fixed in the same PR: a tap on the weekly notification crashed the app, and the shaved head and the short
 beard were drawn wrong; both checked again on the phone. Left: the film's time and the child/adult classification on the
 oldest iPhone at hand (ADR-0047); a full disk; restoring an offloaded app (ADR-0023) and from an iCloud backup, both on
-the first TestFlight build.
+the first TestFlight build. The website's cards sometimes move wrong as they scroll in, in Safari on the Mac (fine on
+the iPhone); not looked into yet.
 
 ## Phase 5: Playground
 - iCloud sync and partner co-op: the co-op version, ADR-0065's PR 5 (CloudKit) and PR 6 (the iCloud and sharing
