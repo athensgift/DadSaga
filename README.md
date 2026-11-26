@@ -162,7 +162,7 @@ See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Disclaimer
 
-DadSaga's guides are general information, not medical advice. Always consult your paediatrician.
+DadSaga's guides are general information, not medical advice. Always consult your child's doctor.
 
 ## Copyright
 

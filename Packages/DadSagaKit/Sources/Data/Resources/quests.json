@@ -134,7 +134,7 @@
       "en": "The feeding plan"
     },
     "description": {
-      "el": "Ρώτα τη μητέρα του μωρού πώς σκέφτεται να το ταΐσει, και μάθε ένα πράγμα που μπορείς να κάνεις εσύ για να πάει καλά.",
+      "el": "Ρώτα τη μέλλουσα μαμά πώς σκέφτεται να το ταΐσει, και μάθε ένα πράγμα που μπορείς να κάνεις εσύ για να πάει καλά.",
       "en": "Ask your partner how she's thinking of feeding the baby, and learn one thing you can do to help it go well."
     },
     "tip": {
@@ -1520,7 +1520,7 @@
       "en": "Close again"
     },
     "description": {
-      "el": "Ρώτα πώς είναι η εγγύτητα για τους δυο σας μετά το μωρό, και πες και το δικό σου. Χωρίς βιασύνη και χωρίς στόχο για απόψε.",
+      "el": "Ρώτα πώς νιώθει με την εγγύτητα μετά το μωρό, και πες και πώς νιώθεις εσύ. Χωρίς βιασύνη και χωρίς στόχο για απόψε.",
       "en": "Ask your partner how they feel about closeness since the baby, and say how you feel too. No hurry and no goal for tonight."
     },
     "tip": {
@@ -1542,11 +1542,11 @@
           "en": "If you feel sidelined, say it as a feeling, not a complaint: “I miss you”, not “you never…”."
         },
         {
-          "el": "Αν γέννησε εκείνη: ο πόνος στο σεξ δεν είναι κάτι που «συνηθίζεται». Το λέει στον γιατρό ή στη μαία.",
+          "el": "Μετά από γέννα: ο πόνος στο σεξ δεν είναι κάτι που «συνηθίζεται». Λέγεται στον γιατρό ή στη μαία.",
           "en": "If your partner gave birth: pain during sex isn't something to “get used to”. It's something to tell the doctor or midwife."
         },
         {
-          "el": "Αν γέννησε εκείνη: νέα εγκυμοσύνη μπορεί να έρθει ήδη από τις πρώτες εβδομάδες, πριν από την πρώτη περίοδο και ακόμα και με θηλασμό. Αν δεν το έχετε κάνει ήδη, μιλήστε για αντισύλληψη με τον γιατρό ή τη μαία.",
+          "el": "Μετά από γέννα: νέα εγκυμοσύνη μπορεί να έρθει ήδη από τις πρώτες εβδομάδες, πριν από την πρώτη περίοδο και ακόμα και με θηλασμό. Αν δεν το έχετε κάνει ήδη, μιλήστε για αντισύλληψη με τον γιατρό ή τη μαία.",
           "en": "If your partner gave birth: another pregnancy can happen within the first weeks, before the first period and even while breastfeeding. If you haven't already, talk about contraception with the doctor or midwife."
         }
       ],
@@ -1712,8 +1712,8 @@
           "en": "No bottle in bed. Milk sitting on teeth all night is bad for them. Brushing comes last, then a book, then sleep."
         },
         {
-          "el": "Η πρώτη επίσκεψη στον οδοντίατρο γίνεται μέχρι τα πρώτα γενέθλια.",
-          "en": "The first visit to the dentist happens by their first birthday."
+          "el": "Ρώτα πότε γίνεται η πρώτη επίσκεψη στον οδοντίατρο εκεί που ζεις: πολλές χώρες τη συστήνουν ως τα πρώτα γενέθλια.",
+          "en": "Ask when the first visit to the dentist happens where you live: many countries advise it by the first birthday."
         }
       ],
       "medical": true

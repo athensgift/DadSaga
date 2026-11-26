@@ -448,7 +448,7 @@
         "en": "If you feel you might lose control: put the baby down on their back in the cot, leave the room and call someone to come over. If the baby is in danger right now, call the emergency number."
       },
       {
-        "el": "Αν μεγαλώνετε μαζί το μωρό, έχε τον νου σου και στον άλλο γονιό. Αν δεις τα ίδια σημάδια, πες το με αγάπη. Αν ξαφνικά μπερδεύεται, λέει πράγματα που δεν βγάζουν νόημα ή δεν κοιμάται καθόλου, ζητήστε ιατρική βοήθεια τώρα· αν κάποιος κινδυνεύει τώρα, κάλεσε τον αριθμό έκτακτης ανάγκης.",
+        "el": "Αν μεγαλώνετε μαζί το μωρό, έχε τον νου σου και στον άλλο γονιό. Αν δεις τα ίδια σημάδια, πες το με αγάπη. Αν ξαφνικά δείχνει σύγχυση, λέει πράγματα που δεν βγάζουν νόημα ή δεν κοιμάται καθόλου, ζητήστε ιατρική βοήθεια τώρα· αν κάποιος κινδυνεύει τώρα, κάλεσε τον αριθμό έκτακτης ανάγκης.",
         "en": "If you're raising the baby with a partner, look out for them too. If you see the same signs, say so with love. If they suddenly seem confused, say things that make no sense or don't sleep at all, get medical help now; if anyone is in danger right now, call the emergency number."
       }
     ],
@@ -734,7 +734,7 @@
         "en": "Breastfeeding or their usual milk carries on, and formula isn't watered down. No juice or fizzy drinks: they make diarrhoea worse."
       },
       {
-        "el": "Ρώτα τον φαρμακοποιό ή τον παιδίατρο για διάλυμα ενυδάτωσης από το στόμα. Φάρμακα που σταματούν τη διάρροια ή τον εμετό μόνο αν τα πει ο παιδίατρος.",
+        "el": "Ρώτα τον φαρμακοποιό ή τον παιδίατρο για διάλυμα ενυδάτωσης από το στόμα. Φάρμακα που σταματούν τη διάρροια ή τον εμετό μόνο αν τα πει παιδίατρος.",
         "en": "Ask the pharmacist or their doctor about oral rehydration solution. Medicines that stop diarrhoea or vomiting only if a doctor says so."
       },
       {
@@ -853,7 +853,7 @@
       },
       {
         "el": "Αν για ένα διάστημα θέλει μόνο εσένα, ή μόνο κάποιον άλλον και σε διώχνει, δεν είναι απόρριψη. Αλλάζει με τον καιρό.",
-        "en": "If for a while they want only you, or only someone else and push you away, it isn't rejection. It changes with time."
+        "en": "If for a while they want only you, or only someone else, and push you away, it isn't rejection. It changes with time."
       },
       {
         "el": "Μίλα με τον παιδίατρο αν η αναστάτωση είναι πολύ μεγάλη, αν κρατά πολλή ώρα αφότου έφυγες, ή αν συνεχίζεται για εβδομάδες χωρίς να μαλακώνει.",
@@ -1638,7 +1638,7 @@
       },
       {
         "el": "Αν μετά από εβδομάδες ο ύπνος, το φαγητό ή το παιχνίδι του δεν έχουν ξαναβρεί ρυθμό, μίλα με τον παιδίατρο. Και για σένα, με τον δικό σου γιατρό.",
-        "en": "If weeks later their sleep, eating or play haven't found their rhythm again, talk to their doctor. The same goes for you."
+        "en": "If weeks later their sleep, eating or play haven't found their rhythm again, talk to their doctor. And for you, your own doctor."
       }
     ],
     "badge": {

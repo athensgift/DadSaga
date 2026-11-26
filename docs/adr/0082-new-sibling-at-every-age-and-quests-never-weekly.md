@@ -24,12 +24,15 @@ Changes ADR-0053 §5 (the evergreen bosses) and ADR-0072 §1 (which cards the we
    weekly quest's pool (ADR-0072 §1) is the quests on offer that week that are weekly; the walk of §2 uses the same
    pool, so the app, the widget and the notification still agree. The four quests above are the first.
 3. **The validator:** a world with quests of its own, none of them weekly and not retired, fails the load
-   (`ContentDataError.noWeeklyQuest`). The flag is for a few cards; a world never hands its weeks to another world's
-   evergreen cards alone.
+   (`ContentDataError.noWeeklyQuest`). The flag is for a few cards. The check doesn't weigh `onlyFor` or ages; the
+   bundled-content tests walk every week to six with the shipped cards.
 
 ## Consequences
 - Every child's weekly order changes once; nothing has shipped (ADR-0060).
 - Nothing is stored: no schema, privacy page, manifest or Info.plist key changes.
+- `hasYoungerSibling` holds for a sibling of any age, so a five-year-old whose sibling is four is offered the boss
+  too, as a three-year-old with a one-year-old already was in World 3. Making it situational as well is the owner's
+  call, not taken here.
 - A dad who has a pet still finds `q-w1-pet-intro` on home; it is just never the week's one suggestion.
 
 ## Rejected
