@@ -203,11 +203,12 @@ footer a { color: var(--text-2); }
     }
     /* A feature card (with its square screen) and the phone are nearly as tall as a laptop's window in two columns,
        so a range in their own height left them half faded while already in full view (Safari on the Mac,
-       2026-11-26). They rise over a share of the window instead, done by the time they are a third of the way in. */
-    .card, .phone { animation-range: entry 0% entry 30vh; }
+       2026-11-26). They rise over a share of the window instead, done once their top is about a third of the way up it.
+       Short cards (no screen) keep a range in their own height, which ends before they are fully in. */
+    .card:has(.shot), .phone { animation-range: entry 0% entry 30vh; }
     /* The second card of a row follows the first. */
-    .card:nth-child(even) { animation-range: entry 5vh entry 35vh; }
-    .rules li:nth-child(even) { animation-range: entry 15% entry 95%; }
+    .card:nth-child(even), .rules li:nth-child(even) { animation-range: entry 15% entry 95%; }
+    .card:has(.shot):nth-child(even) { animation-range: entry 5vh entry 35vh; }
 
     /* The hero art drifts slower than the page as it scrolls away. */
     @keyframes drift { to { translate: 0 64px; } }
