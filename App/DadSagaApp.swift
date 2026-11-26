@@ -67,6 +67,7 @@ private final class BackgroundTask {
 
     func begin() {
         identifier = application.beginBackgroundTask(withName: "Reschedule weekly reminders") { [weak self] in
+            // UIKit calls the expiration handler synchronously on the main thread.
             MainActor.assumeIsolated { self?.end() }
         }
     }
