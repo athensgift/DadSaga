@@ -76,34 +76,45 @@ record follows that build; it is fixed once the build is released, and reaches `
 
 ## Open device checks
 What the ADRs say is still to be checked on a real phone or a real iPhone Duo; each ADR's own list has the details.
-Tick them on the first TestFlight build.
-- [ ] ADR-0055, titles: a title then Undo, the first quest after onboarding, deleting an old entry, no XP on screen, a
-      Greek film on an English phone. Not its "installing over a version 6 build" (ADR-0060).
-- [ ] ADR-0056 and ADR-0058, home: what is left of them (ADR-0061, ADR-0066) on a real iPhone Duo, with VoiceOver and at
-      the accessibility text sizes.
-- [ ] ADR-0057, the copy of the saga: making and importing a large saga was checked on a device (2026-11-22). Left:
+Checked on 2026-11-26 on the owner's iPhone Duo with a `develop` build from Xcode ("Duo, 2026-11-26" below); a note
+after it names what was done when only part was, and what is left.
+- [x] ADR-0055, titles: a title then Undo, the first quest after onboarding, deleting an old entry, no XP on screen, a
+      Greek film on an English phone. Not its "installing over a version 6 build" (ADR-0060). Duo, 2026-11-26.
+- [x] ADR-0056 and ADR-0058, home: what is left of them (ADR-0061, ADR-0066) on a real iPhone Duo, with VoiceOver and at
+      the accessibility text sizes. Duo, 2026-11-26.
+- [x] ADR-0057, the copy of the saga: making and importing a large saga was checked on a device (2026-11-22). Left:
       sharing it, refusing a damaged or a newer copy; with VoiceOver, at the accessibility text sizes and on the iPhone
-      Duo folded.
-- [ ] ADR-0059, the skills' marks: under a celebration, after an Undo, light and dark, VoiceOver.
-- [ ] ADR-0060: the calm screen with a store that can't be opened was checked on a device (2026-11-22). Left: the same
+      Duo folded. Duo, 2026-11-26.
+- [x] ADR-0059, the skills' marks: under a celebration, after an Undo, light and dark, VoiceOver. Duo, 2026-11-26.
+- [x] ADR-0060: the calm screen with a store that can't be opened was checked on a device (2026-11-22). Left: the same
       in the other language, if only one was seen; a fresh install's first quest, first with photos, widget, film and
-      start over.
-- [ ] ADR-0061, the four tabs, the map and Settings half-open, "My family" holding changes while a widget link waits, a
-      link while a question is up.
-- [ ] ADR-0066, home in one column, on a real iPhone Duo.
-- [ ] ADR-0048, data and age: the time zone set to Auckland and to Los Angeles, an Islamic and a Hebrew calendar; a
-      Release build without the App Group; the app killed while it saves an entry with photos.
-- [ ] ADR-0030, Settings: the language row and the relaunch, haptics off, the test mail and a phone with Mail deleted,
-      start over with a reminder pending.
-- [ ] ADR-0044, the dad's look: every look in light and dark, the film's card with another look, "Your hero"'s failure
-      message, VoiceOver. ADR-0049: the appearance choice with a sheet open.
+      start over. Duo, 2026-11-26: all of them, the calm screen in English and Greek from a build without the App Group.
+- [x] ADR-0061, the four tabs, the map and Settings half-open, "My family" holding changes while a widget link waits, a
+      link while a question is up. Duo, 2026-11-26.
+- [x] ADR-0066, home in one column, on a real iPhone Duo. Duo, 2026-11-26.
+- [x] ADR-0048, data and age: the time zone set to Auckland and to Los Angeles, an Islamic and a Hebrew calendar; a
+      Release build without the App Group; the app killed while it saves an entry with photos. Duo, 2026-11-26: the App
+      Group one as a Release build under its own bundle id, without the entitlement, beside the real app.
+- [x] ADR-0030, Settings: the language row and the relaunch, haptics off, the test mail and a phone with Mail deleted,
+      start over with a reminder pending. Duo, 2026-11-26.
+- [x] ADR-0044, the dad's look: every look in light and dark, the film's card with another look, "Your hero"'s failure
+      message, VoiceOver. ADR-0049: the appearance choice with a sheet open. Duo, 2026-11-26: all but the failure
+      message, which can't be made by hand (tests cover it). The shaved head's shadow stood out above the scalp and the
+      short beard began below the top of the smile; both fixed (`HeroFaceDrawingTests`) and checked again.
 - [ ] ADR-0047, the film's photos: the time to make a film on the oldest iPhone at hand, and the child/adult
       classification on real photos; write the numbers here. Also: leave the app for a minute mid-film and come back.
+      Duo, 2026-11-26: leaving mid-film. Left: the time and the classification (no older iPhone at hand).
 - [ ] ADR-0023: restoring an offloaded app keeps the saga and the widget. ADR-0046: a preview with the silent switch on.
-- [ ] The website in Safari on an iPhone (ADR-0039, ADR-0040, ADR-0070): motion, the family, the demo video.
-- [ ] PR 121's screens with VoiceOver: a celebration and its title heard once, the delete question of a first.
+      Duo, 2026-11-26: the silent switch. Left: the offloaded app, on the first TestFlight build (an app installed from
+      Xcode can't be downloaded again).
+- [x] The website in Safari on an iPhone (ADR-0039, ADR-0040, ADR-0070): motion, the family, the demo video. Duo,
+      2026-11-26.
+- [x] PR 121's screens with VoiceOver: a celebration and its title heard once, the delete question of a first. Duo,
+      2026-11-26.
 - [ ] From the audit of 2026-11-25: the weekly notification with the app closed; adding a photo from the camera; saving
-      with the disk full.
+      with the disk full. Duo, 2026-11-26: the notification and the camera. Tapping the notification with the app
+      closed crashed it (its handler finished off the main thread); fixed in `App/NotificationDelegate.swift`, and the
+      tap checked again. Left: the full disk (skipped: too much free space to fill by hand).
 
 ## Every TestFlight build before the first App Store release
 - [ ] Compare with the last uploaded build: the release branch's commit that set its build number (ADR-0060 §6). The

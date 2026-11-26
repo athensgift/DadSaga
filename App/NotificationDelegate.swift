@@ -23,20 +23,26 @@ final class NotificationDelegate: NSObject, UIApplicationDelegate, UNUserNotific
         return true
     }
 
+    // The completion-handler forms, each handler called on the main thread. The `async` forms finished on a background
+    // thread, where UIKit's snapshot after a tap asserts: a tap with the app closed crashed it (device, 2026-11-26).
+
     nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
-        willPresent notification: UNNotification
-    ) async -> UNNotificationPresentationOptions {
-        [.banner, .list, .sound]
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping @Sendable (UNNotificationPresentationOptions) -> Void
+    ) {
+        Task { @MainActor in completionHandler([.banner, .list, .sound]) }
     }
 
     nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
-        didReceive response: UNNotificationResponse
-    ) async {
-        guard let link = response.notification.request.content.userInfo[UserNotificationScheduler.linkKey] as? String,
-              let url = URL(string: link)
-        else { return }
-        await MainActor.run { NotificationInbox.shared.url = url }
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping @Sendable () -> Void
+    ) {
+        let link = response.notification.request.content.userInfo[UserNotificationScheduler.linkKey] as? String
+        Task { @MainActor in
+            if let link, let url = URL(string: link) { NotificationInbox.shared.url = url }
+            completionHandler()
+        }
     }
 }
