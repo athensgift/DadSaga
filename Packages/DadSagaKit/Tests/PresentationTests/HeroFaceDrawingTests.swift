@@ -17,8 +17,12 @@ struct HeroFaceDrawingTests {
     @Test("Given a short beard, when the hero smiles, then the beard is behind the whole smile")
     func shortBeardIsBehindTheSmile() throws {
         let face = try Pixels(features: HeroFeatures(beard: .short))
-        // Just above the middle of the smile, whose top edge dips to y 39.
-        let red = face.red(at: CGPoint(x: 30, y: 38))
+        // Just above the middle of the smile, whose top edge dips to y 39; the forehead is plain skin.
+        let aboveSmile = CGPoint(x: 30, y: 38)
+        let forehead = face.red(at: CGPoint(x: 30, y: 20))
+        #expect(face.alpha(at: aboveSmile) == 255)
+        #expect(forehead > 0.5, "the forehead should be skin: red \(forehead)")
+        let red = face.red(at: aboveSmile)
         #expect(red < 0.5, "skin shows between the smile and the beard: red \(red)")
     }
 
@@ -32,6 +36,11 @@ struct HeroFaceDrawingTests {
             for column in columns where face.alpha(column: column, row: row) > 0 { drawn.append("(\(column), \(row))") }
         }
         #expect(drawn.isEmpty, "\(drawn.count) pixels above the head, the first at \(drawn.first ?? "") px")
+        // The head is where the rows above assume, and the shadow is on it: darker than the skin below it.
+        #expect(face.alpha(at: CGPoint(x: 30, y: Self.headTop + 0.5)) > 0)
+        let shadow = face.red(at: CGPoint(x: 30, y: 12))
+        let skin = face.red(at: CGPoint(x: 30, y: 22))
+        #expect(shadow < skin - 0.02, "no shadow on the scalp: red \(shadow), skin \(skin)")
     }
 
     /// The head alone, rendered at `scale` on a transparent canvas.
@@ -61,6 +70,11 @@ struct HeroFaceDrawingTests {
         }
 
         func alpha(column: Int, row: Int) -> UInt8 { bytes[(row * width + column) * 4 + 3] }
+
+        /// The alpha of a point, in points from the canvas's top left.
+        func alpha(at point: CGPoint) -> UInt8 {
+            alpha(column: Int(point.x * HeroFaceDrawingTests.scale), row: Int(point.y * HeroFaceDrawingTests.scale))
+        }
 
         /// The red of a point, in points from the canvas's top left: skin is light, the beard dark.
         func red(at point: CGPoint) -> Double {

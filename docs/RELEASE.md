@@ -76,8 +76,8 @@ record follows that build; it is fixed once the build is released, and reaches `
 
 ## Open device checks
 What the ADRs say is still to be checked on a real phone or a real iPhone Duo; each ADR's own list has the details.
-Checked on 2026-11-26 on the owner's iPhone Duo with a `develop` build from Xcode ("Duo, 2026-11-26" below); what is
-left, on the first TestFlight build.
+Checked on 2026-11-26 on the owner's iPhone Duo with a `develop` build from Xcode ("Duo, 2026-11-26" below); a note
+after it names what was done when only part was, and what is left.
 - [x] ADR-0055, titles: a title then Undo, the first quest after onboarding, deleting an old entry, no XP on screen, a
       Greek film on an English phone. Not its "installing over a version 6 build" (ADR-0060). Duo, 2026-11-26.
 - [x] ADR-0056 and ADR-0058, home: what is left of them (ADR-0061, ADR-0066) on a real iPhone Duo, with VoiceOver and at
@@ -89,7 +89,7 @@ left, on the first TestFlight build.
       but light and dark. Left: the marks in light and dark.
 - [x] ADR-0060: the calm screen with a store that can't be opened was checked on a device (2026-11-22). Left: the same
       in the other language, if only one was seen; a fresh install's first quest, first with photos, widget, film and
-      start over. Duo, 2026-11-26: the calm screen in English and Greek, from a build without the App Group.
+      start over. Duo, 2026-11-26: all of them, the calm screen in English and Greek from a build without the App Group.
 - [x] ADR-0061, the four tabs, the map and Settings half-open, "My family" holding changes while a widget link waits, a
       link while a question is up. Duo, 2026-11-26.
 - [x] ADR-0066, home in one column, on a real iPhone Duo. Duo, 2026-11-26.
