@@ -146,12 +146,11 @@ What the whole-app review found that its six fix PRs (from #119) left open, and 
 - CI: the Mac's SwiftLint is older than CI's pinned one; upgrade it.
 
 ### Owner checks on a real phone
-`docs/RELEASE.md`, "Open device checks", has these with their ADRs. In short: time zones and calendars, a kill mid-save,
-a Release build without the App Group (ADR-0048); Settings' language, haptics, mail, start over (ADR-0030); every look
-(ADR-0044); the film's time on the oldest iPhone and leaving mid-film (ADR-0047); restoring an offloaded app (ADR-0023);
-the silent switch (ADR-0046); the site in Safari; the notification with the app closed, the camera, a full disk; a
-damaged or newer copy refused; home in one column on the Duo (ADR-0066); a VoiceOver pass on the screens PR 121
-changed. Restore from an iCloud backup stays in Phase 4.
+Done on 2026-11-26 on the owner's iPhone Duo (`docs/RELEASE.md`, "Open device checks", has each with its ADR): 23 of
+28 checks passed; two bugs found and fixed in the same PR (a tap on the weekly notification crashed the app; the shaved
+head and the short beard were drawn wrong). Left: those two again on the phone; the film's time and the child/adult
+classification on the oldest iPhone at hand (ADR-0047); the skills' marks in light and dark (ADR-0059); a full disk;
+restoring an offloaded app (ADR-0023) and from an iCloud backup, both on the first TestFlight build.
 
 ## Phase 5: Playground
 - iCloud sync and partner co-op: the co-op version, ADR-0065's PR 5 (CloudKit) and PR 6 (the iCloud and sharing

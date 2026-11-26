@@ -138,14 +138,15 @@ struct HeroHead: View {
         CGSize(width: 7.5, height: -41.5), CGSize(width: 15, height: -37)
     ]
 
-    /// No hair to speak of: a faint shadow of it and a highlight on the scalp.
+    /// No hair to speak of: a faint shadow of it and a highlight on the scalp. The shadow is the top of the head itself,
+    /// so it never stands out above the scalp.
     private var shavedHair: some View {
         ZStack {
-            Ellipse()
-                .trim(from: 0.5, to: 1)
+            Circle()
                 .fill(hairColor.opacity(0.22))
-                .frame(width: 40, height: 22)
-                .offset(y: -36)
+                .frame(width: 40, height: 40)
+                .mask(alignment: .top) { Rectangle().frame(height: 10) }
+                .offset(y: -24)
             Capsule()
                 .fill(DSColor.heroHighlight.opacity(0.45))
                 .frame(width: 10, height: 3)
@@ -189,7 +190,8 @@ struct HeroHead: View {
                 jaw(height: 18)
                 Capsule().fill(hairColor).frame(width: 19, height: 6).offset(y: -20)
             case .short:
-                jaw(height: 11)
+                // Up to the top of the smile (y -17), so the whole smile sits on the beard.
+                jaw(height: 14)
                 Capsule().fill(hairColor).frame(width: 15, height: 4).offset(y: -19.5)
             case .none:
                 EmptyView()
