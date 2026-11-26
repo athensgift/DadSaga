@@ -98,10 +98,10 @@ after it names what was done when only part was, and what is left.
       Group one as a Release build under its own bundle id, without the entitlement, beside the real app.
 - [x] ADR-0030, Settings: the language row and the relaunch, haptics off, the test mail and a phone with Mail deleted,
       start over with a reminder pending. Duo, 2026-11-26.
-- [ ] ADR-0044, the dad's look: every look in light and dark, the film's card with another look, "Your hero"'s failure
+- [x] ADR-0044, the dad's look: every look in light and dark, the film's card with another look, "Your hero"'s failure
       message, VoiceOver. ADR-0049: the appearance choice with a sheet open. Duo, 2026-11-26: all but the failure
       message, which can't be made by hand (tests cover it). The shaved head's shadow stood out above the scalp and the
-      short beard began below the top of the smile; both fixed (`HeroFaceDrawingTests`). Left: those two looks again.
+      short beard began below the top of the smile; both fixed (`HeroFaceDrawingTests`) and checked again.
 - [ ] ADR-0047, the film's photos: the time to make a film on the oldest iPhone at hand, and the child/adult
       classification on real photos; write the numbers here. Also: leave the app for a minute mid-film and come back.
       Duo, 2026-11-26: leaving mid-film. Left: the time and the classification (no older iPhone at hand).
@@ -114,8 +114,8 @@ after it names what was done when only part was, and what is left.
       2026-11-26.
 - [ ] From the audit of 2026-11-25: the weekly notification with the app closed; adding a photo from the camera; saving
       with the disk full. Duo, 2026-11-26: the notification and the camera. Tapping the notification with the app
-      closed crashed it (its handler finished off the main thread); fixed in `App/NotificationDelegate.swift`. Left:
-      that tap again; the full disk (skipped: too much free space to fill by hand).
+      closed crashed it (its handler finished off the main thread); fixed in `App/NotificationDelegate.swift`, and the
+      tap checked again. Left: the full disk (skipped: too much free space to fill by hand).
 
 ## Every TestFlight build before the first App Store release
 - [ ] Compare with the last uploaded build: the release branch's commit that set its build number (ADR-0060 §6). The
