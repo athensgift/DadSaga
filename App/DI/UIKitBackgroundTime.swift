@@ -28,6 +28,7 @@ private final class BackgroundRequest {
 
     init(name: String, onExpiry: @escaping @Sendable () -> Void) {
         identifier = UIApplication.shared.beginBackgroundTask(withName: name) { [weak self] in
+            // UIKit calls the expiration handler synchronously on the main thread.
             MainActor.assumeIsolated {
                 self?.expired = true
                 onExpiry()
